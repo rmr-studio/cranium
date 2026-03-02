@@ -15,6 +15,8 @@ The Entities domain provides a flexible, schema-driven data management system. E
 
 ---
 
+# [[2. Areas/2.1 Startup & Business/Riven/2. System Design/domains/Entities/FAQ|FAQ]]
+
 ## Boundaries
 
 ### This Domain Owns

@@ -77,7 +77,7 @@ Starts the landing page on port `3000` (configurable via `WEB_PORT`).
 docker compose --profile platform up --build
 ```
 
-Starts the Spring Boot API on port `8081` and the dashboard on port `3001` (configurable via `CORE_PORT` and `CLIENT_PORT`).
+Starts the Spring Boot API on port `8081` and the dashboard on port `3001` (configurable via `SERVER_PORT` and `CLIENT_PORT`).
 
 ### Everything
 
@@ -94,7 +94,7 @@ Override default ports in `.env`:
 ```env
 WEB_PORT=3000
 CLIENT_PORT=3001
-CORE_PORT=8081
+SERVER_PORT=8081
 ```
 
 ## Environment Variables

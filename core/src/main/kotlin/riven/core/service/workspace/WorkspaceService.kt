@@ -16,6 +16,9 @@ import riven.core.models.workspace.Workspace
 import riven.core.models.workspace.WorkspaceMember
 import riven.core.repository.workspace.WorkspaceMemberRepository
 import riven.core.repository.workspace.WorkspaceRepository
+import org.springframework.context.ApplicationEventPublisher
+import riven.core.models.analytics.WorkspaceCreatedEvent
+import riven.core.models.analytics.WorkspaceUpdatedEvent
 import riven.core.models.common.markDeleted
 import riven.core.service.activity.ActivityService
 import riven.core.service.activity.log
@@ -31,7 +34,8 @@ class WorkspaceService(
     private val userService: UserService,
     private val logger: KLogger,
     private val authTokenService: AuthTokenService,
-    private val activityService: ActivityService
+    private val activityService: ActivityService,
+    private val applicationEventPublisher: ApplicationEventPublisher
 ) {
     /**
      * Retrieve an workspace by its ID, optionally including metadata.
@@ -114,8 +118,27 @@ class WorkspaceService(
                     ).run {
                         workspaceMemberRepository.save(this)
                     }
-
                 }
+
+                // Publish analytics event after membership is persisted so memberCount is accurate
+                val analyticsEvent = if (request.id == null) {
+                    WorkspaceCreatedEvent(
+                        workspaceId = id,
+                        workspaceName = name,
+                        createdAt = this.createdAt,
+                        memberCount = 1,
+                        userId = userId
+                    )
+                } else {
+                    WorkspaceUpdatedEvent(
+                        workspaceId = id,
+                        workspaceName = name,
+                        createdAt = this.createdAt,
+                        memberCount = this.memberCount,
+                        userId = userId
+                    )
+                }
+                applicationEventPublisher.publishEvent(analyticsEvent)
 
                 return this.toModel().also { workspace ->
                     userService.getUserWithWorkspacesFromSession().let {

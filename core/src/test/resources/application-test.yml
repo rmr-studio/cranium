@@ -27,6 +27,8 @@ spring:
 
 # Temporal configuration for tests (not used with TestWorkflowEnvironment)
 riven:
+  posthog:
+    enabled: false
   workflow:
     engine:
       target: localhost:7233  # Ignored by TestWorkflowEnvironment

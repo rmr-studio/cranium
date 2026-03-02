@@ -66,6 +66,13 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.16")
     implementation("io.github.oshai:kotlin-logging-jvm:7.0.0")
 
+    // PostHog Analytics
+    implementation("com.posthog:posthog-server:2.3.2")
+
+    // Resilience4j Circuit Breaker
+    implementation("io.github.resilience4j:resilience4j-spring-boot3:2.3.0")
+    implementation("org.springframework.boot:spring-boot-starter-aop")
+
     // Object Mapping
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 

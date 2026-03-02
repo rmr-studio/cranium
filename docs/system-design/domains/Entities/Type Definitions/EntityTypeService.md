@@ -21,7 +21,7 @@ Primary entry point for entity type lifecycle operations including creation, att
 ## Responsibilities
 
 - Create and publish new entity types with initial schema
-- Update entity type metadata (name, description, icon)
+- Update entity type metadata (name, semantic group, icon)
 - Add/modify/remove attribute and relationship definitions
 - Reorder entity type columns (attributes and relationships)
 - Perform impact analysis before breaking changes
@@ -93,13 +93,14 @@ No diff calculation or impact analysis is performed on save — the create/updat
 - On publish: `semanticMetadataService.initializeForEntityType(entityTypeId, workspaceId, attributeIds)` — creates empty metadata records
 - On delete: `semanticMetadataService.softDeleteForEntityType(entityTypeId)` — cascade soft-delete preserves metadata for audit
 
-**Query with semantics (`?include=semantics`):**
+**Enriched entity type queries:**
 
-New methods `getWorkspaceEntityTypesWithIncludes()` and `getEntityTypeByKeyWithIncludes()` support opt-in semantic metadata loading:
-1. Check if `"semantics"` is in the `include` parameter
-2. Batch-fetch metadata via `semanticMetadataService.getMetadataForEntityTypes(entityTypeIds)`
-3. Group by entity_type_id and build `SemanticMetadataBundle` per entity type
-4. Return `EntityTypeWithSemanticsResponse` wrapping entity type + optional semantics
+Methods `getWorkspaceEntityTypesWithIncludes()` and `getEntityTypeByKeyWithIncludes()` always load relationship definitions and semantic metadata alongside entity types:
+1. Fetch entity types for workspace
+2. Batch-fetch relationship definitions via `entityTypeRelationshipService.getDefinitionsForEntityTypes()`
+3. Batch-fetch semantic metadata via `semanticMetadataService.getMetadataForEntityTypes()`
+4. Build `SemanticMetadataBundle` per entity type
+5. Return enriched `EntityType` models with `relationships` and `semantics` fields populated
 
 **Column reordering:**
 
@@ -118,7 +119,7 @@ Creates new entity type with initial identifier attribute. Returns published typ
 
 ### `updateEntityTypeConfiguration(workspaceId, type): EntityType`
 
-Updates metadata only (name, description, icon, columns). Does NOT modify schema or relationships.
+Updates metadata only (name, semantic group, icon, columns). Does NOT modify schema or relationships.
 
 ### `saveEntityTypeDefinition(workspaceId, request, impactConfirmed): EntityTypeImpactResponse`
 
@@ -152,13 +153,13 @@ Retrieves entity type by ID (no workspace scope — used for system operations).
 
 Batch retrieval by IDs.
 
-### `getWorkspaceEntityTypesWithIncludes(workspaceId, include): List<EntityTypeWithSemanticsResponse>`
+### `getWorkspaceEntityTypesWithIncludes(workspaceId): List<EntityType>`
 
-Retrieves entity types with optional semantic metadata bundles. Pass `include = ["semantics"]` to attach metadata.
+Retrieves all entity types for workspace, enriched with relationship definitions and semantic metadata bundles.
 
-### `getEntityTypeByKeyWithIncludes(workspaceId, key, include): EntityTypeWithSemanticsResponse`
+### `getEntityTypeByKeyWithIncludes(workspaceId, key): EntityType`
 
-Retrieves single entity type by key with optional semantic metadata bundle.
+Retrieves a single entity type by key, enriched with relationship definitions and semantic metadata bundle.
 
 ### `buildSemanticBundle(metadataList): SemanticMetadataBundle`
 
@@ -198,4 +199,8 @@ Groups metadata records by targetType into structured bundle (entity type + attr
 
 ### 2026-03-01
 
+- `description` field replaced with `semanticGroup: SemanticGroup` enum on entity type model and all request DTOs
+- `?include=semantics` query parameter removed — semantic metadata and relationship definitions are now always loaded by `getWorkspaceEntityTypesWithIncludes()` and `getEntityTypeByKeyWithIncludes()`
+- Method signatures simplified: `include: List<String>` parameter removed from both enriched query methods
+- Return type changed from `EntityTypeWithSemanticsResponse` back to `EntityType` (semantics embedded in model)
 - Publish flow now creates CONNECTED_ENTITIES fallback definition for each new entity type via `entityTypeRelationshipService.createFallbackDefinition()`.

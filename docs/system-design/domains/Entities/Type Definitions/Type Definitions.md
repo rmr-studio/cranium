@@ -35,3 +35,4 @@ Manages entity type schemas — creating types, defining attributes (with proper
 | ---- | ------ | ----------- |
 | 2026-02-08 | Subdomain overview created | [[02-01-PLAN]] |
 | 2026-02-21 | EntityTypeService updated — removed DiffService and ImpactAnalysisService dependencies, added direct repository access for relationship definition management | Entity Relationships |
+| 2026-03-01 | EntityTypeService and EntityTypeController updated — `description` replaced with `semanticGroup`, `?include=semantics` removed (always loaded), EntityTypeRepository documented with semantic group projection query | Semantic Entity Groups |

@@ -11,6 +11,7 @@ import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
 import riven.core.enums.entity.EntityPropertyType
 import riven.core.enums.entity.EntityRelationshipCardinality
+import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.models.common.validation.Schema
 import riven.core.models.entity.EntityTypeSchema
 import riven.core.models.entity.configuration.EntityTypeAttributeColumn
@@ -32,7 +33,8 @@ object EntityFactory {
         order: List<EntityTypeAttributeColumn>? = null,
         version: Int = 1,
         protected: Boolean = false,
-        identifierKey: UUID = schema.properties?.keys?.first() ?: UUID.randomUUID()
+        identifierKey: UUID = schema.properties?.keys?.first() ?: UUID.randomUUID(),
+        semanticGroup: SemanticGroup = SemanticGroup.UNCATEGORIZED,
     ): EntityTypeEntity {
         val defaultOrder = order ?: (schema.properties?.keys ?: listOf()).map { attrId ->
             EntityTypeAttributeColumn(attrId, EntityPropertyType.ATTRIBUTE)
@@ -48,7 +50,8 @@ object EntityFactory {
             columns = defaultOrder,
             version = version,
             protected = protected,
-            identifierKey = identifierKey
+            identifierKey = identifierKey,
+            semanticGroup = semanticGroup,
         )
     }
 
@@ -122,7 +125,7 @@ object EntityFactory {
         id: UUID = UUID.randomUUID(),
         relationshipDefinitionId: UUID = UUID.randomUUID(),
         targetEntityTypeId: UUID? = UUID.randomUUID(),
-        semanticTypeConstraint: String? = null,
+        semanticTypeConstraint: SemanticGroup? = null,
         cardinalityOverride: EntityRelationshipCardinality? = null,
         inverseVisible: Boolean = false,
         inverseName: String? = null,

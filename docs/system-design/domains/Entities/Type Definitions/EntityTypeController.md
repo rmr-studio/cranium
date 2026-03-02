@@ -4,7 +4,7 @@ tags:
   - component/active
   - architecture/component
 Created: 2026-02-09
-Updated: 2026-02-19
+Updated: 2026-03-01
 Domains:
   - "[[Entities]]"
 ---
@@ -14,7 +14,7 @@ Part of [[Type Definitions]]
 
 ## Purpose
 
-REST controller for entity type schema management — exposes endpoints for type CRUD, attribute/relationship definition management, and optional semantic metadata loading via `?include=semantics`.
+REST controller for entity type schema management — exposes endpoints for type CRUD, attribute/relationship definition management, and enriched entity type queries with relationship definitions and semantic metadata.
 
 ---
 
@@ -22,8 +22,7 @@ REST controller for entity type schema management — exposes endpoints for type
 
 - Expose entity type CRUD endpoints at `/api/v1/entity/schema/`
 - Delegate all business logic to [[EntityTypeService]]
-- Support opt-in semantic metadata loading via `?include=semantics` query parameter
-- Return `EntityTypeWithSemanticsResponse` wrappers with optional `SemanticMetadataBundle`
+- Return enriched `EntityType` models with relationship definitions and semantic metadata bundles embedded
 - Swagger documentation via `@Operation` and `@ApiResponses` annotations
 
 ---
@@ -42,38 +41,26 @@ REST controller for entity type schema management — exposes endpoints for type
 
 ## Key Logic
 
-**`?include=semantics` parameter:**
+**Enriched entity type queries:**
 
-The `getEntityTypesForWorkspace` and `getEntityTypeByKeyForWorkspace` endpoints accept an optional `include: List<String>` query parameter. When `"semantics"` is included:
+The `getEntityTypesForWorkspace` and `getEntityTypeByKeyForWorkspace` endpoints delegate to `EntityTypeService.getWorkspaceEntityTypesWithIncludes()` and `getEntityTypeByKeyWithIncludes()` respectively. These methods always return `EntityType` models enriched with relationship definitions and semantic metadata — no opt-in query parameter required.
 
-1. Delegates to `EntityTypeService.getWorkspaceEntityTypesWithIncludes()`
-2. Service batch-fetches semantic metadata for all returned entity types
-3. Groups metadata into `SemanticMetadataBundle` (entity type + attributes map + relationships map)
-4. Wraps each entity type in `EntityTypeWithSemanticsResponse`
-
-Without `?include=semantics`, the `semantics` field is `null` and the response contains only entity type data.
-
-**Response wrapper:**
-
-All GET endpoints return `EntityTypeWithSemanticsResponse`:
-```kotlin
-data class EntityTypeWithSemanticsResponse(
-    val entityType: EntityType,
-    val semantics: SemanticMetadataBundle? = null
-)
-```
+**`EntityType` model includes:**
+- `relationships` — relationship definitions for the entity type
+- `semantics` — `SemanticMetadataBundle` with entity type, attribute, and relationship semantic metadata
+- `semanticGroup` — the entity type's `SemanticGroup` classification (replaces the previous `description` field)
 
 ---
 
 ## Public Methods
 
-### `getEntityTypesForWorkspace(workspaceId, include): ResponseEntity<List<EntityTypeWithSemanticsResponse>>`
+### `getEntityTypesForWorkspace(workspaceId): ResponseEntity<List<EntityType>>`
 
-Lists all entity types for workspace. Pass `?include=semantics` to attach metadata bundles.
+Lists all entity types for workspace, enriched with relationship definitions and semantic metadata.
 
-### `getEntityTypeByKeyForWorkspace(workspaceId, key, include): ResponseEntity<EntityTypeWithSemanticsResponse>`
+### `getEntityTypeByKeyForWorkspace(workspaceId, key): ResponseEntity<EntityType>`
 
-Gets single entity type by key. Pass `?include=semantics` to attach metadata bundle.
+Gets single entity type by key, enriched with relationship definitions and semantic metadata.
 
 ### `publishEntityType(workspaceId, request): ResponseEntity<EntityType>`
 
@@ -81,7 +68,7 @@ Creates and publishes a new entity type with initial schema.
 
 ### `saveEntityTypeConfiguration(workspaceId, request): ResponseEntity<EntityType>`
 
-Updates entity type metadata (name, description, icon).
+Updates entity type metadata (name, semantic group, icon).
 
 ### `saveEntityTypeDefinition(workspaceId, request, impactConfirmed): ResponseEntity<EntityTypeImpactResponse>`
 
@@ -99,8 +86,11 @@ Deletes entity type with cascade handling.
 
 ## Gotchas
 
-> [!warning] Response Wrapper Breaking Change
-> The GET endpoint return types changed from `List<EntityType>` / `EntityType` to `List<EntityTypeWithSemanticsResponse>` / `EntityTypeWithSemanticsResponse`. Clients accessing top-level entity type properties directly will need to access them via the `entityType` field instead.
+> [!warning] API contract change — `description` replaced with `semanticGroup`
+> The `CreateEntityTypeRequest` and `UpdateEntityTypeConfigurationRequest` no longer accept a `description` field. Entity types are now classified using the `semanticGroup` enum (defaults to `UNCATEGORIZED`).
+
+> [!warning] API contract change — GET responses no longer wrapped
+> GET endpoint return types changed from `EntityTypeWithSemanticsResponse` back to `EntityType`. Relationship definitions and semantic metadata are now embedded directly in the `EntityType` model rather than wrapped in a separate response object. The `?include=semantics` query parameter has been removed.
 
 ---
 

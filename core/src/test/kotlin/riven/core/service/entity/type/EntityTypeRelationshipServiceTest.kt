@@ -13,6 +13,7 @@ import riven.core.entity.entity.RelationshipDefinitionEntity
 import riven.core.entity.entity.RelationshipTargetRuleEntity
 import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
+import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.entity.EntityRelationshipCardinality
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.enums.workspace.WorkspaceRoles
@@ -207,7 +208,7 @@ class EntityTypeRelationshipServiceTest : BaseServiceTest() {
             iconColour = IconColour.NEUTRAL,
             cardinalityDefault = EntityRelationshipCardinality.MANY_TO_MANY,
             targetRules = listOf(
-                SaveTargetRuleRequest(semanticTypeConstraint = "ORGANIZATION")
+                SaveTargetRuleRequest(semanticTypeConstraint = SemanticGroup.OPERATIONAL)
             ),
         )
 
@@ -224,7 +225,7 @@ class EntityTypeRelationshipServiceTest : BaseServiceTest() {
         val result = service.createRelationshipDefinition(workspaceId, sourceEntityTypeId, request)
 
         assertEquals(1, result.targetRules.size)
-        assertEquals("ORGANIZATION", result.targetRules[0].semanticTypeConstraint)
+        assertEquals(SemanticGroup.OPERATIONAL, result.targetRules[0].semanticTypeConstraint)
         assertNull(result.targetRules[0].targetEntityTypeId)
     }
 

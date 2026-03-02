@@ -6,6 +6,7 @@ import org.hibernate.annotations.Type
 import riven.core.entity.util.AuditableSoftDeletableEntity
 import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
+import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.models.common.Icon
 import riven.core.models.common.display.DisplayName
 import riven.core.models.entity.EntityType
@@ -52,11 +53,12 @@ data class EntityTypeEntity(
     @Column(name = "icon_colour", nullable = false)
     var iconColour: IconColour = IconColour.NEUTRAL,
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "semantic_group", nullable = false)
+    var semanticGroup: SemanticGroup = SemanticGroup.UNCATEGORIZED,
+
     @Column(name = "identifier_key", nullable = false)
     val identifierKey: UUID,
-
-    @Column(name = "description", nullable = true)
-    var description: String? = null,
 
     @Column(name = "workspace_id", columnDefinition = "uuid")
     val workspaceId: UUID? = null,
@@ -92,7 +94,7 @@ data class EntityTypeEntity(
             name = DisplayName(this.displayNameSingular, this.displayNamePlural),
             icon = Icon(this.iconType, this.iconColour),
             identifierKey = this.identifierKey,
-            description = this.description,
+            semanticGroup = this.semanticGroup,
             workspaceId = this.workspaceId,
             protected = this.protected,
             schema = this.schema,

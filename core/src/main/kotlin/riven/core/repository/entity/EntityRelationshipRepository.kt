@@ -89,6 +89,14 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
     fun findByTargetIdAndDefinitionId(targetId: UUID, definitionId: UUID): List<EntityRelationshipEntity>
 
     /**
+     * Batch variant: find all relationships for multiple target entities with a specific definition ID.
+     * Acquires a pessimistic write lock for target-side cardinality enforcement.
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT r FROM EntityRelationshipEntity r WHERE r.targetId IN :targetIds AND r.definitionId = :definitionId")
+    fun findByTargetIdInAndDefinitionIdForUpdate(targetIds: Collection<UUID>, definitionId: UUID): List<EntityRelationshipEntity>
+
+    /**
      * Count relationships for a given definition ID.
      */
     fun countByDefinitionId(definitionId: UUID): Long

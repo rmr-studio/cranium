@@ -8,6 +8,7 @@ import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.entity.EntityRelationshipCardinality
 import riven.core.enums.entity.EntityTypeRequestDefinition
+import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.models.entity.EntityTypeSchema
 import java.util.*
 
@@ -50,7 +51,7 @@ data class SaveRelationshipDefinitionRequest(
 data class SaveTargetRuleRequest(
     val id: UUID? = null,
     val targetEntityTypeId: UUID? = null,
-    val semanticTypeConstraint: String? = null,
+    val semanticTypeConstraint: SemanticGroup? = null,
     val cardinalityOverride: EntityRelationshipCardinality? = null,
     val inverseVisible: Boolean = false,
     val inverseName: String? = null,

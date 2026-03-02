@@ -8,11 +8,12 @@ import riven.core.entity.entity.EntityRelationshipEntity
 import riven.core.enums.activity.Activity
 import riven.core.enums.core.ApplicationEntityType
 import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.models.common.markDeleted
 import riven.core.enums.entity.SystemRelationshipType
+import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.util.OperationType
 import riven.core.exceptions.ConflictException
 import riven.core.exceptions.InvalidRelationshipException
+import riven.core.models.common.markDeleted
 import riven.core.models.entity.EntityLink
 import riven.core.models.entity.RelationshipDefinition
 import riven.core.models.entity.RelationshipTargetRule
@@ -22,6 +23,7 @@ import riven.core.models.response.entity.RelationshipResponse
 import riven.core.projection.entity.toEntityLink
 import riven.core.repository.entity.EntityRelationshipRepository
 import riven.core.repository.entity.EntityRepository
+import riven.core.repository.entity.EntityTypeRepository
 import riven.core.repository.entity.RelationshipDefinitionRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.activity.log
@@ -41,6 +43,7 @@ import java.util.*
 class EntityRelationshipService(
     private val entityRelationshipRepository: EntityRelationshipRepository,
     private val entityRepository: EntityRepository,
+    private val entityTypeRepository: EntityTypeRepository,
     private val definitionRepository: RelationshipDefinitionRepository,
     private val entityTypeRelationshipService: EntityTypeRelationshipService,
     private val authTokenService: AuthTokenService,
@@ -97,8 +100,11 @@ class EntityRelationshipService(
         val finalTypesByEntityId = finalTargetEntities.mapValues { it.value.typeId }
         val newTargetTypesByEntityId = finalTypesByEntityId.filterKeys { it in toAdd }
 
-        validateTargets(definition, newTargetTypesByEntityId)
-        enforceCardinality(definition, definitionId, finalTypesByEntityId, newTargetTypesByEntityId)
+        val distinctTypeIds = finalTypesByEntityId.values.toSet()
+        val semanticGroupByTypeId = resolveSemanticGroups(distinctTypeIds)
+
+        validateTargets(definition, newTargetTypesByEntityId, semanticGroupByTypeId)
+        enforceCardinality(definition, definitionId, finalTypesByEntityId, newTargetTypesByEntityId, semanticGroupByTypeId)
 
         val newRelationships = toAdd.map { targetId ->
             EntityRelationshipEntity(
@@ -185,10 +191,10 @@ class EntityRelationshipService(
     ): RelationshipResponse {
         val userId = authTokenService.getUserId()
         val sourceEntity = ServiceUtil.findOrThrow { entityRepository.findByIdAndWorkspaceId(sourceEntityId, workspaceId) }
-        ServiceUtil.findOrThrow { entityRepository.findByIdAndWorkspaceId(request.targetEntityId, workspaceId) }
+        val targetEntity = ServiceUtil.findOrThrow { entityRepository.findByIdAndWorkspaceId(request.targetEntityId, workspaceId) }
 
         val (resolvedDefinitionId, definitionName) = resolveDefinition(
-            workspaceId, sourceEntity.typeId, sourceEntityId, request,
+            workspaceId, sourceEntity.typeId, sourceEntityId, request, targetEntity.typeId,
         )
 
         val entity = EntityRelationshipEntity(
@@ -318,11 +324,12 @@ class EntityRelationshipService(
         sourceEntityTypeId: UUID,
         sourceEntityId: UUID,
         request: AddRelationshipRequest,
+        targetTypeId: UUID,
     ): Pair<UUID, String> {
         if (request.definitionId != null) {
             val definition = entityTypeRelationshipService.getDefinitionById(workspaceId, request.definitionId)
             checkDirectionalDuplicate(sourceEntityId, request.targetEntityId, request.definitionId)
-            validateTypedRelationship(workspaceId, sourceEntityId, request.targetEntityId, request.definitionId, definition)
+            validateTypedRelationship(sourceEntityId, request.targetEntityId, targetTypeId, request.definitionId, definition)
             return request.definitionId to definition.name
         }
 
@@ -357,23 +364,28 @@ class EntityRelationshipService(
      * Validates target type and enforces cardinality for typed (non-fallback) definitions.
      */
     private fun validateTypedRelationship(
-        workspaceId: UUID,
         sourceEntityId: UUID,
         targetEntityId: UUID,
+        targetTypeId: UUID,
         definitionId: UUID,
         definition: RelationshipDefinition,
     ) {
-        val targetEntity = ServiceUtil.findOrThrow { entityRepository.findByIdAndWorkspaceId(targetEntityId, workspaceId) }
-        val newTargetTypesByEntityId = mapOf(targetEntityId to targetEntity.typeId)
-
-        validateTargets(definition, newTargetTypesByEntityId)
+        val newTargetTypesByEntityId = mapOf(targetEntityId to targetTypeId)
 
         val existingTargets = entityRelationshipRepository.findAllBySourceIdAndDefinitionId(sourceEntityId, definitionId)
-        val allTargetIds = existingTargets.map { it.targetId }.toSet() + targetEntityId
-        val allTargetEntities = entityRepository.findAllById(allTargetIds).associateBy { requireNotNull(it.id) }
-        val finalTypesByEntityId = allTargetEntities.mapValues { it.value.typeId }
+        val existingTargetIds = existingTargets.map { it.targetId }.toSet()
+        val existingTypesByEntityId = if (existingTargetIds.isNotEmpty()) {
+            entityRepository.findAllById(existingTargetIds).associate { requireNotNull(it.id) to it.typeId }
+        } else {
+            emptyMap()
+        }
+        val finalTypesByEntityId = existingTypesByEntityId + newTargetTypesByEntityId
 
-        enforceCardinality(definition, definitionId, finalTypesByEntityId, newTargetTypesByEntityId)
+        val distinctTypeIds = finalTypesByEntityId.values.toSet()
+        val semanticGroupByTypeId = resolveSemanticGroups(distinctTypeIds)
+
+        validateTargets(definition, newTargetTypesByEntityId, semanticGroupByTypeId)
+        enforceCardinality(definition, definitionId, finalTypesByEntityId, newTargetTypesByEntityId, semanticGroupByTypeId)
     }
 
     private fun EntityRelationshipEntity.toRelationshipResponse(definitionName: String): RelationshipResponse {
@@ -397,17 +409,19 @@ class EntityRelationshipService(
      *
      * For polymorphic definitions, all targets are accepted.
      * For non-polymorphic definitions, each target must match a rule by explicit type ID
-     * or semantic constraint (semantic lookup is stubbed for now).
+     * or semantic group constraint.
      */
     private fun validateTargets(
         definition: RelationshipDefinition,
         targetTypesByEntityId: Map<UUID, UUID>,
+        semanticGroupByTypeId: Map<UUID, SemanticGroup>,
     ) {
         if (definition.allowPolymorphic) return
 
         val rules = definition.targetRules
         targetTypesByEntityId.forEach { (entityId, typeId) ->
-            val matchingRule = findMatchingRule(rules, typeId)
+            val semanticGroup = semanticGroupByTypeId.getValue(typeId)
+            val matchingRule = findMatchingRule(rules, typeId, semanticGroup)
             if (matchingRule == null) {
                 throw IllegalArgumentException(
                     "Target entity $entityId has type $typeId which is not allowed by relationship definition '${definition.name}' (${definition.id})"
@@ -426,9 +440,10 @@ class EntityRelationshipService(
         definitionId: UUID,
         finalTypesByEntityId: Map<UUID, UUID>,
         newTargetTypesByEntityId: Map<UUID, UUID>,
+        semanticGroupByTypeId: Map<UUID, SemanticGroup>,
     ) {
-        enforceSourceSideCardinality(definition, finalTypesByEntityId)
-        enforceTargetSideCardinality(definition, definitionId, newTargetTypesByEntityId)
+        enforceSourceSideCardinality(definition, finalTypesByEntityId, semanticGroupByTypeId)
+        enforceTargetSideCardinality(definition, definitionId, newTargetTypesByEntityId, semanticGroupByTypeId)
     }
 
     /**
@@ -441,11 +456,13 @@ class EntityRelationshipService(
     private fun enforceSourceSideCardinality(
         definition: RelationshipDefinition,
         finalTypesByEntityId: Map<UUID, UUID>,
+        semanticGroupByTypeId: Map<UUID, SemanticGroup>,
     ) {
         val finalByType = finalTypesByEntityId.values.groupingBy { it }.eachCount()
 
         finalByType.forEach { (typeId, count) ->
-            val effective = resolveCardinality(definition, typeId)
+            val semanticGroup = semanticGroupByTypeId.getValue(typeId)
+            val effective = resolveCardinality(definition, typeId, semanticGroup)
             val max = effective.maxSourceTargets()
             if (max != null && count > max) {
                 throw InvalidRelationshipException(
@@ -467,18 +484,31 @@ class EntityRelationshipService(
         definition: RelationshipDefinition,
         definitionId: UUID,
         newTargetTypesByEntityId: Map<UUID, UUID>,
+        semanticGroupByTypeId: Map<UUID, SemanticGroup>,
     ) {
-        newTargetTypesByEntityId.forEach { (targetId, typeId) ->
-            val effective = resolveCardinality(definition, typeId)
-            val max = effective.maxTargetSources()
-            if (max != null) {
-                val existingLinks = entityRelationshipRepository.findByTargetIdAndDefinitionId(targetId, definitionId)
-                if (existingLinks.isNotEmpty()) {
-                    throw InvalidRelationshipException(
-                        "Target entity $targetId is already linked by source ${existingLinks.first().sourceId} " +
-                            "under ${effective.name} relationship '${definition.name}' (${definition.id})."
-                    )
-                }
+        // Resolve cardinality per target and filter to those needing enforcement
+        val targetsNeedingCheck = newTargetTypesByEntityId.filter { (_, typeId) ->
+            val semanticGroup = semanticGroupByTypeId.getValue(typeId)
+            val effective = resolveCardinality(definition, typeId, semanticGroup)
+            effective.maxTargetSources() != null
+        }
+        if (targetsNeedingCheck.isEmpty()) return
+
+        // Batch-fetch all existing links for targets that need enforcement
+        val existingLinksByTargetId = entityRelationshipRepository
+            .findByTargetIdInAndDefinitionIdForUpdate(targetsNeedingCheck.keys, definitionId)
+            .groupBy { it.targetId }
+
+        // Validate each target
+        targetsNeedingCheck.forEach { (targetId, typeId) ->
+            val semanticGroup = semanticGroupByTypeId.getValue(typeId)
+            val effective = resolveCardinality(definition, typeId, semanticGroup)
+            val existingLinks = existingLinksByTargetId[targetId] ?: emptyList()
+            if (existingLinks.isNotEmpty()) {
+                throw InvalidRelationshipException(
+                    "Target entity $targetId is already linked by source ${existingLinks.first().sourceId} " +
+                        "under ${effective.name} relationship '${definition.name}' (${definition.id})."
+                )
             }
         }
     }
@@ -490,27 +520,47 @@ class EntityRelationshipService(
     private fun resolveCardinality(
         definition: RelationshipDefinition,
         targetTypeId: UUID,
+        targetSemanticGroup: SemanticGroup,
     ): EntityRelationshipCardinality {
-        val rule = findMatchingRule(definition.targetRules, targetTypeId)
+        val rule = findMatchingRule(definition.targetRules, targetTypeId, targetSemanticGroup)
         return rule?.cardinalityOverride ?: definition.cardinalityDefault
     }
 
     /**
-     * Finds a matching target rule for a given target entity type ID.
+     * Finds a matching target rule for a given target entity type.
+     *
+     * Matching order:
+     * 1. Exact type ID match takes precedence
+     * 2. Semantic group constraint match (UNCATEGORIZED types never match semantic rules)
      */
     private fun findMatchingRule(
         rules: List<RelationshipTargetRule>,
         targetTypeId: UUID,
+        targetSemanticGroup: SemanticGroup,
     ): RelationshipTargetRule? {
-        // First: exact type ID match
+        // First: exact type ID match takes precedence
         val typeMatch = rules.find { it.targetEntityTypeId == targetTypeId }
         if (typeMatch != null) return typeMatch
 
-        // Second: semantic constraint match (stubbed — semantic lookup not yet available)
-        // When entity-type-level semantic classification is implemented, this will query
-        // EntityTypeSemanticMetadata to check if the target type matches the constraint.
-        // For now, semantic-only rules don't match any target types at runtime.
-        return null
+        // Second: semantic group constraint match
+        // UNCATEGORIZED types do not match semantic rules — they must use explicit type ID rules
+        if (targetSemanticGroup == SemanticGroup.UNCATEGORIZED) return null
+
+        return rules.find { rule ->
+            rule.targetEntityTypeId == null &&
+                rule.semanticTypeConstraint == targetSemanticGroup
+        }
+    }
+
+    /**
+     * Resolves the semantic group for each entity type ID by fetching from the repository.
+     * Returns a complete map — any type ID not found defaults to UNCATEGORIZED.
+     */
+    private fun resolveSemanticGroups(typeIds: Set<UUID>): Map<UUID, SemanticGroup> {
+        if (typeIds.isEmpty()) return emptyMap()
+        val resolved = entityTypeRepository.findSemanticGroupsByIds(typeIds)
+            .associate { it.getId() to it.getSemanticGroup() }
+        return typeIds.associateWith { resolved[it] ?: SemanticGroup.UNCATEGORIZED }
     }
 }
 

@@ -65,7 +65,7 @@ class EntityTypeService(
             key = request.key,
             workspaceId = workspaceId,
             identifierKey = primaryId,
-            description = request.description,
+            semanticGroup = request.semanticGroup,
             iconType = request.icon.type,
             iconColour = request.icon.colour,
             protected = false,
@@ -143,7 +143,7 @@ class EntityTypeService(
         existing.apply {
             displayNameSingular = request.name.singular
             displayNamePlural = request.name.plural
-            description = request.description
+            request.semanticGroup?.let { semanticGroup = it }
             iconType = request.icon.type
             iconColour = request.icon.colour
             columns = request.columns
@@ -357,26 +357,19 @@ class EntityTypeService(
 
     /**
      * Get all entity types for a workspace, enriched with relationship definitions
-     * and optionally with semantic metadata.
+     * and semantic metadata.
      */
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
-    fun getWorkspaceEntityTypesWithIncludes(
-        workspaceId: UUID,
-        include: List<String>,
-    ): List<EntityType> {
+    fun getWorkspaceEntityTypesWithIncludes(workspaceId: UUID): List<EntityType> {
         val entityTypes = getWorkspaceEntityTypes(workspaceId)
         val entityTypeIds = entityTypes.map { it.id }
 
         val relationshipMap = entityTypeRelationshipService.getDefinitionsForEntityTypes(workspaceId, entityTypeIds)
 
-        val bundleMap = if ("semantics" in include) {
-            val allMetadata = semanticMetadataService.getMetadataForEntityTypes(entityTypeIds)
-            val metadataByEntityType = allMetadata.groupBy { it.entityTypeId }
-            entityTypes.associate { et ->
-                et.id to buildSemanticBundle(et.id, metadataByEntityType[et.id] ?: emptyList())
-            }
-        } else {
-            emptyMap()
+        val allMetadata = semanticMetadataService.getMetadataForEntityTypes(entityTypeIds)
+        val metadataByEntityType = allMetadata.groupBy { it.entityTypeId }
+        val bundleMap = entityTypes.associate { et ->
+            et.id to buildSemanticBundle(et.id, metadataByEntityType[et.id] ?: emptyList())
         }
 
         return entityTypes.map { et ->
@@ -389,24 +382,16 @@ class EntityTypeService(
 
     /**
      * Get a single entity type by key, enriched with relationship definitions
-     * and optionally with semantic metadata.
+     * and semantic metadata.
      */
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
-    fun getEntityTypeByKeyWithIncludes(
-        workspaceId: UUID,
-        key: String,
-        include: List<String>,
-    ): EntityType {
+    fun getEntityTypeByKeyWithIncludes(workspaceId: UUID, key: String): EntityType {
         val entityType = getByKey(key, workspaceId).toModel()
 
         val relationships = entityTypeRelationshipService.getDefinitionsForEntityType(workspaceId, entityType.id)
 
-        val bundle = if ("semantics" in include) {
-            val allMetadata = semanticMetadataService.getAllMetadataForEntityType(workspaceId, entityType.id)
-            buildSemanticBundle(entityType.id, allMetadata)
-        } else {
-            null
-        }
+        val allMetadata = semanticMetadataService.getAllMetadataForEntityType(workspaceId, entityType.id)
+        val bundle = buildSemanticBundle(entityType.id, allMetadata)
 
         return entityType.copy(
             relationships = relationships,

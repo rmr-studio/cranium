@@ -60,7 +60,7 @@ export const HeroCopy = () => {
             scrollToSection('waitlist');
           }}
         >
-          <CtaButton className="rounded-sm bg-transparent md:w-80">Join the waitlist</CtaButton>
+          <CtaButton className="md:w-80">Join the waitlist</CtaButton>
         </Link>
         <Link
           href="/#features"

@@ -129,8 +129,9 @@ export function WaitlistConfirmation({ name }: WaitlistConfirmationProps) {
                             }}
                           >
                             Thank you for joining the waitlist. We are hard at work building the
-                            best platform imagineable, and it is our goal to ensure you have an
-                            incredible experience once you get your hands on it.
+                            best platform Imaginable for operational intelligence, and it is our
+                            goal to ensure you have an incredible experience once you get your hands
+                            on it.
                           </Text>
 
                           <Text

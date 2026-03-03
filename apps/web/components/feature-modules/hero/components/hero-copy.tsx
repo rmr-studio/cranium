@@ -13,10 +13,10 @@ export const HeroCopy = () => {
 
       <div className="leading-tight md:mt-0">
         <motion.h2
-          className="items-center text-center font-sans text-[clamp(1.65rem,7.5vw,2.5rem)] leading-[0.9] font-bold tracking-tighter text-heading sm:text-5xl md:flex-row md:gap-4 md:text-start md:text-[5rem] lg:gap-8 lg:text-[5.75rem] xl:text-[6.75rem]"
-          initial={{ clipPath: 'inset(50% 0 0 0)', opacity: 0, y: 12, filter: 'blur(8px)' }}
-          animate={{ clipPath: 'inset(0 0 0 0)', opacity: 1, y: 0, filter: 'blur(0px)' }}
-          transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          className="items-center overflow-hidden text-center font-sans text-[clamp(1.65rem,7.5vw,2.5rem)] leading-[0.9] font-bold tracking-tighter text-heading sm:text-5xl md:flex-row md:gap-4 md:text-start md:text-[5rem] lg:gap-8 lg:text-[5.75rem] xl:text-[6.75rem]"
+          initial={{ height: 0, opacity: 0, x: -30, filter: 'blur(12px)' }}
+          animate={{ height: 'auto', opacity: 1, x: 0, filter: 'blur(0px)' }}
+          transition={{ duration: 1.4, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
         >
           <span className="mt-3 text-heading/90">Your Business.</span>
           <br className="sm:hidden" />{' '}
@@ -25,19 +25,19 @@ export const HeroCopy = () => {
           </span>
         </motion.h2>
         <motion.h2
-          className="mt-4 mb-2 text-center font-sans text-lg leading-5 font-medium tracking-tighter text-heading/90 italic sm:mt-0 sm:mb-4 sm:text-3xl md:flex-row md:gap-4 md:text-left md:text-[4rem] md:leading-17 lg:gap-8"
-          initial={{ clipPath: 'inset(100% 0 0 0)', opacity: 0, y: 12, filter: 'blur(8px)' }}
-          animate={{ clipPath: 'inset(0 0 0 0)', opacity: 1, y: 0, filter: 'blur(0px)' }}
-          transition={{ duration: 1, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-4 mb-2 overflow-hidden text-center font-sans text-lg leading-5 font-medium tracking-tighter text-heading/90 italic sm:mt-0 sm:mb-4 sm:text-3xl md:flex-row md:gap-4 md:text-left md:text-[4rem] md:leading-17 lg:gap-8"
+          initial={{ height: 0, opacity: 0, x: -30, filter: 'blur(12px)' }}
+          animate={{ height: 'auto', opacity: 1, x: 0, filter: 'blur(0px)' }}
+          transition={{ duration: 2, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
         >
           All your tools, <br className="sm:hidden" /> connected in a single workspace.
         </motion.h2>
       </div>
 
       <motion.section
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
+        initial={{ opacity: 0, x: -30, filter: 'blur(12px)' }}
+        animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+        transition={{ duration: 2, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="relative flex flex-col items-end md:items-start"
       >
         {/* Bottom-left: description */}
@@ -48,9 +48,9 @@ export const HeroCopy = () => {
         </div>
       </motion.section>
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
+        initial={{ opacity: 0, x: -10, filter: 'blur(12px)' }}
+        animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+        transition={{ duration: 2, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
         className="mt-4 flex flex-col items-center gap-2 sm:mt-8 sm:flex-row sm:items-center md:mb-0 md:items-start lg:gap-4"
       >
         <Link

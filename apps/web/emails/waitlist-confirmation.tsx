@@ -247,7 +247,7 @@ export function WaitlistConfirmation({ name }: WaitlistConfirmationProps) {
 
                     {/* Contact email */}
                     <Link
-                      href="mailto:jared@getriven.io"
+                      href="mailto:jared@riven.software"
                       style={{
                         display: 'block',
                         margin: '4px 0 0',
@@ -257,7 +257,7 @@ export function WaitlistConfirmation({ name }: WaitlistConfirmationProps) {
                         textDecoration: 'none',
                       }}
                     >
-                      jared@getriven.io
+                      jared@riven.software
                     </Link>
 
                     {/* Copyright */}

@@ -35,7 +35,7 @@ const FAQ: Question[] = [
       Including tools like Stripe, HubSpot, Intercom, Gmail, Slack, and Google Ads. 
       We are prioritizing integrations based directly on waitlist feedback to ensure that teams can immediately get access to the tools they care about.
       So if your most important tool isn't listed, let us know in the form. We also plan to support webhooks and a REST API for custom data sources, with more support, and options coming post-launch.`,
-  }, 
+  },
   {
     question: 'Is my data secure?',
     answer: `
@@ -66,8 +66,8 @@ const FAQ: Question[] = [
 
 export const Faq = () => {
   return (
-    <Section id="faqs">
-      <div className="items-cen relative z-10 mx-auto flex max-w-5xl flex-col px-4 sm:px-6">
+    <Section id="faqs" size={24}>
+      <div className="content-container relative z-10 flex flex-col">
         <h2 className="text-center font-serif text-4xl leading-[0.95] font-normal tracking-tight text-heading md:text-5xl">
           Frequently Asked Questions
         </h2>

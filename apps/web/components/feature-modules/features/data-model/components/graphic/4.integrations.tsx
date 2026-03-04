@@ -39,7 +39,7 @@ export const IntegrationGraphDiagram = ({ className }: { className?: string }) =
   const onMount = useAnimateOnMount();
   return (
     <svg
-      viewBox="0 0 501 414"
+      viewBox="0 -10 501 434"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}

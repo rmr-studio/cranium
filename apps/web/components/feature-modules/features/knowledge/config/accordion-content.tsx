@@ -50,7 +50,7 @@ export const FEATURE_CONTENT: KnowledgeLayerSectionContent[] = [
       'Automatic entity resolution and identity matching means your data model stays up to data without manual Inverstion. New data synced is connected and linked to existing entities across your ecosystem.',
     content: (
       <>
-        <EntityLinkingDiagram className="mx-auto translate-x-8 translate-y-12 sm:translate-x-48 sm:scale-130 xl:scale-130" />
+        <EntityLinkingDiagram className="mx-auto translate-x-8 translate-y-12 sm:translate-x-48 sm:scale-130 xl:translate-x-64 xl:scale-160" />
       </>
     ),
   },
@@ -59,7 +59,7 @@ export const FEATURE_CONTENT: KnowledgeLayerSectionContent[] = [
     description:
       'Get started in minutes, not weeks with your ready-to-go business model templates. Each one comes pre-loaded with entity types, attributes, and relationships. Ready to be customized, connected to your data sources, and queried in natural language from day one.',
     content: (
-      <TemplateCarouselGraphic className="translate-y-8 scale-110 sm:translate-x-16 md:translate-y-0 md:scale-100 lg:scale-120" />
+      <TemplateCarouselGraphic className="translate-y-8 scale-110 sm:translate-x-16 md:translate-y-0 md:scale-100 lg:translate-x-32 lg:scale-130" />
     ),
   },
 ];

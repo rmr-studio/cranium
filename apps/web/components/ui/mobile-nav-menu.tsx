@@ -91,6 +91,7 @@ const DrawerSheet: FC<NavbarMenuProps> = ({ links, toggle }) => {
       initial="initial"
       animate="animate"
       exit="exit"
+      data-mobile-nav
       className="fixed inset-0 z-[100] bg-neutral-950/50 backdrop-blur-sm"
     >
       <motion.div

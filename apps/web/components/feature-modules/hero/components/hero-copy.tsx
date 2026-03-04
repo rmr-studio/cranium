@@ -26,7 +26,7 @@ export const HeroCopy = () => {
           </span>
         </motion.h2>
         <motion.h2
-          className="mt-4 mb-2 overflow-hidden text-center font-sans text-[clamp(1.5rem,1vw,3rem)] leading-5 font-medium tracking-tighter text-heading/90 italic sm:mt-0 sm:mb-4 sm:text-3xl sm:leading-10 md:flex-row md:gap-4 md:text-left md:text-[4rem] md:leading-17 lg:gap-8"
+          className="mt-4 mb-2 overflow-hidden text-center font-sans text-[clamp(1.5rem,1vw,3rem)] leading-6 font-medium tracking-tighter text-heading/90 italic sm:mt-0 sm:mb-4 sm:text-3xl sm:leading-10 md:flex-row md:gap-4 md:text-left md:text-[4rem] md:leading-17 lg:gap-8"
           initial={{ opacity: 0, filter: 'blur(8px)' }}
           animate={{ opacity: 1, filter: 'blur(0px)' }}
           transition={{ duration: 0.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}

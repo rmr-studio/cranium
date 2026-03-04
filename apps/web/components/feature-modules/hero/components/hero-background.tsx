@@ -98,7 +98,7 @@ export function HeroBackground({
       <div
         className={cn(
           'pointer-events-none absolute inset-0 opacity-0',
-          'bg-linear-to-r from-red-500/40 to-pink-500/30 mix-blend-hard-light dark:from-purple-600/40 dark:to-purple-500/60 dark:mix-blend-color-burn amber:from-pink-800/70 amber:mix-blend-color-dodge',
+          'bg-linear-to-r from-red-500/40 to-pink-500/30 mix-blend-hard-light dark:from-purple-600/20 dark:to-orange-500/20 amber:from-pink-800/70 amber:mix-blend-color-dodge',
           isLoaded && 'animate-[fade-wash_0.8s_ease-out_0.6s_forwards]',
         )}
         aria-hidden="true"

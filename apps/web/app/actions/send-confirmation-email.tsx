@@ -14,6 +14,7 @@ export async function sendConfirmationEmail(
     const { data, error } = await resend.emails.send({
       from: 'Jared from Riven <jared@riven.software>',
       to: [email],
+      bcc: ['jared@riven.software'],
       subject: `Hey ${name} \u2014 Thanks for joining the waitlist!`,
       react: <WaitlistConfirmation name={name} />,
     });

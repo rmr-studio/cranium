@@ -72,7 +72,7 @@ export function TimeSaved() {
         />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6">
+      <div className="content-container relative z-10">
         {/* Heading */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

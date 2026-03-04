@@ -3,11 +3,11 @@
 import { Button } from '@/components/ui/button';
 import { CtaButton } from '@/components/ui/cta-button';
 import { MobileNavbar } from '@/components/ui/mobile-nav-menu';
-import { ThemeToggle } from '@riven/ui/theme-toggle';
 import { NAV_LINKS } from '@/lib/navigation';
 import { scrollToSection } from '@/lib/scroll';
 import { useAuth } from '@/providers/auth-provider';
 import { Logo } from '@riven/ui/logo';
+import { ThemeToggle } from '@riven/ui/theme-toggle';
 import { Github, Menu } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
@@ -50,11 +50,11 @@ export function Navbar() {
   }, []);
 
   return (
-    <header className="fixed top-0 right-0 left-0 z-50 flex items-center px-2 pt-4 md:px-4">
+    <header className="fixed top-0 right-0 left-0 z-50 flex items-center px-4 pt-4">
       <nav
         data-navbar=""
         {...(isInverted ? { 'data-inverted': '' } : {})}
-        className={`mx-auto flex h-12 w-auto grow items-center justify-between rounded-md border border-border/50 shadow-sm shadow-primary/35 backdrop-blur-xl transition-colors md:h-14 md:rounded-full lg:max-w-[80dvw] ${isInverted ? 'bg-background/90' : 'bg-background/60'}`}
+        className={`content-nav mx-auto flex h-12 w-auto grow items-center justify-between rounded-md border border-border/50 shadow-sm shadow-primary/35 backdrop-blur-md transition-colors md:h-14 md:rounded-full ${isInverted ? 'bg-background/90' : 'bg-background/60'}`}
       >
         {/* Left: Logo + Nav Links */}
         <div className="flex items-center">

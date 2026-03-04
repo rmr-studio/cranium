@@ -18,9 +18,9 @@ export function OpenSource() {
   const { data: stars, isLoading } = useGitHubStars();
 
   return (
-    <Section id="open-source">
-      <div className="relative z-10 mx-auto flex flex-col items-center justify-center px-4 text-center sm:px-6">
-        <h2 className="font-serif text-4xl font-normal leading-[0.95] tracking-tight text-heading sm:text-4xl md:text-5xl">
+    <Section id="open-source" size={24}>
+      <div className="content-container relative z-10 flex flex-col items-center justify-center text-center">
+        <h2 className="font-serif text-4xl leading-[0.95] font-normal tracking-tight text-heading sm:text-4xl md:text-5xl">
           Open source from day one
         </h2>
 

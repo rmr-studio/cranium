@@ -1,0 +1,269 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "model.schema.json",
+  "title": "Model Manifest",
+  "description": "Schema for shared entity type model manifests. A model defines a single reusable entity type that can be referenced by templates via $ref.",
+  "type": "object",
+  "required": ["manifestVersion", "key", "name", "displayName", "attributes"],
+  "additionalProperties": false,
+  "properties": {
+    "manifestVersion": {
+      "type": "string",
+      "const": "1.0",
+      "description": "Manifest format version. Must be '1.0'."
+    },
+    "key": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "Unique identifier for this model. Lowercase alphanumeric with hyphens. Derived from filename for models."
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name for this model."
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional description of the model's purpose."
+    },
+    "displayName": {
+      "type": "object",
+      "required": ["singular", "plural"],
+      "additionalProperties": false,
+      "properties": {
+        "singular": {
+          "type": "string",
+          "description": "Singular display name (e.g. 'Customer')."
+        },
+        "plural": {
+          "type": "string",
+          "description": "Plural display name (e.g. 'Customers')."
+        }
+      },
+      "description": "Display names for the entity type."
+    },
+    "icon": {
+      "$ref": "#/$defs/icon",
+      "description": "Optional icon configuration."
+    },
+    "semanticGroup": {
+      "type": "string",
+      "enum": [
+        "CUSTOMER",
+        "PRODUCT",
+        "TRANSACTION",
+        "COMMUNICATION",
+        "SUPPORT",
+        "FINANCIAL",
+        "OPERATIONAL",
+        "CUSTOM",
+        "UNCATEGORIZED"
+      ],
+      "description": "Semantic grouping for this entity type. Defaults to UNCATEGORIZED."
+    },
+    "identifierKey": {
+      "type": "string",
+      "description": "Key of the attribute that serves as the primary business identifier (e.g. 'email')."
+    },
+    "attributes": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/attribute"
+      },
+      "description": "Map of attribute key to attribute definition. Keys are human-readable strings."
+    },
+    "semantics": {
+      "$ref": "#/$defs/entityTypeSemantics",
+      "description": "Semantic metadata for the entity type itself."
+    }
+  },
+  "$defs": {
+    "attribute": {
+      "type": "object",
+      "required": ["key", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "type": "string",
+          "enum": [
+            "TEXT",
+            "OBJECT",
+            "NUMBER",
+            "CHECKBOX",
+            "DATE",
+            "DATETIME",
+            "RATING",
+            "PHONE",
+            "EMAIL",
+            "URL",
+            "CURRENCY",
+            "PERCENTAGE",
+            "SELECT",
+            "MULTI_SELECT",
+            "FILE_ATTACHMENT",
+            "LOCATION"
+          ],
+          "description": "Schema type (SchemaType enum) defining the UI control type."
+        },
+        "label": {
+          "type": "string",
+          "description": "Human-readable label for this attribute."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["string", "number", "boolean", "object", "array", "null"],
+          "description": "Data type (DataType enum) for the attribute value."
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "date",
+            "date-time",
+            "email",
+            "phone-number",
+            "currency",
+            "uri",
+            "percentage"
+          ],
+          "description": "Data format (DataFormat enum) for additional type validation."
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Whether this attribute is required."
+        },
+        "unique": {
+          "type": "boolean",
+          "description": "Whether this attribute value must be unique across entities."
+        },
+        "protected": {
+          "type": "boolean",
+          "description": "Whether this attribute is system-protected and cannot be edited by users."
+        },
+        "icon": {
+          "$ref": "#/$defs/icon",
+          "description": "Optional icon for this attribute."
+        },
+        "options": {
+          "$ref": "#/$defs/attributeOptions",
+          "description": "Additional validation and display options."
+        },
+        "semantics": {
+          "$ref": "#/$defs/attributeSemantics",
+          "description": "Semantic metadata for this attribute."
+        }
+      },
+      "description": "An attribute definition within an entity type."
+    },
+    "icon": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Lucide icon name (IconType enum)."
+        },
+        "colour": {
+          "type": "string",
+          "description": "Icon colour (IconColour enum)."
+        }
+      }
+    },
+    "attributeOptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "default": {
+          "description": "Default value for this attribute."
+        },
+        "regex": {
+          "type": "string",
+          "description": "Regex pattern for validation."
+        },
+        "enum": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Allowed values for SELECT and MULTI_SELECT types."
+        },
+        "enumSorting": {
+          "type": "string",
+          "description": "Sorting strategy for enum values."
+        },
+        "minLength": {
+          "type": "integer",
+          "description": "Minimum string length."
+        },
+        "maxLength": {
+          "type": "integer",
+          "description": "Maximum string length."
+        },
+        "minimum": {
+          "type": "number",
+          "description": "Minimum numeric value."
+        },
+        "maximum": {
+          "type": "number",
+          "description": "Maximum numeric value."
+        }
+      }
+    },
+    "entityTypeSemantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "definition": {
+          "type": "string",
+          "description": "Natural-language definition of this entity type."
+        },
+        "classification": {
+          "type": "string",
+          "enum": [
+            "IDENTIFIER",
+            "CATEGORICAL",
+            "QUANTITATIVE",
+            "TEMPORAL",
+            "FREETEXT",
+            "RELATIONAL_REFERENCE"
+          ],
+          "description": "Semantic classification (SemanticAttributeClassification enum)."
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Freeform tags for categorization and search."
+        }
+      }
+    },
+    "attributeSemantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "definition": {
+          "type": "string",
+          "description": "Natural-language definition of this attribute."
+        },
+        "classification": {
+          "type": "string",
+          "enum": [
+            "IDENTIFIER",
+            "CATEGORICAL",
+            "QUANTITATIVE",
+            "TEMPORAL",
+            "FREETEXT",
+            "RELATIONAL_REFERENCE"
+          ],
+          "description": "Semantic classification (SemanticAttributeClassification enum)."
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Freeform tags for categorization and search."
+        }
+      }
+    }
+  }
+}

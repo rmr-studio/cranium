@@ -1,0 +1,386 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "template.schema.json",
+  "title": "Template Manifest",
+  "description": "Schema for workspace template manifests. A template composes entity types (via $ref to models or inline definitions) and defines relationships between them.",
+  "type": "object",
+  "required": ["manifestVersion", "key", "name", "entityTypes"],
+  "additionalProperties": false,
+  "properties": {
+    "manifestVersion": {
+      "type": "string",
+      "const": "1.0",
+      "description": "Manifest format version. Must be '1.0'."
+    },
+    "key": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "Unique identifier for this template. Derived from directory name."
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name for this template."
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional description of the template's purpose."
+    },
+    "entityTypes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/entityTypeEntry"
+      },
+      "description": "Array of entity type entries. Each entry is either a $ref to a model or an inline entity type definition."
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/relationship"
+      },
+      "description": "Optional array of relationship definitions between entity types in this template."
+    }
+  },
+  "$defs": {
+    "entityTypeEntry": {
+      "type": "object",
+      "description": "An entity type entry in a template. Either references a model via $ref (with optional extend overrides) or defines an inline entity type.",
+      "anyOf": [
+        {
+          "required": ["$ref"],
+          "properties": {
+            "$ref": {
+              "type": "string",
+              "pattern": "^models/[a-z][a-z0-9-]*$",
+              "description": "Reference to a model file. Format: 'models/<model-key>'. Resolves to models/<key>.json."
+            },
+            "extend": {
+              "$ref": "#/$defs/entityTypeExtension",
+              "description": "Optional overrides applied on top of the referenced model. Shallow additive merge."
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "required": ["key", "name", "displayName", "attributes"],
+          "properties": {
+            "key": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]*$"
+            },
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "displayName": {
+              "type": "object",
+              "required": ["singular", "plural"],
+              "additionalProperties": false,
+              "properties": {
+                "singular": { "type": "string" },
+                "plural": { "type": "string" }
+              }
+            },
+            "icon": {
+              "$ref": "#/$defs/icon"
+            },
+            "semanticGroup": {
+              "type": "string",
+              "enum": [
+                "CUSTOMER",
+                "PRODUCT",
+                "TRANSACTION",
+                "COMMUNICATION",
+                "SUPPORT",
+                "FINANCIAL",
+                "OPERATIONAL",
+                "CUSTOM",
+                "UNCATEGORIZED"
+              ]
+            },
+            "identifierKey": {
+              "type": "string"
+            },
+            "attributes": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/$defs/attribute"
+              }
+            },
+            "semantics": {
+              "$ref": "#/$defs/entityTypeSemantics"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "entityTypeExtension": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Extension overrides for a referenced model. Shallow additive merge: new attributes are added, existing attributes from the model are NOT overwritten. semantics.tags are appended, not replaced.",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "icon": {
+          "$ref": "#/$defs/icon"
+        },
+        "semanticGroup": {
+          "type": "string",
+          "enum": [
+            "CUSTOMER",
+            "PRODUCT",
+            "TRANSACTION",
+            "COMMUNICATION",
+            "SUPPORT",
+            "FINANCIAL",
+            "OPERATIONAL",
+            "CUSTOM",
+            "UNCATEGORIZED"
+          ]
+        },
+        "identifierKey": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/attribute"
+          },
+          "description": "Additional attributes to add to the referenced model. Existing model attributes are not overwritten."
+        },
+        "semantics": {
+          "$ref": "#/$defs/entityTypeSemantics"
+        }
+      }
+    },
+    "relationship": {
+      "type": "object",
+      "required": ["key", "sourceEntityTypeKey", "name"],
+      "additionalProperties": false,
+      "description": "A relationship definition. Use shorthand format (targetEntityTypeKey + cardinality) for single-target relationships, or full format (targetRules array) for polymorphic/multi-target relationships. The two formats are mutually exclusive.",
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "description": "Unique relationship key within this manifest."
+        },
+        "sourceEntityTypeKey": {
+          "type": "string",
+          "description": "Key of the source entity type."
+        },
+        "name": {
+          "type": "string",
+          "description": "Display name for the relationship."
+        },
+        "icon": {
+          "$ref": "#/$defs/icon"
+        },
+        "allowPolymorphic": {
+          "type": "boolean",
+          "description": "Whether this relationship supports multiple target entity types."
+        },
+        "cardinality": {
+          "type": "string",
+          "enum": ["ONE_TO_ONE", "ONE_TO_MANY", "MANY_TO_ONE", "MANY_TO_MANY"],
+          "description": "Shorthand: cardinality for single-target relationships. Mutually exclusive with targetRules."
+        },
+        "targetEntityTypeKey": {
+          "type": "string",
+          "description": "Shorthand: key of the single target entity type. Mutually exclusive with targetRules."
+        },
+        "protected": {
+          "type": "boolean",
+          "description": "Whether this relationship is system-protected."
+        },
+        "targetRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/targetRule"
+          },
+          "description": "Full format: array of target rules for polymorphic/multi-target relationships. Mutually exclusive with targetEntityTypeKey/cardinality shorthand."
+        },
+        "semantics": {
+          "$ref": "#/$defs/relationshipSemantics"
+        }
+      }
+    },
+    "targetRule": {
+      "type": "object",
+      "required": ["targetEntityTypeKey"],
+      "additionalProperties": false,
+      "properties": {
+        "targetEntityTypeKey": {
+          "type": "string",
+          "description": "Key of the target entity type."
+        },
+        "semanticTypeConstraint": {
+          "type": "string",
+          "enum": [
+            "CUSTOMER",
+            "PRODUCT",
+            "TRANSACTION",
+            "COMMUNICATION",
+            "SUPPORT",
+            "FINANCIAL",
+            "OPERATIONAL",
+            "CUSTOM",
+            "UNCATEGORIZED"
+          ],
+          "description": "Optional semantic group constraint on the target."
+        },
+        "cardinalityOverride": {
+          "type": "string",
+          "enum": ["ONE_TO_ONE", "ONE_TO_MANY", "MANY_TO_ONE", "MANY_TO_MANY"],
+          "description": "Override cardinality for this specific target."
+        },
+        "inverseVisible": {
+          "type": "boolean",
+          "description": "Whether the inverse relationship is visible from the target."
+        },
+        "inverseName": {
+          "type": "string",
+          "description": "Display name for the inverse relationship."
+        }
+      }
+    },
+    "attribute": {
+      "type": "object",
+      "required": ["key", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "type": "string",
+          "enum": [
+            "TEXT",
+            "OBJECT",
+            "NUMBER",
+            "CHECKBOX",
+            "DATE",
+            "DATETIME",
+            "RATING",
+            "PHONE",
+            "EMAIL",
+            "URL",
+            "CURRENCY",
+            "PERCENTAGE",
+            "SELECT",
+            "MULTI_SELECT",
+            "FILE_ATTACHMENT",
+            "LOCATION"
+          ]
+        },
+        "label": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": ["string", "number", "boolean", "object", "array", "null"]
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "date",
+            "date-time",
+            "email",
+            "phone-number",
+            "currency",
+            "uri",
+            "percentage"
+          ]
+        },
+        "required": { "type": "boolean" },
+        "unique": { "type": "boolean" },
+        "protected": { "type": "boolean" },
+        "icon": { "$ref": "#/$defs/icon" },
+        "options": { "$ref": "#/$defs/attributeOptions" },
+        "semantics": { "$ref": "#/$defs/attributeSemantics" }
+      }
+    },
+    "icon": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": { "type": "string" },
+        "colour": { "type": "string" }
+      }
+    },
+    "attributeOptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "default": {},
+        "regex": { "type": "string" },
+        "enum": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "enumSorting": { "type": "string" },
+        "minLength": { "type": "integer" },
+        "maxLength": { "type": "integer" },
+        "minimum": { "type": "number" },
+        "maximum": { "type": "number" }
+      }
+    },
+    "entityTypeSemantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "definition": { "type": "string" },
+        "classification": {
+          "type": "string",
+          "enum": [
+            "IDENTIFIER",
+            "CATEGORICAL",
+            "QUANTITATIVE",
+            "TEMPORAL",
+            "FREETEXT",
+            "RELATIONAL_REFERENCE"
+          ]
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "attributeSemantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "definition": { "type": "string" },
+        "classification": {
+          "type": "string",
+          "enum": [
+            "IDENTIFIER",
+            "CATEGORICAL",
+            "QUANTITATIVE",
+            "TEMPORAL",
+            "FREETEXT",
+            "RELATIONAL_REFERENCE"
+          ]
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "relationshipSemantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Semantic metadata for relationships. Note: no 'classification' field -- classification is only meaningful for attributes.",
+      "properties": {
+        "definition": {
+          "type": "string",
+          "description": "Natural-language definition of this relationship."
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Freeform tags for categorization."
+        }
+      }
+    }
+  }
+}

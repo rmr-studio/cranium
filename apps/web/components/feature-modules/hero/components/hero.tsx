@@ -26,7 +26,7 @@ export function Hero() {
             { src: 'images/hero/city-skyline-hero-3840w.webp', width: 3840 },
           ],
         }}
-        className="bottom-0 z-0 h-[50svh] opacity-40 md:h-[max(65svh,36rem)] md:opacity-80 xl:translate-y-[8%] 3xl:h-[80svh] 3xl:translate-y-0 md:dark:opacity-60"
+        className="bottom-0 z-0 h-[24rem] opacity-40 md:h-[max(65svh,36rem)] md:opacity-80 xl:translate-y-[8%] 3xl:h-[80svh] 3xl:translate-y-0 md:dark:opacity-60"
         alt="City skyline"
       />
     </Section>

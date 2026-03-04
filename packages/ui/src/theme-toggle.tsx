@@ -20,17 +20,16 @@ export function ThemeToggle() {
   const activeTheme = (theme === 'system' ? resolvedTheme : theme) as Theme;
 
   const cycle = () => {
-    if (document.startViewTransition) {
-      document.startViewTransition(() => {
-        const currentIndex = themes.indexOf(activeTheme);
-        const next = themes[(currentIndex + 1) % themes.length];
-        setTheme(next);
-      });
+    const currentIndex = themes.indexOf(activeTheme);
+    const next = themes[(currentIndex + 1) % themes.length];
+
+    // Skip view transition when mobile nav is open — iOS re-composites
+    // backdrop-filter during the crossfade, causing a visible blur flicker.
+    if (document.startViewTransition && !document.querySelector('[data-mobile-nav]')) {
+      document.startViewTransition(() => setTheme(next));
       return;
     }
 
-    const currentIndex = themes.indexOf(activeTheme);
-    const next = themes[(currentIndex + 1) % themes.length];
     setTheme(next);
   };
 

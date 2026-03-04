@@ -1,7 +1,7 @@
 # Project State: Entity Relationship Migration
 
 **Last updated:** 2026-03-04
-**Session:** Phase 3 Plan 01 — Relationship form data layer
+**Session:** Phase 3 Plan 03 — Modal integration + cleanup
 
 ---
 
@@ -18,7 +18,7 @@
 | Field | Value |
 |-------|-------|
 | Active phase | 3 — Relationship Form |
-| Active plan | 03-02 (complete) |
+| Active plan | 03-03 (awaiting human verification) |
 | Phase status | In progress |
 | Overall progress | 2 / 5 phases complete |
 
@@ -26,7 +26,7 @@
 Progress: [####______] 40%
 Phase 1: [x] Type Foundation
 Phase 2: [x] Service + Hooks
-Phase 3: [~] Relationship Form (2/3 plans complete)
+Phase 3: [~] Relationship Form (3/3 plans coded, checkpoint pending)
 Phase 4: [ ] Creation Form Simplification
 Phase 5: [ ] Attribute Semantic Configuration
 ```
@@ -61,6 +61,8 @@ Phase 5: [ ] Attribute Semantic Configuration
 | cachedRulesRef returned from hook (not managed in hook) | UI layer can apply create vs edit mode polymorphic toggle semantics without leaking context into the data hook |
 | ruleValues[index]?.id for isExistingRule detection | field.id from useFieldArray is always a generated UUID; form value .id is only set from server data in edit mode |
 | EntityTypeSingleSelect inlined in target-rule-item | Single-file-per-component; tightly coupled to form context and not reused elsewhere |
+| Use RelationshipDefinition (not EntityRelationshipDefinition) in modal | EntityRelationshipDefinition was never in the entity barrel; RelationshipDefinition is the correct generated type from Plan 02 |
+| Overlap detection files deleted (not kept) | All 4 files had no consumers after Plan 02 rewrite; deferred to v2 per CONTEXT.md |
 
 ### Critical Pitfalls (from research)
 
@@ -77,8 +79,8 @@ Phase 5: [ ] Attribute Semantic Configuration
 
 - [ ] Before writing Phase 2: confirm response shape of saveEntityTypeDefinition when called with a relationship request by reading KnowledgeApi.ts
 - [ ] After Phase 2: verify EntityType from getEntityTypeByKey still embeds relationship definitions correctly (run against live backend)
-- [ ] After Phase 2: confirm RelationshipLink/RelationshipCandidate overlap detection panel still populates correctly
-- [ ] Before Phase 2: Read KnowledgeApi.ts to confirm request/response shapes for all 8 endpoints
+- [x] After Phase 2: RelationshipLink/RelationshipCandidate overlap detection deferred to v2 — files deleted in Plan 03
+- [x] Before Phase 2: Read KnowledgeApi.ts to confirm request/response shapes for all 8 endpoints
 - [ ] Phase 5: Decide whether attribute semantic editing is inline in the schema table row, an expandable section, or a side panel
 
 ### Notes
@@ -102,5 +104,5 @@ To resume this project:
 ---
 
 *State initialized: 2026-02-27*
-*Last updated: 2026-03-04 after Phase 3 Plan 02 — relationship form UI components*
-*Stopped at: Completed 03-02-PLAN.md*
+*Last updated: 2026-03-04 after Phase 3 Plan 03 — modal integration + cleanup*
+*Stopped at: checkpoint:human-verify in 03-03-PLAN.md (tasks 1+2 complete, awaiting UI verification)*

@@ -213,7 +213,12 @@ class ManifestUpsertServiceTest {
                     schema = emptyMap()
                 )
             ))
-        mockChildSaves()
+        val savedRelId = UUID.randomUUID()
+        whenever(catalogRelationshipRepository.save(any<CatalogRelationshipEntity>()))
+            .thenAnswer { invocation ->
+                val entity = invocation.getArgument<CatalogRelationshipEntity>(0)
+                entity.copy(id = savedRelId)
+            }
 
         service.upsertManifest(resolved)
 

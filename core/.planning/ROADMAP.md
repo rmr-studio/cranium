@@ -13,7 +13,7 @@ Three phases with hard sequential dependencies. The database schema and JPA laye
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Database Foundation** - Catalog tables, JPA entities, repositories, JSON Schema files, and directory scaffolding
-- [ ] **Phase 2: Loader Pipeline** - Full startup load pipeline: scan, validate, resolve, normalize, upsert, reconcile, and unit tests
+- [x] **Phase 2: Loader Pipeline** - Full startup load pipeline: scan, validate, resolve, normalize, upsert, reconcile, and unit tests
 - [x] **Phase 3: Read Surface and Integration Tests** - ManifestCatalogService query API and end-to-end integration test verification (completed 2026-03-05)
 
 ## Phase Details
@@ -42,11 +42,11 @@ Plans:
   3. Template manifests with $ref entries have those references fully resolved from the in-memory model index — no DB reads occur during resolution
   4. A relationship defined in shorthand format (single target + cardinality) is stored in the database in full targetRules[] format
   5. All unit tests for $ref resolution, extend merge, relationship normalization, and relationship validation pass
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 Plans:
 - [x] 02-01-PLAN.md — Schema evolution (stale column), pipeline data classes, JSON Schema update, test fixtures
-- [ ] 02-02-PLAN.md — ManifestScannerService + ManifestResolverService with unit tests
-- [ ] 02-03-PLAN.md — ManifestUpsertService + ManifestLoaderService orchestrator with unit tests
+- [x] 02-02-PLAN.md — ManifestScannerService + ManifestResolverService with unit tests
+- [x] 02-03-PLAN.md — ManifestUpsertService + ManifestLoaderService orchestrator with unit tests
 
 ### Phase 3: Read Surface and Integration Tests
 **Goal**: Downstream services can query the catalog, and the full startup pipeline is verified end-to-end by integration tests covering load, idempotent reload, and manifest removal reconciliation
@@ -70,5 +70,5 @@ Phases execute in numeric order: 1 → 2 → 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Database Foundation | 1/1 | Complete | 2026-03-04 |
-| 2. Loader Pipeline | 2/3 | In Progress|  |
+| 2. Loader Pipeline | 3/3 | Complete | 2026-03-05 |
 | 3. Read Surface and Integration Tests | 2/2 | Complete   | 2026-03-05 |

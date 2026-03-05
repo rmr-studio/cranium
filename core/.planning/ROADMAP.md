@@ -60,7 +60,7 @@ Plans:
 **Plans:** 2/2 plans complete
 Plans:
 - [x] 03-01-PLAN.md — ManifestCatalogService query models, repository additions, toModel() mappings, and unit tests
-- [ ] 03-02-PLAN.md — ManifestScannerService configurable path refactor and end-to-end integration tests
+- [x] 03-02-PLAN.md — ManifestScannerService configurable path refactor and end-to-end integration tests
 
 ## Progress
 

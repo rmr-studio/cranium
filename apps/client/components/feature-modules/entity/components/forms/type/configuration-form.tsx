@@ -6,7 +6,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { Input } from '@riven/ui/input';
+import { Textarea } from '@riven/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -14,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { EntityAttributeDefinition, EntityPropertyType } from '@/lib/types/entity';
 import { FC, useEffect } from 'react';
 import { useWatch } from 'react-hook-form';

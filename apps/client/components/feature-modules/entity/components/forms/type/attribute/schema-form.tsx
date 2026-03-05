@@ -1,5 +1,6 @@
 import { useEntityTypeAttributeSchemaForm } from '@/components/feature-modules/entity/hooks/form/type/use-schema-form';
-import { Button } from '@/components/ui/button';
+import { Button } from '@riven/ui/button';
+import { Input } from '@riven/ui/input';
 import {
   Form,
   FormControl,
@@ -9,7 +10,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { DialogControl } from '@/lib/interfaces/interface';
 import { EntityAttributeDefinition, EntityType } from '@/lib/types/entity';

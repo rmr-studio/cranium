@@ -1,12 +1,6 @@
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Button } from '@riven/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@riven/ui/dialog';
+import { Label } from '@riven/ui/label';
 import {
   Form,
   FormControl,
@@ -15,7 +9,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { DialogControl } from '@/lib/interfaces/interface';
 import { EntityTypeRelationshipType, EntityTypeRequestDefinition } from '@/lib/types/entity';

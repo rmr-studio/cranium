@@ -1,6 +1,9 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@riven/ui/button';
+import { Input } from '@riven/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
+import { Textarea } from '@riven/ui/textarea';
 import {
   Form,
   FormControl,
@@ -11,8 +14,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { IconSelector } from '@/components/ui/icon/icon-selector';
-import { Input } from '@/components/ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Select,
   SelectContent,
@@ -20,10 +21,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { ChildNodeProps } from '@/lib/interfaces/interface';
+import type { ChildNodeProps } from '@riven/utils';
 import { EntityType } from '@/lib/types/entity';
-import { toKeyCase } from '@/lib/util/utils';
+import { toKeyCase } from '@riven/utils';
 import { PopoverClose } from '@radix-ui/react-popover';
 import { Blocks, Info, Plus, Workflow } from 'lucide-react';
 import { FC, useEffect } from 'react';

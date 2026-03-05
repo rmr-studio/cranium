@@ -1,6 +1,7 @@
 import { useEntityTypeRelationshipForm } from '@/components/feature-modules/entity/hooks/form/type/use-relationship-form';
 import { useEntityTypes } from '@/components/feature-modules/entity/hooks/query/type/use-entity-types';
-import { Button } from '@/components/ui/button';
+import { Button } from '@riven/ui/button';
+import { Input } from '@riven/ui/input';
 import {
   Form,
   FormControl,
@@ -10,7 +11,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { DialogControl } from '@/lib/interfaces/interface';
 import {
@@ -19,7 +19,7 @@ import {
   EntityTypeRelationshipType,
   RelationshipLimit,
 } from '@/lib/types/entity';
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useRelationshipOverlapDetection } from '../../../../hooks/use-relationship-overlap-detection';
 import {

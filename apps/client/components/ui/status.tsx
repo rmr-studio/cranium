@@ -1,5 +1,5 @@
-import { ClassNameProps } from '@/lib/interfaces/interface';
-import { cn } from '@/lib/util/utils';
+import type { ClassNameProps } from '@riven/utils';
+import { cn } from '@riven/utils';
 import { FC } from 'react';
 
 type Status = 'healthy' | 'unhealthy' | 'unknown';

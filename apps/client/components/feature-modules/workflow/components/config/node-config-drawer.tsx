@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, type FC } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
+import { Button } from '@riven/ui/button';
+import { ScrollArea } from '@riven/ui/scroll-area';
+import { Separator } from '@riven/ui/separator';
 import { IconCell } from '@/components/ui/icon/icon-cell';
 import { IconColour } from '@/lib/types/common';
 import {

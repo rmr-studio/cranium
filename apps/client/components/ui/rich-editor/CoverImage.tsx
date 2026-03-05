@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ImageIcon, MoveVertical, Trash2, Upload, X } from 'lucide-react';
 
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 
 import { EditorActions } from '.';
 import { Button } from '../button';

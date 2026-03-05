@@ -1,6 +1,6 @@
 import type { ComponentProps } from 'react';
 
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 
 export function BaseNode({ className, ...props }: ComponentProps<'div'>) {
   return (

@@ -3,7 +3,7 @@
 import { DataType, IconColour, IconType } from '@/lib/types/common';
 import { SchemaType } from '@/lib/types/common';
 import { AttributeSchemaType, attributeTypes } from '@/lib/util/form/schema.util';
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { Dispatch, FC, SetStateAction, useMemo } from 'react';
 import { Button } from './button';

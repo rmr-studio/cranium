@@ -1,9 +1,9 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { ClassNameProps } from '@/lib/interfaces/interface';
+import { Button } from '@riven/ui/button';
+import type { ClassNameProps } from '@riven/utils';
 import { OAuthProvider } from '@/lib/auth';
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 import React from 'react';
 import { FaGoogle } from 'react-icons/fa';
 

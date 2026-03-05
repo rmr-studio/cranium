@@ -1,6 +1,6 @@
 'use client';
 
-import { TableBody, TableCell, TableRow } from '@/components/ui/table';
+import { TableBody, TableCell, TableRow } from '@riven/ui/table';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Row, Table as TanStackTable } from '@tanstack/react-table';
 import { ReactNode, useMemo } from 'react';

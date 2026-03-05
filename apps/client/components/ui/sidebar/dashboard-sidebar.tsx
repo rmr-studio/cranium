@@ -10,7 +10,6 @@ import {
   CalendarHeart,
   CogIcon,
   Ellipsis,
-  GitGraph,
   PlusCircle,
   SquareDashedMousePointer,
   TrendingUpDown,
@@ -152,43 +151,6 @@ export const DashboardSidebar = () => {
                     ]
                   : []),
               ],
-        },
-        {
-          title: 'Workflow',
-          collapsible: true,
-          items: [
-            {
-              icon: <GitGraph {...DEFAULT_ICON_CLASS_PROPS} />,
-              hidden: false,
-              title: 'Workflows',
-              url: `/dashboard/workspace/${selectedWorkspace.id}/members`,
-              isActive: pathName.startsWith(`/dashboard/workspace/${selectedWorkspace.id}/members`),
-            },
-            {
-              icon: <Workflow {...DEFAULT_ICON_CLASS_PROPS} />,
-              hidden: false,
-              title: 'Automations',
-              url: `/dashboard/workspace/${selectedWorkspace.id}/members`,
-              isActive: pathName.startsWith(`/dashboard/workspace/${selectedWorkspace.id}/members`),
-            },
-          ],
-          subgroups: [
-            {
-              title: 'Templates',
-              collapsible: true,
-              items: [
-                {
-                  icon: <Building2 {...DEFAULT_ICON_CLASS_PROPS} />,
-                  hidden: false,
-                  title: 'Default Templates',
-                  url: `/dashboard/workspace/${selectedWorkspace.id}/templates`,
-                  isActive: pathName.startsWith(
-                    `/dashboard/workspace/${selectedWorkspace.id}/templates`,
-                  ),
-                },
-              ],
-            },
-          ],
         },
         {
           title: 'Billing',

@@ -1,11 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@riven/ui/card';
 import { Address } from '@/lib/interfaces/common.interface';
 import { FC, ReactNode } from 'react';
 import { z } from 'zod';

@@ -1,8 +1,9 @@
 'use client';
 
 import { useAuth } from '@/components/provider/auth-context';
-import { Button } from '@/components/ui/button';
-import { CardContent, CardHeader } from '@/components/ui/card';
+import { Button } from '@riven/ui/button';
+import { CardContent, CardHeader } from '@riven/ui/card';
+import { Input } from '@riven/ui/input';
 import {
   Form,
   FormControl,
@@ -11,7 +12,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { getAuthErrorMessage, isAuthError, OAuthProvider } from '@/lib/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';

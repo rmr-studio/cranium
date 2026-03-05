@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+@source "../../../packages/ui/src";
+
 @custom-variant dark (&:is(.dark *));
 @custom-variant amber (&:is(.amber *));
 
@@ -9,6 +11,7 @@
   --color-foreground: var(--foreground);
   --color-content: var(--content);
   --color-heading: var(--heading);
+  --color-logo-primary: var(--logo-primary);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-serif: var(--font-instrument-serif);
@@ -54,6 +57,7 @@
 }
 
 :root {
+  --logo-primary: oklch(0.35 0 0);
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -93,6 +97,7 @@
 }
 
 .dark {
+  --logo-primary: oklch(0.85 0 0);
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --content: oklch(0.8 0 0);
@@ -131,6 +136,7 @@
 }
 
 .amber {
+  --logo-primary: oklch(0.35 0 0);
   --background: oklch(0.93 0.032 80);
   --foreground: oklch(0.25 0.02 60);
   --content: oklch(0.45 0.04 65);
@@ -173,7 +179,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background font-mono leading-[0.9] tracking-tighter text-foreground;
   }
 }
 

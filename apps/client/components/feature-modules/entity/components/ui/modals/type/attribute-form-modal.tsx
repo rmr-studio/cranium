@@ -1,12 +1,6 @@
 import { useWorkspace } from '@/components/feature-modules/workspace/hooks/query/use-workspace';
 import { AttributeTypeDropdown } from '@/components/ui/attribute-type-dropdown';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@riven/ui/dialog';
 import { DialogControl } from '@/lib/interfaces/interface';
 import {
   EntityAttributeDefinition,

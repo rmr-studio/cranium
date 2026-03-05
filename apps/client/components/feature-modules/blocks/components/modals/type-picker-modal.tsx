@@ -1,6 +1,6 @@
 // 'use client';
 
-// import { Button } from '@/components/ui/button';
+// import { Button } from '@riven/ui/button';
 // import { Checkbox } from '@/components/ui/checkbox';
 // import {
 //     Dialog,
@@ -9,7 +9,7 @@
 //     DialogFooter,
 //     DialogHeader,
 //     DialogTitle,
-// } from "@/components/ui/dialog";
+// } from '@riven/ui/dialog';
 // import type { EntityType } from "@/lib/types/entity";
 // import { Building, FileText, FolderKanban, Receipt, UserCircle, Users } from "lucide-react";
 // import { FC, useEffect, useState } from "react";

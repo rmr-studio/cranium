@@ -1,11 +1,4 @@
-import {
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
+import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@riven/ui/command';
 import { SearchIcon } from 'lucide-react';
 import { FC } from 'react';
 import { SlashMenuItem } from '../panel/panel-wrapper';

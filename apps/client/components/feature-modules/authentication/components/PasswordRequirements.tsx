@@ -1,4 +1,4 @@
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 import { AnimatePresence } from 'framer-motion';
 import { CheckIcon, Circle } from 'lucide-react';
 import { FC } from 'react';

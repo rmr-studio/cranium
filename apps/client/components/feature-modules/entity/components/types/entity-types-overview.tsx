@@ -1,7 +1,7 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Badge } from '@riven/ui/badge';
+import { Button } from '@riven/ui/button';
 import { DataTable, DataTableProvider } from '@/components/ui/data-table';
 import { IconCell } from '@/components/ui/icon/icon-cell';
 import { EntityType, EntityTypeImpactResponse } from '@/lib/types/entity';

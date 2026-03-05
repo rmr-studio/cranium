@@ -1,5 +1,5 @@
 import { useRelationshipCandidates } from '@/components/feature-modules/entity/hooks/query/type/use-relationship-candidates';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@riven/ui/card';
 import { EntityRelationshipDefinition, EntityType } from '@/lib/types/entity';
 import { FC } from 'react';
 import { Candidate } from './relationship-candidate';

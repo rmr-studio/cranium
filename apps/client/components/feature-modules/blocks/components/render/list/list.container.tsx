@@ -1,4 +1,4 @@
-import { ChildNodeProps } from "@/lib/interfaces/interface";
+import type { ChildNodeProps } from '@riven/utils';
 import { FC, useCallback, useMemo } from "react";
 import { useBlockEnvironment } from "../../../context/block-environment-provider";
 import { useTrackedEnvironment } from "../../../context/tracked-environment-provider";

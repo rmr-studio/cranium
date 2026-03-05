@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@riven/ui/button';
 import { FC } from "react";
 import type { BlockType } from "@/lib/types/block";
 import { getSortableFields, SortSpec } from "../../../util/list/list-sorting.util";

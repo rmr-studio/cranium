@@ -1,9 +1,9 @@
 'use client';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@riven/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { cn } from "@/lib/util/utils";
+import { cn } from '@riven/utils';
 import { AlertCircle, ChevronRight } from "lucide-react";
 import { FC, useEffect, useState } from "react";
 import { useBlockEdit } from "../../context/block-edit-provider";

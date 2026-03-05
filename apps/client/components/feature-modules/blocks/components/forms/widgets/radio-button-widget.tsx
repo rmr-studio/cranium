@@ -1,9 +1,9 @@
 'use client';
 
 import { OptionalTooltip } from '@/components/ui/optional-tooltip';
-import { Label } from '@/components/ui/label';
+import { Label } from '@riven/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 import { CircleAlert } from 'lucide-react';
 import { FC } from 'react';
 import { FormWidgetProps } from '../form-widget.types';

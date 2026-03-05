@@ -1,4 +1,4 @@
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@riven/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ColumnFilter, FilterOption } from '@/components/ui/data-table';
 import {
@@ -23,7 +23,7 @@ import {
 } from '@/lib/types/entity';
 import { iconFormSchema } from '@/lib/util/form/common/icon.form';
 import { buildFieldSchema } from '@/lib/util/form/entity-instance-validation.util';
-import { toTitleCase } from '@/lib/util/utils';
+import { toTitleCase } from '@riven/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AccessorKeyColumnDef, Cell } from '@tanstack/react-table';
 import { ArrowUpRight } from 'lucide-react';

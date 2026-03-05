@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Check, Code2, Copy, Download, Eye, FileJson, Sparkles } from 'lucide-react';
 
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 
 import { Button } from '../button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../dialog';

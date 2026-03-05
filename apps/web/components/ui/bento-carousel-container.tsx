@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, useCarousel } from '@/components/ui/carousel';
 import { useBreakpoint } from '@/hooks/use-breakpoint';
 import { useIsMobile } from '@/hooks/use-is-mobile';
-import { useMounted } from '@/hooks/use-mounted';
+import { useMounted } from '@riven/hooks';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';

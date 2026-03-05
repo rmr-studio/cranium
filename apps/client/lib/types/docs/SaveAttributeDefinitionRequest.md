@@ -11,6 +11,7 @@ Name | Type
 `id` | string
 `type` | [EntityTypeRequestDefinition](EntityTypeRequestDefinition.md)
 `schema` | [SchemaUUID](SchemaUUID.md)
+`semantics` | [SaveSemanticMetadataRequest](SaveSemanticMetadataRequest.md)
 
 ## Example
 
@@ -23,6 +24,7 @@ const example = {
   "id": null,
   "type": null,
   "schema": null,
+  "semantics": null,
 } satisfies SaveAttributeDefinitionRequest
 
 console.log(example)

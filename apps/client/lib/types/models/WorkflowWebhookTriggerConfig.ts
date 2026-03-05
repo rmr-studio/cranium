@@ -101,6 +101,12 @@ export interface WorkflowWebhookTriggerConfig {
     payloadSchema?: SchemaString;
     /**
      * 
+     * @type {Array<WorkflowNodeConfigField>}
+     * @memberof WorkflowWebhookTriggerConfig
+     */
+    configSchema?: Array<WorkflowNodeConfigField>;
+    /**
+     * 
      * @type {{ [key: string]: object; }}
      * @memberof WorkflowWebhookTriggerConfig
      */
@@ -111,12 +117,6 @@ export interface WorkflowWebhookTriggerConfig {
      * @memberof WorkflowWebhookTriggerConfig
      */
     subType?: WorkflowTriggerType;
-    /**
-     * 
-     * @type {Array<WorkflowNodeConfigField>}
-     * @memberof WorkflowWebhookTriggerConfig
-     */
-    configSchema?: Array<WorkflowNodeConfigField>;
     /**
      * 
      * @type {WorkflowNodeType}
@@ -149,9 +149,9 @@ export function WorkflowWebhookTriggerConfigFromJSONTyped(json: any, ignoreDiscr
         'authentication': json['authentication'] == null ? undefined : AuthenticationTypeFromJSON(json['authentication']),
         'signature': json['signature'] == null ? undefined : SignatureFromJSON(json['signature']),
         'payloadSchema': json['payloadSchema'] == null ? undefined : SchemaStringFromJSON(json['payloadSchema']),
+        'configSchema': json['configSchema'] == null ? undefined : ((json['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldFromJSON)),
         'config': json['config'] == null ? undefined : json['config'],
         'subType': json['subType'] == null ? undefined : WorkflowTriggerTypeFromJSON(json['subType']),
-        'configSchema': json['configSchema'] == null ? undefined : ((json['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldFromJSON)),
         'type': json['type'] == null ? undefined : WorkflowNodeTypeFromJSON(json['type']),
     };
 }
@@ -172,9 +172,9 @@ export function WorkflowWebhookTriggerConfigToJSONTyped(value?: WorkflowWebhookT
         'authentication': AuthenticationTypeToJSON(value['authentication']),
         'signature': SignatureToJSON(value['signature']),
         'payloadSchema': SchemaStringToJSON(value['payloadSchema']),
+        'configSchema': value['configSchema'] == null ? undefined : ((value['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldToJSON)),
         'config': value['config'],
         'subType': WorkflowTriggerTypeToJSON(value['subType']),
-        'configSchema': value['configSchema'] == null ? undefined : ((value['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldToJSON)),
         'type': WorkflowNodeTypeToJSON(value['type']),
     };
 }

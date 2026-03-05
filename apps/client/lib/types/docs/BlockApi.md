@@ -67,7 +67,7 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **workspaceId** | `string` |  | [Defaults to `undefined`] |
-| **type** | `ApplicationEntityType` |  | [Defaults to `undefined`] [Enum: WORKSPACE, BLOCK_TYPE, BLOCK, USER, ENTITY, ENTITY_TYPE, WORKFLOW_DEFINITION, WORKFLOW_NODE, WORKFLOW_EDGE] |
+| **type** | `ApplicationEntityType` |  | [Defaults to `undefined`] [Enum: WORKSPACE, BLOCK_TYPE, BLOCK, USER, ENTITY, ENTITY_TYPE, WORKFLOW_DEFINITION, WORKFLOW_NODE, WORKFLOW_EDGE, INTEGRATION_CONNECTION] |
 | **entityId** | `string` |  | [Defaults to `undefined`] |
 
 ### Return type

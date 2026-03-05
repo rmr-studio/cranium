@@ -8,7 +8,7 @@ Name | Type
 ------------ | -------------
 `error` | string
 `updatedEntityTypes` | [{ [key: string]: EntityType; }](EntityType.md)
-`impact` | [EntityTypeRelationshipImpactAnalysis](EntityTypeRelationshipImpactAnalysis.md)
+`impact` | [DeleteDefinitionImpact](DeleteDefinitionImpact.md)
 
 ## Example
 

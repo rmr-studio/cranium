@@ -4,18 +4,99 @@ All URIs are relative to *http://localhost:8081*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
+| [**addRelationship**](EntityApi.md#addrelationshipoperation) | **POST** /api/v1/entity/workspace/{workspaceId}/entities/{entityId}/relationships | Add a relationship between two entities |
 | [**createEntityType**](EntityApi.md#createentitytypeoperation) | **POST** /api/v1/entity/schema/workspace/{workspaceId} | Create a new entity type |
 | [**deleteEntity**](EntityApi.md#deleteentity) | **DELETE** /api/v1/entity/workspace/{workspaceId} | Deletes an entity instance |
 | [**deleteEntityTypeByKey**](EntityApi.md#deleteentitytypebykey) | **DELETE** /api/v1/entity/schema/workspace/{workspaceId}/key/{key} | Delete an entity type by key |
 | [**deleteEntityTypeDefinition**](EntityApi.md#deleteentitytypedefinition) | **DELETE** /api/v1/entity/schema/workspace/{workspaceId}/definition | Removes an attribute or relationship from an entity type |
 | [**getEntityByTypeIdForWorkspace**](EntityApi.md#getentitybytypeidforworkspace) | **GET** /api/v1/entity/workspace/{workspaceId}/type/{id} | Get all entity types for an workspace for a provided entity type |
 | [**getEntityByTypeIdInForWorkspace**](EntityApi.md#getentitybytypeidinforworkspace) | **GET** /api/v1/entity/workspace/{workspaceId} | Get all entity types for an workspace for all provided type keys |
-| [**getEntityTypeByKeyForWorkspace**](EntityApi.md#getentitytypebykeyforworkspace) | **GET** /api/v1/entity/schema/workspace/{workspaceId}/key/{key} | Get an entity type by key for an workspace |
-| [**getEntityTypesForWorkspace**](EntityApi.md#getentitytypesforworkspace) | **GET** /api/v1/entity/schema/workspace/{workspaceId} | Get all entity types for an workspace |
+| [**getEntityTypeByKeyForWorkspace**](EntityApi.md#getentitytypebykeyforworkspace) | **GET** /api/v1/entity/schema/workspace/{workspaceId}/key/{key} | Get an entity type by key for a workspace |
+| [**getEntityTypesForWorkspace**](EntityApi.md#getentitytypesforworkspace) | **GET** /api/v1/entity/schema/workspace/{workspaceId} | Get all entity types for a workspace |
+| [**getRelationships**](EntityApi.md#getrelationships) | **GET** /api/v1/entity/workspace/{workspaceId}/entities/{entityId}/relationships | Get all relationships for an entity |
+| [**removeRelationship**](EntityApi.md#removerelationship) | **DELETE** /api/v1/entity/workspace/{workspaceId}/relationships/{relationshipId} | Delete a relationship |
 | [**saveEntity**](EntityApi.md#saveentityoperation) | **POST** /api/v1/entity/workspace/{workspaceId}/type/{entityTypeId} | Saves an entity instance |
 | [**saveEntityTypeDefinition**](EntityApi.md#saveentitytypedefinition) | **POST** /api/v1/entity/schema/workspace/{workspaceId}/definition | Add or update an attribute or relationship |
 | [**updateEntityType**](EntityApi.md#updateentitytype) | **PUT** /api/v1/entity/schema/workspace/{workspaceId}/configuration | Updates an existing entity type configuration |
+| [**updateRelationship**](EntityApi.md#updaterelationshipoperation) | **PUT** /api/v1/entity/workspace/{workspaceId}/relationships/{relationshipId} | Update a relationship\&#39;s semantic context |
 
+
+
+## addRelationship
+
+> RelationshipResponse addRelationship(workspaceId, entityId, addRelationshipRequest)
+
+Add a relationship between two entities
+
+### Example
+
+```ts
+import {
+  Configuration,
+  EntityApi,
+} from '';
+import type { AddRelationshipOperationRequest } from '';
+
+async function example() {
+  console.log("🚀 Testing  SDK...");
+  const config = new Configuration({ 
+    // Configure HTTP bearer authorization: bearerAuth
+    accessToken: "YOUR BEARER TOKEN",
+  });
+  const api = new EntityApi(config);
+
+  const body = {
+    // string
+    workspaceId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // string
+    entityId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // AddRelationshipRequest
+    addRelationshipRequest: ...,
+  } satisfies AddRelationshipOperationRequest;
+
+  try {
+    const data = await api.addRelationship(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **workspaceId** | `string` |  | [Defaults to `undefined`] |
+| **entityId** | `string` |  | [Defaults to `undefined`] |
+| **addRelationshipRequest** | [AddRelationshipRequest](AddRelationshipRequest.md) |  | |
+
+### Return type
+
+[**RelationshipResponse**](RelationshipResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: `application/json`
+- **Accept**: `*/*`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **201** | Relationship created successfully |  -  |
+| **404** | Source or target entity not found |  -  |
+| **409** | Relationship already exists |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
 ## createEntityType
@@ -485,9 +566,9 @@ example().catch(console.error);
 
 > EntityType getEntityTypeByKeyForWorkspace(workspaceId, key)
 
-Get an entity type by key for an workspace
+Get an entity type by key for a workspace
 
-Retrieves a specific entity type by its key associated with the specified workspace.
+Retrieves a specific entity type by its key associated with the specified workspace, including relationship definitions and semantic metadata bundle.
 
 ### Example
 
@@ -561,9 +642,9 @@ example().catch(console.error);
 
 > Array&lt;EntityType&gt; getEntityTypesForWorkspace(workspaceId)
 
-Get all entity types for an workspace
+Get all entity types for a workspace
 
-Retrieves all entity types associated with the specified workspace.
+Retrieves all entity types associated with the specified workspace, including relationship definitions and semantic metadata bundles.
 
 ### Example
 
@@ -626,6 +707,155 @@ example().catch(console.error);
 | **200** | Entity types retrieved successfully |  -  |
 | **401** | Unauthorized access |  -  |
 | **404** | Workspace not found |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## getRelationships
+
+> Array&lt;RelationshipResponse&gt; getRelationships(workspaceId, entityId, definitionId)
+
+Get all relationships for an entity
+
+### Example
+
+```ts
+import {
+  Configuration,
+  EntityApi,
+} from '';
+import type { GetRelationshipsRequest } from '';
+
+async function example() {
+  console.log("🚀 Testing  SDK...");
+  const config = new Configuration({ 
+    // Configure HTTP bearer authorization: bearerAuth
+    accessToken: "YOUR BEARER TOKEN",
+  });
+  const api = new EntityApi(config);
+
+  const body = {
+    // string
+    workspaceId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // string
+    entityId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // string (optional)
+    definitionId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+  } satisfies GetRelationshipsRequest;
+
+  try {
+    const data = await api.getRelationships(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **workspaceId** | `string` |  | [Defaults to `undefined`] |
+| **entityId** | `string` |  | [Defaults to `undefined`] |
+| **definitionId** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+[**Array&lt;RelationshipResponse&gt;**](RelationshipResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `*/*`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Relationships retrieved successfully |  -  |
+| **404** | Entity not found |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## removeRelationship
+
+> removeRelationship(workspaceId, relationshipId)
+
+Delete a relationship
+
+### Example
+
+```ts
+import {
+  Configuration,
+  EntityApi,
+} from '';
+import type { RemoveRelationshipRequest } from '';
+
+async function example() {
+  console.log("🚀 Testing  SDK...");
+  const config = new Configuration({ 
+    // Configure HTTP bearer authorization: bearerAuth
+    accessToken: "YOUR BEARER TOKEN",
+  });
+  const api = new EntityApi(config);
+
+  const body = {
+    // string
+    workspaceId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // string
+    relationshipId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+  } satisfies RemoveRelationshipRequest;
+
+  try {
+    const data = await api.removeRelationship(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **workspaceId** | `string` |  | [Defaults to `undefined`] |
+| **relationshipId** | `string` |  | [Defaults to `undefined`] |
+
+### Return type
+
+`void` (Empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **204** | Relationship deleted successfully |  -  |
+| **404** | Relationship not found |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
@@ -793,7 +1023,7 @@ example().catch(console.error);
 
 ## updateEntityType
 
-> EntityType updateEntityType(workspaceId, entityType)
+> EntityType updateEntityType(workspaceId, updateEntityTypeConfigurationRequest)
 
 Updates an existing entity type configuration
 
@@ -819,8 +1049,8 @@ async function example() {
   const body = {
     // string
     workspaceId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
-    // EntityType
-    entityType: ...,
+    // UpdateEntityTypeConfigurationRequest
+    updateEntityTypeConfigurationRequest: ...,
   } satisfies UpdateEntityTypeRequest;
 
   try {
@@ -841,7 +1071,7 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **workspaceId** | `string` |  | [Defaults to `undefined`] |
-| **entityType** | [EntityType](EntityType.md) |  | |
+| **updateEntityTypeConfigurationRequest** | [UpdateEntityTypeConfigurationRequest](UpdateEntityTypeConfigurationRequest.md) |  | |
 
 ### Return type
 
@@ -863,6 +1093,82 @@ example().catch(console.error);
 | **200** | Entity type updated successfully |  -  |
 | **400** | Invalid request data |  -  |
 | **401** | Unauthorized access |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## updateRelationship
+
+> RelationshipResponse updateRelationship(workspaceId, relationshipId, updateRelationshipRequest)
+
+Update a relationship\&#39;s semantic context
+
+### Example
+
+```ts
+import {
+  Configuration,
+  EntityApi,
+} from '';
+import type { UpdateRelationshipOperationRequest } from '';
+
+async function example() {
+  console.log("🚀 Testing  SDK...");
+  const config = new Configuration({ 
+    // Configure HTTP bearer authorization: bearerAuth
+    accessToken: "YOUR BEARER TOKEN",
+  });
+  const api = new EntityApi(config);
+
+  const body = {
+    // string
+    workspaceId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // string
+    relationshipId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // UpdateRelationshipRequest
+    updateRelationshipRequest: ...,
+  } satisfies UpdateRelationshipOperationRequest;
+
+  try {
+    const data = await api.updateRelationship(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **workspaceId** | `string` |  | [Defaults to `undefined`] |
+| **relationshipId** | `string` |  | [Defaults to `undefined`] |
+| **updateRelationshipRequest** | [UpdateRelationshipRequest](UpdateRelationshipRequest.md) |  | |
+
+### Return type
+
+[**RelationshipResponse**](RelationshipResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: `application/json`
+- **Accept**: `*/*`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Relationship updated successfully |  -  |
+| **404** | Relationship not found |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 

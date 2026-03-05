@@ -13,13 +13,27 @@
  */
 
 import { mapValues } from '../runtime';
-import type { EntityRelationshipDefinition } from './EntityRelationshipDefinition';
+import type { EntityRelationshipCardinality } from './EntityRelationshipCardinality';
 import {
-    EntityRelationshipDefinitionFromJSON,
-    EntityRelationshipDefinitionFromJSONTyped,
-    EntityRelationshipDefinitionToJSON,
-    EntityRelationshipDefinitionToJSONTyped,
-} from './EntityRelationshipDefinition';
+    EntityRelationshipCardinalityFromJSON,
+    EntityRelationshipCardinalityFromJSONTyped,
+    EntityRelationshipCardinalityToJSON,
+    EntityRelationshipCardinalityToJSONTyped,
+} from './EntityRelationshipCardinality';
+import type { SaveTargetRuleRequest } from './SaveTargetRuleRequest';
+import {
+    SaveTargetRuleRequestFromJSON,
+    SaveTargetRuleRequestFromJSONTyped,
+    SaveTargetRuleRequestToJSON,
+    SaveTargetRuleRequestToJSONTyped,
+} from './SaveTargetRuleRequest';
+import type { SaveSemanticMetadataRequest } from './SaveSemanticMetadataRequest';
+import {
+    SaveSemanticMetadataRequestFromJSON,
+    SaveSemanticMetadataRequestFromJSONTyped,
+    SaveSemanticMetadataRequestToJSON,
+    SaveSemanticMetadataRequestToJSONTyped,
+} from './SaveSemanticMetadataRequest';
 import type { EntityTypeRequestDefinition } from './EntityTypeRequestDefinition';
 import {
     EntityTypeRequestDefinitionFromJSON,
@@ -27,6 +41,20 @@ import {
     EntityTypeRequestDefinitionToJSON,
     EntityTypeRequestDefinitionToJSONTyped,
 } from './EntityTypeRequestDefinition';
+import type { IconType } from './IconType';
+import {
+    IconTypeFromJSON,
+    IconTypeFromJSONTyped,
+    IconTypeToJSON,
+    IconTypeToJSONTyped,
+} from './IconType';
+import type { IconColour } from './IconColour';
+import {
+    IconColourFromJSON,
+    IconColourFromJSONTyped,
+    IconColourToJSON,
+    IconColourToJSONTyped,
+} from './IconColour';
 
 /**
  * Request to save a relationship definition for an entity type
@@ -54,10 +82,46 @@ export interface SaveRelationshipDefinitionRequest {
     type: EntityTypeRequestDefinition;
     /**
      * 
-     * @type {EntityRelationshipDefinition}
+     * @type {string}
      * @memberof SaveRelationshipDefinitionRequest
      */
-    relationship: EntityRelationshipDefinition;
+    name: string;
+    /**
+     * 
+     * @type {IconType}
+     * @memberof SaveRelationshipDefinitionRequest
+     */
+    iconType?: IconType;
+    /**
+     * 
+     * @type {IconColour}
+     * @memberof SaveRelationshipDefinitionRequest
+     */
+    iconColour?: IconColour;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof SaveRelationshipDefinitionRequest
+     */
+    allowPolymorphic: boolean;
+    /**
+     * 
+     * @type {EntityRelationshipCardinality}
+     * @memberof SaveRelationshipDefinitionRequest
+     */
+    cardinalityDefault: EntityRelationshipCardinality;
+    /**
+     * 
+     * @type {Array<SaveTargetRuleRequest>}
+     * @memberof SaveRelationshipDefinitionRequest
+     */
+    targetRules: Array<SaveTargetRuleRequest>;
+    /**
+     * 
+     * @type {SaveSemanticMetadataRequest}
+     * @memberof SaveRelationshipDefinitionRequest
+     */
+    semantics?: SaveSemanticMetadataRequest;
 }
 
 
@@ -69,7 +133,10 @@ export function instanceOfSaveRelationshipDefinitionRequest(value: object): valu
     if (!('key' in value) || value['key'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
     if (!('type' in value) || value['type'] === undefined) return false;
-    if (!('relationship' in value) || value['relationship'] === undefined) return false;
+    if (!('name' in value) || value['name'] === undefined) return false;
+    if (!('allowPolymorphic' in value) || value['allowPolymorphic'] === undefined) return false;
+    if (!('cardinalityDefault' in value) || value['cardinalityDefault'] === undefined) return false;
+    if (!('targetRules' in value) || value['targetRules'] === undefined) return false;
     return true;
 }
 
@@ -86,7 +153,13 @@ export function SaveRelationshipDefinitionRequestFromJSONTyped(json: any, ignore
         'key': json['key'],
         'id': json['id'],
         'type': EntityTypeRequestDefinitionFromJSON(json['type']),
-        'relationship': EntityRelationshipDefinitionFromJSON(json['relationship']),
+        'name': json['name'],
+        'iconType': json['iconType'] == null ? undefined : IconTypeFromJSON(json['iconType']),
+        'iconColour': json['iconColour'] == null ? undefined : IconColourFromJSON(json['iconColour']),
+        'allowPolymorphic': json['allowPolymorphic'],
+        'cardinalityDefault': EntityRelationshipCardinalityFromJSON(json['cardinalityDefault']),
+        'targetRules': ((json['targetRules'] as Array<any>).map(SaveTargetRuleRequestFromJSON)),
+        'semantics': json['semantics'] == null ? undefined : SaveSemanticMetadataRequestFromJSON(json['semantics']),
     };
 }
 
@@ -104,7 +177,13 @@ export function SaveRelationshipDefinitionRequestToJSONTyped(value?: SaveRelatio
         'key': value['key'],
         'id': value['id'],
         'type': EntityTypeRequestDefinitionToJSON(value['type']),
-        'relationship': EntityRelationshipDefinitionToJSON(value['relationship']),
+        'name': value['name'],
+        'iconType': IconTypeToJSON(value['iconType']),
+        'iconColour': IconColourToJSON(value['iconColour']),
+        'allowPolymorphic': value['allowPolymorphic'],
+        'cardinalityDefault': EntityRelationshipCardinalityToJSON(value['cardinalityDefault']),
+        'targetRules': ((value['targetRules'] as Array<any>).map(SaveTargetRuleRequestToJSON)),
+        'semantics': SaveSemanticMetadataRequestToJSON(value['semantics']),
     };
 }
 

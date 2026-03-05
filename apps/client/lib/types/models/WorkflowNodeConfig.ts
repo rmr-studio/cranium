@@ -12,6 +12,13 @@
  * Do not edit the class manually.
  */
 
+import type { WorkflowBulkUpdateEntityActionConfig } from './WorkflowBulkUpdateEntityActionConfig';
+import {
+    instanceOfWorkflowBulkUpdateEntityActionConfig,
+    WorkflowBulkUpdateEntityActionConfigFromJSON,
+    WorkflowBulkUpdateEntityActionConfigFromJSONTyped,
+    WorkflowBulkUpdateEntityActionConfigToJSON,
+} from './WorkflowBulkUpdateEntityActionConfig';
 import type { WorkflowConditionControlConfig } from './WorkflowConditionControlConfig';
 import {
     instanceOfWorkflowConditionControlConfig,

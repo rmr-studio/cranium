@@ -81,6 +81,12 @@ export interface WorkflowScheduleTriggerConfig {
     timeZone?: WorkflowScheduleTriggerConfigTimeZone;
     /**
      * 
+     * @type {Array<WorkflowNodeConfigField>}
+     * @memberof WorkflowScheduleTriggerConfig
+     */
+    configSchema?: Array<WorkflowNodeConfigField>;
+    /**
+     * 
      * @type {{ [key: string]: object; }}
      * @memberof WorkflowScheduleTriggerConfig
      */
@@ -91,12 +97,6 @@ export interface WorkflowScheduleTriggerConfig {
      * @memberof WorkflowScheduleTriggerConfig
      */
     subType?: WorkflowTriggerType;
-    /**
-     * 
-     * @type {Array<WorkflowNodeConfigField>}
-     * @memberof WorkflowScheduleTriggerConfig
-     */
-    configSchema?: Array<WorkflowNodeConfigField>;
     /**
      * 
      * @type {WorkflowNodeType}
@@ -128,9 +128,9 @@ export function WorkflowScheduleTriggerConfigFromJSONTyped(json: any, ignoreDisc
         'cronExpression': json['cronExpression'] == null ? undefined : json['cronExpression'],
         'interval': json['interval'] == null ? undefined : WorkflowScheduleTriggerConfigIntervalFromJSON(json['interval']),
         'timeZone': json['timeZone'] == null ? undefined : WorkflowScheduleTriggerConfigTimeZoneFromJSON(json['timeZone']),
+        'configSchema': json['configSchema'] == null ? undefined : ((json['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldFromJSON)),
         'config': json['config'] == null ? undefined : json['config'],
         'subType': json['subType'] == null ? undefined : WorkflowTriggerTypeFromJSON(json['subType']),
-        'configSchema': json['configSchema'] == null ? undefined : ((json['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldFromJSON)),
         'type': json['type'] == null ? undefined : WorkflowNodeTypeFromJSON(json['type']),
     };
 }
@@ -150,9 +150,9 @@ export function WorkflowScheduleTriggerConfigToJSONTyped(value?: WorkflowSchedul
         'cronExpression': value['cronExpression'],
         'interval': WorkflowScheduleTriggerConfigIntervalToJSON(value['interval']),
         'timeZone': WorkflowScheduleTriggerConfigTimeZoneToJSON(value['timeZone']),
+        'configSchema': value['configSchema'] == null ? undefined : ((value['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldToJSON)),
         'config': value['config'],
         'subType': WorkflowTriggerTypeToJSON(value['subType']),
-        'configSchema': value['configSchema'] == null ? undefined : ((value['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldToJSON)),
         'type': WorkflowNodeTypeToJSON(value['type']),
     };
 }

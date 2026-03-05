@@ -9,6 +9,7 @@ Name | Type
 ------------ | -------------
 `entityTypeId` | string
 `filter` | [QueryFilter](QueryFilter.md)
+`maxDepth` | number
 
 ## Example
 
@@ -19,6 +20,7 @@ import type { EntityQuery } from ''
 const example = {
   "entityTypeId": null,
   "filter": null,
+  "maxDepth": null,
 } satisfies EntityQuery
 
 console.log(example)

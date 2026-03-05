@@ -34,6 +34,13 @@ import {
     SchemaStringToJSON,
     SchemaStringToJSONTyped,
 } from './SchemaString';
+import type { BulkUpdateErrorHandling } from './BulkUpdateErrorHandling';
+import {
+    BulkUpdateErrorHandlingFromJSON,
+    BulkUpdateErrorHandlingFromJSONTyped,
+    BulkUpdateErrorHandlingToJSON,
+    BulkUpdateErrorHandlingToJSONTyped,
+} from './BulkUpdateErrorHandling';
 import type { WorkflowNodeType } from './WorkflowNodeType';
 import {
     WorkflowNodeTypeFromJSON,

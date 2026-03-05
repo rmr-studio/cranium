@@ -6,9 +6,9 @@
 
 Name | Type
 ------------ | -------------
-`meta` | [BlockMeta](BlockMeta.md)
 `readonly` | boolean
 `deletable` | boolean
+`meta` | [BlockMeta](BlockMeta.md)
 `type` | [BlockMetadataType](BlockMetadataType.md)
 
 ## Example
@@ -18,9 +18,9 @@ import type { Metadata } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "meta": null,
   "readonly": null,
   "deletable": null,
+  "meta": null,
   "type": null,
 } satisfies Metadata
 

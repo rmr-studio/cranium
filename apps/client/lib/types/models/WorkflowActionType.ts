@@ -22,6 +22,7 @@ export enum WorkflowActionType {
     UpdateEntity = 'UPDATE_ENTITY',
     DeleteEntity = 'DELETE_ENTITY',
     QueryEntity = 'QUERY_ENTITY',
+    BulkUpdateEntity = 'BULK_UPDATE_ENTITY',
     LinkEntity = 'LINK_ENTITY',
     IntegrationRequest = 'INTEGRATION_REQUEST',
     HttpRequest = 'HTTP_REQUEST',

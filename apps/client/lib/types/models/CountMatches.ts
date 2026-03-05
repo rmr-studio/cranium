@@ -27,20 +27,27 @@ import {
     QueryFilterToJSON,
     QueryFilterToJSONTyped,
 } from './QueryFilter';
-import type { RelationshipCondition } from './RelationshipCondition';
+import type { RelationshipFilter } from './RelationshipFilter';
 import {
-    RelationshipConditionFromJSON,
-    RelationshipConditionFromJSONTyped,
-    RelationshipConditionToJSON,
-    RelationshipConditionToJSONTyped,
-} from './RelationshipCondition';
+    RelationshipFilterFromJSON,
+    RelationshipFilterFromJSONTyped,
+    RelationshipFilterToJSON,
+    RelationshipFilterToJSONTyped,
+} from './RelationshipFilter';
+import type { TypeBranch } from './TypeBranch';
+import {
+    TypeBranchFromJSON,
+    TypeBranchFromJSONTyped,
+    TypeBranchToJSON,
+    TypeBranchToJSONTyped,
+} from './TypeBranch';
 
 /**
  * Relationship count satisfies condition.
  * @export
  * @interface CountMatches
  */
-export interface CountMatches extends RelationshipCondition {
+export interface CountMatches extends RelationshipFilter {
     /**
      * 
      * @type {FilterOperator}
@@ -73,7 +80,7 @@ export function CountMatchesFromJSONTyped(json: any, ignoreDiscriminator: boolea
         return json;
     }
     return {
-        ...RelationshipConditionFromJSONTyped(json, true),
+        ...RelationshipFilterFromJSONTyped(json, true),
         'operator': json['operator'] == null ? undefined : FilterOperatorFromJSON(json['operator']),
         'count': json['count'] == null ? undefined : json['count'],
     };
@@ -89,7 +96,7 @@ export function CountMatchesToJSONTyped(value?: CountMatches | null, ignoreDiscr
     }
 
     return {
-        ...RelationshipConditionToJSONTyped(value, true),
+        ...RelationshipFilterToJSONTyped(value, true),
         'operator': FilterOperatorToJSON(value['operator']),
         'count': value['count'],
     };

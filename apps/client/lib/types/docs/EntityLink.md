@@ -8,7 +8,7 @@ Name | Type
 ------------ | -------------
 `id` | string
 `workspaceId` | string
-`fieldId` | string
+`definitionId` | string
 `sourceEntityId` | string
 `icon` | [Icon](Icon.md)
 `key` | string
@@ -23,7 +23,7 @@ import type { EntityLink } from ''
 const example = {
   "id": null,
   "workspaceId": null,
-  "fieldId": null,
+  "definitionId": null,
   "sourceEntityId": null,
   "icon": null,
   "key": null,

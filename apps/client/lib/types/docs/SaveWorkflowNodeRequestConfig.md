@@ -10,14 +10,15 @@ Name | Type
 `entityTypeId` | string
 `payload` | { [key: string]: string; }
 `timeoutSeconds` | number
+`configSchema` | [Array&lt;WorkflowNodeConfigField&gt;](WorkflowNodeConfigField.md)
 `config` | { [key: string]: object; }
 `subType` | [WorkflowUtilityActionType](WorkflowUtilityActionType.md)
-`configSchema` | [Array&lt;WorkflowNodeConfigField&gt;](WorkflowNodeConfigField.md)
 `type` | [WorkflowNodeType](WorkflowNodeType.md)
 `entityId` | string
 `query` | [EntityQuery](EntityQuery.md)
 `pagination` | [QueryPagination](QueryPagination.md)
 `projection` | [QueryProjection](QueryProjection.md)
+`errorHandling` | [BulkUpdateErrorHandling](BulkUpdateErrorHandling.md)
 `url` | string
 `method` | [RequestMethodType](RequestMethodType.md)
 `headers` | { [key: string]: string; }
@@ -47,14 +48,15 @@ const example = {
   "entityTypeId": null,
   "payload": null,
   "timeoutSeconds": null,
+  "configSchema": null,
   "config": null,
   "subType": null,
-  "configSchema": null,
   "type": null,
   "entityId": null,
   "query": null,
   "pagination": null,
   "projection": null,
+  "errorHandling": null,
   "url": null,
   "method": null,
   "headers": null,

@@ -27,20 +27,27 @@ import {
     QueryFilterToJSON,
     QueryFilterToJSONTyped,
 } from './QueryFilter';
-import type { RelationshipCondition } from './RelationshipCondition';
+import type { RelationshipFilter } from './RelationshipFilter';
 import {
-    RelationshipConditionFromJSON,
-    RelationshipConditionFromJSONTyped,
-    RelationshipConditionToJSON,
-    RelationshipConditionToJSONTyped,
-} from './RelationshipCondition';
+    RelationshipFilterFromJSON,
+    RelationshipFilterFromJSONTyped,
+    RelationshipFilterToJSON,
+    RelationshipFilterToJSONTyped,
+} from './RelationshipFilter';
+import type { TypeBranch } from './TypeBranch';
+import {
+    TypeBranchFromJSON,
+    TypeBranchFromJSONTyped,
+    TypeBranchToJSON,
+    TypeBranchToJSONTyped,
+} from './TypeBranch';
 
 /**
  * Entity has at least one related entity.
  * @export
  * @interface Exists
  */
-export interface Exists extends RelationshipCondition {
+export interface Exists extends RelationshipFilter {
 }
 
 

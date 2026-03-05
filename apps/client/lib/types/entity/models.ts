@@ -26,6 +26,7 @@ import { EntityTypeRelationshipType } from '../models/EntityTypeRelationshipType
 import { EntityPropertyType } from '../models/EntityPropertyType';
 import { DeleteAction } from '../models/DeleteAction';
 import { SemanticGroup } from '../models/SemanticGroup';
+import { SystemRelationshipType } from '../models/SystemRelationshipType';
 
 export type {
   DeleteDefinitionImpact,
@@ -59,4 +60,5 @@ export {
   SemanticAttributeClassification,
   SemanticMetadataTargetType,
   SemanticGroup,
+  SystemRelationshipType,
 };

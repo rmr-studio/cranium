@@ -12,6 +12,10 @@ import type { DeleteRelationshipDefinitionRequest } from '../models/DeleteRelati
 import type { EntityAttributeRequest } from '../models/EntityAttributeRequest';
 import type { EntityAttributeRequestPayload } from '../models/EntityAttributeRequestPayload';
 import type { EntityReferenceRequest } from '../models/EntityReferenceRequest';
+import type { SaveTargetRuleRequest } from '../models/SaveTargetRuleRequest';
+import type { SaveSemanticMetadataRequest } from '../models/SaveSemanticMetadataRequest';
+import type { BulkSaveSemanticMetadataRequest } from '../models/BulkSaveSemanticMetadataRequest';
+import type { UpdateEntityTypeConfigurationRequest } from '../models/UpdateEntityTypeConfigurationRequest';
 import { EntityTypeRequestDefinition } from '../models/EntityTypeRequestDefinition';
 
 export type {
@@ -28,6 +32,10 @@ export type {
   EntityAttributeRequest,
   EntityAttributeRequestPayload,
   EntityReferenceRequest,
+  SaveTargetRuleRequest,
+  SaveSemanticMetadataRequest,
+  BulkSaveSemanticMetadataRequest,
+  UpdateEntityTypeConfigurationRequest,
 };
 
 export { EntityTypeRequestDefinition };

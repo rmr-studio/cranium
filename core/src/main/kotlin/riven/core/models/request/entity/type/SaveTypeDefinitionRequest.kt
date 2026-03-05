@@ -35,7 +35,7 @@ data class SaveAttributeDefinitionRequest(
 @JsonDeserialize(using = JsonDeserializer.None::class)
 data class SaveRelationshipDefinitionRequest(
     override val key: String,
-    override val id: UUID,
+    override val id: UUID? = null,
     val name: String,
     val iconType: IconType?,
     val iconColour: IconColour?,

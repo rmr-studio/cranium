@@ -3,6 +3,7 @@ package riven.core.entity.catalog
 import jakarta.persistence.*
 import org.hibernate.annotations.UpdateTimestamp
 import riven.core.enums.catalog.ManifestType
+import riven.core.models.catalog.*
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -54,4 +55,30 @@ data class ManifestCatalogEntity(
     @UpdateTimestamp
     @Column(name = "updated_at")
     var updatedAt: ZonedDateTime = ZonedDateTime.now()
-)
+) {
+
+    fun toSummary(entityTypeCount: Int) = ManifestSummary(
+        id = id!!,
+        key = key,
+        name = name,
+        description = description,
+        manifestVersion = manifestVersion,
+        entityTypeCount = entityTypeCount
+    )
+
+    fun toDetail(
+        entityTypes: List<CatalogEntityTypeModel>,
+        relationships: List<CatalogRelationshipModel>,
+        fieldMappings: List<CatalogFieldMappingModel>
+    ) = ManifestDetail(
+        id = id!!,
+        key = key,
+        name = name,
+        description = description,
+        manifestType = manifestType,
+        manifestVersion = manifestVersion,
+        entityTypes = entityTypes,
+        relationships = relationships,
+        fieldMappings = fieldMappings
+    )
+}

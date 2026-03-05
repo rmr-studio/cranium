@@ -17,6 +17,12 @@ interface CatalogRelationshipTargetRuleRepository : JpaRepository<CatalogRelatio
     fun findByCatalogRelationshipId(catalogRelationshipId: UUID): List<CatalogRelationshipTargetRuleEntity>
 
     /**
+     * Batch-load target rules for multiple relationships.
+     * Used by ManifestCatalogService to avoid N+1 queries during hydration.
+     */
+    fun findByCatalogRelationshipIdIn(catalogRelationshipIds: List<UUID>): List<CatalogRelationshipTargetRuleEntity>
+
+    /**
      * Delete all target rules for the given catalog relationship IDs.
      * Used for delete-reinsert reconciliation (delete target rules before deleting relationships).
      */

@@ -31,6 +31,20 @@ interface ManifestCatalogRepository : JpaRepository<ManifestCatalogEntity, UUID>
      */
     fun findByKeyAndManifestType(key: String, manifestType: ManifestType): ManifestCatalogEntity?
 
+    // ------ Query Surface (stale-filtered) ------
+
+    /**
+     * Find all non-stale manifests of a given type.
+     * Used by ManifestCatalogService for listing active templates/models.
+     */
+    fun findByManifestTypeAndStaleFalse(manifestType: ManifestType): List<ManifestCatalogEntity>
+
+    /**
+     * Find a single non-stale manifest by key.
+     * Returns null if the manifest doesn't exist or is stale.
+     */
+    fun findByKeyAndStaleFalse(key: String): ManifestCatalogEntity?
+
     // ------ Stale Reconciliation ------
 
     /**

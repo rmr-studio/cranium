@@ -4,6 +4,7 @@ import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.Type
 import org.hibernate.annotations.UpdateTimestamp
+import riven.core.models.catalog.CatalogFieldMappingModel
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -42,4 +43,11 @@ data class CatalogFieldMappingEntity(
     @UpdateTimestamp
     @Column(name = "updated_at")
     var updatedAt: ZonedDateTime = ZonedDateTime.now()
-)
+) {
+
+    fun toModel() = CatalogFieldMappingModel(
+        id = id!!,
+        entityTypeKey = entityTypeKey,
+        mappings = mappings
+    )
+}

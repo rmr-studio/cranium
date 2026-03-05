@@ -28,6 +28,12 @@ interface CatalogSemanticMetadataRepository : JpaRepository<CatalogSemanticMetad
     ): CatalogSemanticMetadataEntity?
 
     /**
+     * Batch-load semantic metadata for multiple entity types.
+     * Used by ManifestCatalogService to avoid N+1 queries during hydration.
+     */
+    fun findByCatalogEntityTypeIdIn(catalogEntityTypeIds: List<UUID>): List<CatalogSemanticMetadataEntity>
+
+    /**
      * Delete all semantic metadata for the given catalog entity type IDs.
      * Used for delete-reinsert reconciliation (delete metadata before deleting entity types).
      */

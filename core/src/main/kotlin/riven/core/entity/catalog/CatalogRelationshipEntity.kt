@@ -5,6 +5,8 @@ import org.hibernate.annotations.UpdateTimestamp
 import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.entity.EntityRelationshipCardinality
+import riven.core.models.catalog.CatalogRelationshipModel
+import riven.core.models.catalog.CatalogRelationshipTargetRuleModel
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -64,4 +66,18 @@ data class CatalogRelationshipEntity(
     @UpdateTimestamp
     @Column(name = "updated_at")
     var updatedAt: ZonedDateTime = ZonedDateTime.now()
-)
+) {
+
+    fun toModel(targetRules: List<CatalogRelationshipTargetRuleModel>) = CatalogRelationshipModel(
+        id = id!!,
+        key = key,
+        sourceEntityTypeKey = sourceEntityTypeKey,
+        name = name,
+        iconType = iconType,
+        iconColour = iconColour,
+        allowPolymorphic = allowPolymorphic,
+        cardinalityDefault = cardinalityDefault,
+        `protected` = `protected`,
+        targetRules = targetRules
+    )
+}

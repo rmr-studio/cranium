@@ -7,6 +7,8 @@ import org.hibernate.annotations.UpdateTimestamp
 import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.entity.semantics.SemanticGroup
+import riven.core.models.catalog.CatalogEntityTypeModel
+import riven.core.models.catalog.CatalogSemanticMetadataModel
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -73,4 +75,20 @@ data class CatalogEntityTypeEntity(
     @UpdateTimestamp
     @Column(name = "updated_at")
     var updatedAt: ZonedDateTime = ZonedDateTime.now()
-)
+) {
+
+    fun toModel(semanticMetadata: List<CatalogSemanticMetadataModel>) = CatalogEntityTypeModel(
+        id = id!!,
+        key = key,
+        displayNameSingular = displayNameSingular,
+        displayNamePlural = displayNamePlural,
+        iconType = iconType,
+        iconColour = iconColour,
+        semanticGroup = semanticGroup,
+        identifierKey = identifierKey,
+        readonly = readonly,
+        schema = schema,
+        columns = columns,
+        semanticMetadata = semanticMetadata
+    )
+}

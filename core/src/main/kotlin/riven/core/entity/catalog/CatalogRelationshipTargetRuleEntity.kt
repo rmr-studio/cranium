@@ -4,6 +4,7 @@ import jakarta.persistence.*
 import org.hibernate.annotations.UpdateTimestamp
 import riven.core.enums.entity.EntityRelationshipCardinality
 import riven.core.enums.entity.semantics.SemanticGroup
+import riven.core.models.catalog.CatalogRelationshipTargetRuleModel
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -47,4 +48,14 @@ data class CatalogRelationshipTargetRuleEntity(
     @UpdateTimestamp
     @Column(name = "updated_at")
     var updatedAt: ZonedDateTime = ZonedDateTime.now()
-)
+) {
+
+    fun toModel() = CatalogRelationshipTargetRuleModel(
+        id = id!!,
+        targetEntityTypeKey = targetEntityTypeKey,
+        semanticTypeConstraint = semanticTypeConstraint,
+        cardinalityOverride = cardinalityOverride,
+        inverseVisible = inverseVisible,
+        inverseName = inverseName
+    )
+}

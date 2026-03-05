@@ -6,6 +6,7 @@ import org.hibernate.annotations.Type
 import org.hibernate.annotations.UpdateTimestamp
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
+import riven.core.models.catalog.CatalogSemanticMetadataModel
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -56,4 +57,14 @@ data class CatalogSemanticMetadataEntity(
     @UpdateTimestamp
     @Column(name = "updated_at")
     var updatedAt: ZonedDateTime = ZonedDateTime.now()
-)
+) {
+
+    fun toModel() = CatalogSemanticMetadataModel(
+        id = id!!,
+        targetType = targetType,
+        targetId = targetId,
+        definition = definition,
+        classification = classification,
+        tags = tags
+    )
+}

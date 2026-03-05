@@ -5,7 +5,7 @@ import {
     CommandInput,
     CommandItem,
     CommandList,
-} from "@/components/ui/command";
+} from '@riven/ui';
 import { CommandIcon } from "lucide-react";
 import { FC } from "react";
 import type { QuickActionItem } from "@/lib/types/block";

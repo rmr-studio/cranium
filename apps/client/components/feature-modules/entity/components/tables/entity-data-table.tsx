@@ -1,10 +1,10 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@riven/ui';
 import { ColumnResizingConfig, DataTable, DataTableProvider } from '@/components/ui/data-table';
 import { Form } from '@/components/ui/form';
 import { SchemaUUID } from '@/lib/types/common';
-import { ClassNameProps } from '@/lib/interfaces/interface';
+import type { ClassNameProps } from '@riven/utils';
 import {
   Entity,
   EntityAttributePrimitivePayload,
@@ -19,7 +19,7 @@ import {
   SaveEntityResponse,
 } from '@/lib/types/entity';
 import { debounce } from '@/lib/util/debounce.util';
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 
 import { Row } from '@tanstack/react-table';
 import { Plus } from 'lucide-react';

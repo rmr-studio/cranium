@@ -3,7 +3,7 @@
 import React from 'react';
 import { Bold, Code, Italic, Strikethrough, Underline } from 'lucide-react';
 
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 
 import { Button } from '../../button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../tooltip';

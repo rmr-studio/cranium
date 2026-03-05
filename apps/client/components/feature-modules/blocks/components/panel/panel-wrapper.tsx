@@ -1,7 +1,7 @@
 "use client";
-import { ChildNodeProps, ClassNameProps } from "@/lib/interfaces/interface";
+import type { ChildNodeProps, ClassNameProps } from '@riven/utils';
 import type { EntityType } from "@/lib/types/entity";
-import { cn } from "@/lib/util/utils";
+import { cn } from '@riven/utils';
 import { AnimatePresence } from "framer-motion";
 import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useBlockEdit } from "../../context/block-edit-provider";

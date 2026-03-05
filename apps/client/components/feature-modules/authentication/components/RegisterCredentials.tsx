@@ -1,7 +1,6 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { CardContent, CardHeader } from '@/components/ui/card';
+import { Button, CardContent, CardHeader, Input } from '@riven/ui';
 import {
   Form,
   FormControl,
@@ -10,7 +9,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { OAuthProvider } from '@/lib/auth';
 import Link from 'next/link';
 import { FC, useState } from 'react';

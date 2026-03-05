@@ -7,8 +7,8 @@
 
 'use client';
 
-import { ClassNameProps } from "@/lib/interfaces/interface";
-import { cn } from "@/lib/util/utils";
+import type { ClassNameProps } from '@riven/utils';
+import { cn } from '@riven/utils';
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { ReactNode, useCallback, useMemo } from "react";

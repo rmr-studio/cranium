@@ -1,17 +1,8 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from '@/components/ui/command';
-import { Label } from '@/components/ui/label';
+import { Button, Label, Popover, PopoverContent, PopoverTrigger, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@riven/ui';
 import { OptionalTooltip } from '@/components/ui/optional-tooltip';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 import { Check, ChevronsUpDown, CircleAlert } from 'lucide-react';
 import { FC, useEffect, useState } from 'react';
 import { FormWidgetProps } from '../form-widget.types';

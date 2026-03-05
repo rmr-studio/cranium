@@ -2,8 +2,7 @@
 
 import { useProfile } from '@/components/feature-modules/user/hooks/useProfile';
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button, Input } from '@riven/ui';
 import { PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';

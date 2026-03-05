@@ -3,8 +3,8 @@
 import { OptionalTooltip } from '@/components/ui/optional-tooltip';
 import { DateTimePicker } from '@/components/ui/forms/date-picker/date-picker';
 import { DateTimeInput } from '@/components/ui/forms/date-picker/date-picker-input';
-import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/util/utils';
+import { Label } from '@riven/ui';
+import { cn } from '@riven/utils';
 import { CircleAlert } from 'lucide-react';
 import { FC, useState } from 'react';
 import { FormWidgetProps } from '../form-widget.types';

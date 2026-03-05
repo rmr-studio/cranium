@@ -2,7 +2,7 @@
 
 import type { FC } from "react";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import { Label } from '@riven/ui';
 import type { ConfigWidgetProps } from "./config-widget.types";
 
 export const BooleanWidget: FC<ConfigWidgetProps<boolean>> = ({

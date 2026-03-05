@@ -1,8 +1,7 @@
 import * as React from 'react';
 
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { cn } from '@/lib/util/utils';
+import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@riven/ui';
+import { cn } from '@riven/utils';
 import { format, getYear, isValid, parse } from 'date-fns';
 import { CalendarIcon, CircleAlert, CircleCheck } from 'lucide-react';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';

@@ -1,14 +1,6 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@riven/ui';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { FC, useMemo, useState } from 'react';
 import { useDeleteEntityMutation } from '../../../../hooks/mutation/instance/use-delete-entity-mutation';

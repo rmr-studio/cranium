@@ -1,11 +1,9 @@
 'use client';
 
 import { RegistrationConfirmation } from '@/components/feature-modules/authentication/interface/auth.interface';
-import { Button } from '@/components/ui/button';
-import { CardContent, CardHeader } from '@/components/ui/card';
+import { Button, CardContent, CardHeader, Separator } from '@riven/ui';
 import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { FormOTPInput } from '@/components/ui/forms/form-otp-input';
-import { Separator } from '@/components/ui/separator';
 import { getAuthErrorMessage, isAuthError } from '@/lib/auth';
 import { FormOTP, OTPFormSchema } from '@/lib/util/form/form.util';
 import { zodResolver } from '@hookform/resolvers/zod';

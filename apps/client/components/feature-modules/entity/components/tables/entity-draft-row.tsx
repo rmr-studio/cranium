@@ -1,9 +1,8 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { TableCell, TableRow } from '@/components/ui/table';
+import { Button, TableCell, TableRow } from '@riven/ui';
 import { EntityPropertyType, EntityType } from '@/lib/types/entity';
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 import { Row } from '@tanstack/react-table';
 import { Check, X } from 'lucide-react';
 import { FC, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';

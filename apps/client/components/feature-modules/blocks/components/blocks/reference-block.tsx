@@ -1,8 +1,7 @@
 'use client';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge, Card, CardContent, CardHeader, CardTitle } from '@riven/ui';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle, Database } from 'lucide-react';
 import { FC } from 'react';

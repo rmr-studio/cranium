@@ -1,6 +1,7 @@
-import { ClassNameProps, FormFieldProps } from '@/lib/interfaces/interface';
+import type { ClassNameProps } from '@riven/utils';
+import { FormFieldProps } from '@/lib/interfaces/interface';
 
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 import { REGEXP_ONLY_CHARS, REGEXP_ONLY_DIGITS, REGEXP_ONLY_DIGITS_AND_CHARS } from 'input-otp';
 import { FC, Fragment } from 'react';
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '../input-otp';

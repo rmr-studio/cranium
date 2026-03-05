@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+import { Button } from '@riven/ui';
 import { type EntityType, type EntityTypeDefinition } from '@/lib/types/entity';
 import { Plus } from 'lucide-react';
 import { FC, useEffect, useState } from 'react';

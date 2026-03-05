@@ -1,5 +1,5 @@
 import { getInverseCardinality } from '@/components/feature-modules/entity/util/relationship.util';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@riven/ui';
 import { IconCell } from '@/components/ui/icon/icon-cell';
 import { type Icon } from '@/lib/types/common';
 import { EntityRelationshipCardinality, EntityRelationshipDefinition } from '@/lib/types/entity';

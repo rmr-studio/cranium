@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react';
 import { Handle, type HandleProps } from '@xyflow/react';
 
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 
 export type BaseHandleProps = HandleProps;
 

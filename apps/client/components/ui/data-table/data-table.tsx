@@ -15,8 +15,8 @@
  */
 
 import { Checkbox } from '@/components/ui/checkbox';
-import { Table } from '@/components/ui/table';
-import { cn } from '@/lib/util/utils';
+import { Table } from '@riven/ui';
+import { cn } from '@riven/utils';
 import {
   closestCenter,
   DndContext,

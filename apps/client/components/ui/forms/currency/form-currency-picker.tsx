@@ -1,16 +1,8 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from '@/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ClassNameProps } from '@/lib/interfaces/interface';
-import { cn } from '@/lib/util/utils';
+import { Button, Popover, PopoverContent, PopoverTrigger, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@riven/ui';
+import type { ClassNameProps } from '@riven/utils';
+import { cn } from '@riven/utils';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { FC, useState } from 'react';
 import { ScrollArea } from '../../scroll-area';

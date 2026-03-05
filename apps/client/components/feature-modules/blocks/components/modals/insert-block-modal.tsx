@@ -5,7 +5,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
+} from '@riven/ui';
 import { SearchIcon } from 'lucide-react';
 import { FC } from 'react';
 import { SlashMenuItem } from '../panel/panel-wrapper';

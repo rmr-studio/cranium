@@ -1,5 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@riven/ui';
 import type { WorkspaceMember } from '@/lib/types/workspace';
 import Link from 'next/link';
 import { FC } from 'react';

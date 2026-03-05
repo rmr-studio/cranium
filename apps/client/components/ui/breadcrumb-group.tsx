@@ -17,10 +17,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { useMediaQuery } from '@/hooks/use-media-query';
-import { ClassNameProps } from '@/lib/interfaces/interface';
-import { cn } from '@/lib/util/utils';
+} from '@riven/ui';
+import { useMediaQuery } from '@riven/hooks';
+import type { ClassNameProps } from '@riven/utils';
+import { cn } from '@riven/utils';
 import Link from 'next/link';
 import {
   Breadcrumb,

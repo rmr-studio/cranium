@@ -4,7 +4,7 @@ import {
     CommandGroup,
     CommandInput,
     CommandItem,
-} from "@/components/ui/command";
+} from '@riven/ui';
 import type { EntityType } from "@/lib/types/entity";
 import type { BlockType } from "@/lib/types/block";
 import { FC, Fragment, RefObject } from "react";

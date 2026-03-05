@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Link as LinkIcon, MoreHorizontal, Type } from 'lucide-react';
 
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 import { useToast } from '@/components/ui/rich-editor/hooks/use-toast';
 
 import { Button } from '../button';

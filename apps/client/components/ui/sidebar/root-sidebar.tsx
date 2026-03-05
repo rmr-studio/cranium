@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SidebarGroupProps } from '@/lib/interfaces/interface';
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 import { AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { motion } from 'motion/react';

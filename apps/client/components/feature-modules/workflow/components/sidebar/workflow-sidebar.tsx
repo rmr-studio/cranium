@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { PanelLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from '@riven/ui';
 import { WorkflowNodeMetadata } from "@/lib/types/workflow";
 import {
     useSelectedNodeId,

@@ -1,5 +1,5 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { cn } from '@/lib/util/utils';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@riven/ui';
+import { cn } from '@riven/utils';
 import { FC } from 'react';
 
 type Row = { key: string; value: string };

@@ -3,7 +3,7 @@
 import React, { useRef, useState } from 'react';
 import { GripVertical, Plus, Trash2, X } from 'lucide-react';
 
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 
 import { Button } from '../button';
 import { ContainerNode, StructuralNode, TextNode, type EditorNode } from './types';

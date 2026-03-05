@@ -1,7 +1,7 @@
-import { CommandItem } from '@/components/ui/command';
-import { ClassNameProps } from '@/lib/interfaces/interface';
+import { CommandItem } from '@riven/ui';
+import type { ClassNameProps } from '@riven/utils';
 import { IconColour, IconType } from '@/lib/types/common';
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 import { memo } from 'react';
 import { ICON_COLOUR_MAP, ICON_REGISTRY } from './icon-mapper';
 

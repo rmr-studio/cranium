@@ -1,6 +1,6 @@
 'use client';
 
-import { Input } from '@/components/ui/input';
+import { Input } from '@riven/ui';
 import { Search, X } from 'lucide-react';
 import { useEffect } from 'react';
 import { useDataTableSearch } from '../data-table-provider';

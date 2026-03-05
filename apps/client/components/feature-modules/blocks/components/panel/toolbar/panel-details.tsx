@@ -1,5 +1,4 @@
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
+import { Badge, Input } from '@riven/ui';
 import { FC } from 'react';
 
 interface PanelDetailsProps {

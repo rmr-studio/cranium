@@ -1,7 +1,7 @@
 'use client';
 
-import { TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { cn } from '@/lib/util/utils';
+import { TableHead, TableHeader, TableRow } from '@riven/ui';
+import { cn } from '@riven/utils';
 import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
 import { Table as TanStackTable, flexRender } from '@tanstack/react-table';
 import { useMemo } from 'react';

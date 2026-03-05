@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@riven/ui';
 import { DateTimePicker } from '@/components/ui/forms/date-picker/date-picker';
 import { DateTimeInput } from '@/components/ui/forms/date-picker/date-picker-input';
 import {

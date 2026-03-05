@@ -9,10 +9,10 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@riven/ui';
 import { isAuthError } from '@/lib/auth';
 import { getAuthErrorMessage } from '@/lib/auth/error-messages';
-import { getInitials } from '@/lib/util/utils';
+import { getInitials } from '@riven/utils';
 
 import {
   AppWindowMac,

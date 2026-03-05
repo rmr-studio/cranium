@@ -5,8 +5,8 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
-import { cn } from '@/lib/util/utils';
+} from '@riven/ui';
+import { cn } from '@riven/utils';
 import { useState } from 'react';
 import * as RPNInput from 'react-phone-number-input';
 import { Button } from './button';

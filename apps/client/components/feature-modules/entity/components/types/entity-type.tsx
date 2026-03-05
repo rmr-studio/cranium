@@ -1,9 +1,8 @@
 'use client';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
+import { Badge, Tabs, TabsContent, TabsList, TabsTrigger } from '@riven/ui';
 import { Form } from '@/components/ui/form';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { type EntityType } from '@/lib/types/entity';
 import { DataType } from '@/lib/types/common';
 import { AlertCircle } from 'lucide-react';

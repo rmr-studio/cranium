@@ -2,7 +2,7 @@ import { useProfile } from '@/components/feature-modules/user/hooks/useProfile';
 import type { User } from '@/lib/types/user';
 import { updateUser } from '@/components/feature-modules/user/service/user.service';
 import { useAuth } from '@/components/provider/auth-context';
-import { Button } from '@/components/ui/button';
+import { Button, Input } from '@riven/ui';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { SheetDescription, SheetFooter, SheetTitle } from '@/components/ui/sheet';
 import { Propless } from '@/lib/interfaces/interface';
@@ -14,7 +14,6 @@ import { toast } from 'sonner';
 import { isMobilePhone } from 'validator';
 
 import { AvatarUploader } from '@/components/ui/AvatarUploader';
-import { Input } from '@/components/ui/input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { TextSeparator } from '@/components/ui/text-separator';
 import { OTPFormSchema } from '@/lib/util/form/form.util';

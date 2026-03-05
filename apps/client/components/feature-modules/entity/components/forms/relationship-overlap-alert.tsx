@@ -1,5 +1,5 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
+import { Button } from '@riven/ui';
 import { AlertTriangle } from 'lucide-react';
 import { FC } from 'react';
 import { RelationshipOverlap } from '../../hooks/use-relationship-overlap-detection';

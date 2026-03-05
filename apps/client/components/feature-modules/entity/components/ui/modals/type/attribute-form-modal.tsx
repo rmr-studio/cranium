@@ -6,7 +6,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '@riven/ui';
 import { DialogControl } from '@/lib/interfaces/interface';
 import {
   EntityAttributeDefinition,

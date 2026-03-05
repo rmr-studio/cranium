@@ -5,7 +5,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from '@riven/ui';
 import { Address } from '@/lib/interfaces/common.interface';
 import { FC, ReactNode } from 'react';
 import { z } from 'zod';

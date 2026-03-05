@@ -1,5 +1,5 @@
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/util/utils';
+import { Button } from '@riven/ui';
+import { cn } from '@riven/utils';
 import Link from 'next/link';
 import { FC } from 'react';
 import { z } from 'zod';

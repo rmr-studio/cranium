@@ -56,6 +56,10 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:3.0.0")
     implementation("io.github.jan-tennert.supabase:serializer-jackson:3.1.4")
 
+    // Storage: Content Validation
+    implementation("org.apache.tika:tika-core:3.2.0")
+    implementation("io.github.borewit:svg-sanitizer:0.3.1")
+
     // Pdf Generation
     implementation("com.github.librepdf:openpdf:1.3.30")
 

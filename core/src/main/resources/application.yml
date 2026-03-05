@@ -62,6 +62,14 @@ riven:
         max-interval-seconds: 10
   query:
     timeout-seconds: 10
+storage:
+  provider: local
+  local:
+    base-path: ./storage
+  signed-url:
+    secret: ${STORAGE_SIGNED_URL_SECRET:dev-secret-change-in-production}
+    default-expiry-seconds: 3600
+    max-expiry-seconds: 86400
 springdoc:
   api-docs:
     path: /docs/v3/api-docs

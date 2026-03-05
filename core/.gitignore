@@ -42,5 +42,4 @@ out/
 .kotlin
 
 ### Planning ###
-.planning/*
-!.planning/codebase/.pr-review/
+# .planning/ is tracked in git (commit_docs: true)

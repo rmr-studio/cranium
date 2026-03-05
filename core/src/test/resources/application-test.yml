@@ -35,6 +35,15 @@ riven:
       namespace: default
       enabled: true
 
+storage:
+  provider: local
+  local:
+    base-path: ${java.io.tmpdir}/riven-test-storage
+  signed-url:
+    secret: test-hmac-secret-for-unit-tests
+    default-expiry-seconds: 3600
+    max-expiry-seconds: 86400
+
 # Logging
 logging:
   level:

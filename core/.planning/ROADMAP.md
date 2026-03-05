@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Database Foundation** - Catalog tables, JPA entities, repositories, JSON Schema files, and directory scaffolding
 - [ ] **Phase 2: Loader Pipeline** - Full startup load pipeline: scan, validate, resolve, normalize, upsert, reconcile, and unit tests
-- [ ] **Phase 3: Read Surface and Integration Tests** - ManifestCatalogService query API and end-to-end integration test verification
+- [x] **Phase 3: Read Surface and Integration Tests** - ManifestCatalogService query API and end-to-end integration test verification (completed 2026-03-05)
 
 ## Phase Details
 
@@ -57,7 +57,7 @@ Plans:
   2. ManifestCatalogService.getManifestByKey(key) returns a single manifest with all nested entity types and relationships hydrated
   3. Integration test: running the loader twice against the same fixture set produces identical catalog row counts (idempotent reload verified)
   4. Integration test: removing a manifest from the fixture set and re-running startup results in that catalog entry having deleted=true, not a missing row (soft-delete reconciliation verified)
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 Plans:
 - [x] 03-01-PLAN.md — ManifestCatalogService query models, repository additions, toModel() mappings, and unit tests
 - [ ] 03-02-PLAN.md — ManifestScannerService configurable path refactor and end-to-end integration tests
@@ -71,4 +71,4 @@ Phases execute in numeric order: 1 → 2 → 3
 |-------|----------------|--------|-----------|
 | 1. Database Foundation | 1/1 | Complete | 2026-03-04 |
 | 2. Loader Pipeline | 2/3 | In Progress|  |
-| 3. Read Surface and Integration Tests | 1/2 | In Progress | - |
+| 3. Read Surface and Integration Tests | 2/2 | Complete   | 2026-03-05 |

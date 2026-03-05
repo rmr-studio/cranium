@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in-progress
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-03-05T08:37:41Z"
-last_activity: 2026-03-05 — Phase 3 Plan 1 executed
+status: complete
+stopped_at: Completed 03-02-PLAN.md
+last_updated: "2026-03-05T08:47:35Z"
+last_activity: 2026-03-05 — Phase 3 Plan 2 executed
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 6
-  completed_plans: 5
-  percent: 83
+  completed_plans: 6
+  percent: 100
 ---
 
 # Project State
@@ -26,18 +26,18 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 3 of 3 (Read Surface and Integration Tests)
-Plan: 1 of 2 in current phase (complete)
-Status: Phase 3 in progress, plan 1 complete
-Last activity: 2026-03-05 — Phase 3 Plan 1 executed
+Plan: 2 of 2 in current phase (complete)
+Status: All phases complete
+Last activity: 2026-03-05 — Phase 3 Plan 2 executed
 
-Progress: [########--] 83%
+Progress: [##########] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 5.6 minutes
-- Total execution time: 0.47 hours
+- Total plans completed: 6
+- Average duration: 5.5 minutes
+- Total execution time: 0.55 hours
 
 **By Phase:**
 
@@ -45,10 +45,10 @@ Progress: [########--] 83%
 |-------|-------|-------|----------|
 | 1. Database Foundation | 1/1 | 8 min | 8 min |
 | 2. Loader Pipeline | 3/3 | 16 min | 5.3 min |
-| 3. Read Surface | 1/2 | 4 min | 4 min |
+| 3. Read Surface | 2/2 | 11 min | 5.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 8 min, 3 min, 8 min, 5 min, 4 min
+- Last 5 plans: 3 min, 8 min, 5 min, 4 min, 7 min
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -77,6 +77,9 @@ Recent decisions affecting current work:
 - Semantics: Relationship semantics have definition + tags but no classification per CONTEXT.md
 - Query models: Flat data classes separate from pipeline models -- no sealed hierarchy needed
 - Query: findByKeyAndStaleFalse returns single entity (keys practically unique across types)
+- Integration tests: file-based temp dir for scanner base path to enable file deletion in removal test
+- Bug fix: clearAutomatically=true on markAllStale to avoid stale persistence context
+- Bug fix: flush after deleteChildren to avoid unique constraint violations from deferred em.remove()
 
 ### Pending Todos
 
@@ -89,6 +92,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-05T08:37:41Z
-Stopped at: Completed 03-01-PLAN.md
-Resume file: .planning/phases/03-read-surface-and-integration-tests/03-02-PLAN.md
+Last session: 2026-03-05T08:47:35Z
+Stopped at: Completed 03-02-PLAN.md — All phases complete
+Resume file: N/A — project complete

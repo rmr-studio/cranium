@@ -15,11 +15,11 @@ import riven.core.enums.util.OperationType
 import riven.core.models.common.validation.Schema
 import riven.core.models.entity.EntityType
 import riven.core.models.entity.EntityTypeSemanticMetadata
+import riven.core.models.entity.SemanticMetadataBundle
 import riven.core.models.entity.configuration.EntityTypeAttributeColumn
 import riven.core.models.request.entity.type.*
 import riven.core.models.response.entity.type.DeleteDefinitionImpact
 import riven.core.models.response.entity.type.EntityTypeImpactResponse
-import riven.core.models.entity.SemanticMetadataBundle
 import riven.core.repository.entity.EntityRelationshipRepository
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.repository.entity.RelationshipDefinitionRepository
@@ -188,22 +188,24 @@ class EntityTypeService(
 
         val impactedEntityTypes = mutableMapOf<String, EntityType>()
 
-        when (definition) {
+        val (resolvedId: UUID, propertyType: EntityPropertyType) = when (definition) {
             is SaveAttributeDefinitionRequest -> {
                 entityAttributeService.saveAttributeDefinition(workspaceId, existing, definition).also {
                     impactedEntityTypes[existing.key] = existing.toModel()
                 }
+                definition.id to EntityPropertyType.ATTRIBUTE
             }
 
             is SaveRelationshipDefinitionRequest -> {
-                handleSaveRelationshipDefinition(workspaceId, entityTypeId, definition)
+                val id = handleSaveRelationshipDefinition(workspaceId, entityTypeId, definition)
+                id to EntityPropertyType.RELATIONSHIP
             }
 
             else -> throw IllegalArgumentException("Unsupported definition type: ${definition::class.java}")
         }
 
         // Handle column ordering
-        updateColumnOrdering(existing, definition, request.index)
+        updateColumnOrdering(existing, resolvedId, propertyType, request.index)
 
         entityTypeRepository.save(existing).also {
             impactedEntityTypes[existing.key] = it.toModel()
@@ -254,8 +256,9 @@ class EntityTypeService(
         }
 
         // Remove from entity type ordering
+        val definitionId = requireNotNull(definition.id) { "Delete requests must have a non-null id" }
         existing.apply {
-            columns = columns.filterNot { it.key == definition.id }
+            columns = columns.filterNot { it.key == definitionId }
         }.let {
             entityTypeRepository.save(it).also {
                 impactedEntityTypes[existing.key] = it.toModel()
@@ -431,18 +434,18 @@ class EntityTypeService(
     // ------ Relationship Helpers ------
     /**
      * Delegates relationship definition create/update to EntityTypeRelationshipService.
+     * @return the resolved definition ID (postgres-generated on create, request ID on update)
      */
     private fun handleSaveRelationshipDefinition(
         workspaceId: UUID,
         entityTypeId: UUID,
         request: SaveRelationshipDefinitionRequest,
-    ) {
-        val existingDef = definitionRepository.findByIdAndWorkspaceId(request.id, workspaceId)
-
-        if (existingDef.isEmpty) {
-            entityTypeRelationshipService.createRelationshipDefinition(workspaceId, entityTypeId, request)
+    ): UUID {
+        return if (request.id == null) {
+            entityTypeRelationshipService.createRelationshipDefinition(workspaceId, entityTypeId, request).id
         } else {
             entityTypeRelationshipService.updateRelationshipDefinition(workspaceId, request.id, request)
+            request.id
         }
     }
 
@@ -451,21 +454,17 @@ class EntityTypeService(
      */
     private fun updateColumnOrdering(
         existing: EntityTypeEntity,
-        definition: TypeDefinition,
+        resolvedId: UUID,
+        propertyType: EntityPropertyType,
         requestIndex: Int?,
     ) {
-        val currentIndex = existing.columns.indexOfFirst { it.key == definition.id }
-        val propertyType = when (definition) {
-            is SaveAttributeDefinitionRequest -> EntityPropertyType.ATTRIBUTE
-            is SaveRelationshipDefinitionRequest -> EntityPropertyType.RELATIONSHIP
-            else -> throw IllegalArgumentException("Unsupported definition type: ${definition::class.java}")
-        }
+        val currentIndex = existing.columns.indexOfFirst { it.key == resolvedId }
 
         if (currentIndex == -1) {
             // New definition being added
             existing.columns = reorderEntityTypeColumns(
                 order = existing.columns,
-                key = EntityTypeAttributeColumn(key = definition.id, type = propertyType),
+                key = EntityTypeAttributeColumn(key = resolvedId, type = propertyType),
                 prev = null,
                 new = requestIndex ?: existing.columns.size
             )
@@ -475,7 +474,7 @@ class EntityTypeService(
                 if (newIndex != currentIndex) {
                     existing.columns = reorderEntityTypeColumns(
                         order = existing.columns,
-                        key = EntityTypeAttributeColumn(key = definition.id, type = propertyType),
+                        key = EntityTypeAttributeColumn(key = resolvedId, type = propertyType),
                         prev = currentIndex,
                         new = newIndex
                     )

@@ -9,8 +9,7 @@ import java.util.*
 @Schema(hidden = true)
 @JsonDeserialize(using = TypeDefinitionRequestDeserializer::class)
 sealed interface TypeDefinition {
-    // Optional index to adjust the ordering of the entity type columns to accommodate new or updated attributes
     val type: EntityTypeRequestDefinition
-    val id: UUID
+    val id: UUID?
     val key: String
 }

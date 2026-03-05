@@ -1,4 +1,4 @@
-import { ChildNodeProps } from '@/lib/interfaces/interface';
+import type { ChildNodeProps } from '@riven/utils';
 import { FC } from 'react';
 
 const layout: FC<ChildNodeProps> = ({ children }) => {

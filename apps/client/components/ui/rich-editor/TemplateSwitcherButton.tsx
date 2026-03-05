@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { BookOpen, Briefcase, FileText, Loader2, Plus, Sparkles, User, Zap } from 'lucide-react';
 
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 
 import {
   AlertDialog,

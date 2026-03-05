@@ -1,5 +1,5 @@
-import { Badge } from '@/components/ui/badge';
-import { CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
+import { Badge } from '@riven/ui/badge';
+import { CommandEmpty, CommandGroup, CommandItem, CommandList } from '@riven/ui/command';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   BoxIcon,

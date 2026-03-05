@@ -2,7 +2,7 @@
 
 import { useWorkspace } from '@/components/feature-modules/workspace/hooks/query/use-workspace';
 import { BreadCrumbGroup, BreadCrumbTrail } from '@/components/ui/breadcrumb-group';
-import { TooltipProvider } from '@/components/ui/tooltip';
+import { TooltipProvider } from '@riven/ui/tooltip';
 import { isResponseError } from '@/lib/util/error/error.util';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';

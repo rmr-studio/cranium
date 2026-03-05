@@ -4,7 +4,7 @@ import { BGPattern } from '@/components/ui/background/grids';
 import { AppNavbar } from '@/components/ui/nav/app.navbar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { DashboardSidebar } from '@/components/ui/sidebar/dashboard-sidebar';
-import { ChildNodeProps } from '@/lib/interfaces/interface';
+import type { ChildNodeProps } from '@riven/utils';
 import { FC } from 'react';
 
 const layout: FC<ChildNodeProps> = ({ children }) => {

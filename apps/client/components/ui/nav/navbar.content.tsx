@@ -1,15 +1,15 @@
 'use client';
 
-import type { User } from "@/lib/types/user";
-import { useAuth } from "@/components/provider/auth-context";
-import { FCWC, Propless } from "@/lib/interfaces/interface";
-import { UseQueryResult } from "@tanstack/react-query";
-import Link from "next/link";
-import { FC } from "react";
-import { UserProfileDropdown } from "../../feature-modules/user/components/avatar-dropdown";
-import { Button } from "../button";
-import { Skeleton } from "../skeleton";
-import { ModeToggle } from "../themeToggle";
+import { useAuth } from '@/components/provider/auth-context';
+import { FCWC, Propless } from '@/lib/interfaces/interface';
+import type { User } from '@/lib/types/user';
+import { ThemeToggle } from '@riven/ui/theme-toggle';
+import { UseQueryResult } from '@tanstack/react-query';
+import Link from 'next/link';
+import { FC } from 'react';
+import { UserProfileDropdown } from '../../feature-modules/user/components/avatar-dropdown';
+import { Button } from '../button';
+import { Skeleton } from '../skeleton';
 
 interface UserProps {
   user: User;
@@ -48,20 +48,8 @@ export const NavbarWrapper: FCWC<Propless> = ({ children }) => {
     <div className="sticky top-0 flex h-[4rem] w-auto flex-grow items-center border-b bg-background/40 px-4 backdrop-blur-[4px]">
       {children}
       <div className="flex items-center">
-        <ModeToggle />
+        <ThemeToggle />
       </div>
     </div>
-  );
-};
-
-interface LogoProps {
-  href: string;
-}
-
-export const NavbarLogo: FC<LogoProps> = ({ href }) => {
-  return (
-    <Link href={href}>
-      <div className="w-32 text-lg font-bold">[Logo]</div>
-    </Link>
   );
 };

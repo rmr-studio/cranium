@@ -3,7 +3,7 @@
 import React from 'react';
 import { Code, Heading1, Heading2, Heading3, List, ListOrdered, Quote, Type } from 'lucide-react';
 
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../select';
 import { ELEMENT_OPTIONS, type ElementOption, type ElementType } from './elements';

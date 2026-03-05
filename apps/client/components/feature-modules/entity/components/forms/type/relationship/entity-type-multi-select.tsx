@@ -1,18 +1,11 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@riven/ui/button';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@riven/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
 import { EntityType } from '@/lib/types/entity';
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 import { Check, ChevronsUpDown, Repeat } from 'lucide-react';
 import { FC, useState } from 'react';
 

@@ -1,5 +1,5 @@
-import { ClassNameProps } from '@/lib/interfaces/interface';
-import { cn, toTitleCase } from '@/lib/util/utils';
+import { cn, toTitleCase } from '@riven/utils';
+import type { ClassNameProps } from '@riven/utils';
 import { Search } from 'lucide-react';
 import { Fragment, useEffect, useState } from 'react';
 import { Input } from './input';

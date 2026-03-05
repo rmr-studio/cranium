@@ -2,7 +2,8 @@
 
 import { useRelationshipForm } from '@/components/feature-modules/entity/hooks/form/type/use-relationship-form';
 import { useEntityTypes } from '@/components/feature-modules/entity/hooks/query/type/use-entity-types';
-import { Button } from '@/components/ui/button';
+import { Button } from '@riven/ui/button';
+import { Input } from '@riven/ui/input';
 import {
   Form,
   FormControl,
@@ -13,7 +14,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { IconSelector } from '@/components/ui/icon/icon-selector';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { DialogControl } from '@/lib/interfaces/interface';

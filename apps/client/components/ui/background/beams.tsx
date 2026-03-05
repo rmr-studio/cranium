@@ -1,5 +1,5 @@
 'use client';
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 import { motion } from 'framer-motion';
 import React from 'react';
 

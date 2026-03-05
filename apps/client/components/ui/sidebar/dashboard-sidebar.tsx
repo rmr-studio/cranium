@@ -1,16 +1,23 @@
-"use client";
-import { useEntityTypes } from "@/components/feature-modules/entity/hooks/query/type/use-entity-types";
-import { useProfile } from "@/components/feature-modules/user/hooks/useProfile";
-import type { Workspace } from "@/lib/types/workspace";
-import { useWorkspaceStore } from "@/components/feature-modules/workspace/provider/workspace-provider";
-import { SidebarGroupProps } from "@/lib/interfaces/interface";
-import { DropdownMenuGroup } from "@radix-ui/react-dropdown-menu";
+'use client';
+import { useEntityTypes } from '@/components/feature-modules/entity/hooks/query/type/use-entity-types';
+import { useProfile } from '@/components/feature-modules/user/hooks/useProfile';
+import { useWorkspaceStore } from '@/components/feature-modules/workspace/provider/workspace-provider';
+import { SidebarGroupProps } from '@/lib/interfaces/interface';
+import type { Workspace } from '@/lib/types/workspace';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@riven/ui/dropdown-menu';
+
+import { Button } from '@riven/ui/button';
 import {
   Building2,
   CalendarHeart,
   CogIcon,
   Ellipsis,
-  GitGraph,
   PlusCircle,
   SquareDashedMousePointer,
   TrendingUpDown,
@@ -18,13 +25,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Button } from '../button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '../dropdown-menu';
+
 import { IconCell } from '../icon/icon-cell';
 import { Skeleton } from '../skeleton';
 import { AppSidebar } from './root-sidebar';
@@ -101,7 +102,7 @@ export const DashboardSidebar = () => {
                     }
                   >
                     <SquareDashedMousePointer />
-                    <span className="text-content ml-2 text-xs">View All Entities</span>
+                    <span className="ml-2 text-xs text-content">View All Entities</span>
                   </DropdownMenuItem>
 
                   <DropdownMenuItem
@@ -111,7 +112,7 @@ export const DashboardSidebar = () => {
                   >
                     <Workflow />
 
-                    <span className="text-content ml-2 text-xs">View Entity Environment</span>
+                    <span className="ml-2 text-xs text-content">View Entity Environment</span>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
@@ -152,43 +153,6 @@ export const DashboardSidebar = () => {
                     ]
                   : []),
               ],
-        },
-        {
-          title: 'Workflow',
-          collapsible: true,
-          items: [
-            {
-              icon: <GitGraph {...DEFAULT_ICON_CLASS_PROPS} />,
-              hidden: false,
-              title: 'Workflows',
-              url: `/dashboard/workspace/${selectedWorkspace.id}/members`,
-              isActive: pathName.startsWith(`/dashboard/workspace/${selectedWorkspace.id}/members`),
-            },
-            {
-              icon: <Workflow {...DEFAULT_ICON_CLASS_PROPS} />,
-              hidden: false,
-              title: 'Automations',
-              url: `/dashboard/workspace/${selectedWorkspace.id}/members`,
-              isActive: pathName.startsWith(`/dashboard/workspace/${selectedWorkspace.id}/members`),
-            },
-          ],
-          subgroups: [
-            {
-              title: 'Templates',
-              collapsible: true,
-              items: [
-                {
-                  icon: <Building2 {...DEFAULT_ICON_CLASS_PROPS} />,
-                  hidden: false,
-                  title: 'Default Templates',
-                  url: `/dashboard/workspace/${selectedWorkspace.id}/templates`,
-                  isActive: pathName.startsWith(
-                    `/dashboard/workspace/${selectedWorkspace.id}/templates`,
-                  ),
-                },
-              ],
-            },
-          ],
         },
         {
           title: 'Billing',
@@ -254,7 +218,7 @@ export const DashboardSidebar = () => {
                     <Building2 className="h-8 w-8" />
                   </div>
                   <div>
-                    <h1 className="text-content text-center text-sm font-semibold">
+                    <h1 className="text-center text-sm font-semibold text-content">
                       No Workspaces Found
                     </h1>
                     <p className="text-center text-xs text-muted-foreground">

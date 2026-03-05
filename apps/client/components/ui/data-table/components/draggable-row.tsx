@@ -1,7 +1,7 @@
 'use client';
 
-import { TableCell, TableRow } from '@/components/ui/table';
-import { cn } from '@/lib/util/utils';
+import { TableCell, TableRow } from '@riven/ui/table';
+import { cn } from '@riven/utils';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Row, flexRender } from '@tanstack/react-table';

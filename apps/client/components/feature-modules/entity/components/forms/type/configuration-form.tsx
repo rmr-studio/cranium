@@ -6,7 +6,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { Input } from '@riven/ui/input';
+import { Textarea } from '@riven/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -16,7 +17,6 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { TagInput } from '@/components/ui/tag-input';
-import { Textarea } from '@/components/ui/textarea';
 import { EntityAttributeDefinition, EntityPropertyType, SemanticGroup } from '@/lib/types/entity';
 import { cn } from '@/lib/util/utils';
 import { Info } from 'lucide-react';

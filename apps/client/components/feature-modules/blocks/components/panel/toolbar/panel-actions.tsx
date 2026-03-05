@@ -11,11 +11,11 @@
  * with the toolbar's keyboard navigation system.
  */
 
-import { Button } from "@/components/ui/button";
-import { Command, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { cn } from "@/lib/util/utils";
+import { Button } from '@riven/ui/button';
+import { Command, CommandGroup, CommandItem, CommandList } from '@riven/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@riven/ui/tooltip';
+import { cn } from '@riven/utils';
 import { MoreHorizontalIcon } from "lucide-react";
 import { FC, useEffect, useRef } from "react";
 import type { QuickActionItem } from "@/lib/types/block";

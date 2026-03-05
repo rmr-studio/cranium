@@ -1,7 +1,7 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Badge } from '@riven/ui/badge';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@riven/ui/tooltip';
 import {
   EntityAttributeDefinition,
   EntityPropertyType,
@@ -13,7 +13,7 @@ import {
   type SemanticMetadataBundle,
   type EntityTypeSemanticMetadata,
 } from '@/lib/types/entity';
-import { toTitleCase } from '@/lib/util/utils';
+import { toTitleCase } from '@riven/utils';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import { Key, Link2, ListTodo, ListX } from 'lucide-react';
 import { ReactNode, useMemo } from 'react';

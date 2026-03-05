@@ -1,5 +1,5 @@
 import { DataTable, DataTableProvider } from '@/components/ui/data-table';
-import { TooltipProvider } from '@/components/ui/tooltip';
+import { TooltipProvider } from '@riven/ui/tooltip';
 import {
   EntityPropertyType,
   EntityType,

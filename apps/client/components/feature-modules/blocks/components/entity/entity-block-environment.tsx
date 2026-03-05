@@ -1,7 +1,7 @@
 // 'use client';
 
 // import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-// import { Button } from '@/components/ui/button';
+// import { Button } from '@riven/ui/button';
 // import { Skeleton } from '@/components/ui/skeleton';
 // import { AlertCircle, PlusIcon } from 'lucide-react';
 // import { FC, ReactNode, useMemo, useState } from 'react';

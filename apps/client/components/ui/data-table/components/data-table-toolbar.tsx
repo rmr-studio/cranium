@@ -1,9 +1,9 @@
 'use client';
 
 import { Filter } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Badge } from '@riven/ui/badge';
+import { Button } from '@riven/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
 import { DataTableSearchInput } from './data-table-search-input';
 import { DataTableFilterButton } from './data-table-filter-button';
 import { useDataTableStore, useDataTableActions } from '../data-table-provider';

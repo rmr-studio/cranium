@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Code2, Pencil, Search } from 'lucide-react';
 
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@riven/hooks';
 import { useToast } from '@/components/ui/rich-editor/hooks/use-toast';
 
 import { EditorActions, useEditorDispatch, useEditorState } from '.';

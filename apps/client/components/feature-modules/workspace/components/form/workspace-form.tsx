@@ -3,8 +3,9 @@
 import { useProfile } from '@/components/feature-modules/user/hooks/useProfile';
 import { WorkspacePlan, type Workspace } from '@/lib/types/workspace';
 import { AvatarUploader } from '@/components/ui/AvatarUploader';
-import { Button } from '@/components/ui/button';
-import { CardContent, CardFooter } from '@/components/ui/card';
+import { Button } from '@riven/ui/button';
+import { CardContent, CardFooter } from '@riven/ui/card';
+import { Input } from '@riven/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Form,
@@ -15,7 +16,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { CurrencySelector } from '@/components/ui/forms/currency/form-currency-picker';
-import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -23,8 +23,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ClassNameProps } from '@/lib/interfaces/interface';
-import { cn, isValidCurrency } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
+import type { ClassNameProps } from '@riven/utils';
+import { isValidCurrency } from '@/lib/util/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, SquareArrowUpRight } from 'lucide-react';
 import { FC } from 'react';

@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SidebarGroupProps } from '@/lib/interfaces/interface';
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 import { AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -78,7 +78,9 @@ const SidebarGroupRenderer: React.FC<GroupRendererProps> = ({
                   group.collapsible && 'cursor-pointer hover:bg-muted hover:text-primary',
                 )}
               >
-                <span className="text-primary/60">{group.title}</span>
+                <span className="text-xs font-semibold uppercase tracking-wide text-primary/60">
+                  {group.title}
+                </span>
                 <div className="flex items-center gap-1">
                   {group.actions && (
                     <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
@@ -126,10 +128,9 @@ const SidebarGroupRenderer: React.FC<GroupRendererProps> = ({
                                 isActive={item.isActive}
                                 className="r text-muted-foreground"
                               >
-                                <Link href={item.url} className="flex">
-                                  <div className="mr-2 flex-shrink-0">{item.icon}</div>
-
-                                  <span className="text-[13px]">{item.title}</span>
+                                <Link href={item.url} className="flex items-center gap-1.5">
+                                  <div className="flex-shrink-0">{item.icon}</div>
+                                  <span>{item.title}</span>
                                 </Link>
                               </SidebarMenuButton>
                             )}

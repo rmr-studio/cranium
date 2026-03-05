@@ -3,7 +3,7 @@
 import React from 'react';
 import { ImagePlus } from 'lucide-react';
 
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 
 import { Button } from '../button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../dialog';

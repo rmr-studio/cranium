@@ -1,7 +1,7 @@
 import * as RPNInput from 'react-phone-number-input';
 
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/util/utils';
+import { Input } from '@riven/ui/input';
+import { cn } from '@riven/utils';
 import { forwardRef } from 'react';
 import { CountrySelect, FlagComponent } from './country-select';
 

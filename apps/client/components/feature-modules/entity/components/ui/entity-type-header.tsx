@@ -1,7 +1,7 @@
-import { Button } from '@/components/ui/button';
+import { Button } from '@riven/ui/button';
 import { FormField } from '@/components/ui/form';
 import { IconSelector } from '@/components/ui/icon/icon-selector';
-import { ChildNodeProps } from '@/lib/interfaces/interface';
+import type { ChildNodeProps } from '@riven/utils';
 import { cn } from '@/lib/util/utils';
 import { Cog, File } from 'lucide-react';
 import Link from 'next/link';

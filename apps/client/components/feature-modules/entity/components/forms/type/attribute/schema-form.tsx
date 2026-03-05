@@ -1,5 +1,6 @@
 import { useEntityTypeAttributeSchemaForm } from '@/components/feature-modules/entity/hooks/form/type/use-schema-form';
-import { Button } from '@/components/ui/button';
+import { Button } from '@riven/ui/button';
+import { Input } from '@riven/ui/input';
 import {
   Form,
   FormControl,
@@ -10,7 +11,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { IconSelector } from '@/components/ui/icon/icon-selector';
-import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Select,
@@ -38,27 +38,32 @@ const classificationOptions = [
   {
     value: SemanticAttributeClassification.Identifier,
     label: 'Identifier',
-    description: 'Uniquely identifies an entity instance',
+    description: 'A unique label that tells records apart',
+    example: 'e.g. Order Number, Email Address, SKU',
   },
   {
     value: SemanticAttributeClassification.Categorical,
     label: 'Categorical',
-    description: 'Groups or classifies entities into categories',
+    description: 'Puts records into groups you can filter by',
+    example: 'e.g. Status, Department, Country',
   },
   {
     value: SemanticAttributeClassification.Quantitative,
     label: 'Quantitative',
-    description: 'A measurable numeric value or amount',
+    description: 'A number you might count, sum, or compare',
+    example: 'e.g. Price, Quantity, Rating',
   },
   {
     value: SemanticAttributeClassification.Temporal,
     label: 'Temporal',
-    description: 'Represents a point or period in time',
+    description: 'A date or time something happened',
+    example: 'e.g. Created Date, Due Date, Birthday',
   },
   {
     value: SemanticAttributeClassification.Freetext,
     label: 'Free Text',
-    description: 'Unstructured descriptive or narrative content',
+    description: 'Open-ended text written by a person',
+    example: 'e.g. Notes, Description, Bio',
   },
 ];
 
@@ -414,11 +419,14 @@ export const SchemaForm: FC<Props> = ({
                   </FormControl>
                   <SelectContent>
                     {classificationOptions.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        <div className="flex flex-col">
+                      <SelectItem key={opt.value} value={opt.value} textValue={opt.label}>
+                        <div className="flex flex-col gap-0.5">
                           <span>{opt.label}</span>
                           <span className="text-xs text-muted-foreground">
                             {opt.description}
+                          </span>
+                          <span className="text-xs italic text-muted-foreground/70">
+                            {opt.example}
                           </span>
                         </div>
                       </SelectItem>

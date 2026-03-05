@@ -1,9 +1,9 @@
 'use client';
 
-import { Label } from '@/components/ui/label';
+import { Label } from '@riven/ui/label';
+import { Textarea } from '@riven/ui/textarea';
 import { OptionalTooltip } from '@/components/ui/optional-tooltip';
-import { Textarea } from '@/components/ui/textarea';
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 import { CircleAlert } from 'lucide-react';
 import { FC } from 'react';
 import { FormWidgetProps } from '../form-widget.types';

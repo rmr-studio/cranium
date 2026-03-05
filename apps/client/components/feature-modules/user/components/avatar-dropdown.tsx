@@ -1,7 +1,9 @@
 'use client';
 
-import type { User } from '@/lib/types/user';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { isAuthError } from '@/lib/auth';
+import { getAuthErrorMessage } from '@/lib/auth/error-messages';
+import type { User } from '@/lib/types/user';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,10 +11,8 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { isAuthError } from '@/lib/auth';
-import { getAuthErrorMessage } from '@/lib/auth/error-messages';
-import { getInitials } from '@/lib/util/utils';
+} from '@riven/ui/dropdown-menu';
+import { getInitials } from '@riven/utils';
 
 import {
   AppWindowMac,
@@ -54,7 +54,7 @@ export const UserProfileDropdown: FC<Props> = ({ user }) => {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <Avatar className="cursor-pointer rounded-md">
+        <Avatar className="cursor-pointer rounded-xl">
           <AvatarFallback className="rounded-md">{getInitials(name)}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
@@ -67,14 +67,14 @@ export const UserProfileDropdown: FC<Props> = ({ user }) => {
           <DropdownMenuSeparator />
           <DropdownMenuItem>
             <AppWindowMac />
-            <span className="text-content ml-2 text-xs" onClick={() => router.push('/dashboard')}>
+            <span className="ml-2 text-xs text-content" onClick={() => router.push('/dashboard')}>
               My Dashboard
             </span>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <Building2 />
             <span
-              className="text-content ml-2 text-xs"
+              className="ml-2 text-xs text-content"
               onClick={() => router.push('/dashboard/workspace')}
             >
               My Workspaces
@@ -84,7 +84,7 @@ export const UserProfileDropdown: FC<Props> = ({ user }) => {
           <DropdownMenuItem>
             <ReceiptText />
             <span
-              className="text-content ml-2 text-xs"
+              className="ml-2 text-xs text-content"
               onClick={() => router.push('/dashboard/invoices')}
             >
               All Invoices
@@ -93,7 +93,7 @@ export const UserProfileDropdown: FC<Props> = ({ user }) => {
           <DropdownMenuItem>
             <Settings />
             <span
-              className="text-content ml-2 text-xs"
+              className="ml-2 text-xs text-content"
               onClick={() => router.push('/dashboard/settings')}
             >
               Account Preferences
@@ -106,7 +106,7 @@ export const UserProfileDropdown: FC<Props> = ({ user }) => {
             <DropdownMenuItem>
               <FaGithub />
 
-              <span className="text-content ml-2 text-xs">Source Code</span>
+              <span className="ml-2 text-xs text-content">Source Code</span>
             </DropdownMenuItem>
           </Link>
         </DropdownMenuGroup>
@@ -114,7 +114,7 @@ export const UserProfileDropdown: FC<Props> = ({ user }) => {
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <ArrowLeftToLine />
-            <span className="text-content ml-2 text-xs" onClick={async () => handleLogout()}>
+            <span className="ml-2 text-xs text-content" onClick={async () => handleLogout()}>
               Logout
             </span>
           </DropdownMenuItem>

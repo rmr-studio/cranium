@@ -1,6 +1,6 @@
 'use client';
 
-import { cn } from '@/lib/util/utils';
+import { cn } from '@riven/utils';
 import { Cell, flexRender } from '@tanstack/react-table';
 
 interface ReadOnlyCellProps<TData, TValue> {

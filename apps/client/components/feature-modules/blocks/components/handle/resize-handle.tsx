@@ -1,5 +1,5 @@
-import { ChildNodeProps } from '@/lib/interfaces/interface';
-import { cn } from '@/lib/util/utils';
+import type { ChildNodeProps } from '@riven/utils';
+import { cn } from '@riven/utils';
 
 import { FC } from "react";
 import type { ResizePosition } from "@/lib/types/block";

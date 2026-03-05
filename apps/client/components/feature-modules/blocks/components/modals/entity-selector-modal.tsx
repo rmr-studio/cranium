@@ -1,8 +1,8 @@
 // 'use client';
 
 // import { Alert, AlertDescription } from '@/components/ui/alert';
-// import { Badge } from '@/components/ui/badge';
-// import { Button } from '@/components/ui/button';
+// import { Badge } from '@riven/ui/badge';
+// import { Button } from '@riven/ui/button';
 // import { Checkbox } from '@/components/ui/checkbox';
 // import {
 //     CommandDialog,
@@ -11,7 +11,7 @@
 //     CommandInput,
 //     CommandItem,
 //     CommandList,
-// } from "@/components/ui/command";
+// } from '@riven/ui/command';
 // import type { EntityType } from "@/lib/types/entity";
 // import type { ReferenceItem } from "@/lib/types/block";
 // import { AlertCircle, Loader2, RefreshCw, Users } from "lucide-react";

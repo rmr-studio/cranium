@@ -10,29 +10,29 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 2 of 3 (Loader Pipeline)
-Plan: 1 of 3 in current phase (complete)
-Status: Phase 2 Plan 1 complete, ready for Plan 2
-Last activity: 2026-03-05 — Phase 2 Plan 1 executed
+Plan: 2 of 3 in current phase (complete)
+Status: Phase 2 Plan 2 complete, ready for Plan 3
+Last activity: 2026-03-05 — Phase 2 Plan 2 executed
 
-Progress: [####------] 44%
+Progress: [######----] 67%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
-- Average duration: 5.5 minutes
-- Total execution time: 0.18 hours
+- Total plans completed: 3
+- Average duration: 6.3 minutes
+- Total execution time: 0.32 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1. Database Foundation | 1/1 | 8 min | 8 min |
-| 2. Loader Pipeline | 1/3 | 3 min | 3 min |
+| 2. Loader Pipeline | 2/3 | 11 min | 5.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 8 min, 3 min
-- Trend: Accelerating
+- Last 5 plans: 8 min, 3 min, 8 min
+- Trend: Stable
 
 *Updated after each plan completion*
 
@@ -45,6 +45,9 @@ Recent decisions affecting current work:
 
 - Pipeline data classes use Map<String, Any> for schema/mappings JSONB passthrough rather than typed structures
 - Test fixtures placed in src/test/resources/manifests/ matching production directory structure
+- Strip $id and $schema from JSON Schema files before loading into networknt 1.0.83 to avoid URI resolution errors
+- Integration entity types default readonly=true via readonlyDefault parameter
+- Full format relationships without explicit cardinality default to ONE_TO_MANY
 - Schema: Catalog tables are global (no workspace_id, no RLS) — follows IntegrationDefinitionEntity precedent
 - Schema: UNIQUE(key, manifest_type) composite constraint on manifest_catalog — prevents cross-type key collision
 - Schema: No deleted/deleted_at/active columns on manifest_catalog — catalog entries are permanent (CONTEXT.md)
@@ -67,5 +70,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-05
-Stopped at: Completed 02-01-PLAN.md — Schema evolution, pipeline data contracts, test fixtures
+Stopped at: Completed 02-02-PLAN.md — Scanner and resolver services with 24 unit tests
 Resume file: None

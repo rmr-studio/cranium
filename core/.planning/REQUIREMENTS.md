@@ -18,18 +18,18 @@ Requirements for this milestone. Each maps to roadmap phases.
 ### Manifest Validation
 
 - [x] **VAL-01**: JSON Schema files exist for model, template, and integration manifest formats
-- [ ] **VAL-02**: Manifest files are validated against JSON Schema at load time using existing `networknt` validator
-- [ ] **VAL-03**: Invalid manifests log a WARN with manifest key and validation errors, are skipped, and do not block application startup
+- [x] **VAL-02**: Manifest files are validated against JSON Schema at load time using existing `networknt` validator
+- [x] **VAL-03**: Invalid manifests log a WARN with manifest key and validation errors, are skipped, and do not block application startup
 
 ### Manifest Loading
 
 - [ ] **LOAD-01**: Manifest loader runs on `ApplicationReadyEvent` and scans `models/`, `templates/`, `integrations/` directories from classpath
 - [ ] **LOAD-02**: Loading order is explicitly enforced in code: models → templates → integrations (not reliant on filesystem ordering)
-- [ ] **LOAD-03**: `$ref` resolution resolves shared model references in template manifests using an in-memory model lookup map (no DB reads during resolution)
-- [ ] **LOAD-04**: `extend` merge applies shallow additive semantics — new attributes added, existing base attributes preserved on key conflict, no deletion
-- [ ] **LOAD-05**: Relationship shorthand format (single `target` + `cardinality`) is normalized to full format (`targetRules[]` + `cardinalityDefault`) before persistence
-- [ ] **LOAD-06**: Relationships are validated: source/target keys exist in manifest's entity type set, cardinality is valid enum, shorthand and full format are mutually exclusive
-- [ ] **LOAD-07**: `protected` flag defaults to `true` for integration relationships and `false` for template relationships, inferred from directory context
+- [x] **LOAD-03**: `$ref` resolution resolves shared model references in template manifests using an in-memory model lookup map (no DB reads during resolution)
+- [x] **LOAD-04**: `extend` merge applies shallow additive semantics — new attributes added, existing base attributes preserved on key conflict, no deletion
+- [x] **LOAD-05**: Relationship shorthand format (single `target` + `cardinality`) is normalized to full format (`targetRules[]` + `cardinalityDefault`) before persistence
+- [x] **LOAD-06**: Relationships are validated: source/target keys exist in manifest's entity type set, cardinality is valid enum, shorthand and full format are mutually exclusive
+- [x] **LOAD-07**: `protected` flag defaults to `true` for integration relationships and `false` for template relationships, inferred from directory context
 
 ### Catalog Persistence
 
@@ -52,10 +52,10 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Testing
 
-- [ ] **TEST-01**: Unit tests cover `$ref` resolution — successful lookup, missing model warning, passthrough without `$ref`
-- [ ] **TEST-02**: Unit tests cover `extend` merge — attribute addition, semantic override, base preservation on key conflict, no-extend passthrough
-- [ ] **TEST-03**: Unit tests cover relationship normalization — shorthand to full conversion, format mutual exclusivity rejection
-- [ ] **TEST-04**: Unit tests cover relationship validation — key existence, cardinality enum, duplicate key detection
+- [x] **TEST-01**: Unit tests cover `$ref` resolution — successful lookup, missing model warning, passthrough without `$ref`
+- [x] **TEST-02**: Unit tests cover `extend` merge — attribute addition, semantic override, base preservation on key conflict, no-extend passthrough
+- [x] **TEST-03**: Unit tests cover relationship normalization — shorthand to full conversion, format mutual exclusivity rejection
+- [x] **TEST-04**: Unit tests cover relationship validation — key existence, cardinality enum, duplicate key detection
 - [x] **TEST-05**: Test fixture manifests in `src/test/resources/` cover model, template (with `$ref` + `extend`), and integration patterns
 - [ ] **TEST-06**: Integration tests verify full startup load cycle — fixtures loaded into catalog tables with correct data
 - [ ] **TEST-07**: Integration tests verify idempotent reload — second startup produces identical catalog state
@@ -116,23 +116,23 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VAL-01 | Phase 1 | Complete |
 | SCAF-01 | Phase 1 | Complete |
 | SCAF-02 | Phase 1 | Complete |
-| VAL-02 | Phase 2 | Pending |
-| VAL-03 | Phase 2 | Pending |
+| VAL-02 | Phase 2 | Complete |
+| VAL-03 | Phase 2 | Complete |
 | LOAD-01 | Phase 2 | Pending |
 | LOAD-02 | Phase 2 | Pending |
-| LOAD-03 | Phase 2 | Pending |
-| LOAD-04 | Phase 2 | Pending |
-| LOAD-05 | Phase 2 | Pending |
-| LOAD-06 | Phase 2 | Pending |
-| LOAD-07 | Phase 2 | Pending |
+| LOAD-03 | Phase 2 | Complete |
+| LOAD-04 | Phase 2 | Complete |
+| LOAD-05 | Phase 2 | Complete |
+| LOAD-06 | Phase 2 | Complete |
+| LOAD-07 | Phase 2 | Complete |
 | PERS-01 | Phase 2 | Pending |
 | PERS-02 | Phase 2 | Pending |
 | PERS-03 | Phase 2 | Pending |
 | PERS-04 | Phase 2 | Pending |
-| TEST-01 | Phase 2 | Pending |
-| TEST-02 | Phase 2 | Pending |
-| TEST-03 | Phase 2 | Pending |
-| TEST-04 | Phase 2 | Pending |
+| TEST-01 | Phase 2 | Complete |
+| TEST-02 | Phase 2 | Complete |
+| TEST-03 | Phase 2 | Complete |
+| TEST-04 | Phase 2 | Complete |
 | TEST-05 | Phase 2 | Complete |
 | QUERY-01 | Phase 3 | Pending |
 | QUERY-02 | Phase 3 | Pending |

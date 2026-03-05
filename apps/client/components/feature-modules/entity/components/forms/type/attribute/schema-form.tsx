@@ -10,12 +10,75 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import { DialogControl } from '@/lib/interfaces/interface';
-import { EntityAttributeDefinition, EntityType } from '@/lib/types/entity';
+import {
+  EntityAttributeDefinition,
+  EntityType,
+  EntityTypeSemanticMetadata,
+  SemanticAttributeClassification,
+} from '@/lib/types/entity';
 import { SchemaType } from '@/lib/types/common';
+import { cn } from '@/lib/util/utils';
 import { FC, useEffect, useMemo } from 'react';
 import { EnumOptionsEditor } from '../../enum-options-editor';
+
+const classificationOptions = [
+  {
+    value: SemanticAttributeClassification.Identifier,
+    label: 'Identifier',
+    description: 'Uniquely identifies an entity instance',
+  },
+  {
+    value: SemanticAttributeClassification.Categorical,
+    label: 'Categorical',
+    description: 'Groups or classifies entities into categories',
+  },
+  {
+    value: SemanticAttributeClassification.Quantitative,
+    label: 'Quantitative',
+    description: 'A measurable numeric value or amount',
+  },
+  {
+    value: SemanticAttributeClassification.Temporal,
+    label: 'Temporal',
+    description: 'Represents a point or period in time',
+  },
+  {
+    value: SemanticAttributeClassification.Freetext,
+    label: 'Free Text',
+    description: 'Unstructured descriptive or narrative content',
+  },
+  {
+    value: SemanticAttributeClassification.RelationalReference,
+    label: 'Relational Reference',
+    description: 'References another entity or external system',
+  },
+];
+
+const classificationSuggestions: Partial<Record<SchemaType, SemanticAttributeClassification>> = {
+  [SchemaType.Number]: SemanticAttributeClassification.Quantitative,
+  [SchemaType.Currency]: SemanticAttributeClassification.Quantitative,
+  [SchemaType.Percentage]: SemanticAttributeClassification.Quantitative,
+  [SchemaType.Rating]: SemanticAttributeClassification.Quantitative,
+  [SchemaType.Date]: SemanticAttributeClassification.Temporal,
+  [SchemaType.Datetime]: SemanticAttributeClassification.Temporal,
+  [SchemaType.Text]: SemanticAttributeClassification.Freetext,
+  [SchemaType.Email]: SemanticAttributeClassification.Identifier,
+  [SchemaType.Phone]: SemanticAttributeClassification.Identifier,
+  [SchemaType.Url]: SemanticAttributeClassification.Identifier,
+  [SchemaType.Select]: SemanticAttributeClassification.Categorical,
+  [SchemaType.MultiSelect]: SemanticAttributeClassification.Categorical,
+  [SchemaType.Checkbox]: SemanticAttributeClassification.Categorical,
+};
 
 interface Props {
   workspaceId: string;
@@ -23,9 +86,17 @@ interface Props {
   currentType: SchemaType;
   attribute?: EntityAttributeDefinition;
   type: EntityType;
+  semanticMetadata?: EntityTypeSemanticMetadata;
 }
 
-export const SchemaForm: FC<Props> = ({ currentType, attribute, type, dialog, workspaceId }) => {
+export const SchemaForm: FC<Props> = ({
+  currentType,
+  attribute,
+  type,
+  dialog,
+  workspaceId,
+  semanticMetadata,
+}) => {
   const { open, setOpen } = dialog;
 
   const onSave = () => {
@@ -43,6 +114,7 @@ export const SchemaForm: FC<Props> = ({ currentType, attribute, type, dialog, wo
     onSave,
     onCancel,
     attribute,
+    semanticMetadata,
   );
 
   // Determine what schema options to show based on the selected type
@@ -265,6 +337,87 @@ export const SchemaForm: FC<Props> = ({ currentType, attribute, type, dialog, wo
             </div>
           </div>
         )}
+        {/* Semantic Context */}
+        <div className="border-t pt-4">
+          <h3 className="mb-3 text-sm font-medium">Semantic Context</h3>
+
+          <FormField
+            control={form.control}
+            name="classification"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Classification</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value ?? undefined}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select classification..." />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {classificationOptions.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        <div className="flex flex-col">
+                          <span>{opt.label}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {opt.description}
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {!attribute && classificationSuggestions[currentType] && !field.value && (
+                  <p className="text-xs text-muted-foreground">
+                    Suggested:{' '}
+                    {
+                      classificationOptions.find(
+                        (o) => o.value === classificationSuggestions[currentType],
+                      )?.label
+                    }
+                  </p>
+                )}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="definition"
+            render={({ field }) => (
+              <FormItem className="mt-4">
+                <FormLabel>What does this attribute represent?</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="e.g., The primary email address used for customer communications and account recovery"
+                    className="min-h-16 resize-none"
+                    rows={3}
+                    style={{ fieldSizing: 'content' } as React.CSSProperties}
+                    {...field}
+                    value={field.value ?? ''}
+                  />
+                </FormControl>
+                {field.value && (
+                  <p
+                    className={cn(
+                      'text-xs text-right',
+                      (field.value?.length ?? 0) > 500
+                        ? 'text-amber-500'
+                        : 'text-muted-foreground',
+                    )}
+                  >
+                    {field.value.length}/500
+                  </p>
+                )}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
         <footer className="mt-4 flex justify-end space-x-4 border-t pt-4">
           <Button type="button" onClick={handleReset} variant={'destructive'}>
             Cancel

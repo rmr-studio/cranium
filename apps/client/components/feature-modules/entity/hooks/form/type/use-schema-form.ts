@@ -3,8 +3,10 @@ import {
     EntityAttributeDefinition,
     EntityType,
     EntityTypeRequestDefinition,
+    EntityTypeSemanticMetadata,
     SaveAttributeDefinitionRequest,
     SaveTypeDefinitionRequest,
+    SemanticAttributeClassification,
 } from "@/lib/types/entity";
 import { attributeTypes } from "@/lib/util/form/schema.util";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,6 +31,9 @@ export const attributeFormSchema = z
         minLength: z.coerce.number().min(0).optional().nullable(),
         maxLength: z.coerce.number().min(0).optional().nullable(),
         regex: z.string().optional().nullable(),
+        // Semantic context fields
+        classification: z.nativeEnum(SemanticAttributeClassification).optional().nullable(),
+        definition: z.string().optional().nullable(),
     })
     .refine(
         (data) => {
@@ -64,6 +69,7 @@ export function useEntityTypeAttributeSchemaForm(
   onSave: () => void,
   onCancel: () => void,
   attribute?: EntityAttributeDefinition,
+  semanticMetadata?: EntityTypeSemanticMetadata,
 ): useEntityTypeAttributeSchemaFormReturn {
     // Always start form as blank, this is because we would want it to reset to blank when a dialogue is re-opened.
     // Regardless of selected attribute, or previous changes.
@@ -81,6 +87,8 @@ export function useEntityTypeAttributeSchemaForm(
             minLength: undefined,
             maxLength: undefined,
             regex: undefined,
+            classification: undefined,
+            definition: undefined,
         },
     });
 
@@ -134,8 +142,10 @@ export function useEntityTypeAttributeSchemaForm(
       minLength: schema.options?.minLength,
       maxLength: schema.options?.maxLength,
       regex: schema.options?.regex,
+      classification: semanticMetadata?.classification ?? undefined,
+      definition: semanticMetadata?.definition ?? undefined,
     });
-  }, [open, attribute]);
+  }, [open, attribute, semanticMetadata]);
 
   useEffect(() => {
     if (!open) {
@@ -166,6 +176,8 @@ export function useEntityTypeAttributeSchemaForm(
         regex: values.regex ?? undefined,
       };
 
+      const hasSemantics = values.classification || values.definition;
+
       const definition: SaveAttributeDefinitionRequest = {
         id,
         type: EntityTypeRequestDefinition.SaveSchema,
@@ -181,6 +193,13 @@ export function useEntityTypeAttributeSchemaForm(
           unique: values.unique,
           options: options,
         },
+        semantics: hasSemantics
+          ? {
+              classification: values.classification ?? undefined,
+              definition: values.definition ?? undefined,
+              tags: [],
+            }
+          : undefined,
       };
 
       const request: SaveTypeDefinitionRequest = {

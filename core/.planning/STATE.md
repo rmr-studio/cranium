@@ -9,29 +9,29 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 
 ## Current Position
 
-Phase: 2 of 3 (Loader Pipeline)
-Plan: 2 of 3 in current phase (complete)
-Status: Phase 2 Plan 2 complete, ready for Plan 3
-Last activity: 2026-03-05 — Phase 2 Plan 2 executed
+Phase: 2 of 3 (Loader Pipeline) -- COMPLETE
+Plan: 3 of 3 in current phase (complete)
+Status: Phase 2 complete, all 3 plans executed
+Last activity: 2026-03-05 — Phase 2 Plan 3 executed
 
-Progress: [######----] 67%
+Progress: [##########] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 6.3 minutes
-- Total execution time: 0.32 hours
+- Total plans completed: 4
+- Average duration: 6.0 minutes
+- Total execution time: 0.40 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1. Database Foundation | 1/1 | 8 min | 8 min |
-| 2. Loader Pipeline | 2/3 | 11 min | 5.5 min |
+| 2. Loader Pipeline | 3/3 | 16 min | 5.3 min |
 
 **Recent Trend:**
-- Last 5 plans: 8 min, 3 min, 8 min
+- Last 5 plans: 8 min, 3 min, 8 min, 5 min
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -53,7 +53,8 @@ Recent decisions affecting current work:
 - Schema: No deleted/deleted_at/active columns on manifest_catalog — catalog entries are permanent (CONTEXT.md)
 - Schema: integration_definitions.active renamed to stale with inverted default (false) — staleness tracking for missing integration manifests
 - Loading: Explicit listOf("models", "templates", "integrations") load order — cannot rely on filesystem ordering in Docker
-- Transactions: @Transactional only on ManifestUpsertService.upsertSingleManifest() — not on the ApplicationReadyEvent listener
+- Transactions: @Transactional on ManifestUpsertService.upsertManifest() and markAllStale() — not on the ApplicationReadyEvent listener
+- Stale sync: syncIntegrationDefinitionsStale() has its own @Transactional boundary within ManifestLoaderService
 - Entity pattern: CatalogRelationshipEntity.protected uses backtick-escaped Kotlin keyword matching existing RelationshipDefinitionEntity pattern
 - JSON Schema: Draft 2019-09 matching existing SchemaService SpecVersion.VersionFlag.V201909
 - Semantics: Relationship semantics have definition + tags but no classification per CONTEXT.md
@@ -70,5 +71,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-05
-Stopped at: Completed 02-02-PLAN.md — Scanner and resolver services with 24 unit tests
+Stopped at: Completed 02-03-PLAN.md — Upsert service and loader orchestrator with 11 unit tests. Phase 2 complete.
 Resume file: None

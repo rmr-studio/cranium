@@ -23,8 +23,8 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Manifest Loading
 
-- [ ] **LOAD-01**: Manifest loader runs on `ApplicationReadyEvent` and scans `models/`, `templates/`, `integrations/` directories from classpath
-- [ ] **LOAD-02**: Loading order is explicitly enforced in code: models → templates → integrations (not reliant on filesystem ordering)
+- [x] **LOAD-01**: Manifest loader runs on `ApplicationReadyEvent` and scans `models/`, `templates/`, `integrations/` directories from classpath
+- [x] **LOAD-02**: Loading order is explicitly enforced in code: models → templates → integrations (not reliant on filesystem ordering)
 - [x] **LOAD-03**: `$ref` resolution resolves shared model references in template manifests using an in-memory model lookup map (no DB reads during resolution)
 - [x] **LOAD-04**: `extend` merge applies shallow additive semantics — new attributes added, existing base attributes preserved on key conflict, no deletion
 - [x] **LOAD-05**: Relationship shorthand format (single `target` + `cardinality`) is normalized to full format (`targetRules[]` + `cardinalityDefault`) before persistence
@@ -33,10 +33,10 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Catalog Persistence
 
-- [ ] **PERS-01**: Manifest upsert is idempotent — keyed on `manifest_catalog.key` + `type`, re-deployment produces identical catalog state
-- [ ] **PERS-02**: Child table reconciliation uses delete-then-reinsert within a per-manifest `@Transactional` boundary
-- [ ] **PERS-03**: Full reconciliation on startup — catalog entries for manifests no longer on disk are marked inactive (`active = false`)
-- [ ] **PERS-04**: Per-manifest transaction isolation — one bad manifest does not roll back the entire catalog load
+- [x] **PERS-01**: Manifest upsert is idempotent — keyed on `manifest_catalog.key` + `type`, re-deployment produces identical catalog state
+- [x] **PERS-02**: Child table reconciliation uses delete-then-reinsert within a per-manifest `@Transactional` boundary
+- [x] **PERS-03**: Full reconciliation on startup — catalog entries for manifests no longer on disk are marked inactive (`active = false`)
+- [x] **PERS-04**: Per-manifest transaction isolation — one bad manifest does not roll back the entire catalog load
 
 ### Catalog Query
 
@@ -118,17 +118,17 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SCAF-02 | Phase 1 | Complete |
 | VAL-02 | Phase 2 | Complete |
 | VAL-03 | Phase 2 | Complete |
-| LOAD-01 | Phase 2 | Pending |
-| LOAD-02 | Phase 2 | Pending |
+| LOAD-01 | Phase 2 | Complete |
+| LOAD-02 | Phase 2 | Complete |
 | LOAD-03 | Phase 2 | Complete |
 | LOAD-04 | Phase 2 | Complete |
 | LOAD-05 | Phase 2 | Complete |
 | LOAD-06 | Phase 2 | Complete |
 | LOAD-07 | Phase 2 | Complete |
-| PERS-01 | Phase 2 | Pending |
-| PERS-02 | Phase 2 | Pending |
-| PERS-03 | Phase 2 | Pending |
-| PERS-04 | Phase 2 | Pending |
+| PERS-01 | Phase 2 | Complete |
+| PERS-02 | Phase 2 | Complete |
+| PERS-03 | Phase 2 | Complete |
+| PERS-04 | Phase 2 | Complete |
 | TEST-01 | Phase 2 | Complete |
 | TEST-02 | Phase 2 | Complete |
 | TEST-03 | Phase 2 | Complete |

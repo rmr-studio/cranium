@@ -123,7 +123,11 @@ Plans:
   3. The semantic metadata UI matches the visual quality of the rest of the entity configuration UI
   4. Frontend-design skill is used for the attribute semantic configuration UI
 
-**Plans**: TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Knowledge API infrastructure (factory, service, query hook) + form schema extension + semantic section UI in SchemaForm
+- [ ] 05-02-PLAN.md — Classification column in schema data table + human verification checkpoint
 
 ---
 
@@ -135,7 +139,7 @@ Plans:
 | 2. Service + Hooks | 1/1 | Complete | 2026-02-28 |
 | 3. Relationship Form | 2/3 | In progress | - |
 | 4. Creation Form Simplification | 0/? | Not started | - |
-| 5. Attribute Semantic Configuration | 0/? | Not started | - |
+| 5. Attribute Semantic Configuration | 0/2 | Not started | - |
 
 ---
 
@@ -180,7 +184,17 @@ Plans:
 
 **Coverage: 34/34 -- complete**
 
+### Phase 6: 4.1 Fix entity attribute form
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 5
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 6 to break down)
+
 ---
 
 *Roadmap created: 2026-02-27*
-*Last updated: 2026-03-04 after Phase 3 Plan 02 completion*
+*Last updated: 2026-03-05 after Phase 5 planning*

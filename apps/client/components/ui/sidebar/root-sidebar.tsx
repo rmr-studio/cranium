@@ -78,7 +78,9 @@ const SidebarGroupRenderer: React.FC<GroupRendererProps> = ({
                   group.collapsible && 'cursor-pointer hover:bg-muted hover:text-primary',
                 )}
               >
-                <span className="text-primary/60">{group.title}</span>
+                <span className="text-xs font-semibold uppercase tracking-wide text-primary/60">
+                  {group.title}
+                </span>
                 <div className="flex items-center gap-1">
                   {group.actions && (
                     <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
@@ -129,7 +131,7 @@ const SidebarGroupRenderer: React.FC<GroupRendererProps> = ({
                                 <Link href={item.url} className="flex">
                                   <div className="mr-2 flex-shrink-0">{item.icon}</div>
 
-                                  <span className="text-[13px]">{item.title}</span>
+                                  <span className="text-sm">{item.title}</span>
                                 </Link>
                               </SidebarMenuButton>
                             )}

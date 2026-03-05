@@ -10,7 +10,7 @@ import { Logo } from "@riven/ui/logo";
 import { UserProfileDropdown } from "../../feature-modules/user/components/avatar-dropdown";
 import { Button } from "../button";
 import { Skeleton } from "../skeleton";
-import { ThemeToggle } from "../theme-toggle";
+import { ThemeToggle } from "@riven/ui/theme-toggle";
 
 interface UserProps {
   user: User;

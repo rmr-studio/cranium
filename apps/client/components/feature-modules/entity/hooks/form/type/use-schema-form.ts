@@ -164,7 +164,7 @@ export function useEntityTypeAttributeSchemaForm(
     }
   }, [open]);
 
-  const { mutateAsync: saveDefinition } = useSaveDefinitionMutation(workspaceId, {
+  const { mutateAsync: saveDefinition } = useSaveDefinitionMutation(workspaceId, undefined, {
     onSuccess: () => {
       onSave();
     },

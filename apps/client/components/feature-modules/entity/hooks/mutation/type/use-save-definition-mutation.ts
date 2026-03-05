@@ -1,6 +1,5 @@
 import { useAuth } from '@/components/provider/auth-context';
 import {
-  EntityType,
   SaveTypeDefinitionRequest,
   type DeleteDefinitionImpact,
   type EntityTypeImpactResponse,
@@ -49,24 +48,16 @@ export function useSaveDefinitionMutation(
 
       toast.success(`Entity type definition saved successfully!`);
 
+      queryClient.invalidateQueries({ queryKey: ['semanticMetadata'] });
+
       if (response.updatedEntityTypes) {
-        Object.entries(response.updatedEntityTypes).forEach(([key, entityType]) => {
-          // Update individual entity type query cache
-          queryClient.setQueryData(['entityType', key, workspaceId], entityType);
+        Object.entries(response.updatedEntityTypes).forEach(([key]) => {
+          // Invalidate individual entity type queries (partial match handles varying `include` param)
+          queryClient.invalidateQueries({ queryKey: ['entityType', key, workspaceId] });
         });
 
-        // Update the entity types list in cache
-        queryClient.setQueryData<EntityType[]>(['entityTypes', workspaceId], (oldData) => {
-          if (!oldData) return Object.values(response.updatedEntityTypes!);
-
-          // Create a map of updated entity types for efficient lookup
-          const updatedTypesMap = new Map(
-            Object.entries(response.updatedEntityTypes!).map(([key, type]) => [key, type]),
-          );
-
-          // Replace all updated entity types in the list
-          return oldData.map((et) => updatedTypesMap.get(et.key) ?? et);
-        });
+        // Invalidate the entity types list
+        queryClient.invalidateQueries({ queryKey: ['entityTypes', workspaceId] });
       }
 
       return response;

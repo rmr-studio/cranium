@@ -1,3 +1,19 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: in-progress
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-03-05T08:37:41Z"
+last_activity: 2026-03-05 — Phase 3 Plan 1 executed
+progress:
+  total_phases: 3
+  completed_phases: 2
+  total_plans: 6
+  completed_plans: 5
+  percent: 83
+---
+
 # Project State
 
 ## Project Reference
@@ -5,23 +21,23 @@
 See: .planning/PROJECT.md (updated 2026-02-28)
 
 **Core value:** Manifest files on disk are reliably loaded into a queryable database catalog on every application startup
-**Current focus:** Phase 2 — Loader Pipeline
+**Current focus:** Phase 3 — Read Surface and Integration Tests
 
 ## Current Position
 
-Phase: 2 of 3 (Loader Pipeline) -- COMPLETE
-Plan: 3 of 3 in current phase (complete)
-Status: Phase 2 complete, all 3 plans executed
-Last activity: 2026-03-05 — Phase 2 Plan 3 executed
+Phase: 3 of 3 (Read Surface and Integration Tests)
+Plan: 1 of 2 in current phase (complete)
+Status: Phase 3 in progress, plan 1 complete
+Last activity: 2026-03-05 — Phase 3 Plan 1 executed
 
-Progress: [##########] 100%
+Progress: [########--] 83%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
-- Average duration: 6.0 minutes
-- Total execution time: 0.40 hours
+- Total plans completed: 5
+- Average duration: 5.6 minutes
+- Total execution time: 0.47 hours
 
 **By Phase:**
 
@@ -29,9 +45,10 @@ Progress: [##########] 100%
 |-------|-------|-------|----------|
 | 1. Database Foundation | 1/1 | 8 min | 8 min |
 | 2. Loader Pipeline | 3/3 | 16 min | 5.3 min |
+| 3. Read Surface | 1/2 | 4 min | 4 min |
 
 **Recent Trend:**
-- Last 5 plans: 8 min, 3 min, 8 min, 5 min
+- Last 5 plans: 8 min, 3 min, 8 min, 5 min, 4 min
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -58,6 +75,8 @@ Recent decisions affecting current work:
 - Entity pattern: CatalogRelationshipEntity.protected uses backtick-escaped Kotlin keyword matching existing RelationshipDefinitionEntity pattern
 - JSON Schema: Draft 2019-09 matching existing SchemaService SpecVersion.VersionFlag.V201909
 - Semantics: Relationship semantics have definition + tags but no classification per CONTEXT.md
+- Query models: Flat data classes separate from pipeline models -- no sealed hierarchy needed
+- Query: findByKeyAndStaleFalse returns single entity (keys practically unique across types)
 
 ### Pending Todos
 
@@ -70,6 +89,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-05
-Stopped at: Completed 02-03-PLAN.md — Upsert service and loader orchestrator with 11 unit tests. Phase 2 complete.
-Resume file: None
+Last session: 2026-03-05T08:37:41Z
+Stopped at: Completed 03-01-PLAN.md
+Resume file: .planning/phases/03-read-surface-and-integration-tests/03-02-PLAN.md

@@ -40,10 +40,10 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Catalog Query
 
-- [ ] **QUERY-01**: `ManifestCatalogService` provides `getAvailableTemplates()` returning all active template manifests
-- [ ] **QUERY-02**: `ManifestCatalogService` provides `getAvailableModels()` returning all active model manifests
-- [ ] **QUERY-03**: `ManifestCatalogService` provides `getManifestByKey(key)` returning a single manifest with nested entity types and relationships
-- [ ] **QUERY-04**: `ManifestCatalogService` provides `getEntityTypesForManifest(manifestId)` returning entity type definitions for a manifest
+- [x] **QUERY-01**: `ManifestCatalogService` provides `getAvailableTemplates()` returning all active template manifests
+- [x] **QUERY-02**: `ManifestCatalogService` provides `getAvailableModels()` returning all active model manifests
+- [x] **QUERY-03**: `ManifestCatalogService` provides `getManifestByKey(key)` returning a single manifest with nested entity types and relationships
+- [x] **QUERY-04**: `ManifestCatalogService` provides `getEntityTypesForManifest(manifestId)` returning entity type definitions for a manifest
 
 ### Scaffolding
 
@@ -134,10 +134,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TEST-03 | Phase 2 | Complete |
 | TEST-04 | Phase 2 | Complete |
 | TEST-05 | Phase 2 | Complete |
-| QUERY-01 | Phase 3 | Pending |
-| QUERY-02 | Phase 3 | Pending |
-| QUERY-03 | Phase 3 | Pending |
-| QUERY-04 | Phase 3 | Pending |
+| QUERY-01 | Phase 3 | Complete |
+| QUERY-02 | Phase 3 | Complete |
+| QUERY-03 | Phase 3 | Complete |
+| QUERY-04 | Phase 3 | Complete |
 | TEST-06 | Phase 3 | Pending |
 | TEST-07 | Phase 3 | Pending |
 | TEST-08 | Phase 3 | Pending |

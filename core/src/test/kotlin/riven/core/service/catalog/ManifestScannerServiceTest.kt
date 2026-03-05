@@ -7,11 +7,11 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
-import org.springframework.core.io.ByteArrayResource
+import org.springframework.core.io.ClassPathResource
 import org.springframework.core.io.Resource
 import org.springframework.core.io.support.ResourcePatternResolver
 import riven.core.enums.catalog.ManifestType
-import java.net.URL
+import java.net.URI
 
 class ManifestScannerServiceTest {
 
@@ -73,9 +73,7 @@ class ManifestScannerServiceTest {
     fun setUp() {
         resourcePatternResolver = mock()
         objectMapper = ObjectMapper().registerModule(KotlinModule.Builder().build())
-        logger = mock {
-            on { warn(any<() -> Any?>()) } doAnswer { }
-        }
+        logger = mock()
         service = ManifestScannerService(resourcePatternResolver, objectMapper, logger)
     }
 
@@ -103,7 +101,7 @@ class ManifestScannerServiceTest {
           "key": "bad-model",
           "name": "Bad Model"
         }
-        """.trimIndent() // Missing required "attributes" and "displayName"
+        """.trimIndent()
 
         val resource = createResourceWithContent("bad-model.json", invalidJson)
         whenever(resourcePatternResolver.getResources("classpath:manifests/models/*.json"))
@@ -181,19 +179,19 @@ class ManifestScannerServiceTest {
     private fun createResourceWithContent(filename: String, content: String): Resource {
         return mock {
             on { this.filename } doReturn filename
-            on { getInputStream() } doReturn content.byteInputStream()
+            on { getInputStream() } doAnswer { content.byteInputStream() }
         }
     }
 
     private fun createResourceWithUrl(urlString: String, content: String): Resource {
         return mock {
-            on { url } doReturn URL(urlString)
-            on { getInputStream() } doReturn content.byteInputStream()
+            on { url } doReturn URI(urlString).toURL()
+            on { getInputStream() } doAnswer { content.byteInputStream() }
         }
     }
 
     private fun mockSchemaResource(schemaPath: String) {
-        val realSchemaResource = org.springframework.core.io.ClassPathResource(schemaPath)
+        val realSchemaResource = ClassPathResource(schemaPath)
         whenever(resourcePatternResolver.getResource("classpath:$schemaPath"))
             .thenReturn(realSchemaResource)
     }

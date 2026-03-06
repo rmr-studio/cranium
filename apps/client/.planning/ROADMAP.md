@@ -140,7 +140,7 @@ Plans:
 | 3. Relationship Form | 2/3 | In progress | - |
 | 4. Creation Form Simplification | 0/? | Not started | - |
 | 5. Attribute Semantic Configuration | 1/2 | In progress | - |
-| 6. Remove bidirectional toggle | 0/2 | Not started | - |
+| 6. Remove bidirectional toggle | 1/2 | In progress | - |
 
 ---
 
@@ -208,7 +208,7 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — Remove inverseVisible from form layer (schema, hook, target rule UI, data table badge)
+- [x] 06-01-PLAN.md — Remove inverseVisible from form layer (schema, hook, target rule UI, data table badge)
 - [ ] 06-02-PLAN.md — Rewrite delete modal to contextual confirmation (remove DeleteAction/RadioGroup)
 
 ---

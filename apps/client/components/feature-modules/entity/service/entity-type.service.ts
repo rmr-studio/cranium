@@ -7,12 +7,17 @@ import {
   EntityType,
   EntityTypeImpactResponse,
   SaveTypeDefinitionRequest,
+  UpdateEntityTypeConfigurationRequest,
 } from '@/lib/types/entity';
 import { normalizeApiError } from '@/lib/util/error/error.util';
 import { validateSession, validateUuid } from '@/lib/util/service/service.util';
 
 export class EntityTypeService {
-  static async getEntityTypes(session: Session | null, workspaceId: string): Promise<EntityType[]> {
+  static async getEntityTypes(
+    session: Session | null,
+    workspaceId: string,
+    include?: string[],
+  ): Promise<EntityType[]> {
     validateSession(session);
     validateUuid(workspaceId);
     const api = createEntityApi(session!);
@@ -28,6 +33,7 @@ export class EntityTypeService {
     session: Session | null,
     workspaceId: string,
     key: string,
+    include?: string[],
   ): Promise<EntityType> {
     validateSession(session);
     validateUuid(workspaceId);
@@ -59,17 +65,32 @@ export class EntityTypeService {
   static async saveEntityTypeConfiguration(
     session: Session | null,
     workspaceId: string,
-    entityType: EntityType,
+    request: UpdateEntityTypeConfigurationRequest,
   ): Promise<EntityType> {
     validateSession(session);
     validateUuid(workspaceId);
     const api = createEntityApi(session!);
 
     try {
-      return await api.updateEntityType({ workspaceId, entityType });
+      return await api.updateEntityType({
+        workspaceId,
+        updateEntityTypeConfigurationRequest: request,
+      });
     } catch (error) {
       throw await normalizeApiError(error);
     }
+  }
+
+  /**
+   * Resolves an entity type key to its UUID from a known list of entity types.
+   * Use this to convert user-facing keys to API-required UUIDs in the service layer.
+   */
+  static resolveEntityTypeId(entityTypes: EntityType[], key: string): string {
+    const found = entityTypes.find((et) => et.key === key);
+    if (!found) {
+      throw new Error(`Entity type with key "${key}" not found`);
+    }
+    return found.id;
   }
 
   static async removeEntityTypeDefinition(

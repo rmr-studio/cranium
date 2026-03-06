@@ -67,6 +67,12 @@ export interface WorkflowUpdateEntityActionConfig {
     timeoutSeconds?: number;
     /**
      * 
+     * @type {Array<WorkflowNodeConfigField>}
+     * @memberof WorkflowUpdateEntityActionConfig
+     */
+    configSchema?: Array<WorkflowNodeConfigField>;
+    /**
+     * 
      * @type {{ [key: string]: object; }}
      * @memberof WorkflowUpdateEntityActionConfig
      */
@@ -77,12 +83,6 @@ export interface WorkflowUpdateEntityActionConfig {
      * @memberof WorkflowUpdateEntityActionConfig
      */
     subType?: WorkflowActionType;
-    /**
-     * 
-     * @type {Array<WorkflowNodeConfigField>}
-     * @memberof WorkflowUpdateEntityActionConfig
-     */
-    configSchema?: Array<WorkflowNodeConfigField>;
     /**
      * 
      * @type {WorkflowNodeType}
@@ -114,9 +114,9 @@ export function WorkflowUpdateEntityActionConfigFromJSONTyped(json: any, ignoreD
         'entityId': json['entityId'] == null ? undefined : json['entityId'],
         'payload': json['payload'] == null ? undefined : json['payload'],
         'timeoutSeconds': json['timeoutSeconds'] == null ? undefined : json['timeoutSeconds'],
+        'configSchema': json['configSchema'] == null ? undefined : ((json['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldFromJSON)),
         'config': json['config'] == null ? undefined : json['config'],
         'subType': json['subType'] == null ? undefined : WorkflowActionTypeFromJSON(json['subType']),
-        'configSchema': json['configSchema'] == null ? undefined : ((json['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldFromJSON)),
         'type': json['type'] == null ? undefined : WorkflowNodeTypeFromJSON(json['type']),
     };
 }
@@ -136,9 +136,9 @@ export function WorkflowUpdateEntityActionConfigToJSONTyped(value?: WorkflowUpda
         'entityId': value['entityId'],
         'payload': value['payload'],
         'timeoutSeconds': value['timeoutSeconds'],
+        'configSchema': value['configSchema'] == null ? undefined : ((value['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldToJSON)),
         'config': value['config'],
         'subType': WorkflowActionTypeToJSON(value['subType']),
-        'configSchema': value['configSchema'] == null ? undefined : ((value['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldToJSON)),
         'type': WorkflowNodeTypeToJSON(value['type']),
     };
 }

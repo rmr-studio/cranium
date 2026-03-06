@@ -13,9 +13,9 @@ Name | Type
 `headers` | { [key: string]: string; }
 `body` | { [key: string]: string; }
 `timeoutSeconds` | number
+`configSchema` | [Array&lt;WorkflowNodeConfigField&gt;](WorkflowNodeConfigField.md)
 `config` | { [key: string]: object; }
 `subType` | [WorkflowActionType](WorkflowActionType.md)
-`configSchema` | [Array&lt;WorkflowNodeConfigField&gt;](WorkflowNodeConfigField.md)
 `type` | [WorkflowNodeType](WorkflowNodeType.md)
 
 ## Example
@@ -31,9 +31,9 @@ const example = {
   "headers": null,
   "body": null,
   "timeoutSeconds": null,
+  "configSchema": null,
   "config": null,
   "subType": null,
-  "configSchema": null,
   "type": null,
 } satisfies WorkflowHttpRequestActionConfig
 

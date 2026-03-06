@@ -5,10 +5,13 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@riven/ui/tooltip';
 import {
   EntityAttributeDefinition,
   EntityPropertyType,
-  EntityRelationshipDefinition,
+  RelationshipDefinition,
   EntityType,
   EntityTypeAttributeRow,
   EntityTypeDefinition,
+  SystemRelationshipType,
+  type SemanticMetadataBundle,
+  type EntityTypeSemanticMetadata,
 } from '@/lib/types/entity';
 import { toTitleCase } from '@riven/utils';
 import { ColumnDef, Row } from '@tanstack/react-table';
@@ -29,11 +32,12 @@ export function useEntityTypeTable(
   identifierKey: string,
   editCB: (definition: EntityTypeDefinition) => void,
   deleteCB: (definition: EntityTypeDefinition) => void,
+  semanticBundle?: SemanticMetadataBundle,
 ): UseEntityTypeTableReturn {
   // Create a lookup map for attributes and relationships by their IDs. This should allow for quick access when choosing the correct item to edit
-  const attributeLookup: Map<string, EntityAttributeDefinition | EntityRelationshipDefinition> =
+  const attributeLookup: Map<string, EntityAttributeDefinition | RelationshipDefinition> =
     useMemo(() => {
-      const map = new Map<string, EntityAttributeDefinition | EntityRelationshipDefinition>();
+      const map = new Map<string, EntityAttributeDefinition | RelationshipDefinition>();
 
       if (type.schema.properties) {
         Object.entries(type.schema.properties).forEach(([id, attr]) => {
@@ -44,9 +48,11 @@ export function useEntityTypeTable(
         });
       }
 
-      type.relationships?.forEach((rel) => {
-        map.set(rel.id, rel);
-      });
+      type.relationships
+        ?.filter((rel) => rel.systemType !== SystemRelationshipType.ConnectedEntities)
+        .forEach((rel) => {
+          map.set(rel.id, rel);
+        });
       return map;
     }, [type]);
 
@@ -137,6 +143,36 @@ export function useEntityTypeTable(
         },
       },
       {
+        id: 'classification',
+        header: 'Classification',
+        cell: ({ row }) => {
+          const isRelationship = row.original.type === EntityPropertyType.Relationship;
+          if (isRelationship) {
+            return <span className="text-xs text-muted-foreground">Relationship</span>;
+          }
+
+          const classification = row.original.classification;
+          if (!classification) {
+            return <span className="text-xs text-muted-foreground">Unset</span>;
+          }
+
+          const displayLabel = toTitleCase(classification.replace(/_/g, ' '));
+          const badge = <Badge variant="outline">{displayLabel}</Badge>;
+
+          const definition = row.original.definition;
+          if (definition) {
+            return (
+              <Tooltip>
+                <TooltipTrigger asChild>{badge}</TooltipTrigger>
+                <TooltipContent className="max-w-xs text-sm">{definition}</TooltipContent>
+              </Tooltip>
+            );
+          }
+
+          return badge;
+        },
+      },
+      {
         id: 'constraints',
         header: 'Constraints',
         cell: ({ row }) => {
@@ -151,10 +187,6 @@ export function useEntityTypeTable(
 
           if (isRelationship && row.original.allowPolymorphic) {
             constraints.push('Polymorphic');
-          }
-
-          if (isRelationship && row.original.bidirectional) {
-            constraints.push('Bidirectional');
           }
 
           return (
@@ -176,22 +208,23 @@ export function useEntityTypeTable(
   );
 
   const convertRelationshipToRow = (
-    relationship: EntityRelationshipDefinition,
+    relationship: RelationshipDefinition,
   ): EntityTypeAttributeRow => ({
     id: relationship.id,
     label: relationship.name || relationship.id,
     type: EntityPropertyType.Relationship,
-    required: relationship.required || false,
+    protected: relationship._protected,
+    required: false,
     schemaType: 'RELATIONSHIP',
     additionalConstraints: [],
-    cardinality: relationship.cardinality,
-    entityTypeKeys: relationship.entityTypeKeys || [],
-    allowPolymorphic: relationship.allowPolymorphic || false,
-    bidirectional: relationship.bidirectional || false,
+    cardinalityDefault: relationship.cardinalityDefault,
+    targetRules: relationship.targetRules,
+    allowPolymorphic: relationship.allowPolymorphic,
   });
 
   const convertSchemaPropertyToRow = (
     attribute: EntityAttributeDefinition,
+    semanticMeta?: EntityTypeSemanticMetadata,
   ): EntityTypeAttributeRow => {
     const { id, schema } = attribute;
     return {
@@ -204,6 +237,8 @@ export function useEntityTypeTable(
       additionalConstraints: [],
       dataType: schema.type,
       unique: schema.unique || false,
+      classification: semanticMeta?.classification,
+      definition: semanticMeta?.definition,
     };
   };
 
@@ -211,9 +246,11 @@ export function useEntityTypeTable(
     const { schema, columns, relationships } = type;
     const rows: EntityTypeAttributeRow[] = [
       ...Object.entries(schema.properties || {}).map(([id, attr]) =>
-        convertSchemaPropertyToRow({ id, schema: attr }),
+        convertSchemaPropertyToRow({ id, schema: attr }, semanticBundle?.attributes?.[id]),
       ),
-      ...(relationships || []).map((rel) => convertRelationshipToRow(rel)),
+      ...(relationships || [])
+        .filter((rel) => rel.systemType !== SystemRelationshipType.ConnectedEntities)
+        .map((rel) => convertRelationshipToRow(rel)),
     ];
 
     return rows.toSorted((a, b) => {
@@ -230,7 +267,7 @@ export function useEntityTypeTable(
       // If neither is in columns array, maintain current columns
       return 0;
     });
-  }, [type]);
+  }, [type, semanticBundle]);
 
   const onEdit = (row: EntityTypeAttributeRow) => {
     const definition = attributeLookup.get(row.id);

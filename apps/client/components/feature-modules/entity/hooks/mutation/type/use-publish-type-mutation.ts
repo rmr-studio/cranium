@@ -1,6 +1,6 @@
 import { useAuth } from '@/components/provider/auth-context';
 import { CreateEntityTypeRequest, EntityType } from '@/lib/types/entity';
-import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
+import { MutationFunctionContext, useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { toast } from 'sonner';
 import { EntityTypeService } from '../../../service/entity-type.service';
@@ -16,18 +16,18 @@ export function usePublishEntityTypeMutation(
   return useMutation({
     mutationFn: (request: CreateEntityTypeRequest) =>
       EntityTypeService.publishEntityType(session, workspaceId, request),
-    onMutate: (data) => {
-      options?.onMutate?.(data);
+    onMutate: (data: CreateEntityTypeRequest, context: MutationFunctionContext) => {
+      options?.onMutate?.(data, context);
       submissionToastRef.current = toast.loading('Creating entity type...');
     },
-    onError: (error: Error, variables: CreateEntityTypeRequest, context: unknown) => {
-      options?.onError?.(error, variables, context);
+    onError: (error: Error, variables: CreateEntityTypeRequest, onMutateResult: unknown, context: MutationFunctionContext) => {
+      options?.onError?.(error, variables, onMutateResult, context);
       toast.dismiss(submissionToastRef.current);
       submissionToastRef.current = undefined;
       toast.error(`Failed to create entity type: ${error.message}`);
     },
-    onSuccess: (response: EntityType, variables: CreateEntityTypeRequest, context: unknown) => {
-      options?.onSuccess?.(response, variables, context);
+    onSuccess: (response: EntityType, variables: CreateEntityTypeRequest, onMutateResult: unknown, context: MutationFunctionContext) => {
+      options?.onSuccess?.(response, variables, onMutateResult, context);
       toast.dismiss(submissionToastRef.current);
       submissionToastRef.current = undefined;
       toast.success(`Entity type created successfully!`);

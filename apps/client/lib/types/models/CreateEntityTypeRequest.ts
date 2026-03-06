@@ -20,6 +20,20 @@ import {
     DisplayNameToJSON,
     DisplayNameToJSONTyped,
 } from './DisplayName';
+import type { SemanticGroup } from './SemanticGroup';
+import {
+    SemanticGroupFromJSON,
+    SemanticGroupFromJSONTyped,
+    SemanticGroupToJSON,
+    SemanticGroupToJSONTyped,
+} from './SemanticGroup';
+import type { SaveSemanticMetadataRequest } from './SaveSemanticMetadataRequest';
+import {
+    SaveSemanticMetadataRequestFromJSON,
+    SaveSemanticMetadataRequestFromJSONTyped,
+    SaveSemanticMetadataRequestToJSON,
+    SaveSemanticMetadataRequestToJSONTyped,
+} from './SaveSemanticMetadataRequest';
 import type { Icon } from './Icon';
 import {
     IconFromJSON,
@@ -27,13 +41,6 @@ import {
     IconToJSON,
     IconToJSONTyped,
 } from './Icon';
-import type { EntityCategory } from './EntityCategory';
-import {
-    EntityCategoryFromJSON,
-    EntityCategoryFromJSONTyped,
-    EntityCategoryToJSON,
-    EntityCategoryToJSONTyped,
-} from './EntityCategory';
 
 /**
  * 
@@ -55,22 +62,22 @@ export interface CreateEntityTypeRequest {
     key: string;
     /**
      * 
-     * @type {string}
-     * @memberof CreateEntityTypeRequest
-     */
-    description?: string;
-    /**
-     * 
-     * @type {EntityCategory}
-     * @memberof CreateEntityTypeRequest
-     */
-    type: EntityCategory;
-    /**
-     * 
      * @type {Icon}
      * @memberof CreateEntityTypeRequest
      */
     icon: Icon;
+    /**
+     * 
+     * @type {SemanticGroup}
+     * @memberof CreateEntityTypeRequest
+     */
+    semanticGroup: SemanticGroup;
+    /**
+     * 
+     * @type {SaveSemanticMetadataRequest}
+     * @memberof CreateEntityTypeRequest
+     */
+    semantics?: SaveSemanticMetadataRequest;
 }
 
 
@@ -81,8 +88,8 @@ export interface CreateEntityTypeRequest {
 export function instanceOfCreateEntityTypeRequest(value: object): value is CreateEntityTypeRequest {
     if (!('name' in value) || value['name'] === undefined) return false;
     if (!('key' in value) || value['key'] === undefined) return false;
-    if (!('type' in value) || value['type'] === undefined) return false;
     if (!('icon' in value) || value['icon'] === undefined) return false;
+    if (!('semanticGroup' in value) || value['semanticGroup'] === undefined) return false;
     return true;
 }
 
@@ -98,9 +105,9 @@ export function CreateEntityTypeRequestFromJSONTyped(json: any, ignoreDiscrimina
         
         'name': DisplayNameFromJSON(json['name']),
         'key': json['key'],
-        'description': json['description'] == null ? undefined : json['description'],
-        'type': EntityCategoryFromJSON(json['type']),
         'icon': IconFromJSON(json['icon']),
+        'semanticGroup': SemanticGroupFromJSON(json['semanticGroup']),
+        'semantics': json['semantics'] == null ? undefined : SaveSemanticMetadataRequestFromJSON(json['semantics']),
     };
 }
 
@@ -117,9 +124,9 @@ export function CreateEntityTypeRequestToJSONTyped(value?: CreateEntityTypeReque
         
         'name': DisplayNameToJSON(value['name']),
         'key': value['key'],
-        'description': value['description'],
-        'type': EntityCategoryToJSON(value['type']),
         'icon': IconToJSON(value['icon']),
+        'semanticGroup': SemanticGroupToJSON(value['semanticGroup']),
+        'semantics': SaveSemanticMetadataRequestToJSON(value['semantics']),
     };
 }
 

@@ -1,10 +1,12 @@
-import { SchemaOptions, SchemaType, OptionSortingType } from "@/lib/types/common";
+import { Icon, IconColour, IconType, SchemaOptions, SchemaType, OptionSortingType } from "@/lib/types/common";
 import {
     EntityAttributeDefinition,
     EntityType,
     EntityTypeRequestDefinition,
+    EntityTypeSemanticMetadata,
     SaveAttributeDefinitionRequest,
     SaveTypeDefinitionRequest,
+    SemanticAttributeClassification,
 } from "@/lib/types/entity";
 import { attributeTypes } from "@/lib/util/form/schema.util";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,10 +17,16 @@ import { useSaveDefinitionMutation } from "../../mutation/type/use-save-definiti
 import { uuid } from "@/lib/util/utils";
 
 // Zod schema
+const iconSchema = z.object({
+    type: z.nativeEnum(IconType),
+    colour: z.nativeEnum(IconColour),
+});
+
 export const attributeFormSchema = z
     .object({
         selectedType: z.nativeEnum(SchemaType),
         name: z.string().min(1, "Name is required"),
+        icon: iconSchema,
         required: z.boolean(),
         unique: z.boolean(),
         // Attribute Schema options
@@ -29,6 +37,9 @@ export const attributeFormSchema = z
         minLength: z.coerce.number().min(0).optional().nullable(),
         maxLength: z.coerce.number().min(0).optional().nullable(),
         regex: z.string().optional().nullable(),
+        // Semantic context fields
+        classification: z.nativeEnum(SemanticAttributeClassification).optional().nullable(),
+        definition: z.string().optional().nullable(),
     })
     .refine(
         (data) => {
@@ -64,6 +75,7 @@ export function useEntityTypeAttributeSchemaForm(
   onSave: () => void,
   onCancel: () => void,
   attribute?: EntityAttributeDefinition,
+  semanticMetadata?: EntityTypeSemanticMetadata,
 ): useEntityTypeAttributeSchemaFormReturn {
     // Always start form as blank, this is because we would want it to reset to blank when a dialogue is re-opened.
     // Regardless of selected attribute, or previous changes.
@@ -72,6 +84,7 @@ export function useEntityTypeAttributeSchemaForm(
         defaultValues: {
             selectedType: SchemaType.Text,
             name: "",
+            icon: attributeTypes[SchemaType.Text].icon,
             required: false,
             unique: false,
             enumValues: [],
@@ -81,6 +94,8 @@ export function useEntityTypeAttributeSchemaForm(
             minLength: undefined,
             maxLength: undefined,
             regex: undefined,
+            classification: undefined,
+            definition: undefined,
         },
     });
 
@@ -93,12 +108,15 @@ export function useEntityTypeAttributeSchemaForm(
     onCancel();
   }, []);
 
-  // Pre-populate schema options for specific types.
+  // Pre-populate schema options and icon for specific types.
   // Provided they have been provided default options (ie. Rating type with min/max values)
   useEffect(() => {
     if (!isEditMode) {
       const attribute = attributeTypes[currentType];
       if (!attribute) return;
+
+      // Set default icon for the selected type
+      form.setValue('icon', attribute.icon);
 
       // TODO. Expand this to cover more types as needed.
       if (attribute?.options) {
@@ -125,6 +143,7 @@ export function useEntityTypeAttributeSchemaForm(
     form.reset({
       selectedType: attributeType.key,
       name: schema.label,
+      icon: schema.icon ?? attributeType.icon,
       required: schema.required,
       unique: schema.unique,
       enumValues: schema.options?._enum,
@@ -134,8 +153,10 @@ export function useEntityTypeAttributeSchemaForm(
       minLength: schema.options?.minLength,
       maxLength: schema.options?.maxLength,
       regex: schema.options?.regex,
+      classification: semanticMetadata?.classification ?? undefined,
+      definition: semanticMetadata?.definition ?? undefined,
     });
-  }, [open, attribute]);
+  }, [open, attribute, semanticMetadata]);
 
   useEffect(() => {
     if (!open) {
@@ -143,7 +164,7 @@ export function useEntityTypeAttributeSchemaForm(
     }
   }, [open]);
 
-  const { mutateAsync: saveDefinition } = useSaveDefinitionMutation(workspaceId, {
+  const { mutateAsync: saveDefinition } = useSaveDefinitionMutation(workspaceId, undefined, {
     onSuccess: () => {
       onSave();
     },
@@ -166,6 +187,8 @@ export function useEntityTypeAttributeSchemaForm(
         regex: values.regex ?? undefined,
       };
 
+      const hasSemantics = values.classification || values.definition;
+
       const definition: SaveAttributeDefinitionRequest = {
         id,
         type: EntityTypeRequestDefinition.SaveSchema,
@@ -177,10 +200,17 @@ export function useEntityTypeAttributeSchemaForm(
           format: attributeType.format,
           label: values.name,
           required: values.required,
-          icon: attributeType.icon,
+          icon: values.icon,
           unique: values.unique,
           options: options,
         },
+        semantics: hasSemantics
+          ? {
+              classification: values.classification ?? undefined,
+              definition: values.definition ?? undefined,
+              tags: [],
+            }
+          : undefined,
       };
 
       const request: SaveTypeDefinitionRequest = {

@@ -1,42 +1,39 @@
-import { IconColour, IconType } from "@/lib/types/common";
-import { CreateEntityTypeRequest, EntityCategory, EntityType } from "@/lib/types/entity";
-import { iconFormSchema } from "@/lib/util/form/common/icon.form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useForm, UseFormReturn } from "react-hook-form";
-import { z } from "zod";
-import { usePublishEntityTypeMutation } from "../../mutation/type/use-publish-type-mutation";
+import { IconColour, IconType } from '@/lib/types/common';
+import { CreateEntityTypeRequest, EntityType, SemanticGroup } from '@/lib/types/entity';
+import { iconFormSchema } from '@/lib/util/form/common/icon.form';
+import { toKeyCase } from '@/lib/util/utils';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
+import { useForm, UseFormReturn } from 'react-hook-form';
+import { z } from 'zod';
+import { usePublishEntityTypeMutation } from '../../mutation/type/use-publish-type-mutation';
 
 export const baseEntityTypeFormSchema = z
   .object({
-    key: z.string().min(1, 'Key is required'),
     singularName: z.string().min(1, 'Singular variant of the name is required'),
     pluralName: z.string().min(1, 'Plural variant of the name is required'),
     description: z.string().optional(),
-    type: z.nativeEnum(EntityCategory),
+    semanticGroup: z.nativeEnum(SemanticGroup),
+    tags: z.array(z.string()),
   })
   .extend(iconFormSchema.shape);
 
 export type NewEntityTypeFormValues = z.infer<typeof baseEntityTypeFormSchema>;
 export interface UseEntityTypeFormReturn {
   form: UseFormReturn<NewEntityTypeFormValues>;
-  keyManuallyEdited: boolean;
-  setKeyManuallyEdited: (value: boolean) => void;
   handleSubmit: (values: NewEntityTypeFormValues) => Promise<void>;
 }
 
 export function useNewEntityTypeForm(workspaceId: string): UseEntityTypeFormReturn {
-  const [keyManuallyEdited, setKeyManuallyEdited] = useState(false);
   const router = useRouter();
 
   const form = useForm<NewEntityTypeFormValues>({
     defaultValues: {
-      key: '',
       singularName: '',
       pluralName: '',
       description: '',
-      type: EntityCategory.Standard,
+      semanticGroup: SemanticGroup.Uncategorized,
+      tags: [],
       icon: {
         type: IconType.Database,
         colour: IconColour.Neutral,
@@ -46,16 +43,18 @@ export function useNewEntityTypeForm(workspaceId: string): UseEntityTypeFormRetu
   });
 
   const handleSubmit = async (values: NewEntityTypeFormValues): Promise<void> => {
-    // Create the entity type request with a default "name" attribute
     const request: CreateEntityTypeRequest = {
-      key: values.key,
+      key: toKeyCase(values.pluralName),
       name: {
         singular: values.singularName,
         plural: values.pluralName,
       },
-      description: values.description,
-      type: values.type,
       icon: values.icon,
+      semanticGroup: values.semanticGroup,
+      semantics:
+        values.description || values.tags.length > 0
+          ? { definition: values.description, tags: values.tags }
+          : undefined,
     };
 
     await publishType(request);
@@ -71,8 +70,6 @@ export function useNewEntityTypeForm(workspaceId: string): UseEntityTypeFormRetu
 
   return {
     form,
-    keyManuallyEdited,
-    setKeyManuallyEdited,
     handleSubmit,
   };
 }

@@ -10,6 +10,7 @@ Name | Type
 `subType` | string
 `metadata` | [WorkflowNodeTypeMetadata](WorkflowNodeTypeMetadata.md)
 `schema` | [Array&lt;WorkflowNodeConfigField&gt;](WorkflowNodeConfigField.md)
+`outputMetadata` | [WorkflowNodeOutputMetadata](WorkflowNodeOutputMetadata.md)
 
 ## Example
 
@@ -22,6 +23,7 @@ const example = {
   "subType": null,
   "metadata": null,
   "schema": null,
+  "outputMetadata": null,
 } satisfies WorkflowNodeMetadata
 
 console.log(example)

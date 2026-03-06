@@ -26,6 +26,13 @@ import {
     AttributeFromJSONTyped,
     AttributeToJSON,
 } from './Attribute';
+import type { IsRelatedTo } from './IsRelatedTo';
+import {
+    instanceOfIsRelatedTo,
+    IsRelatedToFromJSON,
+    IsRelatedToFromJSONTyped,
+    IsRelatedToToJSON,
+} from './IsRelatedTo';
 import type { Or } from './Or';
 import {
     instanceOfOr,
@@ -46,7 +53,7 @@ import {
  * Filter expression for querying entities.
  * @export
  */
-export type QueryFilter = { type: 'And' } & And | { type: 'Attribute' } & Attribute | { type: 'Or' } & Or | { type: 'Relationship' } & Relationship;
+export type QueryFilter = { type: 'And' } & And | { type: 'Attribute' } & Attribute | { type: 'IsRelatedTo' } & IsRelatedTo | { type: 'Or' } & Or | { type: 'Relationship' } & Relationship;
 
 export function QueryFilterFromJSON(json: any): QueryFilter {
     return QueryFilterFromJSONTyped(json, false);
@@ -61,6 +68,8 @@ export function QueryFilterFromJSONTyped(json: any, ignoreDiscriminator: boolean
             return Object.assign({}, AndFromJSONTyped(json, true), { type: 'And' } as const);
         case 'Attribute':
             return Object.assign({}, AttributeFromJSONTyped(json, true), { type: 'Attribute' } as const);
+        case 'IsRelatedTo':
+            return Object.assign({}, IsRelatedToFromJSONTyped(json, true), { type: 'IsRelatedTo' } as const);
         case 'Or':
             return Object.assign({}, OrFromJSONTyped(json, true), { type: 'Or' } as const);
         case 'Relationship':
@@ -83,6 +92,8 @@ export function QueryFilterToJSONTyped(value?: QueryFilter | null, ignoreDiscrim
             return Object.assign({}, AndToJSON(value), { type: 'And' } as const);
         case 'Attribute':
             return Object.assign({}, AttributeToJSON(value), { type: 'Attribute' } as const);
+        case 'IsRelatedTo':
+            return Object.assign({}, IsRelatedToToJSON(value), { type: 'IsRelatedTo' } as const);
         case 'Or':
             return Object.assign({}, OrToJSON(value), { type: 'Or' } as const);
         case 'Relationship':

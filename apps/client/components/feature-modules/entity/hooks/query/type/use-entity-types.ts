@@ -27,12 +27,13 @@ export function useEntityTypes(workspaceId?: string): AuthenticatedQueryResult<E
 export function useEntityTypeByKey(
   key: string,
   workspaceId?: string,
+  include?: string[],
 ): AuthenticatedQueryResult<EntityType> {
   const { session, loading } = useAuth();
   const query = useQuery({
-    queryKey: ['entityType', key, workspaceId],
+    queryKey: ['entityType', key, workspaceId, include],
     queryFn: async () => {
-      return await EntityTypeService.getEntityTypeByKey(session, workspaceId!, key); // non-null assertion as enabled ensures workspaceId is defined;
+      return await EntityTypeService.getEntityTypeByKey(session, workspaceId!, key, include); // non-null assertion as enabled ensures workspaceId is defined;
     },
     staleTime: 10 * 60 * 1000, // 10 minutes
     enabled: !!key && !!workspaceId && !!session && !loading,

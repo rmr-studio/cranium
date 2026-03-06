@@ -2,7 +2,6 @@ import { useWorkspace } from '@/components/feature-modules/workspace/hooks/query
 import {
   EntityRelationshipCandidate,
   EntityType,
-  EntityTypeRelationshipType,
 } from '@/lib/types/entity';
 import { useEntityTypes } from './use-entity-types';
 
@@ -23,19 +22,20 @@ export function useRelationshipCandidates(type: EntityType): UseRelationshipCand
       candidates: [],
     };
 
-  // Fitler out all unreferenced polymorphic relationships, or current relationship definitions that support the given entity type but does not yet reference it bidirectionally
+  // Filter out relationships from other entity types that target this entity type
   return {
     loading: false,
     candidates: data.flatMap((et) => {
       if (!et.relationships) return [];
       return et.relationships
-        .filter(
-          (def) =>
-            (def.allowPolymorphic || def.entityTypeKeys?.includes(type.key)) &&
-            def.relationshipType === EntityTypeRelationshipType.Origin &&
-            def.bidirectional &&
-            !def.bidirectionalEntityTypeKeys?.includes(type.key),
-        )
+        .filter((def) => {
+          // Only consider relationships from OTHER entity types
+          if (def.sourceEntityTypeId === type.id) return false;
+
+          // Check if this relationship targets our entity type
+          return def.allowPolymorphic ||
+            def.targetRules.some((r) => r.targetEntityTypeId === type.id);
+        })
         .map((rel) => ({
           name: et.name.singular,
           key: et.key,

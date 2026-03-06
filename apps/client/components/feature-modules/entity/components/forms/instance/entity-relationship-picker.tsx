@@ -1,28 +1,28 @@
 'use client';
 
+import { IconCell } from '@/components/ui/icon/icon-cell';
+import {
+  Entity,
+  EntityLink,
+  EntityRelationshipCardinality,
+  EntityType,
+  isRelationshipPayload,
+  RelationshipDefinition,
+} from '@/lib/types/entity';
+import { uuid } from '@/lib/util/utils';
 import { Badge } from '@riven/ui/badge';
 import { Button } from '@riven/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@riven/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@riven/ui/tabs';
-import { IconCell } from "@/components/ui/icon/icon-cell";
-import {
-    Entity,
-    EntityLink,
-    EntityRelationshipCardinality,
-    EntityRelationshipDefinition,
-    EntityType,
-    isRelationshipPayload,
-} from "@/lib/types/entity";
-import { uuid } from "@/lib/util/utils";
-import { Check, Loader2, X } from "lucide-react";
-import { useParams } from "next/navigation";
-import { FC, useEffect, useMemo, useState } from "react";
-import { useEntityTypes } from "../../../hooks/query/type/use-entity-types";
-import { useEntitiesFromManyTypes } from "../../../hooks/query/use-entities";
+import { Check, Loader2, X } from 'lucide-react';
+import { useParams } from 'next/navigation';
+import { FC, useEffect, useMemo, useState } from 'react';
+import { useEntityTypes } from '../../../hooks/query/type/use-entity-types';
+import { useEntitiesFromManyTypes } from '../../../hooks/query/use-entities';
 
 export interface EntityRelationshipPickerProps {
-  relationship: EntityRelationshipDefinition;
+  relationship: RelationshipDefinition;
   autoFocus?: boolean;
   value: EntityLink[];
   errors?: string[];
@@ -48,14 +48,27 @@ export const EntityRelationshipPicker: FC<EntityRelationshipPickerProps> = ({
   const { data: entityTypes } = useEntityTypes(workspaceId);
 
   const isSingleSelect =
-    relationship.cardinality === EntityRelationshipCardinality.OneToOne ||
-    relationship.cardinality === EntityRelationshipCardinality.ManyToOne;
+    relationship.cardinalityDefault === EntityRelationshipCardinality.OneToOne ||
+    relationship.cardinalityDefault === EntityRelationshipCardinality.ManyToOne;
 
   const types: EntityType[] = useMemo(() => {
-    return (
-      (relationship.allowPolymorphic
-        ? entityTypes
-        : entityTypes?.filter((et) => (relationship.entityTypeKeys ?? []).includes(et.key))) ?? []
+    if (!entityTypes) return [];
+    if (relationship.allowPolymorphic) return entityTypes;
+
+    const targetTypeIds = new Set(
+      relationship.targetRules
+        .filter((rule) => rule.targetEntityTypeId)
+        .map((rule) => rule.targetEntityTypeId),
+    );
+
+    const semanticGroups = new Set(
+      relationship.targetRules
+        .filter((rule) => rule.semanticTypeConstraint)
+        .map((rule) => rule.semanticTypeConstraint),
+    );
+
+    return entityTypes.filter(
+      (et) => targetTypeIds.has(et.id) || semanticGroups.has(et.semanticGroup),
     );
   }, [entityTypes, relationship]);
 
@@ -119,7 +132,7 @@ export const EntityRelationshipPicker: FC<EntityRelationshipPickerProps> = ({
     const link: EntityLink = {
       id: entity.id,
       workspaceId: workspaceId,
-      fieldId: relationship.id,
+      definitionId: relationship.id,
       key: type.key,
       sourceEntityId: uuid(), // Dummy sourceEntityId; will be replaced on save
       icon: entity.icon ?? type.icon,
@@ -254,7 +267,7 @@ export const EntityRelationshipPicker: FC<EntityRelationshipPickerProps> = ({
                           <div className="flex items-center">
                             <IconCell
                               readonly
-                              iconType={type}
+                              type={type}
                               colour={colour}
                               className="mr-2 size-6"
                             />

@@ -27,20 +27,27 @@ import {
     QueryFilterToJSON,
     QueryFilterToJSONTyped,
 } from './QueryFilter';
-import type { RelationshipCondition } from './RelationshipCondition';
+import type { RelationshipFilter } from './RelationshipFilter';
 import {
-    RelationshipConditionFromJSON,
-    RelationshipConditionFromJSONTyped,
-    RelationshipConditionToJSON,
-    RelationshipConditionToJSONTyped,
-} from './RelationshipCondition';
+    RelationshipFilterFromJSON,
+    RelationshipFilterFromJSONTyped,
+    RelationshipFilterToJSON,
+    RelationshipFilterToJSONTyped,
+} from './RelationshipFilter';
+import type { TypeBranch } from './TypeBranch';
+import {
+    TypeBranchFromJSON,
+    TypeBranchFromJSONTyped,
+    TypeBranchToJSON,
+    TypeBranchToJSONTyped,
+} from './TypeBranch';
 
 /**
  * Related entity satisfies nested filter criteria.
  * @export
  * @interface TargetMatches
  */
-export interface TargetMatches extends RelationshipCondition {
+export interface TargetMatches extends RelationshipFilter {
     /**
      * 
      * @type {QueryFilter}
@@ -67,7 +74,7 @@ export function TargetMatchesFromJSONTyped(json: any, ignoreDiscriminator: boole
         return json;
     }
     return {
-        ...RelationshipConditionFromJSONTyped(json, true),
+        ...RelationshipFilterFromJSONTyped(json, true),
         'filter': json['filter'] == null ? undefined : QueryFilterFromJSON(json['filter']),
     };
 }
@@ -82,7 +89,7 @@ export function TargetMatchesToJSONTyped(value?: TargetMatches | null, ignoreDis
     }
 
     return {
-        ...RelationshipConditionToJSONTyped(value, true),
+        ...RelationshipFilterToJSONTyped(value, true),
         'filter': QueryFilterToJSON(value['filter']),
     };
 }

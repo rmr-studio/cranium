@@ -1,14 +1,13 @@
 'use client';
 
-import { Badge } from '@riven/ui/badge';
 import { Button } from '@riven/ui/button';
 import { DataTable, DataTableProvider } from '@/components/ui/data-table';
 import { IconCell } from '@/components/ui/icon/icon-cell';
 import { EntityType, EntityTypeImpactResponse } from '@/lib/types/entity';
 import { ColumnDef } from '@tanstack/react-table';
 import { Edit, Plus, Trash2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { FC, useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { useDeleteTypeMutation } from '../../hooks/mutation/type/use-delete-type-mutation';
 import { useEntityTypes } from '../../hooks/query/type/use-entity-types';
 import { NewEntityTypeForm } from '../forms/type/new-entity-type-form';
@@ -19,7 +18,17 @@ interface Props {
 
 export const EntityTypesOverview: FC<Props> = ({ workspaceId }) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [newTypeOpen, setNewTypeOpen] = useState(false);
   const [impactModalOpen, setImpactModalOpen] = useState<boolean>(false);
+
+  // Auto-open the new entity type form if ?new query param is present
+  useEffect(() => {
+    if (searchParams.get('new') !== null) {
+      setNewTypeOpen(true);
+      router.replace(`/dashboard/workspace/${workspaceId}/entity`);
+    }
+  }, [searchParams, workspaceId, router]);
 
   const { data: types, isPending } = useEntityTypes(workspaceId);
 
@@ -44,46 +53,42 @@ export const EntityTypesOverview: FC<Props> = ({ workspaceId }) => {
             <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/5">
               <IconCell
                 readonly={true}
-                iconType={row.original.icon.type}
+                type={row.original.icon.type}
                 colour={row.original.icon.colour}
               />
             </div>
             <div className="flex flex-col">
               <span className="font-medium">{row.original.name.plural}</span>
-              {row.original.description && (
-                <span className="text-xs text-muted-foreground">{row.original.description}</span>
+              {row.original.semantics?.entityType?.definition && (
+                <span className="text-xs text-muted-foreground">
+                  {row.original.semantics.entityType.definition}
+                </span>
               )}
             </div>
           </div>
         ),
       },
       {
-        accessorKey: 'type',
-        header: 'Type',
-        cell: ({ row }) => {
-          const type = row.original.type;
-          const isStandard = type === 'STANDARD';
-          return (
-            <Badge variant={isStandard ? 'secondary' : 'default'}>
-              {type === 'STANDARD' ? 'Standard' : 'Relationship'}
-            </Badge>
-          );
-        },
-      },
-      {
         accessorKey: 'relationships',
         header: 'Relationships',
         cell: ({ row }) => {
-          const { second } = row.original.attributes;
-          return <span className="text-muted-foreground">{second}</span>;
+          return (
+            <span className="text-muted-foreground">
+              {row.original.relationships.length}
+            </span>
+          );
         },
       },
       {
         accessorKey: 'schema',
         header: 'Attributes',
         cell: ({ row }) => {
-          const { first, second } = row.original.attributes;
-          return <span className="text-muted-foreground">{first + second}</span>;
+          const schemaCount = Object.keys(row.original.schema.properties || {}).length;
+          return (
+            <span className="text-muted-foreground">
+              {schemaCount + row.original.relationships.length}
+            </span>
+          );
         },
       },
     ],
@@ -104,7 +109,12 @@ export const EntityTypesOverview: FC<Props> = ({ workspaceId }) => {
             Modify and add entity types in your workspace
           </p>
         </div>
-        <NewEntityTypeForm workspaceId={workspaceId} entityTypes={types}>
+        <NewEntityTypeForm
+          workspaceId={workspaceId}
+          entityTypes={types}
+          open={newTypeOpen}
+          onOpenChange={setNewTypeOpen}
+        >
           <Button>
             <Plus className="mr-2 h-4 w-4" />
             New Entity Type
@@ -125,15 +135,6 @@ export const EntityTypesOverview: FC<Props> = ({ workspaceId }) => {
           filter={{
             enabled: true,
             filters: [
-              {
-                column: 'type',
-                type: 'select',
-                label: 'Type',
-                options: [
-                  { label: 'Standard', value: 'STANDARD' },
-                  { label: 'Relationship', value: 'RELATIONSHIP' },
-                ],
-              },
               {
                 column: '_protected',
                 type: 'boolean',

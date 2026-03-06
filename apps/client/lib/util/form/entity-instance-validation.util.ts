@@ -1,270 +1,265 @@
-import { entityReferenceFormSchema } from "@/components/feature-modules/entity/components/tables/entity-table-utils";
-import { SchemaUUID } from "@/lib/interfaces/common.interface";
-import { DataFormat, DataType } from "@/lib/types/common";
+import { entityReferenceFormSchema } from '@/components/feature-modules/entity/components/tables/entity-table-utils';
+
+import { DataFormat, DataType, SchemaType, SchemaUUID } from '@/lib/types/common';
 import {
-    EntityRelationshipCardinality,
-    EntityRelationshipDefinition,
-    EntityType,
-    SchemaType,
-} from "@/lib/types/entity";
-import { z } from "zod";
-import { exists } from "../utils";
-import { attributeTypes } from "./schema.util";
+  EntityRelationshipCardinality,
+  EntityType,
+  RelationshipDefinition,
+} from '@/lib/types/entity';
+import { z } from 'zod';
+import { exists } from '../utils';
+import { attributeTypes } from './schema.util';
 
 /**
  * Build a Zod schema from an EntityType definition for validation
  */
 export function buildZodSchemaFromEntityType(entityType: EntityType): z.ZodObject<any> {
-    const schemaShape: Record<string, z.ZodTypeAny> = {};
+  const schemaShape: Record<string, z.ZodTypeAny> = {};
 
-    // Build schemas for all attributes
-    if (entityType.schema.properties) {
-        Object.entries(entityType.schema.properties).forEach(([attributeId, schema]) => {
-            schemaShape[attributeId] = buildFieldSchema(schema);
-        });
-    }
+  // Build schemas for all attributes
+  if (entityType.schema.properties) {
+    Object.entries(entityType.schema.properties).forEach(([attributeId, schema]) => {
+      schemaShape[attributeId] = buildFieldSchema(schema);
+    });
+  }
 
-    // Build schemas for all relationships
-    if (entityType.relationships) {
-        entityType.relationships.forEach((relationship) => {
-            schemaShape[relationship.id] = buildRelationshipFieldSchema(relationship);
-        });
-    }
+  // Build schemas for all relationships
+  if (entityType.relationships) {
+    entityType.relationships.forEach((relationship) => {
+      schemaShape[relationship.id] = buildRelationshipFieldSchema(relationship);
+    });
+  }
 
-    return z.object(schemaShape);
+  return z.object(schemaShape);
 }
 
 /**
  * Build a Zod schema for an individual attribute field
  */
 export function buildFieldSchema(schema: SchemaUUID): z.ZodTypeAny {
-    const attributeType = attributeTypes[schema.key];
-    let fieldSchema: z.ZodTypeAny;
+  const attributeType = attributeTypes[schema.key];
+  let fieldSchema: z.ZodTypeAny;
 
-    // Base type mapping
-    switch (attributeType.type) {
-        case DataType.String:
-            fieldSchema = buildStringSchema(schema);
-            break;
-        case DataType.Number:
-            fieldSchema = buildNumberSchema(schema);
-            break;
-        case DataType.Boolean:
-            fieldSchema = z.boolean();
-            break;
-        case DataType.Array:
-            fieldSchema = buildArraySchema(schema);
-            break;
-        case DataType.Object:
-            fieldSchema = z.record(z.any());
-            break;
-        default:
-            fieldSchema = z.any();
-    }
+  // Base type mapping
+  switch (attributeType.type) {
+    case DataType.String:
+      fieldSchema = buildStringSchema(schema);
+      break;
+    case DataType.Number:
+      fieldSchema = buildNumberSchema(schema);
+      break;
+    case DataType.Boolean:
+      fieldSchema = z.boolean();
+      break;
+    case DataType.Array:
+      fieldSchema = buildArraySchema(schema);
+      break;
+    case DataType.Object:
+      fieldSchema = z.record(z.any());
+      break;
+    default:
+      fieldSchema = z.any();
+  }
 
-    // Handle required/optional
-    if (!schema.required) {
-        fieldSchema = fieldSchema.optional().nullable();
-    } else {
-        fieldSchema = fieldSchema.refine((val) => val !== null && val !== undefined, {
-            message: `${schema.label || "Field"} is required`,
-        });
-    }
+  // Handle required/optional
+  if (!schema.required) {
+    fieldSchema = fieldSchema.optional().nullable();
+  } else {
+    fieldSchema = fieldSchema.refine((val) => val !== null && val !== undefined, {
+      message: `${schema.label || 'Field'} is required`,
+    });
+  }
 
-    return fieldSchema;
+  return fieldSchema;
 }
 
 /**
  * Build a Zod schema for string-based fields
  */
 function buildStringSchema(schema: SchemaUUID): z.ZodString {
-    let stringSchema = z.string();
+  let stringSchema = z.string();
 
-    const options = schema.options;
-    if (schema.required && !exists(options?.minLength)) {
-        stringSchema = stringSchema.min(1, `${schema.label || "Field"} is required`);
+  const options = schema.options;
+  if (schema.required && !exists(options?.minLength)) {
+    stringSchema = stringSchema.min(1, `${schema.label || 'Field'} is required`);
+  }
+
+  if (options) {
+    // Min/max length constraints
+    if (exists(options.minLength)) {
+      stringSchema = stringSchema.min(
+        options.minLength,
+        `Must be at least ${options.minLength} characters`,
+      );
+    }
+    if (exists(options.maxLength)) {
+      stringSchema = stringSchema.max(
+        options.maxLength,
+        `Must be at most ${options.maxLength} characters`,
+      );
     }
 
-    if (options) {
-        // Min/max length constraints
-        if (exists(options.minLength)) {
-            stringSchema = stringSchema.min(
-                options.minLength,
-                `Must be at least ${options.minLength} characters`
-            );
-        }
-        if (exists(options.maxLength)) {
-            stringSchema = stringSchema.max(
-                options.maxLength,
-                `Must be at most ${options.maxLength} characters`
-            );
-        }
-
-        // Regex pattern validation
-        if (exists(options.regex)) {
-            try {
-                const pattern = new RegExp(options.regex);
-                stringSchema = stringSchema.regex(pattern, `Must match pattern: ${options.regex}`);
-            } catch (error) {
-                console.error("Invalid regex pattern:", options.regex, error);
-            }
-        }
-
-        // Enum validation for SELECT types
-        if (exists(options.enum) && options.enum.length > 0) {
-            // Zod enum requires at least 1 value, and values must be tuples
-            const enumValues = options.enum as [string, ...string[]];
-            stringSchema = z.enum(enumValues) as any;
-        }
+    // Regex pattern validation
+    if (exists(options.regex)) {
+      try {
+        const pattern = new RegExp(options.regex);
+        stringSchema = stringSchema.regex(pattern, `Must match pattern: ${options.regex}`);
+      } catch (error) {
+        console.error('Invalid regex pattern:', options.regex, error);
+      }
     }
 
-    // Format-specific validation
-    const attributeType = attributeTypes[schema.key];
-    if (attributeType.format) {
-        switch (attributeType.format) {
-            case DataFormat.Email:
-                stringSchema = stringSchema.email("Must be a valid email address");
-                break;
-            case DataFormat.Url:
-                stringSchema = stringSchema.url("Must be a valid URL");
-                break;
-            case DataFormat.Date:
-                // Accept ISO date strings
-                stringSchema = stringSchema.regex(
-                    /^\d{4}-\d{2}-\d{2}$/,
-                    "Must be a valid date (YYYY-MM-DD)"
-                );
-                break;
-            case DataFormat.Datetime:
-                // Accept ISO datetime strings
-                stringSchema = stringSchema.datetime("Must be a valid datetime");
-                break;
-            case DataFormat.Phone:
-                // Basic phone validation (can be enhanced)
-                stringSchema = stringSchema.regex(
-                    /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/,
-                    "Must be a valid phone number"
-                );
-                break;
-        }
+    // Enum validation for SELECT types
+    if (exists(options._enum) && options._enum.length > 0) {
+      // Zod enum requires at least 1 value, and values must be tuples
+      const enumValues = options._enum as [string, ...string[]];
+      stringSchema = z.enum(enumValues) as any;
     }
+  }
 
-    return stringSchema;
+  // Format-specific validation
+  const attributeType = attributeTypes[schema.key];
+  if (attributeType.format) {
+    switch (attributeType.format) {
+      case DataFormat.Email:
+        stringSchema = stringSchema.email('Must be a valid email address');
+        break;
+      case DataFormat.Url:
+        stringSchema = stringSchema.url('Must be a valid URL');
+        break;
+      case DataFormat.Date:
+        // Accept ISO date strings
+        stringSchema = stringSchema.regex(
+          /^\d{4}-\d{2}-\d{2}$/,
+          'Must be a valid date (YYYY-MM-DD)',
+        );
+        break;
+      case DataFormat.Datetime:
+        // Accept ISO datetime strings
+        stringSchema = stringSchema.datetime('Must be a valid datetime');
+        break;
+      case DataFormat.Phone:
+        // Basic phone validation (can be enhanced)
+        stringSchema = stringSchema.regex(
+          /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/,
+          'Must be a valid phone number',
+        );
+        break;
+    }
+  }
+
+  return stringSchema;
 }
 
 /**
  * Build a Zod schema for number-based fields
  */
 function buildNumberSchema(schema: SchemaUUID): z.ZodNumber {
-    let numberSchema = z.number({
-        required_error: `${schema.label || "Field"} is required`,
-        invalid_type_error: `${schema.label || "Field"} must be a number`,
-    });
+  let numberSchema = z.number({
+    required_error: `${schema.label || 'Field'} is required`,
+    invalid_type_error: `${schema.label || 'Field'} must be a number`,
+  });
 
-    const options = schema.options;
-    if (options) {
-        // Min/max value constraints
-        if (options.minimum !== undefined && options.minimum !== null) {
-            numberSchema = numberSchema.min(options.minimum, `Must be at least ${options.minimum}`);
-        }
-        if (options.maximum !== undefined && options.maximum !== null) {
-            numberSchema = numberSchema.max(options.maximum, `Must be at most ${options.maximum}`);
-        }
+  const options = schema.options;
+  if (options) {
+    // Min/max value constraints
+    if (options.minimum !== undefined && options.minimum !== null) {
+      numberSchema = numberSchema.min(options.minimum, `Must be at least ${options.minimum}`);
     }
+    if (options.maximum !== undefined && options.maximum !== null) {
+      numberSchema = numberSchema.max(options.maximum, `Must be at most ${options.maximum}`);
+    }
+  }
 
-    return numberSchema;
+  return numberSchema;
 }
 
 /**
  * Build a Zod schema for array-based fields (MULTI_SELECT, FILE_ATTACHMENT)
  */
 function buildArraySchema(schema: SchemaUUID): z.ZodArray<any> {
-    const options = schema.options;
+  const options = schema.options;
 
-    // For MULTI_SELECT with enum options
-    if (schema.key === SchemaType.MultiSelect && options?.enum && options.enum.length > 0) {
-        const enumValues = options.enum as [string, ...string[]];
-        return z.array(z.enum(enumValues));
-    }
+  // For MULTI_SELECT with enum options
+  if (schema.key === SchemaType.MultiSelect && options?._enum && options._enum.length > 0) {
+    const enumValues = options._enum as [string, ...string[]];
+    return z.array(z.enum(enumValues));
+  }
 
-    // For FILE_ATTACHMENT
-    if (schema.key === SchemaType.FileAttachment) {
-        return z.array(z.string().url("Must be a valid file URL"));
-    }
+  // For FILE_ATTACHMENT
+  if (schema.key === SchemaType.FileAttachment) {
+    return z.array(z.string().url('Must be a valid file URL'));
+  }
 
-    // Default: array of strings
-    return z.array(z.string());
+  // Default: array of strings
+  return z.array(z.string());
 }
 
 /**
  * Build a Zod schema for relationship fields
  */
-export function buildRelationshipFieldSchema(relationship: EntityRelationshipDefinition) {
-    const isSingleSelect =
-        relationship.cardinality === EntityRelationshipCardinality.OneToOne ||
-        relationship.cardinality === EntityRelationshipCardinality.ManyToOne;
+export function buildRelationshipFieldSchema(relationship: RelationshipDefinition) {
+  const isSingleSelect =
+    relationship.cardinalityDefault === EntityRelationshipCardinality.OneToOne ||
+    relationship.cardinalityDefault === EntityRelationshipCardinality.ManyToOne;
 
-    let schema = entityReferenceFormSchema;
+  let schema = entityReferenceFormSchema;
 
-    if (isSingleSelect) {
-        // Single entity ID
-        schema = schema.max(1, `Only one ${relationship.name} can be selected`);
-    }
+  if (isSingleSelect) {
+    // Single entity ID
+    schema = schema.max(1, `Only one ${relationship.name} can be selected`);
+  }
 
-    if (relationship.required) {
-        return schema.min(1, `At least one ${relationship.name} is required`);
-    }
-
-    return schema;
+  return schema;
 }
 
 /**
  * Get default value for a schema field
  */
 export function getDefaultValueForSchema(schema: SchemaUUID): any {
-    // Check for custom default value in options first
-    if (schema.options?.default !== undefined && schema.options?.default !== null) {
-        return schema.options.default;
-    }
+  // Check for custom default value in options first
+  if (schema.options?._default !== undefined && schema.options?._default !== null) {
+    return schema.options._default;
+  }
 
-    const attributeType = attributeTypes[schema.key];
+  const attributeType = attributeTypes[schema.key];
 
-    switch (attributeType.type) {
-        case DataType.String:
-            return "";
-        case DataType.Number:
-            // Use minimum if specified, otherwise 0
-            return schema.options?.minimum ?? 0;
-        case DataType.Boolean:
-            return false;
-        case DataType.Array:
-            return [];
-        case DataType.Object:
-            return {};
-        default:
-            return null;
-    }
+  switch (attributeType.type) {
+    case DataType.String:
+      return '';
+    case DataType.Number:
+      // Use minimum if specified, otherwise 0
+      return schema.options?.minimum ?? 0;
+    case DataType.Boolean:
+      return false;
+    case DataType.Array:
+      return [];
+    case DataType.Object:
+      return {};
+    default:
+      return null;
+  }
 }
 
 /**
  * Build default values for all fields in an entity type
  */
 export function buildDefaultValuesFromEntityType(entityType: EntityType): Record<string, any> {
-    const defaults: Record<string, any> = {};
+  const defaults: Record<string, any> = {};
 
-    // Set defaults for attributes (uses options.default if available)
-    if (entityType.schema.properties) {
-        Object.entries(entityType.schema.properties).forEach(([id, schema]) => {
-            defaults[id] = getDefaultValueForSchema(schema);
-        });
-    }
+  // Set defaults for attributes (uses options.default if available)
+  if (entityType.schema.properties) {
+    Object.entries(entityType.schema.properties).forEach(([id, schema]) => {
+      defaults[id] = getDefaultValueForSchema(schema);
+    });
+  }
 
-    // Set defaults for relationships (always empty arrays since entityReferenceFormSchema is array-based)
-    if (entityType.relationships) {
-        entityType.relationships.forEach((rel) => {
-            defaults[rel.id] = [];
-        });
-    }
+  // Set defaults for relationships (always empty arrays since entityReferenceFormSchema is array-based)
+  if (entityType.relationships) {
+    entityType.relationships.forEach((rel) => {
+      defaults[rel.id] = [];
+    });
+  }
 
-    return defaults;
+  return defaults;
 }

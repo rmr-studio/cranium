@@ -9,7 +9,7 @@ Name | Type
 ------------ | -------------
 `type` | string
 `relationshipId` | string
-`condition` | [RelationshipCondition](RelationshipCondition.md)
+`condition` | [RelationshipFilter](RelationshipFilter.md)
 `conditions` | [Array&lt;QueryFilter&gt;](QueryFilter.md)
 `attributeId` | string
 `operator` | [FilterOperator](FilterOperator.md)

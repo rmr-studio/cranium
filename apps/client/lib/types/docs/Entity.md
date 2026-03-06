@@ -17,6 +17,13 @@ Name | Type
 `updatedAt` | Date
 `createdBy` | string
 `updatedBy` | string
+`sourceType` | [SourceType](SourceType.md)
+`sourceIntegrationId` | string
+`sourceExternalId` | string
+`sourceUrl` | string
+`firstSyncedAt` | Date
+`lastSyncedAt` | Date
+`syncVersion` | number
 `identifier` | string
 
 ## Example
@@ -37,6 +44,13 @@ const example = {
   "updatedAt": null,
   "createdBy": null,
   "updatedBy": null,
+  "sourceType": null,
+  "sourceIntegrationId": null,
+  "sourceExternalId": null,
+  "sourceUrl": null,
+  "firstSyncedAt": null,
+  "lastSyncedAt": null,
+  "syncVersion": null,
   "identifier": null,
 } satisfies Entity
 

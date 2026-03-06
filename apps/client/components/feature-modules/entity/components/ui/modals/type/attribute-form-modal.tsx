@@ -4,20 +4,20 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { DialogControl } from '@/lib/interfaces/interface';
 import {
   EntityAttributeDefinition,
-  EntityRelationshipDefinition,
+  RelationshipDefinition,
   EntityType,
   isRelationshipDefinition,
 } from '@/lib/types/entity';
 import { Loader2 } from 'lucide-react';
 import { FC, useEffect, useMemo, useState } from 'react';
 import { SchemaForm } from '../../../forms/type/attribute/schema-form';
-import { RelationshipAttributeForm } from '../../../forms/type/relationship/relationship-form';
+import { RelationshipForm } from '../../../forms/type/relationship/relationship-form';
 import { SchemaType } from '@/lib/types/common';
 
 interface Props {
   dialog: DialogControl;
   type: EntityType;
-  selectedAttribute?: EntityAttributeDefinition | EntityRelationshipDefinition;
+  selectedAttribute?: EntityAttributeDefinition | RelationshipDefinition;
 }
 
 export const AttributeFormModal: FC<Props> = ({ dialog, type, selectedAttribute }) => {
@@ -87,11 +87,11 @@ export const AttributeFormModal: FC<Props> = ({ dialog, type, selectedAttribute 
               />
             )}
             {isRelationship ? (
-              <RelationshipAttributeForm
+              <RelationshipForm
                 workspaceId={workspace.id}
                 dialog={dialog}
                 type={type}
-                relationship={selectedAttribute as EntityRelationshipDefinition | undefined}
+                relationship={selectedAttribute as RelationshipDefinition | undefined}
               />
             ) : (
               <SchemaForm

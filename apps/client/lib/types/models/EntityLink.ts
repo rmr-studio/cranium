@@ -44,7 +44,7 @@ export interface EntityLink {
      * @type {string}
      * @memberof EntityLink
      */
-    fieldId: string;
+    definitionId: string;
     /**
      * 
      * @type {string}
@@ -77,7 +77,7 @@ export interface EntityLink {
 export function instanceOfEntityLink(value: object): value is EntityLink {
     if (!('id' in value) || value['id'] === undefined) return false;
     if (!('workspaceId' in value) || value['workspaceId'] === undefined) return false;
-    if (!('fieldId' in value) || value['fieldId'] === undefined) return false;
+    if (!('definitionId' in value) || value['definitionId'] === undefined) return false;
     if (!('sourceEntityId' in value) || value['sourceEntityId'] === undefined) return false;
     if (!('icon' in value) || value['icon'] === undefined) return false;
     if (!('key' in value) || value['key'] === undefined) return false;
@@ -97,7 +97,7 @@ export function EntityLinkFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         
         'id': json['id'],
         'workspaceId': json['workspaceId'],
-        'fieldId': json['fieldId'],
+        'definitionId': json['definitionId'],
         'sourceEntityId': json['sourceEntityId'],
         'icon': IconFromJSON(json['icon']),
         'key': json['key'],
@@ -118,7 +118,7 @@ export function EntityLinkToJSONTyped(value?: EntityLink | null, ignoreDiscrimin
         
         'id': value['id'],
         'workspaceId': value['workspaceId'],
-        'fieldId': value['fieldId'],
+        'definitionId': value['definitionId'],
         'sourceEntityId': value['sourceEntityId'],
         'icon': IconToJSON(value['icon']),
         'key': value['key'],

@@ -1,9 +1,5 @@
 'use client';
 
-import { Button } from '@riven/ui/button';
-import { Input } from '@riven/ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
-import { Textarea } from '@riven/ui/textarea';
 import {
   Form,
   FormControl,
@@ -21,50 +17,60 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { ChildNodeProps } from '@riven/utils';
-import { EntityType } from '@/lib/types/entity';
-import { toKeyCase } from '@riven/utils';
+import { TagInput } from '@/components/ui/tag-input';
+import { EntityType, SemanticGroup } from '@/lib/types/entity';
+import { cn } from '@/lib/util/utils';
 import { PopoverClose } from '@radix-ui/react-popover';
-import { Blocks, Info, Plus, Workflow } from 'lucide-react';
-import { FC, useEffect } from 'react';
+import { Button } from '@riven/ui/button';
+import { Input } from '@riven/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
+import { Textarea } from '@riven/ui/textarea';
+import type { ChildNodeProps } from '@riven/utils';
+import { Plus } from 'lucide-react';
+import { FC } from 'react';
 import {
   NewEntityTypeFormValues,
   useNewEntityTypeForm,
 } from '../../../hooks/form/type/use-new-type-form';
 
+const CATEGORY_LABELS: Record<SemanticGroup, string> = {
+  [SemanticGroup.Customer]: 'Customer',
+  [SemanticGroup.Product]: 'Product',
+  [SemanticGroup.Transaction]: 'Transaction',
+  [SemanticGroup.Communication]: 'Communication',
+  [SemanticGroup.Support]: 'Support',
+  [SemanticGroup.Financial]: 'Financial',
+  [SemanticGroup.Operational]: 'Operational',
+  [SemanticGroup.Custom]: 'Custom',
+  [SemanticGroup.Uncategorized]: 'Uncategorized',
+};
+
 interface Props extends ChildNodeProps {
   entityTypes?: EntityType[];
   workspaceId: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export const NewEntityTypeForm: FC<Props> = ({ entityTypes = [], workspaceId, children }) => {
-  const { form, keyManuallyEdited, setKeyManuallyEdited, handleSubmit } =
-    useNewEntityTypeForm(workspaceId);
+export const NewEntityTypeForm: FC<Props> = ({ workspaceId, children, open, onOpenChange }) => {
+  const { form, handleSubmit } = useNewEntityTypeForm(workspaceId);
 
-  // Watch the pluralName field for dynamic title and key generation
-  const pluralName = form.watch('pluralName');
-
-  // Auto-generate key from pluralName
-  useEffect(() => {
-    if (!keyManuallyEdited && pluralName) {
-      const generatedKey = toKeyCase(pluralName);
-      form.setValue('key', generatedKey, { shouldValidate: false });
-    }
-  }, [pluralName, keyManuallyEdited]);
+  const semanticGroup = form.watch('semanticGroup');
 
   const onSubmit = async (values: NewEntityTypeFormValues) => {
     await handleSubmit(values);
     form.reset();
-    setKeyManuallyEdited(false);
+    onOpenChange?.(false);
   };
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent className="my-2 w-full lg:min-w-3xl" align="end">
+      <PopoverContent className="my-2 w-full lg:min-w-xl" align="end">
         <h1>Create a new Entity type</h1>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
+            {/* Names row */}
             <div className="flex flex-col gap-2 lg:flex-row">
               <FormField
                 control={form.control}
@@ -96,7 +102,6 @@ export const NewEntityTypeForm: FC<Props> = ({ entityTypes = [], workspaceId, ch
                 )}
               />
 
-              {/* Singular Noun */}
               <FormField
                 control={form.control}
                 name="singularName"
@@ -116,121 +121,104 @@ export const NewEntityTypeForm: FC<Props> = ({ entityTypes = [], workspaceId, ch
                 )}
               />
             </div>
-            <div className="flex flex-col gap-2 lg:flex-row">
-              <FormField
-                control={form.control}
-                name="key"
-                render={({ field }) => (
-                  <FormItem className="w-full">
-                    <FormLabel className="flex items-center gap-1">
-                      Identifier
-                      <Info className="h-3 w-3 text-muted-foreground" />
-                    </FormLabel>
-                    <div className="flex items-center gap-2">
-                      <FormControl>
-                        <Input
-                          placeholder="e.g., companies"
-                          {...field}
-                          onChange={(e) => {
-                            field.onChange(e);
-                            setKeyManuallyEdited(true);
-                          }}
-                          className="flex-1"
-                        />
-                      </FormControl>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      <span className="font-medium">Important:</span> Once an object is created the
-                      slug cannot be changed.
-                    </p>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col items-start gap-2">
-                    <FormLabel className="flex items-center gap-1">Type</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger
-                          onPointerDown={(e) => {
-                            // Prevent the click from closing the popover
-                            e.stopPropagation();
-                          }}
-                          className="flex w-52 overflow-hidden pl-0"
-                        >
-                          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center bg-primary/5 shadow-sm">
-                            {field.value === 'STANDARD' ? (
-                              <Blocks className="h-4 w-4 text-primary" />
-                            ) : (
-                              <Workflow className="h-4 w-4 text-primary" />
-                            )}
-                          </div>
-                          <SelectValue>
-                            {field.value === 'STANDARD' ? 'Standard' : 'Relationship'}
-                          </SelectValue>
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent
-                        align="end"
-                        className="max-w-sm"
-                        onCloseAutoFocus={(e) => {
-                          // Prevent focus returning to popover which would close it
-                          e.preventDefault();
-                        }}
-                      >
-                        <SelectItem value="STANDARD" textValue="Standard">
-                          <div className="flex items-center">
-                            <Blocks className="mr-3 size-4.5" />
-                            <div>
-                              <h3 className="mb-1">Standard</h3>
-                              <div className="max-w-2xs text-xs leading-tight text-muted-foreground">
-                                Standard entities can exist standalone or link to other entities.
-                              </div>
-                            </div>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="RELATIONSHIP" textValue="Relationship">
-                          <div className="flex items-center">
-                            <Workflow className="mr-3 size-4.5" />
-                            <div>
-                              <h3 className="mb-1">Relationship</h3>
-                              <div className="max-w-2xs text-xs leading-tight text-muted-foreground">
-                                Relationship Entities are designed to represent connections between
-                                other entities.
-                              </div>
-                            </div>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
 
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            {/* Description */}
             <FormField
               control={form.control}
               name="description"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Description</FormLabel>
+                  <FormDescription className="text-xs italic">
+                    A brief summary of what this entity type represents
+                  </FormDescription>
                   <FormControl>
                     <Textarea
-                      className="max-h-72"
+                      className={cn(
+                        'max-h-72',
+                        semanticGroup === SemanticGroup.Custom && 'border-amber-500/50',
+                      )}
                       placeholder="Describe what this entity type represents..."
                       rows={3}
                       {...field}
                     />
                   </FormControl>
+                  <p
+                    className={cn(
+                      'min-h-4 text-xs',
+                      semanticGroup === SemanticGroup.Custom
+                        ? 'text-amber-600 dark:text-amber-400'
+                        : 'invisible',
+                    )}
+                  >
+                    Describing what this entity type represents helps the system understand its
+                    purpose
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* Category + Tags row */}
+            <div className="flex flex-col gap-4 lg:flex-row lg:gap-3">
+              <FormField
+                control={form.control}
+                name="semanticGroup"
+                render={({ field }) => (
+                  <FormItem className="w-full lg:w-48 lg:shrink-0">
+                    <FormLabel>Category</FormLabel>
+                    <FormDescription className="text-xs italic">
+                      The domain this type belongs to
+                    </FormDescription>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger
+                          className="w-full"
+                          onPointerDown={(e) => {
+                            e.stopPropagation();
+                          }}
+                        >
+                          <SelectValue>{CATEGORY_LABELS[field.value]}</SelectValue>
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent
+                        onCloseAutoFocus={(e) => {
+                          e.preventDefault();
+                        }}
+                      >
+                        {Object.values(SemanticGroup).map((value) => (
+                          <SelectItem key={value} value={value}>
+                            {CATEGORY_LABELS[value]}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="tags"
+                render={({ field }) => (
+                  <FormItem className="w-full min-w-0 flex-1">
+                    <FormLabel>Tags</FormLabel>
+                    <FormDescription className="text-xs italic">
+                      Labels to help organise and filter your types
+                    </FormDescription>
+                    <FormControl>
+                      <TagInput
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Add tags..."
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <footer className="flex w-full justify-end gap-2 pt-4">
               <PopoverClose asChild>
@@ -239,7 +227,6 @@ export const NewEntityTypeForm: FC<Props> = ({ entityTypes = [], workspaceId, ch
                   variant="outline"
                   onClick={() => {
                     form.reset();
-                    setKeyManuallyEdited(false);
                   }}
                 >
                   Cancel

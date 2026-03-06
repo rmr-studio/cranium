@@ -1,16 +1,17 @@
 import { useAuth } from '@/components/provider/auth-context';
 import {
-  EntityType,
   SaveTypeDefinitionRequest,
+  type DeleteDefinitionImpact,
   type EntityTypeImpactResponse,
 } from '@/lib/types/entity';
-import { useMutation, useQueryClient, type UseMutationOptions } from '@tanstack/react-query';
+import { MutationFunctionContext, useMutation, useQueryClient, type UseMutationOptions } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { toast } from 'sonner';
 import { EntityTypeService } from '../../../service/entity-type.service';
 
 export function useSaveDefinitionMutation(
   workspaceId: string,
+  onImpactConfirmation?: (impact: DeleteDefinitionImpact) => void,
   options?: UseMutationOptions<EntityTypeImpactResponse, Error, SaveTypeDefinitionRequest>,
 ) {
   const queryClient = useQueryClient();
@@ -20,12 +21,12 @@ export function useSaveDefinitionMutation(
   return useMutation({
     mutationFn: (definition: SaveTypeDefinitionRequest) =>
       EntityTypeService.saveEntityTypeDefinition(session, workspaceId, definition),
-    onMutate: (data) => {
-      options?.onMutate?.(data);
+    onMutate: (data: SaveTypeDefinitionRequest, context: MutationFunctionContext) => {
+      options?.onMutate?.(data, context);
       submissionToastRef.current = toast.loading('Saving entity type definition...');
     },
-    onError: (error: Error, variables: SaveTypeDefinitionRequest, context: unknown) => {
-      options?.onError?.(error, variables, context);
+    onError: (error: Error, variables: SaveTypeDefinitionRequest, onMutateResult: unknown, context: MutationFunctionContext) => {
+      options?.onError?.(error, variables, onMutateResult, context);
       toast.dismiss(submissionToastRef.current);
       submissionToastRef.current = undefined;
       toast.error(`Failed to save entity type definition: ${error.message}`);
@@ -33,31 +34,31 @@ export function useSaveDefinitionMutation(
     onSuccess: (
       response: EntityTypeImpactResponse,
       variables: SaveTypeDefinitionRequest,
-      context: unknown,
+      onMutateResult: unknown,
+      context: MutationFunctionContext,
     ) => {
-      options?.onSuccess?.(response, variables, context);
+      options?.onSuccess?.(response, variables, onMutateResult, context);
       toast.dismiss(submissionToastRef.current);
       submissionToastRef.current = undefined;
+
+      // Check for impact confirmation (409 response)
+      if (response.impact) {
+        onImpactConfirmation?.(response.impact);
+        return;
+      }
+
       toast.success(`Entity type definition saved successfully!`);
 
+      queryClient.invalidateQueries({ queryKey: ['semanticMetadata'] });
+
       if (response.updatedEntityTypes) {
-        Object.entries(response.updatedEntityTypes).forEach(([key, entityType]) => {
-          // Update individual entity type query cache
-          queryClient.setQueryData(['entityType', key, workspaceId], entityType);
+        Object.entries(response.updatedEntityTypes).forEach(([key]) => {
+          // Invalidate individual entity type queries (partial match handles varying `include` param)
+          queryClient.invalidateQueries({ queryKey: ['entityType', key, workspaceId] });
         });
 
-        // Update the entity types list in cache
-        queryClient.setQueryData<EntityType[]>(['entityTypes', workspaceId], (oldData) => {
-          if (!oldData) return Object.values(response.updatedEntityTypes!);
-
-          // Create a map of updated entity types for efficient lookup
-          const updatedTypesMap = new Map(
-            Object.entries(response.updatedEntityTypes!).map(([key, type]) => [key, type]),
-          );
-
-          // Replace all updated entity types in the list
-          return oldData.map((et) => updatedTypesMap.get(et.key) ?? et);
-        });
+        // Invalidate the entity types list
+        queryClient.invalidateQueries({ queryKey: ['entityTypes', workspaceId] });
       }
 
       return response;

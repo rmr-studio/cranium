@@ -39,6 +39,12 @@ export interface EntityQuery {
      * @memberof EntityQuery
      */
     filter?: QueryFilter;
+    /**
+     * 
+     * @type {number}
+     * @memberof EntityQuery
+     */
+    maxDepth?: number;
 }
 
 /**
@@ -60,6 +66,7 @@ export function EntityQueryFromJSONTyped(json: any, ignoreDiscriminator: boolean
         
         'entityTypeId': json['entityTypeId'] == null ? undefined : json['entityTypeId'],
         'filter': json['filter'] == null ? undefined : QueryFilterFromJSON(json['filter']),
+        'maxDepth': json['maxDepth'] == null ? undefined : json['maxDepth'],
     };
 }
 
@@ -76,6 +83,7 @@ export function EntityQueryToJSONTyped(value?: EntityQuery | null, ignoreDiscrim
         
         'entityTypeId': value['entityTypeId'],
         'filter': QueryFilterToJSON(value['filter']),
+        'maxDepth': value['maxDepth'],
     };
 }
 

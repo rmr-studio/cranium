@@ -6,9 +6,9 @@
 
 Name | Type
 ------------ | -------------
-`meta` | [BlockMeta](BlockMeta.md)
 `readonly` | boolean
 `deletable` | boolean
+`meta` | [BlockMeta](BlockMeta.md)
 `type` | [BlockMetadataType](BlockMetadataType.md)
 `fetchPolicy` | [BlockReferenceFetchPolicy](BlockReferenceFetchPolicy.md)
 `path` | string
@@ -27,9 +27,9 @@ import type { EntityReferenceMetadata } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "meta": null,
   "readonly": null,
   "deletable": null,
+  "meta": null,
   "type": null,
   "fetchPolicy": null,
   "path": null,

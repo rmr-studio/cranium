@@ -27,6 +27,18 @@ export interface WorkspaceDefaultCurrency {
     currencyCode?: string;
     /**
      * 
+     * @type {number}
+     * @memberof WorkspaceDefaultCurrency
+     */
+    numericCode?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof WorkspaceDefaultCurrency
+     */
+    numericCodeAsString?: string;
+    /**
+     * 
      * @type {string}
      * @memberof WorkspaceDefaultCurrency
      */
@@ -43,18 +55,6 @@ export interface WorkspaceDefaultCurrency {
      * @memberof WorkspaceDefaultCurrency
      */
     defaultFractionDigits?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof WorkspaceDefaultCurrency
-     */
-    numericCode?: number;
-    /**
-     * 
-     * @type {string}
-     * @memberof WorkspaceDefaultCurrency
-     */
-    numericCodeAsString?: string;
 }
 
 /**
@@ -75,11 +75,11 @@ export function WorkspaceDefaultCurrencyFromJSONTyped(json: any, ignoreDiscrimin
     return {
         
         'currencyCode': json['currencyCode'] == null ? undefined : json['currencyCode'],
+        'numericCode': json['numericCode'] == null ? undefined : json['numericCode'],
+        'numericCodeAsString': json['numericCodeAsString'] == null ? undefined : json['numericCodeAsString'],
         'displayName': json['displayName'] == null ? undefined : json['displayName'],
         'symbol': json['symbol'] == null ? undefined : json['symbol'],
         'defaultFractionDigits': json['defaultFractionDigits'] == null ? undefined : json['defaultFractionDigits'],
-        'numericCode': json['numericCode'] == null ? undefined : json['numericCode'],
-        'numericCodeAsString': json['numericCodeAsString'] == null ? undefined : json['numericCodeAsString'],
     };
 }
 
@@ -95,11 +95,11 @@ export function WorkspaceDefaultCurrencyToJSONTyped(value?: WorkspaceDefaultCurr
     return {
         
         'currencyCode': value['currencyCode'],
+        'numericCode': value['numericCode'],
+        'numericCodeAsString': value['numericCodeAsString'],
         'displayName': value['displayName'],
         'symbol': value['symbol'],
         'defaultFractionDigits': value['defaultFractionDigits'],
-        'numericCode': value['numericCode'],
-        'numericCodeAsString': value['numericCodeAsString'],
     };
 }
 

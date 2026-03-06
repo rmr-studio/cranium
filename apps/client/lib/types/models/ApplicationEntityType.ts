@@ -26,7 +26,8 @@ export enum ApplicationEntityType {
     EntityType = 'ENTITY_TYPE',
     WorkflowDefinition = 'WORKFLOW_DEFINITION',
     WorkflowNode = 'WORKFLOW_NODE',
-    WorkflowEdge = 'WORKFLOW_EDGE'
+    WorkflowEdge = 'WORKFLOW_EDGE',
+    IntegrationConnection = 'INTEGRATION_CONNECTION'
 }
 
 

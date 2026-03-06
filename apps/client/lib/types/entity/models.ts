@@ -1,46 +1,50 @@
 import { type Entity } from '../models/Entity';
 import { type EntityType } from '../models/EntityType';
-import { EntityCategory } from '../models/EntityCategory';
-import { type EntityLink } from '../models/EntityLink';
+
 import { type EntityAttribute } from '../models/EntityAttribute';
 import { type EntityAttributePayload } from '../models/EntityAttributePayload';
 import { type EntityAttributePrimitivePayload } from '../models/EntityAttributePrimitivePayload';
 import { type EntityAttributeRelationPayload } from '../models/EntityAttributeRelationPayload';
 import { type EntityAttributeRelationPayloadReference } from '../models/EntityAttributeRelationPayloadReference';
-import { type EntityTypeAttributeColumn } from '../models/EntityTypeAttributeColumn';
-import { type EntityRelationshipDefinition } from '../models/EntityRelationshipDefinition';
+import { type EntityLink } from '../models/EntityLink';
 import { EntityRelationshipCardinality } from '../models/EntityRelationshipCardinality';
-import { type EntityImpactSummary } from '../models/EntityImpactSummary';
-import { type EntityTypeImpactResponse } from '../models/EntityTypeImpactResponse';
-import { type EntityTypeRelationshipImpactAnalysis } from '../models/EntityTypeRelationshipImpactAnalysis';
-import { type EntityTypeRelationshipDataLossWarning } from '../models/EntityTypeRelationshipDataLossWarning';
-import { EntityTypeRelationshipDataLossReason } from '../models/EntityTypeRelationshipDataLossReason';
-import { EntityTypeRelationshipType } from '../models/EntityTypeRelationshipType';
+import { type EntityTypeAttributeColumn } from '../models/EntityTypeAttributeColumn';
+import { type EntityTypeSemanticMetadata } from '../models/EntityTypeSemanticMetadata';
+import { type RelationshipDefinition } from '../models/RelationshipDefinition';
+import { type RelationshipTargetRule } from '../models/RelationshipTargetRule';
+import { type SemanticMetadataBundle } from '../models/SemanticMetadataBundle';
+
+import { type DeleteDefinitionImpact } from '../models/DeleteDefinitionImpact';
 import { EntityPropertyType } from '../models/EntityPropertyType';
-import { DeleteAction } from '../models/DeleteAction';
+import { type EntityTypeImpactResponse } from '../models/EntityTypeImpactResponse';
+import { SemanticAttributeClassification } from '../models/SemanticAttributeClassification';
+import { SemanticGroup } from '../models/SemanticGroup';
+import { SemanticMetadataTargetType } from '../models/SemanticMetadataTargetType';
+import { SystemRelationshipType } from '../models/SystemRelationshipType';
 
 export type {
+  DeleteDefinitionImpact,
   Entity,
-  EntityType,
-  EntityLink,
   EntityAttribute,
   EntityAttributePayload,
   EntityAttributePrimitivePayload,
   EntityAttributeRelationPayload,
   EntityAttributeRelationPayloadReference,
+  EntityLink,
+  EntityType,
   EntityTypeAttributeColumn,
-  EntityRelationshipDefinition,
-  EntityImpactSummary,
   EntityTypeImpactResponse,
-  EntityTypeRelationshipImpactAnalysis,
-  EntityTypeRelationshipDataLossWarning,
+  EntityTypeSemanticMetadata,
+  RelationshipDefinition,
+  RelationshipTargetRule,
+  SemanticMetadataBundle,
 };
 
 export {
-  EntityRelationshipCardinality,
-  EntityTypeRelationshipType,
-  EntityCategory,
-  EntityTypeRelationshipDataLossReason,
   EntityPropertyType,
-  DeleteAction,
+  EntityRelationshipCardinality,
+  SemanticAttributeClassification,
+  SemanticGroup,
+  SemanticMetadataTargetType,
+  SystemRelationshipType,
 };

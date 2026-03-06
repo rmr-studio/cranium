@@ -1,7 +1,7 @@
 # Roadmap: Entity Relationship Migration
 
 **Project:** Entity Relationship UI Migration
-**Created:** 2026-02-27
+**Created:** 2006-02-27
 **Depth:** Quick (3-5 phases)
 **Total v1 requirements:** 34
 **Coverage:** 34/34
@@ -135,8 +135,8 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Type Foundation | 1/1 | Complete | 2026-02-28 |
-| 2. Service + Hooks | 1/1 | Complete | 2026-02-28 |
+| 1. Type Foundation | 1/1 | Complete | 2006-02-28 |
+| 2. Service + Hooks | 1/1 | Complete | 2006-02-28 |
 | 3. Relationship Form | 2/3 | In progress | - |
 | 4. Creation Form Simplification | 0/? | Not started | - |
 | 5. Attribute Semantic Configuration | 1/2 | In progress | - |
@@ -184,17 +184,17 @@ Plans:
 
 **Coverage: 34/34 -- complete**
 
-### Phase 6: 4.1 Fix entity attribute form
+### Phase 6: Remove bidirectional toggle
 
 **Goal:** [To be planned]
 **Requirements**: TBD
-**Depends on:** Phase 5
+**Depends on:** Phase 6
 **Plans:** 0 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 6 to break down)
+- [ ] TBD (run /gsd:plan-phase 7 to break down)
 
 ---
 
-*Roadmap created: 2026-02-27*
-*Last updated: 2026-03-05 after Phase 5 planning*
+*Roadmap created: 2006-02-27*
+*Last updated: 2006-03-05 after Phase 5 planning*

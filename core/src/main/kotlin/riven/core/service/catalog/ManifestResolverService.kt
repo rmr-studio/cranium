@@ -219,7 +219,6 @@ class ManifestResolverService(
         for (rel in relationshipsArray) {
             val normalized = normalizeRelationship(rel, manifestType)
             if (normalized == null) {
-                logger.warn { "Relationship '${rel.get("key")?.asText()}' has both shorthand and full format" }
                 return null
             }
             result.add(normalized)
@@ -236,6 +235,12 @@ class ManifestResolverService(
         val hasFullFormat = rel.has("targetRules")
 
         if (hasShorthand && hasFullFormat) {
+            logger.warn { "Relationship '${rel.get("key")?.asText()}' has both shorthand and full format — skipping" }
+            return null
+        }
+
+        if (!hasShorthand && !hasFullFormat) {
+            logger.warn { "Relationship '${rel.get("key")?.asText()}' has neither shorthand nor full format — skipping" }
             return null
         }
 
@@ -264,11 +269,21 @@ class ManifestResolverService(
         icon: JsonNode?,
         semantics: ResolvedRelationshipSemantics?
     ): NormalizedRelationship? {
-        val targetKey = rel.get("targetEntityTypeKey")?.asText() ?: return null
-        val cardinalityStr = rel.get("cardinality")?.asText() ?: return null
+        val key = rel.get("key")?.asText()
+        val targetKey = rel.get("targetEntityTypeKey")?.asText()
+        if (targetKey == null) {
+            logger.warn { "Relationship '$key' shorthand format missing targetEntityTypeKey" }
+            return null
+        }
+        val cardinalityStr = rel.get("cardinality")?.asText()
+        if (cardinalityStr == null) {
+            logger.warn { "Relationship '$key' shorthand format missing cardinality" }
+            return null
+        }
         val cardinality = try {
             EntityRelationshipCardinality.valueOf(cardinalityStr)
         } catch (_: IllegalArgumentException) {
+            logger.warn { "Relationship '$key' has invalid cardinality '$cardinalityStr'" }
             return null
         }
 
@@ -295,9 +310,15 @@ class ManifestResolverService(
         val targetRulesArray = rel.get("targetRules") as? ArrayNode ?: objectMapper.createArrayNode()
         val targetRules = targetRulesArray.map { rule ->
             val cardinalityOverrideStr = rule.get("cardinalityOverride")?.asText()
+            val semanticTypeConstraintStr = rule.get("semanticTypeConstraint")?.asText()
             NormalizedTargetRule(
                 targetEntityTypeKey = rule.get("targetEntityTypeKey").asText(),
-                semanticTypeConstraint = rule.get("semanticTypeConstraint")?.asText(),
+                semanticTypeConstraint = semanticTypeConstraintStr?.let {
+                    try { riven.core.enums.entity.semantics.SemanticGroup.valueOf(it); it } catch (_: IllegalArgumentException) {
+                        logger.warn { "Invalid semanticTypeConstraint '$it' in target rule for '${rule.get("targetEntityTypeKey")?.asText()}', ignoring" }
+                        null
+                    }
+                },
                 cardinalityOverride = cardinalityOverrideStr?.let {
                     try { EntityRelationshipCardinality.valueOf(it) } catch (_: IllegalArgumentException) { null }
                 },

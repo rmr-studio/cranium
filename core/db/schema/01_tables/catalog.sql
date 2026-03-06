@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS manifest_catalog (
     manifest_version VARCHAR(50),
     last_loaded_at TIMESTAMPTZ,
     stale BOOLEAN NOT NULL DEFAULT false,
+    content_hash VARCHAR(64),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 
@@ -43,7 +44,8 @@ CREATE TABLE IF NOT EXISTS catalog_entity_types (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 
-    UNIQUE (manifest_id, key)
+    UNIQUE (manifest_id, key),
+    CHECK (jsonb_typeof(schema) = 'object')
 );
 
 -- =====================================================
@@ -66,7 +68,11 @@ CREATE TABLE IF NOT EXISTS catalog_relationships (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 
-    UNIQUE (manifest_id, key)
+    UNIQUE (manifest_id, key),
+    CONSTRAINT fk_catalog_relationships_source_entity
+        FOREIGN KEY (manifest_id, source_entity_type_key)
+        REFERENCES catalog_entity_types(manifest_id, key)
+        ON DELETE CASCADE
 );
 
 -- =====================================================
@@ -84,7 +90,9 @@ CREATE TABLE IF NOT EXISTS catalog_relationship_target_rules (
     inverse_visible BOOLEAN NOT NULL DEFAULT FALSE,
     inverse_name TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    UNIQUE (catalog_relationship_id, target_entity_type_key)
 );
 
 -- =====================================================
@@ -101,7 +109,8 @@ CREATE TABLE IF NOT EXISTS catalog_field_mappings (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 
-    UNIQUE (manifest_id, entity_type_key)
+    UNIQUE (manifest_id, entity_type_key),
+    CHECK (jsonb_typeof(mappings) = 'object')
 );
 
 -- =====================================================
@@ -121,5 +130,6 @@ CREATE TABLE IF NOT EXISTS catalog_semantic_metadata (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 
-    UNIQUE (catalog_entity_type_id, target_type, target_id)
+    UNIQUE (catalog_entity_type_id, target_type, target_id),
+    CHECK (jsonb_typeof(tags) = 'array')
 );

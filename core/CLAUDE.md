@@ -22,11 +22,14 @@ Multi-tenant workspace-scoped backend API for a configurable data platform with 
 - **Security enforcement:** Workspace access control via `@PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")` and `@PostAuthorize` on **service methods**, not controllers. Controllers delegate to services and return `ResponseEntity`.
 - **API versioning:** All routes prefixed with `/api/v1/`. Tagged with `@Tag(name = "domain")` for OpenAPI grouping.
 - **Soft delete:** All major entities implement `SoftDeletable` (`deleted` flag + `deletedAt` timestamp). Never hard-delete unless explicitly required.
+- **Entity base class rules — user vs system entities:**
+  - **User-facing entities** (workspace-scoped, user-created data): Extend `AuditableEntity` and implement `SoftDeletable`. These are entities like blocks, entity types, workflows, etc. that users create and manage.
+  - **System-managed entities** (catalog entries, manifest data, integration definitions): Do NOT extend `AuditableEntity` or implement `SoftDeletable`. These are seeded/managed by the system, not by users. They use their own lifecycle tracking (e.g. `stale` flags) rather than soft-delete.
 
 ## Coding Standards
 
 - **Constructor injection only.** All Spring beans use constructor injection. KLogger is injected as a prototype-scoped bean via `LoggerConfig` — inject it as a constructor parameter, not a companion object.
-- **Data classes** for JPA entities, domain models, DTOs, and request/response objects. Entities extend `AuditableEntity` and implement `SoftDeletable`.
+- **Data classes** for JPA entities, domain models, DTOs, and request/response objects. User-facing entities extend `AuditableEntity` and implement `SoftDeletable` (see entity base class rules in Architecture Rules). System-managed entities do not.
 - **Entity-to-model mapping** via `toModel()` methods defined on the JPA entity class. Do not use MapStruct or separate mapper classes.
 - **Repository lookups:** Use `ServiceUtil.findOrThrow { repository.findById(id) }` for single-entity fetches. This throws `NotFoundException` on miss.
 - **Preconditions:** Use `require()` and `requireNotNull()` for argument validation in services. These produce `IllegalArgumentException`, caught by the global `@ControllerAdvice`.
@@ -95,7 +98,7 @@ Multi-tenant workspace-scoped backend API for a configurable data platform with 
 ## Database and Persistence
 
 - **ORM:** Spring Data JPA with Hibernate. `ddl-auto: none` in production — schema is managed externally.
-- **Schema management:** Raw SQL files in `db/schema/` organized by numbered directories (`00_extensions/` through `09_grants/`). No Flyway or Liquibase.
+- **Schema management:** Raw SQL files in `db/schema/` organized by numbered directories (`00_extensions/` through `09_grants/`). No Flyway or Liquibase. **Schema files are declarative, not incremental** — there are no migration scripts. Each SQL file represents the current desired state of its object. When a table definition changes (e.g. renaming or replacing a column), edit the original table file directly instead of creating a separate migration file. Migration tooling (Flyway/Liquibase) does not exist yet, so standalone migration scripts will not be executed and must not be created.
 - **Entity conventions:** Data classes annotated with `@Entity`, `@Table(name = "snake_case")`. Extend `AuditableEntity` for audit columns. Implement `SoftDeletable` for soft-delete support. Use `@Column(name = "snake_case")`.
 - **Soft-delete filtering is automatic:** All entities extending `AuditableSoftDeletableEntity` have `@SQLRestriction("deleted = false")`, which makes Hibernate auto-append `AND deleted = false` to all JPQL, derived, and Criteria queries. You do **not** need to add `AND deleted = false` to repository queries manually — soft-deleted rows are invisible by default. Only native SQL queries bypass this restriction.
 - **Schema changes:** Add new SQL files to the appropriate `db/schema/` subdirectory. Never modify an existing table SQL file without understanding the execution order documented in `db/schema/README.md`.

@@ -169,12 +169,16 @@ class ManifestLoaderIntegrationTest {
 
     @Test
     @Order(2)
-    fun `idempotentReload produces identical catalog state`() {
+    fun `idempotentReload produces identical catalog state with stable child IDs`() {
         // First load
         loaderService.loadAllManifests()
         val firstCounts = countAllTables()
         val customerManifest = manifestCatalogRepository.findByKeyAndManifestType("customer", ManifestType.MODEL)
         val firstCustomerId = customerManifest!!.id
+
+        // Capture child IDs after first load
+        val firstEntityTypeIds = catalogEntityTypeRepository.findByManifestId(firstCustomerId!!)
+            .map { it.id }.toSet()
 
         // Second load
         loaderService.loadAllManifests()
@@ -182,11 +186,18 @@ class ManifestLoaderIntegrationTest {
         val customerManifestAfter = manifestCatalogRepository.findByKeyAndManifestType("customer", ManifestType.MODEL)
         val secondCustomerId = customerManifestAfter!!.id
 
+        // Capture child IDs after second load
+        val secondEntityTypeIds = catalogEntityTypeRepository.findByManifestId(secondCustomerId!!)
+            .map { it.id }.toSet()
+
         // Assert counts are identical
         assertEquals(firstCounts, secondCounts, "Table counts should be identical after idempotent reload")
 
         // Assert same entity persisted (not duplicated)
         assertEquals(firstCustomerId, secondCustomerId, "Customer manifest ID should be unchanged after reload")
+
+        // Assert child IDs are stable (content hash skip)
+        assertEquals(firstEntityTypeIds, secondEntityTypeIds, "Child entity type IDs should be stable across reloads")
 
         // Verify no stale entries
         val staleEntries = manifestCatalogRepository.findByStaleTrue()

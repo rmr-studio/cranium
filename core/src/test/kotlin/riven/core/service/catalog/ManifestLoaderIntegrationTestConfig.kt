@@ -81,6 +81,7 @@ class ManifestLoaderIntegrationTestConfig {
         catalogRelationshipTargetRuleRepository: CatalogRelationshipTargetRuleRepository,
         catalogFieldMappingRepository: CatalogFieldMappingRepository,
         catalogSemanticMetadataRepository: CatalogSemanticMetadataRepository,
+        objectMapper: ObjectMapper,
         logger: KLogger
     ) = ManifestUpsertService(
         manifestCatalogRepository,
@@ -89,23 +90,51 @@ class ManifestLoaderIntegrationTestConfig {
         catalogRelationshipTargetRuleRepository,
         catalogFieldMappingRepository,
         catalogSemanticMetadataRepository,
+        objectMapper,
         logger
     )
+
+    @Bean
+    fun integrationDefinitionStaleSyncService(
+        manifestCatalogRepository: ManifestCatalogRepository,
+        integrationDefinitionRepository: IntegrationDefinitionRepository,
+        logger: KLogger
+    ) = IntegrationDefinitionStaleSyncService(
+        manifestCatalogRepository,
+        integrationDefinitionRepository,
+        logger
+    )
+
+    @Bean
+    fun manifestReconciliationService(
+        manifestCatalogRepository: ManifestCatalogRepository,
+        logger: KLogger
+    ) = ManifestReconciliationService(
+        manifestCatalogRepository,
+        logger
+    )
+
+    @Bean
+    fun manifestCatalogHealthIndicator() = ManifestCatalogHealthIndicator()
 
     @Bean
     fun manifestLoaderService(
         scannerService: ManifestScannerService,
         resolverService: ManifestResolverService,
         upsertService: ManifestUpsertService,
+        reconciliationService: ManifestReconciliationService,
+        integrationDefinitionStaleSyncService: IntegrationDefinitionStaleSyncService,
         manifestCatalogRepository: ManifestCatalogRepository,
-        integrationDefinitionRepository: IntegrationDefinitionRepository,
+        healthIndicator: ManifestCatalogHealthIndicator,
         logger: KLogger
     ) = ManifestLoaderService(
         scannerService,
         resolverService,
         upsertService,
+        reconciliationService,
+        integrationDefinitionStaleSyncService,
         manifestCatalogRepository,
-        integrationDefinitionRepository,
+        healthIndicator,
         logger
     )
 

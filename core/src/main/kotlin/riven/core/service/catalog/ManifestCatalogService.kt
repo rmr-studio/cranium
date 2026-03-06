@@ -48,9 +48,9 @@ class ManifestCatalogService(
      *
      * @throws NotFoundException if the manifest key doesn't exist or is stale
      */
-    fun getManifestByKey(key: String): ManifestDetail {
-        val catalog = manifestCatalogRepository.findByKeyAndStaleFalse(key)
-            ?: throw NotFoundException("Manifest not found: $key")
+    fun getManifestByKey(key: String, manifestType: ManifestType): ManifestDetail {
+        val catalog = manifestCatalogRepository.findByKeyAndManifestTypeAndStaleFalse(key, manifestType)
+            ?: throw NotFoundException("Manifest not found: $key (type=$manifestType)")
         val manifestId = catalog.id!!
 
         val entityTypes = catalogEntityTypeRepository.findByManifestId(manifestId)
@@ -86,8 +86,11 @@ class ManifestCatalogService(
      * @throws NotFoundException if the manifest ID doesn't exist
      */
     fun getEntityTypesForManifest(manifestId: UUID): List<CatalogEntityTypeModel> {
-        manifestCatalogRepository.findById(manifestId)
+        val manifest = manifestCatalogRepository.findById(manifestId)
             .orElseThrow { NotFoundException("Manifest not found: $manifestId") }
+        if (manifest.stale) {
+            throw NotFoundException("Manifest not found: $manifestId")
+        }
 
         val entityTypes = catalogEntityTypeRepository.findByManifestId(manifestId)
         return hydrateEntityTypes(entityTypes)

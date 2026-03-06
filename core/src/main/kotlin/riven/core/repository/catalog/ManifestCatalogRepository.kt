@@ -1,9 +1,8 @@
 package riven.core.repository.catalog
 
 import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
-import org.springframework.transaction.annotation.Transactional
+import org.springframework.data.repository.query.Param
 import riven.core.entity.catalog.ManifestCatalogEntity
 import riven.core.enums.catalog.ManifestType
 import java.util.*
@@ -19,17 +18,20 @@ interface ManifestCatalogRepository : JpaRepository<ManifestCatalogEntity, UUID>
     /**
      * Find all manifests with the given key (may span multiple manifest types).
      */
-    fun findByKey(key: String): List<ManifestCatalogEntity>
+    @Query("SELECT m FROM ManifestCatalogEntity m WHERE m.key = :key")
+    fun findByKey(@Param("key") key: String): List<ManifestCatalogEntity>
 
     /**
      * Find all manifests of a given type (MODEL, TEMPLATE, INTEGRATION).
      */
-    fun findByManifestType(manifestType: ManifestType): List<ManifestCatalogEntity>
+    @Query("SELECT m FROM ManifestCatalogEntity m WHERE m.manifestType = :manifestType")
+    fun findByManifestType(@Param("manifestType") manifestType: ManifestType): List<ManifestCatalogEntity>
 
     /**
      * Find a single manifest by its unique key + type combination.
      */
-    fun findByKeyAndManifestType(key: String, manifestType: ManifestType): ManifestCatalogEntity?
+    @Query("SELECT m FROM ManifestCatalogEntity m WHERE m.key = :key AND m.manifestType = :manifestType")
+    fun findByKeyAndManifestType(@Param("key") key: String, @Param("manifestType") manifestType: ManifestType): ManifestCatalogEntity?
 
     // ------ Query Surface (stale-filtered) ------
 
@@ -37,33 +39,28 @@ interface ManifestCatalogRepository : JpaRepository<ManifestCatalogEntity, UUID>
      * Find all non-stale manifests of a given type.
      * Used by ManifestCatalogService for listing active templates/models.
      */
-    fun findByManifestTypeAndStaleFalse(manifestType: ManifestType): List<ManifestCatalogEntity>
+    @Query("SELECT m FROM ManifestCatalogEntity m WHERE m.manifestType = :manifestType AND m.stale = false")
+    fun findByManifestTypeAndStaleFalse(@Param("manifestType") manifestType: ManifestType): List<ManifestCatalogEntity>
 
     /**
-     * Find a single non-stale manifest by key.
+     * Find a single non-stale manifest by key and type.
      * Returns null if the manifest doesn't exist or is stale.
      */
-    fun findByKeyAndStaleFalse(key: String): ManifestCatalogEntity?
+    @Query("SELECT m FROM ManifestCatalogEntity m WHERE m.key = :key AND m.manifestType = :manifestType AND m.stale = false")
+    fun findByKeyAndManifestTypeAndStaleFalse(@Param("key") key: String, @Param("manifestType") manifestType: ManifestType): ManifestCatalogEntity?
 
     // ------ Stale Reconciliation ------
 
     /**
-     * Mark all catalog entries as stale. Called at the start of a load cycle
-     * so that entries not present on disk remain stale after loading.
-     */
-    @Modifying(clearAutomatically = true)
-    @Transactional
-    @Query("UPDATE ManifestCatalogEntity m SET m.stale = true")
-    fun markAllStale()
-
-    /**
      * Find all catalog entries that are currently stale (not present on disk after last load).
      */
+    @Query("SELECT m FROM ManifestCatalogEntity m WHERE m.stale = true")
     fun findByStaleTrue(): List<ManifestCatalogEntity>
 
     /**
      * Find stale catalog entries of a specific manifest type.
      * Used for syncing integration_definitions.stale after load cycle.
      */
-    fun findByManifestTypeAndStaleTrue(manifestType: ManifestType): List<ManifestCatalogEntity>
+    @Query("SELECT m FROM ManifestCatalogEntity m WHERE m.manifestType = :manifestType AND m.stale = true")
+    fun findByManifestTypeAndStaleTrue(@Param("manifestType") manifestType: ManifestType): List<ManifestCatalogEntity>
 }

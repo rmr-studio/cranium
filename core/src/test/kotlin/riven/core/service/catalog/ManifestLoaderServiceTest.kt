@@ -7,22 +7,20 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
 import riven.core.entity.catalog.ManifestCatalogEntity
-import riven.core.entity.integration.IntegrationDefinitionEntity
 import riven.core.enums.catalog.ManifestType
-import riven.core.enums.integration.IntegrationCategory
 import riven.core.models.catalog.ResolvedManifest
 import riven.core.models.catalog.ScannedManifest
 import riven.core.repository.catalog.ManifestCatalogRepository
-import riven.core.repository.integration.IntegrationDefinitionRepository
-import java.util.*
 
 class ManifestLoaderServiceTest {
 
     private lateinit var scannerService: ManifestScannerService
     private lateinit var resolverService: ManifestResolverService
     private lateinit var upsertService: ManifestUpsertService
+    private lateinit var reconciliationService: ManifestReconciliationService
+    private lateinit var integrationDefinitionStaleSyncService: IntegrationDefinitionStaleSyncService
     private lateinit var manifestCatalogRepository: ManifestCatalogRepository
-    private lateinit var integrationDefinitionRepository: IntegrationDefinitionRepository
+    private lateinit var healthIndicator: ManifestCatalogHealthIndicator
     private lateinit var logger: KLogger
     private lateinit var service: ManifestLoaderService
 
@@ -33,16 +31,20 @@ class ManifestLoaderServiceTest {
         scannerService = mock()
         resolverService = mock()
         upsertService = mock()
+        reconciliationService = mock()
+        integrationDefinitionStaleSyncService = mock()
         manifestCatalogRepository = mock()
-        integrationDefinitionRepository = mock()
+        healthIndicator = ManifestCatalogHealthIndicator()
         logger = mock()
 
         service = ManifestLoaderService(
             scannerService,
             resolverService,
             upsertService,
+            reconciliationService,
+            integrationDefinitionStaleSyncService,
             manifestCatalogRepository,
-            integrationDefinitionRepository,
+            healthIndicator,
             logger
         )
 
@@ -51,18 +53,6 @@ class ManifestLoaderServiceTest {
         whenever(scannerService.scanTemplates()).thenReturn(emptyList())
         whenever(scannerService.scanIntegrations()).thenReturn(emptyList())
         whenever(manifestCatalogRepository.findByStaleTrue()).thenReturn(emptyList())
-        whenever(manifestCatalogRepository.findByManifestType(ManifestType.INTEGRATION)).thenReturn(emptyList())
-    }
-
-    // ------ Mark All Stale ------
-
-    @Test
-    fun `loadAllManifests calls markAllStale before any scanning`() {
-        service.loadAllManifests()
-
-        val inOrder = inOrder(manifestCatalogRepository, scannerService)
-        inOrder.verify(manifestCatalogRepository).markAllStale()
-        inOrder.verify(scannerService).scanModels()
     }
 
     // ------ Load Order ------
@@ -130,58 +120,55 @@ class ManifestLoaderServiceTest {
         verify(logger).warn(any<Throwable>(), any<() -> Any?>())
     }
 
-    // ------ Integration Definition Stale Sync ------
+    // ------ Reconciliation ------
 
     @Test
-    fun `loadAllManifests syncs integration_definitions stale after load`() {
-        val staleCatalogEntry = ManifestCatalogEntity(
-            id = UUID.randomUUID(),
-            key = "hubspot",
-            name = "HubSpot",
-            manifestType = ManifestType.INTEGRATION,
-            stale = true
-        )
-        val nonStaleCatalogEntry = ManifestCatalogEntity(
-            id = UUID.randomUUID(),
-            key = "salesforce",
-            name = "Salesforce",
-            manifestType = ManifestType.INTEGRATION,
-            stale = false
-        )
+    fun `loadAllManifests calls reconciliation after load with seen manifests`() {
+        val modelJson = objectMapper.readTree("""{"key":"m1"}""")
+        val scanned = ScannedManifest("m1", ManifestType.MODEL, modelJson)
+        val resolved = createResolvedManifest("m1", ManifestType.MODEL)
 
-        whenever(manifestCatalogRepository.findByManifestType(ManifestType.INTEGRATION))
-            .thenReturn(listOf(staleCatalogEntry, nonStaleCatalogEntry))
-
-        val hubspotDef = IntegrationDefinitionEntity(
-            id = UUID.randomUUID(),
-            slug = "hubspot",
-            name = "HubSpot",
-            category = IntegrationCategory.CRM,
-            nangoProviderKey = "hubspot",
-            stale = false
-        )
-        val salesforceDef = IntegrationDefinitionEntity(
-            id = UUID.randomUUID(),
-            slug = "salesforce",
-            name = "Salesforce",
-            category = IntegrationCategory.CRM,
-            nangoProviderKey = "salesforce",
-            stale = true
-        )
-
-        whenever(integrationDefinitionRepository.findBySlug("hubspot")).thenReturn(hubspotDef)
-        whenever(integrationDefinitionRepository.findBySlug("salesforce")).thenReturn(salesforceDef)
+        whenever(scannerService.scanModels()).thenReturn(listOf(scanned))
+        whenever(resolverService.resolveManifest(eq(scanned), any())).thenReturn(resolved)
 
         service.loadAllManifests()
 
-        // hubspot should be set stale=true (catalog is stale)
-        verify(integrationDefinitionRepository).save(argThat<IntegrationDefinitionEntity> {
-            slug == "hubspot" && stale
+        verify(reconciliationService).reconcileStaleEntries(argThat {
+            contains("m1" to ManifestType.MODEL) && size == 1
         })
-        // salesforce should be set stale=false (catalog is not stale)
-        verify(integrationDefinitionRepository).save(argThat<IntegrationDefinitionEntity> {
-            slug == "salesforce" && !stale
+    }
+
+    @Test
+    fun `loadAllManifests does not add stale-resolved manifests to seen set`() {
+        val modelJson = objectMapper.readTree("""{"key":"m1"}""")
+        val scanned = ScannedManifest("m1", ManifestType.MODEL, modelJson)
+        val resolved = createResolvedManifest("m1", ManifestType.MODEL, stale = true)
+
+        whenever(scannerService.scanModels()).thenReturn(listOf(scanned))
+        whenever(resolverService.resolveManifest(eq(scanned), any())).thenReturn(resolved)
+
+        service.loadAllManifests()
+
+        verify(reconciliationService).reconcileStaleEntries(argThat {
+            isEmpty()
         })
+    }
+
+    @Test
+    fun `loadAllManifests skips reconciliation when zero manifests scanned`() {
+        service.loadAllManifests()
+
+        verify(reconciliationService, never()).reconcileStaleEntries(any())
+        verify(logger).warn(any<() -> Any?>())
+    }
+
+    // ------ Integration Definition Stale Sync ------
+
+    @Test
+    fun `loadAllManifests calls integration definition stale sync after reconciliation`() {
+        service.loadAllManifests()
+
+        verify(integrationDefinitionStaleSyncService).syncStaleFlags()
     }
 
     // ------ Summary Log ------
@@ -203,7 +190,11 @@ class ManifestLoaderServiceTest {
 
     // ------ Helpers ------
 
-    private fun createResolvedManifest(key: String, type: ManifestType) = ResolvedManifest(
+    private fun createResolvedManifest(
+        key: String,
+        type: ManifestType,
+        stale: Boolean = false
+    ) = ResolvedManifest(
         key = key,
         name = "Test $key",
         description = null,
@@ -211,6 +202,7 @@ class ManifestLoaderServiceTest {
         manifestVersion = "1.0",
         entityTypes = emptyList(),
         relationships = emptyList(),
-        fieldMappings = emptyList()
+        fieldMappings = emptyList(),
+        stale = stale
     )
 }

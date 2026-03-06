@@ -41,4 +41,7 @@ out/
 ### Kotlin ###
 .kotlin
 
+### Planning ###
+.planning/
 
+.pr-review/

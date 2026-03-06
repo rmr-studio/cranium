@@ -85,7 +85,7 @@ _Prevent scope creep by being clear about boundaries_
 
 |Domain|What They Need|How They Access|
 |---|---|---|
-|[[Domain - ]]||API / Event / Direct|
+|[[Catalog]]|Stale flag propagation — [[IntegrationDefinitionStaleSyncService]] writes `integration_definitions.stale` to match the catalog entry's stale status after each manifest load cycle|Direct service injection|
 
 ---
 

@@ -12,7 +12,7 @@ There are three manifest types:
 
 ## Directory Structure
 
-```
+```text
 src/main/resources/manifests/
 ├── schemas/                         # JSON Schema validation files
 │   ├── model.schema.json
@@ -193,9 +193,9 @@ An integration manifest is similar to a template but includes integration-specif
     {
       "entityTypeKey": "hubspot-contact",
       "mappings": {
-        "email": "email",
-        "firstname": "first_name",
-        "lastname": "last_name"
+        "email": { "source": "email" },
+        "firstname": { "source": "first_name" },
+        "lastname": { "source": "last_name" }
       }
     }
   ]

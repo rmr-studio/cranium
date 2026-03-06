@@ -1,5 +1,7 @@
 package riven.core.service.catalog
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -13,6 +15,7 @@ import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.models.catalog.*
 import riven.core.repository.catalog.*
+import java.security.MessageDigest
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -27,6 +30,7 @@ class ManifestUpsertServiceTest {
     private lateinit var logger: KLogger
     private lateinit var service: ManifestUpsertService
 
+    private val objectMapper = ObjectMapper().registerModule(JavaTimeModule())
     private val manifestId = UUID.randomUUID()
 
     @BeforeEach
@@ -46,6 +50,7 @@ class ManifestUpsertServiceTest {
             catalogRelationshipTargetRuleRepository,
             catalogFieldMappingRepository,
             catalogSemanticMetadataRepository,
+            objectMapper,
             logger
         )
     }
@@ -69,7 +74,7 @@ class ManifestUpsertServiceTest {
         service.upsertManifest(resolved)
 
         verify(manifestCatalogRepository).save(argThat<ManifestCatalogEntity> {
-            key == "test-key" && name == "Test Manifest" && !stale
+            key == "test-key" && name == "Test Manifest" && !stale && contentHash != null
         })
         verify(catalogEntityTypeRepository).saveAll(argThat<List<CatalogEntityTypeEntity>> { size == 1 })
         verify(catalogRelationshipRepository).save(argThat<CatalogRelationshipEntity> {
@@ -89,7 +94,8 @@ class ManifestUpsertServiceTest {
             key = "test-key",
             name = "Old Name",
             manifestType = ManifestType.TEMPLATE,
-            stale = true
+            stale = true,
+            contentHash = "old-hash"
         )
 
         whenever(manifestCatalogRepository.findByKeyAndManifestType("test-key", ManifestType.TEMPLATE))
@@ -115,6 +121,38 @@ class ManifestUpsertServiceTest {
         verify(catalogEntityTypeRepository).saveAll(any<List<CatalogEntityTypeEntity>>())
     }
 
+    // ------ Content Hash Match (Skip Children) ------
+
+    @Test
+    fun `upsertManifest skips child reconciliation when content hash matches`() {
+        val resolved = createResolvedManifest()
+        val contentHash = computeExpectedHash(resolved)
+
+        val existingEntity = ManifestCatalogEntity(
+            id = manifestId,
+            key = "test-key",
+            name = "Test Manifest",
+            manifestType = ManifestType.TEMPLATE,
+            stale = false,
+            contentHash = contentHash
+        )
+
+        whenever(manifestCatalogRepository.findByKeyAndManifestType("test-key", ManifestType.TEMPLATE))
+            .thenReturn(existingEntity)
+        whenever(manifestCatalogRepository.save(any<ManifestCatalogEntity>()))
+            .thenAnswer { invocation -> invocation.getArgument<ManifestCatalogEntity>(0) }
+
+        service.upsertManifest(resolved)
+
+        // Only catalog row should be saved (timestamp update)
+        verify(manifestCatalogRepository).save(any())
+        // No child operations
+        verify(catalogEntityTypeRepository, never()).saveAll(any<List<CatalogEntityTypeEntity>>())
+        verify(catalogRelationshipRepository, never()).save(any<CatalogRelationshipEntity>())
+        verify(catalogFieldMappingRepository, never()).saveAll(any<List<CatalogFieldMappingEntity>>())
+        verify(catalogEntityTypeRepository, never()).deleteByManifestId(any())
+    }
+
     // ------ Stale Manifest ------
 
     @Test
@@ -131,8 +169,8 @@ class ManifestUpsertServiceTest {
 
         service.upsertManifest(resolved)
 
-        // Catalog row saved with stale=true
-        verify(manifestCatalogRepository).save(argThat<ManifestCatalogEntity> { stale })
+        // Catalog row saved with stale=true and no content hash
+        verify(manifestCatalogRepository).save(argThat<ManifestCatalogEntity> { stale && contentHash == null })
         // No child operations
         verify(catalogEntityTypeRepository, never()).saveAll(any<List<CatalogEntityTypeEntity>>())
         verify(catalogRelationshipRepository, never()).save(any<CatalogRelationshipEntity>())
@@ -150,7 +188,8 @@ class ManifestUpsertServiceTest {
             key = "test-key",
             name = "Old Name",
             manifestType = ManifestType.TEMPLATE,
-            stale = true
+            stale = true,
+            contentHash = "old-hash"
         )
 
         whenever(manifestCatalogRepository.findByKeyAndManifestType("test-key", ManifestType.TEMPLATE))
@@ -284,6 +323,22 @@ class ManifestUpsertServiceTest {
         entityTypeKey = "customer",
         mappings = mapOf("email" to mapOf("source" to "email_address"))
     )
+
+    private fun computeExpectedHash(resolved: ResolvedManifest): String {
+        val content = objectMapper.writeValueAsString(
+            mapOf(
+                "name" to resolved.name,
+                "description" to resolved.description,
+                "manifestVersion" to resolved.manifestVersion,
+                "entityTypes" to resolved.entityTypes,
+                "relationships" to resolved.relationships,
+                "fieldMappings" to resolved.fieldMappings
+            )
+        )
+        return MessageDigest.getInstance("SHA-256")
+            .digest(content.toByteArray())
+            .joinToString("") { "%02x".format(it) }
+    }
 
     private fun mockEmptyChildren() {
         whenever(catalogRelationshipRepository.findByManifestId(any()))

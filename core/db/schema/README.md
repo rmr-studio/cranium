@@ -36,12 +36,18 @@ psql -d your_database -f 01_tables/user.sql
 psql -d your_database -f 01_tables/activity.sql
 psql -d your_database -f 01_tables/blocks.sql
 psql -d your_database -f 01_tables/entities.sql
+psql -d your_database -f 01_tables/integrations.sql
+psql -d your_database -f 01_tables/catalog.sql
+psql -d your_database -f 01_tables/integrations_stale_migration.sql
 ```
 
 **Dependencies:**
 - `user.sql` depends on `workspace.sql` (FK: users.default_workspace_id)
 - `blocks.sql` depends on `workspace.sql` and `user.sql`
 - `entities.sql` depends on `workspace.sql`, `user.sql`, and `blocks.sql` (block_tree_layouts references entities)
+- `integrations.sql` has no table dependencies
+- `catalog.sql` has no table dependencies (manifest_catalog is self-contained)
+- `integrations_stale_migration.sql` depends on `integrations.sql`
 
 ### 3. Indexes (02_indexes/)
 ```bash
@@ -50,6 +56,8 @@ psql -d your_database -f 02_indexes/user_indexes.sql
 psql -d your_database -f 02_indexes/activity_indexes.sql
 psql -d your_database -f 02_indexes/block_indexes.sql
 psql -d your_database -f 02_indexes/entity_indexes.sql
+psql -d your_database -f 02_indexes/integration_indexes.sql
+psql -d your_database -f 02_indexes/catalog_indexes.sql
 ```
 
 ### 4. Functions (03_functions/)
@@ -97,8 +105,8 @@ SCHEMA_DIR="./db/schema"
 
 # Arrays of files in execution order
 EXTENSIONS=("extensions.sql")
-TABLES=("workspace.sql" "user.sql" "activity.sql" "blocks.sql" "entities.sql")
-INDEXES=("workspace_indexes.sql" "user_indexes.sql" "activity_indexes.sql" "block_indexes.sql" "entity_indexes.sql")
+TABLES=("workspace.sql" "user.sql" "activity.sql" "blocks.sql" "entities.sql" "integrations.sql" "catalog.sql" "integrations_stale_migration.sql")
+INDEXES=("workspace_indexes.sql" "user_indexes.sql" "activity_indexes.sql" "block_indexes.sql" "entity_indexes.sql" "integration_indexes.sql" "catalog_indexes.sql")
 FUNCTIONS=("workspace_functions.sql" "user_functions.sql" "entity_functions.sql" "auth_functions.sql")
 CONSTRAINTS=("workspace_constraints.sql" "block_constraints.sql")
 RLS=("workspace_rls.sql" "block_rls.sql" "entity_rls.sql")
@@ -184,6 +192,17 @@ echo "Database schema setup complete!"
 - **Triggers**: trg_sync_entity_identifier_key, trg_update_entity_type_count
 - **RLS**: Workspace-scoped access
 - **Pattern**: Mutable schema for entity_types
+
+### Integrations
+- **Tables**: integration_definitions, integration_connections
+- **Indexes**: Category, stale status, connection status
+- **Pattern**: Global catalog (no workspace scoping) for definitions; workspace-scoped connections
+
+### Manifest Catalog
+- **Tables**: manifest_catalog, catalog_entity_types, catalog_relationships, catalog_relationship_target_rules, catalog_field_mappings, catalog_semantic_metadata
+- **Indexes**: Manifest type, stale status, entity type lookups
+- **Pattern**: Global catalog loaded from classpath manifests on startup. Stale flag for reconciliation.
+- **Key relationships**: manifest_catalog -> catalog_entity_types/catalog_relationships/catalog_field_mappings (via manifest_id), catalog_relationships -> catalog_relationship_target_rules (via id), catalog_entity_types -> catalog_semantic_metadata (via id)
 
 ### Activity Logs
 - **Tables**: activity_logs

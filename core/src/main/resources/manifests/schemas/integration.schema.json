@@ -149,7 +149,22 @@
         "semantics": {
           "$ref": "#/$defs/relationshipSemantics"
         }
-      }
+      },
+      "oneOf": [
+        {
+          "required": ["cardinality", "targetEntityTypeKey"],
+          "not": { "required": ["targetRules"] }
+        },
+        {
+          "required": ["targetRules"],
+          "not": {
+            "anyOf": [
+              { "required": ["cardinality"] },
+              { "required": ["targetEntityTypeKey"] }
+            ]
+          }
+        }
+      ]
     },
     "targetRule": {
       "type": "object",

@@ -49,6 +49,9 @@ data class ManifestCatalogEntity(
     @Column(name = "stale", nullable = false)
     var stale: Boolean = false,
 
+    @Column(name = "content_hash", length = 64)
+    var contentHash: String? = null,
+
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: ZonedDateTime = ZonedDateTime.now(),
 

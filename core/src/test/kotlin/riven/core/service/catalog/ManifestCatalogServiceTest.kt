@@ -6,16 +6,15 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.*
-import riven.core.entity.catalog.*
 import riven.core.enums.catalog.ManifestType
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.exceptions.NotFoundException
 import riven.core.repository.catalog.*
+import riven.core.service.util.factory.catalog.CatalogFactory.createEntityTypeEntity
+import riven.core.service.util.factory.catalog.CatalogFactory.createFieldMappingEntity
+import riven.core.service.util.factory.catalog.CatalogFactory.createManifestEntity
+import riven.core.service.util.factory.catalog.CatalogFactory.createRelationshipEntity
+import riven.core.service.util.factory.catalog.CatalogFactory.createSemanticMetadataEntity
+import riven.core.service.util.factory.catalog.CatalogFactory.createTargetRuleEntity
 import java.util.*
 
 class ManifestCatalogServiceTest {
@@ -58,7 +57,7 @@ class ManifestCatalogServiceTest {
 
     @Test
     fun `getAvailableTemplates returns summaries for non-stale templates`() {
-        val manifest = createManifestEntity(ManifestType.TEMPLATE)
+        val manifest = createManifestEntity(ManifestType.TEMPLATE, id = manifestId)
         val entityTypes = listOf(createEntityTypeEntity(manifestId))
 
         whenever(manifestCatalogRepository.findByManifestTypeAndStaleFalse(ManifestType.TEMPLATE))
@@ -88,9 +87,9 @@ class ManifestCatalogServiceTest {
 
     @Test
     fun `getAvailableModels returns summaries for non-stale models`() {
-        val manifest = createManifestEntity(ManifestType.MODEL)
+        val manifest = createManifestEntity(ManifestType.MODEL, id = manifestId)
         val entityTypes = listOf(
-            createEntityTypeEntity(manifestId),
+            createEntityTypeEntity(manifestId, id = entityTypeId),
             createEntityTypeEntity(manifestId, key = "second-type")
         )
 
@@ -109,14 +108,14 @@ class ManifestCatalogServiceTest {
 
     @Test
     fun `getManifestByKey returns fully hydrated detail`() {
-        val manifest = createManifestEntity(ManifestType.TEMPLATE)
-        val entityType = createEntityTypeEntity(manifestId)
-        val relationship = createRelationshipEntity(manifestId)
+        val manifest = createManifestEntity(ManifestType.TEMPLATE, id = manifestId)
+        val entityType = createEntityTypeEntity(manifestId, id = entityTypeId)
+        val relationship = createRelationshipEntity(manifestId, id = relationshipId)
         val targetRule = createTargetRuleEntity(relationshipId)
         val semanticMetadata = createSemanticMetadataEntity(entityTypeId)
         val fieldMapping = createFieldMappingEntity(manifestId)
 
-        whenever(manifestCatalogRepository.findByKeyAndStaleFalse("test-manifest"))
+        whenever(manifestCatalogRepository.findByKeyAndManifestTypeAndStaleFalse("test-manifest", ManifestType.TEMPLATE))
             .thenReturn(manifest)
         whenever(catalogEntityTypeRepository.findByManifestId(manifestId))
             .thenReturn(listOf(entityType))
@@ -129,7 +128,7 @@ class ManifestCatalogServiceTest {
         whenever(catalogFieldMappingRepository.findByManifestId(manifestId))
             .thenReturn(listOf(fieldMapping))
 
-        val result = service.getManifestByKey("test-manifest")
+        val result = service.getManifestByKey("test-manifest", ManifestType.TEMPLATE)
 
         assertEquals(manifest.key, result.key)
         assertEquals(manifest.name, result.name)
@@ -147,11 +146,11 @@ class ManifestCatalogServiceTest {
 
     @Test
     fun `getManifestByKey throws NotFoundException for missing key`() {
-        whenever(manifestCatalogRepository.findByKeyAndStaleFalse("nonexistent"))
+        whenever(manifestCatalogRepository.findByKeyAndManifestTypeAndStaleFalse("nonexistent", ManifestType.TEMPLATE))
             .thenReturn(null)
 
         val exception = assertThrows<NotFoundException> {
-            service.getManifestByKey("nonexistent")
+            service.getManifestByKey("nonexistent", ManifestType.TEMPLATE)
         }
 
         assertTrue(exception.message!!.contains("nonexistent"))
@@ -159,9 +158,9 @@ class ManifestCatalogServiceTest {
 
     @Test
     fun `getManifestByKey handles manifest with no children`() {
-        val manifest = createManifestEntity(ManifestType.MODEL)
+        val manifest = createManifestEntity(ManifestType.MODEL, id = manifestId)
 
-        whenever(manifestCatalogRepository.findByKeyAndStaleFalse("empty-manifest"))
+        whenever(manifestCatalogRepository.findByKeyAndManifestTypeAndStaleFalse("empty-manifest", ManifestType.MODEL))
             .thenReturn(manifest)
         whenever(catalogEntityTypeRepository.findByManifestId(manifestId))
             .thenReturn(emptyList())
@@ -174,7 +173,7 @@ class ManifestCatalogServiceTest {
         whenever(catalogFieldMappingRepository.findByManifestId(manifestId))
             .thenReturn(emptyList())
 
-        val result = service.getManifestByKey("empty-manifest")
+        val result = service.getManifestByKey("empty-manifest", ManifestType.MODEL)
 
         assertTrue(result.entityTypes.isEmpty())
         assertTrue(result.relationships.isEmpty())
@@ -185,8 +184,8 @@ class ManifestCatalogServiceTest {
 
     @Test
     fun `getEntityTypesForManifest returns entity types with semantic metadata`() {
-        val manifest = createManifestEntity(ManifestType.TEMPLATE)
-        val entityType = createEntityTypeEntity(manifestId)
+        val manifest = createManifestEntity(ManifestType.TEMPLATE, id = manifestId)
+        val entityType = createEntityTypeEntity(manifestId, id = entityTypeId)
         val semanticMetadata = createSemanticMetadataEntity(entityTypeId)
 
         whenever(manifestCatalogRepository.findById(manifestId))
@@ -217,67 +216,4 @@ class ManifestCatalogServiceTest {
         }
     }
 
-    // ------ Test Data Factories ------
-
-    private fun createManifestEntity(type: ManifestType) = ManifestCatalogEntity(
-        id = manifestId,
-        key = "test-manifest",
-        name = "Test Manifest",
-        description = "A test manifest",
-        manifestType = type,
-        manifestVersion = "1.0.0",
-        stale = false
-    )
-
-    private fun createEntityTypeEntity(
-        manifestId: UUID,
-        key: String = "test-entity-type"
-    ) = CatalogEntityTypeEntity(
-        id = entityTypeId,
-        manifestId = manifestId,
-        key = key,
-        displayNameSingular = "Test Entity",
-        displayNamePlural = "Test Entities",
-        iconType = IconType.CIRCLE_DASHED,
-        iconColour = IconColour.NEUTRAL,
-        semanticGroup = SemanticGroup.UNCATEGORIZED,
-        schema = mapOf("type" to "object"),
-        columns = listOf(mapOf("key" to "name", "label" to "Name"))
-    )
-
-    private fun createRelationshipEntity(manifestId: UUID) = CatalogRelationshipEntity(
-        id = relationshipId,
-        manifestId = manifestId,
-        key = "test-relationship",
-        sourceEntityTypeKey = "test-entity-type",
-        name = "Test Relationship",
-        cardinalityDefault = EntityRelationshipCardinality.ONE_TO_MANY
-    )
-
-    private fun createTargetRuleEntity(relationshipId: UUID) = CatalogRelationshipTargetRuleEntity(
-        id = UUID.randomUUID(),
-        catalogRelationshipId = relationshipId,
-        targetEntityTypeKey = "target-entity-type",
-        semanticTypeConstraint = SemanticGroup.CUSTOMER,
-        cardinalityOverride = EntityRelationshipCardinality.ONE_TO_ONE,
-        inverseVisible = true,
-        inverseName = "reverse-test"
-    )
-
-    private fun createSemanticMetadataEntity(entityTypeId: UUID) = CatalogSemanticMetadataEntity(
-        id = UUID.randomUUID(),
-        catalogEntityTypeId = entityTypeId,
-        targetType = SemanticMetadataTargetType.ENTITY_TYPE,
-        targetId = "test-entity-type",
-        definition = "A test entity type",
-        classification = SemanticAttributeClassification.IDENTIFIER,
-        tags = listOf("test", "core")
-    )
-
-    private fun createFieldMappingEntity(manifestId: UUID) = CatalogFieldMappingEntity(
-        id = UUID.randomUUID(),
-        manifestId = manifestId,
-        entityTypeKey = "test-entity-type",
-        mappings = mapOf("externalField" to "internalField")
-    )
 }

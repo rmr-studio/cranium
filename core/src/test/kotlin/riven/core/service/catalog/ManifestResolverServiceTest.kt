@@ -9,7 +9,9 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import riven.core.enums.catalog.ManifestType
 import riven.core.enums.entity.EntityRelationshipCardinality
 import riven.core.models.catalog.ScannedManifest
@@ -542,6 +544,9 @@ class ManifestResolverServiceTest {
             assertEquals(1, result.fieldMappings[0].mappings.size)
             assertTrue(result.fieldMappings[0].mappings.containsKey("email"))
             assertFalse(result.fieldMappings[0].mappings.containsKey("nonexistent"))
+
+            // Verify warn was logged for the invalid mapping key
+            verify(logger).warn(any<() -> Any>())
         }
     }
 

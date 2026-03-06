@@ -16,6 +16,7 @@ import riven.core.enums.entity.SystemRelationshipType
 import riven.core.enums.workspace.WorkspaceRoles
 import riven.core.repository.entity.EntityRelationshipRepository
 import riven.core.repository.entity.EntityTypeRepository
+import riven.core.repository.entity.RelationshipDefinitionExclusionRepository
 import riven.core.repository.entity.RelationshipDefinitionRepository
 import riven.core.repository.entity.RelationshipTargetRuleRepository
 import riven.core.service.activity.ActivityService
@@ -61,6 +62,9 @@ class EntityTypeRelationshipServiceFallbackTest : BaseServiceTest() {
     private lateinit var entityTypeRepository: EntityTypeRepository
 
     @MockitoBean
+    private lateinit var exclusionRepository: RelationshipDefinitionExclusionRepository
+
+    @MockitoBean
     private lateinit var entityRelationshipRepository: EntityRelationshipRepository
 
     @MockitoBean
@@ -79,6 +83,7 @@ class EntityTypeRelationshipServiceFallbackTest : BaseServiceTest() {
         reset(
             definitionRepository,
             targetRuleRepository,
+            exclusionRepository,
             entityTypeRepository,
             entityRelationshipRepository,
             activityService,

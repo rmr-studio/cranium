@@ -106,9 +106,12 @@ class EntityQueryIntegrationTestConfig {
     fun entityTypeRelationshipService(
         definitionRepository: RelationshipDefinitionRepository,
         targetRuleRepository: RelationshipTargetRuleRepository,
+        exclusionRepository: riven.core.repository.entity.RelationshipDefinitionExclusionRepository,
         entityRelationshipRepository: EntityRelationshipRepository,
+        entityTypeRepository: EntityTypeRepository,
     ) = EntityTypeRelationshipService(
-        definitionRepository, targetRuleRepository, entityRelationshipRepository,
+        definitionRepository, targetRuleRepository, exclusionRepository, entityRelationshipRepository,
+        entityTypeRepository,
         org.mockito.Mockito.mock(riven.core.service.activity.ActivityService::class.java),
         org.mockito.Mockito.mock(riven.core.service.auth.AuthTokenService::class.java),
         org.mockito.Mockito.mock(riven.core.service.entity.EntityTypeSemanticMetadataService::class.java),
@@ -423,7 +426,6 @@ abstract class EntityQueryIntegrationTestBase {
         targetRuleRepository.save(RelationshipTargetRuleEntity(
             relationshipDefinitionId = companyEmployeesRelId,
             targetEntityTypeId = employeeTypeId,
-            inverseVisible = true,
             inverseName = "Company",
         ))
 
@@ -437,7 +439,6 @@ abstract class EntityQueryIntegrationTestBase {
         targetRuleRepository.save(RelationshipTargetRuleEntity(
             relationshipDefinitionId = companyProjectsRelId,
             targetEntityTypeId = projectTypeId,
-            inverseVisible = true,
             inverseName = "Company",
         ))
 
@@ -452,14 +453,12 @@ abstract class EntityQueryIntegrationTestBase {
         targetRuleRepository.save(RelationshipTargetRuleEntity(
             relationshipDefinitionId = companyOwnerRelId,
             targetEntityTypeId = employeeTypeId,
-            inverseVisible = false,
-            inverseName = null,
+            inverseName = "Owner Of",
         ))
         targetRuleRepository.save(RelationshipTargetRuleEntity(
             relationshipDefinitionId = companyOwnerRelId,
             targetEntityTypeId = projectTypeId,
-            inverseVisible = false,
-            inverseName = null,
+            inverseName = "Owner Of",
         ))
 
         // Employee -> Projects (MANY_TO_MANY)
@@ -472,8 +471,7 @@ abstract class EntityQueryIntegrationTestBase {
         targetRuleRepository.save(RelationshipTargetRuleEntity(
             relationshipDefinitionId = employeeProjectsRelId,
             targetEntityTypeId = projectTypeId,
-            inverseVisible = false,
-            inverseName = null,
+            inverseName = "Employees",
         ))
 
         // Project -> Client (MANY_TO_ONE)
@@ -486,8 +484,7 @@ abstract class EntityQueryIntegrationTestBase {
         targetRuleRepository.save(RelationshipTargetRuleEntity(
             relationshipDefinitionId = projectClientRelId,
             targetEntityTypeId = companyTypeId,
-            inverseVisible = false,
-            inverseName = null,
+            inverseName = "Projects",
         ))
     }
 

@@ -207,8 +207,7 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
     fun findEntityLinksBySourceIdIn(ids: Array<UUID>, workspaceId: UUID): List<EntityLinkProjection>
 
     /**
-     * Find inverse entity links where the given entity is a target,
-     * only for definitions where the target rule has inverse_visible = true.
+     * Find inverse entity links where the given entity is a target.
      *
      * The sourceEntityId column aliases r.target_entity_id (the entity being viewed),
      * keeping the EntityLink contract consistent.
@@ -233,8 +232,13 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
             LEFT JOIN relationship_target_rules rtr ON rtr.relationship_definition_id = r.relationship_definition_id
             WHERE r.target_entity_id = :targetId
             AND (
-                (rtr.inverse_visible = true AND rtr.target_entity_type_id = (SELECT type_id FROM entities WHERE id = :targetId))
+                rtr.target_entity_type_id = (SELECT type_id FROM entities WHERE id = :targetId)
                 OR rd.system_type = :systemType
+            )
+            AND NOT EXISTS (
+                SELECT 1 FROM relationship_definition_exclusions rde
+                WHERE rde.relationship_definition_id = r.relationship_definition_id
+                AND rde.entity_type_id = (SELECT type_id FROM entities WHERE id = :targetId)
             )
             AND r.deleted = false
             AND e.deleted = false
@@ -268,8 +272,13 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
             JOIN entities target_e ON r.target_entity_id = target_e.id
             WHERE r.target_entity_id = ANY(:ids)
             AND (
-                (rtr.inverse_visible = true AND rtr.target_entity_type_id = target_e.type_id)
+                rtr.target_entity_type_id = target_e.type_id
                 OR rd.system_type = :systemType
+            )
+            AND NOT EXISTS (
+                SELECT 1 FROM relationship_definition_exclusions rde
+                WHERE rde.relationship_definition_id = r.relationship_definition_id
+                AND rde.entity_type_id = target_e.type_id
             )
             AND r.deleted = false
             AND e.deleted = false
@@ -278,4 +287,56 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
         nativeQuery = true
     )
     fun findInverseEntityLinksByTargetIdIn(ids: Array<UUID>, workspaceId: UUID, systemType: String): List<EntityLinkProjection>
+
+    /**
+     * Count non-deleted relationships for a definition where the target entity is of a specific type.
+     */
+    @Query(
+        value = """
+            SELECT count(*) FROM entity_relationships r
+            JOIN entities e ON r.target_entity_id = e.id
+            WHERE r.relationship_definition_id = :definitionId
+            AND e.type_id = :entityTypeId
+            AND r.deleted = false
+        """,
+        nativeQuery = true
+    )
+    fun countByDefinitionIdAndTargetEntityTypeId(definitionId: UUID, entityTypeId: UUID): Long
+
+    /**
+     * Soft-delete relationships for a definition where the target entity is of a specific type.
+     */
+    @Modifying
+    @Query(
+        value = """
+            UPDATE entity_relationships
+            SET deleted = true, deleted_at = CURRENT_TIMESTAMP
+            WHERE relationship_definition_id = :definitionId
+            AND target_entity_id IN (
+                SELECT id FROM entities WHERE type_id = :entityTypeId
+            )
+            AND deleted = false
+        """,
+        nativeQuery = true
+    )
+    fun softDeleteByDefinitionIdAndTargetEntityTypeId(definitionId: UUID, entityTypeId: UUID)
+
+    /**
+     * Restore soft-deleted relationships for a definition where the target entity is of a specific type.
+     * Must be native SQL to bypass @SQLRestriction("deleted = false").
+     */
+    @Modifying
+    @Query(
+        value = """
+            UPDATE entity_relationships
+            SET deleted = false, deleted_at = NULL
+            WHERE relationship_definition_id = :definitionId
+            AND target_entity_id IN (
+                SELECT id FROM entities WHERE type_id = :entityTypeId
+            )
+            AND deleted = true
+        """,
+        nativeQuery = true
+    )
+    fun restoreByDefinitionIdAndTargetEntityTypeId(definitionId: UUID, entityTypeId: UUID)
 }

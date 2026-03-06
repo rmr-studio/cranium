@@ -39,11 +39,8 @@ data class RelationshipTargetRuleEntity(
     @Column(name = "cardinality_override", nullable = true)
     val cardinalityOverride: EntityRelationshipCardinality? = null,
 
-    @Column(name = "inverse_visible", nullable = false)
-    var inverseVisible: Boolean = false,
-
-    @Column(name = "inverse_name", nullable = true)
-    var inverseName: String? = null,
+    @Column(name = "inverse_name", nullable = false)
+    var inverseName: String,
 ) : AuditableEntity() {
 
     fun toModel(): RelationshipTargetRule {
@@ -54,7 +51,6 @@ data class RelationshipTargetRuleEntity(
             targetEntityTypeId = this.targetEntityTypeId,
             semanticTypeConstraint = this.semanticTypeConstraint,
             cardinalityOverride = this.cardinalityOverride,
-            inverseVisible = this.inverseVisible,
             inverseName = this.inverseName,
             createdAt = this.createdAt,
             updatedAt = this.updatedAt,

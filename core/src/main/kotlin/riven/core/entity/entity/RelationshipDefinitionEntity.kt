@@ -56,7 +56,10 @@ data class RelationshipDefinitionEntity(
     val systemType: SystemRelationshipType? = null,
 ) : AuditableSoftDeletableEntity() {
 
-    fun toModel(targetRules: List<RelationshipTargetRule> = emptyList()): RelationshipDefinition {
+    fun toModel(
+        targetRules: List<RelationshipTargetRule> = emptyList(),
+        excludedEntityTypeIds: List<UUID> = emptyList(),
+    ): RelationshipDefinition {
         val id = requireNotNull(this.id) { "RelationshipDefinitionEntity ID cannot be null" }
         return RelationshipDefinition(
             id = id,
@@ -69,6 +72,7 @@ data class RelationshipDefinitionEntity(
             protected = this.protected,
             systemType = this.systemType,
             targetRules = targetRules,
+            excludedEntityTypeIds = excludedEntityTypeIds,
             createdAt = this.createdAt,
             updatedAt = this.updatedAt,
             createdBy = this.createdBy,

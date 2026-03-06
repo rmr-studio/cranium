@@ -4,6 +4,7 @@ import riven.core.entity.entity.EntityEntity
 import riven.core.entity.entity.EntityRelationshipEntity
 import riven.core.entity.entity.EntityTypeEntity
 import riven.core.entity.entity.RelationshipDefinitionEntity
+import riven.core.entity.entity.RelationshipDefinitionExclusionEntity
 import riven.core.entity.entity.RelationshipTargetRuleEntity
 import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
@@ -127,8 +128,7 @@ object EntityFactory {
         targetEntityTypeId: UUID? = UUID.randomUUID(),
         semanticTypeConstraint: SemanticGroup? = null,
         cardinalityOverride: EntityRelationshipCardinality? = null,
-        inverseVisible: Boolean = false,
-        inverseName: String? = null,
+        inverseName: String = "Inverse",
     ): RelationshipTargetRuleEntity {
         return RelationshipTargetRuleEntity(
             id = id,
@@ -136,8 +136,22 @@ object EntityFactory {
             targetEntityTypeId = targetEntityTypeId,
             semanticTypeConstraint = semanticTypeConstraint,
             cardinalityOverride = cardinalityOverride,
-            inverseVisible = inverseVisible,
             inverseName = inverseName,
+        )
+    }
+
+    /**
+     * Creates a RelationshipDefinitionExclusionEntity for testing.
+     */
+    fun createExclusionEntity(
+        id: UUID = UUID.randomUUID(),
+        relationshipDefinitionId: UUID = UUID.randomUUID(),
+        entityTypeId: UUID = UUID.randomUUID(),
+    ): RelationshipDefinitionExclusionEntity {
+        return RelationshipDefinitionExclusionEntity(
+            id = id,
+            relationshipDefinitionId = relationshipDefinitionId,
+            entityTypeId = entityTypeId,
         )
     }
 

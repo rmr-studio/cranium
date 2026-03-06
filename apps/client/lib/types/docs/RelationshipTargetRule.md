@@ -11,7 +11,6 @@ Name | Type
 `targetEntityTypeId` | string
 `semanticTypeConstraint` | [SemanticGroup](SemanticGroup.md)
 `cardinalityOverride` | [EntityRelationshipCardinality](EntityRelationshipCardinality.md)
-`inverseVisible` | boolean
 `inverseName` | string
 `createdAt` | Date
 `updatedAt` | Date
@@ -28,7 +27,6 @@ const example = {
   "targetEntityTypeId": null,
   "semanticTypeConstraint": null,
   "cardinalityOverride": null,
-  "inverseVisible": null,
   "inverseName": null,
   "createdAt": null,
   "updatedAt": null,

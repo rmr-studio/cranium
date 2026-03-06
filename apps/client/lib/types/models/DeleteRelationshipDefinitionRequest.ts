@@ -45,6 +45,12 @@ export interface DeleteRelationshipDefinitionRequest {
      * @memberof DeleteRelationshipDefinitionRequest
      */
     type: EntityTypeRequestDefinition;
+    /**
+     * 
+     * @type {string}
+     * @memberof DeleteRelationshipDefinitionRequest
+     */
+    sourceEntityTypeKey?: string;
 }
 
 
@@ -72,6 +78,7 @@ export function DeleteRelationshipDefinitionRequestFromJSONTyped(json: any, igno
         'key': json['key'],
         'id': json['id'],
         'type': EntityTypeRequestDefinitionFromJSON(json['type']),
+        'sourceEntityTypeKey': json['sourceEntityTypeKey'] == null ? undefined : json['sourceEntityTypeKey'],
     };
 }
 
@@ -89,6 +96,7 @@ export function DeleteRelationshipDefinitionRequestToJSONTyped(value?: DeleteRel
         'key': value['key'],
         'id': value['id'],
         'type': EntityTypeRequestDefinitionToJSON(value['type']),
+        'sourceEntityTypeKey': value['sourceEntityTypeKey'],
     };
 }
 

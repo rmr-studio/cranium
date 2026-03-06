@@ -60,16 +60,10 @@ export interface SaveTargetRuleRequest {
     cardinalityOverride?: EntityRelationshipCardinality;
     /**
      * 
-     * @type {boolean}
-     * @memberof SaveTargetRuleRequest
-     */
-    inverseVisible: boolean;
-    /**
-     * 
      * @type {string}
      * @memberof SaveTargetRuleRequest
      */
-    inverseName?: string;
+    inverseName: string;
 }
 
 
@@ -78,7 +72,7 @@ export interface SaveTargetRuleRequest {
  * Check if a given object implements the SaveTargetRuleRequest interface.
  */
 export function instanceOfSaveTargetRuleRequest(value: object): value is SaveTargetRuleRequest {
-    if (!('inverseVisible' in value) || value['inverseVisible'] === undefined) return false;
+    if (!('inverseName' in value) || value['inverseName'] === undefined) return false;
     return true;
 }
 
@@ -96,8 +90,7 @@ export function SaveTargetRuleRequestFromJSONTyped(json: any, ignoreDiscriminato
         'targetEntityTypeId': json['targetEntityTypeId'] == null ? undefined : json['targetEntityTypeId'],
         'semanticTypeConstraint': json['semanticTypeConstraint'] == null ? undefined : SemanticGroupFromJSON(json['semanticTypeConstraint']),
         'cardinalityOverride': json['cardinalityOverride'] == null ? undefined : EntityRelationshipCardinalityFromJSON(json['cardinalityOverride']),
-        'inverseVisible': json['inverseVisible'],
-        'inverseName': json['inverseName'] == null ? undefined : json['inverseName'],
+        'inverseName': json['inverseName'],
     };
 }
 
@@ -116,7 +109,6 @@ export function SaveTargetRuleRequestToJSONTyped(value?: SaveTargetRuleRequest |
         'targetEntityTypeId': value['targetEntityTypeId'],
         'semanticTypeConstraint': SemanticGroupToJSON(value['semanticTypeConstraint']),
         'cardinalityOverride': EntityRelationshipCardinalityToJSON(value['cardinalityOverride']),
-        'inverseVisible': value['inverseVisible'],
         'inverseName': value['inverseName'],
     };
 }

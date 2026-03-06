@@ -16,6 +16,7 @@ Name | Type
 `_protected` | boolean
 `systemType` | [SystemRelationshipType](SystemRelationshipType.md)
 `targetRules` | [Array&lt;RelationshipTargetRule&gt;](RelationshipTargetRule.md)
+`excludedEntityTypeIds` | Array&lt;string&gt;
 `createdAt` | Date
 `updatedAt` | Date
 `createdBy` | string
@@ -38,6 +39,7 @@ const example = {
   "_protected": null,
   "systemType": null,
   "targetRules": null,
+  "excludedEntityTypeIds": null,
   "createdAt": null,
   "updatedAt": null,
   "createdBy": null,

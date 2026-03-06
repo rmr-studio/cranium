@@ -10,6 +10,7 @@ Name | Type
 `key` | string
 `id` | string
 `type` | [EntityTypeRequestDefinition](EntityTypeRequestDefinition.md)
+`sourceEntityTypeKey` | string
 
 ## Example
 
@@ -21,6 +22,7 @@ const example = {
   "key": null,
   "id": null,
   "type": null,
+  "sourceEntityTypeKey": null,
 } satisfies DeleteRelationshipDefinitionRequest
 
 console.log(example)

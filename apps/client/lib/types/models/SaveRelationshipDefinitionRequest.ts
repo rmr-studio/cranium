@@ -73,7 +73,7 @@ export interface SaveRelationshipDefinitionRequest {
      * @type {string}
      * @memberof SaveRelationshipDefinitionRequest
      */
-    id: string;
+    id?: string;
     /**
      * 
      * @type {EntityTypeRequestDefinition}
@@ -131,7 +131,6 @@ export interface SaveRelationshipDefinitionRequest {
  */
 export function instanceOfSaveRelationshipDefinitionRequest(value: object): value is SaveRelationshipDefinitionRequest {
     if (!('key' in value) || value['key'] === undefined) return false;
-    if (!('id' in value) || value['id'] === undefined) return false;
     if (!('type' in value) || value['type'] === undefined) return false;
     if (!('name' in value) || value['name'] === undefined) return false;
     if (!('allowPolymorphic' in value) || value['allowPolymorphic'] === undefined) return false;
@@ -151,7 +150,7 @@ export function SaveRelationshipDefinitionRequestFromJSONTyped(json: any, ignore
     return {
         
         'key': json['key'],
-        'id': json['id'],
+        'id': json['id'] == null ? undefined : json['id'],
         'type': EntityTypeRequestDefinitionFromJSON(json['type']),
         'name': json['name'],
         'iconType': json['iconType'] == null ? undefined : IconTypeFromJSON(json['iconType']),

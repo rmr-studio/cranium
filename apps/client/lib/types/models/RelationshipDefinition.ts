@@ -110,6 +110,12 @@ export interface RelationshipDefinition {
     targetRules: Array<RelationshipTargetRule>;
     /**
      * 
+     * @type {Array<string>}
+     * @memberof RelationshipDefinition
+     */
+    excludedEntityTypeIds: Array<string>;
+    /**
+     * 
      * @type {Date}
      * @memberof RelationshipDefinition
      */
@@ -149,6 +155,7 @@ export function instanceOfRelationshipDefinition(value: object): value is Relati
     if (!('cardinalityDefault' in value) || value['cardinalityDefault'] === undefined) return false;
     if (!('_protected' in value) || value['_protected'] === undefined) return false;
     if (!('targetRules' in value) || value['targetRules'] === undefined) return false;
+    if (!('excludedEntityTypeIds' in value) || value['excludedEntityTypeIds'] === undefined) return false;
     return true;
 }
 
@@ -172,6 +179,7 @@ export function RelationshipDefinitionFromJSONTyped(json: any, ignoreDiscriminat
         '_protected': json['protected'],
         'systemType': json['systemType'] == null ? undefined : SystemRelationshipTypeFromJSON(json['systemType']),
         'targetRules': ((json['targetRules'] as Array<any>).map(RelationshipTargetRuleFromJSON)),
+        'excludedEntityTypeIds': json['excludedEntityTypeIds'],
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
         'updatedAt': json['updatedAt'] == null ? undefined : (new Date(json['updatedAt'])),
         'createdBy': json['createdBy'] == null ? undefined : json['createdBy'],
@@ -200,6 +208,7 @@ export function RelationshipDefinitionToJSONTyped(value?: RelationshipDefinition
         'protected': value['_protected'],
         'systemType': SystemRelationshipTypeToJSON(value['systemType']),
         'targetRules': ((value['targetRules'] as Array<any>).map(RelationshipTargetRuleToJSON)),
+        'excludedEntityTypeIds': value['excludedEntityTypeIds'],
         'createdAt': value['createdAt'] == null ? value['createdAt'] : value['createdAt'].toISOString(),
         'updatedAt': value['updatedAt'] == null ? value['updatedAt'] : value['updatedAt'].toISOString(),
         'createdBy': value['createdBy'],

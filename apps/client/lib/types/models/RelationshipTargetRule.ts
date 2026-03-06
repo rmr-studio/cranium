@@ -66,16 +66,10 @@ export interface RelationshipTargetRule {
     cardinalityOverride?: EntityRelationshipCardinality;
     /**
      * 
-     * @type {boolean}
-     * @memberof RelationshipTargetRule
-     */
-    inverseVisible: boolean;
-    /**
-     * 
      * @type {string}
      * @memberof RelationshipTargetRule
      */
-    inverseName?: string;
+    inverseName: string;
     /**
      * 
      * @type {Date}
@@ -98,7 +92,7 @@ export interface RelationshipTargetRule {
 export function instanceOfRelationshipTargetRule(value: object): value is RelationshipTargetRule {
     if (!('id' in value) || value['id'] === undefined) return false;
     if (!('relationshipDefinitionId' in value) || value['relationshipDefinitionId'] === undefined) return false;
-    if (!('inverseVisible' in value) || value['inverseVisible'] === undefined) return false;
+    if (!('inverseName' in value) || value['inverseName'] === undefined) return false;
     return true;
 }
 
@@ -117,8 +111,7 @@ export function RelationshipTargetRuleFromJSONTyped(json: any, ignoreDiscriminat
         'targetEntityTypeId': json['targetEntityTypeId'] == null ? undefined : json['targetEntityTypeId'],
         'semanticTypeConstraint': json['semanticTypeConstraint'] == null ? undefined : SemanticGroupFromJSON(json['semanticTypeConstraint']),
         'cardinalityOverride': json['cardinalityOverride'] == null ? undefined : EntityRelationshipCardinalityFromJSON(json['cardinalityOverride']),
-        'inverseVisible': json['inverseVisible'],
-        'inverseName': json['inverseName'] == null ? undefined : json['inverseName'],
+        'inverseName': json['inverseName'],
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
         'updatedAt': json['updatedAt'] == null ? undefined : (new Date(json['updatedAt'])),
     };
@@ -140,7 +133,6 @@ export function RelationshipTargetRuleToJSONTyped(value?: RelationshipTargetRule
         'targetEntityTypeId': value['targetEntityTypeId'],
         'semanticTypeConstraint': SemanticGroupToJSON(value['semanticTypeConstraint']),
         'cardinalityOverride': EntityRelationshipCardinalityToJSON(value['cardinalityOverride']),
-        'inverseVisible': value['inverseVisible'],
         'inverseName': value['inverseName'],
         'createdAt': value['createdAt'] == null ? value['createdAt'] : value['createdAt'].toISOString(),
         'updatedAt': value['updatedAt'] == null ? value['updatedAt'] : value['updatedAt'].toISOString(),

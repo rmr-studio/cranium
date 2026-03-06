@@ -46,7 +46,7 @@ export const UnauthenticatedNavbarProfile: FC<Propless> = () => {
 
 export const NavbarWrapper: FCWC<Propless> = ({ children }) => {
   return (
-    <div className="sticky top-0 flex h-[4rem] w-auto flex-grow items-center border-b bg-background/40 px-4 backdrop-blur-[4px]">
+    <div className="sticky top-0 flex h-[--header-height] w-auto flex-grow items-center border-b bg-background/40 px-4 backdrop-blur-[4px]">
       {children}
       <div className="flex items-center">
         <ThemeToggle />

@@ -48,9 +48,11 @@ const CATEGORY_LABELS: Record<SemanticGroup, string> = {
 interface Props extends ChildNodeProps {
   entityTypes?: EntityType[];
   workspaceId: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export const NewEntityTypeForm: FC<Props> = ({ workspaceId, children }) => {
+export const NewEntityTypeForm: FC<Props> = ({ workspaceId, children, open, onOpenChange }) => {
   const { form, handleSubmit } = useNewEntityTypeForm(workspaceId);
 
   const semanticGroup = form.watch('semanticGroup');
@@ -58,10 +60,11 @@ export const NewEntityTypeForm: FC<Props> = ({ workspaceId, children }) => {
   const onSubmit = async (values: NewEntityTypeFormValues) => {
     await handleSubmit(values);
     form.reset();
+    onOpenChange?.(false);
   };
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent className="my-2 w-full lg:min-w-xl" align="end">
         <h1>Create a new Entity type</h1>

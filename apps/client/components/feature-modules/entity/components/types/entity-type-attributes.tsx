@@ -1,5 +1,6 @@
-import { Button } from '@riven/ui/button';
+import { useWorkspace } from '@/components/feature-modules/workspace/hooks/query/use-workspace';
 import { type EntityType, type EntityTypeDefinition } from '@/lib/types/entity';
+import { Button } from '@riven/ui/button';
 import { Plus } from 'lucide-react';
 import { FC, useEffect, useState } from 'react';
 import { useConfigForm } from '../../context/configuration-provider';
@@ -22,6 +23,7 @@ export const EntityTypesAttributes: FC<Props> = ({ type }) => {
   const [deletingAttribute, setDeletingAttribute] = useState<EntityTypeDefinition | undefined>(
     undefined,
   );
+  const { data: workspace } = useWorkspace();
   const form = useConfigForm();
 
   useEffect(() => {
@@ -48,6 +50,8 @@ export const EntityTypesAttributes: FC<Props> = ({ type }) => {
     setEditingAttribute(attribute);
     setDialogOpen(true);
   };
+
+  if (!workspace) return null;
 
   return (
     <>
@@ -83,6 +87,7 @@ export const EntityTypesAttributes: FC<Props> = ({ type }) => {
       />
       {deletingAttribute && (
         <DeleteDefinitionModal
+          workspaceId={workspace.id}
           dialog={{ open: deleteDialogOpen, setOpen: setDeleteDialogOpen }}
           type={type}
           definition={deletingAttribute}

@@ -6,8 +6,8 @@ import { IconCell } from '@/components/ui/icon/icon-cell';
 import { EntityType, EntityTypeImpactResponse } from '@/lib/types/entity';
 import { ColumnDef } from '@tanstack/react-table';
 import { Edit, Plus, Trash2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { FC, useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { useDeleteTypeMutation } from '../../hooks/mutation/type/use-delete-type-mutation';
 import { useEntityTypes } from '../../hooks/query/type/use-entity-types';
 import { NewEntityTypeForm } from '../forms/type/new-entity-type-form';
@@ -18,7 +18,17 @@ interface Props {
 
 export const EntityTypesOverview: FC<Props> = ({ workspaceId }) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [newTypeOpen, setNewTypeOpen] = useState(false);
   const [impactModalOpen, setImpactModalOpen] = useState<boolean>(false);
+
+  // Auto-open the new entity type form if ?new query param is present
+  useEffect(() => {
+    if (searchParams.get('new') !== null) {
+      setNewTypeOpen(true);
+      router.replace(`/dashboard/workspace/${workspaceId}/entity`);
+    }
+  }, [searchParams, workspaceId, router]);
 
   const { data: types, isPending } = useEntityTypes(workspaceId);
 
@@ -99,7 +109,12 @@ export const EntityTypesOverview: FC<Props> = ({ workspaceId }) => {
             Modify and add entity types in your workspace
           </p>
         </div>
-        <NewEntityTypeForm workspaceId={workspaceId} entityTypes={types}>
+        <NewEntityTypeForm
+          workspaceId={workspaceId}
+          entityTypes={types}
+          open={newTypeOpen}
+          onOpenChange={setNewTypeOpen}
+        >
           <Button>
             <Plus className="mr-2 h-4 w-4" />
             New Entity Type

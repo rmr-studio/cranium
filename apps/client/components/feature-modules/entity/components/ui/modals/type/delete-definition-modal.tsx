@@ -1,3 +1,5 @@
+import { DialogControl } from '@/lib/interfaces/interface';
+import { EntityTypeRequestDefinition } from '@/lib/types/entity';
 import { Button } from '@riven/ui/button';
 import {
   Dialog,
@@ -7,12 +9,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@riven/ui/dialog';
-import { DialogControl } from '@/lib/interfaces/interface';
-import { EntityTypeRequestDefinition } from '@/lib/types/entity';
 import { AlertCircle, Loader2 } from 'lucide-react';
-import { FC, useState } from 'react';
+import { FC, useMemo, useState } from 'react';
 
-import { useWorkspace } from '@/components/feature-modules/workspace/hooks/query/use-workspace';
 import {
   DeleteAttributeDefinitionRequest,
   DeleteRelationshipDefinitionRequest,
@@ -26,20 +25,39 @@ import { useDeleteDefinitionMutation } from '../../../../hooks/mutation/type/use
 interface Props {
   dialog: DialogControl;
   type: EntityType;
+  workspaceId: string;
   definition: EntityTypeDefinition;
 }
 
-export const DeleteDefinitionModal: FC<Props> = ({ dialog, type: entityType, definition }) => {
+interface DefinitionType {
+  isRelationship: boolean;
+  isOrigin: boolean;
+}
+
+export const DeleteDefinitionModal: FC<Props> = ({
+  dialog,
+  type: entityType,
+  definition,
+  workspaceId,
+}) => {
   const { open, setOpen: onOpenChange } = dialog;
-  const { data: workspace } = useWorkspace();
+
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const isRelationship = isRelationshipDefinition(definition.definition);
-  const isOrigin = isRelationship
-    ? definition.definition.sourceEntityTypeId === entityType.id
-    : false;
+  const type: DefinitionType = useMemo(() => {
+    if (isRelationshipDefinition(definition.definition)) {
+      return {
+        isRelationship: true,
+        isOrigin: definition.definition.sourceEntityTypeId === entityType.id,
+      };
+    }
+    return {
+      isRelationship: false,
+      isOrigin: false,
+    };
+  }, [definition.definition, entityType.id]);
 
-  const { mutateAsync: deleteDefinition } = useDeleteDefinitionMutation(workspace?.id || '', {
+  const { mutateAsync: deleteDefinition } = useDeleteDefinitionMutation(workspaceId, () => {}, {
     onSuccess: () => {
       setIsDeleting(false);
       onOpenChange(false);
@@ -55,29 +73,29 @@ export const DeleteDefinitionModal: FC<Props> = ({ dialog, type: entityType, def
       ? definition.definition.schema.label || definition.id
       : definition.id;
 
-  const dialogTitle = isRelationship
-    ? isOrigin
+  const dialogTitle = type.isRelationship
+    ? type.isOrigin
       ? 'Delete Relationship'
       : 'Remove from Relationship'
     : 'Delete Attribute';
 
-  const dialogDescription = isRelationship
-    ? isOrigin
+  const dialogDescription = type.isRelationship
+    ? type.isOrigin
       ? `Are you sure you want to delete the "${definitionLabel}" relationship? This will remove it from this entity type and all target entity types. All associated relationship data will be deleted.`
       : `Are you sure you want to remove ${entityType.name.plural} from the "${definitionLabel}" relationship? This entity type will no longer be a target of this relationship.`
     : `Are you sure you want to delete "${definitionLabel}"? This action cannot be undone.`;
 
   const handleDelete = async () => {
-    if (!definition || !workspace) return;
+    if (!definition) return;
     setIsDeleting(true);
 
     try {
-      if (isRelationshipDefinition(definition.definition)) {
+      if (type.isRelationship) {
         const request: DeleteRelationshipDefinitionRequest = {
           id: definition.id,
           key: entityType.key,
           type: EntityTypeRequestDefinition.DeleteRelationship,
-          sourceEntityTypeKey: isOrigin ? undefined : entityType.key,
+          sourceEntityTypeKey: type.isOrigin ? undefined : entityType.key,
         };
         await deleteDefinition({ definition: request });
       } else {
@@ -93,7 +111,7 @@ export const DeleteDefinitionModal: FC<Props> = ({ dialog, type: entityType, def
     }
   };
 
-  if (!workspace || !definition) return null;
+  if (!definition) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -104,7 +122,7 @@ export const DeleteDefinitionModal: FC<Props> = ({ dialog, type: entityType, def
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          {isRelationship && isOrigin && (
+          {type.isRelationship && type.isOrigin && (
             <div className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 dark:border-amber-900 dark:bg-amber-950/20">
               <AlertCircle className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-500" />
               <div className="text-sm text-amber-900 dark:text-amber-200">
@@ -117,7 +135,7 @@ export const DeleteDefinitionModal: FC<Props> = ({ dialog, type: entityType, def
             </div>
           )}
 
-          {isRelationship && !isOrigin && (
+          {type.isRelationship && !type.isOrigin && (
             <div className="flex items-start gap-2 rounded-md border border-muted-foreground/20 bg-muted/50 p-3">
               <AlertCircle className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
               <div className="text-sm text-muted-foreground">
@@ -131,7 +149,7 @@ export const DeleteDefinitionModal: FC<Props> = ({ dialog, type: entityType, def
             </div>
           )}
 
-          {!isRelationship && (
+          {!type.isRelationship && (
             <div className="flex items-start gap-2 rounded-md border border-red-200 bg-red-50 p-3 dark:border-red-900 dark:bg-red-950/20">
               <AlertCircle className="mt-0.5 size-4 shrink-0 text-red-600 dark:text-red-500" />
               <div className="text-sm text-red-900 dark:text-red-200">

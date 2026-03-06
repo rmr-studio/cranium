@@ -5,7 +5,12 @@ import {
   EntityTypeImpactResponse,
   type DeleteDefinitionImpact,
 } from '@/lib/types/entity';
-import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
+import {
+  MutationFunctionContext,
+  useMutation,
+  UseMutationOptions,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { EntityTypeService } from '../../../service/entity-type.service';
 
@@ -19,19 +24,25 @@ export function useDeleteDefinitionMutation(
   return useMutation({
     mutationFn: (definition: DeleteTypeDefinitionRequest) =>
       EntityTypeService.removeEntityTypeDefinition(session, workspaceId, definition),
-    onMutate: (data) => {
-      options?.onMutate?.(data);
+    onMutate: (data: DeleteTypeDefinitionRequest, context: MutationFunctionContext) => {
+      options?.onMutate?.(data, context);
     },
-    onError: (error: Error, variables: DeleteTypeDefinitionRequest, context: unknown) => {
-      options?.onError?.(error, variables, context);
+    onError: (
+      error: Error,
+      variables: DeleteTypeDefinitionRequest,
+      onMutateResult: unknown,
+      context: MutationFunctionContext,
+    ) => {
+      options?.onError?.(error, variables, onMutateResult, context);
       toast.error(`Failed to delete entity type definition: ${error.message}`);
     },
     onSuccess: (
       response: EntityTypeImpactResponse,
       variables: DeleteTypeDefinitionRequest,
-      context: unknown,
+      onMutateResult: unknown,
+      context: MutationFunctionContext,
     ) => {
-      options?.onSuccess?.(response, variables, context);
+      options?.onSuccess?.(response, variables, onMutateResult, context);
 
       // Check for impact confirmation (409 response)
       if (response.impact) {

@@ -128,6 +128,13 @@ export const DashboardSidebar = () => {
                 skeleton: true,
               }))
             : [
+                {
+                  icon: <PlusCircle {...DEFAULT_ICON_CLASS_PROPS} />,
+                  hidden: false,
+                  title: 'Add New Entity',
+                  url: `/dashboard/workspace/${selectedWorkspace.id}/entity?new`,
+                  isActive: false,
+                },
                 ...(entityTypes?.slice(0, 5).map((entityType) => ({
                   icon: (
                     <IconCell

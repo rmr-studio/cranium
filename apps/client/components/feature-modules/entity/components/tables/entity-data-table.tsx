@@ -12,7 +12,7 @@ import {
   EntityAttributeRequest,
   EntityLink,
   EntityPropertyType,
-  EntityRelationshipDefinition,
+  RelationshipDefinition,
   EntityType,
   isRelationshipPayload,
   SaveEntityRequest,
@@ -178,7 +178,7 @@ export const EntityDataTable: FC<Props> = ({
 
       // Determine if updated column is an attribute or relationship
       const attributeDef: SchemaUUID | undefined = entityType.schema.properties?.[columnId];
-      const relationshipDef: EntityRelationshipDefinition | undefined =
+      const relationshipDef: RelationshipDefinition | undefined =
         entityType.relationships?.find((rel) => rel.id === columnId);
 
       // Prepare updated entity payload

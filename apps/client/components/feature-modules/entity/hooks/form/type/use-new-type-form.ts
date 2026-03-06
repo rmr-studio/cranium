@@ -1,12 +1,12 @@
-import { IconColour, IconType } from "@/lib/types/common";
-import { CreateEntityTypeRequest, EntityType, SemanticGroup } from "@/lib/types/entity";
-import { iconFormSchema } from "@/lib/util/form/common/icon.form";
-import { toKeyCase } from "@/lib/util/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-import { useForm, UseFormReturn } from "react-hook-form";
-import { z } from "zod";
-import { usePublishEntityTypeMutation } from "../../mutation/type/use-publish-type-mutation";
+import { IconColour, IconType } from '@/lib/types/common';
+import { CreateEntityTypeRequest, EntityType, SemanticGroup } from '@/lib/types/entity';
+import { iconFormSchema } from '@/lib/util/form/common/icon.form';
+import { toKeyCase } from '@/lib/util/utils';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
+import { useForm, UseFormReturn } from 'react-hook-form';
+import { z } from 'zod';
+import { usePublishEntityTypeMutation } from '../../mutation/type/use-publish-type-mutation';
 
 export const baseEntityTypeFormSchema = z
   .object({
@@ -14,7 +14,7 @@ export const baseEntityTypeFormSchema = z
     pluralName: z.string().min(1, 'Plural variant of the name is required'),
     description: z.string().optional(),
     semanticGroup: z.nativeEnum(SemanticGroup),
-    tags: z.array(z.string()).default([]),
+    tags: z.array(z.string()),
   })
   .extend(iconFormSchema.shape);
 

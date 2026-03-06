@@ -1,8 +1,8 @@
 'use client';
 
+import { EntityPropertyType, EntityType } from '@/lib/types/entity';
 import { Button } from '@riven/ui/button';
 import { TableCell, TableRow } from '@riven/ui/table';
-import { EntityPropertyType, EntityType } from '@/lib/types/entity';
 import { cn } from '@riven/utils';
 import { Row } from '@tanstack/react-table';
 import { Check, X } from 'lucide-react';
@@ -99,7 +99,7 @@ export const EntityDraftRow: FC<EntityDraftRowProps> = ({ entityType, row }) => 
       return <EntityFieldCell attributeId={id} schema={schema} autoFocus={isFirstCell} />;
     }
 
-    const relationship = entityType.relationships?.find((r) => r.id === id);
+    const relationship = type.relationships?.find((r) => r.id === id);
     if (property === EntityPropertyType.Relationship && relationship) {
       return <DraftEntityRelationshipPicker relationship={relationship} />;
     }
@@ -107,7 +107,7 @@ export const EntityDraftRow: FC<EntityDraftRowProps> = ({ entityType, row }) => 
     return null;
   };
 
-// Build ordered cells based on entityType.columns
+  // Build ordered cells based on entityType.columns
   const orderedCells = useMemo(() => {
     const columnCount = entityType.columns ? entityType.columns.length : 0;
     if (columnCount === 0) return [];

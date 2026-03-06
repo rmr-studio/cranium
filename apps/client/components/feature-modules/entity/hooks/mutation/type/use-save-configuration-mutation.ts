@@ -1,6 +1,6 @@
 import { useAuth } from '@/components/provider/auth-context';
 import { EntityType, UpdateEntityTypeConfigurationRequest } from '@/lib/types/entity';
-import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
+import { MutationFunctionContext, useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { toast } from 'sonner';
 import { EntityTypeService } from '../../../service/entity-type.service';
@@ -16,18 +16,18 @@ export function useSaveEntityTypeConfiguration(
   return useMutation({
     mutationFn: (request: UpdateEntityTypeConfigurationRequest) =>
       EntityTypeService.saveEntityTypeConfiguration(session, workspaceId, request),
-    onMutate: (data) => {
-      options?.onMutate?.(data);
+    onMutate: (data: UpdateEntityTypeConfigurationRequest, context: MutationFunctionContext) => {
+      options?.onMutate?.(data, context);
       submissionToastRef.current = toast.loading('Updating entity type...');
     },
-    onError: (error: Error, variables: UpdateEntityTypeConfigurationRequest, context: unknown) => {
-      options?.onError?.(error, variables, context);
+    onError: (error: Error, variables: UpdateEntityTypeConfigurationRequest, onMutateResult: unknown, context: MutationFunctionContext) => {
+      options?.onError?.(error, variables, onMutateResult, context);
       toast.dismiss(submissionToastRef.current);
       submissionToastRef.current = undefined;
       toast.error(`Failed to update entity type: ${error.message}`);
     },
-    onSuccess: (response: EntityType, variables: UpdateEntityTypeConfigurationRequest, context: unknown) => {
-      options?.onSuccess?.(response, variables, context);
+    onSuccess: (response: EntityType, variables: UpdateEntityTypeConfigurationRequest, onMutateResult: unknown, context: MutationFunctionContext) => {
+      options?.onSuccess?.(response, variables, onMutateResult, context);
       toast.dismiss(submissionToastRef.current);
       toast.success(`Entity type updated successfully!`);
 

@@ -23,7 +23,7 @@ export class EntityTypeService {
     const api = createEntityApi(session!);
 
     try {
-      return await api.getEntityTypesForWorkspace({ workspaceId, include });
+      return await api.getEntityTypesForWorkspace({ workspaceId });
     } catch (error) {
       throw await normalizeApiError(error);
     }
@@ -40,7 +40,7 @@ export class EntityTypeService {
     const api = createEntityApi(session!);
 
     try {
-      return await api.getEntityTypeByKeyForWorkspace({ workspaceId, key, include });
+      return await api.getEntityTypeByKeyForWorkspace({ workspaceId, key });
     } catch (error) {
       throw await normalizeApiError(error);
     }
@@ -72,7 +72,10 @@ export class EntityTypeService {
     const api = createEntityApi(session!);
 
     try {
-      return await api.updateEntityType({ workspaceId, updateEntityTypeConfigurationRequest: request });
+      return await api.updateEntityType({
+        workspaceId,
+        updateEntityTypeConfigurationRequest: request,
+      });
     } catch (error) {
       throw await normalizeApiError(error);
     }

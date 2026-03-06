@@ -4,7 +4,7 @@ import {
   type DeleteDefinitionImpact,
   type EntityTypeImpactResponse,
 } from '@/lib/types/entity';
-import { useMutation, useQueryClient, type UseMutationOptions } from '@tanstack/react-query';
+import { MutationFunctionContext, useMutation, useQueryClient, type UseMutationOptions } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { toast } from 'sonner';
 import { EntityTypeService } from '../../../service/entity-type.service';
@@ -21,12 +21,12 @@ export function useSaveDefinitionMutation(
   return useMutation({
     mutationFn: (definition: SaveTypeDefinitionRequest) =>
       EntityTypeService.saveEntityTypeDefinition(session, workspaceId, definition),
-    onMutate: (data) => {
-      options?.onMutate?.(data);
+    onMutate: (data: SaveTypeDefinitionRequest, context: MutationFunctionContext) => {
+      options?.onMutate?.(data, context);
       submissionToastRef.current = toast.loading('Saving entity type definition...');
     },
-    onError: (error: Error, variables: SaveTypeDefinitionRequest, context: unknown) => {
-      options?.onError?.(error, variables, context);
+    onError: (error: Error, variables: SaveTypeDefinitionRequest, onMutateResult: unknown, context: MutationFunctionContext) => {
+      options?.onError?.(error, variables, onMutateResult, context);
       toast.dismiss(submissionToastRef.current);
       submissionToastRef.current = undefined;
       toast.error(`Failed to save entity type definition: ${error.message}`);
@@ -34,9 +34,10 @@ export function useSaveDefinitionMutation(
     onSuccess: (
       response: EntityTypeImpactResponse,
       variables: SaveTypeDefinitionRequest,
-      context: unknown,
+      onMutateResult: unknown,
+      context: MutationFunctionContext,
     ) => {
-      options?.onSuccess?.(response, variables, context);
+      options?.onSuccess?.(response, variables, onMutateResult, context);
       toast.dismiss(submissionToastRef.current);
       submissionToastRef.current = undefined;
 

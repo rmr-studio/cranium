@@ -20,6 +20,13 @@ import {
     EntityAttributeToJSON,
     EntityAttributeToJSONTyped,
 } from './EntityAttribute';
+import type { SourceType } from './SourceType';
+import {
+    SourceTypeFromJSON,
+    SourceTypeFromJSONTyped,
+    SourceTypeToJSON,
+    SourceTypeToJSONTyped,
+} from './SourceType';
 import type { Icon } from './Icon';
 import {
     IconFromJSON,
@@ -102,11 +109,55 @@ export interface Entity {
     updatedBy?: string;
     /**
      * 
+     * @type {SourceType}
+     * @memberof Entity
+     */
+    sourceType: SourceType;
+    /**
+     * 
+     * @type {string}
+     * @memberof Entity
+     */
+    sourceIntegrationId?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Entity
+     */
+    sourceExternalId?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Entity
+     */
+    sourceUrl?: string;
+    /**
+     * 
+     * @type {Date}
+     * @memberof Entity
+     */
+    firstSyncedAt?: Date;
+    /**
+     * 
+     * @type {Date}
+     * @memberof Entity
+     */
+    lastSyncedAt?: Date;
+    /**
+     * 
+     * @type {number}
+     * @memberof Entity
+     */
+    syncVersion: number;
+    /**
+     * 
      * @type {string}
      * @memberof Entity
      */
     identifier: string;
 }
+
+
 
 /**
  * Check if a given object implements the Entity interface.
@@ -118,6 +169,8 @@ export function instanceOfEntity(value: object): value is Entity {
     if (!('payload' in value) || value['payload'] === undefined) return false;
     if (!('icon' in value) || value['icon'] === undefined) return false;
     if (!('identifierKey' in value) || value['identifierKey'] === undefined) return false;
+    if (!('sourceType' in value) || value['sourceType'] === undefined) return false;
+    if (!('syncVersion' in value) || value['syncVersion'] === undefined) return false;
     if (!('identifier' in value) || value['identifier'] === undefined) return false;
     return true;
 }
@@ -143,6 +196,13 @@ export function EntityFromJSONTyped(json: any, ignoreDiscriminator: boolean): En
         'updatedAt': json['updatedAt'] == null ? undefined : (new Date(json['updatedAt'])),
         'createdBy': json['createdBy'] == null ? undefined : json['createdBy'],
         'updatedBy': json['updatedBy'] == null ? undefined : json['updatedBy'],
+        'sourceType': SourceTypeFromJSON(json['sourceType']),
+        'sourceIntegrationId': json['sourceIntegrationId'] == null ? undefined : json['sourceIntegrationId'],
+        'sourceExternalId': json['sourceExternalId'] == null ? undefined : json['sourceExternalId'],
+        'sourceUrl': json['sourceUrl'] == null ? undefined : json['sourceUrl'],
+        'firstSyncedAt': json['firstSyncedAt'] == null ? undefined : (new Date(json['firstSyncedAt'])),
+        'lastSyncedAt': json['lastSyncedAt'] == null ? undefined : (new Date(json['lastSyncedAt'])),
+        'syncVersion': json['syncVersion'],
         'identifier': json['identifier'],
     };
 }
@@ -169,6 +229,13 @@ export function EntityToJSONTyped(value?: Entity | null, ignoreDiscriminator: bo
         'updatedAt': value['updatedAt'] == null ? value['updatedAt'] : value['updatedAt'].toISOString(),
         'createdBy': value['createdBy'],
         'updatedBy': value['updatedBy'],
+        'sourceType': SourceTypeToJSON(value['sourceType']),
+        'sourceIntegrationId': value['sourceIntegrationId'],
+        'sourceExternalId': value['sourceExternalId'],
+        'sourceUrl': value['sourceUrl'],
+        'firstSyncedAt': value['firstSyncedAt'] == null ? value['firstSyncedAt'] : value['firstSyncedAt'].toISOString(),
+        'lastSyncedAt': value['lastSyncedAt'] == null ? value['lastSyncedAt'] : value['lastSyncedAt'].toISOString(),
+        'syncVersion': value['syncVersion'],
         'identifier': value['identifier'],
     };
 }

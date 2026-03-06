@@ -4,8 +4,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@riven/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@riven/ui/tabs';
 import { Form } from '@/components/ui/form';
-import { type EntityType } from '@/lib/types/entity';
 import { DataType } from '@/lib/types/common';
+import { type EntityType } from '@/lib/types/entity';
 import { AlertCircle } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { FC, useEffect, useMemo, useState } from 'react';
@@ -93,13 +93,13 @@ export const EntityTypeOverview: FC<EntityTypeOverviewProps> = ({ entityType }) 
       <Form {...form}>
         <div className="space-y-6">
           {/* Header */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-start justify-between gap-4">
             <EntityTypeHeader>
-              <span className="text-sm text-muted-foreground">
-                Manage object attributes and other relevant settings
-              </span>
+              Manage object attributes and other relevant settings
             </EntityTypeHeader>
-            <EntityTypeSaveButton onSubmit={handleSubmit} />
+            <div className="shrink-0 pt-1">
+              <EntityTypeSaveButton onSubmit={handleSubmit} />
+            </div>
           </div>
 
           {/* Validation Errors */}
@@ -125,7 +125,8 @@ export const EntityTypeOverview: FC<EntityTypeOverviewProps> = ({ entityType }) 
                 <div className="flex items-center gap-2">
                   Attributes
                   <Badge className="h-4 w-5 border border-border">
-                    {entityType.attributes.first + entityType.attributes.second}
+                    {entityType.relationships.length +
+                      Object.keys(entityType.schema.items || {}).length}
                   </Badge>
                 </div>
               </TabsTrigger>

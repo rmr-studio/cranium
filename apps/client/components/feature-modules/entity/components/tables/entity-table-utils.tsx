@@ -1,4 +1,3 @@
-import { Badge } from '@riven/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ColumnFilter, FilterOption } from '@/components/ui/data-table';
 import {
@@ -8,23 +7,22 @@ import {
 import { DEFAULT_COLUMN_WIDTH } from '@/components/ui/data-table/data-table';
 import { ColumnEditConfig } from '@/components/ui/data-table/data-table.types';
 import { IconCell } from '@/components/ui/icon/icon-cell';
-import { SchemaUUID, DataType, SchemaType } from '@/lib/types/common';
-import { DataFormat } from '@/lib/types/common';
+import { DataFormat, DataType, SchemaType, SchemaUUID } from '@/lib/types/common';
 import {
   Entity,
   EntityAttribute,
   EntityLink,
-  EntityPropertyType,
   EntityRelationshipCardinality,
-  EntityRelationshipDefinition,
   EntityType,
   EntityTypeAttributeColumn,
   isRelationshipPayload,
+  RelationshipDefinition,
 } from '@/lib/types/entity';
 import { iconFormSchema } from '@/lib/util/form/common/icon.form';
 import { buildFieldSchema } from '@/lib/util/form/entity-instance-validation.util';
-import { toTitleCase } from '@riven/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Badge } from '@riven/ui/badge';
+import { toTitleCase } from '@riven/utils';
 import { AccessorKeyColumnDef, Cell } from '@tanstack/react-table';
 import { ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
@@ -301,11 +299,11 @@ export function createAttributeEqualityFn(
  * Creates an equality function for relationship values based on cardinality
  */
 export function createRelationshipEqualityFn(
-  relationship: EntityRelationshipDefinition,
+  relationship: RelationshipDefinition,
 ): (oldValue: EntityLink[], newValue: EntityLink[]) => boolean {
   const isSingleSelect =
-    relationship.cardinality === EntityRelationshipCardinality.OneToOne ||
-    relationship.cardinality === EntityRelationshipCardinality.ManyToOne;
+    relationship.cardinalityDefault === EntityRelationshipCardinality.OneToOne ||
+    relationship.cardinalityDefault === EntityRelationshipCardinality.ManyToOne;
 
   return (value1: EntityLink[], value2: EntityLink[]): boolean => {
     const normalized1 = normalizeEmpty(value1);
@@ -391,7 +389,7 @@ export function generateColumnsFromEntityType(
 
         return (
           <div className="flex items-center">
-            <IconCell readonly iconType={type} colour={colour} className="mr-2 size-4" />
+            <IconCell readonly type={type} colour={colour} className="mr-2 size-4" />
             <span>{label}</span>
           </div>
         );
@@ -450,7 +448,7 @@ export function generateColumnsFromEntityType(
         const { icon, name } = relationship;
         return (
           <div className="flex items-center">
-            <IconCell readonly iconType={icon.type} colour={icon.colour} className="mr-2 size-4" />
+            <IconCell readonly type={icon.type} colour={icon.colour} className="mr-2 size-4" />
             <span>{name}</span>
           </div>
         );
@@ -466,20 +464,20 @@ export function generateColumnsFromEntityType(
           return (
             <div className="flex flex-wrap gap-1">
               {value.map((item: EntityLink) => {
-                const { icon, label, fieldId, id, workspaceId, key } = item;
-                const { icon: type, colour } = icon;
+                const { icon, label, definitionId, id, workspaceId, key } = item;
+                const { type, colour } = icon;
 
                 return (
                   <Link
                     href={`/dashboard/workspace/${workspaceId}/entity/${key}/${id}`}
-                    key={`${fieldId}-${id}`}
+                    key={`${definitionId}-${id}`}
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Badge
                       variant="secondary"
                       className="group font-normal transition-all hover:bg-border"
                     >
-                      <IconCell readonly iconType={type} colour={colour} className="mr-2 size-4" />
+                      <IconCell readonly type={type} colour={colour} className="mr-2 size-4" />
                       <span className="group-hover:underline">{label}</span>
                       <ArrowUpRight className="ml-2 size-4 opacity-0 transition-opacity group-hover:opacity-100" />
                     </Badge>
@@ -495,7 +493,6 @@ export function generateColumnsFromEntityType(
       meta: {
         edit: editConfig,
         displayMeta: {
-          required: relationship.required,
           protected: relationship._protected,
         },
       },
@@ -512,18 +509,15 @@ export function applyColumnOrdering(
   columns: AccessorKeyColumnDef<EntityRow>[],
   columnsOrder: EntityTypeAttributeColumn[],
 ): AccessorKeyColumnDef<EntityRow>[] {
-  console.log(columns);
   const orderedColumns: AccessorKeyColumnDef<EntityRow>[] = [];
   const columnMap = new Map(columns.map((col) => [col['accessorKey'], col]));
 
   // Add columns in order array sequence
   columnsOrder.forEach((orderItem) => {
-    if (orderItem.type === EntityPropertyType.Attribute) {
-      const column = columnMap.get(orderItem.key);
-      if (column) {
-        orderedColumns.push(column);
-        columnMap.delete(orderItem.key);
-      }
+    const column = columnMap.get(orderItem.key);
+    if (column) {
+      orderedColumns.push(column);
+      columnMap.delete(orderItem.key);
     }
   });
 

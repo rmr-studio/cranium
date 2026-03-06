@@ -20,13 +20,13 @@ import {
     EntityTypeToJSON,
     EntityTypeToJSONTyped,
 } from './EntityType';
-import type { EntityTypeRelationshipImpactAnalysis } from './EntityTypeRelationshipImpactAnalysis';
+import type { DeleteDefinitionImpact } from './DeleteDefinitionImpact';
 import {
-    EntityTypeRelationshipImpactAnalysisFromJSON,
-    EntityTypeRelationshipImpactAnalysisFromJSONTyped,
-    EntityTypeRelationshipImpactAnalysisToJSON,
-    EntityTypeRelationshipImpactAnalysisToJSONTyped,
-} from './EntityTypeRelationshipImpactAnalysis';
+    DeleteDefinitionImpactFromJSON,
+    DeleteDefinitionImpactFromJSONTyped,
+    DeleteDefinitionImpactToJSON,
+    DeleteDefinitionImpactToJSONTyped,
+} from './DeleteDefinitionImpact';
 
 /**
  * 
@@ -48,10 +48,10 @@ export interface EntityTypeImpactResponse {
     updatedEntityTypes?: { [key: string]: EntityType; };
     /**
      * 
-     * @type {EntityTypeRelationshipImpactAnalysis}
+     * @type {DeleteDefinitionImpact}
      * @memberof EntityTypeImpactResponse
      */
-    impact?: EntityTypeRelationshipImpactAnalysis;
+    impact?: DeleteDefinitionImpact;
 }
 
 /**
@@ -73,7 +73,7 @@ export function EntityTypeImpactResponseFromJSONTyped(json: any, ignoreDiscrimin
         
         'error': json['error'] == null ? undefined : json['error'],
         'updatedEntityTypes': json['updatedEntityTypes'] == null ? undefined : (mapValues(json['updatedEntityTypes'], EntityTypeFromJSON)),
-        'impact': json['impact'] == null ? undefined : EntityTypeRelationshipImpactAnalysisFromJSON(json['impact']),
+        'impact': json['impact'] == null ? undefined : DeleteDefinitionImpactFromJSON(json['impact']),
     };
 }
 
@@ -90,7 +90,7 @@ export function EntityTypeImpactResponseToJSONTyped(value?: EntityTypeImpactResp
         
         'error': value['error'],
         'updatedEntityTypes': value['updatedEntityTypes'] == null ? undefined : (mapValues(value['updatedEntityTypes'], EntityTypeToJSON)),
-        'impact': EntityTypeRelationshipImpactAnalysisToJSON(value['impact']),
+        'impact': DeleteDefinitionImpactToJSON(value['impact']),
     };
 }
 

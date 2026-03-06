@@ -13,8 +13,8 @@ Name | Type
 `field` | Array&lt;string&gt;
 `expressions` | object
 `config` | { [key: string]: object; }
-`subType` | [WorkflowTriggerType](WorkflowTriggerType.md)
 `configSchema` | [Array&lt;WorkflowNodeConfigField&gt;](WorkflowNodeConfigField.md)
+`subType` | [WorkflowTriggerType](WorkflowTriggerType.md)
 `type` | [WorkflowNodeType](WorkflowNodeType.md)
 
 ## Example
@@ -30,8 +30,8 @@ const example = {
   "field": null,
   "expressions": null,
   "config": null,
-  "subType": null,
   "configSchema": null,
+  "subType": null,
   "type": null,
 } satisfies WorkflowEntityEventTriggerConfig
 

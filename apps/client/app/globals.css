@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
-@source "../../../packages/ui/src";
+@source '../../../packages/ui/src';
 
 @custom-variant dark (&:is(.dark *));
 @custom-variant amber (&:is(.amber *));
@@ -179,7 +179,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background font-mono leading-[0.9] tracking-tighter text-foreground;
+    @apply bg-background font-sans leading-[0.9] tracking-tight text-foreground;
   }
 }
 

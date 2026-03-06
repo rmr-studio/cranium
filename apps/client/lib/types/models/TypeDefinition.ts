@@ -38,7 +38,7 @@ export interface TypeDefinition {
      * @type {string}
      * @memberof TypeDefinition
      */
-    id: string;
+    id?: string;
     /**
      * 
      * @type {EntityTypeRequestDefinition}
@@ -54,7 +54,6 @@ export interface TypeDefinition {
  */
 export function instanceOfTypeDefinition(value: object): value is TypeDefinition {
     if (!('key' in value) || value['key'] === undefined) return false;
-    if (!('id' in value) || value['id'] === undefined) return false;
     if (!('type' in value) || value['type'] === undefined) return false;
     return true;
 }
@@ -70,7 +69,7 @@ export function TypeDefinitionFromJSONTyped(json: any, ignoreDiscriminator: bool
     return {
         
         'key': json['key'],
-        'id': json['id'],
+        'id': json['id'] == null ? undefined : json['id'],
         'type': EntityTypeRequestDefinitionFromJSON(json['type']),
     };
 }

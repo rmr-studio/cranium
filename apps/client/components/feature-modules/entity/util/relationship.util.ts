@@ -1,20 +1,5 @@
 import { EntityRelationshipCardinality, RelationshipLimit } from '@/lib/types/entity';
 
-export const getInverseCardinality = (
-  cardinality: EntityRelationshipCardinality,
-): EntityRelationshipCardinality => {
-  switch (cardinality) {
-    case EntityRelationshipCardinality.OneToOne:
-      return EntityRelationshipCardinality.OneToOne;
-    case EntityRelationshipCardinality.OneToMany:
-      return EntityRelationshipCardinality.ManyToOne;
-    case EntityRelationshipCardinality.ManyToOne:
-      return EntityRelationshipCardinality.OneToMany;
-    case EntityRelationshipCardinality.ManyToMany:
-      return EntityRelationshipCardinality.ManyToMany;
-  }
-};
-
 export const processCardinalityToLimits = (
   cardinality: EntityRelationshipCardinality,
 ): { source: RelationshipLimit; target: RelationshipLimit } => {

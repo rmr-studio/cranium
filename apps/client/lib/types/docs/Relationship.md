@@ -8,7 +8,7 @@ Filter by relationship to other entities.
 Name | Type
 ------------ | -------------
 `relationshipId` | string
-`condition` | [RelationshipCondition](RelationshipCondition.md)
+`condition` | [RelationshipFilter](RelationshipFilter.md)
 
 ## Example
 

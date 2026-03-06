@@ -3,19 +3,19 @@
 import type {
   EntityAttributePayload,
   EntityAttributeRelationPayload,
-  EntityRelationshipDefinition,
+  RelationshipDefinition,
 } from './models';
 import type { EntityAttributeDefinition } from './custom';
 import { EntityPropertyType } from '../models/EntityPropertyType';
 
 export const isRelationshipDefinition = (
-  attribute: EntityRelationshipDefinition | EntityAttributeDefinition,
-): attribute is EntityRelationshipDefinition => {
+  attribute: RelationshipDefinition | EntityAttributeDefinition,
+): attribute is RelationshipDefinition => {
   return !('schema' in attribute);
 };
 
 export const isAttributeDefinition = (
-  attribute: EntityRelationshipDefinition | EntityAttributeDefinition,
+  attribute: RelationshipDefinition | EntityAttributeDefinition,
 ): attribute is EntityAttributeDefinition => {
   return 'schema' in attribute;
 };

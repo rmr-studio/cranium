@@ -8,9 +8,9 @@ Name | Type
 ------------ | -------------
 `name` | [DisplayName](DisplayName.md)
 `key` | string
-`description` | string
-`type` | [EntityCategory](EntityCategory.md)
 `icon` | [Icon](Icon.md)
+`semanticGroup` | [SemanticGroup](SemanticGroup.md)
+`semantics` | [SaveSemanticMetadataRequest](SaveSemanticMetadataRequest.md)
 
 ## Example
 
@@ -21,9 +21,9 @@ import type { CreateEntityTypeRequest } from ''
 const example = {
   "name": null,
   "key": null,
-  "description": null,
-  "type": null,
   "icon": null,
+  "semanticGroup": null,
+  "semantics": null,
 } satisfies CreateEntityTypeRequest
 
 console.log(example)

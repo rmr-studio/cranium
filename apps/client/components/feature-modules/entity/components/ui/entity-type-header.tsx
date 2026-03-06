@@ -2,8 +2,10 @@ import { Button } from '@riven/ui/button';
 import { FormField } from '@/components/ui/form';
 import { IconSelector } from '@/components/ui/icon/icon-selector';
 import type { ChildNodeProps } from '@riven/utils';
+import { cn } from '@/lib/util/utils';
 import { Cog, File } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { FC } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
 import {
@@ -17,6 +19,7 @@ interface Props extends ChildNodeProps {}
 export const EntityTypeHeader: FC<Props> = ({ children }) => {
   const type = useConfigCurrentType();
   const form: UseFormReturn<EntityTypeFormValues> = useConfigForm();
+  const pathname = usePathname();
 
   const name = useWatch({
     control: form.control,
@@ -24,53 +27,53 @@ export const EntityTypeHeader: FC<Props> = ({ children }) => {
   });
 
   const { key } = type;
+  const basePath = `/dashboard/workspace/${type.workspaceId}/entity/${key}`;
+  const isSettings = pathname.endsWith('/settings');
+
+  const navItems = [
+    { label: 'Entities', href: basePath, icon: File, active: !isSettings },
+    { label: 'Settings', href: `${basePath}/settings`, icon: Cog, active: isSettings },
+  ];
 
   return (
-    <div className="flex gap-4">
-      <FormField
-        control={form.control}
-        name="icon"
-        render={({ field }) => {
-          return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-3">
+        <FormField
+          control={form.control}
+          name="icon"
+          render={({ field }) => (
             <IconSelector
               onSelect={field.onChange}
               icon={field.value}
-              className="mt-1 size-14 bg-accent/10"
-              displayIconClassName="size-12"
+              className="size-10 shrink-0 rounded-lg bg-accent/10"
+              displayIconClassName="size-6"
             />
-          );
-        }}
-      />
-
-      <div>
-        <div className="flex items-center gap-1">
-          <h1 className="text-2xl font-semibold">{name}</h1>
-        </div>
-
-        <div className="flex items-center gap-2">{children}</div>
-        <div className="mt-1 flex items-center gap-1">
-          <Link href={`/dashboard/workspace/${type.workspaceId}/entity/${key}`}>
-            <Button
-              variant={'secondary'}
-              className="relative mt-1 h-6 p-1 text-muted-foreground hover:bg-primary/10 hover:text-primary"
-              size={'xs'}
-            >
-              <File />
-              Entities
-            </Button>
-          </Link>
-          <Link href={`/dashboard/workspace/${type.workspaceId}/entity/${key}/settings`}>
-            <Button
-              size={'xs'}
-              variant={'secondary'}
-              className="mt-1 h-6 p-1 text-muted-foreground hover:bg-primary/10 hover:text-primary"
-            >
-              <Cog className="size-4" />
-              Settings
-            </Button>
-          </Link>
+          )}
+        />
+        <div className="min-w-0">
+          <h1 className="text-xl leading-tight font-semibold">{name}</h1>
+          {children}
         </div>
       </div>
+      <nav className="flex items-center gap-1">
+        {navItems.map((item) => (
+          <Link key={item.label} href={item.href}>
+            <Button
+              variant="ghost"
+              size="xs"
+              className={cn(
+                'h-6 gap-1 px-2 text-xs font-medium',
+                item.active
+                  ? 'bg-accent text-accent-foreground'
+                  : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground',
+              )}
+            >
+              <item.icon className="size-3.5" />
+              {item.label}
+            </Button>
+          </Link>
+        ))}
+      </nav>
     </div>
   );
 };

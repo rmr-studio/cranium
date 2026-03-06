@@ -15,10 +15,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { EntityAttributeDefinition, EntityPropertyType } from '@/lib/types/entity';
+import { Separator } from '@/components/ui/separator';
+import { TagInput } from '@/components/ui/tag-input';
+import { EntityAttributeDefinition, EntityPropertyType, SemanticGroup } from '@/lib/types/entity';
+import { cn } from '@/lib/util/utils';
+import { Info } from 'lucide-react';
 import { FC, useEffect } from 'react';
 import { useWatch } from 'react-hook-form';
 import { useConfigForm } from '../../../context/configuration-provider';
+
+const CATEGORY_LABELS: Record<SemanticGroup, string> = {
+  [SemanticGroup.Customer]: 'Customer',
+  [SemanticGroup.Product]: 'Product',
+  [SemanticGroup.Transaction]: 'Transaction',
+  [SemanticGroup.Communication]: 'Communication',
+  [SemanticGroup.Support]: 'Support',
+  [SemanticGroup.Financial]: 'Financial',
+  [SemanticGroup.Operational]: 'Operational',
+  [SemanticGroup.Custom]: 'Custom',
+  [SemanticGroup.Uncategorized]: 'Uncategorized',
+};
 
 interface Props {
   availableIdentifiers: EntityAttributeDefinition[];
@@ -37,6 +53,11 @@ export const ConfigurationForm: FC<Props> = ({ availableIdentifiers }) => {
     name: 'columns',
   });
 
+  const semanticGroup = useWatch({
+    control: form.control,
+    name: 'semanticGroup',
+  });
+
   // Watch for identifier key changes and auto-recolumns to ensure identifier is first
   useEffect(() => {
     if (columns.length <= 1) return;
@@ -44,7 +65,6 @@ export const ConfigurationForm: FC<Props> = ({ availableIdentifiers }) => {
     // Check if identifier is already first
     const firstItem = columns[0];
     if (firstItem?.key === identifierKey && firstItem?.type === EntityPropertyType.Attribute) {
-      // Already in first position, nothing to do
       return;
     }
 
@@ -54,18 +74,15 @@ export const ConfigurationForm: FC<Props> = ({ availableIdentifiers }) => {
     );
 
     if (identifierIndex !== -1) {
-      // Identifier exists in columns, move it to first position
       const identifierItem = columns[identifierIndex];
       form.setValue(
         'columns',
         [identifierItem, ...columns.filter((_, idx) => idx !== identifierIndex)],
-        {
-          shouldDirty: true,
-        },
+        { shouldDirty: true },
       );
       return;
     }
-    // Identifier not in columns, add it at first position
+
     form.setValue(
       'columns',
       [
@@ -78,85 +95,175 @@ export const ConfigurationForm: FC<Props> = ({ availableIdentifiers }) => {
       ],
       { shouldDirty: true },
     );
-
-    // Update the columns in the form
   }, [identifierKey]);
 
   return (
-    <div className="rounded-lg border bg-card p-6">
-      <h2 className="mb-4 text-lg font-semibold">General</h2>
-
-      <div className="space-y-6">
-        <div className="grid grid-cols-2 items-start gap-6">
-          {/* Name */}
+    <div className="space-y-0 rounded-lg border bg-card">
+      {/* Naming */}
+      <div className="p-5">
+        <p className="mb-3.5 text-xs font-medium tracking-widest text-muted-foreground/70 uppercase">
+          Naming
+        </p>
+        <div className="grid grid-cols-2 gap-5">
           <FormField
             control={form.control}
             name="pluralName"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-semibold">Plural noun</FormLabel>
+              <FormItem className="gap-1">
+                <FormLabel className="text-sm font-medium text-muted-foreground">
+                  Plural noun
+                </FormLabel>
                 <FormDescription className="text-xs italic">
-                  This will be used to label a collection of these entities
+                  Used to label a collection of these entities
                 </FormDescription>
-                <div className="flex items-center gap-2">
-                  <FormControl>
-                    <Input placeholder="e.g., Companies" {...field} />
-                  </FormControl>
-                </div>
+                <FormControl>
+                  <Input placeholder="e.g., Companies" {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-
-          {/* Plural Name */}
           <FormField
             control={form.control}
             name="singularName"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-semibold">Singular noun</FormLabel>
+              <FormItem className="gap-1">
+                <FormLabel className="text-sm font-medium text-muted-foreground">
+                  Singular noun
+                </FormLabel>
                 <FormDescription className="text-xs italic">
-                  How we should label a single entity of this type
+                  How a single entity of this type is labelled
                 </FormDescription>
-                <div className="flex items-center gap-2">
-                  <FormControl>
-                    <Input placeholder="e.g., Company" {...field} />
-                  </FormControl>
-                </div>
+                <FormControl>
+                  <Input placeholder="e.g., Company" {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
+      </div>
 
-        {/* Description */}
+      <Separator />
+
+      {/* Description */}
+      <div className="p-5">
         <FormField
           control={form.control}
           name="description"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
+            <FormItem className="gap-1">
+              <FormLabel className="text-sm font-medium text-muted-foreground">
+                Description
+              </FormLabel>
+              <FormDescription className="text-xs italic">
+                A brief summary of what this entity type represents
+              </FormDescription>
               <FormControl>
                 <Textarea
+                  className={cn(
+                    'max-h-72 resize-none',
+                    semanticGroup === SemanticGroup.Custom && 'border-amber-500/40',
+                  )}
                   placeholder="Describe what this entity type represents..."
-                  rows={3}
+                  rows={2}
                   {...field}
                 />
               </FormControl>
+              {semanticGroup === SemanticGroup.Custom && (
+                <p className="flex items-center gap-1.5 pt-0.5 text-xs text-amber-600 dark:text-amber-400">
+                  <Info className="size-3 shrink-0" />
+                  A description helps the system understand this type&apos;s purpose
+                </p>
+              )}
               <FormMessage />
             </FormItem>
           )}
         />
-        {/* Identifier Key */}
+      </div>
+
+      <Separator />
+
+      {/* Classification */}
+      <div className="p-5">
+        <p className="mb-3.5 text-xs font-medium tracking-widest text-muted-foreground/70 uppercase">
+          Classification
+        </p>
+        <div className="grid grid-cols-2 gap-5">
+          <FormField
+            control={form.control}
+            name="semanticGroup"
+            render={({ field }) => (
+              <FormItem className="gap-1">
+                <FormLabel className="text-sm font-medium text-muted-foreground">
+                  Category
+                </FormLabel>
+                <FormDescription className="text-xs italic">
+                  The domain this type belongs to
+                </FormDescription>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue>
+                        {CATEGORY_LABELS[field.value as SemanticGroup]}
+                      </SelectValue>
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {Object.values(SemanticGroup).map((value) => (
+                      <SelectItem key={value} value={value}>
+                        {CATEGORY_LABELS[value]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="tags"
+            render={({ field }) => (
+              <FormItem className="gap-1">
+                <FormLabel className="text-sm font-medium text-muted-foreground">
+                  Tags
+                </FormLabel>
+                <FormDescription className="text-xs italic">
+                  Labels to help organise and filter your types
+                </FormDescription>
+                <FormControl>
+                  <TagInput
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Add tags..."
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Identity */}
+      <div className="p-5">
+        <p className="mb-3.5 text-xs font-medium tracking-widest text-muted-foreground/70 uppercase">
+          Identity
+        </p>
         <FormField
           control={form.control}
           name="identifierKey"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Identifier Key</FormLabel>
+            <FormItem className="gap-1">
+              <FormLabel className="text-sm font-medium text-muted-foreground">
+                Identifier attribute
+              </FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
-                  <SelectTrigger className="w-xs">
+                  <SelectTrigger className="w-full max-w-xs">
                     <SelectValue placeholder="Select a unique identifier" />
                   </SelectTrigger>
                 </FormControl>
@@ -175,10 +282,9 @@ export const ConfigurationForm: FC<Props> = ({ availableIdentifiers }) => {
                   )}
                 </SelectContent>
               </Select>
-              <FormDescription className="mx-1 max-w-sm">
-                This attribute will be used to uniquely identify an entity, and must point to an
-                attribute marked as unique, and mandatory.
-              </FormDescription>
+              <p className="max-w-sm pt-0.5 text-xs leading-relaxed text-muted-foreground/70">
+                Must point to an attribute marked as unique and mandatory.
+              </p>
               <FormMessage />
             </FormItem>
           )}

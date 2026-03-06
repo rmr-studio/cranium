@@ -1,7 +1,6 @@
 'use client';
 
-import { DataType, IconColour, IconType } from '@/lib/types/common';
-import { SchemaType } from '@/lib/types/common';
+import { DataType, IconColour, IconType, SchemaType } from '@/lib/types/common';
 import { AttributeSchemaType, attributeTypes } from '@/lib/util/form/schema.util';
 import { cn } from '@riven/utils';
 import { Check, ChevronsUpDown } from 'lucide-react';
@@ -110,7 +109,7 @@ export const AttributeTypeDropdown: FC<Props> = ({
               <IconCell
                 readonly
                 className="mr-1 size-4"
-                iconType={selectedAttribute.icon.type}
+                type={selectedAttribute.icon.type}
                 colour={selectedAttribute.icon.colour}
               />
               <span>{selectedAttribute.label}</span>
@@ -144,7 +143,7 @@ export const AttributeTypeDropdown: FC<Props> = ({
                     type === 'RELATIONSHIP' ? 'opacity-100' : 'opacity-0',
                   )}
                 />
-                <IconCell readonly iconType={IconType.Link2} colour={IconColour.Neutral} />
+                <IconCell readonly type={IconType.Link2} colour={IconColour.Neutral} />
                 Relationship
               </CommandItem>
             </CommandGroup>
@@ -165,7 +164,7 @@ export const AttributeTypeDropdown: FC<Props> = ({
                   <IconCell
                     readonly
                     className="mr-1 size-4"
-                    iconType={attr.icon.type}
+                    type={attr.icon.type}
                     colour={attr.icon.colour}
                   />
                   {attr.label}
@@ -174,10 +173,10 @@ export const AttributeTypeDropdown: FC<Props> = ({
             </CommandGroup>
 
             {Object.entries(groupedAttributes).map(
-              ([type, attrs]) =>
+              ([groupKey, attrs]) =>
                 attrs &&
                 attrs.length > 0 && (
-                  <CommandGroup key={type} heading={getGroupName(type as DataType)}>
+                  <CommandGroup key={groupKey} heading={getGroupName(groupKey as DataType)}>
                     {attrs.map((attr) => (
                       <CommandItem
                         className="px-0 text-sm text-primary/80"
@@ -197,7 +196,7 @@ export const AttributeTypeDropdown: FC<Props> = ({
                         <IconCell
                           readonly
                           className="mr-1 size-4"
-                          iconType={attr.icon.type}
+                          type={attr.icon.type}
                           colour={attr.icon.colour}
                         />
                         {attr.label}

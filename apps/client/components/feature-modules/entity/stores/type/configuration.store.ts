@@ -1,4 +1,4 @@
-import { EntityType } from '@/lib/types/entity';
+import { EntityType, UpdateEntityTypeConfigurationRequest } from '@/lib/types/entity';
 import { UseFormReturn } from 'react-hook-form';
 import { create, StoreApi } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
@@ -60,7 +60,7 @@ export const createEntityTypeConfigStore = (
   workspaceId: string,
   entityType: EntityType,
   form: UseFormReturn<EntityTypeFormValues>,
-  updateMutation: (type: EntityType) => Promise<EntityType>,
+  updateMutation: (request: UpdateEntityTypeConfigurationRequest) => Promise<EntityType>,
 ): StoreApi<EntityTypeConfigStore> => {
   const storageKey = `${workspaceId}-entity-type-draft-${entityTypeKey}`;
 
@@ -161,22 +161,23 @@ export const createEntityTypeConfigStore = (
         // Clear any previous errors
         form.clearErrors();
 
-        const updatedType: EntityType = {
-          ...entityType,
-          key: values.key as string,
+        const request: UpdateEntityTypeConfigurationRequest = {
+          id: entityType.id,
           name: {
             singular: values.singularName as string,
             plural: values.pluralName as string,
           },
           icon: values.icon,
+          semanticGroup: values.semanticGroup,
           columns: values.columns,
-          identifierKey: values.identifierKey as string,
-          description: values.description as string | undefined,
-          type: values.type,
+          semantics:
+            values.description || values.tags.length > 0
+              ? { definition: values.description, tags: values.tags }
+              : undefined,
         };
 
         // Call the mutation
-        await updateMutation(updatedType);
+        await updateMutation(request);
 
         // Mark as saved in store and clear draft
 

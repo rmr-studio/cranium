@@ -1,138 +1,180 @@
+import { IconColour, IconType } from '@/lib/types/common';
 import {
-  EntityRelationshipDefinition,
+  EntityRelationshipCardinality,
   EntityType,
-  EntityTypeRelationshipType,
   EntityTypeRequestDefinition,
+  RelationshipDefinition,
   RelationshipLimit,
   SaveRelationshipDefinitionRequest,
+  SaveTargetRuleRequest,
   SaveTypeDefinitionRequest,
+  SemanticAttributeClassification,
+  SemanticGroup,
 } from '@/lib/types/entity';
-import { uuid } from '@/lib/util/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCallback, useEffect } from 'react';
-import { useForm, UseFormReturn } from 'react-hook-form';
-import { isUUID } from 'validator';
+import { useCallback, useEffect, useRef } from 'react';
+import { useFieldArray, UseFieldArrayReturn, useForm, UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
+import { EntityTypeService } from '../../../service/entity-type.service';
 import {
   calculateCardinalityFromLimits,
   processCardinalityToLimits,
 } from '../../../util/relationship.util';
 import { useSaveDefinitionMutation } from '../../mutation/type/use-save-definition-mutation';
 
-export const relationFormSchema = z
+// ---- Schemas ----
+
+const targetRuleSchema = z.object({
+  id: z.string().optional(),
+  ruleType: z.enum(['entity-type', 'semantic-group']),
+  targetEntityTypeKey: z.string().optional(),
+  semanticTypeConstraint: z.nativeEnum(SemanticGroup).optional(),
+  cardinalityOverride: z.nativeEnum(EntityRelationshipCardinality).optional(),
+  inverseName: z.string().min(1, 'Inverse name is required'),
+});
+
+export const relationshipFormSchema = z
   .object({
     name: z.string().min(1, 'Name is required'),
-    entityTypeKeys: z.array(z.string()).optional(),
+    icon: z.object({
+      type: z.nativeEnum(IconType),
+      colour: z.nativeEnum(IconColour),
+    }),
+    semanticDefinition: z.string().optional(),
+    sourceLimit: z.enum(['ONE', 'UNLIMITED']),
+    targetLimit: z.enum(['ONE', 'UNLIMITED']),
     allowPolymorphic: z.boolean(),
-    bidirectional: z.boolean(),
-    bidirectionalEntityTypeKeys: z.array(z.string()).optional(),
-    inverseName: z.string().optional(),
-    // Relationship Source Management
-    relationshipType: z.nativeEnum(EntityTypeRelationshipType),
-    sourceEntityTypeKey: z.string(), // Linking to the source entity type
-    originRelationshipId: z.string().optional().nullable(), // Linking to the relationship WITHIN the source entity type (Provided this is a reference definition)
-    // Relationship Cardinality
-    sourceRelationsLimit: z.nativeEnum(RelationshipLimit),
-    targetRelationsLimit: z.nativeEnum(RelationshipLimit),
+    targetRules: z.array(targetRuleSchema),
   })
-  .refine(
-    (data) => {
-      // either entityTypeKeys must have values or allowPolymorphic must be true
-      return (
-        (data.entityTypeKeys && data.entityTypeKeys.length > 0) || data.allowPolymorphic === true
-      );
-    },
-    {
-      message: 'Please select at least one entity type or allow all entity types',
-      path: ['entityTypeKeys'], // Attach error to the entityTypeKeys field
-    },
-  )
-  // Further Validation based on relationship type for bidirectional relationship referencing
-  .refine(
-    (data) => {
-      if (data.relationshipType === EntityTypeRelationshipType.Reference) {
-        return !!data.originRelationshipId && isUUID(data.originRelationshipId);
+  .superRefine((data, ctx) => {
+    data.targetRules.forEach((rule, index) => {
+      if (rule.ruleType === 'entity-type') {
+        if (typeof rule.targetEntityTypeKey !== 'string' || rule.targetEntityTypeKey.length === 0) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Each rule must have either a target entity type or a semantic group constraint',
+            path: ['targetRules', index, 'targetEntityTypeKey'],
+          });
+        }
+      } else if (rule.ruleType === 'semantic-group') {
+        if (rule.semanticTypeConstraint === undefined) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Each rule must have either a target entity type or a semantic group constraint',
+            path: ['targetRules', index, 'semanticTypeConstraint'],
+          });
+        }
       }
-      return true;
-    },
-    {
-      message:
-        'Origin Relationship ID must be present on a Reference relationship, and must be a valid UUID',
-      path: ['originRelationshipId'], // Attach error to the originRelationshipId field
-    },
-  );
+    });
+  });
 
-export type RelationshipFormValues = z.infer<typeof relationFormSchema>;
+export type RelationshipFormValues = z.infer<typeof relationshipFormSchema>;
 
-export interface UseEntityRelationshipFormReturn {
+// ---- Defaults ----
+
+// ---- Return type ----
+
+export interface UseRelationshipFormReturn {
   form: UseFormReturn<RelationshipFormValues>;
   handleSubmit: (values: RelationshipFormValues) => void;
   handleReset: () => void;
   mode: 'create' | 'edit';
+  targetRuleFieldArray: UseFieldArrayReturn<RelationshipFormValues, 'targetRules'>;
+  cachedRulesRef: React.MutableRefObject<RelationshipFormValues['targetRules']>;
 }
 
-export function useEntityTypeRelationshipForm(
+// ---- Hook ----
+
+export function useRelationshipForm(
   workspaceId: string,
-  type: EntityType,
+  entityType: EntityType,
+  availableTypes: EntityType[],
   open: boolean,
   onSave: () => void,
   onCancel: () => void,
-  relationship?: EntityRelationshipDefinition,
-): UseEntityRelationshipFormReturn {
+  relationship?: RelationshipDefinition,
+): UseRelationshipFormReturn {
   const form = useForm<RelationshipFormValues>({
-    resolver: zodResolver(relationFormSchema),
     defaultValues: {
-      name: relationship?.name || '',
-      entityTypeKeys: relationship?.entityTypeKeys || [],
-      allowPolymorphic: relationship?.allowPolymorphic || false,
-      sourceRelationsLimit: relationship?.cardinality
-        ? processCardinalityToLimits(relationship?.cardinality).source
-        : RelationshipLimit.SINGULAR,
-      targetRelationsLimit: relationship?.cardinality
-        ? processCardinalityToLimits(relationship?.cardinality).target
-        : RelationshipLimit.SINGULAR,
-      bidirectional: relationship?.bidirectional || false,
-      bidirectionalEntityTypeKeys: relationship?.bidirectionalEntityTypeKeys || [],
-      inverseName: relationship?.inverseName || '',
-      // By default. Treat all new relationships as Origin type. Form would update to Reference if needed (ie. Due to overlap prompting)
-      relationshipType: relationship?.relationshipType || EntityTypeRelationshipType.Origin,
-      sourceEntityTypeKey: relationship?.sourceEntityTypeKey || type.key,
-      originRelationshipId: relationship?.originRelationshipId || undefined,
+      name: '',
+      icon: { type: IconType.Link2, colour: IconColour.Neutral },
+      semanticDefinition: '',
+      sourceLimit: 'ONE',
+      targetLimit: 'UNLIMITED',
+      allowPolymorphic: false,
+      targetRules: [],
     },
+    resolver: zodResolver(relationshipFormSchema),
   });
 
-  // When the dialogue is opened for editing, populate the form with existing attribute data, or blank for new attribute
+  const targetRuleFieldArray = useFieldArray({
+    control: form.control,
+    name: 'targetRules',
+  });
+
+  const cachedRulesRef = useRef<RelationshipFormValues['targetRules']>([]);
+
+  // Populate form when opening in edit mode (or when availableTypes loads after modal opens)
   useEffect(() => {
     if (!open || !relationship) return;
+    if (availableTypes.length === 0) return;
+
+    const limits = processCardinalityToLimits(relationship.cardinalityDefault);
+    const sourceLimit: 'ONE' | 'UNLIMITED' =
+      limits.source === RelationshipLimit.SINGULAR ? 'ONE' : 'UNLIMITED';
+    const targetLimit: 'ONE' | 'UNLIMITED' =
+      limits.target === RelationshipLimit.SINGULAR ? 'ONE' : 'UNLIMITED';
+
+    const targetRules: RelationshipFormValues['targetRules'] = relationship.targetRules.map(
+      (rule) => {
+        const hasEntityType = !!rule.targetEntityTypeId;
+        const ruleType: 'entity-type' | 'semantic-group' = hasEntityType
+          ? 'entity-type'
+          : 'semantic-group';
+        const targetEntityTypeKey = hasEntityType
+          ? availableTypes.find((et) => et.id === rule.targetEntityTypeId)?.key
+          : undefined;
+
+        return {
+          id: rule.id,
+          ruleType,
+          targetEntityTypeKey,
+          semanticTypeConstraint: rule.semanticTypeConstraint,
+          cardinalityOverride: rule.cardinalityOverride,
+          inverseName: rule.inverseName,
+        };
+      },
+    );
 
     form.reset({
       name: relationship.name,
-      entityTypeKeys: relationship.entityTypeKeys,
+      icon: relationship.icon,
+      semanticDefinition: '',
+      sourceLimit,
+      targetLimit,
       allowPolymorphic: relationship.allowPolymorphic,
-      sourceRelationsLimit: relationship.cardinality
-        ? processCardinalityToLimits(relationship.cardinality).source
-        : RelationshipLimit.SINGULAR,
-      targetRelationsLimit: relationship.cardinality
-        ? processCardinalityToLimits(relationship.cardinality).target
-        : RelationshipLimit.SINGULAR,
-      bidirectional: relationship.bidirectional,
-      bidirectionalEntityTypeKeys: relationship.bidirectionalEntityTypeKeys || [],
-      inverseName: relationship.inverseName || '',
-      relationshipType: relationship.relationshipType,
-      sourceEntityTypeKey: relationship.sourceEntityTypeKey,
-      originRelationshipId: relationship.originRelationshipId || undefined,
+      targetRules,
     });
-  }, [open, relationship]);
+  }, [open, relationship, availableTypes]);
 
+  // Reset form on modal close (after animation)
   useEffect(() => {
     if (!open) {
       setTimeout(() => {
-        form.reset();
+        form.reset({
+          name: '',
+          icon: { type: IconType.Link2, colour: IconColour.Neutral },
+          semanticDefinition: '',
+          sourceLimit: 'ONE',
+          targetLimit: 'UNLIMITED',
+          allowPolymorphic: false,
+          targetRules: [],
+        });
       }, 500);
     }
   }, [open]);
 
-  const { mutateAsync: saveDefinition } = useSaveDefinitionMutation(workspaceId, {
+  const { mutateAsync: saveDefinition } = useSaveDefinitionMutation(workspaceId, undefined, {
     onSuccess: () => {
       onSave();
     },
@@ -140,29 +182,43 @@ export function useEntityTypeRelationshipForm(
 
   const handleSubmit = useCallback(
     async (values: RelationshipFormValues) => {
-      const id = relationship?.id ?? uuid();
+      const id = relationship?.id;
+
+      const sourceLimit =
+        values.sourceLimit === 'ONE' ? RelationshipLimit.SINGULAR : RelationshipLimit.MANY;
+      const targetLimit =
+        values.targetLimit === 'ONE' ? RelationshipLimit.SINGULAR : RelationshipLimit.MANY;
+      const cardinalityDefault = calculateCardinalityFromLimits(sourceLimit, targetLimit);
+
+      const targetRules: SaveTargetRuleRequest[] = values.allowPolymorphic
+        ? []
+        : values.targetRules.map((rule) => ({
+            id: rule.id,
+            targetEntityTypeId: rule.targetEntityTypeKey
+              ? EntityTypeService.resolveEntityTypeId(availableTypes, rule.targetEntityTypeKey)
+              : undefined,
+            semanticTypeConstraint: rule.semanticTypeConstraint,
+            cardinalityOverride: rule.cardinalityOverride,
+            inverseName: rule.inverseName,
+          }));
+
       const definition: SaveRelationshipDefinitionRequest = {
         type: EntityTypeRequestDefinition.SaveRelationship,
         id,
-        key: type.key,
-        relationship: {
-          id,
-          name: values.name,
-          required: false,
-          _protected: false,
-          entityTypeKeys: values.entityTypeKeys,
-          allowPolymorphic: values.allowPolymorphic,
-          bidirectional: values.bidirectional,
-          bidirectionalEntityTypeKeys: values.bidirectionalEntityTypeKeys,
-          inverseName: values.inverseName,
-          relationshipType: values.relationshipType,
-          cardinality: calculateCardinalityFromLimits(
-            values.sourceRelationsLimit,
-            values.targetRelationsLimit,
-          ),
-          sourceEntityTypeKey: values.sourceEntityTypeKey,
-          originRelationshipId: values.originRelationshipId || undefined,
-        },
+        key: entityType.key,
+        name: values.name,
+        iconType: values.icon.type,
+        iconColour: values.icon.colour,
+        allowPolymorphic: values.allowPolymorphic,
+        cardinalityDefault,
+        targetRules,
+        semantics: values.semanticDefinition
+          ? {
+              classification: SemanticAttributeClassification.RelationalReference,
+              definition: values.semanticDefinition,
+              tags: [],
+            }
+          : undefined,
       };
 
       const request: SaveTypeDefinitionRequest = {
@@ -172,7 +228,7 @@ export function useEntityTypeRelationshipForm(
 
       await saveDefinition(request);
     },
-    [relationship, type],
+    [relationship, entityType, availableTypes],
   );
 
   return {
@@ -180,5 +236,7 @@ export function useEntityTypeRelationshipForm(
     handleSubmit,
     handleReset: onCancel,
     mode: relationship ? 'edit' : 'create',
+    targetRuleFieldArray,
+    cachedRulesRef,
   };
 }

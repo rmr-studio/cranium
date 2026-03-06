@@ -57,8 +57,10 @@ export const EntityTypeConfigurationProvider = ({
       singularName: entityType.name.singular,
       pluralName: entityType.name.plural,
       identifierKey: entityType.identifierKey,
-      description: entityType.description ?? '',
+      description: entityType.semantics?.entityType?.definition ?? '',
       type: entityType.type,
+      semanticGroup: entityType.semanticGroup,
+      tags: entityType.semantics?.entityType?.tags ?? [],
 
       icon: entityType.icon,
       columns: entityType.columns,

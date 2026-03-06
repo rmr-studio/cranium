@@ -27,6 +27,13 @@ import {
     WorkflowNodeTypeMetadataToJSON,
     WorkflowNodeTypeMetadataToJSONTyped,
 } from './WorkflowNodeTypeMetadata';
+import type { WorkflowNodeOutputMetadata } from './WorkflowNodeOutputMetadata';
+import {
+    WorkflowNodeOutputMetadataFromJSON,
+    WorkflowNodeOutputMetadataFromJSONTyped,
+    WorkflowNodeOutputMetadataToJSON,
+    WorkflowNodeOutputMetadataToJSONTyped,
+} from './WorkflowNodeOutputMetadata';
 import type { WorkflowNodeType } from './WorkflowNodeType';
 import {
     WorkflowNodeTypeFromJSON,
@@ -65,6 +72,12 @@ export interface WorkflowNodeMetadata {
      * @memberof WorkflowNodeMetadata
      */
     schema: Array<WorkflowNodeConfigField>;
+    /**
+     * 
+     * @type {WorkflowNodeOutputMetadata}
+     * @memberof WorkflowNodeMetadata
+     */
+    outputMetadata?: WorkflowNodeOutputMetadata;
 }
 
 
@@ -94,6 +107,7 @@ export function WorkflowNodeMetadataFromJSONTyped(json: any, ignoreDiscriminator
         'subType': json['subType'],
         'metadata': WorkflowNodeTypeMetadataFromJSON(json['metadata']),
         'schema': ((json['schema'] as Array<any>).map(WorkflowNodeConfigFieldFromJSON)),
+        'outputMetadata': json['outputMetadata'] == null ? undefined : WorkflowNodeOutputMetadataFromJSON(json['outputMetadata']),
     };
 }
 
@@ -112,6 +126,7 @@ export function WorkflowNodeMetadataToJSONTyped(value?: WorkflowNodeMetadata | n
         'subType': value['subType'],
         'metadata': WorkflowNodeTypeMetadataToJSON(value['metadata']),
         'schema': ((value['schema'] as Array<any>).map(WorkflowNodeConfigFieldToJSON)),
+        'outputMetadata': WorkflowNodeOutputMetadataToJSON(value['outputMetadata']),
     };
 }
 

@@ -27,20 +27,27 @@ import {
     QueryFilterToJSON,
     QueryFilterToJSONTyped,
 } from './QueryFilter';
-import type { RelationshipCondition } from './RelationshipCondition';
+import type { RelationshipFilter } from './RelationshipFilter';
 import {
-    RelationshipConditionFromJSON,
-    RelationshipConditionFromJSONTyped,
-    RelationshipConditionToJSON,
-    RelationshipConditionToJSONTyped,
-} from './RelationshipCondition';
+    RelationshipFilterFromJSON,
+    RelationshipFilterFromJSONTyped,
+    RelationshipFilterToJSON,
+    RelationshipFilterToJSONTyped,
+} from './RelationshipFilter';
+import type { TypeBranch } from './TypeBranch';
+import {
+    TypeBranchFromJSON,
+    TypeBranchFromJSONTyped,
+    TypeBranchToJSON,
+    TypeBranchToJSONTyped,
+} from './TypeBranch';
 
 /**
  * Entity is related to one of the specified entities.
  * @export
  * @interface TargetEquals
  */
-export interface TargetEquals extends RelationshipCondition {
+export interface TargetEquals extends RelationshipFilter {
     /**
      * 
      * @type {Array<string>}
@@ -67,7 +74,7 @@ export function TargetEqualsFromJSONTyped(json: any, ignoreDiscriminator: boolea
         return json;
     }
     return {
-        ...RelationshipConditionFromJSONTyped(json, true),
+        ...RelationshipFilterFromJSONTyped(json, true),
         'entityIds': json['entityIds'] == null ? undefined : json['entityIds'],
     };
 }
@@ -82,7 +89,7 @@ export function TargetEqualsToJSONTyped(value?: TargetEquals | null, ignoreDiscr
     }
 
     return {
-        ...RelationshipConditionToJSONTyped(value, true),
+        ...RelationshipFilterToJSONTyped(value, true),
         'entityIds': value['entityIds'],
     };
 }

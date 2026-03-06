@@ -1,11 +1,11 @@
 import { useEntityDraft } from "@/components/feature-modules/entity/context/entity-provider";
-import { EntityLink, EntityRelationshipDefinition } from "@/lib/types/entity";
+import { EntityLink, RelationshipDefinition } from "@/lib/types/entity";
 import { FC, useCallback } from "react";
 import { useFormState, useWatch } from "react-hook-form";
 import { EntityRelationshipPicker } from "../entity-relationship-picker";
 
 interface Props {
-  relationship: EntityRelationshipDefinition;
+  relationship: RelationshipDefinition;
 }
 
 export const DraftEntityRelationshipPicker: FC<Props> = ({ relationship }) => {

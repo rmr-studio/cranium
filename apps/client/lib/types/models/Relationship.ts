@@ -27,13 +27,13 @@ import {
     QueryFilterToJSON,
     QueryFilterToJSONTyped,
 } from './QueryFilter';
-import type { RelationshipCondition } from './RelationshipCondition';
+import type { RelationshipFilter } from './RelationshipFilter';
 import {
-    RelationshipConditionFromJSON,
-    RelationshipConditionFromJSONTyped,
-    RelationshipConditionToJSON,
-    RelationshipConditionToJSONTyped,
-} from './RelationshipCondition';
+    RelationshipFilterFromJSON,
+    RelationshipFilterFromJSONTyped,
+    RelationshipFilterToJSON,
+    RelationshipFilterToJSONTyped,
+} from './RelationshipFilter';
 import type { FilterValue } from './FilterValue';
 import {
     FilterValueFromJSON,
@@ -56,10 +56,10 @@ export interface Relationship extends QueryFilter {
     relationshipId?: string;
     /**
      * 
-     * @type {RelationshipCondition}
+     * @type {RelationshipFilter}
      * @memberof Relationship
      */
-    condition?: RelationshipCondition;
+    condition?: RelationshipFilter;
 }
 
 
@@ -82,7 +82,7 @@ export function RelationshipFromJSONTyped(json: any, ignoreDiscriminator: boolea
     return {
         ...QueryFilterFromJSONTyped(json, true),
         'relationshipId': json['relationshipId'] == null ? undefined : json['relationshipId'],
-        'condition': json['condition'] == null ? undefined : RelationshipConditionFromJSON(json['condition']),
+        'condition': json['condition'] == null ? undefined : RelationshipFilterFromJSON(json['condition']),
     };
 }
 
@@ -98,7 +98,7 @@ export function RelationshipToJSONTyped(value?: Relationship | null, ignoreDiscr
     return {
         ...QueryFilterToJSONTyped(value, true),
         'relationshipId': value['relationshipId'],
-        'condition': RelationshipConditionToJSON(value['condition']),
+        'condition': RelationshipFilterToJSON(value['condition']),
     };
 }
 

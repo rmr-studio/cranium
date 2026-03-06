@@ -9,9 +9,11 @@ import {
 } from '@/lib/types/entity';
 import { Row } from '@tanstack/react-table';
 import { Edit2, Trash2 } from 'lucide-react';
+import { useParams } from 'next/navigation';
 import { FC, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 import { useConfigForm } from '../../context/configuration-provider';
+import { useSemanticMetadata } from '../../hooks/query/type/use-semantic-metadata';
 import { useEntityTypeTable } from '../../hooks/use-entity-type-table';
 
 interface Props {
@@ -22,12 +24,15 @@ interface Props {
 }
 
 const EntityTypeDataTable: FC<Props> = ({ type, identifierKey, onEdit, onDelete }) => {
+  const { workspaceId } = useParams<{ workspaceId: string }>();
+  const { data: semanticBundle } = useSemanticMetadata(workspaceId, type.id);
+
   const {
     sortedRowData,
     columns,
     onDelete: deleteRow,
     onEdit: editRow,
-  } = useEntityTypeTable(type, identifierKey, onEdit, onDelete);
+  } = useEntityTypeTable(type, identifierKey, onEdit, onDelete, semanticBundle);
 
   const form = useConfigForm();
 

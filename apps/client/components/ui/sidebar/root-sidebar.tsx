@@ -128,10 +128,9 @@ const SidebarGroupRenderer: React.FC<GroupRendererProps> = ({
                                 isActive={item.isActive}
                                 className="r text-muted-foreground"
                               >
-                                <Link href={item.url} className="flex">
-                                  <div className="mr-2 flex-shrink-0">{item.icon}</div>
-
-                                  <span className="text-sm">{item.title}</span>
+                                <Link href={item.url} className="flex items-center gap-1.5">
+                                  <div className="flex-shrink-0">{item.icon}</div>
+                                  <span>{item.title}</span>
                                 </Link>
                               </SidebarMenuButton>
                             )}

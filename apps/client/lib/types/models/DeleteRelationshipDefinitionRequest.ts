@@ -13,13 +13,6 @@
  */
 
 import { mapValues } from '../runtime';
-import type { DeleteAction } from './DeleteAction';
-import {
-    DeleteActionFromJSON,
-    DeleteActionFromJSONTyped,
-    DeleteActionToJSON,
-    DeleteActionToJSONTyped,
-} from './DeleteAction';
 import type { EntityTypeRequestDefinition } from './EntityTypeRequestDefinition';
 import {
     EntityTypeRequestDefinitionFromJSON,
@@ -54,10 +47,10 @@ export interface DeleteRelationshipDefinitionRequest {
     type: EntityTypeRequestDefinition;
     /**
      * 
-     * @type {DeleteAction}
+     * @type {string}
      * @memberof DeleteRelationshipDefinitionRequest
      */
-    deleteAction: DeleteAction;
+    sourceEntityTypeKey?: string;
 }
 
 
@@ -69,7 +62,6 @@ export function instanceOfDeleteRelationshipDefinitionRequest(value: object): va
     if (!('key' in value) || value['key'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
     if (!('type' in value) || value['type'] === undefined) return false;
-    if (!('deleteAction' in value) || value['deleteAction'] === undefined) return false;
     return true;
 }
 
@@ -86,7 +78,7 @@ export function DeleteRelationshipDefinitionRequestFromJSONTyped(json: any, igno
         'key': json['key'],
         'id': json['id'],
         'type': EntityTypeRequestDefinitionFromJSON(json['type']),
-        'deleteAction': DeleteActionFromJSON(json['deleteAction']),
+        'sourceEntityTypeKey': json['sourceEntityTypeKey'] == null ? undefined : json['sourceEntityTypeKey'],
     };
 }
 
@@ -104,7 +96,7 @@ export function DeleteRelationshipDefinitionRequestToJSONTyped(value?: DeleteRel
         'key': value['key'],
         'id': value['id'],
         'type': EntityTypeRequestDefinitionToJSON(value['type']),
-        'deleteAction': DeleteActionToJSON(value['deleteAction']),
+        'sourceEntityTypeKey': value['sourceEntityTypeKey'],
     };
 }
 

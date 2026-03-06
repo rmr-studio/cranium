@@ -43,12 +43,6 @@ import {
 export interface BlockContentMetadata {
     /**
      * 
-     * @type {BlockMeta}
-     * @memberof BlockContentMetadata
-     */
-    meta: BlockMeta;
-    /**
-     * 
      * @type {boolean}
      * @memberof BlockContentMetadata
      */
@@ -59,6 +53,12 @@ export interface BlockContentMetadata {
      * @memberof BlockContentMetadata
      */
     deletable: boolean;
+    /**
+     * 
+     * @type {BlockMeta}
+     * @memberof BlockContentMetadata
+     */
+    meta: BlockMeta;
     /**
      * 
      * @type {BlockMetadataType}
@@ -85,9 +85,9 @@ export interface BlockContentMetadata {
  * Check if a given object implements the BlockContentMetadata interface.
  */
 export function instanceOfBlockContentMetadata(value: object): value is BlockContentMetadata {
-    if (!('meta' in value) || value['meta'] === undefined) return false;
     if (!('readonly' in value) || value['readonly'] === undefined) return false;
     if (!('deletable' in value) || value['deletable'] === undefined) return false;
+    if (!('meta' in value) || value['meta'] === undefined) return false;
     if (!('type' in value) || value['type'] === undefined) return false;
     if (!('data' in value) || value['data'] === undefined) return false;
     return true;
@@ -103,9 +103,9 @@ export function BlockContentMetadataFromJSONTyped(json: any, ignoreDiscriminator
     }
     return {
         
-        'meta': BlockMetaFromJSON(json['meta']),
         'readonly': json['readonly'],
         'deletable': json['deletable'],
+        'meta': BlockMetaFromJSON(json['meta']),
         'type': BlockMetadataTypeFromJSON(json['type']),
         'data': json['data'],
         'listConfig': json['listConfig'] == null ? undefined : BlockListConfigurationFromJSON(json['listConfig']),
@@ -123,9 +123,9 @@ export function BlockContentMetadataToJSONTyped(value?: BlockContentMetadata | n
 
     return {
         
-        'meta': BlockMetaToJSON(value['meta']),
         'readonly': value['readonly'],
         'deletable': value['deletable'],
+        'meta': BlockMetaToJSON(value['meta']),
         'type': BlockMetadataTypeToJSON(value['type']),
         'data': value['data'],
         'listConfig': BlockListConfigurationToJSON(value['listConfig']),

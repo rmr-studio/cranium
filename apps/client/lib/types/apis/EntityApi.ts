@@ -15,17 +15,23 @@
 
 import * as runtime from '../runtime';
 import type {
+  AddRelationshipRequest,
   CreateEntityTypeRequest,
   DeleteEntityResponse,
   DeleteTypeDefinitionRequest,
   Entity,
   EntityType,
   EntityTypeImpactResponse,
+  RelationshipResponse,
   SaveEntityRequest,
   SaveEntityResponse,
   SaveTypeDefinitionRequest,
+  UpdateEntityTypeConfigurationRequest,
+  UpdateRelationshipRequest,
 } from '../models/index';
 import {
+    AddRelationshipRequestFromJSON,
+    AddRelationshipRequestToJSON,
     CreateEntityTypeRequestFromJSON,
     CreateEntityTypeRequestToJSON,
     DeleteEntityResponseFromJSON,
@@ -38,13 +44,25 @@ import {
     EntityTypeToJSON,
     EntityTypeImpactResponseFromJSON,
     EntityTypeImpactResponseToJSON,
+    RelationshipResponseFromJSON,
+    RelationshipResponseToJSON,
     SaveEntityRequestFromJSON,
     SaveEntityRequestToJSON,
     SaveEntityResponseFromJSON,
     SaveEntityResponseToJSON,
     SaveTypeDefinitionRequestFromJSON,
     SaveTypeDefinitionRequestToJSON,
+    UpdateEntityTypeConfigurationRequestFromJSON,
+    UpdateEntityTypeConfigurationRequestToJSON,
+    UpdateRelationshipRequestFromJSON,
+    UpdateRelationshipRequestToJSON,
 } from '../models/index';
+
+export interface AddRelationshipOperationRequest {
+    workspaceId: string;
+    entityId: string;
+    addRelationshipRequest: AddRelationshipRequest;
+}
 
 export interface CreateEntityTypeOperationRequest {
     workspaceId: string;
@@ -87,6 +105,17 @@ export interface GetEntityTypesForWorkspaceRequest {
     workspaceId: string;
 }
 
+export interface GetRelationshipsRequest {
+    workspaceId: string;
+    entityId: string;
+    definitionId?: string;
+}
+
+export interface RemoveRelationshipRequest {
+    workspaceId: string;
+    relationshipId: string;
+}
+
 export interface SaveEntityOperationRequest {
     workspaceId: string;
     entityTypeId: string;
@@ -101,13 +130,82 @@ export interface SaveEntityTypeDefinitionRequest {
 
 export interface UpdateEntityTypeRequest {
     workspaceId: string;
-    entityType: EntityType;
+    updateEntityTypeConfigurationRequest: UpdateEntityTypeConfigurationRequest;
+}
+
+export interface UpdateRelationshipOperationRequest {
+    workspaceId: string;
+    relationshipId: string;
+    updateRelationshipRequest: UpdateRelationshipRequest;
 }
 
 /**
  * 
  */
 export class EntityApi extends runtime.BaseAPI {
+
+    /**
+     * Add a relationship between two entities
+     */
+    async addRelationshipRaw(requestParameters: AddRelationshipOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<RelationshipResponse>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling addRelationship().'
+            );
+        }
+
+        if (requestParameters['entityId'] == null) {
+            throw new runtime.RequiredError(
+                'entityId',
+                'Required parameter "entityId" was null or undefined when calling addRelationship().'
+            );
+        }
+
+        if (requestParameters['addRelationshipRequest'] == null) {
+            throw new runtime.RequiredError(
+                'addRelationshipRequest',
+                'Required parameter "addRelationshipRequest" was null or undefined when calling addRelationship().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/v1/entity/workspace/{workspaceId}/entities/{entityId}/relationships`;
+        urlPath = urlPath.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId'])));
+        urlPath = urlPath.replace(`{${"entityId"}}`, encodeURIComponent(String(requestParameters['entityId'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: AddRelationshipRequestToJSON(requestParameters['addRelationshipRequest']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => RelationshipResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Add a relationship between two entities
+     */
+    async addRelationship(requestParameters: AddRelationshipOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<RelationshipResponse> {
+        const response = await this.addRelationshipRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      * Creates and publishes a new entity type for the specified workspace.
@@ -457,8 +555,8 @@ export class EntityApi extends runtime.BaseAPI {
     }
 
     /**
-     * Retrieves a specific entity type by its key associated with the specified workspace.
-     * Get an entity type by key for an workspace
+     * Retrieves a specific entity type by its key associated with the specified workspace, including relationship definitions and semantic metadata bundle.
+     * Get an entity type by key for a workspace
      */
     async getEntityTypeByKeyForWorkspaceRaw(requestParameters: GetEntityTypeByKeyForWorkspaceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EntityType>> {
         if (requestParameters['workspaceId'] == null) {
@@ -503,8 +601,8 @@ export class EntityApi extends runtime.BaseAPI {
     }
 
     /**
-     * Retrieves a specific entity type by its key associated with the specified workspace.
-     * Get an entity type by key for an workspace
+     * Retrieves a specific entity type by its key associated with the specified workspace, including relationship definitions and semantic metadata bundle.
+     * Get an entity type by key for a workspace
      */
     async getEntityTypeByKeyForWorkspace(requestParameters: GetEntityTypeByKeyForWorkspaceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EntityType> {
         const response = await this.getEntityTypeByKeyForWorkspaceRaw(requestParameters, initOverrides);
@@ -512,8 +610,8 @@ export class EntityApi extends runtime.BaseAPI {
     }
 
     /**
-     * Retrieves all entity types associated with the specified workspace.
-     * Get all entity types for an workspace
+     * Retrieves all entity types associated with the specified workspace, including relationship definitions and semantic metadata bundles.
+     * Get all entity types for a workspace
      */
     async getEntityTypesForWorkspaceRaw(requestParameters: GetEntityTypesForWorkspaceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<EntityType>>> {
         if (requestParameters['workspaceId'] == null) {
@@ -550,12 +648,121 @@ export class EntityApi extends runtime.BaseAPI {
     }
 
     /**
-     * Retrieves all entity types associated with the specified workspace.
-     * Get all entity types for an workspace
+     * Retrieves all entity types associated with the specified workspace, including relationship definitions and semantic metadata bundles.
+     * Get all entity types for a workspace
      */
     async getEntityTypesForWorkspace(requestParameters: GetEntityTypesForWorkspaceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<EntityType>> {
         const response = await this.getEntityTypesForWorkspaceRaw(requestParameters, initOverrides);
         return await response.value();
+    }
+
+    /**
+     * Get all relationships for an entity
+     */
+    async getRelationshipsRaw(requestParameters: GetRelationshipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<RelationshipResponse>>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling getRelationships().'
+            );
+        }
+
+        if (requestParameters['entityId'] == null) {
+            throw new runtime.RequiredError(
+                'entityId',
+                'Required parameter "entityId" was null or undefined when calling getRelationships().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['definitionId'] != null) {
+            queryParameters['definitionId'] = requestParameters['definitionId'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/v1/entity/workspace/{workspaceId}/entities/{entityId}/relationships`;
+        urlPath = urlPath.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId'])));
+        urlPath = urlPath.replace(`{${"entityId"}}`, encodeURIComponent(String(requestParameters['entityId'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(RelationshipResponseFromJSON));
+    }
+
+    /**
+     * Get all relationships for an entity
+     */
+    async getRelationships(requestParameters: GetRelationshipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<RelationshipResponse>> {
+        const response = await this.getRelationshipsRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Delete a relationship
+     */
+    async removeRelationshipRaw(requestParameters: RemoveRelationshipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling removeRelationship().'
+            );
+        }
+
+        if (requestParameters['relationshipId'] == null) {
+            throw new runtime.RequiredError(
+                'relationshipId',
+                'Required parameter "relationshipId" was null or undefined when calling removeRelationship().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/v1/entity/workspace/{workspaceId}/relationships/{relationshipId}`;
+        urlPath = urlPath.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId'])));
+        urlPath = urlPath.replace(`{${"relationshipId"}}`, encodeURIComponent(String(requestParameters['relationshipId'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'DELETE',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Delete a relationship
+     */
+    async removeRelationship(requestParameters: RemoveRelationshipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.removeRelationshipRaw(requestParameters, initOverrides);
     }
 
     /**
@@ -696,10 +903,10 @@ export class EntityApi extends runtime.BaseAPI {
             );
         }
 
-        if (requestParameters['entityType'] == null) {
+        if (requestParameters['updateEntityTypeConfigurationRequest'] == null) {
             throw new runtime.RequiredError(
-                'entityType',
-                'Required parameter "entityType" was null or undefined when calling updateEntityType().'
+                'updateEntityTypeConfigurationRequest',
+                'Required parameter "updateEntityTypeConfigurationRequest" was null or undefined when calling updateEntityType().'
             );
         }
 
@@ -726,7 +933,7 @@ export class EntityApi extends runtime.BaseAPI {
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
-            body: EntityTypeToJSON(requestParameters['entityType']),
+            body: UpdateEntityTypeConfigurationRequestToJSON(requestParameters['updateEntityTypeConfigurationRequest']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => EntityTypeFromJSON(jsonValue));
@@ -738,6 +945,69 @@ export class EntityApi extends runtime.BaseAPI {
      */
     async updateEntityType(requestParameters: UpdateEntityTypeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EntityType> {
         const response = await this.updateEntityTypeRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Update a relationship\'s semantic context
+     */
+    async updateRelationshipRaw(requestParameters: UpdateRelationshipOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<RelationshipResponse>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling updateRelationship().'
+            );
+        }
+
+        if (requestParameters['relationshipId'] == null) {
+            throw new runtime.RequiredError(
+                'relationshipId',
+                'Required parameter "relationshipId" was null or undefined when calling updateRelationship().'
+            );
+        }
+
+        if (requestParameters['updateRelationshipRequest'] == null) {
+            throw new runtime.RequiredError(
+                'updateRelationshipRequest',
+                'Required parameter "updateRelationshipRequest" was null or undefined when calling updateRelationship().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/v1/entity/workspace/{workspaceId}/relationships/{relationshipId}`;
+        urlPath = urlPath.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId'])));
+        urlPath = urlPath.replace(`{${"relationshipId"}}`, encodeURIComponent(String(requestParameters['relationshipId'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: UpdateRelationshipRequestToJSON(requestParameters['updateRelationshipRequest']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => RelationshipResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Update a relationship\'s semantic context
+     */
+    async updateRelationship(requestParameters: UpdateRelationshipOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<RelationshipResponse> {
+        const response = await this.updateRelationshipRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

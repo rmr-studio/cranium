@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { SaveSemanticMetadataRequest } from './SaveSemanticMetadataRequest';
+import {
+    SaveSemanticMetadataRequestFromJSON,
+    SaveSemanticMetadataRequestFromJSONTyped,
+    SaveSemanticMetadataRequestToJSON,
+    SaveSemanticMetadataRequestToJSONTyped,
+} from './SaveSemanticMetadataRequest';
 import type { SchemaUUID } from './SchemaUUID';
 import {
     SchemaUUIDFromJSON,
@@ -58,6 +65,12 @@ export interface SaveAttributeDefinitionRequest {
      * @memberof SaveAttributeDefinitionRequest
      */
     schema: SchemaUUID;
+    /**
+     * 
+     * @type {SaveSemanticMetadataRequest}
+     * @memberof SaveAttributeDefinitionRequest
+     */
+    semantics?: SaveSemanticMetadataRequest;
 }
 
 
@@ -87,6 +100,7 @@ export function SaveAttributeDefinitionRequestFromJSONTyped(json: any, ignoreDis
         'id': json['id'],
         'type': EntityTypeRequestDefinitionFromJSON(json['type']),
         'schema': SchemaUUIDFromJSON(json['schema']),
+        'semantics': json['semantics'] == null ? undefined : SaveSemanticMetadataRequestFromJSON(json['semantics']),
     };
 }
 
@@ -105,6 +119,7 @@ export function SaveAttributeDefinitionRequestToJSONTyped(value?: SaveAttributeD
         'id': value['id'],
         'type': EntityTypeRequestDefinitionToJSON(value['type']),
         'schema': SchemaUUIDToJSON(value['schema']),
+        'semantics': SaveSemanticMetadataRequestToJSON(value['semantics']),
     };
 }
 

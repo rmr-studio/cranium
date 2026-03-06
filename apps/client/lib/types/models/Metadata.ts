@@ -36,12 +36,6 @@ import {
 export interface Metadata {
     /**
      * 
-     * @type {BlockMeta}
-     * @memberof Metadata
-     */
-    meta: BlockMeta;
-    /**
-     * 
      * @type {boolean}
      * @memberof Metadata
      */
@@ -52,6 +46,12 @@ export interface Metadata {
      * @memberof Metadata
      */
     deletable: boolean;
+    /**
+     * 
+     * @type {BlockMeta}
+     * @memberof Metadata
+     */
+    meta: BlockMeta;
     /**
      * 
      * @type {BlockMetadataType}
@@ -66,9 +66,9 @@ export interface Metadata {
  * Check if a given object implements the Metadata interface.
  */
 export function instanceOfMetadata(value: object): value is Metadata {
-    if (!('meta' in value) || value['meta'] === undefined) return false;
     if (!('readonly' in value) || value['readonly'] === undefined) return false;
     if (!('deletable' in value) || value['deletable'] === undefined) return false;
+    if (!('meta' in value) || value['meta'] === undefined) return false;
     if (!('type' in value) || value['type'] === undefined) return false;
     return true;
 }
@@ -83,9 +83,9 @@ export function MetadataFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
     }
     return {
         
-        'meta': BlockMetaFromJSON(json['meta']),
         'readonly': json['readonly'],
         'deletable': json['deletable'],
+        'meta': BlockMetaFromJSON(json['meta']),
         'type': BlockMetadataTypeFromJSON(json['type']),
     };
 }
@@ -101,9 +101,9 @@ export function MetadataToJSONTyped(value?: Metadata | null, ignoreDiscriminator
 
     return {
         
-        'meta': BlockMetaToJSON(value['meta']),
         'readonly': value['readonly'],
         'deletable': value['deletable'],
+        'meta': BlockMetaToJSON(value['meta']),
         'type': BlockMetadataTypeToJSON(value['type']),
     };
 }

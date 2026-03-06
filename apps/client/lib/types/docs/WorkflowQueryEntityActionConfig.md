@@ -12,9 +12,9 @@ Name | Type
 `pagination` | [QueryPagination](QueryPagination.md)
 `projection` | [QueryProjection](QueryProjection.md)
 `timeoutSeconds` | number
+`configSchema` | [Array&lt;WorkflowNodeConfigField&gt;](WorkflowNodeConfigField.md)
 `config` | { [key: string]: object; }
 `subType` | [WorkflowActionType](WorkflowActionType.md)
-`configSchema` | [Array&lt;WorkflowNodeConfigField&gt;](WorkflowNodeConfigField.md)
 `type` | [WorkflowNodeType](WorkflowNodeType.md)
 
 ## Example
@@ -29,9 +29,9 @@ const example = {
   "pagination": null,
   "projection": null,
   "timeoutSeconds": null,
+  "configSchema": null,
   "config": null,
   "subType": null,
-  "configSchema": null,
   "type": null,
 } satisfies WorkflowQueryEntityActionConfig
 

@@ -9,7 +9,7 @@ Name | Type
 `key` | string
 `id` | string
 `type` | [EntityTypeRequestDefinition](EntityTypeRequestDefinition.md)
-`deleteAction` | [DeleteAction](DeleteAction.md)
+`sourceEntityTypeKey` | string
 
 ## Example
 
@@ -21,7 +21,7 @@ const example = {
   "key": null,
   "id": null,
   "type": null,
-  "deleteAction": null,
+  "sourceEntityTypeKey": null,
 } satisfies DeleteTypeDefinitionRequestDefinition
 
 console.log(example)

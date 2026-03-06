@@ -84,6 +84,7 @@ Riven is a unified business tooling SaaS platform that aims to connect all tools
 
 ## Styling Rules
 
+- **Always use Tailwind's built-in utility classes** — never use arbitrary values (e.g., `text-[11px]`, `w-[200px]`) when a standard class exists (`text-xs`, `w-52`). Arbitrary values are a last resort for truly custom one-off values with no Tailwind equivalent.
 - Tailwind 4 with CSS-based config in `app/globals.css` (no `tailwind.config.ts`).
 - Color tokens via CSS custom properties using oklch. Semantic tokens: `--background`, `--foreground`, `--card`, `--primary`, `--muted`, `--destructive`, `--edit`, `--archive`, plus sidebar and chart variants.
 - Dark mode: class-based toggling via `next-themes`. `.dark` class on `<html>`. Custom variant: `@custom-variant dark (&:is(.dark *))`.

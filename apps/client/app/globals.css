@@ -57,7 +57,7 @@
 }
 
 :root {
-  --header-height: 3.75rem;
+  --header-height: 3.5rem;
   --icon-rail-width: 3.5rem;
   --sub-panel-width: 17.5rem;
   --logo-primary: oklch(0.35 0 0);

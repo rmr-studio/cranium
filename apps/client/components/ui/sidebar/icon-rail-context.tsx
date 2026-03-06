@@ -13,9 +13,13 @@ import {
 export type PanelId = 'workspaces' | 'overview' | 'entities' | 'billing' | 'settings';
 
 interface IconRailContextValue {
-  activePanel: PanelId | null;
+  /** Which panel icon is selected (stays set even when panel is collapsed) */
+  selectedPanel: PanelId;
+  /** Whether the sub-panel is currently visible */
+  panelOpen: boolean;
   togglePanel: (id: PanelId) => void;
   closePanel: () => void;
+  openPanel: () => void;
   isMobile: boolean;
   mobileOpen: boolean;
   setMobileOpen: (open: boolean) => void;
@@ -24,54 +28,71 @@ interface IconRailContextValue {
 const IconRailContext = createContext<IconRailContextValue | null>(null);
 
 export function IconRailProvider({ children }: { children: ReactNode }) {
-  const [activePanel, setActivePanel] = useState<PanelId | null>(null);
+  const DEFAULT_PANEL: PanelId = 'overview';
+  const validPanels: PanelId[] = ['workspaces', 'overview', 'entities', 'billing', 'settings'];
+
+  const [selectedPanel, setSelectedPanel] = useState<PanelId>(DEFAULT_PANEL);
+  const [panelOpen, setPanelOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const isMobile = useIsMobile();
-
-  const validPanels: PanelId[] = ['workspaces', 'overview', 'entities', 'billing', 'settings'];
 
   // Hydrate from localStorage after mount
   useEffect(() => {
     const stored = localStorage.getItem('activePanel');
     if (stored && validPanels.includes(stored as PanelId)) {
-      setActivePanel(stored as PanelId);
+      setSelectedPanel(stored as PanelId);
     }
+    setPanelOpen(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const togglePanel = useCallback((id: PanelId) => {
-    setActivePanel((prev) => {
-      const next = prev === id ? null : id;
-      if (next) localStorage.setItem('activePanel', next);
-      else localStorage.removeItem('activePanel');
-      return next;
-    });
-  }, []);
+  const togglePanel = useCallback(
+    (id: PanelId) => {
+      if (selectedPanel === id) {
+        // Same icon clicked — toggle panel visibility
+        const next = !panelOpen;
+        setPanelOpen(next);
+        if (next) localStorage.setItem('activePanel', id);
+        else localStorage.removeItem('activePanel');
+      } else {
+        // Different icon — select it and open
+        setSelectedPanel(id);
+        setPanelOpen(true);
+        localStorage.setItem('activePanel', id);
+      }
+    },
+    [selectedPanel, panelOpen],
+  );
 
   const closePanel = useCallback(() => {
-    setActivePanel(null);
+    setPanelOpen(false);
     localStorage.removeItem('activePanel');
   }, []);
+
+  const openPanel = useCallback(() => {
+    setPanelOpen(true);
+    localStorage.setItem('activePanel', selectedPanel);
+  }, [selectedPanel]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
         e.preventDefault();
-        if (activePanel) {
+        if (panelOpen) {
           closePanel();
         } else {
-          setActivePanel('overview');
+          openPanel();
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activePanel, closePanel]);
+  }, [panelOpen, selectedPanel, closePanel, openPanel]);
 
   return (
     <IconRailContext.Provider
-      value={{ activePanel, togglePanel, closePanel, isMobile, mobileOpen, setMobileOpen }}
+      value={{ selectedPanel, panelOpen, togglePanel, closePanel, openPanel, isMobile, mobileOpen, setMobileOpen }}
     >
       {children}
     </IconRailContext.Provider>

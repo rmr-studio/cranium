@@ -5,21 +5,38 @@ import { useProfile } from '@/components/feature-modules/user/hooks/useProfile';
 import { useIconRail } from '@/components/ui/sidebar/icon-rail-context';
 import { Button } from '@riven/ui/button';
 import { ThemeToggle } from '@riven/ui/theme-toggle';
-import { Menu } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Menu, PanelLeftOpen } from 'lucide-react';
 import Link from 'next/dist/client/link';
 import { FC } from 'react';
 import { Skeleton } from '../skeleton';
 
 export const Navbar = () => {
-  const { setMobileOpen, isMobile } = useIconRail();
+  const { setMobileOpen, isMobile, panelOpen, openPanel } = useIconRail();
+
+  const showReopenButton = !isMobile && !panelOpen;
 
   return (
-    <nav className="sticky top-0 flex h-[--header-height] w-auto flex-grow items-center border-b bg-background/40 px-4 backdrop-blur-[4px]">
+    <nav className="sticky top-0 flex h-(--header-height) w-auto flex-grow items-center border-b bg-background/40 px-4">
       {isMobile && (
         <Button onClick={() => setMobileOpen(true)} variant="ghost" size="icon" className="mr-4">
           <Menu className="size-5" />
         </Button>
       )}
+      <AnimatePresence>
+        {showReopenButton && (
+          <motion.div
+            initial={{ opacity: 0, width: 0 }}
+            animate={{ opacity: 1, width: 'auto' }}
+            exit={{ opacity: 0, width: 0 }}
+            transition={{ duration: 0.15, delay: 0.1 }}
+          >
+            <Button onClick={openPanel} variant="ghost" size="icon">
+              <PanelLeftOpen className="size-4" />
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <div className="mr-2 flex w-auto grow justify-end">
         <NavbarUserProfile />
       </div>

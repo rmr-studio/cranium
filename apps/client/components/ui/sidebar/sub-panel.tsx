@@ -26,13 +26,13 @@ const panelComponents: Record<PanelId, React.ComponentType> = {
 };
 
 export function SubPanel() {
-  const { activePanel, closePanel, isMobile } = useIconRail();
+  const { selectedPanel, panelOpen, closePanel, isMobile } = useIconRail();
 
   if (isMobile) return null;
 
   return (
     <AnimatePresence>
-      {activePanel && (
+      {panelOpen && (
         <motion.aside
           key="sub-panel"
           initial={{ width: 0, opacity: 0 }}
@@ -41,11 +41,11 @@ export function SubPanel() {
           transition={{ duration: 0.2, ease: 'linear' }}
           className="h-full shrink-0 overflow-hidden border-r border-foreground/15 bg-sidebar"
         >
-          <div className="flex h-full w-[--sub-panel-width] flex-col">
+          <div className="flex h-full w-(--sub-panel-width) flex-col">
             {/* Header */}
-            <div className="flex h-[--header-height] shrink-0 items-center justify-between border-b px-4">
+            <div className="flex min-h-(--header-height) shrink-0 items-center justify-between border-b px-4">
               <span className="text-sm font-semibold text-sidebar-foreground">
-                {panelTitles[activePanel]}
+                {panelTitles[selectedPanel]}
               </span>
               <button
                 onClick={closePanel}
@@ -58,7 +58,7 @@ export function SubPanel() {
             {/* Content */}
             <div className="flex-1 overflow-y-auto px-3 py-2">
               {(() => {
-                const PanelComponent = panelComponents[activePanel];
+                const PanelComponent = panelComponents[selectedPanel];
                 return <PanelComponent />;
               })()}
             </div>

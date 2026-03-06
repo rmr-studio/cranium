@@ -2,18 +2,12 @@
 
 import { useProfile } from '@/components/feature-modules/user/hooks/useProfile';
 import { useWorkspaceStore } from '@/components/feature-modules/workspace/provider/workspace-provider';
-import { cn } from '@riven/utils';
 import { Logo } from '@riven/ui/logo';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@riven/ui/tooltip';
-import {
-  Building2,
-  CogIcon,
-  SquareDashedMousePointer,
-  TrendingUpDown,
-} from 'lucide-react';
-import { type PanelId, useIconRail } from './icon-rail-context';
-import { Avatar, AvatarFallback } from '../avatar';
+import { cn } from '@riven/utils';
+import { Building2, CogIcon, SquareDashedMousePointer, TrendingUpDown } from 'lucide-react';
 import { Skeleton } from '../skeleton';
+import { type PanelId, useIconRail } from './icon-rail-context';
 
 interface RailButton {
   id: PanelId;
@@ -49,84 +43,60 @@ function WorkspaceIcon() {
   );
 }
 
-function UserAvatar() {
-  const { data, isPending, isLoadingAuth } = useProfile();
-
-  if (isPending || isLoadingAuth) {
-    return <Skeleton className="size-8 rounded-full" />;
-  }
-
-  const initials = data
-    ? `${data.firstName?.charAt(0) ?? ''}${data.lastName?.charAt(0) ?? ''}`
-    : '?';
-
-  return (
-    <Avatar className="size-8">
-      <AvatarFallback className="bg-background/15 text-xs text-background">{initials}</AvatarFallback>
-    </Avatar>
-  );
-}
-
 export function IconRail() {
-  const { activePanel, togglePanel, isMobile } = useIconRail();
+  const { selectedPanel, togglePanel, isMobile } = useIconRail();
 
   if (isMobile) return null;
 
   return (
     <TooltipProvider delayDuration={0}>
-    <aside className="flex h-full w-[--icon-rail-width] shrink-0 flex-col items-center bg-foreground">
-      {/* Top section — matches header height */}
-      <div className="flex h-[--header-height] w-full shrink-0 flex-col items-center justify-center gap-1 border-b border-background/15 [--logo-primary:var(--background)]">
-        <Logo size={24} />
-      </div>
+      <aside className="flex h-full w-(--icon-rail-width) shrink-0 flex-col items-center bg-foreground">
+        {/* Top section — matches header height */}
+        <div className="flex h-(--header-height) w-full shrink-0 flex-col items-center justify-center gap-1 border-b border-background/15 [--logo-primary:var(--background)]">
+          <Logo size={24} />
+        </div>
 
-      {/* Workspace switcher */}
-      <div className="pt-2">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              onClick={() => togglePanel('workspaces')}
-              className={cn(
-                'mb-1 flex items-center justify-center rounded-md p-1 transition-colors hover:bg-background/10',
-                activePanel === 'workspaces' && 'bg-background/15',
-              )}
-            >
-              <WorkspaceIcon />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="right">Workspaces</TooltipContent>
-        </Tooltip>
-      </div>
-
-      {/* Separator */}
-      <div className="mx-auto my-2 h-px w-8 bg-background/20" />
-
-      {/* Nav items */}
-      <nav className="flex flex-1 flex-col items-center gap-1">
-        {navItems.map((item) => (
-          <Tooltip key={item.id}>
+        {/* Workspace switcher */}
+        <div className="pt-2">
+          <Tooltip>
             <TooltipTrigger asChild>
               <button
-                onClick={() => togglePanel(item.id)}
+                onClick={() => togglePanel('workspaces')}
                 className={cn(
-                  'flex size-10 items-center justify-center rounded-md text-background/60 transition-colors hover:bg-background/10 hover:text-background',
-                  activePanel === item.id &&
-                    'bg-background/15 text-background',
+                  'mb-1 flex items-center justify-center rounded-md p-1 transition-colors hover:bg-background/10',
+                  selectedPanel === 'workspaces' && 'bg-background/15',
                 )}
               >
-                {item.icon}
+                <WorkspaceIcon />
               </button>
             </TooltipTrigger>
-            <TooltipContent side="right">{item.label}</TooltipContent>
+            <TooltipContent side="right">Workspaces</TooltipContent>
           </Tooltip>
-        ))}
-      </nav>
+        </div>
 
-      {/* User avatar at bottom */}
-      <div className="mt-auto pt-2">
-        <UserAvatar />
-      </div>
-    </aside>
+        {/* Separator */}
+        <div className="mx-auto my-2 h-px w-8 bg-background/20" />
+
+        {/* Nav items */}
+        <nav className="flex flex-1 flex-col items-center gap-1">
+          {navItems.map((item) => (
+            <Tooltip key={item.id}>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => togglePanel(item.id)}
+                  className={cn(
+                    'flex size-10 items-center justify-center rounded-md text-background/60 transition-colors hover:bg-background/10 hover:text-background',
+                    selectedPanel ===item.id && 'bg-background/15 text-background',
+                  )}
+                >
+                  {item.icon}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">{item.label}</TooltipContent>
+            </Tooltip>
+          ))}
+        </nav>
+      </aside>
     </TooltipProvider>
   );
 }

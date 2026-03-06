@@ -16,7 +16,8 @@ object StorageFactory {
         originalFilename: String = "test-image.png",
         contentType: String = "image/png",
         fileSize: Long = 1024L,
-        uploadedBy: UUID = UUID.fromString("f8b1c2d3-4e5f-6789-abcd-ef0123456789")
+        uploadedBy: UUID = UUID.fromString("f8b1c2d3-4e5f-6789-abcd-ef0123456789"),
+        metadata: Map<String, String>? = null
     ): FileMetadataEntity = FileMetadataEntity(
         id = id,
         workspaceId = workspaceId,
@@ -25,7 +26,8 @@ object StorageFactory {
         originalFilename = originalFilename,
         contentType = contentType,
         fileSize = fileSize,
-        uploadedBy = uploadedBy
+        uploadedBy = uploadedBy,
+        metadata = metadata
     )
 
     fun fileMetadata(
@@ -37,6 +39,7 @@ object StorageFactory {
         contentType: String = "image/png",
         fileSize: Long = 1024L,
         uploadedBy: UUID = UUID.fromString("f8b1c2d3-4e5f-6789-abcd-ef0123456789"),
+        metadata: Map<String, String>? = null,
         createdAt: ZonedDateTime = ZonedDateTime.now(),
         updatedAt: ZonedDateTime = ZonedDateTime.now()
     ): FileMetadata = FileMetadata(
@@ -48,6 +51,7 @@ object StorageFactory {
         contentType = contentType,
         fileSize = fileSize,
         uploadedBy = uploadedBy,
+        metadata = metadata,
         createdAt = createdAt,
         updatedAt = updatedAt
     )

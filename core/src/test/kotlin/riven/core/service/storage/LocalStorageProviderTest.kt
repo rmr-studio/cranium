@@ -13,6 +13,7 @@ import riven.core.exceptions.StorageProviderException
 import java.io.ByteArrayInputStream
 import java.nio.file.Files
 import java.nio.file.Path
+import java.time.Duration
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -158,6 +159,17 @@ class LocalStorageProviderTest {
             val badProvider = LocalStorageProvider(logger, badConfig)
 
             assertFalse(badProvider.healthCheck())
+        }
+    }
+
+    @Nested
+    inner class GenerateUploadUrl {
+
+        @Test
+        fun `throws UnsupportedOperationException`() {
+            assertThrows<UnsupportedOperationException> {
+                provider.generateUploadUrl("workspace/avatar/file.png", "image/png", Duration.ofHours(1))
+            }
         }
     }
 

@@ -97,6 +97,18 @@ class LocalStorageProvider(
     /**
      * Not supported by the local adapter.
      *
+     * Presigned upload URLs require a remote storage backend. Local storage
+     * uses proxied upload via StorageService instead.
+     *
+     * @throws UnsupportedOperationException always
+     */
+    override fun generateUploadUrl(key: String, contentType: String, expiresIn: Duration): String {
+        throw UnsupportedOperationException("Local storage does not support presigned upload URLs")
+    }
+
+    /**
+     * Not supported by the local adapter.
+     *
      * Signed URL generation for local storage is handled by SignedUrlService,
      * which is wired through StorageService (Plan 03).
      *

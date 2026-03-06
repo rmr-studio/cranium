@@ -1,5 +1,6 @@
 package riven.core.entity.storage
 
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -9,6 +10,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Index
 import jakarta.persistence.Table
+import org.hibernate.annotations.Type
 import riven.core.entity.util.AuditableSoftDeletableEntity
 import riven.core.enums.storage.StorageDomain
 import riven.core.models.storage.FileMetadata
@@ -52,6 +54,10 @@ data class FileMetadataEntity(
     @Column(name = "uploaded_by", nullable = false, columnDefinition = "uuid")
     val uploadedBy: UUID,
 
+    @Type(JsonBinaryType::class)
+    @Column(name = "metadata", columnDefinition = "jsonb")
+    var metadata: Map<String, String>? = null,
+
 ) : AuditableSoftDeletableEntity() {
 
     fun toModel(): FileMetadata = FileMetadata(
@@ -63,6 +69,7 @@ data class FileMetadataEntity(
         contentType = contentType,
         fileSize = fileSize,
         uploadedBy = uploadedBy,
+        metadata = metadata,
         createdAt = createdAt!!,
         updatedAt = updatedAt!!
     )

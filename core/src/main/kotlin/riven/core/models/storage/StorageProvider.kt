@@ -48,6 +48,16 @@ interface StorageProvider {
     fun exists(key: String): Boolean
 
     /**
+     * Generate a time-limited presigned URL for uploading a file directly to the storage backend.
+     *
+     * @param key storage key for the file to be uploaded
+     * @param contentType MIME type hint (may be ignored by some implementations to avoid 403 errors)
+     * @param expiresIn duration until the presigned URL expires
+     * @return presigned upload URL string
+     */
+    fun generateUploadUrl(key: String, contentType: String, expiresIn: Duration): String
+
+    /**
      * Generate a time-limited signed URL for downloading a file.
      *
      * @param key storage key identifying the file

@@ -43,6 +43,15 @@ storage:
     secret: test-hmac-secret-for-unit-tests
     default-expiry-seconds: 3600
     max-expiry-seconds: 86400
+  presigned-upload:
+    expiry-seconds: 900
+  supabase:
+    bucket: test-bucket
+  s3:
+    bucket: test-bucket
+    region: us-east-1
+    access-key-id: test-key
+    secret-access-key: test-secret
 
 # Logging
 logging:

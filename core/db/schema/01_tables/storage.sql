@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS "file_metadata"
     "content_type"      VARCHAR(255)             NOT NULL,
     "file_size"         BIGINT                   NOT NULL,
     "uploaded_by"       UUID                     NOT NULL,
+    "metadata"          JSONB,
     "deleted"           BOOLEAN                  NOT NULL DEFAULT FALSE,
     "deleted_at"        TIMESTAMPTZ,
     "created_at"        TIMESTAMPTZ              NOT NULL DEFAULT NOW(),

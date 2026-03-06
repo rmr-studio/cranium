@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.web.multipart.MultipartFile
 import riven.core.configuration.auth.WorkspaceSecurity
+import riven.core.configuration.storage.StorageConfigurationProperties
 import riven.core.entity.storage.FileMetadataEntity
 import riven.core.enums.storage.StorageDomain
 import riven.core.enums.workspace.WorkspaceRoles
@@ -19,6 +20,10 @@ import riven.core.exceptions.ContentTypeNotAllowedException
 import riven.core.exceptions.FileSizeLimitExceededException
 import riven.core.exceptions.NotFoundException
 import riven.core.exceptions.SignedUrlExpiredException
+import riven.core.exceptions.StorageNotFoundException
+import riven.core.models.request.storage.ConfirmUploadRequest
+import riven.core.models.request.storage.BatchDeleteRequest
+import riven.core.models.request.storage.UpdateMetadataRequest
 import riven.core.models.storage.DownloadResult
 import riven.core.models.storage.StorageProvider
 import riven.core.models.storage.StorageResult
@@ -38,7 +43,8 @@ import java.util.*
         AuthTokenService::class,
         WorkspaceSecurity::class,
         StorageServiceTest.TestConfig::class,
-        StorageService::class
+        StorageService::class,
+        StorageConfigurationProperties::class
     ]
 )
 @WithUserPersona(
@@ -76,6 +82,9 @@ class StorageServiceTest {
     private lateinit var fileMetadataRepository: FileMetadataRepository
 
     @MockitoBean
+    private lateinit var storageConfig: StorageConfigurationProperties
+
+    @MockitoBean
     private lateinit var activityService: ActivityService
 
     @MockitoBean
@@ -90,9 +99,16 @@ class StorageServiceTest {
     fun setUp() {
         reset(
             storageProvider, contentValidationService, signedUrlService,
-            fileMetadataRepository, activityService, authTokenService
+            storageConfig, fileMetadataRepository, activityService, authTokenService
         )
         whenever(authTokenService.getUserId()).thenReturn(userId)
+        // Default: simulate local adapter behavior where generateSignedUrl is unsupported,
+        // causing StorageService to fall back to SignedUrlService.
+        whenever(storageProvider.generateSignedUrl(any(), any()))
+            .thenThrow(UnsupportedOperationException("Use SignedUrlService for local signed URLs"))
+        // Default presigned upload config
+        whenever(storageConfig.presignedUpload)
+            .thenReturn(StorageConfigurationProperties.PresignedUpload(expirySeconds = 900))
     }
 
     // ------ Upload Tests ------
@@ -408,6 +424,93 @@ class StorageServiceTest {
         verify(fileMetadataRepository, never()).findByWorkspaceId(any())
     }
 
+    // ------ Signed URL Fallback Tests ------
+
+    @Test
+    fun `generateSignedUrl uses provider signed URL when provider supports it`() {
+        val fileId = UUID.randomUUID()
+        val entity = StorageFactory.fileMetadataEntity(
+            id = fileId,
+            workspaceId = workspaceId,
+            storageKey = testStorageKey
+        ).apply {
+            createdAt = java.time.ZonedDateTime.now()
+            updatedAt = java.time.ZonedDateTime.now()
+        }
+
+        whenever(fileMetadataRepository.findByIdAndWorkspaceId(fileId, workspaceId))
+            .thenReturn(Optional.of(entity))
+        whenever(storageProvider.generateSignedUrl(eq(testStorageKey), any()))
+            .thenReturn("https://supabase.co/storage/v1/sign/bucket/file")
+        whenever(signedUrlService.getDefaultExpiry()).thenReturn(Duration.ofHours(1))
+
+        val result = storageService.generateSignedUrl(workspaceId, fileId, null)
+
+        assertEquals("https://supabase.co/storage/v1/sign/bucket/file", result.url)
+        verify(signedUrlService, never()).generateDownloadUrl(any(), any())
+    }
+
+    @Test
+    fun `generateSignedUrl falls back to signedUrlService when provider throws UnsupportedOperationException`() {
+        val fileId = UUID.randomUUID()
+        val entity = StorageFactory.fileMetadataEntity(
+            id = fileId,
+            workspaceId = workspaceId,
+            storageKey = testStorageKey
+        ).apply {
+            createdAt = java.time.ZonedDateTime.now()
+            updatedAt = java.time.ZonedDateTime.now()
+        }
+
+        whenever(fileMetadataRepository.findByIdAndWorkspaceId(fileId, workspaceId))
+            .thenReturn(Optional.of(entity))
+        whenever(storageProvider.generateSignedUrl(eq(testStorageKey), any()))
+            .thenThrow(UnsupportedOperationException("Use SignedUrlService for local signed URLs"))
+        whenever(signedUrlService.generateDownloadUrl(eq(testStorageKey), any()))
+            .thenReturn("/api/v1/storage/download/fallback-token")
+        whenever(signedUrlService.getDefaultExpiry()).thenReturn(Duration.ofHours(1))
+
+        val result = storageService.generateSignedUrl(workspaceId, fileId, null)
+
+        assertEquals("/api/v1/storage/download/fallback-token", result.url)
+        verify(signedUrlService).generateDownloadUrl(eq(testStorageKey), any())
+    }
+
+    @Test
+    fun `uploadFile uses provider signed URL for response when provider supports it`() {
+        val file = mockMultipartFile("test-image.png", "image/png", ByteArray(1024))
+        val savedEntity = StorageFactory.fileMetadataEntity(
+            workspaceId = workspaceId,
+            storageKey = testStorageKey,
+            originalFilename = "test-image.png",
+            contentType = "image/png",
+            fileSize = 1024L,
+            uploadedBy = userId
+        ).apply {
+            createdAt = java.time.ZonedDateTime.now()
+            updatedAt = java.time.ZonedDateTime.now()
+        }
+
+        whenever(contentValidationService.detectContentType(any<InputStream>(), eq("test-image.png")))
+            .thenReturn("image/png")
+        whenever(contentValidationService.generateStorageKey(eq(workspaceId), eq(StorageDomain.AVATAR), eq("image/png")))
+            .thenReturn(testStorageKey)
+        whenever(storageProvider.upload(eq(testStorageKey), any(), eq("image/png"), eq(1024L)))
+            .thenReturn(StorageResult(testStorageKey, "image/png", 1024L))
+        whenever(fileMetadataRepository.save(any<FileMetadataEntity>()))
+            .thenReturn(savedEntity)
+        whenever(storageProvider.generateSignedUrl(eq(testStorageKey), any()))
+            .thenReturn("https://supabase.co/storage/v1/sign/bucket/file")
+        whenever(signedUrlService.getDefaultExpiry()).thenReturn(Duration.ofHours(1))
+        whenever(activityService.logActivity(any(), any(), any(), any(), any(), any(), any(), any()))
+            .thenReturn(mock())
+
+        val result = storageService.uploadFile(workspaceId, StorageDomain.AVATAR, file)
+
+        assertEquals("https://supabase.co/storage/v1/sign/bucket/file", result.signedUrl)
+        verify(signedUrlService, never()).generateDownloadUrl(any(), any())
+    }
+
     // ------ Download File Tests ------
 
     @Test
@@ -456,7 +559,616 @@ class StorageServiceTest {
         verify(storageProvider, never()).download(any())
     }
 
+    // ------ Presigned Upload Tests ------
+
+    @Test
+    fun `requestPresignedUpload returns presigned URL when provider supports it`() {
+        whenever(contentValidationService.generateStorageKey(eq(workspaceId), eq(StorageDomain.AVATAR), eq("image/png")))
+            .thenReturn(testStorageKey)
+        whenever(storageProvider.generateUploadUrl(eq(testStorageKey), eq("image/png"), eq(Duration.ofSeconds(900))))
+            .thenReturn("https://s3.amazonaws.com/bucket/presigned-upload-url")
+
+        val result = storageService.requestPresignedUpload(workspaceId, StorageDomain.AVATAR, "image/png")
+
+        assertTrue(result.supported)
+        assertEquals(testStorageKey, result.storageKey)
+        assertEquals("https://s3.amazonaws.com/bucket/presigned-upload-url", result.uploadUrl)
+        assertEquals("PUT", result.method)
+    }
+
+    @Test
+    fun `requestPresignedUpload returns unsupported when provider throws UnsupportedOperationException`() {
+        whenever(contentValidationService.generateStorageKey(eq(workspaceId), eq(StorageDomain.AVATAR), eq("image/png")))
+            .thenReturn(testStorageKey)
+        whenever(storageProvider.generateUploadUrl(eq(testStorageKey), eq("image/png"), eq(Duration.ofSeconds(900))))
+            .thenThrow(UnsupportedOperationException("Local provider does not support presigned uploads"))
+
+        val result = storageService.requestPresignedUpload(workspaceId, StorageDomain.AVATAR, "image/png")
+
+        assertFalse(result.supported)
+        assertEquals(testStorageKey, result.storageKey)
+        assertNull(result.uploadUrl)
+        assertNull(result.method)
+    }
+
+    @Test
+    fun `confirmPresignedUpload validates file and persists metadata`() {
+        val storageKey = "$workspaceId/avatar/${UUID.randomUUID()}.png"
+        val request = ConfirmUploadRequest(storageKey = storageKey, originalFilename = "photo.png")
+        val fileBytes = ByteArray(2048)
+        val savedEntity = StorageFactory.fileMetadataEntity(
+            workspaceId = workspaceId,
+            storageKey = storageKey,
+            originalFilename = "photo.png",
+            contentType = "image/png",
+            fileSize = 2048L,
+            uploadedBy = userId
+        ).apply {
+            createdAt = java.time.ZonedDateTime.now()
+            updatedAt = java.time.ZonedDateTime.now()
+        }
+
+        whenever(storageProvider.exists(storageKey)).thenReturn(true)
+        whenever(storageProvider.download(storageKey)).thenReturn(
+            DownloadResult(ByteArrayInputStream(fileBytes), "application/octet-stream", fileBytes.size.toLong(), null)
+        )
+        whenever(contentValidationService.detectContentType(any<InputStream>(), eq("photo.png")))
+            .thenReturn("image/png")
+        whenever(fileMetadataRepository.save(any<FileMetadataEntity>()))
+            .thenReturn(savedEntity)
+        whenever(signedUrlService.generateDownloadUrl(eq(storageKey), any()))
+            .thenReturn("/api/v1/storage/download/some-token")
+        whenever(signedUrlService.getDefaultExpiry()).thenReturn(Duration.ofHours(1))
+        whenever(activityService.logActivity(any(), any(), any(), any(), any(), any(), any(), any()))
+            .thenReturn(mock())
+
+        val result = storageService.confirmPresignedUpload(workspaceId, request)
+
+        assertNotNull(result)
+        assertEquals("photo.png", result.file.originalFilename)
+        verify(storageProvider).exists(storageKey)
+        verify(storageProvider).download(storageKey)
+        verify(contentValidationService).detectContentType(any<InputStream>(), eq("photo.png"))
+        verify(contentValidationService).validateContentType(StorageDomain.AVATAR, "image/png")
+        verify(fileMetadataRepository).save(any<FileMetadataEntity>())
+    }
+
+    @Test
+    fun `confirmPresignedUpload deletes file and throws when content type validation fails`() {
+        val storageKey = "$workspaceId/avatar/${UUID.randomUUID()}.png"
+        val request = ConfirmUploadRequest(storageKey = storageKey, originalFilename = "malware.exe")
+        val fileBytes = ByteArray(512)
+
+        whenever(storageProvider.exists(storageKey)).thenReturn(true)
+        whenever(storageProvider.download(storageKey)).thenReturn(
+            DownloadResult(ByteArrayInputStream(fileBytes), "application/octet-stream", fileBytes.size.toLong(), null)
+        )
+        whenever(contentValidationService.detectContentType(any<InputStream>(), eq("malware.exe")))
+            .thenReturn("application/x-msdownload")
+        whenever(contentValidationService.validateContentType(StorageDomain.AVATAR, "application/x-msdownload"))
+            .thenThrow(ContentTypeNotAllowedException("Content type not allowed"))
+
+        assertThrows<ContentTypeNotAllowedException> {
+            storageService.confirmPresignedUpload(workspaceId, request)
+        }
+
+        verify(storageProvider).delete(storageKey)
+        verify(fileMetadataRepository, never()).save(any<FileMetadataEntity>())
+    }
+
+    @Test
+    fun `confirmPresignedUpload throws StorageNotFoundException when file does not exist`() {
+        val storageKey = "$workspaceId/avatar/${UUID.randomUUID()}.png"
+        val request = ConfirmUploadRequest(storageKey = storageKey, originalFilename = "missing.png")
+
+        whenever(storageProvider.exists(storageKey)).thenReturn(false)
+
+        assertThrows<StorageNotFoundException> {
+            storageService.confirmPresignedUpload(workspaceId, request)
+        }
+
+        verify(storageProvider, never()).download(any())
+    }
+
+    @Test
+    fun `confirmPresignedUpload persists optional metadata`() {
+        val storageKey = "$workspaceId/avatar/${UUID.randomUUID()}.png"
+        val customMetadata = mapOf("source" to "camera", "description" to "profile photo")
+        val request = ConfirmUploadRequest(storageKey = storageKey, originalFilename = "photo.png", metadata = customMetadata)
+        val fileBytes = ByteArray(2048)
+        val savedEntity = StorageFactory.fileMetadataEntity(
+            workspaceId = workspaceId,
+            storageKey = storageKey,
+            originalFilename = "photo.png",
+            contentType = "image/png",
+            fileSize = 2048L,
+            uploadedBy = userId,
+            metadata = customMetadata
+        ).apply {
+            createdAt = java.time.ZonedDateTime.now()
+            updatedAt = java.time.ZonedDateTime.now()
+        }
+
+        whenever(storageProvider.exists(storageKey)).thenReturn(true)
+        whenever(storageProvider.download(storageKey)).thenReturn(
+            DownloadResult(ByteArrayInputStream(fileBytes), "application/octet-stream", fileBytes.size.toLong(), null)
+        )
+        whenever(contentValidationService.detectContentType(any<InputStream>(), eq("photo.png")))
+            .thenReturn("image/png")
+        whenever(fileMetadataRepository.save(any<FileMetadataEntity>()))
+            .thenReturn(savedEntity)
+        whenever(signedUrlService.generateDownloadUrl(eq(storageKey), any()))
+            .thenReturn("/api/v1/storage/download/some-token")
+        whenever(signedUrlService.getDefaultExpiry()).thenReturn(Duration.ofHours(1))
+        whenever(activityService.logActivity(any(), any(), any(), any(), any(), any(), any(), any()))
+            .thenReturn(mock())
+
+        val result = storageService.confirmPresignedUpload(workspaceId, request)
+
+        assertNotNull(result)
+        verify(fileMetadataRepository).save(argThat<FileMetadataEntity> {
+            this.metadata == customMetadata
+        })
+    }
+
+    // ------ Metadata Tests ------
+
+    @Test
+    fun `updateMetadata merges new keys, preserves existing, removes null-value keys`() {
+        val fileId = UUID.randomUUID()
+        val existingMetadata = mapOf("key1" to "value1", "key2" to "value2", "key3" to "value3")
+        val entity = StorageFactory.fileMetadataEntity(
+            id = fileId,
+            workspaceId = workspaceId,
+            metadata = existingMetadata
+        ).apply {
+            createdAt = java.time.ZonedDateTime.now()
+            updatedAt = java.time.ZonedDateTime.now()
+        }
+
+        whenever(fileMetadataRepository.findByIdAndWorkspaceId(fileId, workspaceId))
+            .thenReturn(Optional.of(entity))
+        whenever(fileMetadataRepository.save(any<FileMetadataEntity>()))
+            .thenReturn(entity)
+        whenever(activityService.logActivity(any(), any(), any(), any(), any(), any(), any(), any()))
+            .thenReturn(mock())
+
+        val request = UpdateMetadataRequest(
+            metadata = mapOf("key2" to "updated", "key3" to null, "key4" to "new")
+        )
+
+        val result = storageService.updateMetadata(workspaceId, fileId, request)
+
+        verify(fileMetadataRepository).save(argThat<FileMetadataEntity> {
+            val meta = this.metadata!!
+            meta["key1"] == "value1" && meta["key2"] == "updated" && !meta.containsKey("key3") && meta["key4"] == "new"
+        })
+    }
+
+    @Test
+    fun `updateMetadata creates new metadata map when entity has no existing metadata`() {
+        val fileId = UUID.randomUUID()
+        val entity = StorageFactory.fileMetadataEntity(
+            id = fileId,
+            workspaceId = workspaceId,
+            metadata = null
+        ).apply {
+            createdAt = java.time.ZonedDateTime.now()
+            updatedAt = java.time.ZonedDateTime.now()
+        }
+
+        whenever(fileMetadataRepository.findByIdAndWorkspaceId(fileId, workspaceId))
+            .thenReturn(Optional.of(entity))
+        whenever(fileMetadataRepository.save(any<FileMetadataEntity>()))
+            .thenReturn(entity)
+        whenever(activityService.logActivity(any(), any(), any(), any(), any(), any(), any(), any()))
+            .thenReturn(mock())
+
+        val request = UpdateMetadataRequest(metadata = mapOf("newKey" to "newValue"))
+
+        storageService.updateMetadata(workspaceId, fileId, request)
+
+        verify(fileMetadataRepository).save(argThat<FileMetadataEntity> {
+            this.metadata == mapOf("newKey" to "newValue")
+        })
+    }
+
+    @Test
+    fun `updateMetadata logs FILE_UPDATE activity with old and new metadata`() {
+        val fileId = UUID.randomUUID()
+        val entity = StorageFactory.fileMetadataEntity(
+            id = fileId,
+            workspaceId = workspaceId,
+            metadata = mapOf("existing" to "value")
+        ).apply {
+            createdAt = java.time.ZonedDateTime.now()
+            updatedAt = java.time.ZonedDateTime.now()
+        }
+
+        whenever(fileMetadataRepository.findByIdAndWorkspaceId(fileId, workspaceId))
+            .thenReturn(Optional.of(entity))
+        whenever(fileMetadataRepository.save(any<FileMetadataEntity>()))
+            .thenReturn(entity)
+        whenever(activityService.logActivity(any(), any(), any(), any(), any(), any(), any(), any()))
+            .thenReturn(mock())
+
+        val request = UpdateMetadataRequest(metadata = mapOf("new" to "data"))
+
+        storageService.updateMetadata(workspaceId, fileId, request)
+
+        verify(activityService).logActivity(any(), any(), eq(userId), eq(workspaceId), any(), eq(fileId), any(), any())
+    }
+
+    @Test
+    fun `validateMetadata rejects more than 20 key-value pairs`() {
+        val tooManyPairs = (1..21).associate { "key$it" to "value$it" }
+        val request = UpdateMetadataRequest(metadata = tooManyPairs.mapValues { it.value as String? })
+
+        val fileId = UUID.randomUUID()
+        val entity = StorageFactory.fileMetadataEntity(id = fileId, workspaceId = workspaceId).apply {
+            createdAt = java.time.ZonedDateTime.now()
+            updatedAt = java.time.ZonedDateTime.now()
+        }
+
+        whenever(fileMetadataRepository.findByIdAndWorkspaceId(fileId, workspaceId))
+            .thenReturn(Optional.of(entity))
+
+        assertThrows<IllegalArgumentException> {
+            storageService.updateMetadata(workspaceId, fileId, request)
+        }
+    }
+
+    @Test
+    fun `validateMetadata rejects invalid key pattern`() {
+        val request = UpdateMetadataRequest(metadata = mapOf("invalid key!" to "value"))
+
+        val fileId = UUID.randomUUID()
+        val entity = StorageFactory.fileMetadataEntity(id = fileId, workspaceId = workspaceId).apply {
+            createdAt = java.time.ZonedDateTime.now()
+            updatedAt = java.time.ZonedDateTime.now()
+        }
+
+        whenever(fileMetadataRepository.findByIdAndWorkspaceId(fileId, workspaceId))
+            .thenReturn(Optional.of(entity))
+
+        assertThrows<IllegalArgumentException> {
+            storageService.updateMetadata(workspaceId, fileId, request)
+        }
+    }
+
+    @Test
+    fun `validateMetadata rejects values longer than 1024 characters`() {
+        val longValue = "x".repeat(1025)
+        val request = UpdateMetadataRequest(metadata = mapOf("key" to longValue))
+
+        val fileId = UUID.randomUUID()
+        val entity = StorageFactory.fileMetadataEntity(id = fileId, workspaceId = workspaceId).apply {
+            createdAt = java.time.ZonedDateTime.now()
+            updatedAt = java.time.ZonedDateTime.now()
+        }
+
+        whenever(fileMetadataRepository.findByIdAndWorkspaceId(fileId, workspaceId))
+            .thenReturn(Optional.of(entity))
+
+        assertThrows<IllegalArgumentException> {
+            storageService.updateMetadata(workspaceId, fileId, request)
+        }
+    }
+
+    @Test
+    fun `uploadFile with optional metadata persists metadata alongside file`() {
+        val customMetadata = mapOf("source" to "upload", "type" to "profile")
+        val file = mockMultipartFile("test-image.png", "image/png", ByteArray(1024))
+        val savedEntity = StorageFactory.fileMetadataEntity(
+            workspaceId = workspaceId,
+            storageKey = testStorageKey,
+            originalFilename = "test-image.png",
+            contentType = "image/png",
+            fileSize = 1024L,
+            uploadedBy = userId,
+            metadata = customMetadata
+        ).apply {
+            createdAt = java.time.ZonedDateTime.now()
+            updatedAt = java.time.ZonedDateTime.now()
+        }
+
+        whenever(contentValidationService.detectContentType(any<InputStream>(), eq("test-image.png")))
+            .thenReturn("image/png")
+        whenever(contentValidationService.generateStorageKey(eq(workspaceId), eq(StorageDomain.AVATAR), eq("image/png")))
+            .thenReturn(testStorageKey)
+        whenever(storageProvider.upload(eq(testStorageKey), any(), eq("image/png"), eq(1024L)))
+            .thenReturn(StorageResult(testStorageKey, "image/png", 1024L))
+        whenever(fileMetadataRepository.save(any<FileMetadataEntity>()))
+            .thenReturn(savedEntity)
+        whenever(signedUrlService.generateDownloadUrl(eq(testStorageKey), any()))
+            .thenReturn("/api/v1/storage/download/some-token")
+        whenever(signedUrlService.getDefaultExpiry()).thenReturn(Duration.ofHours(1))
+        whenever(activityService.logActivity(any(), any(), any(), any(), any(), any(), any(), any()))
+            .thenReturn(mock())
+
+        val result = storageService.uploadFile(workspaceId, StorageDomain.AVATAR, file, customMetadata)
+
+        assertNotNull(result)
+        verify(fileMetadataRepository).save(argThat<FileMetadataEntity> {
+            this.metadata == customMetadata
+        })
+    }
+
+    // ------ Batch Upload Tests ------
+
+    @Test
+    fun `batchUpload with 3 valid files returns BatchUploadResponse with 3 success results`() {
+        val files = (1..3).map { i ->
+            val file = mockMultipartFile("file$i.png", "image/png", ByteArray(1024))
+            file
+        }
+
+        setupUploadMocks()
+
+        val result = storageService.batchUpload(workspaceId, StorageDomain.AVATAR, files)
+
+        assertEquals(3, result.succeeded)
+        assertEquals(0, result.failed)
+        assertEquals(3, result.results.size)
+        result.results.forEach { item ->
+            assertEquals(201, item.status)
+            assertNull(item.error)
+            assertNotNull(item.id)
+        }
+    }
+
+    @Test
+    fun `batchUpload with 1 valid and 1 invalid returns mixed results`() {
+        val validFile = mockMultipartFile("valid.png", "image/png", ByteArray(1024))
+        val invalidFile = mockMultipartFile("invalid.exe", "application/exe", ByteArray(512))
+
+        val savedEntity = StorageFactory.fileMetadataEntity(
+            workspaceId = workspaceId,
+            storageKey = testStorageKey,
+            originalFilename = "valid.png",
+            contentType = "image/png",
+            fileSize = 1024L,
+            uploadedBy = userId
+        ).apply {
+            createdAt = java.time.ZonedDateTime.now()
+            updatedAt = java.time.ZonedDateTime.now()
+        }
+
+        // First file succeeds
+        whenever(contentValidationService.detectContentType(any<InputStream>(), eq("valid.png")))
+            .thenReturn("image/png")
+        whenever(contentValidationService.generateStorageKey(eq(workspaceId), eq(StorageDomain.AVATAR), eq("image/png")))
+            .thenReturn(testStorageKey)
+        whenever(storageProvider.upload(eq(testStorageKey), any(), eq("image/png"), eq(1024L)))
+            .thenReturn(StorageResult(testStorageKey, "image/png", 1024L))
+        whenever(fileMetadataRepository.save(any<FileMetadataEntity>()))
+            .thenReturn(savedEntity)
+        whenever(signedUrlService.generateDownloadUrl(eq(testStorageKey), any()))
+            .thenReturn("/api/v1/storage/download/some-token")
+        whenever(signedUrlService.getDefaultExpiry()).thenReturn(Duration.ofHours(1))
+        whenever(activityService.logActivity(any(), any(), any(), any(), any(), any(), any(), any()))
+            .thenReturn(mock())
+
+        // Second file fails on content type
+        whenever(contentValidationService.detectContentType(any<InputStream>(), eq("invalid.exe")))
+            .thenReturn("application/x-msdownload")
+        whenever(contentValidationService.validateContentType(eq(StorageDomain.AVATAR), eq("application/x-msdownload")))
+            .thenThrow(ContentTypeNotAllowedException("Content type not allowed"))
+
+        val result = storageService.batchUpload(workspaceId, StorageDomain.AVATAR, listOf(validFile, invalidFile))
+
+        assertEquals(1, result.succeeded)
+        assertEquals(1, result.failed)
+        assertEquals(201, result.results[0].status)
+        assertNull(result.results[0].error)
+        assertEquals(415, result.results[1].status)
+        assertNotNull(result.results[1].error)
+    }
+
+    @Test
+    fun `batchUpload with more than 10 files throws IllegalArgumentException`() {
+        val files = (1..11).map { mockMultipartFile("file$it.png", "image/png", ByteArray(100)) }
+
+        assertThrows<IllegalArgumentException> {
+            storageService.batchUpload(workspaceId, StorageDomain.AVATAR, files)
+        }
+    }
+
+    @Test
+    fun `batchUpload with empty list throws IllegalArgumentException`() {
+        assertThrows<IllegalArgumentException> {
+            storageService.batchUpload(workspaceId, StorageDomain.AVATAR, emptyList())
+        }
+    }
+
+    @Test
+    fun `batchUpload individual item failure does not prevent other items from being processed`() {
+        val file1 = mockMultipartFile("file1.png", "image/png", ByteArray(1024))
+        val file2 = mockMultipartFile("file2.exe", "application/exe", ByteArray(512))
+        val file3 = mockMultipartFile("file3.png", "image/png", ByteArray(1024))
+
+        val savedEntity = StorageFactory.fileMetadataEntity(
+            workspaceId = workspaceId,
+            storageKey = testStorageKey,
+            originalFilename = "file1.png",
+            contentType = "image/png",
+            fileSize = 1024L,
+            uploadedBy = userId
+        ).apply {
+            createdAt = java.time.ZonedDateTime.now()
+            updatedAt = java.time.ZonedDateTime.now()
+        }
+
+        // file1 and file3 succeed (both .png)
+        whenever(contentValidationService.detectContentType(any<InputStream>(), eq("file1.png")))
+            .thenReturn("image/png")
+        whenever(contentValidationService.detectContentType(any<InputStream>(), eq("file3.png")))
+            .thenReturn("image/png")
+        whenever(contentValidationService.generateStorageKey(eq(workspaceId), eq(StorageDomain.AVATAR), eq("image/png")))
+            .thenReturn(testStorageKey)
+        whenever(storageProvider.upload(eq(testStorageKey), any(), eq("image/png"), eq(1024L)))
+            .thenReturn(StorageResult(testStorageKey, "image/png", 1024L))
+        whenever(fileMetadataRepository.save(any<FileMetadataEntity>()))
+            .thenReturn(savedEntity)
+        whenever(signedUrlService.generateDownloadUrl(eq(testStorageKey), any()))
+            .thenReturn("/api/v1/storage/download/some-token")
+        whenever(signedUrlService.getDefaultExpiry()).thenReturn(Duration.ofHours(1))
+        whenever(activityService.logActivity(any(), any(), any(), any(), any(), any(), any(), any()))
+            .thenReturn(mock())
+
+        // file2 fails
+        whenever(contentValidationService.detectContentType(any<InputStream>(), eq("file2.exe")))
+            .thenReturn("application/x-msdownload")
+        whenever(contentValidationService.validateContentType(eq(StorageDomain.AVATAR), eq("application/x-msdownload")))
+            .thenThrow(ContentTypeNotAllowedException("Content type not allowed"))
+
+        val result = storageService.batchUpload(workspaceId, StorageDomain.AVATAR, listOf(file1, file2, file3))
+
+        assertEquals(3, result.results.size)
+        assertEquals(2, result.succeeded)
+        assertEquals(1, result.failed)
+        assertEquals(201, result.results[0].status)
+        assertEquals(415, result.results[1].status)
+        assertEquals(201, result.results[2].status)
+    }
+
+    // ------ Batch Delete Tests ------
+
+    @Test
+    fun `batchDelete with 3 valid file IDs returns BatchDeleteResponse with 3 success results`() {
+        val fileIds = (1..3).map { UUID.randomUUID() }
+        fileIds.forEach { fileId ->
+            val entity = StorageFactory.fileMetadataEntity(
+                id = fileId,
+                workspaceId = workspaceId,
+                storageKey = "$workspaceId/avatar/$fileId.png"
+            ).apply {
+                createdAt = java.time.ZonedDateTime.now()
+                updatedAt = java.time.ZonedDateTime.now()
+            }
+            whenever(fileMetadataRepository.findByIdAndWorkspaceId(fileId, workspaceId))
+                .thenReturn(Optional.of(entity))
+        }
+        whenever(fileMetadataRepository.save(any<FileMetadataEntity>())).thenAnswer { it.arguments[0] }
+        whenever(activityService.logActivity(any(), any(), any(), any(), any(), any(), any(), any()))
+            .thenReturn(mock())
+
+        val result = storageService.batchDelete(workspaceId, BatchDeleteRequest(fileIds))
+
+        assertEquals(3, result.succeeded)
+        assertEquals(0, result.failed)
+        assertEquals(3, result.results.size)
+        result.results.forEach { item ->
+            assertEquals(204, item.status)
+            assertNull(item.error)
+            assertNotNull(item.id)
+        }
+    }
+
+    @Test
+    fun `batchDelete with 1 valid and 1 nonexistent ID returns mixed results`() {
+        val validId = UUID.randomUUID()
+        val invalidId = UUID.randomUUID()
+
+        val entity = StorageFactory.fileMetadataEntity(
+            id = validId,
+            workspaceId = workspaceId,
+            storageKey = "$workspaceId/avatar/$validId.png"
+        ).apply {
+            createdAt = java.time.ZonedDateTime.now()
+            updatedAt = java.time.ZonedDateTime.now()
+        }
+        whenever(fileMetadataRepository.findByIdAndWorkspaceId(validId, workspaceId))
+            .thenReturn(Optional.of(entity))
+        whenever(fileMetadataRepository.findByIdAndWorkspaceId(invalidId, workspaceId))
+            .thenReturn(Optional.empty())
+        whenever(fileMetadataRepository.save(any<FileMetadataEntity>())).thenAnswer { it.arguments[0] }
+        whenever(activityService.logActivity(any(), any(), any(), any(), any(), any(), any(), any()))
+            .thenReturn(mock())
+
+        val result = storageService.batchDelete(workspaceId, BatchDeleteRequest(listOf(validId, invalidId)))
+
+        assertEquals(1, result.succeeded)
+        assertEquals(1, result.failed)
+        assertEquals(204, result.results[0].status)
+        assertEquals(404, result.results[1].status)
+        assertNotNull(result.results[1].error)
+    }
+
+    @Test
+    fun `batchDelete with more than 50 IDs throws IllegalArgumentException`() {
+        val fileIds = (1..51).map { UUID.randomUUID() }
+
+        assertThrows<IllegalArgumentException> {
+            storageService.batchDelete(workspaceId, BatchDeleteRequest(fileIds))
+        }
+    }
+
+    @Test
+    fun `batchDelete with empty list throws IllegalArgumentException`() {
+        assertThrows<IllegalArgumentException> {
+            storageService.batchDelete(workspaceId, BatchDeleteRequest(emptyList()))
+        }
+    }
+
+    @Test
+    fun `batchDelete individual item failure does not prevent other items from being processed`() {
+        val id1 = UUID.randomUUID()
+        val id2 = UUID.randomUUID()
+        val id3 = UUID.randomUUID()
+
+        val entity1 = StorageFactory.fileMetadataEntity(id = id1, workspaceId = workspaceId, storageKey = "$workspaceId/avatar/$id1.png").apply {
+            createdAt = java.time.ZonedDateTime.now(); updatedAt = java.time.ZonedDateTime.now()
+        }
+        val entity3 = StorageFactory.fileMetadataEntity(id = id3, workspaceId = workspaceId, storageKey = "$workspaceId/avatar/$id3.png").apply {
+            createdAt = java.time.ZonedDateTime.now(); updatedAt = java.time.ZonedDateTime.now()
+        }
+
+        whenever(fileMetadataRepository.findByIdAndWorkspaceId(id1, workspaceId)).thenReturn(Optional.of(entity1))
+        whenever(fileMetadataRepository.findByIdAndWorkspaceId(id2, workspaceId)).thenReturn(Optional.empty())
+        whenever(fileMetadataRepository.findByIdAndWorkspaceId(id3, workspaceId)).thenReturn(Optional.of(entity3))
+        whenever(fileMetadataRepository.save(any<FileMetadataEntity>())).thenAnswer { it.arguments[0] }
+        whenever(activityService.logActivity(any(), any(), any(), any(), any(), any(), any(), any()))
+            .thenReturn(mock())
+
+        val result = storageService.batchDelete(workspaceId, BatchDeleteRequest(listOf(id1, id2, id3)))
+
+        assertEquals(3, result.results.size)
+        assertEquals(2, result.succeeded)
+        assertEquals(1, result.failed)
+        assertEquals(204, result.results[0].status)
+        assertEquals(404, result.results[1].status)
+        assertEquals(204, result.results[2].status)
+    }
+
     // ------ Helper ------
+
+    private fun setupUploadMocks() {
+        val savedEntity = StorageFactory.fileMetadataEntity(
+            workspaceId = workspaceId,
+            storageKey = testStorageKey,
+            contentType = "image/png",
+            fileSize = 1024L,
+            uploadedBy = userId
+        ).apply {
+            createdAt = java.time.ZonedDateTime.now()
+            updatedAt = java.time.ZonedDateTime.now()
+        }
+
+        whenever(contentValidationService.detectContentType(any<InputStream>(), any()))
+            .thenReturn("image/png")
+        whenever(contentValidationService.generateStorageKey(eq(workspaceId), eq(StorageDomain.AVATAR), eq("image/png")))
+            .thenReturn(testStorageKey)
+        whenever(storageProvider.upload(eq(testStorageKey), any(), eq("image/png"), eq(1024L)))
+            .thenReturn(StorageResult(testStorageKey, "image/png", 1024L))
+        whenever(fileMetadataRepository.save(any<FileMetadataEntity>()))
+            .thenReturn(savedEntity)
+        whenever(signedUrlService.generateDownloadUrl(eq(testStorageKey), any()))
+            .thenReturn("/api/v1/storage/download/some-token")
+        whenever(signedUrlService.getDefaultExpiry()).thenReturn(Duration.ofHours(1))
+        whenever(activityService.logActivity(any(), any(), any(), any(), any(), any(), any(), any()))
+            .thenReturn(mock())
+    }
 
     private fun mockMultipartFile(
         filename: String,

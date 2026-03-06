@@ -4,13 +4,25 @@ import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
+import riven.core.configuration.storage.StorageConfigurationProperties
 import riven.core.entity.storage.FileMetadataEntity
 import riven.core.enums.activity.Activity
 import riven.core.enums.core.ApplicationEntityType
 import riven.core.enums.storage.StorageDomain
 import riven.core.enums.util.OperationType
+import riven.core.exceptions.ContentTypeNotAllowedException
 import riven.core.exceptions.SignedUrlExpiredException
+import riven.core.exceptions.StorageNotFoundException
+import riven.core.models.request.storage.BatchDeleteRequest
+import riven.core.models.request.storage.ConfirmUploadRequest
+import riven.core.models.request.storage.UpdateMetadataRequest
+import riven.core.exceptions.FileSizeLimitExceededException
+import riven.core.exceptions.NotFoundException
+import riven.core.models.response.storage.BatchDeleteResponse
+import riven.core.models.response.storage.BatchItemResult
+import riven.core.models.response.storage.BatchUploadResponse
 import riven.core.models.response.storage.FileListResponse
+import riven.core.models.response.storage.PresignedUploadResponse
 import riven.core.models.response.storage.SignedUrlResponse
 import riven.core.models.response.storage.UploadFileResponse
 import riven.core.models.storage.DownloadResult
@@ -38,6 +50,7 @@ class StorageService(
     private val storageProvider: StorageProvider,
     private val contentValidationService: ContentValidationService,
     private val signedUrlService: SignedUrlService,
+    private val storageConfig: StorageConfigurationProperties,
     private val fileMetadataRepository: FileMetadataRepository,
     private val activityService: ActivityService,
     private val authTokenService: AuthTokenService
@@ -57,20 +70,172 @@ class StorageService(
      * @return upload response with file metadata and signed download URL
      */
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
-    fun uploadFile(workspaceId: UUID, domain: StorageDomain, file: MultipartFile): UploadFileResponse {
+    fun uploadFile(
+        workspaceId: UUID,
+        domain: StorageDomain,
+        file: MultipartFile,
+        metadata: Map<String, String>? = null
+    ): UploadFileResponse {
         val userId = authTokenService.getUserId()
         val bytes = file.bytes
+
+        metadata?.let { validateMetadata(it) }
 
         val detectedType = detectAndValidate(bytes, file.originalFilename, domain)
         val content = sanitizeIfSvg(bytes, detectedType)
         val storageKey = contentValidationService.generateStorageKey(workspaceId, domain, detectedType)
 
         storeFile(storageKey, content, detectedType)
-        val metadata = persistMetadata(workspaceId, domain, storageKey, file.originalFilename ?: "unknown", detectedType, content.size.toLong(), userId)
-        logUploadActivity(userId, workspaceId, metadata)
+        val fileMetadata = persistMetadata(workspaceId, domain, storageKey, file.originalFilename ?: "unknown", detectedType, content.size.toLong(), userId, metadata)
+        logUploadActivity(userId, workspaceId, fileMetadata)
 
-        val signedUrl = signedUrlService.generateDownloadUrl(storageKey, signedUrlService.getDefaultExpiry())
-        return UploadFileResponse(metadata, signedUrl)
+        val signedUrl = generateProviderSignedUrl(storageKey, signedUrlService.getDefaultExpiry())
+        return UploadFileResponse(fileMetadata, signedUrl)
+    }
+
+    // ------ Presigned Upload ------
+
+    /**
+     * Request a presigned upload URL for direct-to-provider upload.
+     *
+     * Returns a presigned URL and storage key for providers that support it (S3, Supabase).
+     * For local provider, returns supported=false.
+     */
+    @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
+    fun requestPresignedUpload(workspaceId: UUID, domain: StorageDomain, contentType: String?): PresignedUploadResponse {
+        val userId = authTokenService.getUserId()
+        val effectiveContentType = contentType ?: "application/octet-stream"
+        val storageKey = contentValidationService.generateStorageKey(workspaceId, domain, effectiveContentType)
+        val expiry = Duration.ofSeconds(storageConfig.presignedUpload.expirySeconds)
+
+        return try {
+            val uploadUrl = storageProvider.generateUploadUrl(storageKey, effectiveContentType, expiry)
+            PresignedUploadResponse(storageKey = storageKey, uploadUrl = uploadUrl, method = "PUT", supported = true)
+        } catch (e: UnsupportedOperationException) {
+            logger.debug { "Presigned upload not supported by provider, returning unsupported response" }
+            PresignedUploadResponse(storageKey = storageKey, uploadUrl = null, method = null, supported = false)
+        }
+    }
+
+    /**
+     * Confirm a presigned upload by verifying the file exists, validating content, and persisting metadata.
+     *
+     * Downloads the file to validate content type via Tika. If validation fails,
+     * the file is deleted from the provider before throwing.
+     */
+    @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
+    fun confirmPresignedUpload(workspaceId: UUID, request: ConfirmUploadRequest): UploadFileResponse {
+        val userId = authTokenService.getUserId()
+
+        if (!storageProvider.exists(request.storageKey)) {
+            throw StorageNotFoundException("File not found at storage key: ${request.storageKey}")
+        }
+
+        val downloadResult = storageProvider.download(request.storageKey)
+        val bytes = downloadResult.content.use { it.readBytes() }
+        val detectedType = contentValidationService.detectContentType(ByteArrayInputStream(bytes), request.originalFilename)
+        val domain = parseDomainFromStorageKey(request.storageKey)
+
+        validatePresignedUploadContent(request.storageKey, domain, detectedType)
+
+        request.metadata?.let { validateMetadata(it) }
+
+        val fileMetadata = persistMetadata(workspaceId, domain, request.storageKey, request.originalFilename, detectedType, bytes.size.toLong(), userId, request.metadata)
+        logUploadActivity(userId, workspaceId, fileMetadata)
+
+        val signedUrl = generateProviderSignedUrl(request.storageKey, signedUrlService.getDefaultExpiry())
+        return UploadFileResponse(fileMetadata, signedUrl)
+    }
+
+    // ------ Metadata ------
+
+    /**
+     * Update custom metadata on a file with merge semantics.
+     *
+     * New keys are added, existing keys are updated, keys with null values are removed.
+     */
+    @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
+    fun updateMetadata(workspaceId: UUID, fileId: UUID, request: UpdateMetadataRequest): FileMetadata {
+        val userId = authTokenService.getUserId()
+        val entity = findOrThrow { fileMetadataRepository.findByIdAndWorkspaceId(fileId, workspaceId) }
+
+        validateMetadataUpdate(request.metadata)
+
+        val previousMetadata = entity.metadata?.toMap()
+        val merged = mergeMetadata(entity.metadata, request.metadata)
+        entity.metadata = if (merged.isEmpty()) null else merged
+        fileMetadataRepository.save(entity)
+
+        logMetadataUpdateActivity(userId, workspaceId, entity, previousMetadata)
+
+        return entity.toModel()
+    }
+
+    // ------ Batch Operations ------
+
+    /**
+     * Upload multiple files in a single batch with per-item success/failure results.
+     *
+     * Each file is processed independently -- a failure in one does not prevent others
+     * from being processed. Not annotated with @Transactional to ensure each item
+     * commits independently.
+     *
+     * @param workspaceId workspace scope
+     * @param domain storage domain controlling validation rules
+     * @param files list of multipart files (max 10)
+     * @return batch response with per-item results and succeeded/failed counts
+     */
+    @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
+    fun batchUpload(workspaceId: UUID, domain: StorageDomain, files: List<MultipartFile>): BatchUploadResponse {
+        require(files.isNotEmpty()) { "At least one file is required" }
+        require(files.size <= 10) { "Maximum 10 files per batch upload" }
+
+        val results = files.map { file ->
+            try {
+                val response = uploadFile(workspaceId, domain, file)
+                BatchItemResult(id = response.file.id, filename = file.originalFilename, status = 201, error = null)
+            } catch (e: ContentTypeNotAllowedException) {
+                BatchItemResult(id = null, filename = file.originalFilename, status = 415, error = e.message)
+            } catch (e: FileSizeLimitExceededException) {
+                BatchItemResult(id = null, filename = file.originalFilename, status = 413, error = e.message)
+            } catch (e: Exception) {
+                logger.error(e) { "Batch upload failed for file: ${file.originalFilename}" }
+                BatchItemResult(id = null, filename = file.originalFilename, status = 500, error = "Upload failed: ${e.message}")
+            }
+        }
+
+        return BatchUploadResponse(results, results.count { it.error == null }, results.count { it.error != null })
+    }
+
+    /**
+     * Delete multiple files in a single batch with per-item success/failure results.
+     *
+     * Each file ID is processed independently -- a failure in one does not prevent others
+     * from being processed. Not annotated with @Transactional to ensure each item
+     * commits independently.
+     *
+     * @param workspaceId workspace scope
+     * @param request batch delete request containing file IDs (max 50)
+     * @return batch response with per-item results and succeeded/failed counts
+     */
+    @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
+    fun batchDelete(workspaceId: UUID, request: BatchDeleteRequest): BatchDeleteResponse {
+        require(request.fileIds.isNotEmpty()) { "At least one file ID is required" }
+        require(request.fileIds.size <= 50) { "Maximum 50 files per batch delete" }
+
+        val results = request.fileIds.map { fileId ->
+            try {
+                deleteFile(workspaceId, fileId)
+                BatchItemResult(id = fileId, filename = null, status = 204, error = null)
+            } catch (e: NotFoundException) {
+                BatchItemResult(id = fileId, filename = null, status = 404, error = e.message)
+            } catch (e: Exception) {
+                logger.error(e) { "Batch delete failed for file: $fileId" }
+                BatchItemResult(id = fileId, filename = null, status = 500, error = "Delete failed: ${e.message}")
+            }
+        }
+
+        return BatchDeleteResponse(results, results.count { it.error == null }, results.count { it.error != null })
     }
 
     // ------ Read ------
@@ -93,7 +258,7 @@ class StorageService(
     fun generateSignedUrl(workspaceId: UUID, fileId: UUID, expiresInSeconds: Long?): SignedUrlResponse {
         val entity = findOrThrow { fileMetadataRepository.findByIdAndWorkspaceId(fileId, workspaceId) }
         val expiry = expiresInSeconds?.let { Duration.ofSeconds(it) } ?: signedUrlService.getDefaultExpiry()
-        val url = signedUrlService.generateDownloadUrl(entity.storageKey, expiry)
+        val url = generateProviderSignedUrl(entity.storageKey, expiry)
         val expiresAt = ZonedDateTime.now().plus(expiry)
 
         return SignedUrlResponse(url, expiresAt)
@@ -161,6 +326,18 @@ class StorageService(
 
     // ------ Private Helpers ------
 
+    /**
+     * Try provider-native signed URL generation first; fall back to HMAC-based SignedUrlService
+     * when the provider does not support it (e.g. local filesystem adapter).
+     */
+    private fun generateProviderSignedUrl(storageKey: String, expiry: Duration): String {
+        return try {
+            storageProvider.generateSignedUrl(storageKey, expiry)
+        } catch (e: UnsupportedOperationException) {
+            signedUrlService.generateDownloadUrl(storageKey, expiry)
+        }
+    }
+
     private fun detectAndValidate(bytes: ByteArray, originalFilename: String?, domain: StorageDomain): String {
         val detectedType = contentValidationService.detectContentType(ByteArrayInputStream(bytes), originalFilename)
         contentValidationService.validateContentType(domain, detectedType)
@@ -186,7 +363,8 @@ class StorageService(
         originalFilename: String,
         contentType: String,
         fileSize: Long,
-        uploadedBy: UUID
+        uploadedBy: UUID,
+        metadata: Map<String, String>? = null
     ): FileMetadata {
         val entity = FileMetadataEntity(
             workspaceId = workspaceId,
@@ -195,9 +373,63 @@ class StorageService(
             originalFilename = originalFilename,
             contentType = contentType,
             fileSize = fileSize,
-            uploadedBy = uploadedBy
+            uploadedBy = uploadedBy,
+            metadata = metadata
         )
         return fileMetadataRepository.save(entity).toModel()
+    }
+
+    private fun parseDomainFromStorageKey(storageKey: String): StorageDomain {
+        val parts = storageKey.split("/")
+        require(parts.size >= 3) { "Invalid storage key format: $storageKey" }
+        val domainString = parts[1].uppercase()
+        return try {
+            StorageDomain.valueOf(domainString)
+        } catch (e: IllegalArgumentException) {
+            throw IllegalArgumentException("Unknown domain in storage key: $domainString")
+        }
+    }
+
+    private fun validatePresignedUploadContent(storageKey: String, domain: StorageDomain, detectedType: String) {
+        try {
+            contentValidationService.validateContentType(domain, detectedType)
+        } catch (e: ContentTypeNotAllowedException) {
+            try {
+                storageProvider.delete(storageKey)
+            } catch (deleteError: Exception) {
+                logger.error(deleteError) { "Failed to delete invalid file '$storageKey' from provider after content type rejection" }
+            }
+            throw e
+        }
+    }
+
+    private fun mergeMetadata(existing: Map<String, String>?, patch: Map<String, String?>): Map<String, String> {
+        val merged = existing?.toMutableMap() ?: mutableMapOf()
+        patch.forEach { (key, value) ->
+            if (value == null) merged.remove(key) else merged[key] = value
+        }
+        return merged
+    }
+
+    private fun validateMetadata(metadata: Map<String, String>) {
+        val keyPattern = Regex("^[a-zA-Z0-9_-]{1,64}$")
+        require(metadata.size <= 20) { "Metadata cannot have more than 20 key-value pairs" }
+        metadata.forEach { (key, value) ->
+            require(keyPattern.matches(key)) { "Metadata key '$key' must match pattern ^[a-zA-Z0-9_-]{1,64}$" }
+            require(value.length <= 1024) { "Metadata value for key '$key' exceeds maximum length of 1024 characters" }
+        }
+    }
+
+    private fun validateMetadataUpdate(metadata: Map<String, String?>) {
+        val keyPattern = Regex("^[a-zA-Z0-9_-]{1,64}$")
+        val nonNullEntries = metadata.filterValues { it != null }
+        require(nonNullEntries.size <= 20) { "Metadata cannot have more than 20 non-null key-value pairs" }
+        metadata.forEach { (key, value) ->
+            require(keyPattern.matches(key)) { "Metadata key '$key' must match pattern ^[a-zA-Z0-9_-]{1,64}$" }
+            if (value != null) {
+                require(value.length <= 1024) { "Metadata value for key '$key' exceeds maximum length of 1024 characters" }
+            }
+        }
     }
 
     private fun softDeleteMetadata(entity: FileMetadataEntity) {
@@ -238,6 +470,24 @@ class StorageService(
             entityId = entity.id,
             "filename" to entity.originalFilename,
             "storageKey" to entity.storageKey
+        )
+    }
+
+    private fun logMetadataUpdateActivity(
+        userId: UUID,
+        workspaceId: UUID,
+        entity: FileMetadataEntity,
+        previousMetadata: Map<String, String>?
+    ) {
+        activityService.log(
+            activity = Activity.FILE_UPDATE,
+            operation = OperationType.UPDATE,
+            userId = userId,
+            workspaceId = workspaceId,
+            entityType = ApplicationEntityType.FILE,
+            entityId = entity.id,
+            "previousMetadata" to previousMetadata,
+            "updatedMetadata" to entity.metadata
         )
     }
 }

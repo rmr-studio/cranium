@@ -13,6 +13,7 @@ data class FileMetadata(
     val contentType: String,
     val fileSize: Long,
     val uploadedBy: UUID,
+    val metadata: Map<String, String>? = null,
     val createdAt: ZonedDateTime,
     val updatedAt: ZonedDateTime
 )

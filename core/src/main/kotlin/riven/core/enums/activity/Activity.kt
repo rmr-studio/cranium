@@ -29,6 +29,7 @@ enum class Activity {
     WORKFLOW_EDGE,
     INTEGRATION_CONNECTION,
     FILE_UPLOAD,
-    FILE_DELETE
+    FILE_DELETE,
+    FILE_UPDATE
 }
 

@@ -1,0 +1,7 @@
+path_filters:
+  - "!docs/**"
+  - "!**/*.md"
+  - "!**/*.mdx"
+  - "!.planning/**"
+  - "!**/.planning/**"
+  - "!apps/client/lib/types/**"

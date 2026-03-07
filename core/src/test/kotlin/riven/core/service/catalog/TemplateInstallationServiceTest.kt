@@ -25,6 +25,8 @@ import riven.core.models.entity.RelationshipDefinition
 import riven.core.models.common.Icon
 import riven.core.models.request.entity.type.SaveRelationshipDefinitionRequest
 import riven.core.models.request.entity.type.SaveSemanticMetadataRequest
+import riven.core.entity.catalog.WorkspaceTemplateInstallationEntity
+import riven.core.repository.catalog.WorkspaceTemplateInstallationRepository
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.auth.AuthTokenService
@@ -36,6 +38,7 @@ class TemplateInstallationServiceTest {
 
     private lateinit var catalogService: ManifestCatalogService
     private lateinit var entityTypeRepository: EntityTypeRepository
+    private lateinit var installationRepository: WorkspaceTemplateInstallationRepository
     private lateinit var relationshipService: EntityTypeRelationshipService
     private lateinit var semanticMetadataService: EntityTypeSemanticMetadataService
     private lateinit var authTokenService: AuthTokenService
@@ -50,6 +53,7 @@ class TemplateInstallationServiceTest {
     fun setUp() {
         catalogService = mock()
         entityTypeRepository = mock()
+        installationRepository = mock()
         relationshipService = mock()
         semanticMetadataService = mock()
         authTokenService = mock()
@@ -59,6 +63,7 @@ class TemplateInstallationServiceTest {
         service = TemplateInstallationService(
             catalogService,
             entityTypeRepository,
+            installationRepository,
             relationshipService,
             semanticMetadataService,
             authTokenService,
@@ -68,6 +73,8 @@ class TemplateInstallationServiceTest {
 
         whenever(authTokenService.getUserId()).thenReturn(userId)
         whenever(activityService.logActivity(any(), any(), any(), any(), any(), anyOrNull(), any(), any())).thenReturn(mock())
+        whenever(installationRepository.findByWorkspaceIdAndManifestKey(any(), any())).thenReturn(null)
+        whenever(installationRepository.save(any<WorkspaceTemplateInstallationEntity>())).thenAnswer { it.arguments[0] }
     }
 
     // ------ Entity Type Creation ------
@@ -343,6 +350,121 @@ class TemplateInstallationServiceTest {
         assertTrue(formats.contains(DataFormat.CURRENCY))
     }
 
+    // ------ Idempotency Tests ------
+
+    @Test
+    fun `installTemplate returns empty response when template already installed`() {
+        val existingInstallation = WorkspaceTemplateInstallationEntity(
+            workspaceId = workspaceId,
+            manifestKey = "test-template",
+            installedBy = userId,
+        )
+        whenever(installationRepository.findByWorkspaceIdAndManifestKey(workspaceId, "test-template"))
+            .thenReturn(existingInstallation)
+
+        val manifest = createManifestWithEntityTypes(createCatalogEntityType("customer", "Customer", "Customers"))
+        whenever(catalogService.getManifestByKey("test-template", ManifestType.TEMPLATE))
+            .thenReturn(manifest)
+
+        val result = service.installTemplate(workspaceId, "test-template")
+
+        assertEquals(0, result.entityTypesCreated)
+        assertEquals(0, result.relationshipsCreated)
+        assertTrue(result.entityTypes.isEmpty())
+        verify(entityTypeRepository, never()).save(any())
+    }
+
+    // ------ Bundle Installation Tests ------
+
+    @Test
+    fun `installBundle creates entity types from all templates and deduplicates shared types`() {
+        val bundle = BundleDetail(
+            id = UUID.randomUUID(),
+            key = "test-bundle",
+            name = "Test Bundle",
+            description = "A test bundle",
+            templateKeys = listOf("crm", "billing"),
+        )
+        whenever(catalogService.getBundleByKey("test-bundle")).thenReturn(bundle)
+        whenever(installationRepository.findByWorkspaceIdAndManifestKeyIn(eq(workspaceId), any()))
+            .thenReturn(emptyList())
+        whenever(installationRepository.save(any<WorkspaceTemplateInstallationEntity>()))
+            .thenAnswer { it.arguments[0] }
+
+        val customerType = createCatalogEntityType("customer", "Customer", "Customers")
+        val invoiceType = createCatalogEntityType("invoice", "Invoice", "Invoices")
+
+        val crmManifest = createManifestWithEntityTypes(customerType, key = "crm", name = "CRM")
+        val billingManifest = createManifestWithEntityTypes(customerType, invoiceType, key = "billing", name = "Billing")
+
+        whenever(catalogService.getManifestByKey("crm", ManifestType.TEMPLATE)).thenReturn(crmManifest)
+        whenever(catalogService.getManifestByKey("billing", ManifestType.TEMPLATE)).thenReturn(billingManifest)
+
+        stubEntityTypeSave()
+        stubFallbackDefinition()
+
+        val result = service.installBundle(workspaceId, "test-bundle")
+
+        assertEquals("test-bundle", result.bundleKey)
+        assertEquals(listOf("crm", "billing"), result.templatesInstalled)
+        assertTrue(result.templatesSkipped.isEmpty())
+        // customer appears in both templates but should only be created once
+        assertEquals(2, result.entityTypesCreated) // customer + invoice
+    }
+
+    @Test
+    fun `installBundle skips already-installed templates and resolves their entity types`() {
+        val bundle = BundleDetail(
+            id = UUID.randomUUID(),
+            key = "test-bundle",
+            name = "Test Bundle",
+            description = null,
+            templateKeys = listOf("crm", "billing"),
+        )
+        whenever(catalogService.getBundleByKey("test-bundle")).thenReturn(bundle)
+
+        val existingInstallation = WorkspaceTemplateInstallationEntity(
+            workspaceId = workspaceId,
+            manifestKey = "crm",
+            installedBy = userId,
+        )
+        whenever(installationRepository.findByWorkspaceIdAndManifestKeyIn(eq(workspaceId), any()))
+            .thenReturn(listOf(existingInstallation))
+        whenever(installationRepository.save(any<WorkspaceTemplateInstallationEntity>()))
+            .thenAnswer { it.arguments[0] }
+
+        // CRM is skipped — resolve its entity types from workspace
+        val crmManifest = createManifestWithEntityTypes(
+            createCatalogEntityType("customer", "Customer", "Customers"),
+            key = "crm",
+            name = "CRM",
+        )
+        whenever(catalogService.getManifestByKey("crm", ManifestType.TEMPLATE)).thenReturn(crmManifest)
+
+        val existingCustomerEntity = mock<EntityTypeEntity>()
+        val customerId = UUID.randomUUID()
+        whenever(existingCustomerEntity.id).thenReturn(customerId)
+        whenever(existingCustomerEntity.key).thenReturn("customer")
+        whenever(existingCustomerEntity.displayNameSingular).thenReturn("Customer")
+        whenever(existingCustomerEntity.schema).thenReturn(mock())
+        whenever(entityTypeRepository.findByworkspaceIdAndKeyIn(eq(workspaceId), any()))
+            .thenReturn(listOf(existingCustomerEntity))
+
+        // Billing is installed — has invoice type
+        val invoiceType = createCatalogEntityType("invoice", "Invoice", "Invoices")
+        val billingManifest = createManifestWithEntityTypes(invoiceType, key = "billing", name = "Billing")
+        whenever(catalogService.getManifestByKey("billing", ManifestType.TEMPLATE)).thenReturn(billingManifest)
+
+        stubEntityTypeSave()
+        stubFallbackDefinition()
+
+        val result = service.installBundle(workspaceId, "test-bundle")
+
+        assertEquals(listOf("billing"), result.templatesInstalled)
+        assertEquals(listOf("crm"), result.templatesSkipped)
+        assertEquals(1, result.entityTypesCreated) // only invoice, customer was skipped
+    }
+
     // ------ Test Helpers ------
 
     private fun createCatalogEntityType(
@@ -371,10 +493,12 @@ class TemplateInstallationServiceTest {
 
     private fun createManifestWithEntityTypes(
         vararg entityTypes: CatalogEntityTypeModel,
+        key: String = "test-template",
+        name: String = "Test Template",
     ) = ManifestDetail(
         id = UUID.randomUUID(),
-        key = "test-template",
-        name = "Test Template",
+        key = key,
+        name = name,
         description = "A test template",
         manifestType = ManifestType.TEMPLATE,
         manifestVersion = "1.0",

@@ -5,7 +5,6 @@
 -- =====================================================
 -- ENTITY TYPES TABLE
 -- =====================================================
-DROP TABLE IF EXISTS public.entity_types CASCADE;
 CREATE TABLE IF NOT EXISTS public.entity_types
 (
     "id"                    UUID PRIMARY KEY         DEFAULT uuid_generate_v4(),
@@ -42,7 +41,6 @@ CREATE TABLE IF NOT EXISTS public.entity_types
 -- =====================================================
 -- ENTITIES TABLE
 -- =====================================================
-DROP TABLE IF EXISTS public.entities CASCADE;
 CREATE TABLE IF NOT EXISTS public.entities
 (
     "id"                    UUID PRIMARY KEY         DEFAULT uuid_generate_v4(),
@@ -79,7 +77,6 @@ CREATE TABLE IF NOT EXISTS public.entities
 
 -- Easy way to enforce unique fields per entity type. This table will store unique field values for entities.
 -- When an entity is created or updated, the relevant unique fields will be deleted and re-inserted/updated here
-DROP TABLE IF EXISTS public.entities_unique_values CASCADE;
 CREATE TABLE IF NOT EXISTS public.entities_unique_values
 (
     "id"           UUID PRIMARY KEY         DEFAULT uuid_generate_v4(),
@@ -96,7 +93,6 @@ CREATE TABLE IF NOT EXISTS public.entities_unique_values
 -- =====================================================
 -- ENTITY ATTRIBUTE PROVENANCE TABLE
 -- =====================================================
-DROP TABLE IF EXISTS public.entity_attribute_provenance CASCADE;
 CREATE TABLE IF NOT EXISTS public.entity_attribute_provenance
 (
     "id"                    UUID PRIMARY KEY     DEFAULT uuid_generate_v4(),
@@ -114,7 +110,6 @@ CREATE TABLE IF NOT EXISTS public.entity_attribute_provenance
 -- =====================================================
 -- RELATIONSHIP DEFINITIONS TABLE
 -- =====================================================
-DROP TABLE IF EXISTS public.relationship_definitions CASCADE;
 CREATE TABLE IF NOT EXISTS public.relationship_definitions
 (
     "id"                    UUID PRIMARY KEY         DEFAULT uuid_generate_v4(),
@@ -139,7 +134,6 @@ CREATE TABLE IF NOT EXISTS public.relationship_definitions
 -- =====================================================
 -- RELATIONSHIP TARGET RULES TABLE
 -- =====================================================
-DROP TABLE IF EXISTS public.relationship_target_rules CASCADE;
 CREATE TABLE IF NOT EXISTS public.relationship_target_rules
 (
     "id"                         UUID PRIMARY KEY         DEFAULT uuid_generate_v4(),
@@ -162,7 +156,6 @@ CREATE TABLE IF NOT EXISTS public.relationship_target_rules
 -- =====================================================
 -- RELATIONSHIP DEFINITION EXCLUSIONS TABLE
 -- =====================================================
-DROP TABLE IF EXISTS public.relationship_definition_exclusions CASCADE;
 CREATE TABLE IF NOT EXISTS public.relationship_definition_exclusions
 (
     "id"                         UUID PRIMARY KEY         DEFAULT uuid_generate_v4(),
@@ -179,7 +172,6 @@ CREATE TABLE IF NOT EXISTS public.relationship_definition_exclusions
 -- =====================================================
 -- ENTITY RELATIONSHIPS TABLE
 -- =====================================================
-DROP TABLE IF EXISTS public.entity_relationships CASCADE;
 CREATE TABLE IF NOT EXISTS public.entity_relationships
 (
     "id"                         UUID PRIMARY KEY         DEFAULT uuid_generate_v4(),

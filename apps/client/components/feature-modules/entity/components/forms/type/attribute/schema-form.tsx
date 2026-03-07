@@ -9,7 +9,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { IconSelector } from '@/components/ui/icon/icon-selector';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Select,
   SelectContent,
@@ -28,6 +27,7 @@ import {
   SemanticAttributeClassification,
 } from '@/lib/types/entity';
 import { cn } from '@/lib/util/utils';
+import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
 
 import { Button } from '@riven/ui/button';
 import { Input } from '@riven/ui/input';
@@ -403,7 +403,7 @@ export const SchemaForm: FC<Props> = ({
                 <Select onValueChange={field.onChange} value={field.value ?? undefined}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select classification..." >
+                      <SelectValue placeholder="Select classification...">
                         {field.value
                           ? classificationOptions.find((o) => o.value === field.value)?.label
                           : 'Select classification...'}

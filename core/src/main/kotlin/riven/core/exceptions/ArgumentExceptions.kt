@@ -39,3 +39,17 @@ class WorkflowExecutionException(
     message: String,
     cause: Throwable? = null
 ) : RuntimeException(message, cause)
+
+// ------ Storage Exceptions ------
+
+open class StorageException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
+
+class StorageNotFoundException(message: String) : StorageException(message)
+
+class StorageProviderException(message: String, cause: Throwable? = null) : StorageException(message, cause)
+
+class ContentTypeNotAllowedException(message: String) : StorageException(message)
+
+class FileSizeLimitExceededException(message: String) : StorageException(message)
+
+class SignedUrlExpiredException(message: String) : StorageException(message)

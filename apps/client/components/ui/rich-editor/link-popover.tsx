@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Link as LinkIcon, Trash2 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
-import { Button } from '../button';
+import { Button } from '@riven/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
 import { Input } from '../input';
 import { Label } from '../label';
-import { Popover, PopoverContent, PopoverTrigger } from '../popover';
 import { useToast } from './hooks/use-toast';
 import { EditorActions, useEditor } from './index';
 

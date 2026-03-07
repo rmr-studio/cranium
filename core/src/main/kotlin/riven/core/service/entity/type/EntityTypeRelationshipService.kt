@@ -13,6 +13,7 @@ import riven.core.enums.common.icon.IconType
 import riven.core.enums.core.ApplicationEntityType
 import riven.core.enums.entity.EntityRelationshipCardinality
 import riven.core.enums.entity.SystemRelationshipType
+import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.enums.util.OperationType
 import riven.core.models.entity.RelationshipDefinition
@@ -115,6 +116,11 @@ class EntityTypeRelationshipService(
 
     /**
      * Updates an existing relationship definition and diffs its target rules.
+     *
+     * When semantic target rules are removed and existing relationship links would become orphaned,
+     * returns a [DeleteDefinitionImpact] for confirmation (unless [impactConfirmed] is true).
+     *
+     * @return Impact analysis if confirmation needed, null if update was executed
      */
     @Transactional
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
@@ -122,9 +128,16 @@ class EntityTypeRelationshipService(
         workspaceId: UUID,
         definitionId: UUID,
         request: SaveRelationshipDefinitionRequest,
-    ): RelationshipDefinition {
+        impactConfirmed: Boolean = false,
+    ): Pair<RelationshipDefinition?, DeleteDefinitionImpact?> {
         val userId = authTokenService.getUserId()
         val existing = ServiceUtil.findOrThrow { definitionRepository.findByIdAndWorkspaceId(definitionId, workspaceId) }
+        val previousAllowPolymorphic = existing.allowPolymorphic
+
+        if (!impactConfirmed) {
+            val impact = computeSemanticRuleRemovalImpact(workspaceId, definitionId, existing.name, request.targetRules)
+            if (impact != null) return null to impact
+        }
 
         existing.name = request.name
         existing.iconType = request.iconType ?: existing.iconType
@@ -134,6 +147,17 @@ class EntityTypeRelationshipService(
 
         val savedDefinition = definitionRepository.save(existing)
         val updatedRules = diffTargetRules(definitionId, request.targetRules)
+
+        // Soft-delete orphaned links when semantic rules are removed with confirmation
+        if (impactConfirmed) {
+            softDeleteOrphanedLinksAfterRuleRemoval(workspaceId, definitionId, request.targetRules)
+        }
+
+        // Clean up all exclusions when polymorphic mode changes
+        if (previousAllowPolymorphic != request.allowPolymorphic) {
+            exclusionRepository.deleteByRelationshipDefinitionId(definitionId)
+            logger.info { "Polymorphic mode changed for definition $definitionId — cleared all exclusions" }
+        }
 
         if (request.semantics != null) {
             semanticMetadataService.upsertMetadataInternal(
@@ -155,7 +179,7 @@ class EntityTypeRelationshipService(
 
         logger.info { "Updated relationship definition '${request.name}' ($definitionId)" }
 
-        return savedDefinition.toModel(updatedRules)
+        return savedDefinition.toModel(updatedRules) to null
     }
 
     // ------ Delete ------
@@ -251,11 +275,25 @@ class EntityTypeRelationshipService(
         // Forward definitions: this type is the source
         val forwardEntities = definitionRepository.findByWorkspaceIdAndSourceEntityTypeId(workspaceId, entityTypeId)
 
-        // Inverse definitions: this type is a target in another definition's rules
+        // Inverse definitions: this type is a target via explicit rule or semantic group match
         val inverseRules = targetRuleRepository.findByTargetEntityTypeId(entityTypeId)
-        val inverseDefIds = inverseRules.map { it.relationshipDefinitionId }.distinct()
+        val inverseDefIds = inverseRules.map { it.relationshipDefinitionId }.distinct().toMutableSet()
+
+        // Also find definitions reachable via semantic group rules
+        val entityType = entityTypeRepository.findById(entityTypeId).orElse(null)
+        if (entityType != null && entityType.semanticGroup != SemanticGroup.UNCATEGORIZED) {
+            val semanticRules = targetRuleRepository.findBySemanticTypeConstraint(entityType.semanticGroup)
+            val semanticDefIds = semanticRules.map { it.relationshipDefinitionId }
+            inverseDefIds.addAll(semanticDefIds)
+        }
+
+        // Exclude forward definition IDs to prevent duplicates when source type matches its own rules
+        val forwardDefIds = forwardEntities.mapNotNull { it.id }.toSet()
+        inverseDefIds.removeAll(forwardDefIds)
+
         val inverseEntities = if (inverseDefIds.isNotEmpty()) {
-            definitionRepository.findAllById(inverseDefIds)
+            definitionRepository.findAllById(inverseDefIds.toList())
+                .filter { it.workspaceId == workspaceId }
         } else {
             emptyList()
         }
@@ -266,8 +304,7 @@ class EntityTypeRelationshipService(
         val filteredInverseEntities = inverseEntities.filter { it.id !in excludedDefIds }
 
         // Hydrate forward definitions with their rules and exclusions
-        val forwardDefIds = forwardEntities.mapNotNull { it.id }
-        val allDefIds = forwardDefIds + filteredInverseEntities.mapNotNull { it.id }
+        val allDefIds = forwardDefIds.toList() + filteredInverseEntities.mapNotNull { it.id }
         val allRulesByDef = if (allDefIds.isNotEmpty()) {
             targetRuleRepository.findByRelationshipDefinitionIdIn(allDefIds)
                 .groupBy { it.relationshipDefinitionId }
@@ -347,14 +384,22 @@ class EntityTypeRelationshipService(
             )
         }
 
+        // Batch-fetch semantic groups for all entity types
+        val semanticGroupMap = entityTypeRepository.findSemanticGroupsByIds(entityTypeIds)
+            .associate { it.getId() to it.getSemanticGroup() }
+
         return entityTypeIds.associateWith { entityTypeId ->
             val excludedDefs = exclusionsByEntityType[entityTypeId] ?: emptySet()
+            val semanticGroup = semanticGroupMap[entityTypeId]
             models.filter { def ->
                 if (def.sourceEntityTypeId == entityTypeId) {
                     true // Forward definitions are never filtered for the source
                 } else {
-                    def.id !in excludedDefs &&
-                        def.targetRules.any { it.targetEntityTypeId == entityTypeId }
+                    def.id !in excludedDefs && (
+                        def.targetRules.any { it.targetEntityTypeId == entityTypeId } ||
+                        (semanticGroup != null && semanticGroup != SemanticGroup.UNCATEGORIZED &&
+                            def.targetRules.any { it.semanticTypeConstraint == semanticGroup })
+                    )
                 }
             }
         }
@@ -490,6 +535,42 @@ class EntityTypeRelationshipService(
         logger.info { "Removed exclusion for entity type $entityTypeId from definition $definitionId" }
     }
 
+    // ------ Semantic Group Change Cleanup ------
+
+    /**
+     * Removes exclusion records that are no longer reachable after an entity type's semantic group changes.
+     * Called from EntityTypeService when updating entity type configuration.
+     */
+    @Transactional
+    fun cleanupExclusionsAfterSemanticGroupChange(
+        workspaceId: UUID,
+        entityTypeId: UUID,
+        oldSemanticGroup: SemanticGroup,
+        newSemanticGroup: SemanticGroup,
+    ) {
+        if (oldSemanticGroup == newSemanticGroup) return
+
+        val exclusions = exclusionRepository.findByEntityTypeId(entityTypeId)
+        if (exclusions.isEmpty()) return
+
+        val defIds = exclusions.map { it.relationshipDefinitionId }.distinct()
+        val rulesByDef = targetRuleRepository.findByRelationshipDefinitionIdIn(defIds)
+            .groupBy { it.relationshipDefinitionId }
+
+        val staleIds = exclusions.filter { excl ->
+            val rules = rulesByDef[excl.relationshipDefinitionId] ?: emptyList()
+            val reachableViaExplicit = rules.any { it.targetEntityTypeId == entityTypeId }
+            val reachableViaSemantic = newSemanticGroup != SemanticGroup.UNCATEGORIZED &&
+                rules.any { it.semanticTypeConstraint == newSemanticGroup }
+            !reachableViaExplicit && !reachableViaSemantic
+        }.mapNotNull { it.id }
+
+        if (staleIds.isNotEmpty()) {
+            exclusionRepository.deleteAllById(staleIds)
+            logger.info { "Cleaned up ${staleIds.size} stale exclusions for entity type $entityTypeId after semantic group change ($oldSemanticGroup -> $newSemanticGroup)" }
+        }
+    }
+
     // ------ Private helpers ------
 
     /**
@@ -555,6 +636,9 @@ class EntityTypeRelationshipService(
             targetRuleRepository.deleteAll(toRemove)
         }
 
+        // Clean up stale exclusions when semantic rules are removed
+        cleanupStaleExclusionsAfterRuleRemoval(definitionId, toRemove, requestedRules)
+
         val toSave = requestedRules.map { req ->
             require(req.targetEntityTypeId != null || req.semanticTypeConstraint != null) {
                 "Target rule must specify either targetEntityTypeId or semanticTypeConstraint"
@@ -599,6 +683,124 @@ class EntityTypeRelationshipService(
                 inverseName = rule.inverseName,
             )
         }
+    }
+
+    /**
+     * Removes exclusion records that are no longer reachable after target rules have been removed.
+     * An exclusion is stale when the entity type it excludes is no longer matched by any surviving rule.
+     */
+    private fun cleanupStaleExclusionsAfterRuleRemoval(
+        definitionId: UUID,
+        removedRules: List<RelationshipTargetRuleEntity>,
+        requestedRules: List<SaveTargetRuleRequest>,
+    ) {
+        val removedSemanticGroups = removedRules
+            .mapNotNull { it.semanticTypeConstraint }
+            .toSet()
+        if (removedSemanticGroups.isEmpty()) return
+
+        val survivingSemanticGroups = requestedRules
+            .mapNotNull { it.semanticTypeConstraint }
+            .toSet()
+        val survivingExplicitTypeIds = requestedRules
+            .mapNotNull { it.targetEntityTypeId }
+            .toSet()
+
+        val trulyRemovedGroups = removedSemanticGroups - survivingSemanticGroups
+        if (trulyRemovedGroups.isEmpty()) return
+
+        val exclusions = exclusionRepository.findByRelationshipDefinitionId(definitionId)
+        if (exclusions.isEmpty()) return
+
+        val excludedTypeIds = exclusions.map { it.entityTypeId }
+        val semanticGroups = entityTypeRepository.findSemanticGroupsByIds(excludedTypeIds)
+            .associate { it.getId() to it.getSemanticGroup() }
+
+        val staleExclusionIds = exclusions.filter { excl ->
+            val group = semanticGroups[excl.entityTypeId]
+            // Stale if the type's group was in a removed semantic rule AND the type isn't kept by an explicit rule or surviving semantic rule
+            group != null &&
+                group in trulyRemovedGroups &&
+                excl.entityTypeId !in survivingExplicitTypeIds &&
+                (group !in survivingSemanticGroups)
+        }.mapNotNull { it.id }
+
+        if (staleExclusionIds.isNotEmpty()) {
+            exclusionRepository.deleteAllById(staleExclusionIds)
+            logger.info { "Cleaned up ${staleExclusionIds.size} stale exclusions for definition $definitionId after semantic rule removal" }
+        }
+    }
+
+    /**
+     * Computes orphaned link impact when semantic target rules are about to be removed.
+     * Returns impact if links would be orphaned, null otherwise.
+     */
+    private fun computeSemanticRuleRemovalImpact(
+        workspaceId: UUID,
+        definitionId: UUID,
+        definitionName: String,
+        requestedRules: List<SaveTargetRuleRequest>,
+    ): DeleteDefinitionImpact? {
+        val existingRules = targetRuleRepository.findByRelationshipDefinitionId(definitionId)
+
+        val existingSemanticGroups = existingRules.mapNotNull { it.semanticTypeConstraint }.toSet()
+        val requestedSemanticGroups = requestedRules.mapNotNull { it.semanticTypeConstraint }.toSet()
+        val removedGroups = existingSemanticGroups - requestedSemanticGroups
+        if (removedGroups.isEmpty()) return null
+
+        val survivingExplicitTypeIds = requestedRules.mapNotNull { it.targetEntityTypeId }.toSet()
+        val survivingSemanticGroups = requestedSemanticGroups
+
+        var totalOrphanedLinks = 0L
+        for (group in removedGroups) {
+            val typeIds = entityTypeRepository.findIdsByWorkspaceIdAndSemanticGroup(workspaceId, group)
+            for (typeId in typeIds) {
+                if (typeId in survivingExplicitTypeIds) continue
+                if (survivingSemanticGroups.any { sg ->
+                    val typeGroup = entityTypeRepository.findSemanticGroupsByIds(listOf(typeId))
+                        .firstOrNull()?.getSemanticGroup()
+                    typeGroup != null && typeGroup == sg && typeGroup != SemanticGroup.UNCATEGORIZED
+                }) continue
+                totalOrphanedLinks += entityRelationshipRepository.countByDefinitionIdAndTargetEntityTypeId(definitionId, typeId)
+            }
+        }
+
+        if (totalOrphanedLinks == 0L) return null
+
+        return DeleteDefinitionImpact(
+            definitionId = definitionId,
+            definitionName = definitionName,
+            impactedLinkCount = totalOrphanedLinks,
+        )
+    }
+
+    /**
+     * Soft-deletes relationship links for entity types that lost semantic rule coverage.
+     * Called when impactConfirmed = true after semantic rules are removed.
+     */
+    private fun softDeleteOrphanedLinksAfterRuleRemoval(
+        workspaceId: UUID,
+        definitionId: UUID,
+        requestedRules: List<SaveTargetRuleRequest>,
+    ) {
+        val existingRules = targetRuleRepository.findByRelationshipDefinitionId(definitionId)
+
+        val existingSemanticGroups = existingRules.mapNotNull { it.semanticTypeConstraint }.toSet()
+        val requestedSemanticGroups = requestedRules.mapNotNull { it.semanticTypeConstraint }.toSet()
+        val removedGroups = existingSemanticGroups - requestedSemanticGroups
+        if (removedGroups.isEmpty()) return
+
+        val survivingExplicitTypeIds = requestedRules.mapNotNull { it.targetEntityTypeId }.toSet()
+
+        for (group in removedGroups) {
+            val typeIds = entityTypeRepository.findIdsByWorkspaceIdAndSemanticGroup(workspaceId, group)
+            for (typeId in typeIds) {
+                if (typeId in survivingExplicitTypeIds) continue
+                entityRelationshipRepository.softDeleteByDefinitionIdAndTargetEntityTypeId(definitionId, typeId)
+            }
+        }
+
+        logger.info { "Soft-deleted orphaned links for definition $definitionId after semantic rule removal" }
     }
 
     // ------ System Definitions ------

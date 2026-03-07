@@ -57,6 +57,9 @@
 }
 
 :root {
+  --header-height: 3.5rem;
+  --icon-rail-width: 3.5rem;
+  --sub-panel-width: 17.5rem;
   --logo-primary: oklch(0.35 0 0);
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -184,7 +187,7 @@
 }
 
 .h-screen-without-header {
-  height: calc(100dvh - 5rem - 1px);
+  height: calc(100dvh - var(--header-height) - 1px);
 }
 
 :root {

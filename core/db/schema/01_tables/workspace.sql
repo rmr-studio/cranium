@@ -1,6 +1,3 @@
-DROP TABLE IF EXISTS "workspace_invites" CASCADE;
-DROP TABLE IF EXISTS "workspace_members" CASCADE;
-DROP TABLE IF EXISTS "workspaces" CASCADE;
 CREATE TABLE IF NOT EXISTS "workspaces"
 (
     "id"               UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),

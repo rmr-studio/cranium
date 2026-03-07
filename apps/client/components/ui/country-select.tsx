@@ -1,9 +1,16 @@
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@riven/ui/command';
+import { Button } from '@riven/ui/button';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@riven/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
 import { cn } from '@riven/utils';
 import { useState } from 'react';
 import * as RPNInput from 'react-phone-number-input';
-import { Button } from './button';
-import { Popover, PopoverContent, PopoverTrigger } from './popover';
 import { ScrollArea } from './scroll-area';
 
 import flags from 'react-phone-number-input/flags';
@@ -67,7 +74,7 @@ export const CountrySelect = ({
         <Command>
           <CommandInput placeholder="Search country..." />
           <CommandList>
-            <ScrollArea className="h-72" onWheel={(e) => e.stopPropagation()}>
+            <ScrollArea className="h-72" onWheel={(e: React.WheelEvent) => e.stopPropagation()}>
               <CommandEmpty>No country found.</CommandEmpty>
               <CommandGroup>
                 {countryList.map(({ value, label }) =>

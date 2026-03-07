@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
 import riven.core.configuration.properties.ApplicationConfigurationProperties
+import com.fasterxml.jackson.core.JsonProcessingException
 import riven.core.models.response.common.ErrorResponse
 
 @ControllerAdvice
@@ -113,6 +114,86 @@ class ExceptionHandler(private val logger: KLogger, private val config: Applicat
             statusCode = HttpStatus.CONFLICT,
             error = "CONFLICT",
             message = ex.message ?: "Unique constraint violation occurred",
+            stackTrace = config.includeStackTrace.takeIf { it }?.let { ex.stackTraceToString() }
+        ).also { logger.error { it } }.let {
+            ResponseEntity(it, it.statusCode)
+        }
+    }
+
+    @ExceptionHandler(JsonProcessingException::class)
+    fun handleJsonProcessingException(ex: JsonProcessingException): ResponseEntity<ErrorResponse> {
+        storeExceptionForAnalytics(ex)
+        return ErrorResponse(
+            statusCode = HttpStatus.BAD_REQUEST,
+            error = "INVALID JSON",
+            message = ex.originalMessage ?: "Malformed JSON in request",
+            stackTrace = config.includeStackTrace.takeIf { it }?.let { ex.stackTraceToString() }
+        ).also { logger.error { it } }.let {
+            ResponseEntity(it, it.statusCode)
+        }
+    }
+
+    // ------ Storage Exception Handlers ------
+
+    @ExceptionHandler(ContentTypeNotAllowedException::class)
+    fun handleContentTypeNotAllowedException(ex: ContentTypeNotAllowedException): ResponseEntity<ErrorResponse> {
+        storeExceptionForAnalytics(ex)
+        return ErrorResponse(
+            statusCode = HttpStatus.UNSUPPORTED_MEDIA_TYPE,
+            error = "UNSUPPORTED MEDIA TYPE",
+            message = ex.message ?: "Content type not allowed",
+            stackTrace = config.includeStackTrace.takeIf { it }?.let { ex.stackTraceToString() }
+        ).also { logger.error { it } }.let {
+            ResponseEntity(it, it.statusCode)
+        }
+    }
+
+    @ExceptionHandler(FileSizeLimitExceededException::class)
+    fun handleFileSizeLimitExceededException(ex: FileSizeLimitExceededException): ResponseEntity<ErrorResponse> {
+        storeExceptionForAnalytics(ex)
+        return ErrorResponse(
+            statusCode = HttpStatus.PAYLOAD_TOO_LARGE,
+            error = "PAYLOAD TOO LARGE",
+            message = ex.message ?: "File size limit exceeded",
+            stackTrace = config.includeStackTrace.takeIf { it }?.let { ex.stackTraceToString() }
+        ).also { logger.error { it } }.let {
+            ResponseEntity(it, it.statusCode)
+        }
+    }
+
+    @ExceptionHandler(StorageNotFoundException::class)
+    fun handleStorageNotFoundException(ex: StorageNotFoundException): ResponseEntity<ErrorResponse> {
+        storeExceptionForAnalytics(ex)
+        return ErrorResponse(
+            statusCode = HttpStatus.NOT_FOUND,
+            error = "STORAGE NOT FOUND",
+            message = ex.message ?: "File not found in storage",
+            stackTrace = config.includeStackTrace.takeIf { it }?.let { ex.stackTraceToString() }
+        ).also { logger.error { it } }.let {
+            ResponseEntity(it, it.statusCode)
+        }
+    }
+
+    @ExceptionHandler(SignedUrlExpiredException::class)
+    fun handleSignedUrlExpiredException(ex: SignedUrlExpiredException): ResponseEntity<ErrorResponse> {
+        storeExceptionForAnalytics(ex)
+        return ErrorResponse(
+            statusCode = HttpStatus.FORBIDDEN,
+            error = "SIGNED URL EXPIRED",
+            message = ex.message ?: "Signed URL has expired or is invalid",
+            stackTrace = config.includeStackTrace.takeIf { it }?.let { ex.stackTraceToString() }
+        ).also { logger.error { it } }.let {
+            ResponseEntity(it, it.statusCode)
+        }
+    }
+
+    @ExceptionHandler(StorageProviderException::class)
+    fun handleStorageProviderException(ex: StorageProviderException): ResponseEntity<ErrorResponse> {
+        storeExceptionForAnalytics(ex)
+        return ErrorResponse(
+            statusCode = HttpStatus.BAD_GATEWAY,
+            error = "STORAGE PROVIDER ERROR",
+            message = ex.message ?: "Storage provider encountered an error",
             stackTrace = config.includeStackTrace.takeIf { it }?.let { ex.stackTraceToString() }
         ).also { logger.error { it } }.let {
             ResponseEntity(it, it.statusCode)

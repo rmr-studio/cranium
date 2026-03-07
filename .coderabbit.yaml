@@ -1,7 +1,14 @@
-path_filters:
-  - "!docs/**"
-  - "!**/*.md"
-  - "!**/*.mdx"
-  - "!.planning/**"
-  - "!**/.planning/**"
-  - "!apps/client/lib/types/**"
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: "en-US"
+reviews:
+  path_filters:
+    - "!docs/**"
+    - "!**/*.md"
+    - "!**/*.mdx"
+    - "!.planning/**"
+    - "!**/.planning/**"
+    - "!apps/client/lib/types/**"
+      # Exclude all files in the 'dist' directory
+    - "!**/dist/**"
+    # Exclude all lock files, even if they are in 'src'
+    - "!**/*.lock"

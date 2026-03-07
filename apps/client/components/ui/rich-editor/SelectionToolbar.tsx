@@ -1,14 +1,14 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Link as LinkIcon, MoreHorizontal, Type } from 'lucide-react';
+import { Link as LinkIcon, Type } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 
-import { cn } from '@riven/utils';
 import { useToast } from '@/components/ui/rich-editor/hooks/use-toast';
+import { cn } from '@riven/utils';
 
-import { Button } from '../button';
-import { Popover, PopoverContent, PopoverTrigger } from '../popover';
+import { Button } from '@riven/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
 import { Separator } from '../separator';
 import {
   CustomClassPopoverContent,

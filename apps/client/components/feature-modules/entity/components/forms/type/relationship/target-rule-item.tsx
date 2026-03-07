@@ -1,15 +1,6 @@
 'use client';
 
 import { RelationshipFormValues } from '@/components/feature-modules/entity/hooks/form/type/use-relationship-form';
-import { Button } from '@/components/ui/button';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
 import {
   FormControl,
   FormDescription,
@@ -19,7 +10,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Select,
   SelectContent,
@@ -29,6 +19,16 @@ import {
 } from '@/components/ui/select';
 import { EntityRelationshipCardinality, EntityType, SemanticGroup } from '@/lib/types/entity';
 import { cn } from '@/lib/util/utils';
+import { Button } from '@riven/ui/button';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@riven/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
 import { Check, ChevronsUpDown, MoreHorizontal, Repeat, X } from 'lucide-react';
 import { FC, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
@@ -129,8 +129,8 @@ const EntityTypeSingleSelect: FC<EntityTypeSingleSelectProps> = ({
       <PopoverContent
         className="w-[280px] p-0"
         align="start"
-        onOpenAutoFocus={(e: React.FocusEvent<HTMLDivElement>) => e.preventDefault()}
-        onEscapeKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
+        onOpenAutoFocus={(e: Event) => e.preventDefault()}
+        onEscapeKeyDown={(e: Event) => {
           e.stopPropagation();
           setOpen(false);
         }}

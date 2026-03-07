@@ -11,7 +11,15 @@ import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import riven.core.configuration.auth.WorkspaceSecurity
 import riven.core.entity.entity.RelationshipDefinitionExclusionEntity
+import riven.core.entity.entity.RelationshipDefinitionEntity
+import riven.core.entity.entity.RelationshipTargetRuleEntity
+import riven.core.enums.common.icon.IconColour
+import riven.core.enums.common.icon.IconType
+import riven.core.enums.entity.EntityRelationshipCardinality
 import riven.core.enums.entity.semantics.SemanticGroup
+import riven.core.models.request.entity.type.SaveRelationshipDefinitionRequest
+import riven.core.models.request.entity.type.SaveTargetRuleRequest
+import riven.core.projection.entity.SemanticGroupProjection
 import riven.core.enums.workspace.WorkspaceRoles
 import riven.core.repository.entity.EntityRelationshipRepository
 import riven.core.repository.entity.EntityTypeRepository
@@ -491,6 +499,284 @@ class EntityTypeRelationshipServiceExclusionTest : BaseServiceTest() {
 
     // ------ Cleanup on definition deletion ------
 
+    // ------ Polymorphic mode transition cleanup ------
+
+    @Test
+    fun `updateRelationshipDefinition - polymorphic mode change - deletes all exclusions`() {
+        val defId = UUID.randomUUID()
+        val existingEntity = EntityFactory.createRelationshipDefinitionEntity(
+            id = defId,
+            workspaceId = workspaceId,
+            sourceEntityTypeId = sourceEntityTypeId,
+            allowPolymorphic = true,
+        )
+        val request = SaveRelationshipDefinitionRequest(
+            key = "related",
+            id = defId,
+            name = "Related",
+            iconType = IconType.LINK,
+            iconColour = IconColour.NEUTRAL,
+            allowPolymorphic = false, // Changed from true to false
+            cardinalityDefault = EntityRelationshipCardinality.MANY_TO_MANY,
+            targetRules = listOf(
+                SaveTargetRuleRequest(targetEntityTypeId = targetEntityTypeId, inverseName = "Related")
+            ),
+        )
+
+        whenever(definitionRepository.findByIdAndWorkspaceId(defId, workspaceId)).thenReturn(Optional.of(existingEntity))
+        whenever(definitionRepository.save(any<RelationshipDefinitionEntity>())).thenAnswer { it.arguments[0] }
+        whenever(targetRuleRepository.findByRelationshipDefinitionId(defId)).thenReturn(emptyList())
+        whenever(targetRuleRepository.saveAll(any<List<RelationshipTargetRuleEntity>>())).thenAnswer { invocation ->
+            @Suppress("UNCHECKED_CAST")
+            val entities = invocation.arguments[0] as List<RelationshipTargetRuleEntity>
+            entities.map { if (it.id == null) it.copy(id = UUID.randomUUID()) else it }
+        }
+
+        service.updateRelationshipDefinition(workspaceId, defId, request)
+
+        verify(exclusionRepository).deleteByRelationshipDefinitionId(defId)
+    }
+
+    @Test
+    fun `updateRelationshipDefinition - polymorphic unchanged - no exclusion cleanup`() {
+        val defId = UUID.randomUUID()
+        val existingEntity = EntityFactory.createRelationshipDefinitionEntity(
+            id = defId,
+            workspaceId = workspaceId,
+            sourceEntityTypeId = sourceEntityTypeId,
+            allowPolymorphic = true,
+        )
+        val request = SaveRelationshipDefinitionRequest(
+            key = "related",
+            id = defId,
+            name = "Updated Name",
+            iconType = IconType.LINK,
+            iconColour = IconColour.NEUTRAL,
+            allowPolymorphic = true, // Same as before
+            cardinalityDefault = EntityRelationshipCardinality.MANY_TO_MANY,
+            targetRules = emptyList(),
+        )
+
+        whenever(definitionRepository.findByIdAndWorkspaceId(defId, workspaceId)).thenReturn(Optional.of(existingEntity))
+        whenever(definitionRepository.save(any<RelationshipDefinitionEntity>())).thenAnswer { it.arguments[0] }
+        whenever(targetRuleRepository.findByRelationshipDefinitionId(defId)).thenReturn(emptyList())
+        whenever(targetRuleRepository.saveAll(any<List<RelationshipTargetRuleEntity>>())).thenReturn(emptyList())
+
+        service.updateRelationshipDefinition(workspaceId, defId, request)
+
+        verify(exclusionRepository, never()).deleteByRelationshipDefinitionId(any())
+    }
+
+    // ------ Semantic rule removal cleanup ------
+
+    @Test
+    fun `diffTargetRules via update - removed semantic rule - cleans up stale exclusions`() {
+        val defId = UUID.randomUUID()
+        val excludedTypeId = UUID.randomUUID()
+        val ruleId = UUID.randomUUID()
+        val exclusionId = UUID.randomUUID()
+
+        val existingEntity = EntityFactory.createRelationshipDefinitionEntity(
+            id = defId,
+            workspaceId = workspaceId,
+            sourceEntityTypeId = sourceEntityTypeId,
+        )
+        val existingSemanticRule = EntityFactory.createTargetRuleEntity(
+            id = ruleId,
+            relationshipDefinitionId = defId,
+            targetEntityTypeId = null,
+            semanticTypeConstraint = SemanticGroup.CUSTOMER,
+        )
+        val exclusion = EntityFactory.createExclusionEntity(
+            id = exclusionId,
+            relationshipDefinitionId = defId,
+            entityTypeId = excludedTypeId,
+        )
+        // Request removes the semantic rule entirely
+        val request = SaveRelationshipDefinitionRequest(
+            key = "related",
+            id = defId,
+            name = "Related",
+            iconType = IconType.LINK,
+            iconColour = IconColour.NEUTRAL,
+            cardinalityDefault = EntityRelationshipCardinality.MANY_TO_MANY,
+            targetRules = emptyList(),
+        )
+
+        whenever(definitionRepository.findByIdAndWorkspaceId(defId, workspaceId)).thenReturn(Optional.of(existingEntity))
+        whenever(definitionRepository.save(any<RelationshipDefinitionEntity>())).thenAnswer { it.arguments[0] }
+        whenever(targetRuleRepository.findByRelationshipDefinitionId(defId)).thenReturn(listOf(existingSemanticRule))
+        whenever(targetRuleRepository.saveAll(any<List<RelationshipTargetRuleEntity>>())).thenReturn(emptyList())
+        whenever(exclusionRepository.findByRelationshipDefinitionId(defId)).thenReturn(listOf(exclusion))
+        whenever(entityTypeRepository.findSemanticGroupsByIds(listOf(excludedTypeId))).thenReturn(
+            listOf(mockSemanticGroupProjection(excludedTypeId, SemanticGroup.CUSTOMER))
+        )
+
+        service.updateRelationshipDefinition(workspaceId, defId, request)
+
+        verify(exclusionRepository).deleteAllById(listOf(exclusionId))
+    }
+
+    @Test
+    fun `diffTargetRules via update - removed semantic rule - keeps exclusions with surviving explicit rule`() {
+        val defId = UUID.randomUUID()
+        val excludedTypeId = UUID.randomUUID()
+        val semanticRuleId = UUID.randomUUID()
+        val exclusionId = UUID.randomUUID()
+
+        val existingEntity = EntityFactory.createRelationshipDefinitionEntity(
+            id = defId,
+            workspaceId = workspaceId,
+            sourceEntityTypeId = sourceEntityTypeId,
+        )
+        val existingSemanticRule = EntityFactory.createTargetRuleEntity(
+            id = semanticRuleId,
+            relationshipDefinitionId = defId,
+            targetEntityTypeId = null,
+            semanticTypeConstraint = SemanticGroup.CUSTOMER,
+        )
+        val exclusion = EntityFactory.createExclusionEntity(
+            id = exclusionId,
+            relationshipDefinitionId = defId,
+            entityTypeId = excludedTypeId,
+        )
+        // Request removes semantic rule but adds explicit rule for the same type
+        val request = SaveRelationshipDefinitionRequest(
+            key = "related",
+            id = defId,
+            name = "Related",
+            iconType = IconType.LINK,
+            iconColour = IconColour.NEUTRAL,
+            cardinalityDefault = EntityRelationshipCardinality.MANY_TO_MANY,
+            targetRules = listOf(
+                SaveTargetRuleRequest(targetEntityTypeId = excludedTypeId, inverseName = "Related")
+            ),
+        )
+
+        whenever(definitionRepository.findByIdAndWorkspaceId(defId, workspaceId)).thenReturn(Optional.of(existingEntity))
+        whenever(definitionRepository.save(any<RelationshipDefinitionEntity>())).thenAnswer { it.arguments[0] }
+        whenever(targetRuleRepository.findByRelationshipDefinitionId(defId)).thenReturn(listOf(existingSemanticRule))
+        whenever(targetRuleRepository.saveAll(any<List<RelationshipTargetRuleEntity>>())).thenAnswer { invocation ->
+            @Suppress("UNCHECKED_CAST")
+            val entities = invocation.arguments[0] as List<RelationshipTargetRuleEntity>
+            entities.map { if (it.id == null) it.copy(id = UUID.randomUUID()) else it }
+        }
+        whenever(exclusionRepository.findByRelationshipDefinitionId(defId)).thenReturn(listOf(exclusion))
+        whenever(entityTypeRepository.findSemanticGroupsByIds(listOf(excludedTypeId))).thenReturn(
+            listOf(mockSemanticGroupProjection(excludedTypeId, SemanticGroup.CUSTOMER))
+        )
+
+        service.updateRelationshipDefinition(workspaceId, defId, request)
+
+        // Should NOT delete the exclusion because the type is still reachable via explicit rule
+        verify(exclusionRepository, never()).deleteAllById(any())
+    }
+
+    // ------ Helper ------
+
+    private fun mockSemanticGroupProjection(id: UUID, group: SemanticGroup): SemanticGroupProjection =
+        object : SemanticGroupProjection {
+            override fun getId(): UUID = id
+            override fun getSemanticGroup(): SemanticGroup = group
+        }
+
+    // ------ cleanupExclusionsAfterSemanticGroupChange ------
+
+    @Test
+    fun `cleanupExclusionsAfterSemanticGroupChange - removes exclusions no longer reachable via new group`() {
+        val entityTypeId = UUID.randomUUID()
+        val defId = UUID.randomUUID()
+        val exclusionId = UUID.randomUUID()
+
+        val semanticRule = EntityFactory.createTargetRuleEntity(
+            relationshipDefinitionId = defId,
+            targetEntityTypeId = null,
+            semanticTypeConstraint = SemanticGroup.CUSTOMER,
+        )
+        val exclusion = EntityFactory.createExclusionEntity(
+            id = exclusionId,
+            relationshipDefinitionId = defId,
+            entityTypeId = entityTypeId,
+        )
+
+        whenever(exclusionRepository.findByEntityTypeId(entityTypeId)).thenReturn(listOf(exclusion))
+        whenever(targetRuleRepository.findByRelationshipDefinitionIdIn(listOf(defId))).thenReturn(listOf(semanticRule))
+
+        service.cleanupExclusionsAfterSemanticGroupChange(
+            workspaceId, entityTypeId,
+            oldSemanticGroup = SemanticGroup.CUSTOMER,
+            newSemanticGroup = SemanticGroup.OPERATIONAL,
+        )
+
+        verify(exclusionRepository).deleteAllById(listOf(exclusionId))
+    }
+
+    @Test
+    fun `cleanupExclusionsAfterSemanticGroupChange - keeps exclusions still reachable via explicit rule`() {
+        val entityTypeId = UUID.randomUUID()
+        val defId = UUID.randomUUID()
+
+        val explicitRule = EntityFactory.createTargetRuleEntity(
+            relationshipDefinitionId = defId,
+            targetEntityTypeId = entityTypeId,
+        )
+        val exclusion = EntityFactory.createExclusionEntity(
+            relationshipDefinitionId = defId,
+            entityTypeId = entityTypeId,
+        )
+
+        whenever(exclusionRepository.findByEntityTypeId(entityTypeId)).thenReturn(listOf(exclusion))
+        whenever(targetRuleRepository.findByRelationshipDefinitionIdIn(listOf(defId))).thenReturn(listOf(explicitRule))
+
+        service.cleanupExclusionsAfterSemanticGroupChange(
+            workspaceId, entityTypeId,
+            oldSemanticGroup = SemanticGroup.CUSTOMER,
+            newSemanticGroup = SemanticGroup.OPERATIONAL,
+        )
+
+        verify(exclusionRepository, never()).deleteAllById(any())
+    }
+
+    @Test
+    fun `cleanupExclusionsAfterSemanticGroupChange - keeps exclusions reachable via new group matching semantic rule`() {
+        val entityTypeId = UUID.randomUUID()
+        val defId = UUID.randomUUID()
+
+        val semanticRule = EntityFactory.createTargetRuleEntity(
+            relationshipDefinitionId = defId,
+            targetEntityTypeId = null,
+            semanticTypeConstraint = SemanticGroup.OPERATIONAL,
+        )
+        val exclusion = EntityFactory.createExclusionEntity(
+            relationshipDefinitionId = defId,
+            entityTypeId = entityTypeId,
+        )
+
+        whenever(exclusionRepository.findByEntityTypeId(entityTypeId)).thenReturn(listOf(exclusion))
+        whenever(targetRuleRepository.findByRelationshipDefinitionIdIn(listOf(defId))).thenReturn(listOf(semanticRule))
+
+        service.cleanupExclusionsAfterSemanticGroupChange(
+            workspaceId, entityTypeId,
+            oldSemanticGroup = SemanticGroup.CUSTOMER,
+            newSemanticGroup = SemanticGroup.OPERATIONAL, // matches the semantic rule
+        )
+
+        verify(exclusionRepository, never()).deleteAllById(any())
+    }
+
+    @Test
+    fun `cleanupExclusionsAfterSemanticGroupChange - same group - no-op`() {
+        service.cleanupExclusionsAfterSemanticGroupChange(
+            workspaceId, UUID.randomUUID(),
+            oldSemanticGroup = SemanticGroup.CUSTOMER,
+            newSemanticGroup = SemanticGroup.CUSTOMER,
+        )
+
+        verify(exclusionRepository, never()).findByEntityTypeId(any())
+    }
+
+    // ------ Cleanup on definition deletion ------
+
     @Test
     fun `deleteRelationshipDefinition - cleans up exclusions`() {
         val defId = UUID.randomUUID()
@@ -508,5 +794,134 @@ class EntityTypeRelationshipServiceExclusionTest : BaseServiceTest() {
         service.deleteRelationshipDefinition(workspaceId, defId, impactConfirmed = false)
 
         verify(exclusionRepository).deleteByRelationshipDefinitionId(defId)
+    }
+
+    // ------ Semantic rule removal impact ------
+
+    @Test
+    fun `updateRelationshipDefinition - removing semantic rule with orphaned links - returns impact when not confirmed`() {
+        val defId = UUID.randomUUID()
+        val orphanedTypeId = UUID.randomUUID()
+
+        val existingEntity = EntityFactory.createRelationshipDefinitionEntity(
+            id = defId,
+            workspaceId = workspaceId,
+            sourceEntityTypeId = sourceEntityTypeId,
+            name = "Related",
+        )
+        val existingSemanticRule = EntityFactory.createTargetRuleEntity(
+            relationshipDefinitionId = defId,
+            targetEntityTypeId = null,
+            semanticTypeConstraint = SemanticGroup.CUSTOMER,
+        )
+
+        whenever(definitionRepository.findByIdAndWorkspaceId(defId, workspaceId)).thenReturn(Optional.of(existingEntity))
+        whenever(targetRuleRepository.findByRelationshipDefinitionId(defId)).thenReturn(listOf(existingSemanticRule))
+        whenever(entityTypeRepository.findIdsByWorkspaceIdAndSemanticGroup(workspaceId, SemanticGroup.CUSTOMER))
+            .thenReturn(listOf(orphanedTypeId))
+        whenever(entityRelationshipRepository.countByDefinitionIdAndTargetEntityTypeId(defId, orphanedTypeId))
+            .thenReturn(3)
+
+        val request = SaveRelationshipDefinitionRequest(
+            key = "related",
+            id = defId,
+            name = "Related",
+            iconType = IconType.LINK,
+            iconColour = IconColour.NEUTRAL,
+            cardinalityDefault = EntityRelationshipCardinality.MANY_TO_MANY,
+            targetRules = emptyList(), // removes the semantic rule
+        )
+
+        val (result, impact) = service.updateRelationshipDefinition(workspaceId, defId, request)
+
+        assertNull(result)
+        assertNotNull(impact)
+        assertEquals(3L, impact!!.impactedLinkCount)
+        assertEquals("Related", impact.definitionName)
+        // Should NOT have saved anything
+        verify(definitionRepository, never()).save(any())
+    }
+
+    @Test
+    fun `updateRelationshipDefinition - removing semantic rule with orphaned links confirmed - soft-deletes and proceeds`() {
+        val defId = UUID.randomUUID()
+        val orphanedTypeId = UUID.randomUUID()
+
+        val existingEntity = EntityFactory.createRelationshipDefinitionEntity(
+            id = defId,
+            workspaceId = workspaceId,
+            sourceEntityTypeId = sourceEntityTypeId,
+            name = "Related",
+        )
+        val existingSemanticRule = EntityFactory.createTargetRuleEntity(
+            relationshipDefinitionId = defId,
+            targetEntityTypeId = null,
+            semanticTypeConstraint = SemanticGroup.CUSTOMER,
+        )
+
+        whenever(definitionRepository.findByIdAndWorkspaceId(defId, workspaceId)).thenReturn(Optional.of(existingEntity))
+        whenever(definitionRepository.save(any<RelationshipDefinitionEntity>())).thenAnswer { it.arguments[0] }
+        whenever(targetRuleRepository.findByRelationshipDefinitionId(defId)).thenReturn(listOf(existingSemanticRule))
+        whenever(targetRuleRepository.saveAll(any<List<RelationshipTargetRuleEntity>>())).thenReturn(emptyList())
+        whenever(entityTypeRepository.findIdsByWorkspaceIdAndSemanticGroup(workspaceId, SemanticGroup.CUSTOMER))
+            .thenReturn(listOf(orphanedTypeId))
+        whenever(entityRelationshipRepository.countByDefinitionIdAndTargetEntityTypeId(defId, orphanedTypeId))
+            .thenReturn(3)
+
+        val request = SaveRelationshipDefinitionRequest(
+            key = "related",
+            id = defId,
+            name = "Related",
+            iconType = IconType.LINK,
+            iconColour = IconColour.NEUTRAL,
+            cardinalityDefault = EntityRelationshipCardinality.MANY_TO_MANY,
+            targetRules = emptyList(),
+        )
+
+        val (result, impact) = service.updateRelationshipDefinition(workspaceId, defId, request, impactConfirmed = true)
+
+        assertNotNull(result)
+        assertNull(impact)
+        verify(entityRelationshipRepository).softDeleteByDefinitionIdAndTargetEntityTypeId(defId, orphanedTypeId)
+    }
+
+    @Test
+    fun `updateRelationshipDefinition - removing semantic rule with no orphaned links - proceeds normally`() {
+        val defId = UUID.randomUUID()
+
+        val existingEntity = EntityFactory.createRelationshipDefinitionEntity(
+            id = defId,
+            workspaceId = workspaceId,
+            sourceEntityTypeId = sourceEntityTypeId,
+            name = "Related",
+        )
+        val existingSemanticRule = EntityFactory.createTargetRuleEntity(
+            relationshipDefinitionId = defId,
+            targetEntityTypeId = null,
+            semanticTypeConstraint = SemanticGroup.CUSTOMER,
+        )
+
+        whenever(definitionRepository.findByIdAndWorkspaceId(defId, workspaceId)).thenReturn(Optional.of(existingEntity))
+        whenever(definitionRepository.save(any<RelationshipDefinitionEntity>())).thenAnswer { it.arguments[0] }
+        whenever(targetRuleRepository.findByRelationshipDefinitionId(defId)).thenReturn(listOf(existingSemanticRule))
+        whenever(targetRuleRepository.saveAll(any<List<RelationshipTargetRuleEntity>>())).thenReturn(emptyList())
+        whenever(entityTypeRepository.findIdsByWorkspaceIdAndSemanticGroup(workspaceId, SemanticGroup.CUSTOMER))
+            .thenReturn(emptyList()) // no entity types in this group
+
+        val request = SaveRelationshipDefinitionRequest(
+            key = "related",
+            id = defId,
+            name = "Related",
+            iconType = IconType.LINK,
+            iconColour = IconColour.NEUTRAL,
+            cardinalityDefault = EntityRelationshipCardinality.MANY_TO_MANY,
+            targetRules = emptyList(),
+        )
+
+        val (result, impact) = service.updateRelationshipDefinition(workspaceId, defId, request)
+
+        assertNotNull(result)
+        assertNull(impact)
+        verify(definitionRepository).save(any())
     }
 }

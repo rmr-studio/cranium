@@ -2,10 +2,7 @@
 
 import { DataType, IconColour, IconType, SchemaType } from '@/lib/types/common';
 import { AttributeSchemaType, attributeTypes } from '@/lib/util/form/schema.util';
-import { cn } from '@riven/utils';
-import { Check, ChevronsUpDown } from 'lucide-react';
-import { Dispatch, FC, SetStateAction, useMemo } from 'react';
-import { Button } from './button';
+import { Button } from '@riven/ui/button';
 import {
   Command,
   CommandEmpty,
@@ -13,10 +10,13 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from './command';
+} from '@riven/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
+import { cn } from '@riven/utils';
+import { Check, ChevronsUpDown } from 'lucide-react';
+import { Dispatch, FC, SetStateAction, useMemo } from 'react';
 import { FormControl } from './form';
 import { IconCell } from './icon/icon-cell';
-import { Popover, PopoverContent, PopoverTrigger } from './popover';
 
 interface Props {
   disabled?: boolean;

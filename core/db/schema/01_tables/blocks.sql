@@ -6,7 +6,6 @@
 -- BLOCK TYPES TABLE
 -- =====================================================
 
-drop table if exists public.block_types cascade;
 CREATE TABLE IF NOT EXISTS public.block_types
 (
     "id"                UUID PRIMARY KEY         DEFAULT uuid_generate_v4(),
@@ -34,7 +33,6 @@ CREATE TABLE IF NOT EXISTS public.block_types
 -- BLOCKS TABLE
 -- =====================================================
 
-drop table if exists public.blocks cascade;
 CREATE TABLE IF NOT EXISTS public.blocks
 (
     "id"           UUID PRIMARY KEY         DEFAULT uuid_generate_v4(),
@@ -56,7 +54,6 @@ CREATE TABLE IF NOT EXISTS public.blocks
 -- BLOCK CHILDREN TABLE
 -- =====================================================
 
-drop table if exists public.block_children cascade;
 CREATE TABLE IF NOT EXISTS public.block_children
 (
     "id"           UUID PRIMARY KEY         DEFAULT uuid_generate_v4(),
@@ -73,7 +70,6 @@ CREATE TABLE IF NOT EXISTS public.block_children
 -- BLOCK TREE LAYOUTS TABLE
 -- =====================================================
 
-drop table if exists public.block_tree_layouts cascade;
 CREATE TABLE IF NOT EXISTS public.block_tree_layouts
 (
     "id"           UUID PRIMARY KEY         DEFAULT uuid_generate_v4(),

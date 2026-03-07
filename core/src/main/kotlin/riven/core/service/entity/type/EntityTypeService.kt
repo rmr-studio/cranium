@@ -140,6 +140,8 @@ class EntityTypeService(
             throw AccessDeniedException("Entity type does not belong to the specified workspace")
         }
 
+        val oldSemanticGroup = existing.semanticGroup
+
         existing.apply {
             displayNameSingular = request.name.singular
             displayNamePlural = request.name.plural
@@ -151,6 +153,12 @@ class EntityTypeService(
 
         val saved = entityTypeRepository.save(existing)
         val savedId = requireNotNull(saved.id)
+
+        if (request.semanticGroup != null && request.semanticGroup != oldSemanticGroup) {
+            entityTypeRelationshipService.cleanupExclusionsAfterSemanticGroupChange(
+                workspaceId, savedId, oldSemanticGroup, request.semanticGroup,
+            )
+        }
 
         activityService.log(
             activity = Activity.ENTITY_TYPE,
@@ -197,7 +205,10 @@ class EntityTypeService(
             }
 
             is SaveRelationshipDefinitionRequest -> {
-                val id = handleSaveRelationshipDefinition(workspaceId, entityTypeId, definition)
+                val (id, impact) = handleSaveRelationshipDefinition(workspaceId, entityTypeId, definition, impactConfirmed)
+                if (impact != null) {
+                    return EntityTypeImpactResponse(impact = impact)
+                }
                 id to EntityPropertyType.RELATIONSHIP
             }
 
@@ -452,18 +463,21 @@ class EntityTypeService(
     // ------ Relationship Helpers ------
     /**
      * Delegates relationship definition create/update to EntityTypeRelationshipService.
-     * @return the resolved definition ID (postgres-generated on create, request ID on update)
+     * @return the resolved definition ID and optional impact analysis
      */
     private fun handleSaveRelationshipDefinition(
         workspaceId: UUID,
         entityTypeId: UUID,
         request: SaveRelationshipDefinitionRequest,
-    ): UUID {
+        impactConfirmed: Boolean,
+    ): Pair<UUID, DeleteDefinitionImpact?> {
         return if (request.id == null) {
-            entityTypeRelationshipService.createRelationshipDefinition(workspaceId, entityTypeId, request).id
+            entityTypeRelationshipService.createRelationshipDefinition(workspaceId, entityTypeId, request).id to null
         } else {
-            entityTypeRelationshipService.updateRelationshipDefinition(workspaceId, request.id, request)
-            request.id
+            val (_, impact) = entityTypeRelationshipService.updateRelationshipDefinition(
+                workspaceId, request.id, request, impactConfirmed,
+            )
+            request.id to impact
         }
     }
 

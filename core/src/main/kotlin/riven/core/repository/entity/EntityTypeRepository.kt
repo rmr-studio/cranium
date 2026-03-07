@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import riven.core.entity.entity.EntityTypeEntity
+import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.projection.entity.SemanticGroupProjection
 import java.util.*
 
@@ -34,4 +35,7 @@ interface EntityTypeRepository : JpaRepository<EntityTypeEntity, UUID> {
      */
     @Query("SELECT e.id AS id, e.semanticGroup AS semanticGroup FROM EntityTypeEntity e WHERE e.id IN :ids")
     fun findSemanticGroupsByIds(@Param("ids") ids: Collection<UUID>): List<SemanticGroupProjection>
+
+    @Query("SELECT e.id FROM EntityTypeEntity e WHERE e.workspaceId = :workspaceId AND e.semanticGroup = :semanticGroup")
+    fun findIdsByWorkspaceIdAndSemanticGroup(workspaceId: UUID, semanticGroup: SemanticGroup): List<UUID>
 }

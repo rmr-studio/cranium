@@ -34,6 +34,11 @@ DROP INDEX IF EXISTS idx_target_rule_type;
 CREATE INDEX IF NOT EXISTS idx_target_rule_type
     ON relationship_target_rules (target_entity_type_id);
 
+DROP INDEX IF EXISTS idx_target_rule_semantic;
+CREATE INDEX IF NOT EXISTS idx_target_rule_semantic
+    ON relationship_target_rules (semantic_type_constraint)
+    WHERE semantic_type_constraint IS NOT NULL;
+
 -- Entity Relationships Indexes
 DROP INDEX IF EXISTS idx_entity_relationships_workspace_source;
 CREATE INDEX IF NOT EXISTS idx_entity_relationships_workspace_source

@@ -38,6 +38,7 @@ Multi-tenant workspace-scoped backend API for a configurable data platform with 
 - **UUID everywhere:** All primary keys are `UUID` with `@GeneratedValue(strategy = GenerationType.UUID)`. Use `UUID` for path variables and request fields.
 - **JSONB columns:** Use Hypersistence `@Type(JsonBinaryType::class)` with `columnDefinition = "jsonb"` for dynamic payload columns.
 - **Naming:** Services are `{Domain}Service`, repositories are `{Domain}Repository`, controllers are `{Domain}Controller`, entities are `{Domain}Entity`. Enums live in `enums.{domain}`.
+- **Configuration properties:** Always access application configuration via `@ConfigurationProperties` data classes in `configuration/properties/` (or the relevant `configuration/{domain}/` package). Do not use `@Value` annotations to inject individual properties — use a typed configuration bean instead. This ensures type safety, IDE discoverability, and centralised defaults. Existing properties classes follow the pattern: `@ConfigurationProperties(prefix = "riven.{domain}")` on a data class with default values.
 
 ## Service and Function Design
 

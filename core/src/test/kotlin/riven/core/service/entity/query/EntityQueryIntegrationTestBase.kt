@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
@@ -17,6 +16,7 @@ import org.springframework.data.domain.AuditorAware
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.boot.autoconfigure.domain.EntityScan
+import riven.core.configuration.properties.QueryConfigurationProperties
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
@@ -126,8 +126,7 @@ class EntityQueryIntegrationTestConfig {
         validator: QueryFilterValidator,
         entityTypeRelationshipService: EntityTypeRelationshipService,
         dataSource: DataSource,
-        @Value("\${riven.query.timeout-seconds:10}") queryTimeoutSeconds: Long,
-    ) = EntityQueryService(entityTypeRepository, entityRepository, assembler, validator, entityTypeRelationshipService, dataSource, queryTimeoutSeconds)
+    ) = EntityQueryService(entityTypeRepository, entityRepository, assembler, validator, entityTypeRelationshipService, dataSource, QueryConfigurationProperties())
 }
 
 /**

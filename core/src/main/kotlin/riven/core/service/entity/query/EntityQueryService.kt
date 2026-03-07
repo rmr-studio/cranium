@@ -5,12 +5,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.dao.DataAccessException
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Service
+import riven.core.configuration.properties.QueryConfigurationProperties
 import riven.core.exceptions.NotFoundException
 import riven.core.exceptions.query.InvalidAttributeReferenceException
 import riven.core.exceptions.query.QueryExecutionException
@@ -52,16 +52,16 @@ class EntityQueryService(
     private val validator: QueryFilterValidator,
     private val entityTypeRelationshipService: EntityTypeRelationshipService,
     dataSource: DataSource,
-    @Value("\${riven.query.timeout-seconds}") queryTimeoutSeconds: Long,
+    queryProperties: QueryConfigurationProperties,
 ) {
 
     private val jdbcTemplate: NamedParameterJdbcTemplate
 
     init {
         val innerTemplate = JdbcTemplate(dataSource)
-        innerTemplate.queryTimeout = queryTimeoutSeconds.toInt()
+        innerTemplate.queryTimeout = queryProperties.timeoutSeconds.toInt()
         jdbcTemplate = NamedParameterJdbcTemplate(innerTemplate)
-        logger.debug { "EntityQueryService initialized with query timeout: ${queryTimeoutSeconds}s" }
+        logger.debug { "EntityQueryService initialized with query timeout: ${queryProperties.timeoutSeconds}s" }
     }
 
     /**

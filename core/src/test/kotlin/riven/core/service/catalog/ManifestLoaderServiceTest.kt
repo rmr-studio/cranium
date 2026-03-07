@@ -10,6 +10,7 @@ import riven.core.entity.catalog.ManifestCatalogEntity
 import riven.core.enums.catalog.ManifestType
 import riven.core.models.catalog.ResolvedManifest
 import riven.core.models.catalog.ScannedManifest
+import riven.core.configuration.properties.ManifestConfigurationProperties
 import riven.core.repository.catalog.ManifestCatalogRepository
 
 class ManifestLoaderServiceTest {
@@ -45,6 +46,7 @@ class ManifestLoaderServiceTest {
             integrationDefinitionStaleSyncService,
             manifestCatalogRepository,
             healthIndicator,
+            ManifestConfigurationProperties(),
             logger
         )
 

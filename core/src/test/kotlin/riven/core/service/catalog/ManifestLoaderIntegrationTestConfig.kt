@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.O
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
 import org.springframework.boot.autoconfigure.domain.EntityScan
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.support.ResourcePatternResolver
@@ -15,7 +16,7 @@ import org.springframework.data.auditing.DateTimeProvider
 import org.springframework.data.domain.AuditorAware
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
-import org.springframework.beans.factory.annotation.Value
+import riven.core.configuration.properties.ManifestConfigurationProperties
 import riven.core.repository.catalog.*
 import riven.core.repository.integration.IntegrationDefinitionRepository
 import java.time.ZonedDateTime
@@ -47,6 +48,7 @@ import java.util.*
 @EnableJpaRepositories(basePackages = ["riven.core.repository.catalog", "riven.core.repository.integration"])
 @EntityScan("riven.core.entity")
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider", dateTimeProviderRef = "dateTimeProvider")
+@EnableConfigurationProperties(ManifestConfigurationProperties::class)
 class ManifestLoaderIntegrationTestConfig {
 
     @Bean
@@ -63,9 +65,9 @@ class ManifestLoaderIntegrationTestConfig {
     fun manifestScannerService(
         resourcePatternResolver: ResourcePatternResolver,
         objectMapper: ObjectMapper,
-        logger: KLogger,
-        @Value("\${riven.manifests.base-path:classpath:manifests}") basePath: String
-    ) = ManifestScannerService(resourcePatternResolver, objectMapper, logger, basePath)
+        manifestProperties: ManifestConfigurationProperties,
+        logger: KLogger
+    ) = ManifestScannerService(resourcePatternResolver, objectMapper, manifestProperties, logger)
 
     @Bean
     fun manifestResolverService(
@@ -126,6 +128,7 @@ class ManifestLoaderIntegrationTestConfig {
         integrationDefinitionStaleSyncService: IntegrationDefinitionStaleSyncService,
         manifestCatalogRepository: ManifestCatalogRepository,
         healthIndicator: ManifestCatalogHealthIndicator,
+        manifestProperties: ManifestConfigurationProperties,
         logger: KLogger
     ) = ManifestLoaderService(
         scannerService,
@@ -135,8 +138,8 @@ class ManifestLoaderIntegrationTestConfig {
         integrationDefinitionStaleSyncService,
         manifestCatalogRepository,
         healthIndicator,
-        logger,
-        autoLoadOnStartup = false
+        manifestProperties.copy(autoLoad = false),
+        logger
     )
 
     @Bean

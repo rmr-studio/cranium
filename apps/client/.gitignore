@@ -44,4 +44,7 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts.pr-review/
+next-env.d.ts
+
+## agentic context
+.pr-review/

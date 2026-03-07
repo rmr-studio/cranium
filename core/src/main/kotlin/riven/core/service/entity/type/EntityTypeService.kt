@@ -237,18 +237,36 @@ class EntityTypeService(
             }
 
             is DeleteRelationshipDefinitionRequest -> {
-                val impact = entityTypeRelationshipService.deleteRelationshipDefinition(
-                    workspaceId = workspaceId,
-                    definitionId = definition.id,
-                    impactConfirmed = impactConfirmed,
-                )
-
-                if (impact != null) {
-                    return EntityTypeImpactResponse(
-                        error = null,
-                        updatedEntityTypes = null,
-                        impact = impact,
+                if (definition.sourceEntityTypeKey != null) {
+                    // Target-side exclusion: the key field is the target type opting out
+                    val entityTypeId = requireNotNull(existing.id)
+                    val impact = entityTypeRelationshipService.excludeEntityTypeFromDefinition(
+                        workspaceId = workspaceId,
+                        definitionId = definition.id,
+                        entityTypeId = entityTypeId,
+                        impactConfirmed = impactConfirmed,
                     )
+                    if (impact != null) {
+                        return EntityTypeImpactResponse(
+                            error = null,
+                            updatedEntityTypes = null,
+                            impact = impact,
+                        )
+                    }
+                } else {
+                    // Source-side deletion (existing flow)
+                    val impact = entityTypeRelationshipService.deleteRelationshipDefinition(
+                        workspaceId = workspaceId,
+                        definitionId = definition.id,
+                        impactConfirmed = impactConfirmed,
+                    )
+                    if (impact != null) {
+                        return EntityTypeImpactResponse(
+                            error = null,
+                            updatedEntityTypes = null,
+                            impact = impact,
+                        )
+                    }
                 }
             }
 

@@ -17,6 +17,7 @@ data class RelationshipDefinition(
     val protected: Boolean,
     val systemType: SystemRelationshipType? = null,
     val targetRules: List<RelationshipTargetRule> = emptyList(),
+    val excludedEntityTypeIds: List<UUID> = emptyList(),
     val createdAt: ZonedDateTime?,
     val updatedAt: ZonedDateTime?,
     val createdBy: UUID?,

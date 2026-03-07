@@ -16,7 +16,7 @@ Part of [[Relationships]]
 
 ## Purpose
 
-Manages the full lifecycle of relationship definitions between entity types. Handles CRUD for type-level relationship configuration stored in the `relationship_definitions` and `relationship_target_rules` tables, including semantic metadata lifecycle hooks and two-pass impact confirmation for destructive operations.
+Manages the full lifecycle of relationship definitions between entity types. Handles CRUD for type-level relationship configuration stored in the `relationship_definitions`, `relationship_target_rules`, and `relationship_definition_exclusions` tables, including semantic metadata lifecycle hooks, two-pass impact confirmation for destructive operations, and target-side exclusions for opt-out from bidirectional relationships.
 
 ---
 
@@ -26,9 +26,10 @@ Manages the full lifecycle of relationship definitions between entity types. Han
 - Creating `RelationshipDefinitionEntity` records with their associated `RelationshipTargetRuleEntity` records
 - Updating existing relationship definitions and diffing their target rules (add / remove / update in a single pass)
 - Deleting relationship definitions using the two-pass impact pattern: returning a `DeleteDefinitionImpact` when confirmed data exists, then executing soft-delete of the definition and associated relationship links on confirmation
-- Hard-deleting target rules on definition deletion (configuration data, not user data)
+- Hard-deleting target rules and exclusion records on definition deletion (configuration data, not user data)
 - Soft-deleting entity relationship links (`EntityRelationshipEntity`) when their definition is deleted
-- Resolving which relationship definitions an entity type participates in, including both forward (type is source) and inverse-visible (type is target with `inverseVisible = true` on the target rule)
+- Resolving which relationship definitions an entity type participates in, including both forward (type is source) and inverse definitions (type is a target), filtering out excluded definitions
+- Managing target-side exclusions — allowing entity types to opt out of relationship definitions they are implicitly included in (via semantic group or polymorphic matching)
 - Triggering `EntityTypeSemanticMetadataService` lifecycle hooks on create and delete
 - Logging activity for all create, update, and delete mutations
 
@@ -48,7 +49,8 @@ Manages the full lifecycle of relationship definitions between entity types. Han
 |---|---|---|
 | [[RelationshipDefinitionRepository]] | CRUD for `relationship_definitions` | High |
 | [[RelationshipTargetRuleRepository]] | CRUD for `relationship_target_rules` | High |
-| EntityRelationshipRepository | Count and soft-delete link records on definition deletion | Medium |
+| RelationshipDefinitionExclusionRepository | CRUD for `relationship_definition_exclusions` | High |
+| EntityRelationshipRepository | Count and soft-delete link records on definition deletion and exclusion | Medium |
 | [[ActivityService]] | Logs relationship CRUD operations | Medium |
 | [[AuthTokenService]] | Retrieves current user ID for activity logging | Low |
 | [[EntityTypeSemanticMetadataService]] | Initialize and clean up semantic metadata for relationship definitions | Medium |
@@ -67,6 +69,7 @@ Manages the full lifecycle of relationship definitions between entity types. Han
 class EntityTypeRelationshipService(
     private val definitionRepository: RelationshipDefinitionRepository,
     private val targetRuleRepository: RelationshipTargetRuleRepository,
+    private val exclusionRepository: RelationshipDefinitionExclusionRepository,
     private val entityRelationshipRepository: EntityRelationshipRepository,
     private val activityService: ActivityService,
     private val authTokenService: AuthTokenService,
@@ -159,6 +162,7 @@ fun deleteRelationshipDefinition(
   - Soft-deletes all `EntityRelationshipEntity` records with the given `definitionId`
   - Soft-deletes the `RelationshipDefinitionEntity`
   - Hard-deletes all `RelationshipTargetRuleEntity` records for the definition
+  - Hard-deletes all `RelationshipDefinitionExclusionEntity` records for the definition
   - Calls `semanticMetadataService.deleteForTarget(...)` with `targetType = RELATIONSHIP`
   - Logs `Activity.ENTITY_RELATIONSHIP / DELETE` to the activity audit trail
 - **Throws:**
@@ -178,11 +182,11 @@ fun getDefinitionsForEntityType(
 ): List<RelationshipDefinition>
 ```
 
-- **Purpose:** Returns all relationship definitions an entity type participates in. This includes both forward definitions (the type is the `sourceEntityTypeId`) and inverse-visible definitions (the type appears as a `targetEntityTypeId` in a `RelationshipTargetRuleEntity` where `inverseVisible = true`).
+- **Purpose:** Returns all relationship definitions an entity type participates in. This includes both forward definitions (the type is the `sourceEntityTypeId`) and inverse definitions (the type appears as a `targetEntityTypeId` in a `RelationshipTargetRuleEntity`). Definitions where this entity type has an active exclusion record are filtered out from the inverse set.
 - **When to use:** When rendering the full relationship view for an entity type in the schema editor, or when validating relationship payloads during entity saves (called by `EntityService`).
 - **Side effects:** None. Read-only.
 - **Throws:** Nothing. Returns an empty list if no definitions exist.
-- **Returns:** Concatenation of forward models and inverse-visible models, each hydrated with their target rules. The returned list is not deduplicated — a definition can appear in both forward and inverse sets if the type is both the source and a target of the same definition.
+- **Returns:** Concatenation of forward models and inverse models, each hydrated with their target rules and exclusion lists. The returned list is not deduplicated — a definition can appear in both forward and inverse sets if the type is both the source and a target of the same definition.
 
 ---
 
@@ -254,6 +258,47 @@ fun getFallbackDefinitionId(entityTypeId: UUID): UUID?
 - **Side effects:** None. Read-only.
 - **Returns:** The definition UUID, or `null` if no fallback definition exists for this entity type.
 
+### Exclusions
+
+---
+
+#### `excludeEntityTypeFromDefinition(workspaceId, definitionId, entityTypeId, impactConfirmed): DeleteDefinitionImpact?`
+
+```kotlin
+@Transactional
+@PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
+fun excludeEntityTypeFromDefinition(
+    workspaceId: UUID,
+    definitionId: UUID,
+    entityTypeId: UUID,
+    impactConfirmed: Boolean,
+): DeleteDefinitionImpact?
+```
+
+- **Purpose:** Excludes an entity type from a relationship definition (target-side opt-out). If the entity type has an explicit target rule for this definition, deletes the rule instead of creating an exclusion. For implicit matches (semantic group or polymorphic), creates a `RelationshipDefinitionExclusionEntity` record. Uses the two-pass impact pattern when existing instance links would be affected.
+- **When to use:** When a target entity type wants to opt out of a relationship it is implicitly included in. Called by `EntityTypeService.removeEntityTypeDefinition` when `sourceEntityTypeKey` is set on the `DeleteRelationshipDefinitionRequest`.
+- **Side effects (when exclusion executes):**
+  - Soft-deletes instance links between entities of this type and the definition (via `softDeleteByDefinitionIdAndTargetEntityTypeId`)
+  - Either deletes the explicit target rule OR creates an exclusion record
+  - Logs `Activity.ENTITY_RELATIONSHIP / UPDATE` with `action = "exclude"`
+- **Throws:** `IllegalArgumentException` if `entityTypeId` equals the definition's `sourceEntityTypeId` (cannot exclude the source type from its own definition)
+- **Returns:** `DeleteDefinitionImpact` if the caller must confirm, `null` if exclusion was executed.
+
+---
+
+#### `removeExclusion(workspaceId, definitionId, entityTypeId)`
+
+```kotlin
+@Transactional
+@PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
+fun removeExclusion(workspaceId: UUID, definitionId: UUID, entityTypeId: UUID)
+```
+
+- **Purpose:** Removes an exclusion, re-enabling the relationship for the entity type. The relationship will reappear in definition resolution and inverse link queries.
+- **When to use:** When an entity type wants to reverse a previous opt-out.
+- **Side effects:** Hard-deletes the `RelationshipDefinitionExclusionEntity` record. Logs `Activity.ENTITY_RELATIONSHIP / UPDATE` with `action = "remove_exclusion"`.
+- **Returns:** Nothing.
+
 ---
 
 ## Key Logic
@@ -294,15 +339,17 @@ The caller (typically `EntityTypeService`) is responsible for surfacing the `Del
 
 ---
 
-### Inverse Visibility Resolution
+### Inverse Definition Resolution
 
 `getDefinitionsForEntityType` resolves two sources of definitions:
 
 **Forward definitions:** `definitionRepository.findByWorkspaceIdAndSourceEntityTypeId(workspaceId, entityTypeId)` — definitions where the entity type is the authoritative source.
 
-**Inverse-visible definitions:** Target rules are first fetched with `targetRuleRepository.findInverseVisibleByTargetEntityTypeId(entityTypeId)` (rules with `inverseVisible = true` pointing to this type). The definition IDs from those rules are then used to load the parent `RelationshipDefinitionEntity` records via `findAllById`.
+**Inverse definitions:** Target rules are first fetched with `targetRuleRepository.findByTargetEntityTypeId(entityTypeId)` (rules pointing to this type). The definition IDs from those rules are then used to load the parent `RelationshipDefinitionEntity` records via `findAllById`.
 
-Both sets are hydrated with their full target rules and returned as a combined list. Inverse visibility is a per-rule flag (`inverseVisible: Boolean`) on `RelationshipTargetRuleEntity`, not a property of the definition itself.
+**Exclusion filtering:** After loading inverse definitions, exclusions are queried with `exclusionRepository.findByEntityTypeId(entityTypeId)`. Any inverse definitions whose IDs appear in the exclusion set are filtered out. Forward definitions (where the type is the source) are never filtered — the source owns the definition.
+
+Both sets are hydrated with their full target rules and exclusion lists and returned as a combined list. All relationships are always bidirectional.
 
 ---
 
@@ -339,10 +386,11 @@ The deletion steps are sequenced to preserve data integrity:
 1. Soft-delete entity relationship links (`entityRelationshipRepository.softDeleteByDefinitionId`)
 2. Soft-delete the definition entity (`definitionRepository.save` with `deleted = true`)
 3. Hard-delete target rules (`targetRuleRepository.deleteByRelationshipDefinitionId`)
-4. Clean up semantic metadata (`semanticMetadataService.deleteForTarget`)
-5. Log activity
+4. Hard-delete exclusion records (`exclusionRepository.deleteByRelationshipDefinitionId`)
+5. Clean up semantic metadata (`semanticMetadataService.deleteForTarget`)
+6. Log activity
 
-Target rules are hard-deleted because they are schema configuration data, not user-generated data. Entity relationship links are soft-deleted to preserve auditability.
+Target rules and exclusion records are hard-deleted because they are schema configuration data, not user-generated data. Entity relationship links are soft-deleted to preserve auditability.
 
 ---
 
@@ -354,6 +402,7 @@ Target rules are hard-deleted because they are schema configuration data, not us
 |---|---|---|---|
 | `RelationshipDefinitionEntity` | `relationship_definitions` | Create, Read, Update, Soft-delete | Extends `AuditableSoftDeletableEntity`; has `protected` flag |
 | `RelationshipTargetRuleEntity` | `relationship_target_rules` | Create, Read, Update, Hard-delete | Extends `AuditableEntity` (not soft-deletable — config data) |
+| `RelationshipDefinitionExclusionEntity` | `relationship_definition_exclusions` | Create, Read, Hard-delete | Extends `AuditableEntity` (not soft-deletable — config data); unique on (definition_id, entity_type_id) |
 
 ### Queries Used
 
@@ -364,10 +413,16 @@ Target rules are hard-deleted because they are schema configuration data, not us
 | `RelationshipDefinitionRepository` | `findAllById` | Batch load inverse definitions by ID list | Used in `getDefinitionsForEntityType` after rule lookup |
 | `RelationshipTargetRuleRepository` | `findByRelationshipDefinitionId` | Load all rules for a single definition | Used in diff, hydration |
 | `RelationshipTargetRuleRepository` | `findByRelationshipDefinitionIdIn` | Batch load rules for multiple definitions | Used in `getDefinitionsForEntityType` hydration |
-| `RelationshipTargetRuleRepository` | `findInverseVisibleByTargetEntityTypeId` | Find rules with `inverseVisible = true` targeting a type | Used in inverse visibility resolution |
+| `RelationshipTargetRuleRepository` | `findByTargetEntityTypeId` | Find rules targeting a type | Used in inverse definition resolution |
 | `RelationshipTargetRuleRepository` | `deleteByRelationshipDefinitionId` | Hard-delete all rules for a definition | Used in `executeDeletion` |
-| `EntityRelationshipRepository` | `countByDefinitionId` | Count active links for impact analysis | Used in impact check pass |
+| `RelationshipDefinitionExclusionRepository` | `findByEntityTypeId` | Find exclusions for a type | Used in inverse definition filtering |
+| `RelationshipDefinitionExclusionRepository` | `findByRelationshipDefinitionId` | Find exclusions for a definition | Used in model hydration |
+| `RelationshipDefinitionExclusionRepository` | `findByRelationshipDefinitionIdIn` | Batch load exclusions for multiple definitions | Used in batch definition resolution |
+| `RelationshipDefinitionExclusionRepository` | `deleteByRelationshipDefinitionId` | Hard-delete all exclusions for a definition | Used in `executeDeletion` |
+| `EntityRelationshipRepository` | `countByDefinitionId` | Count active links for impact analysis | Used in definition deletion impact check |
+| `EntityRelationshipRepository` | `countByDefinitionIdAndTargetEntityTypeId` | Count links for a specific target type | Used in exclusion impact check |
 | `EntityRelationshipRepository` | `softDeleteByDefinitionId` | Bulk soft-delete all links for a definition | Native SQL `@Modifying` query |
+| `EntityRelationshipRepository` | `softDeleteByDefinitionIdAndTargetEntityTypeId` | Soft-delete links for a specific target type | Native SQL `@Modifying` query; used during exclusion |
 
 ---
 
@@ -414,7 +469,7 @@ Activity log `entityType` is always `ApplicationEntityType.ENTITY_TYPE` with `en
 > `RelationshipTargetRuleEntity` does not extend `SoftDeletable`. Rules removed during a diff or a definition deletion are permanently gone. If a rollback is needed, re-creation from the client request is the only recovery path.
 
 > [!warning] Definition can appear in both forward and inverse lists
-> If an entity type is both the `sourceEntityTypeId` of a definition AND a `targetEntityTypeId` with `inverseVisible = true` in the same definition's rules (self-referential relationship), `getDefinitionsForEntityType` will return the definition twice — once in `forwardModels` and once in `inverseModels`. Callers should be aware of this and deduplicate if required.
+> If an entity type is both the `sourceEntityTypeId` of a definition AND a `targetEntityTypeId` in the same definition's rules (self-referential relationship), `getDefinitionsForEntityType` will return the definition twice — once in `forwardModels` and once in `inverseModels`. Callers should be aware of this and deduplicate if required.
 
 > [!warning] Rule ID must be echoed to preserve it on update
 > During `updateRelationshipDefinition`, target rules with no `id` in the request are always created as new. A rule that was previously saved will be deleted if its ID is not included in the update request's `targetRules` list. Clients must read and echo back existing rule IDs to preserve them.
@@ -427,6 +482,12 @@ Activity log `entityType` is always `ApplicationEntityType.ENTITY_TYPE` with `en
 
 > [!warning] No semantic metadata hooks for fallback definitions
 > `createFallbackDefinition` does NOT call `semanticMetadataService.initializeForTarget(...)`. System definitions do not participate in the semantic metadata lifecycle.
+
+> [!warning] Exclusions are hard-deleted — no soft-delete trail
+> `RelationshipDefinitionExclusionEntity` does not extend `SoftDeletable`. Exclusions removed via `removeExclusion` or definition deletion are permanently gone. Re-excluding requires creating a new exclusion record.
+
+> [!warning] Explicit target rules are deleted, not excluded
+> When `excludeEntityTypeFromDefinition` finds an explicit target rule for the entity type, it deletes the rule rather than creating an exclusion record. This is intentional — the rule's existence is the mechanism for inclusion, so deleting it is the correct way to remove the type.
 
 ### Known Limitations
 
@@ -470,7 +531,15 @@ Activity log `entityType` is always `ApplicationEntityType.ENTITY_TYPE` with `en
 | Delete: instance data present, not confirmed — returns impact | Yes |
 | Delete: protected definition — throws `IllegalStateException` | Yes |
 | Delete: soft-deletes associated links when confirmed | Yes |
-| Read: returns both forward and inverse-visible definitions | Yes |
+| Delete: cleans up exclusion records | Yes |
+| Exclude: explicit target rule — deletes rule | Yes |
+| Exclude: semantic/polymorphic match — creates exclusion record | Yes |
+| Exclude: returns impact when instance data exists and not confirmed | Yes |
+| Exclude: soft-deletes links and creates exclusion when confirmed | Yes |
+| Exclude: rejects exclusion of source entity type | Yes |
+| Remove exclusion: deletes exclusion record | Yes |
+| Read: returns both forward and inverse definitions | Yes |
+| Read: filters out excluded inverse definitions | Yes |
 
 ### How to Test Manually
 
@@ -505,3 +574,4 @@ Activity log `entityType` is always `ApplicationEntityType.ENTITY_TYPE` with `en
 | 2026-02-19 | Added `EntityTypeSemanticMetadataService` dependency and lifecycle hooks for relationship metadata | Semantic Metadata Foundation |
 | 2026-02-21 | Complete rewrite — removed ORIGIN/REFERENCE bidirectional sync architecture, replaced with `relationship_definitions` + `relationship_target_rules` table model; documented two-pass impact pattern, target rule diff algorithm, inverse visibility resolution, new dependencies, and full test coverage table | Entity relationships architecture migration |
 | 2026-03-01 | Added system definition management — `createFallbackDefinition`, `getOrCreateFallbackDefinition`, `getFallbackDefinitionId` for CONNECTED_ENTITIES fallback definitions | Entity Connections |
+| 2026-03-06 | Always bidirectional — removed `inverseVisible` flag. Added `excludeEntityTypeFromDefinition` and `removeExclusion` methods, `RelationshipDefinitionExclusionRepository` dependency, exclusion filtering in `getDefinitionsForEntityType/Types`, exclusion cleanup in `executeDeletion`. New `RelationshipDefinitionExclusionEntity` and `relationship_definition_exclusions` table. | Target-Side Exclusions / Always Bidirectional |

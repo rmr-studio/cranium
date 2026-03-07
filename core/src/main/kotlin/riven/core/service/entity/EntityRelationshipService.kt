@@ -122,8 +122,7 @@ class EntityRelationshipService(
 
     /**
      * Finds all entity links for a source entity, grouped by definition ID.
-     * Includes both forward links (entity is source) and inverse links (entity is target
-     * with inverse_visible = true on the target rule).
+     * Includes both forward links (entity is source) and inverse links (entity is target).
      */
     fun findRelatedEntities(entityId: UUID, workspaceId: UUID): Map<UUID, List<EntityLink>> {
         val forward = entityRelationshipRepository.findEntityLinksBySourceId(entityId, workspaceId)

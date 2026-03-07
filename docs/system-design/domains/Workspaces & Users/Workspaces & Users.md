@@ -4,7 +4,7 @@ tags:
   - domain/workspace
   - domain/user
 Created: 2026-02-08
-Updated: 2026-02-09
+Updated: 2026-03-07
 ---
 # Domain: Workspaces & Users
 
@@ -119,7 +119,7 @@ flowchart TD
 
 | Domain | What We Consume | Via Component | Related Flow |
 |--------|----------------|---------------|--------------|
-| (None — infrastructure domain) | — | — | — |
+| [[Storage]] | File upload for workspace and user avatars | [[StorageService]] | [[Flow - File Upload]] |
 
 ### Consumed By
 
@@ -127,6 +127,7 @@ flowchart TD
 |----------|------------------|---------------|--------------|
 | [[Workflows]] | Workspace scoping (RLS), @PreAuthorize authorization | [[WorkspaceSecurity]], RLS via workspace_members | [[Auth & Authorization]], [[Queue Processing]] |
 | [[Entities]] | Workspace scoping (RLS), @PreAuthorize authorization, user context | [[WorkspaceSecurity]], [[AuthTokenService]], RLS via workspace_members | [[Auth & Authorization]], [[Entity CRUD]] |
+| [[Storage]] | User identity, workspace authorization | [[AuthTokenService]], [[WorkspaceSecurity]] | [[Flow - File Upload]] |
 
 ---
 

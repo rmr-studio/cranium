@@ -6,7 +6,7 @@ tags:
 Domains:
   - "[[Workspaces & Users]]"
 Created: 2026-02-08
-Updated: 2026-02-08
+Updated: 2026-03-07
 ---
 # UserService
 
@@ -25,6 +25,7 @@ Manages user profile CRUD with session-aware retrieval. Provides optimized works
 - User profile updates with session ID validation (self-only)
 - User deletion with cascading membership cleanup
 - Default workspace assignment during profile updates
+- Avatar upload via StorageService during profile updates
 
 ---
 
@@ -33,6 +34,7 @@ Manages user profile CRUD with session-aware retrieval. Provides optimized works
 - `UserRepository` — data access with custom findWorkspaceMembershipsByUserId query
 - `WorkspaceRepository` — lookup for default workspace assignment
 - [[AuthTokenService]] — get current user ID from JWT for session validation
+- [[StorageService]] — avatar file upload via uploadUserFile()
 
 ## Used By
 
@@ -56,10 +58,12 @@ Manages user profile CRUD with session-aware retrieval. Provides optimized works
 - Used when caller needs another user's workspace memberships (not session user)
 
 **updateUserDetails:**
+- Retrieves session user ID via `val sessionUserId = authTokenService.getUserId()` (val assignment)
 - Validates session user ID matches target user.id (throws AccessDeniedException if mismatch) — self-only enforcement
 - Updates name, email, phone, avatarUrl fields
 - Default workspace update: if user.defaultWorkspace.id provided, looks up WorkspaceEntity via WorkspaceRepository
 - Saves updated UserEntity
+- If optional `avatar: MultipartFile?` is provided: calls `storageService.uploadUserFile(sessionUserId, StorageDomain.AVATAR, file)` to upload, then sets `entity.avatarUrl` to returned storage key and saves again
 - Returns updated User model
 - Info logging of update
 
@@ -89,9 +93,9 @@ Retrieves specified user with all workspace memberships in single query. Optimiz
 
 Retrieves UserEntity by ID. No workspace memberships loaded.
 
-### `updateUserDetails(user): User`
+### `updateUserDetails(user, avatar?): User`
 
-Updates session user's profile. Validates session match. Updates name, email, phone, avatarUrl, defaultWorkspace.
+Updates session user's profile. Validates session match. Updates name, email, phone, avatarUrl, defaultWorkspace. If optional avatar MultipartFile is provided, uploads via StorageService and sets avatarUrl to the returned storage key.
 
 ### `deleteUserProfile(userId)`
 
@@ -113,4 +117,5 @@ Transactional deletion of user and associated membership records.
 
 - [[AuthTokenService]] — JWT claim extraction
 - [[WorkspaceService]] — Workspace management
+- [[StorageService]] — Avatar upload
 - [[User Management]] — Parent subdomain

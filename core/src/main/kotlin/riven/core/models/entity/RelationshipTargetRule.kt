@@ -11,8 +11,7 @@ data class RelationshipTargetRule(
     val targetEntityTypeId: UUID?,
     val semanticTypeConstraint: SemanticGroup?,
     val cardinalityOverride: EntityRelationshipCardinality?,
-    val inverseVisible: Boolean,
-    val inverseName: String?,
+    val inverseName: String,
     val createdAt: ZonedDateTime?,
     val updatedAt: ZonedDateTime?,
 )

@@ -66,3 +66,11 @@ CREATE INDEX IF NOT EXISTS idx_entities_source_integration
 CREATE INDEX IF NOT EXISTS idx_entities_source_external_id
     ON entities (source_external_id)
     WHERE source_external_id IS NOT NULL;
+
+DROP INDEX IF EXISTS idx_excl_entity_type;
+CREATE INDEX IF NOT EXISTS idx_excl_entity_type
+    ON relationship_definition_exclusions (entity_type_id);
+
+DROP INDEX IF EXISTS idx_excl_definition;
+CREATE INDEX IF NOT EXISTS idx_excl_definition
+    ON relationship_definition_exclusions (relationship_definition_id);

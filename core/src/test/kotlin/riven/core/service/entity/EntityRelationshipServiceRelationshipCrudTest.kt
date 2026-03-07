@@ -315,8 +315,7 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
             targetEntityTypeId = targetEntityTypeId,
             semanticTypeConstraint = null,
             cardinalityOverride = null,
-            inverseVisible = false,
-            inverseName = null,
+            inverseName = "Source Type",
             createdAt = null,
             updatedAt = null,
         )
@@ -370,8 +369,7 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
             targetEntityTypeId = targetEntityTypeId,
             semanticTypeConstraint = null,
             cardinalityOverride = null,
-            inverseVisible = false,
-            inverseName = null,
+            inverseName = "Source Type",
             createdAt = null,
             updatedAt = null,
         )
@@ -419,8 +417,7 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
             targetEntityTypeId = targetEntityTypeId,
             semanticTypeConstraint = null,
             cardinalityOverride = null,
-            inverseVisible = false,
-            inverseName = null,
+            inverseName = "Source Type",
             createdAt = null,
             updatedAt = null,
         )

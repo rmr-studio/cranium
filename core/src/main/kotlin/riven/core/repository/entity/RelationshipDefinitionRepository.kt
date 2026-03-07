@@ -33,7 +33,6 @@ interface RelationshipDefinitionRepository : JpaRepository<RelationshipDefinitio
         OR rd.id IN (
             SELECT rtr2.relationshipDefinitionId FROM RelationshipTargetRuleEntity rtr2
             WHERE rtr2.targetEntityTypeId IN :entityTypeIds
-            AND rtr2.inverseVisible = true
         )
     """)
     fun findDefinitionsWithRulesForEntityTypes(workspaceId: UUID, entityTypeIds: List<UUID>): List<Array<Any?>>

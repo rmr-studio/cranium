@@ -179,7 +179,7 @@ echo "Database schema setup complete!"
 - **Pattern**: Immutable versioning for block_types
 
 ### Entities
-- **Tables**: entity_types, entities, entities_unique_values, relationship_definitions, relationship_target_rules, entity_relationships
+- **Tables**: entity_types, entities, entities_unique_values, relationship_definitions, relationship_target_rules, relationship_definition_exclusions, entity_relationships
 - **Functions**: sync_entity_identifier_key(), update_entity_type_count()
 - **Triggers**: trg_sync_entity_identifier_key, trg_update_entity_type_count
 - **RLS**: Workspace-scoped access

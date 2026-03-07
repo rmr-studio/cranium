@@ -21,6 +21,7 @@ import riven.core.models.request.entity.type.SaveRelationshipDefinitionRequest
 import riven.core.models.request.entity.type.SaveTargetRuleRequest
 import riven.core.repository.entity.EntityRelationshipRepository
 import riven.core.repository.entity.EntityTypeRepository
+import riven.core.repository.entity.RelationshipDefinitionExclusionRepository
 import riven.core.repository.entity.RelationshipDefinitionRepository
 import riven.core.repository.entity.RelationshipTargetRuleRepository
 import riven.core.service.activity.ActivityService
@@ -66,6 +67,9 @@ class EntityTypeRelationshipServiceTest : BaseServiceTest() {
     private lateinit var entityTypeRepository: EntityTypeRepository
 
     @MockitoBean
+    private lateinit var exclusionRepository: RelationshipDefinitionExclusionRepository
+
+    @MockitoBean
     private lateinit var entityRelationshipRepository: EntityRelationshipRepository
 
     @MockitoBean
@@ -84,6 +88,7 @@ class EntityTypeRelationshipServiceTest : BaseServiceTest() {
         reset(
             definitionRepository,
             targetRuleRepository,
+            exclusionRepository,
             entityTypeRepository,
             entityRelationshipRepository,
             activityService,
@@ -104,7 +109,7 @@ class EntityTypeRelationshipServiceTest : BaseServiceTest() {
             iconColour = IconColour.NEUTRAL,
             cardinalityDefault = EntityRelationshipCardinality.MANY_TO_MANY,
             targetRules = listOf(
-                SaveTargetRuleRequest(targetEntityTypeId = targetTypeId)
+                SaveTargetRuleRequest(targetEntityTypeId = targetTypeId, inverseName = "Related Companies")
             ),
         )
 
@@ -142,11 +147,10 @@ class EntityTypeRelationshipServiceTest : BaseServiceTest() {
             iconColour = IconColour.NEUTRAL,
             cardinalityDefault = EntityRelationshipCardinality.MANY_TO_MANY,
             targetRules = listOf(
-                SaveTargetRuleRequest(targetEntityTypeId = targetTypeId1),
+                SaveTargetRuleRequest(targetEntityTypeId = targetTypeId1, inverseName = "Related Entities"),
                 SaveTargetRuleRequest(
                     targetEntityTypeId = targetTypeId2,
                     cardinalityOverride = EntityRelationshipCardinality.ONE_TO_MANY,
-                    inverseVisible = true,
                     inverseName = "Linked From"
                 ),
             ),
@@ -208,7 +212,7 @@ class EntityTypeRelationshipServiceTest : BaseServiceTest() {
             iconColour = IconColour.NEUTRAL,
             cardinalityDefault = EntityRelationshipCardinality.MANY_TO_MANY,
             targetRules = listOf(
-                SaveTargetRuleRequest(semanticTypeConstraint = SemanticGroup.OPERATIONAL)
+                SaveTargetRuleRequest(semanticTypeConstraint = SemanticGroup.OPERATIONAL, inverseName = "Organizations")
             ),
         )
 
@@ -288,7 +292,7 @@ class EntityTypeRelationshipServiceTest : BaseServiceTest() {
             iconColour = IconColour.NEUTRAL,
             cardinalityDefault = EntityRelationshipCardinality.MANY_TO_MANY,
             targetRules = listOf(
-                SaveTargetRuleRequest(targetEntityTypeId = newTargetTypeId)
+                SaveTargetRuleRequest(targetEntityTypeId = newTargetTypeId, inverseName = "Related")
             ),
         )
 
@@ -505,20 +509,21 @@ class EntityTypeRelationshipServiceTest : BaseServiceTest() {
         val inverseRule = EntityFactory.createTargetRuleEntity(
             relationshipDefinitionId = inverseDefId,
             targetEntityTypeId = entityTypeId,
-            inverseVisible = true,
             inverseName = "Seen From Target",
         )
 
         whenever(definitionRepository.findByWorkspaceIdAndSourceEntityTypeId(workspaceId, entityTypeId))
             .thenReturn(listOf(forwardDef))
-        whenever(targetRuleRepository.findInverseVisibleByTargetEntityTypeId(entityTypeId))
+        whenever(targetRuleRepository.findByTargetEntityTypeId(entityTypeId))
             .thenReturn(listOf(inverseRule))
         whenever(definitionRepository.findAllById(listOf(inverseDefId)))
             .thenReturn(listOf(inverseDef))
-        whenever(targetRuleRepository.findByRelationshipDefinitionIdIn(listOf(forwardDefId)))
+        whenever(exclusionRepository.findByEntityTypeId(entityTypeId))
             .thenReturn(emptyList())
-        whenever(targetRuleRepository.findByRelationshipDefinitionIdIn(listOf(inverseDefId)))
+        whenever(targetRuleRepository.findByRelationshipDefinitionIdIn(any()))
             .thenReturn(listOf(inverseRule))
+        whenever(exclusionRepository.findByRelationshipDefinitionIdIn(any()))
+            .thenReturn(emptyList())
 
         val result = service.getDefinitionsForEntityType(workspaceId, entityTypeId)
 

@@ -6,7 +6,7 @@ tags:
 Domains:
   - "[[Workspaces & Users]]"
 Created: 2026-02-08
-Updated: 2026-02-08
+Updated: 2026-03-07
 ---
 # WorkspaceService
 
@@ -26,6 +26,7 @@ Manages workspace lifecycle (CRUD) and workspace membership. On workspace creati
 - Member management (add, remove, role update) with ownership protection
 - Activity logging for all workspace and member operations
 - Currency validation for workspace defaultCurrency
+- Workspace avatar upload via StorageService during workspace creation
 
 ---
 
@@ -36,6 +37,7 @@ Manages workspace lifecycle (CRUD) and workspace membership. On workspace creati
 - [[UserService]] — retrieve user for default workspace assignment
 - [[AuthTokenService]] — get current user ID from JWT
 - `ActivityService` — audit logging
+- [[StorageService]] — avatar file upload for workspace creation/update
 - [[WorkspaceSecurity]] — used indirectly via @PreAuthorize on methods
 
 ## Used By
@@ -53,6 +55,7 @@ Manages workspace lifecycle (CRUD) and workspace membership. On workspace creati
 - On creation: adds creator as OWNER with WorkspaceMemberEntity
 - Default workspace logic: if user has no memberships OR request.isDefault flag set, assigns workspace as user's defaultWorkspace via UserService
 - Currency validation: uses Java Currency.getInstance, throws IllegalArgumentException for invalid codes
+- Avatar upload: if avatar file provided, uploads AFTER workspace save + member creation (so workspace ID exists and @PreAuthorize passes). Calls `storageService.uploadFile(id, StorageDomain.AVATAR, file)` which returns UploadFileResponse. Sets `this.avatarUrl = uploadResponse.file.storageKey` and saves again
 
 **deleteWorkspace:**
 - Soft-delete (sets deleted=true, deletedAt=now)
@@ -113,7 +116,6 @@ Updates member's role. Cannot assign or remove OWNER role.
 
 ## Gotchas
 
-- **Avatar upload TODO:** avatar parameter exists but implementation is marked TODO (line 90)
 - **Ownership transfer missing:** No dedicated method for ownership transfer — updateMemberRole explicitly blocks OWNER role changes with error message directing to "dedicated transfer ownership method"
 - **Soft delete incomplete:** deleteWorkspace does soft-delete but comment on line 160 says "Delete all members" with no implementation — member cascade unclear
 - **Transactional boundaries:** saveWorkspace is @Transactional, ensuring workspace + OWNER member creation is atomic
@@ -125,4 +127,5 @@ Updates member's role. Cannot assign or remove OWNER role.
 
 - [[WorkspaceSecurity]] — Authorization component
 - [[WorkspaceInviteService]] — Invitation workflow
+- [[StorageService]] — File storage for avatars
 - [[UserService]] — User profile management

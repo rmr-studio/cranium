@@ -19,7 +19,10 @@ import riven.core.models.entity.RelationshipDefinition
 import riven.core.models.entity.RelationshipTargetRule
 import riven.core.models.request.entity.type.SaveRelationshipDefinitionRequest
 import riven.core.models.request.entity.type.SaveTargetRuleRequest
+import riven.core.entity.entity.RelationshipDefinitionExclusionEntity
 import riven.core.repository.entity.EntityRelationshipRepository
+import riven.core.repository.entity.EntityTypeRepository
+import riven.core.repository.entity.RelationshipDefinitionExclusionRepository
 import riven.core.repository.entity.RelationshipDefinitionRepository
 import riven.core.repository.entity.RelationshipTargetRuleRepository
 import riven.core.service.activity.ActivityService
@@ -27,6 +30,7 @@ import riven.core.service.activity.log
 import riven.core.service.auth.AuthTokenService
 import riven.core.models.response.entity.type.DeleteDefinitionImpact
 import riven.core.service.entity.EntityTypeSemanticMetadataService
+import riven.core.exceptions.NotFoundException
 import riven.core.util.ServiceUtil
 import java.util.*
 
@@ -40,7 +44,9 @@ import java.util.*
 class EntityTypeRelationshipService(
     private val definitionRepository: RelationshipDefinitionRepository,
     private val targetRuleRepository: RelationshipTargetRuleRepository,
+    private val exclusionRepository: RelationshipDefinitionExclusionRepository,
     private val entityRelationshipRepository: EntityRelationshipRepository,
+    private val entityTypeRepository: EntityTypeRepository,
     private val activityService: ActivityService,
     private val authTokenService: AuthTokenService,
     private val semanticMetadataService: EntityTypeSemanticMetadataService,
@@ -205,8 +211,9 @@ class EntityTypeRelationshipService(
         entity.deletedAt = java.time.ZonedDateTime.now()
         definitionRepository.save(entity)
 
-        // Hard-delete target rules (configuration, not user data)
+        // Hard-delete target rules and exclusions (configuration, not user data)
         targetRuleRepository.deleteByRelationshipDefinitionId(definitionId)
+        exclusionRepository.deleteByRelationshipDefinitionId(definitionId)
 
         // Clean up semantic metadata
         semanticMetadataService.deleteForTarget(
@@ -234,7 +241,7 @@ class EntityTypeRelationshipService(
     /**
      * Returns all relationship definitions an entity type participates in,
      * including forward definitions (where the type is the source) and
-     * inverse-visible definitions (where the type is a target with inverse_visible = true).
+     * inverse definitions (where the type is a target of another definition).
      */
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
     fun getDefinitionsForEntityType(
@@ -244,8 +251,8 @@ class EntityTypeRelationshipService(
         // Forward definitions: this type is the source
         val forwardEntities = definitionRepository.findByWorkspaceIdAndSourceEntityTypeId(workspaceId, entityTypeId)
 
-        // Inverse definitions: this type is a target with inverse_visible = true
-        val inverseRules = targetRuleRepository.findInverseVisibleByTargetEntityTypeId(entityTypeId)
+        // Inverse definitions: this type is a target in another definition's rules
+        val inverseRules = targetRuleRepository.findByTargetEntityTypeId(entityTypeId)
         val inverseDefIds = inverseRules.map { it.relationshipDefinitionId }.distinct()
         val inverseEntities = if (inverseDefIds.isNotEmpty()) {
             definitionRepository.findAllById(inverseDefIds)
@@ -253,31 +260,37 @@ class EntityTypeRelationshipService(
             emptyList()
         }
 
-        // Hydrate forward definitions with their rules
+        // Filter out inverse definitions where this entity type is excluded
+        val exclusions = exclusionRepository.findByEntityTypeId(entityTypeId)
+        val excludedDefIds = exclusions.map { it.relationshipDefinitionId }.toSet()
+        val filteredInverseEntities = inverseEntities.filter { it.id !in excludedDefIds }
+
+        // Hydrate forward definitions with their rules and exclusions
         val forwardDefIds = forwardEntities.mapNotNull { it.id }
-        val forwardRules = if (forwardDefIds.isNotEmpty()) {
-            targetRuleRepository.findByRelationshipDefinitionIdIn(forwardDefIds)
+        val allDefIds = forwardDefIds + filteredInverseEntities.mapNotNull { it.id }
+        val allRulesByDef = if (allDefIds.isNotEmpty()) {
+            targetRuleRepository.findByRelationshipDefinitionIdIn(allDefIds)
                 .groupBy { it.relationshipDefinitionId }
         } else {
             emptyMap()
         }
-
-        // Hydrate inverse definitions with their rules
-        val inverseRulesByDef = if (inverseDefIds.isNotEmpty()) {
-            targetRuleRepository.findByRelationshipDefinitionIdIn(inverseDefIds)
+        val allExclusionsByDef = if (allDefIds.isNotEmpty()) {
+            exclusionRepository.findByRelationshipDefinitionIdIn(allDefIds)
                 .groupBy { it.relationshipDefinitionId }
         } else {
             emptyMap()
         }
 
         val forwardModels = forwardEntities.map { entity ->
-            val rules = forwardRules[entity.id]?.map { it.toModel() } ?: emptyList()
-            entity.toModel(rules)
+            val rules = allRulesByDef[entity.id]?.map { it.toModel() } ?: emptyList()
+            val excl = allExclusionsByDef[entity.id]?.map { it.entityTypeId } ?: emptyList()
+            entity.toModel(rules, excl)
         }
 
-        val inverseModels = inverseEntities.map { entity ->
-            val rules = inverseRulesByDef[entity.id]?.map { it.toModel() } ?: emptyList()
-            entity.toModel(rules)
+        val inverseModels = filteredInverseEntities.map { entity ->
+            val rules = allRulesByDef[entity.id]?.map { it.toModel() } ?: emptyList()
+            val excl = allExclusionsByDef[entity.id]?.map { it.entityTypeId } ?: emptyList()
+            entity.toModel(rules, excl)
         }
 
         return forwardModels + inverseModels
@@ -288,7 +301,7 @@ class EntityTypeRelationshipService(
      * JPQL query that LEFT JOINs definitions with their target rules.
      *
      * Returns a map keyed by entity type ID, where each value contains both forward
-     * definitions (type is source) and inverse-visible definitions (type is target).
+     * definitions (type is source) and inverse definitions (type is target).
      */
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
     fun getDefinitionsForEntityTypes(
@@ -313,21 +326,43 @@ class EntityTypeRelationshipService(
             }
         }
 
+        // Load exclusions for all queried entity types
+        val exclusionsByEntityType = exclusionRepository.findByEntityTypeIdIn(entityTypeIds)
+            .groupBy({ it.entityTypeId }, { it.relationshipDefinitionId })
+            .mapValues { (_, defIds) -> defIds.toSet() }
+
+        // Load exclusions per definition for the model
+        val defIds = definitions.keys.toList()
+        val exclusionsByDefId = if (defIds.isNotEmpty()) {
+            exclusionRepository.findByRelationshipDefinitionIdIn(defIds)
+                .groupBy({ it.relationshipDefinitionId }, { it.entityTypeId })
+        } else {
+            emptyMap()
+        }
+
         val models = definitions.values.map { def ->
-            def.toModel(rulesByDefId[def.id] ?: emptyList())
+            def.toModel(
+                rulesByDefId[def.id] ?: emptyList(),
+                exclusionsByDefId[def.id] ?: emptyList(),
+            )
         }
 
         return entityTypeIds.associateWith { entityTypeId ->
+            val excludedDefs = exclusionsByEntityType[entityTypeId] ?: emptySet()
             models.filter { def ->
-                def.sourceEntityTypeId == entityTypeId ||
-                    def.targetRules.any { it.targetEntityTypeId == entityTypeId && it.inverseVisible }
+                if (def.sourceEntityTypeId == entityTypeId) {
+                    true // Forward definitions are never filtered for the source
+                } else {
+                    def.id !in excludedDefs &&
+                        def.targetRules.any { it.targetEntityTypeId == entityTypeId }
+                }
             }
         }
     }
 
     /**
      * Returns all relationship definitions for an entity type, keyed by definition ID.
-     * Includes both forward and inverse-visible definitions.
+     * Includes both forward and inverse definitions.
      */
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
     fun getDefinitionsForEntityTypeAsMap(
@@ -347,10 +382,161 @@ class EntityTypeRelationshipService(
     ): RelationshipDefinition {
         val entity = ServiceUtil.findOrThrow { definitionRepository.findByIdAndWorkspaceId(definitionId, workspaceId) }
         val rules = targetRuleRepository.findByRelationshipDefinitionId(definitionId).map { it.toModel() }
-        return entity.toModel(rules)
+        val excludedTypeIds = exclusionRepository.findByRelationshipDefinitionId(definitionId).map { it.entityTypeId }
+        return entity.toModel(rules, excludedTypeIds)
+    }
+
+    // ------ Exclusions ------
+
+    /**
+     * Excludes an entity type from a relationship definition (target-side opt-out).
+     *
+     * If the entity type has an explicit target rule, deletes the rule instead.
+     * Soft-deletes any existing instance links between this entity type and the definition.
+     *
+     * @return Impact analysis if confirmation needed, null if exclusion was executed
+     */
+    @Transactional
+    @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
+    fun excludeEntityTypeFromDefinition(
+        workspaceId: UUID,
+        definitionId: UUID,
+        entityTypeId: UUID,
+        impactConfirmed: Boolean,
+    ): DeleteDefinitionImpact? {
+        val userId = authTokenService.getUserId()
+        val definition = ServiceUtil.findOrThrow { definitionRepository.findByIdAndWorkspaceId(definitionId, workspaceId) }
+
+        require(definition.sourceEntityTypeId != entityTypeId) {
+            "Cannot exclude the source entity type from its own definition"
+        }
+
+        validateEntityTypeBelongsToWorkspace(entityTypeId, workspaceId)
+
+        val linkCount = entityRelationshipRepository.countByDefinitionIdAndTargetEntityTypeId(definitionId, entityTypeId)
+
+        if (linkCount > 0 && !impactConfirmed) {
+            return DeleteDefinitionImpact(
+                definitionId = definitionId,
+                definitionName = definition.name,
+                impactedLinkCount = linkCount,
+            )
+        }
+
+        // Soft-delete instance links for this entity type
+        if (linkCount > 0) {
+            entityRelationshipRepository.softDeleteByDefinitionIdAndTargetEntityTypeId(definitionId, entityTypeId)
+        }
+
+        if (definition.allowPolymorphic) {
+            // Polymorphic definitions have no explicit rules — exclusion is the only mechanism
+            saveExclusionRecord(definitionId, entityTypeId)
+        } else {
+            // Rule-based definition: delete explicit rule if present, then check remaining reachability
+            val existingRule = targetRuleRepository.findByRelationshipDefinitionId(definitionId)
+                .find { it.targetEntityTypeId == entityTypeId }
+
+            if (existingRule != null) {
+                targetRuleRepository.delete(existingRule)
+                logger.info { "Deleted explicit target rule for entity type $entityTypeId from definition $definitionId" }
+            }
+
+            if (isReachableViaSemanticRules(definitionId, entityTypeId)) {
+                saveExclusionRecord(definitionId, entityTypeId)
+            }
+        }
+
+        activityService.log(
+            activity = Activity.ENTITY_RELATIONSHIP,
+            operation = OperationType.UPDATE,
+            userId = userId,
+            workspaceId = workspaceId,
+            entityType = ApplicationEntityType.ENTITY_TYPE,
+            entityId = entityTypeId,
+            "relationshipId" to definitionId.toString(),
+            "action" to "exclude",
+        )
+
+        return null
+    }
+
+    /**
+     * Removes an exclusion, re-enabling the relationship for the entity type.
+     */
+    @Transactional
+    @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
+    fun removeExclusion(workspaceId: UUID, definitionId: UUID, entityTypeId: UUID) {
+        val userId = authTokenService.getUserId()
+        ServiceUtil.findOrThrow { definitionRepository.findByIdAndWorkspaceId(definitionId, workspaceId) }
+        validateEntityTypeBelongsToWorkspace(entityTypeId, workspaceId)
+
+        val exclusionExists = exclusionRepository.findByRelationshipDefinitionIdAndEntityTypeId(definitionId, entityTypeId).isPresent
+        if (exclusionExists) {
+            exclusionRepository.deleteByRelationshipDefinitionIdAndEntityTypeId(definitionId, entityTypeId)
+            entityRelationshipRepository.restoreByDefinitionIdAndTargetEntityTypeId(definitionId, entityTypeId)
+        }
+
+        activityService.log(
+            activity = Activity.ENTITY_RELATIONSHIP,
+            operation = OperationType.UPDATE,
+            userId = userId,
+            workspaceId = workspaceId,
+            entityType = ApplicationEntityType.ENTITY_TYPE,
+            entityId = entityTypeId,
+            "relationshipId" to definitionId.toString(),
+            "action" to "remove_exclusion",
+        )
+
+        logger.info { "Removed exclusion for entity type $entityTypeId from definition $definitionId" }
     }
 
     // ------ Private helpers ------
+
+    /**
+     * Validates that the given entity type belongs to the specified workspace.
+     * Inline check required because findById doesn't filter by workspace.
+     */
+    private fun validateEntityTypeBelongsToWorkspace(entityTypeId: UUID, workspaceId: UUID) {
+        val entityType = ServiceUtil.findOrThrow { entityTypeRepository.findById(entityTypeId) }
+        if (entityType.workspaceId != workspaceId) {
+            throw NotFoundException("Entity type $entityTypeId not found in workspace $workspaceId")
+        }
+    }
+
+    /**
+     * Checks whether an entity type is still reachable on a definition via semantic constraint rules
+     * (i.e. rules with a `semanticTypeConstraint` that matches the entity type's semantic group).
+     */
+    private fun isReachableViaSemanticRules(definitionId: UUID, entityTypeId: UUID): Boolean {
+        val semanticRules = targetRuleRepository.findByRelationshipDefinitionId(definitionId)
+            .filter { it.semanticTypeConstraint != null }
+        if (semanticRules.isEmpty()) return false
+
+        val entityType = ServiceUtil.findOrThrow { entityTypeRepository.findById(entityTypeId) }
+        return semanticRules.any { it.semanticTypeConstraint == entityType.semanticGroup }
+    }
+
+    /**
+     * Saves an exclusion record, handling concurrent duplicates as a no-op.
+     */
+    private fun saveExclusionRecord(definitionId: UUID, entityTypeId: UUID) {
+        try {
+            exclusionRepository.save(
+                RelationshipDefinitionExclusionEntity(
+                    relationshipDefinitionId = definitionId,
+                    entityTypeId = entityTypeId,
+                )
+            )
+            logger.info { "Created exclusion for entity type $entityTypeId from definition $definitionId" }
+        } catch (e: DataIntegrityViolationException) {
+            val isUniqueViolation = e.rootCause?.message?.contains("uq_exclusion_def_type") == true
+            if (isUniqueViolation) {
+                logger.warn { "Exclusion already exists for entity type $entityTypeId on definition $definitionId, treating as no-op" }
+            } else {
+                throw e
+            }
+        }
+    }
 
     /**
      * Diffs the requested target rules against existing rules, performing add/remove/update operations.
@@ -380,7 +566,6 @@ class EntityTypeRelationshipService(
                     targetEntityTypeId = req.targetEntityTypeId,
                     semanticTypeConstraint = req.semanticTypeConstraint,
                     cardinalityOverride = req.cardinalityOverride,
-                    inverseVisible = req.inverseVisible,
                     inverseName = req.inverseName,
                 )
             } else {
@@ -390,7 +575,6 @@ class EntityTypeRelationshipService(
                     targetEntityTypeId = req.targetEntityTypeId,
                     semanticTypeConstraint = req.semanticTypeConstraint,
                     cardinalityOverride = req.cardinalityOverride,
-                    inverseVisible = req.inverseVisible,
                     inverseName = req.inverseName,
                 )
             }
@@ -412,7 +596,6 @@ class EntityTypeRelationshipService(
                 targetEntityTypeId = rule.targetEntityTypeId,
                 semanticTypeConstraint = rule.semanticTypeConstraint,
                 cardinalityOverride = rule.cardinalityOverride,
-                inverseVisible = rule.inverseVisible,
                 inverseName = rule.inverseName,
             )
         }

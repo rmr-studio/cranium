@@ -53,8 +53,7 @@ data class SaveTargetRuleRequest(
     val targetEntityTypeId: UUID? = null,
     val semanticTypeConstraint: SemanticGroup? = null,
     val cardinalityOverride: EntityRelationshipCardinality? = null,
-    val inverseVisible: Boolean = false,
-    val inverseName: String? = null,
+    val inverseName: String,
 )
 
 

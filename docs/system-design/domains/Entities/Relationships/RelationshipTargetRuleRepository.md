@@ -24,8 +24,9 @@ JPA repository for `RelationshipTargetRuleEntity` persistence. Provides queries 
 | `findByRelationshipDefinitionId(definitionId)` | All rules for a single definition | Spring Data derived |
 | `findByRelationshipDefinitionIdIn(definitionIds)` | Batch load rules for multiple definitions | Spring Data derived |
 | `deleteByRelationshipDefinitionId(definitionId)` | Hard-delete all rules for a definition (used during definition deletion) | Spring Data derived |
-| `findInverseVisibleByTargetEntityTypeId(entityTypeId)` | Rules where entity type is target AND inverse_visible = true | JPQL @Query |
-| `findInverseVisibleByTargetEntityTypeIdIn(entityTypeIds)` | Batch version of inverse-visible lookup | JPQL @Query |
+| `findByTargetEntityTypeId(entityTypeId)` | Rules where entity type is a target | Spring Data derived |
+| `findByTargetEntityTypeIdIn(entityTypeIds)` | Batch version of target type lookup | Spring Data derived |
+| `deleteByTargetEntityTypeId(entityTypeId)` | Hard-delete all rules targeting a specific entity type (used during entity type deletion) | Spring Data derived |
 
 ---
 
@@ -52,3 +53,4 @@ JPA repository for `RelationshipTargetRuleEntity` persistence. Provides queries 
 | Date | Change | Reason |
 | ---- | ------ | ------ |
 | 2026-02-21 | Initial documentation | Entity Relationships overhaul |
+| 2026-03-06 | Replaced inverseVisible queries with standard target type lookups (always bidirectional). Added deleteByTargetEntityTypeId. | Always Bidirectional / Target-Side Exclusions |

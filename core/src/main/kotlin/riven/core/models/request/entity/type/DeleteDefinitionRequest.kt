@@ -29,6 +29,7 @@ data class DeleteAttributeDefinitionRequest(
 data class DeleteRelationshipDefinitionRequest(
     override val key: String,
     override val id: UUID,
+    val sourceEntityTypeKey: String? = null,
 ) : TypeDefinition {
     override val type: EntityTypeRequestDefinition = EntityTypeRequestDefinition.DELETE_RELATIONSHIP
 }

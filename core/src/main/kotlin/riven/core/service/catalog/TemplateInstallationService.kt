@@ -23,8 +23,12 @@ import riven.core.models.entity.configuration.EntityTypeAttributeColumn
 import riven.core.models.request.entity.type.SaveRelationshipDefinitionRequest
 import riven.core.models.request.entity.type.SaveSemanticMetadataRequest
 import riven.core.models.request.entity.type.SaveTargetRuleRequest
+import riven.core.models.catalog.BundleDetail
+import riven.core.models.response.catalog.BundleInstallationResponse
 import riven.core.models.response.catalog.CreatedEntityTypeSummary
 import riven.core.models.response.catalog.TemplateInstallationResponse
+import riven.core.entity.catalog.WorkspaceTemplateInstallationEntity
+import riven.core.repository.catalog.WorkspaceTemplateInstallationRepository
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.activity.log
@@ -42,6 +46,7 @@ import java.util.*
 class TemplateInstallationService(
     private val catalogService: ManifestCatalogService,
     private val entityTypeRepository: EntityTypeRepository,
+    private val installationRepository: WorkspaceTemplateInstallationRepository,
     private val relationshipService: EntityTypeRelationshipService,
     private val semanticMetadataService: EntityTypeSemanticMetadataService,
     private val authTokenService: AuthTokenService,
@@ -64,14 +69,90 @@ class TemplateInstallationService(
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
     fun installTemplate(workspaceId: UUID, templateKey: String): TemplateInstallationResponse {
         val userId = authTokenService.getUserId()
+
+        val existingInstallation = installationRepository.findByWorkspaceIdAndManifestKey(workspaceId, templateKey)
+        if (existingInstallation != null) {
+            val manifest = catalogService.getManifestByKey(templateKey, ManifestType.TEMPLATE)
+            return TemplateInstallationResponse(
+                templateKey = templateKey,
+                templateName = manifest.name,
+                entityTypesCreated = 0,
+                relationshipsCreated = 0,
+                entityTypes = emptyList(),
+            )
+        }
+
         val manifest = catalogService.getManifestByKey(templateKey, ManifestType.TEMPLATE)
 
         val creationResults = createEntityTypes(workspaceId, manifest.entityTypes)
         val relationshipsCreated = createRelationships(workspaceId, manifest.relationships, manifest.entityTypes, creationResults)
         applySemanticMetadata(workspaceId, manifest.entityTypes, creationResults)
+        recordTemplateInstallation(workspaceId, templateKey, userId, creationResults)
         logTemplateActivity(userId, workspaceId, templateKey, manifest, creationResults)
 
         return buildResponse(templateKey, manifest, creationResults, relationshipsCreated)
+    }
+
+    /**
+     * Install a bundle into a workspace, resolving all referenced templates and creating
+     * entity types, relationships, and semantic metadata atomically.
+     *
+     * Templates already installed in this workspace are skipped, but their entity type IDs
+     * are resolved so that cross-template relationships can reference them.
+     *
+     * @param workspaceId the workspace to install into
+     * @param bundleKey the bundle key identifying the collection of templates
+     * @return summary of installed/skipped templates and created entities
+     */
+    @Transactional
+    @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
+    fun installBundle(workspaceId: UUID, bundleKey: String): BundleInstallationResponse {
+        val userId = authTokenService.getUserId()
+        val bundle = catalogService.getBundleByKey(bundleKey)
+
+        val (templatesToInstall, templatesToSkip) = partitionTemplatesByInstallationStatus(
+            workspaceId, bundle.templateKeys
+        )
+
+        val skippedEntityIdMap = resolveExistingEntityTypeIds(workspaceId, templatesToSkip)
+        val manifests = templatesToInstall.map { key ->
+            catalogService.getManifestByKey(key, ManifestType.TEMPLATE)
+        }
+
+        val allEntityTypes = mergeAndDeduplicateEntityTypes(manifests)
+        val creationResults = createEntityTypes(workspaceId, allEntityTypes)
+        val mergedIdMap = creationResults + skippedEntityIdMap
+
+        val allRelationships = manifests.flatMap { it.relationships }
+        val allCatalogEntityTypes = manifests.flatMap { it.entityTypes }
+        val relationshipsCreated = createRelationships(
+            workspaceId, allRelationships, allCatalogEntityTypes, mergedIdMap
+        )
+
+        applySemanticMetadata(workspaceId, allEntityTypes, creationResults)
+
+        for (templateKey in templatesToInstall) {
+            recordTemplateInstallation(workspaceId, templateKey, userId, mergedIdMap)
+        }
+
+        logBundleActivity(userId, workspaceId, bundleKey, bundle, creationResults, templatesToInstall, templatesToSkip)
+
+        return BundleInstallationResponse(
+            bundleKey = bundleKey,
+            bundleName = bundle.name,
+            templatesInstalled = templatesToInstall,
+            templatesSkipped = templatesToSkip,
+            entityTypesCreated = creationResults.size,
+            relationshipsCreated = relationshipsCreated,
+            entityTypes = creationResults.values.map { result ->
+                CreatedEntityTypeSummary(
+                    id = result.entityTypeId,
+                    key = result.key,
+                    displayName = result.displayName,
+                    attributeCount = result.attributeCount,
+                )
+            },
+        )
     }
 
     // ------ Entity Type Creation ------
@@ -344,6 +425,124 @@ class TemplateInstallationService(
                     attributeCount = result.attributeCount,
                 )
             },
+        )
+    }
+
+    // ------ Bundle Installation Helpers ------
+
+    /**
+     * Partitions template keys into install vs skip sets based on workspace_template_installations.
+     */
+    private fun partitionTemplatesByInstallationStatus(
+        workspaceId: UUID,
+        templateKeys: List<String>,
+    ): Pair<List<String>, List<String>> {
+        val existing = installationRepository.findByWorkspaceIdAndManifestKeyIn(workspaceId, templateKeys)
+        val installedKeys = existing.map { it.manifestKey }.toSet()
+        val toInstall = templateKeys.filter { it !in installedKeys }
+        val toSkip = templateKeys.filter { it in installedKeys }
+        return toInstall to toSkip
+    }
+
+    /**
+     * For skipped templates, resolves their entity type IDs from the workspace so that
+     * cross-template relationships can reference already-created entity types.
+     */
+    private fun resolveExistingEntityTypeIds(
+        workspaceId: UUID,
+        skippedTemplateKeys: List<String>,
+    ): Map<String, EntityTypeCreationResult> {
+        if (skippedTemplateKeys.isEmpty()) return emptyMap()
+
+        val skippedManifests = skippedTemplateKeys.map { key ->
+            catalogService.getManifestByKey(key, ManifestType.TEMPLATE)
+        }
+        val allEntityTypeKeys = skippedManifests.flatMap { m -> m.entityTypes.map { it.key } }
+
+        val existingEntities = entityTypeRepository.findByworkspaceIdAndKeyIn(workspaceId, allEntityTypeKeys)
+        val entityByKey = existingEntities.associateBy { it.key }
+
+        val results = mutableMapOf<String, EntityTypeCreationResult>()
+        for (key in allEntityTypeKeys) {
+            val entity = entityByKey[key] ?: continue
+            val entityId = entity.id ?: continue
+
+            results[key] = EntityTypeCreationResult(
+                entityTypeId = entityId,
+                attributeKeyMap = emptyMap(),
+                attributeCount = entity.schema.properties?.size ?: 0,
+                displayName = entity.displayNameSingular,
+                key = key,
+            )
+        }
+        return results
+    }
+
+    /**
+     * Merges entity types from all manifests, deduplicating by key.
+     * First occurrence wins — entity types are identical across templates
+     * since they come from the same shared model.
+     */
+    private fun mergeAndDeduplicateEntityTypes(
+        manifests: List<ManifestDetail>,
+    ): List<CatalogEntityTypeModel> {
+        val seen = mutableSetOf<String>()
+        val merged = mutableListOf<CatalogEntityTypeModel>()
+        for (manifest in manifests) {
+            for (entityType in manifest.entityTypes) {
+                if (seen.add(entityType.key)) {
+                    merged.add(entityType)
+                }
+            }
+        }
+        return merged
+    }
+
+    /**
+     * Records a template installation for idempotency tracking.
+     * Stores attribute key mappings so future operations can trace template provenance.
+     */
+    private fun recordTemplateInstallation(
+        workspaceId: UUID,
+        templateKey: String,
+        userId: UUID,
+        creationResults: Map<String, EntityTypeCreationResult>,
+    ) {
+        val attributeMappings = creationResults.mapValues { (_, result) ->
+            result.attributeKeyMap as Any
+        }
+
+        installationRepository.save(
+            WorkspaceTemplateInstallationEntity(
+                workspaceId = workspaceId,
+                manifestKey = templateKey,
+                installedBy = userId,
+                attributeMappings = attributeMappings,
+            )
+        )
+    }
+
+    private fun logBundleActivity(
+        userId: UUID,
+        workspaceId: UUID,
+        bundleKey: String,
+        bundle: BundleDetail,
+        creationResults: Map<String, EntityTypeCreationResult>,
+        templatesInstalled: List<String>,
+        templatesSkipped: List<String>,
+    ) {
+        activityService.log(
+            activity = Activity.TEMPLATE,
+            operation = OperationType.CREATE,
+            userId = userId,
+            workspaceId = workspaceId,
+            entityType = ApplicationEntityType.ENTITY_TYPE,
+            entityId = null,
+            "bundleKey" to bundleKey,
+            "bundleName" to bundle.name,
+            "templatesInstalled" to templatesInstalled,
+            "templatesSkipped" to templatesSkipped,
+            "entityTypesCreated" to creationResults.size,
         )
     }
 

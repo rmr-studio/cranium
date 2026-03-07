@@ -1,0 +1,830 @@
+{
+  "manifestVersion": "1.0",
+  "key": "service-business",
+  "name": "Service Business",
+  "description": "A professional services and agency template covering client management, project delivery, invoicing, team resources, time tracking, deliverables, and client communication.",
+  "entityTypes": [
+    {
+      "$ref": "models/customer",
+      "extend": {
+        "identifierKey": "name",
+        "attributes": {
+          "contract-value": {
+            "key": "CURRENCY",
+            "label": "Contract Value",
+            "type": "number",
+            "format": "currency",
+            "semantics": {
+              "definition": "The total value of the active contract or retainer with this client.",
+              "classification": "QUANTITATIVE",
+              "tags": ["revenue", "contract"]
+            }
+          },
+          "billing-rate": {
+            "key": "CURRENCY",
+            "label": "Billing Rate",
+            "type": "number",
+            "format": "currency",
+            "semantics": {
+              "definition": "The default hourly billing rate for work performed for this client.",
+              "classification": "QUANTITATIVE",
+              "tags": ["billing", "rate"]
+            }
+          },
+          "payment-terms": {
+            "key": "SELECT",
+            "label": "Payment Terms",
+            "type": "string",
+            "options": {
+              "enum": ["net-15", "net-30", "net-45", "net-60", "on-receipt"]
+            },
+            "semantics": {
+              "definition": "The agreed payment terms for invoices sent to this client.",
+              "classification": "CATEGORICAL",
+              "tags": ["billing", "terms"]
+            }
+          },
+          "account-manager": {
+            "key": "TEXT",
+            "label": "Account Manager",
+            "type": "string",
+            "semantics": {
+              "definition": "The name of the internal team member responsible for managing this client relationship.",
+              "classification": "IDENTIFIER",
+              "tags": ["ownership", "team"]
+            }
+          },
+          "industry": {
+            "key": "SELECT",
+            "label": "Industry",
+            "type": "string",
+            "options": {
+              "enum": ["technology", "finance", "healthcare", "retail", "manufacturing", "education", "media", "other"]
+            },
+            "semantics": {
+              "definition": "The industry sector the client operates in, used for portfolio analysis and expertise matching.",
+              "classification": "CATEGORICAL",
+              "tags": ["segmentation", "industry"]
+            }
+          }
+        },
+        "semantics": {
+          "tags": ["professional-services", "agency", "client"]
+        }
+      }
+    },
+    {
+      "key": "project",
+      "name": "Project",
+      "description": "A scoped body of work for a client, tracking budget, timeline, completion, and resource allocation.",
+      "displayName": {
+        "singular": "Project",
+        "plural": "Projects"
+      },
+      "semanticGroup": "OPERATIONAL",
+      "identifierKey": "name",
+      "attributes": {
+        "name": {
+          "key": "TEXT",
+          "label": "Name",
+          "type": "string",
+          "required": true,
+          "semantics": {
+            "definition": "The name of the project, used as the primary identifier.",
+            "classification": "IDENTIFIER",
+            "tags": ["display-name"]
+          }
+        },
+        "status": {
+          "key": "SELECT",
+          "label": "Status",
+          "type": "string",
+          "required": true,
+          "options": {
+            "enum": ["planning", "active", "on-hold", "completed", "cancelled"],
+            "default": "planning"
+          },
+          "semantics": {
+            "definition": "The current phase of the project lifecycle.",
+            "classification": "CATEGORICAL",
+            "tags": ["lifecycle", "project-management"]
+          }
+        },
+        "start-date": {
+          "key": "DATE",
+          "label": "Start Date",
+          "type": "string",
+          "format": "date",
+          "semantics": {
+            "definition": "The date the project kicked off.",
+            "classification": "TEMPORAL",
+            "tags": ["timeline", "planning"]
+          }
+        },
+        "end-date": {
+          "key": "DATE",
+          "label": "End Date",
+          "type": "string",
+          "format": "date",
+          "semantics": {
+            "definition": "The target or actual completion date for the project.",
+            "classification": "TEMPORAL",
+            "tags": ["timeline", "deadline"]
+          }
+        },
+        "budget": {
+          "key": "CURRENCY",
+          "label": "Budget",
+          "type": "number",
+          "format": "currency",
+          "semantics": {
+            "definition": "The total budget allocated for this project.",
+            "classification": "QUANTITATIVE",
+            "tags": ["financial", "planning"]
+          }
+        },
+        "spent": {
+          "key": "CURRENCY",
+          "label": "Spent",
+          "type": "number",
+          "format": "currency",
+          "semantics": {
+            "definition": "The total amount spent on this project to date.",
+            "classification": "QUANTITATIVE",
+            "tags": ["financial", "tracking"]
+          }
+        },
+        "completion-percentage": {
+          "key": "PERCENTAGE",
+          "label": "Completion",
+          "type": "number",
+          "format": "percentage",
+          "semantics": {
+            "definition": "The estimated percentage of project work that has been completed.",
+            "classification": "QUANTITATIVE",
+            "tags": ["progress", "tracking"]
+          }
+        },
+        "project-type": {
+          "key": "SELECT",
+          "label": "Project Type",
+          "type": "string",
+          "options": {
+            "enum": ["fixed-price", "time-and-materials", "retainer", "milestone-based"]
+          },
+          "semantics": {
+            "definition": "The billing and delivery model used for this project.",
+            "classification": "CATEGORICAL",
+            "tags": ["billing-model", "engagement"]
+          }
+        },
+        "priority": {
+          "key": "SELECT",
+          "label": "Priority",
+          "type": "string",
+          "options": {
+            "enum": ["low", "medium", "high", "critical"],
+            "default": "medium"
+          },
+          "semantics": {
+            "definition": "The internal priority of this project relative to other active work.",
+            "classification": "CATEGORICAL",
+            "tags": ["prioritisation", "planning"]
+          }
+        },
+        "description": {
+          "key": "TEXT",
+          "label": "Description",
+          "type": "string",
+          "semantics": {
+            "definition": "A summary of the project scope, objectives, and key deliverables.",
+            "classification": "FREETEXT",
+            "tags": ["scope", "context"]
+          }
+        }
+      },
+      "semantics": {
+        "definition": "A project represents a defined scope of work delivered for a client. It tracks budget, timeline, resources, and completion status, serving as the primary unit of work allocation and revenue delivery.",
+        "tags": ["project-management", "delivery", "professional-services"]
+      }
+    },
+    {
+      "$ref": "models/invoice",
+      "extend": {
+        "attributes": {
+          "project-reference": {
+            "key": "TEXT",
+            "label": "Project Reference",
+            "type": "string",
+            "semantics": {
+              "definition": "The name or identifier of the project this invoice is billed against.",
+              "classification": "RELATIONAL_REFERENCE",
+              "tags": ["project", "billing"]
+            }
+          },
+          "billable-hours": {
+            "key": "NUMBER",
+            "label": "Billable Hours",
+            "type": "number",
+            "semantics": {
+              "definition": "The total billable hours included in this invoice.",
+              "classification": "QUANTITATIVE",
+              "tags": ["time-tracking", "billing"]
+            }
+          },
+          "hourly-rate": {
+            "key": "CURRENCY",
+            "label": "Hourly Rate",
+            "type": "number",
+            "format": "currency",
+            "semantics": {
+              "definition": "The hourly rate applied for the billable hours on this invoice.",
+              "classification": "QUANTITATIVE",
+              "tags": ["rate", "billing"]
+            }
+          }
+        },
+        "semantics": {
+          "tags": ["services-billing", "project-invoice"]
+        }
+      }
+    },
+    {
+      "key": "communication",
+      "name": "Communication",
+      "description": "A logged interaction with a client, capturing context, outcome, and follow-up actions.",
+      "displayName": {
+        "singular": "Communication",
+        "plural": "Communications"
+      },
+      "semanticGroup": "COMMUNICATION",
+      "identifierKey": "subject",
+      "attributes": {
+        "subject": {
+          "key": "TEXT",
+          "label": "Subject",
+          "type": "string",
+          "required": true,
+          "semantics": {
+            "definition": "The subject or topic of the communication.",
+            "classification": "IDENTIFIER",
+            "tags": ["display-name", "topic"]
+          }
+        },
+        "type": {
+          "key": "SELECT",
+          "label": "Type",
+          "type": "string",
+          "required": true,
+          "options": {
+            "enum": ["meeting", "call", "email", "presentation", "workshop"]
+          },
+          "semantics": {
+            "definition": "The format or medium of this communication.",
+            "classification": "CATEGORICAL",
+            "tags": ["format", "channel"]
+          }
+        },
+        "direction": {
+          "key": "SELECT",
+          "label": "Direction",
+          "type": "string",
+          "options": {
+            "enum": ["inbound", "outbound"]
+          },
+          "semantics": {
+            "definition": "Whether this communication was initiated by the client or by the team.",
+            "classification": "CATEGORICAL",
+            "tags": ["direction", "initiative"]
+          }
+        },
+        "date": {
+          "key": "DATE",
+          "label": "Date",
+          "type": "string",
+          "format": "date",
+          "required": true,
+          "semantics": {
+            "definition": "The date of the communication.",
+            "classification": "TEMPORAL",
+            "tags": ["timeline"]
+          }
+        },
+        "summary": {
+          "key": "TEXT",
+          "label": "Summary",
+          "type": "string",
+          "semantics": {
+            "definition": "A summary of what was discussed or communicated.",
+            "classification": "FREETEXT",
+            "tags": ["notes", "context"]
+          }
+        },
+        "follow-up-date": {
+          "key": "DATE",
+          "label": "Follow-up Date",
+          "type": "string",
+          "format": "date",
+          "semantics": {
+            "definition": "The date by which a follow-up action is expected.",
+            "classification": "TEMPORAL",
+            "tags": ["action-item", "deadline"]
+          }
+        },
+        "outcome": {
+          "key": "SELECT",
+          "label": "Outcome",
+          "type": "string",
+          "options": {
+            "enum": ["positive", "neutral", "needs-action", "escalated"]
+          },
+          "semantics": {
+            "definition": "The outcome or disposition of this communication.",
+            "classification": "CATEGORICAL",
+            "tags": ["result", "disposition"]
+          }
+        },
+        "channel": {
+          "key": "SELECT",
+          "label": "Channel",
+          "type": "string",
+          "options": {
+            "enum": ["phone", "video", "in-person", "email", "chat"]
+          },
+          "semantics": {
+            "definition": "The specific channel used for this communication.",
+            "classification": "CATEGORICAL",
+            "tags": ["channel", "medium"]
+          }
+        }
+      },
+      "semantics": {
+        "definition": "A communication logs a client interaction, capturing what was discussed, the outcome, and any required follow-ups. It provides the audit trail for client relationship management and ensures continuity across team members.",
+        "tags": ["client-relations", "interaction", "crm", "communication"]
+      }
+    },
+    {
+      "key": "deliverable",
+      "name": "Deliverable",
+      "description": "A specific output or work product that must be produced and delivered as part of a project.",
+      "displayName": {
+        "singular": "Deliverable",
+        "plural": "Deliverables"
+      },
+      "semanticGroup": "PRODUCT",
+      "identifierKey": "name",
+      "attributes": {
+        "name": {
+          "key": "TEXT",
+          "label": "Name",
+          "type": "string",
+          "required": true,
+          "semantics": {
+            "definition": "The name of the deliverable.",
+            "classification": "IDENTIFIER",
+            "tags": ["display-name"]
+          }
+        },
+        "description": {
+          "key": "TEXT",
+          "label": "Description",
+          "type": "string",
+          "semantics": {
+            "definition": "A detailed description of the deliverable's requirements and acceptance criteria.",
+            "classification": "FREETEXT",
+            "tags": ["scope", "requirements"]
+          }
+        },
+        "status": {
+          "key": "SELECT",
+          "label": "Status",
+          "type": "string",
+          "required": true,
+          "options": {
+            "enum": ["not-started", "in-progress", "review", "delivered", "accepted"],
+            "default": "not-started"
+          },
+          "semantics": {
+            "definition": "The current state of the deliverable in its production lifecycle.",
+            "classification": "CATEGORICAL",
+            "tags": ["lifecycle", "progress"]
+          }
+        },
+        "due-date": {
+          "key": "DATE",
+          "label": "Due Date",
+          "type": "string",
+          "format": "date",
+          "semantics": {
+            "definition": "The date by which this deliverable must be completed.",
+            "classification": "TEMPORAL",
+            "tags": ["deadline", "planning"]
+          }
+        },
+        "delivered-date": {
+          "key": "DATE",
+          "label": "Delivered Date",
+          "type": "string",
+          "format": "date",
+          "semantics": {
+            "definition": "The date the deliverable was actually delivered to the client.",
+            "classification": "TEMPORAL",
+            "tags": ["delivery", "tracking"]
+          }
+        },
+        "type": {
+          "key": "SELECT",
+          "label": "Type",
+          "type": "string",
+          "options": {
+            "enum": ["document", "design", "code", "report", "presentation", "prototype", "other"]
+          },
+          "semantics": {
+            "definition": "The category of work product this deliverable represents.",
+            "classification": "CATEGORICAL",
+            "tags": ["classification", "work-type"]
+          }
+        },
+        "acceptance-status": {
+          "key": "SELECT",
+          "label": "Acceptance Status",
+          "type": "string",
+          "options": {
+            "enum": ["pending", "accepted", "rejected", "revision-needed"]
+          },
+          "semantics": {
+            "definition": "The client's acceptance status for this deliverable.",
+            "classification": "CATEGORICAL",
+            "tags": ["approval", "client-feedback"]
+          }
+        },
+        "revision-count": {
+          "key": "NUMBER",
+          "label": "Revision Count",
+          "type": "number",
+          "semantics": {
+            "definition": "The number of revision rounds this deliverable has gone through.",
+            "classification": "QUANTITATIVE",
+            "tags": ["quality", "iterations"]
+          }
+        }
+      },
+      "semantics": {
+        "definition": "A deliverable is a discrete output or work product that is produced as part of a project and delivered to the client. It tracks production status, due dates, and client acceptance.",
+        "tags": ["delivery", "work-product", "project-management"]
+      }
+    },
+    {
+      "key": "team-member",
+      "name": "Team Member",
+      "description": "An internal team member who can be assigned to projects, with role, rate, and availability information.",
+      "displayName": {
+        "singular": "Team Member",
+        "plural": "Team Members"
+      },
+      "semanticGroup": "OPERATIONAL",
+      "identifierKey": "email",
+      "attributes": {
+        "name": {
+          "key": "TEXT",
+          "label": "Name",
+          "type": "string",
+          "required": true,
+          "semantics": {
+            "definition": "The full name of the team member.",
+            "classification": "IDENTIFIER",
+            "tags": ["display-name", "contact"]
+          }
+        },
+        "email": {
+          "key": "EMAIL",
+          "label": "Email",
+          "type": "string",
+          "format": "email",
+          "required": true,
+          "unique": true,
+          "semantics": {
+            "definition": "The team member's email address.",
+            "classification": "IDENTIFIER",
+            "tags": ["contact", "unique-key"]
+          }
+        },
+        "role": {
+          "key": "SELECT",
+          "label": "Role",
+          "type": "string",
+          "required": true,
+          "options": {
+            "enum": ["principal", "senior", "mid-level", "junior", "intern", "contractor"]
+          },
+          "semantics": {
+            "definition": "The seniority level or role of the team member.",
+            "classification": "CATEGORICAL",
+            "tags": ["seniority", "role"]
+          }
+        },
+        "department": {
+          "key": "SELECT",
+          "label": "Department",
+          "type": "string",
+          "options": {
+            "enum": ["engineering", "design", "strategy", "management", "operations", "sales"]
+          },
+          "semantics": {
+            "definition": "The department or functional area the team member belongs to.",
+            "classification": "CATEGORICAL",
+            "tags": ["organisation", "function"]
+          }
+        },
+        "hourly-rate": {
+          "key": "CURRENCY",
+          "label": "Hourly Rate",
+          "type": "number",
+          "format": "currency",
+          "semantics": {
+            "definition": "The internal cost rate per hour for this team member.",
+            "classification": "QUANTITATIVE",
+            "tags": ["cost", "billing"]
+          }
+        },
+        "utilization-rate": {
+          "key": "PERCENTAGE",
+          "label": "Utilization Rate",
+          "type": "number",
+          "format": "percentage",
+          "semantics": {
+            "definition": "The percentage of available time currently allocated to billable work.",
+            "classification": "QUANTITATIVE",
+            "tags": ["capacity", "efficiency"]
+          }
+        },
+        "availability-status": {
+          "key": "SELECT",
+          "label": "Availability",
+          "type": "string",
+          "required": true,
+          "options": {
+            "enum": ["available", "partially-available", "fully-allocated", "on-leave"],
+            "default": "available"
+          },
+          "semantics": {
+            "definition": "The current availability of the team member for new project assignments.",
+            "classification": "CATEGORICAL",
+            "tags": ["capacity", "scheduling"]
+          }
+        },
+        "skills": {
+          "key": "TEXT",
+          "label": "Skills",
+          "type": "string",
+          "semantics": {
+            "definition": "The key skills and competencies of the team member, used for project staffing decisions.",
+            "classification": "FREETEXT",
+            "tags": ["competency", "staffing"]
+          }
+        }
+      },
+      "semantics": {
+        "definition": "A team member is an internal resource who can be assigned to projects. Team members have rates, roles, and availability that determine how they are staffed across the project portfolio.",
+        "tags": ["resource-management", "staffing", "team", "operations"]
+      }
+    },
+    {
+      "key": "time-entry",
+      "name": "Time Entry",
+      "description": "A record of hours worked on a project, tracking billable time for invoicing and utilisation reporting.",
+      "displayName": {
+        "singular": "Time Entry",
+        "plural": "Time Entries"
+      },
+      "semanticGroup": "FINANCIAL",
+      "identifierKey": "description",
+      "attributes": {
+        "date": {
+          "key": "DATE",
+          "label": "Date",
+          "type": "string",
+          "format": "date",
+          "required": true,
+          "semantics": {
+            "definition": "The date the work was performed.",
+            "classification": "TEMPORAL",
+            "tags": ["timeline"]
+          }
+        },
+        "hours": {
+          "key": "NUMBER",
+          "label": "Hours",
+          "type": "number",
+          "required": true,
+          "semantics": {
+            "definition": "The number of hours worked.",
+            "classification": "QUANTITATIVE",
+            "tags": ["time", "effort"]
+          }
+        },
+        "description": {
+          "key": "TEXT",
+          "label": "Description",
+          "type": "string",
+          "required": true,
+          "semantics": {
+            "definition": "A description of the work performed during this time entry.",
+            "classification": "FREETEXT",
+            "tags": ["detail", "work-log"]
+          }
+        },
+        "billable": {
+          "key": "CHECKBOX",
+          "label": "Billable",
+          "type": "boolean",
+          "required": true,
+          "semantics": {
+            "definition": "Whether this time entry is billable to the client.",
+            "classification": "CATEGORICAL",
+            "tags": ["billing", "classification"]
+          }
+        },
+        "project-reference": {
+          "key": "TEXT",
+          "label": "Project Reference",
+          "type": "string",
+          "semantics": {
+            "definition": "The name or identifier of the project this time was logged against.",
+            "classification": "RELATIONAL_REFERENCE",
+            "tags": ["project", "reference"]
+          }
+        },
+        "rate": {
+          "key": "CURRENCY",
+          "label": "Rate",
+          "type": "number",
+          "format": "currency",
+          "semantics": {
+            "definition": "The billing rate applied for this time entry.",
+            "classification": "QUANTITATIVE",
+            "tags": ["billing", "rate"]
+          }
+        },
+        "total": {
+          "key": "CURRENCY",
+          "label": "Total",
+          "type": "number",
+          "format": "currency",
+          "semantics": {
+            "definition": "The total billable amount for this time entry (hours x rate).",
+            "classification": "QUANTITATIVE",
+            "tags": ["billing", "revenue"]
+          }
+        },
+        "status": {
+          "key": "SELECT",
+          "label": "Status",
+          "type": "string",
+          "required": true,
+          "options": {
+            "enum": ["draft", "submitted", "approved", "invoiced"],
+            "default": "draft"
+          },
+          "semantics": {
+            "definition": "The approval and invoicing status of this time entry.",
+            "classification": "CATEGORICAL",
+            "tags": ["lifecycle", "approval"]
+          }
+        }
+      },
+      "semantics": {
+        "definition": "A time entry records hours worked on a project, capturing effort for utilisation tracking, project costing, and client invoicing. It links team member effort to specific projects and billing.",
+        "tags": ["time-tracking", "billing", "utilisation", "financial"]
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "key": "client-projects",
+      "sourceEntityTypeKey": "customer",
+      "name": "Projects",
+      "allowPolymorphic": false,
+      "protected": false,
+      "targetRules": [
+        {
+          "targetEntityTypeKey": "project",
+          "cardinalityOverride": "ONE_TO_MANY",
+          "inverseName": "Client"
+        }
+      ],
+      "semantics": {
+        "definition": "A client commissions one or more projects that define the scoped work to be delivered.",
+        "tags": ["engagement", "delivery"]
+      }
+    },
+    {
+      "key": "client-invoices",
+      "sourceEntityTypeKey": "customer",
+      "name": "Invoices",
+      "allowPolymorphic": false,
+      "protected": false,
+      "targetRules": [
+        {
+          "targetEntityTypeKey": "invoice",
+          "cardinalityOverride": "ONE_TO_MANY",
+          "inverseName": "Client"
+        }
+      ],
+      "semantics": {
+        "definition": "A client receives invoices for billable work performed on their projects.",
+        "tags": ["billing", "finance"]
+      }
+    },
+    {
+      "key": "client-communications",
+      "sourceEntityTypeKey": "customer",
+      "name": "Communications",
+      "allowPolymorphic": false,
+      "protected": false,
+      "targetRules": [
+        {
+          "targetEntityTypeKey": "communication",
+          "cardinalityOverride": "ONE_TO_MANY",
+          "inverseName": "Client"
+        }
+      ],
+      "semantics": {
+        "definition": "A client has a history of communications that document the ongoing relationship and decision trail.",
+        "tags": ["crm", "interaction"]
+      }
+    },
+    {
+      "key": "project-deliverables",
+      "sourceEntityTypeKey": "project",
+      "name": "Deliverables",
+      "allowPolymorphic": false,
+      "protected": false,
+      "targetRules": [
+        {
+          "targetEntityTypeKey": "deliverable",
+          "cardinalityOverride": "ONE_TO_MANY",
+          "inverseName": "Project"
+        }
+      ],
+      "semantics": {
+        "definition": "A project produces one or more deliverables that are the tangible outputs of the work.",
+        "tags": ["delivery", "output"]
+      }
+    },
+    {
+      "key": "project-time-entries",
+      "sourceEntityTypeKey": "project",
+      "name": "Time Entries",
+      "allowPolymorphic": false,
+      "protected": false,
+      "targetRules": [
+        {
+          "targetEntityTypeKey": "time-entry",
+          "cardinalityOverride": "ONE_TO_MANY",
+          "inverseName": "Project"
+        }
+      ],
+      "semantics": {
+        "definition": "A project accumulates time entries that record the effort spent by team members on its work.",
+        "tags": ["time-tracking", "effort"]
+      }
+    },
+    {
+      "key": "project-team-members",
+      "sourceEntityTypeKey": "project",
+      "name": "Team Members",
+      "allowPolymorphic": false,
+      "protected": false,
+      "targetRules": [
+        {
+          "targetEntityTypeKey": "team-member",
+          "cardinalityOverride": "MANY_TO_MANY",
+          "inverseName": "Projects"
+        }
+      ],
+      "semantics": {
+        "definition": "A project is staffed by one or more team members who contribute their skills and effort.",
+        "tags": ["staffing", "resourcing"]
+      }
+    },
+    {
+      "key": "client-deliverables",
+      "sourceEntityTypeKey": "customer",
+      "name": "Deliverables",
+      "allowPolymorphic": false,
+      "protected": false,
+      "targetRules": [
+        {
+          "targetEntityTypeKey": "deliverable",
+          "cardinalityOverride": "ONE_TO_MANY",
+          "inverseName": "Client"
+        }
+      ],
+      "semantics": {
+        "definition": "A client receives deliverables produced across their projects, providing a consolidated view of all work products.",
+        "tags": ["delivery", "client-view"]
+      }
+    }
+  ]
+}

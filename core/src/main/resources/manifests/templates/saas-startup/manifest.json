@@ -1,0 +1,681 @@
+{
+  "manifestVersion": "1.0",
+  "key": "saas-startup",
+  "name": "SaaS Startup",
+  "description": "A CRM and billing-operations template for SaaS businesses. Covers customer management, subscription lifecycle, plan configuration, support, feature usage tracking, churn analysis, and invoicing.",
+  "entityTypes": [
+    {
+      "$ref": "models/customer",
+      "extend": {
+        "attributes": {
+          "mrr": {
+            "key": "CURRENCY",
+            "label": "MRR",
+            "type": "number",
+            "format": "currency",
+            "semantics": {
+              "definition": "Monthly recurring revenue attributed to this customer, calculated from their active subscription value.",
+              "classification": "QUANTITATIVE",
+              "tags": ["revenue", "saas-metric", "subscription"]
+            }
+          },
+          "plan-tier": {
+            "key": "SELECT",
+            "label": "Plan Tier",
+            "type": "string",
+            "options": {
+              "enum": ["free", "starter", "professional", "enterprise"]
+            },
+            "semantics": {
+              "definition": "The pricing tier of the customer's current subscription plan, used for segmentation and upsell targeting.",
+              "classification": "CATEGORICAL",
+              "tags": ["subscription", "segmentation", "pricing"]
+            }
+          },
+          "subscription-start": {
+            "key": "DATE",
+            "label": "Subscription Start",
+            "type": "string",
+            "format": "date",
+            "semantics": {
+              "definition": "The date the customer first subscribed to a paid plan, marking the start of their paying relationship.",
+              "classification": "TEMPORAL",
+              "tags": ["subscription", "lifecycle", "onboarding"]
+            }
+          },
+          "health-score": {
+            "key": "RATING",
+            "label": "Health Score",
+            "type": "number",
+            "options": {
+              "minimum": 1,
+              "maximum": 10
+            },
+            "semantics": {
+              "definition": "A composite health score indicating the customer's engagement and retention risk, typically derived from usage, support, and billing signals.",
+              "classification": "QUANTITATIVE",
+              "tags": ["health", "retention", "customer-success"]
+            }
+          },
+          "last-login": {
+            "key": "DATETIME",
+            "label": "Last Login",
+            "type": "string",
+            "format": "date-time",
+            "semantics": {
+              "definition": "The most recent date and time the customer logged into the product, used as a proxy for engagement.",
+              "classification": "TEMPORAL",
+              "tags": ["engagement", "activity", "usage"]
+            }
+          }
+        },
+        "semantics": {
+          "tags": ["saas", "subscription", "recurring-revenue"]
+        }
+      }
+    },
+    {
+      "key": "subscription",
+      "name": "Subscription",
+      "description": "An active or historical subscription linking a customer to a plan with billing cycle and value details.",
+      "displayName": {
+        "singular": "Subscription",
+        "plural": "Subscriptions"
+      },
+      "semanticGroup": "TRANSACTION",
+      "identifierKey": "plan",
+      "attributes": {
+        "plan": {
+          "key": "TEXT",
+          "label": "Plan",
+          "type": "string",
+          "required": true,
+          "semantics": {
+            "definition": "The name of the subscribed plan, serving as the primary identifier for this subscription record.",
+            "classification": "IDENTIFIER",
+            "tags": ["plan", "reference"]
+          }
+        },
+        "status": {
+          "key": "SELECT",
+          "label": "Status",
+          "type": "string",
+          "required": true,
+          "options": {
+            "enum": ["active", "trial", "past-due", "cancelled", "paused"],
+            "default": "active"
+          },
+          "semantics": {
+            "definition": "The current state of the subscription in its lifecycle.",
+            "classification": "CATEGORICAL",
+            "tags": ["lifecycle", "billing"]
+          }
+        },
+        "billing-cycle": {
+          "key": "SELECT",
+          "label": "Billing Cycle",
+          "type": "string",
+          "options": {
+            "enum": ["monthly", "quarterly", "annual"]
+          },
+          "semantics": {
+            "definition": "The frequency at which the subscription is billed.",
+            "classification": "CATEGORICAL",
+            "tags": ["billing", "frequency"]
+          }
+        },
+        "start-date": {
+          "key": "DATE",
+          "label": "Start Date",
+          "type": "string",
+          "format": "date",
+          "required": true,
+          "semantics": {
+            "definition": "The date the subscription period began.",
+            "classification": "TEMPORAL",
+            "tags": ["lifecycle", "billing"]
+          }
+        },
+        "renewal-date": {
+          "key": "DATE",
+          "label": "Renewal Date",
+          "type": "string",
+          "format": "date",
+          "semantics": {
+            "definition": "The next date at which the subscription is due for renewal or auto-renewal.",
+            "classification": "TEMPORAL",
+            "tags": ["billing", "renewal"]
+          }
+        },
+        "monthly-value": {
+          "key": "CURRENCY",
+          "label": "Monthly Value",
+          "type": "number",
+          "format": "currency",
+          "semantics": {
+            "definition": "The monthly monetary value of this subscription, used for MRR calculations.",
+            "classification": "QUANTITATIVE",
+            "tags": ["revenue", "mrr"]
+          }
+        },
+        "annual-value": {
+          "key": "CURRENCY",
+          "label": "Annual Value",
+          "type": "number",
+          "format": "currency",
+          "semantics": {
+            "definition": "The annualised monetary value of this subscription, used for ARR calculations.",
+            "classification": "QUANTITATIVE",
+            "tags": ["revenue", "arr"]
+          }
+        },
+        "cancellation-reason": {
+          "key": "TEXT",
+          "label": "Cancellation Reason",
+          "type": "string",
+          "semantics": {
+            "definition": "The reason provided by the customer or account manager for cancelling the subscription, if applicable.",
+            "classification": "FREETEXT",
+            "tags": ["churn", "feedback"]
+          }
+        }
+      },
+      "semantics": {
+        "definition": "A subscription represents an ongoing commercial agreement where a customer pays for access to a plan on a recurring basis. It tracks billing cycle, value, and lifecycle state.",
+        "tags": ["billing", "recurring-revenue", "saas", "lifecycle"]
+      }
+    },
+    {
+      "key": "plan",
+      "name": "Plan",
+      "description": "A product plan or pricing tier that customers can subscribe to, defining features, limits, and pricing.",
+      "displayName": {
+        "singular": "Plan",
+        "plural": "Plans"
+      },
+      "semanticGroup": "PRODUCT",
+      "identifierKey": "name",
+      "attributes": {
+        "name": {
+          "key": "TEXT",
+          "label": "Name",
+          "type": "string",
+          "required": true,
+          "unique": true,
+          "semantics": {
+            "definition": "The name of the plan, used as the primary identifier in pricing pages and subscription records.",
+            "classification": "IDENTIFIER",
+            "tags": ["display-name", "pricing"]
+          }
+        },
+        "tier": {
+          "key": "SELECT",
+          "label": "Tier",
+          "type": "string",
+          "required": true,
+          "options": {
+            "enum": ["free", "starter", "professional", "enterprise"]
+          },
+          "semantics": {
+            "definition": "The pricing tier level, determining the feature set and support level included.",
+            "classification": "CATEGORICAL",
+            "tags": ["pricing", "segmentation"]
+          }
+        },
+        "monthly-price": {
+          "key": "CURRENCY",
+          "label": "Monthly Price",
+          "type": "number",
+          "format": "currency",
+          "semantics": {
+            "definition": "The price charged per month for this plan when billed monthly.",
+            "classification": "QUANTITATIVE",
+            "tags": ["pricing", "billing"]
+          }
+        },
+        "annual-price": {
+          "key": "CURRENCY",
+          "label": "Annual Price",
+          "type": "number",
+          "format": "currency",
+          "semantics": {
+            "definition": "The price charged per year for this plan when billed annually, typically at a discount.",
+            "classification": "QUANTITATIVE",
+            "tags": ["pricing", "billing"]
+          }
+        },
+        "features": {
+          "key": "TEXT",
+          "label": "Features",
+          "type": "string",
+          "semantics": {
+            "definition": "A description of the features included in this plan.",
+            "classification": "FREETEXT",
+            "tags": ["product", "detail"]
+          }
+        },
+        "max-users": {
+          "key": "NUMBER",
+          "label": "Max Users",
+          "type": "number",
+          "semantics": {
+            "definition": "The maximum number of user seats allowed on this plan.",
+            "classification": "QUANTITATIVE",
+            "tags": ["limits", "capacity"]
+          }
+        },
+        "trial-days": {
+          "key": "NUMBER",
+          "label": "Trial Days",
+          "type": "number",
+          "semantics": {
+            "definition": "The number of days included in the free trial period for this plan.",
+            "classification": "QUANTITATIVE",
+            "tags": ["trial", "onboarding"]
+          }
+        },
+        "status": {
+          "key": "SELECT",
+          "label": "Status",
+          "type": "string",
+          "required": true,
+          "options": {
+            "enum": ["active", "deprecated", "hidden"],
+            "default": "active"
+          },
+          "semantics": {
+            "definition": "Whether this plan is currently available for new subscriptions.",
+            "classification": "CATEGORICAL",
+            "tags": ["lifecycle", "availability"]
+          }
+        }
+      },
+      "semantics": {
+        "definition": "A plan defines a product offering with a specific feature set, usage limits, and pricing structure that customers subscribe to.",
+        "tags": ["pricing", "product", "saas", "configuration"]
+      }
+    },
+    {
+      "$ref": "models/support-ticket",
+      "extend": {
+        "attributes": {
+          "account-tier": {
+            "key": "SELECT",
+            "label": "Account Tier",
+            "type": "string",
+            "options": {
+              "enum": ["free", "starter", "professional", "enterprise"]
+            },
+            "semantics": {
+              "definition": "The plan tier of the customer who submitted this ticket, used for SLA routing and prioritisation.",
+              "classification": "CATEGORICAL",
+              "tags": ["sla", "prioritisation", "segmentation"]
+            }
+          },
+          "sla-deadline": {
+            "key": "DATETIME",
+            "label": "SLA Deadline",
+            "type": "string",
+            "format": "date-time",
+            "semantics": {
+              "definition": "The date and time by which this ticket must be responded to or resolved per the customer's SLA agreement.",
+              "classification": "TEMPORAL",
+              "tags": ["sla", "deadline", "compliance"]
+            }
+          }
+        },
+        "semantics": {
+          "tags": ["saas-support", "sla"]
+        }
+      }
+    },
+    {
+      "key": "feature-usage",
+      "name": "Feature Usage",
+      "description": "Tracks how customers use specific product features, providing adoption and engagement data for product decisions.",
+      "displayName": {
+        "singular": "Feature Usage",
+        "plural": "Feature Usage"
+      },
+      "semanticGroup": "OPERATIONAL",
+      "identifierKey": "feature-name",
+      "attributes": {
+        "feature-name": {
+          "key": "TEXT",
+          "label": "Feature Name",
+          "type": "string",
+          "required": true,
+          "semantics": {
+            "definition": "The name of the product feature being tracked.",
+            "classification": "IDENTIFIER",
+            "tags": ["product", "feature"]
+          }
+        },
+        "usage-count": {
+          "key": "NUMBER",
+          "label": "Usage Count",
+          "type": "number",
+          "semantics": {
+            "definition": "The total number of times this feature has been used by the customer.",
+            "classification": "QUANTITATIVE",
+            "tags": ["engagement", "metrics"]
+          }
+        },
+        "last-used": {
+          "key": "DATETIME",
+          "label": "Last Used",
+          "type": "string",
+          "format": "date-time",
+          "semantics": {
+            "definition": "The most recent date and time the customer used this feature.",
+            "classification": "TEMPORAL",
+            "tags": ["engagement", "recency"]
+          }
+        },
+        "adoption-rate": {
+          "key": "PERCENTAGE",
+          "label": "Adoption Rate",
+          "type": "number",
+          "format": "percentage",
+          "semantics": {
+            "definition": "The percentage of active users on the account who have used this feature at least once.",
+            "classification": "QUANTITATIVE",
+            "tags": ["adoption", "product-analytics"]
+          }
+        },
+        "user-segment": {
+          "key": "SELECT",
+          "label": "User Segment",
+          "type": "string",
+          "options": {
+            "enum": ["power-user", "regular", "occasional", "inactive"]
+          },
+          "semantics": {
+            "definition": "A behavioural segment classifying the customer's usage intensity for this feature.",
+            "classification": "CATEGORICAL",
+            "tags": ["segmentation", "behaviour"]
+          }
+        },
+        "first-used": {
+          "key": "DATE",
+          "label": "First Used",
+          "type": "string",
+          "format": "date",
+          "semantics": {
+            "definition": "The date the customer first used this feature, marking feature discovery.",
+            "classification": "TEMPORAL",
+            "tags": ["adoption", "onboarding"]
+          }
+        },
+        "notes": {
+          "key": "TEXT",
+          "label": "Notes",
+          "type": "string",
+          "semantics": {
+            "definition": "Additional observations or context about the customer's usage of this feature.",
+            "classification": "FREETEXT",
+            "tags": ["context"]
+          }
+        },
+        "enabled": {
+          "key": "CHECKBOX",
+          "label": "Enabled",
+          "type": "boolean",
+          "semantics": {
+            "definition": "Whether this feature is currently enabled for the customer's account.",
+            "classification": "CATEGORICAL",
+            "tags": ["access", "feature-flag"]
+          }
+        }
+      },
+      "semantics": {
+        "definition": "Feature usage records track how individual customers interact with specific product features, providing the data foundation for adoption analysis, product prioritisation, and customer health scoring.",
+        "tags": ["product-analytics", "engagement", "adoption", "saas"]
+      }
+    },
+    {
+      "key": "churn-event",
+      "name": "Churn Event",
+      "description": "Records a customer churn occurrence with context about timing, revenue impact, and potential for win-back.",
+      "displayName": {
+        "singular": "Churn Event",
+        "plural": "Churn Events"
+      },
+      "semanticGroup": "TRANSACTION",
+      "identifierKey": "churn-date",
+      "attributes": {
+        "churn-date": {
+          "key": "DATE",
+          "label": "Churn Date",
+          "type": "string",
+          "format": "date",
+          "required": true,
+          "semantics": {
+            "definition": "The date the customer churned, marking the end of their active subscription.",
+            "classification": "TEMPORAL",
+            "tags": ["churn", "lifecycle"]
+          }
+        },
+        "reason": {
+          "key": "SELECT",
+          "label": "Reason",
+          "type": "string",
+          "options": {
+            "enum": ["price", "competitor", "no-longer-needed", "poor-experience", "missing-features", "other"]
+          },
+          "semantics": {
+            "definition": "The primary reason for the customer's decision to churn.",
+            "classification": "CATEGORICAL",
+            "tags": ["churn", "feedback", "analysis"]
+          }
+        },
+        "mrr-lost": {
+          "key": "CURRENCY",
+          "label": "MRR Lost",
+          "type": "number",
+          "format": "currency",
+          "semantics": {
+            "definition": "The monthly recurring revenue lost as a result of this churn event.",
+            "classification": "QUANTITATIVE",
+            "tags": ["revenue", "churn-impact"]
+          }
+        },
+        "feedback": {
+          "key": "TEXT",
+          "label": "Feedback",
+          "type": "string",
+          "semantics": {
+            "definition": "Detailed feedback or exit survey responses from the churned customer.",
+            "classification": "FREETEXT",
+            "tags": ["feedback", "voice-of-customer"]
+          }
+        },
+        "win-back-eligible": {
+          "key": "CHECKBOX",
+          "label": "Win-back Eligible",
+          "type": "boolean",
+          "semantics": {
+            "definition": "Whether this customer is considered a candidate for win-back outreach based on churn circumstances.",
+            "classification": "CATEGORICAL",
+            "tags": ["win-back", "retention"]
+          }
+        },
+        "last-activity-date": {
+          "key": "DATE",
+          "label": "Last Activity Date",
+          "type": "string",
+          "format": "date",
+          "semantics": {
+            "definition": "The last date the customer showed meaningful product activity before churning.",
+            "classification": "TEMPORAL",
+            "tags": ["engagement", "churn-signal"]
+          }
+        },
+        "previous-plan": {
+          "key": "TEXT",
+          "label": "Previous Plan",
+          "type": "string",
+          "semantics": {
+            "definition": "The plan the customer was on at the time of churn.",
+            "classification": "CATEGORICAL",
+            "tags": ["plan", "context"]
+          }
+        },
+        "tenure-months": {
+          "key": "NUMBER",
+          "label": "Tenure (Months)",
+          "type": "number",
+          "semantics": {
+            "definition": "The total number of months the customer was subscribed before churning.",
+            "classification": "QUANTITATIVE",
+            "tags": ["retention", "lifetime"]
+          }
+        }
+      },
+      "semantics": {
+        "definition": "A churn event records the loss of a customer from the active subscriber base, capturing the timing, reason, revenue impact, and potential for recovery. It is the key analytical artifact for understanding and reducing customer attrition.",
+        "tags": ["churn", "retention", "revenue-impact", "saas"]
+      }
+    },
+    {
+      "$ref": "models/invoice",
+      "extend": {
+        "attributes": {
+          "subscription-period": {
+            "key": "TEXT",
+            "label": "Subscription Period",
+            "type": "string",
+            "semantics": {
+              "definition": "The billing period this invoice covers, e.g. 'Jan 2026' or 'Q1 2026'.",
+              "classification": "CATEGORICAL",
+              "tags": ["billing", "period"]
+            }
+          },
+          "recurring": {
+            "key": "CHECKBOX",
+            "label": "Recurring",
+            "type": "boolean",
+            "semantics": {
+              "definition": "Whether this invoice is part of an auto-generated recurring billing cycle.",
+              "classification": "CATEGORICAL",
+              "tags": ["billing", "automation"]
+            }
+          }
+        },
+        "semantics": {
+          "tags": ["saas-billing", "subscription-invoice"]
+        }
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "key": "customer-subscriptions",
+      "sourceEntityTypeKey": "customer",
+      "name": "Subscriptions",
+      "allowPolymorphic": false,
+      "protected": false,
+      "targetRules": [
+        {
+          "targetEntityTypeKey": "subscription",
+          "cardinalityOverride": "ONE_TO_MANY",
+          "inverseName": "Customer"
+        }
+      ],
+      "semantics": {
+        "definition": "A customer holds one or more subscriptions that grant access to product plans. This relationship tracks the commercial agreements between the business and its customers.",
+        "tags": ["billing", "subscription"]
+      }
+    },
+    {
+      "key": "customer-support-tickets",
+      "sourceEntityTypeKey": "customer",
+      "name": "Support Tickets",
+      "allowPolymorphic": false,
+      "protected": false,
+      "targetRules": [
+        {
+          "targetEntityTypeKey": "support-ticket",
+          "cardinalityOverride": "ONE_TO_MANY",
+          "inverseName": "Customer"
+        }
+      ],
+      "semantics": {
+        "definition": "A customer submits support tickets when they encounter issues, have questions, or want to request features.",
+        "tags": ["support", "customer-service"]
+      }
+    },
+    {
+      "key": "customer-invoices",
+      "sourceEntityTypeKey": "customer",
+      "name": "Invoices",
+      "allowPolymorphic": false,
+      "protected": false,
+      "targetRules": [
+        {
+          "targetEntityTypeKey": "invoice",
+          "cardinalityOverride": "ONE_TO_MANY",
+          "inverseName": "Customer"
+        }
+      ],
+      "semantics": {
+        "definition": "A customer receives invoices for their subscription charges and any additional services.",
+        "tags": ["billing", "finance"]
+      }
+    },
+    {
+      "key": "subscription-plan",
+      "sourceEntityTypeKey": "subscription",
+      "name": "Plan",
+      "allowPolymorphic": false,
+      "protected": false,
+      "targetRules": [
+        {
+          "targetEntityTypeKey": "plan",
+          "cardinalityOverride": "MANY_TO_ONE",
+          "inverseName": "Subscriptions"
+        }
+      ],
+      "semantics": {
+        "definition": "A subscription is tied to a specific plan that defines the features, limits, and pricing the customer receives.",
+        "tags": ["pricing", "product"]
+      }
+    },
+    {
+      "key": "customer-churn-events",
+      "sourceEntityTypeKey": "customer",
+      "name": "Churn Events",
+      "allowPolymorphic": false,
+      "protected": false,
+      "targetRules": [
+        {
+          "targetEntityTypeKey": "churn-event",
+          "cardinalityOverride": "ONE_TO_MANY",
+          "inverseName": "Customer"
+        }
+      ],
+      "semantics": {
+        "definition": "A customer may have one or more churn events if they cancel and later re-subscribe, each recording the circumstances of departure.",
+        "tags": ["churn", "retention"]
+      }
+    },
+    {
+      "key": "customer-feature-usage",
+      "sourceEntityTypeKey": "customer",
+      "name": "Feature Usage",
+      "allowPolymorphic": false,
+      "protected": false,
+      "targetRules": [
+        {
+          "targetEntityTypeKey": "feature-usage",
+          "cardinalityOverride": "ONE_TO_MANY",
+          "inverseName": "Customer"
+        }
+      ],
+      "semantics": {
+        "definition": "A customer's feature usage records track which product capabilities they engage with and how intensively.",
+        "tags": ["product-analytics", "engagement"]
+      }
+    }
+  ]
+}

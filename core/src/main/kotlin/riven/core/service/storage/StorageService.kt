@@ -3,6 +3,7 @@ package riven.core.service.storage
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import riven.core.configuration.storage.StorageConfigurationProperties
 import riven.core.entity.storage.FileMetadataEntity
@@ -161,9 +162,21 @@ class StorageService(
         }
 
         val downloadResult = storageProvider.download(request.storageKey)
+        val domain = parseDomainFromStorageKey(request.storageKey)
+
+        // Early size gate — reject before buffering into memory
+        if (downloadResult.contentLength > 0) {
+            try {
+                contentValidationService.validateFileSize(domain, downloadResult.contentLength)
+            } catch (e: FileSizeLimitExceededException) {
+                downloadResult.content.close()
+                deletePhysicalFile(request.storageKey)
+                throw e
+            }
+        }
+
         val bytes = downloadResult.content.use { it.readBytes() }
         val detectedType = contentValidationService.detectContentType(ByteArrayInputStream(bytes), request.originalFilename)
-        val domain = parseDomainFromStorageKey(request.storageKey)
 
         validatePresignedUploadContent(request.storageKey, domain, detectedType, bytes.size.toLong())
 
@@ -184,6 +197,7 @@ class StorageService(
      * New keys are added, existing keys are updated, keys with null values are removed.
      */
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
+    @Transactional
     fun updateMetadata(workspaceId: UUID, fileId: UUID, request: UpdateMetadataRequest): FileMetadata {
         val userId = authTokenService.getUserId()
         val entity = findOrThrow { fileMetadataRepository.findByIdAndWorkspaceId(fileId, workspaceId) }
@@ -192,6 +206,7 @@ class StorageService(
 
         val previousMetadata = entity.metadata?.toMap()
         val merged = mergeMetadata(entity.metadata, request.metadata)
+        require(merged.size <= 20) { "Metadata cannot have more than 20 key-value pairs after merge" }
         entity.metadata = if (merged.isEmpty()) null else merged
         fileMetadataRepository.save(entity)
 

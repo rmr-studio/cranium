@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
 import riven.core.configuration.properties.ApplicationConfigurationProperties
+import com.fasterxml.jackson.core.JsonProcessingException
 import riven.core.models.response.common.ErrorResponse
 
 @ControllerAdvice
@@ -113,6 +114,19 @@ class ExceptionHandler(private val logger: KLogger, private val config: Applicat
             statusCode = HttpStatus.CONFLICT,
             error = "CONFLICT",
             message = ex.message ?: "Unique constraint violation occurred",
+            stackTrace = config.includeStackTrace.takeIf { it }?.let { ex.stackTraceToString() }
+        ).also { logger.error { it } }.let {
+            ResponseEntity(it, it.statusCode)
+        }
+    }
+
+    @ExceptionHandler(JsonProcessingException::class)
+    fun handleJsonProcessingException(ex: JsonProcessingException): ResponseEntity<ErrorResponse> {
+        storeExceptionForAnalytics(ex)
+        return ErrorResponse(
+            statusCode = HttpStatus.BAD_REQUEST,
+            error = "INVALID JSON",
+            message = ex.originalMessage ?: "Malformed JSON in request",
             stackTrace = config.includeStackTrace.takeIf { it }?.let { ex.stackTraceToString() }
         ).also { logger.error { it } }.let {
             ResponseEntity(it, it.statusCode)

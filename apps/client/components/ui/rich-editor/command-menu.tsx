@@ -1,6 +1,5 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Code,
   Heading1,
@@ -17,8 +16,8 @@ import {
   Type,
   Video,
 } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { EditorActions } from '.';
 import {
   Command,
   CommandEmpty,
@@ -26,8 +25,9 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '../command';
-import { Popover, PopoverAnchor, PopoverContent } from '../popover';
+} from '@riven/ui/command';
+import { Popover, PopoverAnchor, PopoverContent } from '@riven/ui/popover';
+import { EditorActions } from '@/components/ui/rich-editor';
 import { useEditorDispatch } from './store/editor-store';
 
 export interface CommandOption {

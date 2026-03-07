@@ -1,16 +1,16 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Code2, Pencil, Search } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
-import { useIsMobile } from '@riven/hooks';
 import { useToast } from '@/components/ui/rich-editor/hooks/use-toast';
+import { useIsMobile } from '@riven/hooks';
 
+import { Button } from '@riven/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
 import { EditorActions, useEditorDispatch, useEditorState } from '.';
-import { Button } from '../button';
 import { Input } from '../input';
-import { Popover, PopoverContent, PopoverTrigger } from '../popover';
 import { ScrollArea } from '../scroll-area';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../sheet';
 import { Switch } from '../switch';
@@ -309,7 +309,7 @@ export function CustomClassPopover() {
               <SheetContent
                 side="bottom"
                 className="h-[85vh] rounded-t-xl px-5"
-                onOpenAutoFocus={(e) => {
+                onOpenAutoFocus={(e: Event) => {
                   // Prevent auto-focus to avoid reopening keyboard
                   e.preventDefault();
                 }}

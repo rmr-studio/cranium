@@ -1,6 +1,5 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Code,
   GripVertical,
@@ -14,9 +13,10 @@ import {
   Quote,
   Type,
 } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Button } from '../button';
-import { Popover, PopoverContent, PopoverTrigger } from '../popover';
+import { Button } from '@riven/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
 import { BlockContextMenu } from './block-context-menu';
 import { CommandMenu } from './command-menu';
 import { ELEMENT_OPTIONS } from './elements';
@@ -39,18 +39,16 @@ import {
 } from './handlers/block';
 import {
   getContainerClasses,
-  getElementType,
-  getNodeRenderType,
+  getNodeRenderType
 } from './handlers/block/block-renderer';
 import { ImageBlock } from './image-block';
 import {
   useBlockNode,
   useEditorDispatch,
-  useEditorStore,
-  useIsNodeActive,
+  useEditorStore
 } from './store/editor-store';
 import { TableBuilder } from './table-builder';
-import { ContainerNode, EditorNode, getNodeTextContent, isContainerNode, TextNode } from './types';
+import { ContainerNode, EditorNode, getNodeTextContent, TextNode } from './types';
 import { VideoBlock } from './video-block';
 
 // Icon mapping

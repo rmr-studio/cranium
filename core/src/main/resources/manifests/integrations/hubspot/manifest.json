@@ -1,0 +1,754 @@
+{
+  "manifestVersion": "1.0",
+  "key": "hubspot",
+  "name": "HubSpot",
+  "description": "HubSpot CRM integration providing contacts, companies, deals, tickets, and notes with full relationship mapping.",
+  "entityTypes": [
+    {
+      "key": "hubspot-contact",
+      "name": "Contact",
+      "description": "A HubSpot contact record representing a person in the CRM.",
+      "displayName": {
+        "singular": "Contact",
+        "plural": "Contacts"
+      },
+      "icon": {
+        "type": "USER",
+        "colour": "BLUE"
+      },
+      "semanticGroup": "CUSTOMER",
+      "identifierKey": "email",
+      "readonly": true,
+      "attributes": {
+        "email": {
+          "key": "EMAIL",
+          "label": "Email",
+          "type": "string",
+          "format": "email",
+          "required": false,
+          "unique": true,
+          "protected": true
+        },
+        "first-name": {
+          "key": "TEXT",
+          "label": "First Name",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "last-name": {
+          "key": "TEXT",
+          "label": "Last Name",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "phone": {
+          "key": "PHONE",
+          "label": "Phone",
+          "type": "string",
+          "format": "phone-number",
+          "required": false,
+          "protected": true
+        },
+        "company-name": {
+          "key": "TEXT",
+          "label": "Company",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "lifecycle-stage": {
+          "key": "SELECT",
+          "label": "Lifecycle Stage",
+          "type": "string",
+          "required": false,
+          "protected": true,
+          "options": {
+            "enum": [
+              "subscriber",
+              "lead",
+              "marketingqualifiedlead",
+              "salesqualifiedlead",
+              "opportunity",
+              "customer",
+              "evangelist",
+              "other"
+            ]
+          }
+        },
+        "job-title": {
+          "key": "TEXT",
+          "label": "Job Title",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "city": {
+          "key": "TEXT",
+          "label": "City",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "website": {
+          "key": "URL",
+          "label": "Website",
+          "type": "string",
+          "format": "uri",
+          "required": false,
+          "protected": true
+        },
+        "created-date": {
+          "key": "DATETIME",
+          "label": "Created Date",
+          "type": "string",
+          "format": "date-time",
+          "required": false,
+          "protected": true
+        },
+        "last-modified": {
+          "key": "DATETIME",
+          "label": "Last Modified",
+          "type": "string",
+          "format": "date-time",
+          "required": false,
+          "protected": true
+        }
+      }
+    },
+    {
+      "key": "hubspot-company",
+      "name": "Company",
+      "description": "A HubSpot company record representing an organization in the CRM.",
+      "displayName": {
+        "singular": "Company",
+        "plural": "Companies"
+      },
+      "icon": {
+        "type": "BUILDING",
+        "colour": "GREEN"
+      },
+      "semanticGroup": "CUSTOMER",
+      "identifierKey": "name",
+      "readonly": true,
+      "attributes": {
+        "name": {
+          "key": "TEXT",
+          "label": "Company Name",
+          "type": "string",
+          "required": true,
+          "protected": true
+        },
+        "domain": {
+          "key": "URL",
+          "label": "Domain",
+          "type": "string",
+          "format": "uri",
+          "required": false,
+          "protected": true
+        },
+        "industry": {
+          "key": "TEXT",
+          "label": "Industry",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "phone": {
+          "key": "PHONE",
+          "label": "Phone",
+          "type": "string",
+          "format": "phone-number",
+          "required": false,
+          "protected": true
+        },
+        "city": {
+          "key": "TEXT",
+          "label": "City",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "state": {
+          "key": "TEXT",
+          "label": "State",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "country": {
+          "key": "TEXT",
+          "label": "Country",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "number-of-employees": {
+          "key": "NUMBER",
+          "label": "Number of Employees",
+          "type": "number",
+          "required": false,
+          "protected": true
+        },
+        "annual-revenue": {
+          "key": "NUMBER",
+          "label": "Annual Revenue",
+          "type": "number",
+          "required": false,
+          "protected": true
+        },
+        "created-date": {
+          "key": "DATETIME",
+          "label": "Created Date",
+          "type": "string",
+          "format": "date-time",
+          "required": false,
+          "protected": true
+        },
+        "last-modified": {
+          "key": "DATETIME",
+          "label": "Last Modified",
+          "type": "string",
+          "format": "date-time",
+          "required": false,
+          "protected": true
+        }
+      }
+    },
+    {
+      "key": "hubspot-deal",
+      "name": "Deal",
+      "description": "A HubSpot deal record representing a sales opportunity.",
+      "displayName": {
+        "singular": "Deal",
+        "plural": "Deals"
+      },
+      "icon": {
+        "type": "DOLLAR_SIGN",
+        "colour": "ORANGE"
+      },
+      "semanticGroup": "TRANSACTION",
+      "identifierKey": "deal-name",
+      "readonly": true,
+      "attributes": {
+        "deal-name": {
+          "key": "TEXT",
+          "label": "Deal Name",
+          "type": "string",
+          "required": true,
+          "protected": true
+        },
+        "amount": {
+          "key": "NUMBER",
+          "label": "Amount",
+          "type": "number",
+          "required": false,
+          "protected": true
+        },
+        "deal-stage": {
+          "key": "SELECT",
+          "label": "Deal Stage",
+          "type": "string",
+          "required": false,
+          "protected": true,
+          "options": {
+            "enum": [
+              "appointmentscheduled",
+              "qualifiedtobuy",
+              "presentationscheduled",
+              "decisionmakerboughtin",
+              "contractsent",
+              "closedwon",
+              "closedlost"
+            ]
+          }
+        },
+        "close-date": {
+          "key": "DATETIME",
+          "label": "Close Date",
+          "type": "string",
+          "format": "date-time",
+          "required": false,
+          "protected": true
+        },
+        "pipeline": {
+          "key": "TEXT",
+          "label": "Pipeline",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "deal-type": {
+          "key": "TEXT",
+          "label": "Deal Type",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "created-date": {
+          "key": "DATETIME",
+          "label": "Created Date",
+          "type": "string",
+          "format": "date-time",
+          "required": false,
+          "protected": true
+        },
+        "last-modified": {
+          "key": "DATETIME",
+          "label": "Last Modified",
+          "type": "string",
+          "format": "date-time",
+          "required": false,
+          "protected": true
+        },
+        "owner-id": {
+          "key": "TEXT",
+          "label": "Owner ID",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "description": {
+          "key": "TEXT",
+          "label": "Description",
+          "type": "string",
+          "required": false,
+          "protected": true
+        }
+      }
+    },
+    {
+      "key": "hubspot-ticket",
+      "name": "Ticket",
+      "description": "A HubSpot ticket record representing a customer support request.",
+      "displayName": {
+        "singular": "Ticket",
+        "plural": "Tickets"
+      },
+      "icon": {
+        "type": "TICKET",
+        "colour": "RED"
+      },
+      "semanticGroup": "SUPPORT",
+      "identifierKey": "subject",
+      "readonly": true,
+      "attributes": {
+        "subject": {
+          "key": "TEXT",
+          "label": "Subject",
+          "type": "string",
+          "required": true,
+          "protected": true
+        },
+        "content": {
+          "key": "TEXT",
+          "label": "Content",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "ticket-status": {
+          "key": "SELECT",
+          "label": "Ticket Status",
+          "type": "string",
+          "required": false,
+          "protected": true,
+          "options": {
+            "enum": [
+              "new",
+              "waiting",
+              "open",
+              "closed"
+            ]
+          }
+        },
+        "priority": {
+          "key": "SELECT",
+          "label": "Priority",
+          "type": "string",
+          "required": false,
+          "protected": true,
+          "options": {
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          }
+        },
+        "category": {
+          "key": "TEXT",
+          "label": "Category",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "pipeline": {
+          "key": "TEXT",
+          "label": "Pipeline",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "created-date": {
+          "key": "DATETIME",
+          "label": "Created Date",
+          "type": "string",
+          "format": "date-time",
+          "required": false,
+          "protected": true
+        },
+        "last-modified": {
+          "key": "DATETIME",
+          "label": "Last Modified",
+          "type": "string",
+          "format": "date-time",
+          "required": false,
+          "protected": true
+        },
+        "closed-date": {
+          "key": "DATETIME",
+          "label": "Closed Date",
+          "type": "string",
+          "format": "date-time",
+          "required": false,
+          "protected": true
+        },
+        "source-type": {
+          "key": "TEXT",
+          "label": "Source Type",
+          "type": "string",
+          "required": false,
+          "protected": true
+        }
+      }
+    },
+    {
+      "key": "hubspot-note",
+      "name": "Note",
+      "description": "A HubSpot engagement note associated with contacts, deals, or tickets.",
+      "displayName": {
+        "singular": "Note",
+        "plural": "Notes"
+      },
+      "icon": {
+        "type": "STICKY_NOTE",
+        "colour": "YELLOW"
+      },
+      "semanticGroup": "COMMUNICATION",
+      "identifierKey": "body",
+      "readonly": true,
+      "attributes": {
+        "body": {
+          "key": "TEXT",
+          "label": "Body",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "created-date": {
+          "key": "DATETIME",
+          "label": "Created Date",
+          "type": "string",
+          "format": "date-time",
+          "required": false,
+          "protected": true
+        },
+        "last-modified": {
+          "key": "DATETIME",
+          "label": "Last Modified",
+          "type": "string",
+          "format": "date-time",
+          "required": false,
+          "protected": true
+        },
+        "owner-id": {
+          "key": "TEXT",
+          "label": "Owner ID",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "timestamp": {
+          "key": "DATETIME",
+          "label": "Timestamp",
+          "type": "string",
+          "format": "date-time",
+          "required": false,
+          "protected": true
+        }
+      }
+    }
+  ],
+  "fieldMappings": [
+    {
+      "entityTypeKey": "hubspot-contact",
+      "mappings": {
+        "email": {
+          "source": "email",
+          "transform": { "type": "direct" }
+        },
+        "first-name": {
+          "source": "firstname",
+          "transform": { "type": "direct" }
+        },
+        "last-name": {
+          "source": "lastname",
+          "transform": { "type": "direct" }
+        },
+        "phone": {
+          "source": "phone",
+          "transform": { "type": "direct" }
+        },
+        "company-name": {
+          "source": "company",
+          "transform": { "type": "direct" }
+        },
+        "lifecycle-stage": {
+          "source": "lifecyclestage",
+          "transform": { "type": "direct" }
+        },
+        "job-title": {
+          "source": "jobtitle",
+          "transform": { "type": "direct" }
+        },
+        "city": {
+          "source": "city",
+          "transform": { "type": "direct" }
+        },
+        "website": {
+          "source": "website",
+          "transform": { "type": "direct" }
+        },
+        "created-date": {
+          "source": "createdate",
+          "transform": { "type": "type_coercion", "targetType": "datetime" }
+        },
+        "last-modified": {
+          "source": "lastmodifieddate",
+          "transform": { "type": "type_coercion", "targetType": "datetime" }
+        }
+      }
+    },
+    {
+      "entityTypeKey": "hubspot-company",
+      "mappings": {
+        "name": {
+          "source": "name",
+          "transform": { "type": "direct" }
+        },
+        "domain": {
+          "source": "domain",
+          "transform": { "type": "direct" }
+        },
+        "industry": {
+          "source": "industry",
+          "transform": { "type": "direct" }
+        },
+        "phone": {
+          "source": "phone",
+          "transform": { "type": "direct" }
+        },
+        "city": {
+          "source": "city",
+          "transform": { "type": "direct" }
+        },
+        "state": {
+          "source": "state",
+          "transform": { "type": "direct" }
+        },
+        "country": {
+          "source": "country",
+          "transform": { "type": "direct" }
+        },
+        "number-of-employees": {
+          "source": "numberofemployees",
+          "transform": { "type": "type_coercion", "targetType": "number" }
+        },
+        "annual-revenue": {
+          "source": "annualrevenue",
+          "transform": { "type": "type_coercion", "targetType": "number" }
+        },
+        "created-date": {
+          "source": "createdate",
+          "transform": { "type": "type_coercion", "targetType": "datetime" }
+        },
+        "last-modified": {
+          "source": "lastmodifieddate",
+          "transform": { "type": "type_coercion", "targetType": "datetime" }
+        }
+      }
+    },
+    {
+      "entityTypeKey": "hubspot-deal",
+      "mappings": {
+        "deal-name": {
+          "source": "dealname",
+          "transform": { "type": "direct" }
+        },
+        "amount": {
+          "source": "amount",
+          "transform": { "type": "type_coercion", "targetType": "number" }
+        },
+        "deal-stage": {
+          "source": "dealstage",
+          "transform": { "type": "direct" }
+        },
+        "close-date": {
+          "source": "closedate",
+          "transform": { "type": "type_coercion", "targetType": "datetime" }
+        },
+        "pipeline": {
+          "source": "pipeline",
+          "transform": { "type": "direct" }
+        },
+        "deal-type": {
+          "source": "dealtype",
+          "transform": { "type": "direct" }
+        },
+        "created-date": {
+          "source": "createdate",
+          "transform": { "type": "type_coercion", "targetType": "datetime" }
+        },
+        "last-modified": {
+          "source": "lastmodifieddate",
+          "transform": { "type": "type_coercion", "targetType": "datetime" }
+        },
+        "owner-id": {
+          "source": "hubspot_owner_id",
+          "transform": { "type": "direct" }
+        },
+        "description": {
+          "source": "description",
+          "transform": { "type": "direct" }
+        }
+      }
+    },
+    {
+      "entityTypeKey": "hubspot-ticket",
+      "mappings": {
+        "subject": {
+          "source": "subject",
+          "transform": { "type": "direct" }
+        },
+        "content": {
+          "source": "content",
+          "transform": { "type": "direct" }
+        },
+        "ticket-status": {
+          "source": "hs_pipeline_stage",
+          "transform": { "type": "direct" }
+        },
+        "priority": {
+          "source": "hs_ticket_priority",
+          "transform": { "type": "direct" }
+        },
+        "category": {
+          "source": "hs_ticket_category",
+          "transform": { "type": "direct" }
+        },
+        "pipeline": {
+          "source": "hs_pipeline",
+          "transform": { "type": "direct" }
+        },
+        "created-date": {
+          "source": "createdate",
+          "transform": { "type": "type_coercion", "targetType": "datetime" }
+        },
+        "last-modified": {
+          "source": "lastmodifieddate",
+          "transform": { "type": "type_coercion", "targetType": "datetime" }
+        },
+        "closed-date": {
+          "source": "closed_date",
+          "transform": { "type": "type_coercion", "targetType": "datetime" }
+        },
+        "source-type": {
+          "source": "source_type",
+          "transform": { "type": "direct" }
+        }
+      }
+    },
+    {
+      "entityTypeKey": "hubspot-note",
+      "mappings": {
+        "body": {
+          "source": "hs_note_body",
+          "transform": { "type": "direct" }
+        },
+        "created-date": {
+          "source": "createdate",
+          "transform": { "type": "type_coercion", "targetType": "datetime" }
+        },
+        "last-modified": {
+          "source": "lastmodifieddate",
+          "transform": { "type": "type_coercion", "targetType": "datetime" }
+        },
+        "owner-id": {
+          "source": "hubspot_owner_id",
+          "transform": { "type": "direct" }
+        },
+        "timestamp": {
+          "source": "hs_timestamp",
+          "transform": { "type": "type_coercion", "targetType": "datetime" }
+        }
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "key": "contact-company",
+      "sourceEntityTypeKey": "hubspot-contact",
+      "name": "Company",
+      "cardinality": "MANY_TO_ONE",
+      "targetEntityTypeKey": "hubspot-company",
+      "protected": true
+    },
+    {
+      "key": "deal-contact",
+      "sourceEntityTypeKey": "hubspot-deal",
+      "name": "Contacts",
+      "cardinality": "MANY_TO_MANY",
+      "targetEntityTypeKey": "hubspot-contact",
+      "protected": true
+    },
+    {
+      "key": "deal-company",
+      "sourceEntityTypeKey": "hubspot-deal",
+      "name": "Company",
+      "cardinality": "MANY_TO_ONE",
+      "targetEntityTypeKey": "hubspot-company",
+      "protected": true
+    },
+    {
+      "key": "ticket-contact",
+      "sourceEntityTypeKey": "hubspot-ticket",
+      "name": "Contact",
+      "cardinality": "MANY_TO_ONE",
+      "targetEntityTypeKey": "hubspot-contact",
+      "protected": true
+    },
+    {
+      "key": "note-associations",
+      "sourceEntityTypeKey": "hubspot-note",
+      "name": "Associated With",
+      "allowPolymorphic": true,
+      "targetRules": [
+        {
+          "targetEntityTypeKey": "hubspot-contact",
+          "inverseName": "Notes"
+        },
+        {
+          "targetEntityTypeKey": "hubspot-deal",
+          "inverseName": "Notes"
+        },
+        {
+          "targetEntityTypeKey": "hubspot-ticket",
+          "inverseName": "Notes"
+        }
+      ],
+      "protected": true
+    }
+  ]
+}

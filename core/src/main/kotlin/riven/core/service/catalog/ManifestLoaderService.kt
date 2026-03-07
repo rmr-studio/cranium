@@ -2,6 +2,7 @@ package riven.core.service.catalog
 
 import com.fasterxml.jackson.databind.JsonNode
 import io.github.oshai.kotlinlogging.KLogger
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
@@ -25,12 +26,14 @@ class ManifestLoaderService(
     private val integrationDefinitionStaleSyncService: IntegrationDefinitionStaleSyncService,
     private val manifestCatalogRepository: ManifestCatalogRepository,
     private val healthIndicator: ManifestCatalogHealthIndicator,
-    private val logger: KLogger
+    private val logger: KLogger,
+    @Value("\${riven.manifests.auto-load:true}") private val autoLoadOnStartup: Boolean = true
 ) {
 
     /** Triggers the full manifest load pipeline asynchronously after application startup. */
     @EventListener(ApplicationReadyEvent::class)
     fun onApplicationReady(event: ApplicationReadyEvent) {
+        if (!autoLoadOnStartup) return
         Thread({
             healthIndicator.loadState = ManifestCatalogHealthIndicator.LoadState.LOADING
             try {

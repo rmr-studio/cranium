@@ -135,7 +135,8 @@ class ManifestLoaderIntegrationTestConfig {
         integrationDefinitionStaleSyncService,
         manifestCatalogRepository,
         healthIndicator,
-        logger
+        logger,
+        autoLoadOnStartup = false
     )
 
     @Bean

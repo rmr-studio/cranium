@@ -22,6 +22,7 @@ import riven.core.repository.integration.IntegrationConnectionRepository
 import riven.core.repository.integration.IntegrationDefinitionRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.auth.AuthTokenService
+import riven.core.service.integration.materialization.TemplateMaterializationService
 import riven.core.service.util.WithUserPersona
 import riven.core.service.util.WorkspaceRole
 import riven.core.enums.workspace.WorkspaceRoles
@@ -70,6 +71,9 @@ class IntegrationConnectionServiceTest {
 
     @MockitoBean
     private lateinit var nangoClientWrapper: NangoClientWrapper
+
+    @MockitoBean
+    private lateinit var templateMaterializationService: TemplateMaterializationService
 
     @MockitoBean
     private lateinit var activityService: ActivityService

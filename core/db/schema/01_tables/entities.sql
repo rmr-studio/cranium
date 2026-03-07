@@ -20,6 +20,10 @@ CREATE TABLE IF NOT EXISTS public.entity_types
     "schema"                JSONB   NOT NULL,
     "columns"               JSONB,
     "semantic_group"        TEXT    NOT NULL         DEFAULT 'UNCATEGORIZED',
+    -- Source discriminator fields for integration entity types
+    "source_type"           VARCHAR(50) NOT NULL     DEFAULT 'USER_CREATED',
+    "source_integration_id" UUID        REFERENCES integration_definitions (id) ON DELETE SET NULL,
+    "readonly"              BOOLEAN NOT NULL         DEFAULT FALSE,
     -- Denormalized count of entities of this type for faster access
     "count"                 INTEGER NOT NULL         DEFAULT 0,
     "version"               INTEGER NOT NULL         DEFAULT 1,

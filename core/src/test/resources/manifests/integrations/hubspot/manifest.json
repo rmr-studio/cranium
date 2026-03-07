@@ -149,21 +149,21 @@
     {
       "entityTypeKey": "hubspot-contact",
       "mappings": {
-        "email": { "source": "properties.email" },
-        "firstname": { "source": "properties.firstname" },
-        "lastname": { "source": "properties.lastname" },
-        "company": { "source": "properties.company" }
+        "email": { "source": "properties.email", "transform": { "type": "direct" } },
+        "firstname": { "source": "properties.firstname", "transform": { "type": "direct" } },
+        "lastname": { "source": "properties.lastname", "transform": { "type": "direct" } },
+        "company": { "source": "properties.company", "transform": { "type": "direct" } }
       }
     },
     {
       "entityTypeKey": "hubspot-deal",
       "mappings": {
-        "dealname": { "source": "properties.dealname" },
+        "dealname": { "source": "properties.dealname", "transform": { "type": "direct" } },
         "amount": {
           "source": "properties.amount",
-          "transform": { "type": "typeCoercion", "to": "number" }
+          "transform": { "type": "type_coercion", "targetType": "number" }
         },
-        "dealstage": { "source": "properties.dealstage" }
+        "dealstage": { "source": "properties.dealstage", "transform": { "type": "direct" } }
       }
     }
   ]

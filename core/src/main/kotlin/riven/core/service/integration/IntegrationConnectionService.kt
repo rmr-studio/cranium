@@ -19,6 +19,7 @@ import riven.core.repository.integration.IntegrationConnectionRepository
 import riven.core.repository.integration.IntegrationDefinitionRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.auth.AuthTokenService
+import riven.core.service.integration.materialization.TemplateMaterializationService
 import riven.core.util.ServiceUtil.findOrThrow
 import java.util.*
 
@@ -34,6 +35,7 @@ class IntegrationConnectionService(
     private val connectionRepository: IntegrationConnectionRepository,
     private val definitionRepository: IntegrationDefinitionRepository,
     private val nangoClientWrapper: NangoClientWrapper,
+    private val templateMaterializationService: TemplateMaterializationService,
     private val activityService: ActivityService,
     private val authTokenService: AuthTokenService,
     private val transactionTemplate: TransactionTemplate
@@ -148,6 +150,10 @@ class IntegrationConnectionService(
                 OperationType.UPDATE, userId, workspaceId, it,
                 mapOf("oldStatus" to oldStatus.name, "newStatus" to newStatus.name)
             )
+
+            if (newStatus == ConnectionStatus.CONNECTED) {
+                triggerMaterialization(workspaceId, it.integrationId)
+            }
         }
     }
 
@@ -178,6 +184,22 @@ class IntegrationConnectionService(
     }
 
     // ------ Private Helpers ------
+
+    /**
+     * Triggers template materialization when an integration connection becomes CONNECTED.
+     * Creates workspace-scoped entity types and relationships from catalog definitions.
+     */
+    private fun triggerMaterialization(workspaceId: UUID, integrationId: UUID) {
+        val integration = definitionRepository.findById(integrationId).orElse(null)
+        if (integration != null) {
+            val result = templateMaterializationService.materializeIntegrationTemplates(workspaceId, integration.slug)
+            logger.info {
+                "Materialized integration templates for workspace=$workspaceId, integration=${integration.slug}: " +
+                    "created=${result.entityTypesCreated}, restored=${result.entityTypesRestored}, " +
+                    "relationships=${result.relationshipsCreated}"
+            }
+        }
+    }
 
     /**
      * Transitions a connection to DISCONNECTING state in its own transaction,

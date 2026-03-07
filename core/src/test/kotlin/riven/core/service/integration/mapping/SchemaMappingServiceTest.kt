@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import riven.core.configuration.util.LoggerConfig
 import riven.core.enums.common.validation.SchemaType
+import riven.core.enums.integration.CoercionType
 import riven.core.models.integration.mapping.FieldTransform
 import riven.core.models.integration.mapping.ResolvedFieldMapping
 import java.util.*
@@ -161,7 +162,7 @@ class SchemaMappingServiceTest {
         fun `TypeCoercion number converts string to Double`() {
             val payload = mapOf("age_str" to "123.45")
             val fieldMappings = mapOf(
-                ageKey to ResolvedFieldMapping("age_str", FieldTransform.TypeCoercion("number"), SchemaType.NUMBER)
+                ageKey to ResolvedFieldMapping("age_str", FieldTransform.TypeCoercion(CoercionType.NUMBER), SchemaType.NUMBER)
             )
 
             val result = schemaMappingService.mapPayload(payload, fieldMappings, defaultKeyMapping)
@@ -175,7 +176,7 @@ class SchemaMappingServiceTest {
         fun `TypeCoercion number passes through numeric value unchanged`() {
             val payload = mapOf("age_num" to 42)
             val fieldMappings = mapOf(
-                ageKey to ResolvedFieldMapping("age_num", FieldTransform.TypeCoercion("number"), SchemaType.NUMBER)
+                ageKey to ResolvedFieldMapping("age_num", FieldTransform.TypeCoercion(CoercionType.NUMBER), SchemaType.NUMBER)
             )
 
             val result = schemaMappingService.mapPayload(payload, fieldMappings, defaultKeyMapping)
@@ -188,7 +189,7 @@ class SchemaMappingServiceTest {
         fun `TypeCoercion number with non-numeric string produces error not exception`() {
             val payload = mapOf("age_str" to "abc")
             val fieldMappings = mapOf(
-                ageKey to ResolvedFieldMapping("age_str", FieldTransform.TypeCoercion("number"), SchemaType.NUMBER)
+                ageKey to ResolvedFieldMapping("age_str", FieldTransform.TypeCoercion(CoercionType.NUMBER), SchemaType.NUMBER)
             )
 
             val result = schemaMappingService.mapPayload(payload, fieldMappings, defaultKeyMapping)
@@ -204,7 +205,7 @@ class SchemaMappingServiceTest {
         fun `TypeCoercion boolean converts string true to Boolean`() {
             val payload = mapOf("is_active" to "true")
             val fieldMappings = mapOf(
-                activeKey to ResolvedFieldMapping("is_active", FieldTransform.TypeCoercion("boolean"), SchemaType.CHECKBOX)
+                activeKey to ResolvedFieldMapping("is_active", FieldTransform.TypeCoercion(CoercionType.BOOLEAN), SchemaType.CHECKBOX)
             )
 
             val result = schemaMappingService.mapPayload(payload, fieldMappings, defaultKeyMapping)
@@ -217,7 +218,7 @@ class SchemaMappingServiceTest {
         fun `TypeCoercion boolean converts string false to Boolean`() {
             val payload = mapOf("is_active" to "false")
             val fieldMappings = mapOf(
-                activeKey to ResolvedFieldMapping("is_active", FieldTransform.TypeCoercion("boolean"), SchemaType.CHECKBOX)
+                activeKey to ResolvedFieldMapping("is_active", FieldTransform.TypeCoercion(CoercionType.BOOLEAN), SchemaType.CHECKBOX)
             )
 
             val result = schemaMappingService.mapPayload(payload, fieldMappings, defaultKeyMapping)
@@ -233,7 +234,7 @@ class SchemaMappingServiceTest {
 
             val payload = mapOf("created_at" to "2024-01-15T10:30:00Z")
             val fieldMappings = mapOf(
-                dateKey to ResolvedFieldMapping("created_at", FieldTransform.TypeCoercion("datetime"), SchemaType.DATETIME)
+                dateKey to ResolvedFieldMapping("created_at", FieldTransform.TypeCoercion(CoercionType.DATETIME), SchemaType.DATETIME)
             )
 
             val result = schemaMappingService.mapPayload(payload, fieldMappings, keyMapping)
@@ -250,13 +251,49 @@ class SchemaMappingServiceTest {
 
             val payload = mapOf("birth_date" to "1990-05-20")
             val fieldMappings = mapOf(
-                dateKey to ResolvedFieldMapping("birth_date", FieldTransform.TypeCoercion("date"), SchemaType.DATE)
+                dateKey to ResolvedFieldMapping("birth_date", FieldTransform.TypeCoercion(CoercionType.DATE), SchemaType.DATE)
             )
 
             val result = schemaMappingService.mapPayload(payload, fieldMappings, keyMapping)
 
             assertEquals("1990-05-20", result.attributes[dateUuid.toString()]?.value)
             assertEquals(SchemaType.DATE, result.attributes[dateUuid.toString()]?.schemaType)
+        }
+
+        @Test
+        fun `TypeCoercion string passes through string value unchanged`() {
+            val payload = mapOf("first_name" to "Alice")
+            val fieldMappings = mapOf(
+                nameKey to ResolvedFieldMapping("first_name", FieldTransform.TypeCoercion(CoercionType.STRING), SchemaType.TEXT)
+            )
+
+            val result = schemaMappingService.mapPayload(payload, fieldMappings, defaultKeyMapping)
+
+            assertEquals("Alice", result.attributes[nameUuid.toString()]?.value)
+        }
+
+        @Test
+        fun `TypeCoercion string converts number to string`() {
+            val payload = mapOf("age_num" to 42)
+            val fieldMappings = mapOf(
+                ageKey to ResolvedFieldMapping("age_num", FieldTransform.TypeCoercion(CoercionType.STRING), SchemaType.TEXT)
+            )
+
+            val result = schemaMappingService.mapPayload(payload, fieldMappings, defaultKeyMapping)
+
+            assertEquals("42", result.attributes[ageUuid.toString()]?.value)
+        }
+
+        @Test
+        fun `TypeCoercion string converts boolean to string`() {
+            val payload = mapOf("is_active" to true)
+            val fieldMappings = mapOf(
+                activeKey to ResolvedFieldMapping("is_active", FieldTransform.TypeCoercion(CoercionType.STRING), SchemaType.TEXT)
+            )
+
+            val result = schemaMappingService.mapPayload(payload, fieldMappings, defaultKeyMapping)
+
+            assertEquals("true", result.attributes[activeUuid.toString()]?.value)
         }
     }
 
@@ -411,7 +448,7 @@ class SchemaMappingServiceTest {
             )
             val fieldMappings = mapOf(
                 nameKey to ResolvedFieldMapping("first_name", FieldTransform.Direct, SchemaType.TEXT),
-                ageKey to ResolvedFieldMapping("age_str", FieldTransform.TypeCoercion("number"), SchemaType.NUMBER)
+                ageKey to ResolvedFieldMapping("age_str", FieldTransform.TypeCoercion(CoercionType.NUMBER), SchemaType.NUMBER)
             )
 
             val result = schemaMappingService.mapPayload(payload, fieldMappings, defaultKeyMapping)
@@ -432,8 +469,8 @@ class SchemaMappingServiceTest {
             val fieldMappings = mapOf(
                 nameKey to ResolvedFieldMapping("missing_field", FieldTransform.Direct, SchemaType.TEXT),
                 emailKey to ResolvedFieldMapping("email_address", FieldTransform.Direct, SchemaType.EMAIL),
-                ageKey to ResolvedFieldMapping("age_str", FieldTransform.TypeCoercion("number"), SchemaType.NUMBER),
-                activeKey to ResolvedFieldMapping("active_str", FieldTransform.TypeCoercion("boolean"), SchemaType.CHECKBOX)
+                ageKey to ResolvedFieldMapping("age_str", FieldTransform.TypeCoercion(CoercionType.NUMBER), SchemaType.NUMBER),
+                activeKey to ResolvedFieldMapping("active_str", FieldTransform.TypeCoercion(CoercionType.BOOLEAN), SchemaType.CHECKBOX)
             )
 
             val result = schemaMappingService.mapPayload(payload, fieldMappings, defaultKeyMapping)

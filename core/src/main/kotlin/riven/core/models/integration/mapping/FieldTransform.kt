@@ -3,6 +3,7 @@ package riven.core.models.integration.mapping
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
+import riven.core.enums.integration.CoercionType
 
 /**
  * Sealed class hierarchy representing field transformation strategies for integration mappings.
@@ -22,9 +23,9 @@ sealed class FieldTransform {
     @JsonTypeName("direct")
     data object Direct : FieldTransform()
 
-    /** Coerce the source value to a target type (e.g. "number", "boolean", "date", "datetime", "string"). */
+    /** Coerce the source value to a primitive target type. */
     @JsonTypeName("type_coercion")
-    data class TypeCoercion(val targetType: String) : FieldTransform()
+    data class TypeCoercion(val targetType: CoercionType) : FieldTransform()
 
     /** Use a fallback value when the source field is missing or null. */
     @JsonTypeName("default_value")

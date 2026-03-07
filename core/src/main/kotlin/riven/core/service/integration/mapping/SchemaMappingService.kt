@@ -2,6 +2,7 @@ package riven.core.service.integration.mapping
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
+import riven.core.enums.integration.CoercionType
 import riven.core.models.entity.payload.EntityAttributePrimitivePayload
 import riven.core.models.integration.mapping.FieldCoverage
 import riven.core.models.integration.mapping.FieldTransform
@@ -189,21 +190,30 @@ class SchemaMappingService(
     }
 
     /**
-     * Coerces a value to the specified target type (number, boolean, date, datetime).
+     * Coerces a value to the specified target type.
      *
      * @throws TransformException if the coercion fails
      */
-    private fun coerceType(value: Any?, targetType: String): Any {
+    private fun coerceType(value: Any?, targetType: CoercionType): Any {
         if (value == null) {
             throw TransformException("type_coercion", "Cannot coerce null value to $targetType")
         }
 
         return when (targetType) {
-            "number" -> coerceToNumber(value)
-            "boolean" -> coerceToBoolean(value)
-            "date" -> coerceToDate(value)
-            "datetime" -> coerceToDatetime(value)
-            else -> throw TransformException("type_coercion", "Unsupported target type: $targetType")
+            CoercionType.STRING -> coerceToString(value)
+            CoercionType.NUMBER -> coerceToNumber(value)
+            CoercionType.BOOLEAN -> coerceToBoolean(value)
+            CoercionType.DATE -> coerceToDate(value)
+            CoercionType.DATETIME -> coerceToDatetime(value)
+        }
+    }
+
+    private fun coerceToString(value: Any): Any {
+        return when (value) {
+            is String -> value
+            is Boolean -> value.toString()
+            is Number -> value.toString()
+            else -> throw TransformException("type_coercion", "Cannot convert ${value::class.simpleName} to string")
         }
     }
 

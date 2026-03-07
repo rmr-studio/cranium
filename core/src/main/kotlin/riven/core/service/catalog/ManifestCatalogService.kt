@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service
 import riven.core.enums.catalog.ManifestType
 import riven.core.exceptions.NotFoundException
 import riven.core.models.catalog.CatalogEntityTypeModel
+import riven.core.models.catalog.BundleDetail
 import riven.core.models.catalog.ManifestDetail
 import riven.core.models.catalog.ManifestSummary
 import riven.core.repository.catalog.*
@@ -41,6 +42,23 @@ class ManifestCatalogService(
      */
     fun getAvailableModels(): List<ManifestSummary> =
         getManifestSummaries(ManifestType.MODEL)
+
+    /** Returns all non-stale bundle manifests with their template key lists. */
+    fun getAvailableBundles(): List<BundleDetail> {
+        val manifests = manifestCatalogRepository.findByManifestTypeAndStaleFalse(ManifestType.BUNDLE)
+        return manifests.map { it.toBundleDetail() }
+    }
+
+    /**
+     * Returns a bundle detail by key.
+     *
+     * @throws NotFoundException if the bundle key doesn't exist or is stale
+     */
+    fun getBundleByKey(key: String): BundleDetail {
+        val catalog = manifestCatalogRepository.findByKeyAndManifestTypeAndStaleFalse(key, ManifestType.BUNDLE)
+            ?: throw NotFoundException("Bundle not found: $key")
+        return catalog.toBundleDetail()
+    }
 
     /**
      * Returns a fully hydrated manifest detail including entity types (with semantic metadata),

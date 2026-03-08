@@ -199,6 +199,8 @@ Include the Full vs Quick template rationale for each: Full when 5+ public metho
 
 After writing the plan, call `ExitPlanMode` for user approval. Do NOT proceed to Step 6 until the user has approved the plan.
 
+**CRITICAL:** Once the user approves the plan, proceed DIRECTLY to Step 6 below. Do NOT re-invoke this skill, do NOT re-enter plan mode, and do NOT restart from Step 1. The plan is already complete — execute it.
+
 **Note:** `AskUserQuestion` remains available for mid-analysis clarifications during Steps 2–4 (e.g., ambiguous domain mapping, unclear subdomain boundaries). It is NOT used for plan/manifest approval — that is handled by `ExitPlanMode`.
 
 ## Step 6: Generate/Update Documentation

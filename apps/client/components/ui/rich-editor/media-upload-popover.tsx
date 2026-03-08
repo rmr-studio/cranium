@@ -1,10 +1,10 @@
 'use client';
 
-import React from 'react';
 import { Image as ImageIcon, ImagePlus, LayoutGrid, Video } from 'lucide-react';
+import React from 'react';
 
-import { Button } from '../button';
-import { Popover, PopoverContent, PopoverTrigger } from '../popover';
+import { Button } from '@riven/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
 
 interface MediaUploadPopoverProps {
   isUploading: boolean;

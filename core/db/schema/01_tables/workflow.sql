@@ -1,4 +1,3 @@
-DROP TABLE IF EXISTS "workflow_definitions" CASCADE;
 CREATE TABLE IF NOT EXISTS "workflow_definitions"
 (
     "id"                UUID PRIMARY KEY                NOT NULL DEFAULT uuid_generate_v4(),
@@ -18,7 +17,6 @@ CREATE TABLE IF NOT EXISTS "workflow_definitions"
     "deleted_at"        TIMESTAMPTZ
 );
 
-DROP TABLE IF EXISTS "workflow_definition_versions" CASCADE;
 CREATE TABLE IF NOT EXISTS "workflow_definition_versions"
 (
     "id"                     UUID PRIMARY KEY                          NOT NULL DEFAULT uuid_generate_v4(),
@@ -37,7 +35,6 @@ CREATE TABLE IF NOT EXISTS "workflow_definition_versions"
 
 
 
-DROP TABLE IF EXISTS "workflow_nodes" CASCADE;
 CREATE TABLE IF NOT EXISTS "workflow_nodes"
 (
     "id"           UUID PRIMARY KEY                NOT NULL DEFAULT uuid_generate_v4(),
@@ -59,7 +56,6 @@ CREATE TABLE IF NOT EXISTS "workflow_nodes"
 );
 
 
-DROP TABLE IF EXISTS "workflow_edges" CASCADE;
 CREATE TABLE IF NOT EXISTS "workflow_edges"
 (
     "id"             UUID PRIMARY KEY                    NOT NULL DEFAULT uuid_generate_v4(),
@@ -71,7 +67,6 @@ CREATE TABLE IF NOT EXISTS "workflow_edges"
     "deleted_at"     TIMESTAMPTZ
 );
 
-DROP TABLE IF EXISTS "workflow_executions" CASCADE;
 CREATE TABLE IF NOT EXISTS "workflow_executions"
 (
     "id"                             UUID PRIMARY KEY                                  NOT NULL DEFAULT uuid_generate_v4(),
@@ -88,7 +83,6 @@ CREATE TABLE IF NOT EXISTS "workflow_executions"
     "output"                         JSONB
 );
 
-DROP TABLE IF EXISTS "workflow_execution_queue" CASCADE;
 CREATE TABLE IF NOT EXISTS "workflow_execution_queue"
 (
     "id"                     UUID PRIMARY KEY                                            NOT NULL DEFAULT uuid_generate_v4(),
@@ -106,7 +100,6 @@ CREATE TABLE IF NOT EXISTS "workflow_execution_queue"
 
 -- Tracks each workflow node execution during a workflow run.
 -- Stores input/output payloads per node execution.
-DROP TABLE IF EXISTS "workflow_node_executions" CASCADE;
 CREATE TABLE IF NOT EXISTS "workflow_node_executions"
 (
     "id"                    UUID PRIMARY KEY                         NOT NULL DEFAULT uuid_generate_v4(),
@@ -126,14 +119,12 @@ CREATE TABLE IF NOT EXISTS "workflow_node_executions"
 
 
 -- Stores serialized execution context snapshots.
-DROP TABLE IF EXISTS "workflow_execution_context" CASCADE;
 CREATE TABLE IF NOT EXISTS "workflow_execution_context"
 (
 );
 
 -- Tracks execution of each node during a workflow run.
 -- Stores input/output payloads per node execution.
-DROP TABLE IF EXISTS "workflow_node_context" CASCADE;
 CREATE TABLE IF NOT EXISTS "workflow_node_context"
 (
 );

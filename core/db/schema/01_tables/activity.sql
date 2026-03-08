@@ -1,7 +1,6 @@
 -- =====================================================
 -- ACTIVITY LOGS TABLE
 -- =====================================================
-DROP TABLE IF EXISTS "activity_logs" CASCADE;
 CREATE TABLE IF NOT EXISTS "activity_logs"
 (
     "id"           UUID PRIMARY KEY         NOT NULL DEFAULT uuid_generate_v4(),

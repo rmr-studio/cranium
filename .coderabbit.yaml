@@ -1,7 +1,296 @@
-path_filters:
-  - "!docs/**"
-  - "!**/*.md"
-  - "!**/*.mdx"
-  - "!.planning/**"
-  - "!**/.planning/**"
-  - "!apps/client/lib/types/**"
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: "en-US"
+
+reviews:
+  profile: "assertive"
+  poem: false
+  request_changes_workflow: true
+  high_level_summary: true
+  collapse_walkthrough: true
+
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    drafts: false
+    ignore_usernames:
+      - dependabot
+      - "dependabot[bot]"
+
+  path_filters:
+    - "!docs/**"
+    - "!.planning/**"
+    - "!**/.planning/**"
+    - "!**/dist/**"
+    - "!**/build/**"
+    - "!**/.gradle/**"
+    - "!**/out/**"
+    - "!**/generated/**"
+    - "!**/node_modules/**"
+    - "!**/*.lock"
+    - "!**/pnpm-lock.yaml"
+    - "!**/package-lock.json"
+    # Exclude generated OpenAPI types — these are machine-generated, not hand-written
+    - "!apps/client/lib/types/apis/**"
+    - "!apps/client/lib/types/models/**"
+    - "!apps/client/lib/types/runtime.ts"
+
+  # ---------------------------------------------------------------------------
+  # Next.js — apps/client (primary frontend)
+  # ---------------------------------------------------------------------------
+  path_instructions:
+    - path: "apps/client/**"
+      instructions: |
+        This is a Next.js 15 (App Router) + React 19 + TypeScript strict frontend.
+        UI: shadcn/ui (new-york style) + Tailwind 4 + Framer Motion.
+        State: TanStack Query for server state, Zustand for client state.
+        Auth: Supabase via adapter pattern. No Next.js middleware for auth.
+
+        Review against these project standards (from CLAUDE.md):
+
+        Architecture:
+        - Pages must be server components that import a single client feature component.
+        - Feature code lives in components/feature-modules/{feature}/ with subdirs: components/, hooks/query/, hooks/mutation/, hooks/form/, service/, store/, context/.
+        - Shared UI in components/ui/. Shared hooks in hooks/. Shared utils in lib/util/.
+        - Import path alias @/* maps to project root. No barrel exports at feature-module level.
+        - Import generated types from domain barrels (@/lib/types/entity), never from @/lib/types/models/ directly.
+
+        Data fetching:
+        - Query hooks co-located with features in hooks/query/. Naming: use{Entity} or use{Entity}s — no get/fetch/Query suffix.
+        - Mutations in hooks/mutation/. Pattern: useSave{Entity}Mutation, useDelete{Entity}Mutation.
+        - Mutations must use toast.loading() on mutate, toast.success()/toast.error() on settle.
+        - Auth-gated queries use enabled: !!session && !!requiredParam && !loading.
+
+        Zustand:
+        - Do not create new stores without discussion. Use selectors — never subscribe to entire stores.
+        - Pattern: separate State and Actions interfaces, factory createXxxStore(), context provider, useXxxStore(selector) hook.
+
+        Styling:
+        - Tailwind only, no CSS modules. Use cn() for conditional classes.
+        - Never use arbitrary values (text-[11px], w-[200px]) when a standard Tailwind class exists.
+        - All new files must be kebab-case. Flag any PascalCase new files.
+
+        Do-not-do list (flag violations):
+        - No direct fetch() in components — use generated API client via service classes + TanStack Query hooks.
+        - No new UI component libraries — use shadcn and extend with variants.
+        - No API URLs or keys directly in components — use NEXT_PUBLIC_* env vars.
+        - No skipping loading/error states when using query hooks.
+        - No use of `any` — extend types in domain type files if generated types are incomplete.
+        - No global CSS outside globals.css theme variables.
+        - No importing from @/lib/types/models/ directly.
+        - No creating API instances outside lib/api/ factory functions.
+        - No bypassing the service layer — components use hooks, not services directly.
+
+        Testing:
+        - Every new Zustand store, zod schema, or service function must ship with tests.
+        - Every bug fix must include a regression test.
+        - Test files co-located with source, not in a separate __tests__ tree.
+        - No snapshot tests.
+
+    - path: "apps/client/app/**"
+      instructions: |
+        App Router conventions:
+        - Flat route structure. Dynamic segments use [workspaceId], [key], [workflowId].
+        - No route groups (groupName), no parallel routes, no intercepting routes.
+        - Pages are thin server component wrappers that render a single client feature component.
+        - If a page has "use client" at page level, flag it — pages should be server components.
+
+    - path: "apps/client/components/ui/**"
+      instructions: |
+        These are shadcn/ui components (new-york style). Review for:
+        - Modifications should be minimal and additive (e.g. new size variants).
+        - Do not introduce new dependencies or fundamentally change component behavior.
+        - New files must be kebab-case.
+
+    - path: "apps/client/components/feature-modules/**"
+      instructions: |
+        Feature modules follow this structure:
+        - components/ — UI components for this feature
+        - hooks/query/ — TanStack Query hooks (use{Entity}, use{Entity}s)
+        - hooks/mutation/ — Mutation hooks (useSave{Entity}Mutation, useDelete{Entity}Mutation)
+        - hooks/form/ — Form hooks with zod schemas
+        - service/ — API service functions using generated client
+        - store/ — Zustand store (if needed)
+        - context/ — React context (if needed)
+
+        Flag any code that breaks this organization pattern.
+
+    - path: "apps/client/**/*.test.*"
+      instructions: |
+        Test-specific standards:
+        - Use describe blocks named after the function/store under test.
+        - Keep test setup minimal — flag tests needing 30+ lines of setup.
+        - Follow Arrange-Act-Assert pattern.
+        - No snapshot tests.
+        - Tests co-located with source files.
+
+    # ---------------------------------------------------------------------------
+    # Next.js — apps/web (secondary frontend)
+    # ---------------------------------------------------------------------------
+    - path: "apps/web/**"
+      instructions: |
+        This is a Next.js frontend application. Review for:
+        - Next.js App Router best practices and conventions.
+        - TypeScript strict mode compliance.
+        - Proper server/client component boundaries.
+        - Tailwind CSS usage — prefer utility classes over arbitrary values.
+        - No hardcoded secrets or API keys in source.
+        - Kebab-case file naming.
+        - Proper error and loading state handling.
+
+    # ---------------------------------------------------------------------------
+    # Kotlin / Spring Boot — core/
+    # ---------------------------------------------------------------------------
+    - path: "core/**/*.kt"
+      instructions: |
+        This is a Spring Boot 3 + Kotlin 2 backend (Java 21, PostgreSQL, Supabase auth, Temporal workflows).
+        Review against these project standards (from CLAUDE.md):
+
+        Architecture:
+        - Layered: Controller -> Service -> Repository, with separate Entity (JPA) and Model (domain) layers.
+        - Package structure: riven.core.{layer}.{domain} — e.g. controller.entity, service.entity.
+        - Controllers are thin — delegate to services and return ResponseEntity. No business logic in controllers.
+        - Security via @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)") on SERVICE methods, not controllers.
+        - All routes prefixed with /api/v1/.
+
+        Coding standards:
+        - Constructor injection ONLY. No field-level @Autowired. KLogger injected via constructor (not companion object).
+        - Data classes for JPA entities, domain models, DTOs, request/response objects.
+        - Entity-to-model mapping via toModel() on the JPA entity. No MapStruct or separate mappers.
+        - Repository lookups: ServiceUtil.findOrThrow { repository.findById(id) } — throws NotFoundException.
+        - Use require()/requireNotNull() for argument validation in services.
+        - Throw domain exceptions (NotFoundException, ConflictException, SchemaValidationException) — never catch-and-swallow.
+        - UUID everywhere for primary keys with GenerationType.UUID.
+        - JSONB via Hypersistence @Type(JsonBinaryType::class).
+        - Soft delete via SoftDeletable for user-facing entities. System-managed entities do NOT use soft delete.
+
+        Service design:
+        - One responsibility per service, split by sub-domain. No god services.
+        - Target ~40 lines per function. Flag functions >50 lines — extract named private methods.
+        - Retrieve userId as val at top of function: val userId = authTokenService.getUserId(). No .let wrapping.
+        - Prefer plain val assignment over scope function chains when readability is equal.
+        - Use exceptions for errors, not response-object flags.
+        - @PreAuthorize on every service method accessing workspace-scoped data.
+        - Log activity for all create, update, delete mutations via activityService.logActivity().
+
+        KDoc:
+        - Always add KDoc on public service methods (at minimum one-line description).
+        - No KDoc on controllers — @Operation annotation serves that purpose.
+
+        Kotlin idioms:
+        - Prefer val over var, use immutable collections.
+        - Use sealed classes for restricted hierarchies.
+        - Nullable types (T?) instead of Optional<T> (except JPA repository returns).
+        - Proper coroutine scope and dispatcher usage if applicable.
+        - No hardcoded secrets or credentials.
+
+        Flag these known anti-patterns:
+        - Companion object loggers (should be constructor-injected KLogger).
+        - Inline "// PHASE 1:" comments in long functions (should be extracted to named methods).
+        - userId wrapped in .let block (should be val assignment).
+        - Duplicate @PreAuthorize + inline workspace checks (only need inline when query doesn't filter by workspace).
+
+    - path: "core/**/*.kts"
+      instructions: |
+        Kotlin build scripts. Review for:
+        - No deprecated jcenter() repository — use mavenCentral().
+        - Check for outdated dependencies with known vulnerabilities.
+        - Prefer version catalogs over hardcoded version strings.
+        - No deprecated Gradle APIs.
+        - No hardcoded secrets or credentials.
+
+    - path: "core/**/controller/**/*.kt"
+      instructions: |
+        Controller standards:
+        - Controllers must be thin — delegate to services and return ResponseEntity.
+        - No business logic, validation logic, or access control in controllers.
+        - Must have @Tag(name = "domain") at class level.
+        - Must have @Operation and @ApiResponses on all endpoints.
+        - No @Valid inconsistency — always use @Valid on @RequestBody with validation annotations.
+        - No KDoc — use @Operation annotation instead.
+        - Let @ControllerAdvice handle all exception-to-response mapping.
+        - All routes prefixed with /api/v1/.
+
+    - path: "core/**/service/**/*.kt"
+      instructions: |
+        Service standards:
+        - Constructor injection only.
+        - KLogger injected via constructor, not companion object.
+        - @PreAuthorize on every method accessing workspace-scoped data.
+        - @Transactional when performing multiple writes.
+        - Activity logging for all mutations.
+        - Domain exceptions for errors — no catch-and-swallow, no response-object error flags.
+        - Functions should be ~40 lines max. Flag >50 line functions.
+        - Organize with // ------ Section Name ------ comment blocks.
+        - Public method should tell the story; private methods do the work.
+        - val userId = authTokenService.getUserId() at top — no .let wrapping.
+
+    - path: "core/**/repository/**/*.kt"
+      instructions: |
+        Repository standards:
+        - Prefer JPQL @Query for all queries. Native SQL only when JPQL is insufficient.
+        - Do NOT add "AND deleted = false" to queries — @SQLRestriction handles it automatically for soft-deletable entities.
+        - Optional<T> is acceptable for JPA return types (exception to the T? preference).
+
+    - path: "core/**/entity/**/*.kt"
+      instructions: |
+        JPA entity standards:
+        - Data classes with @Entity, @Table(name = "snake_case").
+        - User-facing entities extend AuditableEntity and implement SoftDeletable.
+        - System-managed entities do NOT extend AuditableEntity or implement SoftDeletable.
+        - UUID primary keys with @GeneratedValue(strategy = GenerationType.UUID).
+        - @Column(name = "snake_case") for all columns.
+        - JSONB columns use @Type(JsonBinaryType::class) with columnDefinition = "jsonb".
+        - Must have toModel() method for entity-to-domain mapping.
+
+    - path: "core/**/test/**/*.kt"
+      instructions: |
+        Test standards:
+        - JUnit 5 + mockito-kotlin. Prefer whenever()/verify() over Mockito.when()/Mockito.verify().
+        - @SpringBootTest with targeted classes = [...]. Mock dependencies with @MockitoBean.
+        - Use @WithUserPersona for security context setup.
+        - Use factory classes from service/util/factory/ for test data.
+        - Must test: @PreAuthorize methods (access control), validation logic, entity-to-model mappings, custom queries.
+        - Every bug fix must include a regression test.
+
+    - path: "core/db/schema/**/*.sql"
+      instructions: |
+        Schema file standards:
+        - Schema files are DECLARATIVE, not incremental. No migration scripts.
+        - Each file represents current desired state. Edit originals when tables change.
+        - Organized by numbered directories (00_extensions through 09_grants).
+        - Understand full execution order before modifying any file.
+        - Never create standalone migration scripts — there is no migration tooling.
+
+    # ---------------------------------------------------------------------------
+    # Infrastructure & config
+    # ---------------------------------------------------------------------------
+    - path: "**/Dockerfile"
+      instructions: |
+        Review for:
+        - Multi-stage builds for smaller images.
+        - No secrets or credentials baked into the image.
+        - Proper .dockerignore usage.
+        - Appropriate base image versions.
+
+    - path: "**/.github/**"
+      instructions: |
+        Review for:
+        - No hardcoded secrets — use GitHub secrets/variables.
+        - Proper permissions scoping.
+        - Correct trigger conditions.
+
+  tools:
+    # Kotlin static analysis
+    detekt:
+      enabled: true
+
+    # Secret scanning
+    gitleaks:
+      enabled: true
+
+    # JavaScript/TypeScript linting
+    biome:
+      enabled: true
+
+    eslint:
+      enabled: true

@@ -3,8 +3,8 @@
 import { useRef, useState } from 'react';
 import { Palette } from 'lucide-react';
 
-import { Button } from '../button';
-import { Popover, PopoverContent, PopoverTrigger } from '../popover';
+import { Button } from '@riven/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../tabs';
 import {
   ColorPickerAlpha,

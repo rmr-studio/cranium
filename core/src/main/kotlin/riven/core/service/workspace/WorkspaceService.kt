@@ -22,7 +22,9 @@ import riven.core.models.analytics.WorkspaceUpdatedEvent
 import riven.core.models.common.markDeleted
 import riven.core.service.activity.ActivityService
 import riven.core.service.activity.log
+import riven.core.enums.storage.StorageDomain
 import riven.core.service.auth.AuthTokenService
+import riven.core.service.storage.StorageService
 import riven.core.service.user.UserService
 import riven.core.util.ServiceUtil.findOrThrow
 import java.util.*
@@ -35,7 +37,8 @@ class WorkspaceService(
     private val logger: KLogger,
     private val authTokenService: AuthTokenService,
     private val activityService: ActivityService,
-    private val applicationEventPublisher: ApplicationEventPublisher
+    private val applicationEventPublisher: ApplicationEventPublisher,
+    private val storageService: StorageService
 ) {
     /**
      * Retrieve an workspace by its ID, optionally including metadata.
@@ -90,11 +93,6 @@ class WorkspaceService(
                 }
             }
 
-            // Handle avatar upload and avatarUrl storage, if a file is provided
-            avatar?.let {
-                TODO()
-            }
-
             workspaceRepository.save(entity).run {
                 val id = requireNotNull(this.id) { "WorkspaceEntity must have a non-null id after save" }
                 // Log the activity of creating an workspace
@@ -118,6 +116,13 @@ class WorkspaceService(
                     ).run {
                         workspaceMemberRepository.save(this)
                     }
+                }
+
+                // Upload avatar after save + member creation so workspace ID exists and @PreAuthorize passes
+                avatar?.let { file ->
+                    val uploadResponse = storageService.uploadFile(id, StorageDomain.AVATAR, file)
+                    this.avatarUrl = uploadResponse.file.storageKey
+                    workspaceRepository.save(this)
                 }
 
                 // Publish analytics event after membership is persisted so memberCount is accurate

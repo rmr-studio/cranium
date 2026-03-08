@@ -2,8 +2,6 @@
 -- USERS TABLE
 -- =====================================================
 
-DROP TABLE IF EXISTS "users" CASCADE;
-
 CREATE TABLE IF NOT EXISTS "users"
 (
     "id"                   UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),

@@ -214,6 +214,11 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
      */
     @Query(
         value = """
+            WITH target_info AS (
+                SELECT e.type_id, et.semantic_group
+                FROM entities e JOIN entity_types et ON et.id = e.type_id
+                WHERE e.id = :targetId
+            )
             SELECT DISTINCT
                 e.id as id,
                 e.workspace_id as workspaceId,
@@ -230,15 +235,19 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
             JOIN entities e ON r.source_entity_id = e.id
             JOIN relationship_definitions rd ON r.relationship_definition_id = rd.id AND rd.deleted = false
             LEFT JOIN relationship_target_rules rtr ON rtr.relationship_definition_id = r.relationship_definition_id
+            LEFT JOIN target_info ti ON true
             WHERE r.target_entity_id = :targetId
             AND (
-                rtr.target_entity_type_id = (SELECT type_id FROM entities WHERE id = :targetId)
+                rtr.target_entity_type_id = ti.type_id
+                OR (rtr.semantic_type_constraint IS NOT NULL
+                    AND rtr.semantic_type_constraint = ti.semantic_group
+                    AND ti.semantic_group <> 'UNCATEGORIZED')
                 OR rd.system_type = :systemType
             )
             AND NOT EXISTS (
                 SELECT 1 FROM relationship_definition_exclusions rde
                 WHERE rde.relationship_definition_id = r.relationship_definition_id
-                AND rde.entity_type_id = (SELECT type_id FROM entities WHERE id = :targetId)
+                AND rde.entity_type_id = ti.type_id
             )
             AND r.deleted = false
             AND e.deleted = false
@@ -270,9 +279,13 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
             JOIN relationship_definitions rd ON r.relationship_definition_id = rd.id AND rd.deleted = false
             LEFT JOIN relationship_target_rules rtr ON rtr.relationship_definition_id = r.relationship_definition_id
             JOIN entities target_e ON r.target_entity_id = target_e.id
+            JOIN entity_types target_et ON target_e.type_id = target_et.id
             WHERE r.target_entity_id = ANY(:ids)
             AND (
                 rtr.target_entity_type_id = target_e.type_id
+                OR (rtr.semantic_type_constraint IS NOT NULL
+                    AND rtr.semantic_type_constraint = target_et.semantic_group
+                    AND target_et.semantic_group <> 'UNCATEGORIZED')
                 OR rd.system_type = :systemType
             )
             AND NOT EXISTS (

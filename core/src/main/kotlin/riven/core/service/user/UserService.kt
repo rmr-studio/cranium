@@ -4,13 +4,16 @@ import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.multipart.MultipartFile
 import riven.core.entity.user.UserEntity
+import riven.core.enums.storage.StorageDomain
 import riven.core.exceptions.NotFoundException
 import riven.core.models.user.User
 import riven.core.projection.user.toWorkspaceMember
 import riven.core.repository.user.UserRepository
 import riven.core.repository.workspace.WorkspaceRepository
 import riven.core.service.auth.AuthTokenService
+import riven.core.service.storage.StorageService
 import riven.core.util.ServiceUtil.findOrThrow
 import java.util.*
 
@@ -19,6 +22,7 @@ class UserService(
     private val repository: UserRepository,
     private val workspaceRepository: WorkspaceRepository,
     private val authTokenService: AuthTokenService,
+    private val storageService: StorageService,
     private val logger: KLogger
 ) {
 
@@ -109,15 +113,13 @@ class UserService(
      * @throws IllegalArgumentException for invalid arguments propagated from repository operations.
      */
     @Throws(NotFoundException::class, IllegalArgumentException::class)
-    fun updateUserDetails(user: User): User {
-        // Validate Session id matches target user
-        authTokenService.getUserId().run {
-            if (this != user.id) {
-                throw AccessDeniedException("Session user ID does not match provided user ID")
-            }
+    fun updateUserDetails(user: User, avatar: MultipartFile? = null): User {
+        val sessionUserId = authTokenService.getUserId()
+        if (sessionUserId != user.id) {
+            throw AccessDeniedException("Session user ID does not match provided user ID")
         }
 
-        findOrThrow { repository.findById(user.id) }.apply {
+        val entity = findOrThrow { repository.findById(user.id) }.apply {
             name = user.name
             email = user.email
             phone = user.phone
@@ -127,11 +129,15 @@ class UserService(
             defaultWorkspace = user.defaultWorkspace?.id?.let { workspaceId ->
                 findOrThrow { workspaceRepository.findById(workspaceId) }
             }
-        }.run {
-            repository.save(this)
-            logger.info { "Updated user profile with ID: ${this.id}" }
-            return this.toModel()
         }
+
+        avatar?.let { file ->
+            entity.avatarUrl = storageService.uploadUserFile(sessionUserId, StorageDomain.AVATAR, file)
+        }
+
+        repository.save(entity)
+        logger.info { "Updated user profile with ID: ${entity.id}" }
+        return entity.toModel()
     }
 
     /**

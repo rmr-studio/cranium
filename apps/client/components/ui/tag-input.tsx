@@ -1,17 +1,11 @@
 'use client';
 
-import * as React from 'react';
 import { Badge } from '@/components/ui/badge';
-import {
-  Command,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/util/utils';
+import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from '@riven/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
 import { Plus, X } from 'lucide-react';
+import * as React from 'react';
 
 interface TagInputProps {
   value: string[];
@@ -74,11 +68,7 @@ function TagInput({
             <span className="text-sm text-muted-foreground">{placeholder}</span>
           )}
           {visibleTags.map((tag) => (
-            <Badge
-              key={tag}
-              variant="secondary"
-              className="gap-1 py-0.5 pr-1 pl-2 text-xs"
-            >
+            <Badge key={tag} variant="secondary" className="gap-1 py-0.5 pr-1 pl-2 text-xs">
               {tag}
               <span
                 role="button"
@@ -146,7 +136,10 @@ function TagInput({
             {value.length > 0 && (
               <CommandGroup heading="Tags">
                 {value
-                  .filter((tag) => !trimmedInput || tag.toLowerCase().includes(trimmedInput.toLowerCase()))
+                  .filter(
+                    (tag) =>
+                      !trimmedInput || tag.toLowerCase().includes(trimmedInput.toLowerCase()),
+                  )
                   .map((tag) => (
                     <CommandItem
                       key={tag}

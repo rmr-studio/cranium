@@ -75,7 +75,7 @@ class ManifestUpsertService(
         val contentHash = computeBundleContentHash(resolved)
         val existing = manifestCatalogRepository.findByKeyAndManifestType(resolved.key, ManifestType.BUNDLE)
 
-        if (existing != null && contentHash == existing.contentHash) {
+        if (existing != null && contentHash == existing.contentHash && existing.stale == resolved.stale) {
             existing.lastLoadedAt = ZonedDateTime.now()
             manifestCatalogRepository.save(existing)
             return

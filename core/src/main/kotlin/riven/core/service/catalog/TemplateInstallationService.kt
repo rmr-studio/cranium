@@ -29,6 +29,8 @@ import riven.core.models.response.catalog.CreatedEntityTypeSummary
 import riven.core.models.response.catalog.TemplateInstallationResponse
 import riven.core.entity.catalog.WorkspaceTemplateInstallationEntity
 import riven.core.repository.catalog.WorkspaceTemplateInstallationRepository
+import org.springframework.dao.DataIntegrityViolationException
+import riven.core.exceptions.ConflictException
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.activity.log
@@ -120,6 +122,7 @@ class TemplateInstallationService(
         }
 
         val allEntityTypes = mergeAndDeduplicateEntityTypes(manifests)
+            .filter { it.key !in skippedEntityIdMap }
         val creationResults = createEntityTypes(workspaceId, allEntityTypes)
         val mergedIdMap = creationResults + skippedEntityIdMap
 
@@ -131,8 +134,11 @@ class TemplateInstallationService(
 
         applySemanticMetadata(workspaceId, allEntityTypes, creationResults)
 
+        val manifestsByKey = manifests.associateBy { it.key }
         for (templateKey in templatesToInstall) {
-            recordTemplateInstallation(workspaceId, templateKey, userId, mergedIdMap)
+            val templateEntityKeys = manifestsByKey[templateKey]?.entityTypes?.map { it.key }?.toSet() ?: emptySet()
+            val templateScopedMappings = mergedIdMap.filterKeys { it in templateEntityKeys }
+            recordTemplateInstallation(workspaceId, templateKey, userId, templateScopedMappings)
         }
 
         logBundleActivity(userId, workspaceId, bundleKey, bundle, creationResults, templatesToInstall, templatesToSkip)
@@ -209,30 +215,10 @@ class TemplateInstallationService(
         workspaceId: UUID,
         catalogType: CatalogEntityTypeModel,
     ): Pair<EntityTypeEntity, Map<String, UUID>> {
-        val attributeKeyMap = mutableMapOf<String, UUID>()
-        val properties = mutableMapOf<UUID, Schema<UUID>>()
-        val columns = mutableListOf<EntityTypeAttributeColumn>()
+        val (properties, columns, attributeKeyMap) = buildAttributeSchema(catalogType)
 
-        for ((attrKey, attrDefRaw) in catalogType.schema) {
-            @Suppress("UNCHECKED_CAST")
-            val attrDef = attrDefRaw as Map<String, Any>
-            val attrId = UUID.randomUUID()
-            attributeKeyMap[attrKey] = attrId
-
-            val isIdentifier = catalogType.identifierKey == attrKey
-
-            properties[attrId] = Schema(
-                key = SchemaType.valueOf(attrDef["key"] as String),
-                type = parseDataType(attrDef["type"] as String),
-                label = attrDef["label"] as? String,
-                format = parseDataFormat(attrDef["format"] as? String),
-                required = attrDef["required"] as? Boolean ?: false,
-                unique = attrDef["unique"] as? Boolean ?: false,
-                protected = isIdentifier || (attrDef["protected"] as? Boolean ?: false),
-                options = parseSchemaOptions(attrDef["options"]),
-            )
-
-            columns.add(EntityTypeAttributeColumn(key = attrId, type = EntityPropertyType.ATTRIBUTE))
+        require(catalogType.identifierKey == null || catalogType.identifierKey in attributeKeyMap) {
+            "identifierKey '${catalogType.identifierKey}' not found in schema attributes for entity type '${catalogType.key}'"
         }
 
         val identifierKey = catalogType.identifierKey?.let { attributeKeyMap[it] }
@@ -259,6 +245,41 @@ class TemplateInstallationService(
         )
 
         return entity to attributeKeyMap
+    }
+
+    /**
+     * Translates a catalog entity type's string-keyed schema into UUID-keyed properties and columns.
+     */
+    private fun buildAttributeSchema(
+        catalogType: CatalogEntityTypeModel,
+    ): Triple<Map<UUID, Schema<UUID>>, List<EntityTypeAttributeColumn>, Map<String, UUID>> {
+        val attributeKeyMap = mutableMapOf<String, UUID>()
+        val properties = mutableMapOf<UUID, Schema<UUID>>()
+        val columns = mutableListOf<EntityTypeAttributeColumn>()
+
+        for ((attrKey, attrDefRaw) in catalogType.schema) {
+            @Suppress("UNCHECKED_CAST")
+            val attrDef = attrDefRaw as Map<String, Any>
+            val attrId = UUID.randomUUID()
+            attributeKeyMap[attrKey] = attrId
+
+            val isIdentifier = catalogType.identifierKey == attrKey
+
+            properties[attrId] = Schema(
+                key = SchemaType.valueOf(attrDef["key"] as String),
+                type = parseDataType(attrDef["type"] as String),
+                label = attrDef["label"] as? String,
+                format = parseDataFormat(attrDef["format"] as? String),
+                required = attrDef["required"] as? Boolean ?: false,
+                unique = attrDef["unique"] as? Boolean ?: false,
+                protected = isIdentifier || (attrDef["protected"] as? Boolean ?: false),
+                options = parseSchemaOptions(attrDef["options"]),
+            )
+
+            columns.add(EntityTypeAttributeColumn(key = attrId, type = EntityPropertyType.ATTRIBUTE))
+        }
+
+        return Triple(properties, columns, attributeKeyMap)
     }
 
     // ------ Relationship Creation ------
@@ -512,14 +533,18 @@ class TemplateInstallationService(
             result.attributeKeyMap as Any
         }
 
-        installationRepository.save(
-            WorkspaceTemplateInstallationEntity(
-                workspaceId = workspaceId,
-                manifestKey = templateKey,
-                installedBy = userId,
-                attributeMappings = attributeMappings,
+        try {
+            installationRepository.save(
+                WorkspaceTemplateInstallationEntity(
+                    workspaceId = workspaceId,
+                    manifestKey = templateKey,
+                    installedBy = userId,
+                    attributeMappings = attributeMappings,
+                )
             )
-        )
+        } catch (e: DataIntegrityViolationException) {
+            throw ConflictException("Template '$templateKey' is already installed in workspace $workspaceId")
+        }
     }
 
     private fun logBundleActivity(

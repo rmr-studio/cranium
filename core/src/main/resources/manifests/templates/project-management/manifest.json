@@ -477,7 +477,7 @@
         }
       ],
       "semantics": {
-        "definition": "A client commissions one or more projects that define the scoped work to be delivered.",
+        "definition": "A client commissions one or more projects that define the scoped work to be delivered. The customer entity type is provided by the CRM template (cross-template dependency resolved at bundle installation).",
         "tags": ["engagement", "delivery"]
       }
     },

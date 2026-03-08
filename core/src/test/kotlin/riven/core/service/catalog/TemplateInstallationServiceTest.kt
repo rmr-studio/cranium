@@ -1,13 +1,15 @@
 package riven.core.service.catalog
 
-import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.*
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.bean.override.mockito.MockitoBean
+import riven.core.configuration.auth.WorkspaceSecurity
 import riven.core.entity.entity.EntityTypeEntity
-import riven.core.entity.entity.RelationshipDefinitionEntity
 import riven.core.enums.catalog.ManifestType
 import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
@@ -17,7 +19,6 @@ import riven.core.enums.core.DataType
 import riven.core.enums.entity.EntityPropertyType
 import riven.core.enums.entity.EntityRelationshipCardinality
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.exceptions.NotFoundException
 import riven.core.models.catalog.*
@@ -32,46 +33,39 @@ import riven.core.service.activity.ActivityService
 import riven.core.service.auth.AuthTokenService
 import riven.core.service.entity.EntityTypeSemanticMetadataService
 import riven.core.service.entity.type.EntityTypeRelationshipService
+import riven.core.service.util.BaseServiceTest
+import riven.core.service.util.SecurityTestConfig
+import riven.core.service.util.factory.CatalogTestFactory.createCatalogEntityType
+import riven.core.service.util.factory.CatalogTestFactory.createManifestWithEntityTypes
+import riven.core.service.util.factory.CatalogTestFactory.createManifestWithRelationship
 import java.util.*
 
-class TemplateInstallationServiceTest {
+@SpringBootTest(classes = [AuthTokenService::class, WorkspaceSecurity::class, SecurityTestConfig::class, TemplateInstallationService::class])
+class TemplateInstallationServiceTest : BaseServiceTest() {
 
+    @MockitoBean
     private lateinit var catalogService: ManifestCatalogService
-    private lateinit var entityTypeRepository: EntityTypeRepository
-    private lateinit var installationRepository: WorkspaceTemplateInstallationRepository
-    private lateinit var relationshipService: EntityTypeRelationshipService
-    private lateinit var semanticMetadataService: EntityTypeSemanticMetadataService
-    private lateinit var authTokenService: AuthTokenService
-    private lateinit var activityService: ActivityService
-    private lateinit var logger: KLogger
-    private lateinit var service: TemplateInstallationService
 
-    private val workspaceId = UUID.randomUUID()
-    private val userId = UUID.randomUUID()
+    @MockitoBean
+    private lateinit var entityTypeRepository: EntityTypeRepository
+
+    @MockitoBean
+    private lateinit var installationRepository: WorkspaceTemplateInstallationRepository
+
+    @MockitoBean
+    private lateinit var relationshipService: EntityTypeRelationshipService
+
+    @MockitoBean
+    private lateinit var semanticMetadataService: EntityTypeSemanticMetadataService
+
+    @MockitoBean
+    private lateinit var activityService: ActivityService
+
+    @Autowired
+    private lateinit var service: TemplateInstallationService
 
     @BeforeEach
     fun setUp() {
-        catalogService = mock()
-        entityTypeRepository = mock()
-        installationRepository = mock()
-        relationshipService = mock()
-        semanticMetadataService = mock()
-        authTokenService = mock()
-        activityService = mock()
-        logger = mock()
-
-        service = TemplateInstallationService(
-            catalogService,
-            entityTypeRepository,
-            installationRepository,
-            relationshipService,
-            semanticMetadataService,
-            authTokenService,
-            activityService,
-            logger,
-        )
-
-        whenever(authTokenService.getUserId()).thenReturn(userId)
         whenever(activityService.logActivity(any(), any(), any(), any(), any(), anyOrNull(), any(), any())).thenReturn(mock())
         whenever(installationRepository.findByWorkspaceIdAndManifestKey(any(), any())).thenReturn(null)
         whenever(installationRepository.save(any<WorkspaceTemplateInstallationEntity>())).thenAnswer { it.arguments[0] }
@@ -466,83 +460,6 @@ class TemplateInstallationServiceTest {
     }
 
     // ------ Test Helpers ------
-
-    private fun createCatalogEntityType(
-        key: String,
-        singular: String,
-        plural: String,
-        schema: Map<String, Any> = mapOf(
-            "name" to mapOf<String, Any>("key" to "TEXT", "label" to "Name", "type" to "string", "required" to true),
-        ),
-        identifierKey: String? = "name",
-        semanticMetadata: List<CatalogSemanticMetadataModel> = emptyList(),
-    ) = CatalogEntityTypeModel(
-        id = UUID.randomUUID(),
-        key = key,
-        displayNameSingular = singular,
-        displayNamePlural = plural,
-        iconType = IconType.CIRCLE_DASHED,
-        iconColour = IconColour.NEUTRAL,
-        semanticGroup = SemanticGroup.CUSTOMER,
-        identifierKey = identifierKey,
-        readonly = false,
-        schema = schema,
-        columns = null,
-        semanticMetadata = semanticMetadata,
-    )
-
-    private fun createManifestWithEntityTypes(
-        vararg entityTypes: CatalogEntityTypeModel,
-        key: String = "test-template",
-        name: String = "Test Template",
-    ) = ManifestDetail(
-        id = UUID.randomUUID(),
-        key = key,
-        name = name,
-        description = "A test template",
-        manifestType = ManifestType.TEMPLATE,
-        manifestVersion = "1.0",
-        entityTypes = entityTypes.toList(),
-        relationships = emptyList(),
-        fieldMappings = emptyList(),
-    )
-
-    private fun createManifestWithRelationship(): ManifestDetail {
-        val customer = createCatalogEntityType("customer", "Customer", "Customers")
-        val order = createCatalogEntityType("order", "Order", "Orders")
-        val relationship = CatalogRelationshipModel(
-            id = UUID.randomUUID(),
-            key = "customer-orders-rel",
-            sourceEntityTypeKey = "customer",
-            name = "customer-orders",
-            iconType = IconType.LINK,
-            iconColour = IconColour.NEUTRAL,
-            allowPolymorphic = false,
-            cardinalityDefault = EntityRelationshipCardinality.ONE_TO_MANY,
-            `protected` = false,
-            targetRules = listOf(
-                CatalogRelationshipTargetRuleModel(
-                    id = UUID.randomUUID(),
-                    targetEntityTypeKey = "order",
-                    semanticTypeConstraint = null,
-                    cardinalityOverride = null,
-                    inverseVisible = true,
-                    inverseName = "Orders",
-                )
-            ),
-        )
-        return ManifestDetail(
-            id = UUID.randomUUID(),
-            key = "test-template",
-            name = "Test Template",
-            description = "A test template",
-            manifestType = ManifestType.TEMPLATE,
-            manifestVersion = "1.0",
-            entityTypes = listOf(customer, order),
-            relationships = listOf(relationship),
-            fieldMappings = emptyList(),
-        )
-    }
 
     private fun stubEntityTypeSave() {
         whenever(entityTypeRepository.save(any<EntityTypeEntity>())).thenAnswer { invocation ->

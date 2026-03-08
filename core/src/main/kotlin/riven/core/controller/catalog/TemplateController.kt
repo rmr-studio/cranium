@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import riven.core.models.catalog.BundleDetail
@@ -51,7 +52,7 @@ class TemplateController(
     )
     fun installTemplate(
         @PathVariable workspaceId: UUID,
-        @RequestBody request: InstallTemplateRequest,
+        @Valid @RequestBody request: InstallTemplateRequest,
     ): ResponseEntity<TemplateInstallationResponse> {
         return ResponseEntity.ok(installationService.installTemplate(workspaceId, request.templateKey))
     }
@@ -81,7 +82,7 @@ class TemplateController(
     )
     fun installBundle(
         @PathVariable workspaceId: UUID,
-        @RequestBody request: InstallBundleRequest,
+        @Valid @RequestBody request: InstallBundleRequest,
     ): ResponseEntity<BundleInstallationResponse> =
         ResponseEntity.ok(installationService.installBundle(workspaceId, request.bundleKey))
 }

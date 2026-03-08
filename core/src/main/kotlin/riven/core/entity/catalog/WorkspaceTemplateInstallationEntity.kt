@@ -3,6 +3,7 @@ package riven.core.entity.catalog
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.Type
+import riven.core.models.catalog.WorkspaceTemplateInstallationModel
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -41,4 +42,13 @@ data class WorkspaceTemplateInstallationEntity(
     @Type(JsonBinaryType::class)
     @Column(name = "attribute_mappings", columnDefinition = "jsonb", nullable = false)
     val attributeMappings: Map<String, Any> = emptyMap(),
-)
+) {
+    fun toModel() = WorkspaceTemplateInstallationModel(
+        id = id,
+        workspaceId = workspaceId,
+        manifestKey = manifestKey,
+        installedBy = installedBy,
+        installedAt = installedAt,
+        attributeMappings = attributeMappings,
+    )
+}

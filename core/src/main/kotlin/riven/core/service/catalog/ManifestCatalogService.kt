@@ -55,6 +55,7 @@ class ManifestCatalogService(
      * @throws NotFoundException if the bundle key doesn't exist or is stale
      */
     fun getBundleByKey(key: String): BundleDetail {
+        require(key.isNotBlank()) { "Bundle key must not be blank" }
         val catalog = manifestCatalogRepository.findByKeyAndManifestTypeAndStaleFalse(key, ManifestType.BUNDLE)
             ?: throw NotFoundException("Bundle not found: $key")
         return catalog.toBundleDetail()

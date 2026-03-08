@@ -142,10 +142,10 @@ CREATE TABLE IF NOT EXISTS catalog_semantic_metadata (
 -- Enables duplication protection, merge tracking, and future uninstall support.
 
 CREATE TABLE IF NOT EXISTS workspace_template_installations (
-    id                 UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id                 UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     workspace_id       UUID NOT NULL REFERENCES workspaces(id),
     manifest_key       VARCHAR(255) NOT NULL,
-    installed_by       UUID NOT NULL,
+    installed_by       UUID NOT NULL REFERENCES users(id),
     installed_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
     attribute_mappings JSONB NOT NULL DEFAULT '{}'::jsonb,
 

@@ -86,13 +86,16 @@ class TemplateInstallationService(
 
         val manifest = catalogService.getManifestByKey(templateKey, ManifestType.TEMPLATE)
 
-        val creationResults = createEntityTypes(workspaceId, manifest.entityTypes)
-        val relationshipsCreated = createRelationships(workspaceId, manifest.relationships, manifest.entityTypes, creationResults)
-        applySemanticMetadata(workspaceId, manifest.entityTypes, creationResults)
-        recordTemplateInstallation(workspaceId, templateKey, userId, creationResults)
-        logTemplateActivity(userId, workspaceId, templateKey, manifest, creationResults)
+        val (toCreate, reused) = partitionEntityTypesByExistence(workspaceId, manifest.entityTypes)
+        val newResults = createEntityTypes(workspaceId, toCreate)
+        val mergedResults = newResults + reused
 
-        return buildResponse(templateKey, manifest, creationResults, relationshipsCreated)
+        val relationshipsCreated = createRelationships(workspaceId, manifest.relationships, manifest.entityTypes, mergedResults)
+        applySemanticMetadata(workspaceId, toCreate, newResults)
+        recordTemplateInstallation(workspaceId, templateKey, userId, mergedResults)
+        logTemplateActivity(userId, workspaceId, templateKey, manifest, newResults)
+
+        return buildResponse(templateKey, manifest, mergedResults, relationshipsCreated)
     }
 
     /**
@@ -117,51 +120,58 @@ class TemplateInstallationService(
         )
 
         val skippedEntityIdMap = resolveExistingEntityTypeIds(workspaceId, templatesToSkip)
-        val manifests = templatesToInstall.map { key ->
-            catalogService.getManifestByKey(key, ManifestType.TEMPLATE)
-        }
+        val (manifests, allEntityTypes) = loadManifestsAndMergeEntityTypes(templatesToInstall, skippedEntityIdMap)
 
-        val allEntityTypes = mergeAndDeduplicateEntityTypes(manifests)
-            .filter { it.key !in skippedEntityIdMap }
         val creationResults = createEntityTypes(workspaceId, allEntityTypes)
         val mergedIdMap = creationResults + skippedEntityIdMap
 
-        val allRelationships = manifests.flatMap { it.relationships }
-        val allCatalogEntityTypes = manifests.flatMap { it.entityTypes }
-        val relationshipsCreated = createRelationships(
-            workspaceId, allRelationships, allCatalogEntityTypes, mergedIdMap
-        )
-
+        val relationshipsCreated = prepareAndCreateRelationships(workspaceId, manifests, mergedIdMap)
         applySemanticMetadata(workspaceId, allEntityTypes, creationResults)
-
-        val manifestsByKey = manifests.associateBy { it.key }
-        for (templateKey in templatesToInstall) {
-            val templateEntityKeys = manifestsByKey[templateKey]?.entityTypes?.map { it.key }?.toSet() ?: emptySet()
-            val templateScopedMappings = mergedIdMap.filterKeys { it in templateEntityKeys }
-            recordTemplateInstallation(workspaceId, templateKey, userId, templateScopedMappings)
-        }
-
+        recordBundleTemplateInstallations(workspaceId, manifests, templatesToInstall, mergedIdMap, userId)
         logBundleActivity(userId, workspaceId, bundleKey, bundle, creationResults, templatesToInstall, templatesToSkip)
 
-        return BundleInstallationResponse(
-            bundleKey = bundleKey,
-            bundleName = bundle.name,
-            templatesInstalled = templatesToInstall,
-            templatesSkipped = templatesToSkip,
-            entityTypesCreated = creationResults.size,
-            relationshipsCreated = relationshipsCreated,
-            entityTypes = creationResults.values.map { result ->
-                CreatedEntityTypeSummary(
-                    id = result.entityTypeId,
-                    key = result.key,
-                    displayName = result.displayName,
-                    attributeCount = result.attributeCount,
-                )
-            },
-        )
+        return buildBundleResponse(bundleKey, bundle, templatesToInstall, templatesToSkip, creationResults, relationshipsCreated)
     }
 
     // ------ Entity Type Creation ------
+
+    /**
+     * Splits manifest entity types into those that need creating vs those that already exist
+     * in the workspace. Reused entities are returned as EntityTypeCreationResult with empty
+     * attributeKeyMap (attribute-level metadata is already applied).
+     */
+    private fun partitionEntityTypesByExistence(
+        workspaceId: UUID,
+        catalogEntityTypes: List<CatalogEntityTypeModel>,
+    ): Pair<List<CatalogEntityTypeModel>, Map<String, EntityTypeCreationResult>> {
+        if (catalogEntityTypes.isEmpty()) return emptyList<CatalogEntityTypeModel>() to emptyMap()
+
+        val keys = catalogEntityTypes.map { it.key }
+        val existing = entityTypeRepository.findByworkspaceIdAndKeyIn(workspaceId, keys)
+        val existingByKey = existing.associateBy { it.key }
+
+        val toCreate = mutableListOf<CatalogEntityTypeModel>()
+        val reused = mutableMapOf<String, EntityTypeCreationResult>()
+
+        for (catalogType in catalogEntityTypes) {
+            val entity = existingByKey[catalogType.key]
+            if (entity != null) {
+                val entityId = requireNotNull(entity.id)
+                reused[catalogType.key] = EntityTypeCreationResult(
+                    entityTypeId = entityId,
+                    attributeKeyMap = emptyMap(),
+                    attributeCount = entity.schema.properties?.size ?: 0,
+                    displayName = entity.displayNameSingular,
+                    key = catalogType.key,
+                )
+                logger.info { "Reusing existing entity type '${catalogType.key}' ($entityId)" }
+            } else {
+                toCreate.add(catalogType)
+            }
+        }
+
+        return toCreate to reused
+    }
 
     /**
      * Creates workspace entity types from catalog entity type definitions.
@@ -310,36 +320,11 @@ class TemplateInstallationService(
                         "install the template that provides '${catalogRel.sourceEntityTypeKey}' first, or install via a bundle."
                 )
 
-            val targetRules = catalogRel.targetRules.map { rule ->
-                val targetResult = creationResults[rule.targetEntityTypeKey]
-                    ?: throw IllegalArgumentException(
-                        "Relationship '${catalogRel.key}' references target entity type '${rule.targetEntityTypeKey}' " +
-                            "which is not present in this installation context. This is likely a cross-template dependency — " +
-                            "install the template that provides '${rule.targetEntityTypeKey}' first, or install via a bundle."
-                    )
-                SaveTargetRuleRequest(
-                    targetEntityTypeId = targetResult.entityTypeId,
-                    semanticTypeConstraint = rule.semanticTypeConstraint,
-                    cardinalityOverride = rule.cardinalityOverride,
-                    inverseName = rule.inverseName ?: "",
-                )
-            }
-
-            val relationshipSemantics = findRelationshipSemantics(
-                semanticsByEntityTypeKey[catalogRel.sourceEntityTypeKey],
-                catalogRel.key,
+            val targetRules = resolveRelationshipTargetRules(catalogRel, creationResults)
+            val semantics = findRelationshipSemantics(
+                semanticsByEntityTypeKey[catalogRel.sourceEntityTypeKey], catalogRel.key,
             )
-
-            val request = SaveRelationshipDefinitionRequest(
-                key = catalogRel.key,
-                name = catalogRel.name,
-                iconType = catalogRel.iconType,
-                iconColour = catalogRel.iconColour,
-                allowPolymorphic = catalogRel.allowPolymorphic,
-                cardinalityDefault = catalogRel.cardinalityDefault,
-                targetRules = targetRules,
-                semantics = relationshipSemantics,
-            )
+            val request = buildRelationshipRequest(catalogRel, targetRules, semantics)
 
             relationshipService.createRelationshipDefinition(workspaceId, sourceResult.entityTypeId, request)
             count++
@@ -348,6 +333,48 @@ class TemplateInstallationService(
         }
 
         return count
+    }
+
+    /**
+     * Resolves catalog target rules to workspace-scoped SaveTargetRuleRequests by mapping
+     * string entity type keys to their created UUIDs.
+     */
+    private fun resolveRelationshipTargetRules(
+        catalogRel: CatalogRelationshipModel,
+        creationResults: Map<String, EntityTypeCreationResult>,
+    ): List<SaveTargetRuleRequest> {
+        return catalogRel.targetRules.map { rule ->
+            val targetResult = creationResults[rule.targetEntityTypeKey]
+                ?: throw IllegalArgumentException(
+                    "Relationship '${catalogRel.key}' references target entity type '${rule.targetEntityTypeKey}' " +
+                        "which is not present in this installation context. This is likely a cross-template dependency — " +
+                        "install the template that provides '${rule.targetEntityTypeKey}' first, or install via a bundle."
+                )
+            SaveTargetRuleRequest(
+                targetEntityTypeId = targetResult.entityTypeId,
+                semanticTypeConstraint = rule.semanticTypeConstraint,
+                cardinalityOverride = rule.cardinalityOverride,
+                inverseName = rule.inverseName ?: "",
+            )
+        }
+    }
+
+    /** Builds a SaveRelationshipDefinitionRequest from catalog data and resolved target rules. */
+    private fun buildRelationshipRequest(
+        catalogRel: CatalogRelationshipModel,
+        targetRules: List<SaveTargetRuleRequest>,
+        semantics: SaveSemanticMetadataRequest?,
+    ): SaveRelationshipDefinitionRequest {
+        return SaveRelationshipDefinitionRequest(
+            key = catalogRel.key,
+            name = catalogRel.name,
+            iconType = catalogRel.iconType,
+            iconColour = catalogRel.iconColour,
+            allowPolymorphic = catalogRel.allowPolymorphic,
+            cardinalityDefault = catalogRel.cardinalityDefault,
+            targetRules = targetRules,
+            semantics = semantics,
+        )
     }
 
     /**
@@ -390,8 +417,8 @@ class TemplateInstallationService(
             for (metadata in catalogType.semanticMetadata) {
                 val targetId = when (metadata.targetType) {
                     SemanticMetadataTargetType.ENTITY_TYPE -> entityTypeId
-                    SemanticMetadataTargetType.ATTRIBUTE -> {
-                        result.attributeKeyMap[metadata.targetId] ?: continue
+                    SemanticMetadataTargetType.ATTRIBUTE -> requireNotNull(result.attributeKeyMap[metadata.targetId]) {
+                        "Semantic metadata references unknown attribute '${metadata.targetId}' on entity type '${catalogType.key}'"
                     }
                     SemanticMetadataTargetType.RELATIONSHIP -> continue
                 }
@@ -460,6 +487,77 @@ class TemplateInstallationService(
     // ------ Bundle Installation Helpers ------
 
     /**
+     * Loads manifests for the given template keys and merges their entity types,
+     * filtering out entity types that already exist from skipped templates.
+     *
+     * @return the loaded manifests and the deduplicated entity types to create
+     */
+    private fun loadManifestsAndMergeEntityTypes(
+        templatesToInstall: List<String>,
+        skippedEntityIdMap: Map<String, EntityTypeCreationResult>,
+    ): Pair<List<ManifestDetail>, List<CatalogEntityTypeModel>> {
+        val manifests = templatesToInstall.map { key ->
+            catalogService.getManifestByKey(key, ManifestType.TEMPLATE)
+        }
+        val allEntityTypes = mergeAndDeduplicateEntityTypes(manifests)
+            .filter { it.key !in skippedEntityIdMap }
+        return manifests to allEntityTypes
+    }
+
+    /** Gathers relationships and entity types from all manifests and creates them. */
+    private fun prepareAndCreateRelationships(
+        workspaceId: UUID,
+        manifests: List<ManifestDetail>,
+        mergedIdMap: Map<String, EntityTypeCreationResult>,
+    ): Int {
+        val allRelationships = manifests.flatMap { it.relationships }
+        val allCatalogEntityTypes = manifests.flatMap { it.entityTypes }
+        return createRelationships(workspaceId, allRelationships, allCatalogEntityTypes, mergedIdMap)
+    }
+
+    /** Records a template installation entry for each template in the bundle. */
+    private fun recordBundleTemplateInstallations(
+        workspaceId: UUID,
+        manifests: List<ManifestDetail>,
+        templatesToInstall: List<String>,
+        mergedIdMap: Map<String, EntityTypeCreationResult>,
+        userId: UUID,
+    ) {
+        val manifestsByKey = manifests.associateBy { it.key }
+        for (templateKey in templatesToInstall) {
+            val templateEntityKeys = manifestsByKey[templateKey]?.entityTypes?.map { it.key }?.toSet() ?: emptySet()
+            val templateScopedMappings = mergedIdMap.filterKeys { it in templateEntityKeys }
+            recordTemplateInstallation(workspaceId, templateKey, userId, templateScopedMappings)
+        }
+    }
+
+    private fun buildBundleResponse(
+        bundleKey: String,
+        bundle: BundleDetail,
+        templatesToInstall: List<String>,
+        templatesToSkip: List<String>,
+        creationResults: Map<String, EntityTypeCreationResult>,
+        relationshipsCreated: Int,
+    ): BundleInstallationResponse {
+        return BundleInstallationResponse(
+            bundleKey = bundleKey,
+            bundleName = bundle.name,
+            templatesInstalled = templatesToInstall,
+            templatesSkipped = templatesToSkip,
+            entityTypesCreated = creationResults.size,
+            relationshipsCreated = relationshipsCreated,
+            entityTypes = creationResults.values.map { result ->
+                CreatedEntityTypeSummary(
+                    id = result.entityTypeId,
+                    key = result.key,
+                    displayName = result.displayName,
+                    attributeCount = result.attributeCount,
+                )
+            },
+        )
+    }
+
+    /**
      * Partitions template keys into install vs skip sets based on workspace_template_installations.
      */
     private fun partitionTemplatesByInstallationStatus(
@@ -493,8 +591,12 @@ class TemplateInstallationService(
 
         val results = mutableMapOf<String, EntityTypeCreationResult>()
         for (key in allEntityTypeKeys) {
-            val entity = entityByKey[key] ?: continue
-            val entityId = entity.id ?: continue
+            val entity = requireNotNull(entityByKey[key]) {
+                "Entity type '$key' is declared in a previously installed template but does not exist in workspace $workspaceId"
+            }
+            val entityId = requireNotNull(entity.id) {
+                "Entity type '$key' exists in workspace $workspaceId but has a null ID"
+            }
 
             results[key] = EntityTypeCreationResult(
                 entityTypeId = entityId,
@@ -509,22 +611,60 @@ class TemplateInstallationService(
 
     /**
      * Merges entity types from all manifests, deduplicating by key.
-     * First occurrence wins — entity types are identical across templates
-     * since they come from the same shared model.
+     * When the same entity type key appears in multiple templates, schemas are merged
+     * additively — attributes from later templates are added to the first occurrence.
+     * Conflicting attribute definitions (same key, different definition) use first-wins
+     * with a WARN log.
      */
     private fun mergeAndDeduplicateEntityTypes(
         manifests: List<ManifestDetail>,
     ): List<CatalogEntityTypeModel> {
-        val seen = mutableSetOf<String>()
-        val merged = mutableListOf<CatalogEntityTypeModel>()
+        val mergedByKey = mutableMapOf<String, CatalogEntityTypeModel>()
         for (manifest in manifests) {
             for (entityType in manifest.entityTypes) {
-                if (seen.add(entityType.key)) {
-                    merged.add(entityType)
+                val existing = mergedByKey[entityType.key]
+                if (existing == null) {
+                    mergedByKey[entityType.key] = entityType
+                } else {
+                    mergedByKey[entityType.key] = mergeEntityTypeSchemas(existing, entityType)
                 }
             }
         }
-        return merged
+        return mergedByKey.values.toList()
+    }
+
+    /**
+     * Merges two catalog entity types with the same key by consolidating their schemas
+     * and semantic metadata. Attributes from the incoming type are added to the base if
+     * not already present. Conflicting definitions (same attribute key, different definition)
+     * keep the base version (first wins) and log a warning.
+     */
+    private fun mergeEntityTypeSchemas(
+        base: CatalogEntityTypeModel,
+        incoming: CatalogEntityTypeModel,
+    ): CatalogEntityTypeModel {
+        val mergedSchema = base.schema.toMutableMap()
+        for ((attrKey, attrDef) in incoming.schema) {
+            val existingDef = mergedSchema[attrKey]
+            if (existingDef == null) {
+                mergedSchema[attrKey] = attrDef
+            } else if (existingDef != attrDef) {
+                logger.warn { "Attribute conflict on entity type '${base.key}', attribute '$attrKey': keeping first definition, ignoring incoming" }
+            }
+        }
+
+        val existingMetadataKeys = base.semanticMetadata
+            .map { it.targetType to it.targetId }
+            .toSet()
+        val additionalMetadata = incoming.semanticMetadata.filter { meta ->
+            (meta.targetType to meta.targetId) !in existingMetadataKeys
+        }
+        val mergedMetadata = base.semanticMetadata + additionalMetadata
+
+        return base.copy(
+            schema = mergedSchema,
+            semanticMetadata = mergedMetadata,
+        )
     }
 
     /**

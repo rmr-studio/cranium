@@ -69,6 +69,7 @@ class TemplateInstallationServiceTest : BaseServiceTest() {
         whenever(activityService.logActivity(any(), any(), any(), any(), any(), anyOrNull(), any(), any())).thenReturn(mock())
         whenever(installationRepository.findByWorkspaceIdAndManifestKey(any(), any())).thenReturn(null)
         whenever(installationRepository.save(any<WorkspaceTemplateInstallationEntity>())).thenAnswer { it.arguments[0] }
+        whenever(entityTypeRepository.findByworkspaceIdAndKeyIn(any(), any())).thenReturn(emptyList())
     }
 
     // ------ Entity Type Creation ------
@@ -344,6 +345,37 @@ class TemplateInstallationServiceTest : BaseServiceTest() {
         assertTrue(formats.contains(DataFormat.CURRENCY))
     }
 
+    // ------ Entity Type Reuse ------
+
+    @Test
+    fun `installTemplate reuses existing entity types and only creates missing ones`() {
+        val customerType = createCatalogEntityType("customer", "Customer", "Customers")
+        val orderType = createCatalogEntityType("order", "Order", "Orders")
+        val manifest = createManifestWithEntityTypes(customerType, orderType)
+        whenever(catalogService.getManifestByKey("test-template", ManifestType.TEMPLATE)).thenReturn(manifest)
+
+        // Customer already exists in workspace
+        val existingCustomer = mock<EntityTypeEntity>()
+        val customerId = UUID.randomUUID()
+        whenever(existingCustomer.id).thenReturn(customerId)
+        whenever(existingCustomer.key).thenReturn("customer")
+        whenever(existingCustomer.displayNameSingular).thenReturn("Customer")
+        whenever(existingCustomer.schema).thenReturn(mock())
+        whenever(entityTypeRepository.findByworkspaceIdAndKeyIn(eq(workspaceId), any()))
+            .thenReturn(listOf(existingCustomer))
+
+        stubEntityTypeSave()
+        stubFallbackDefinition()
+
+        val response = service.installTemplate(workspaceId, "test-template")
+
+        // Only order should be created, customer is reused
+        verify(entityTypeRepository, times(1)).save(any<EntityTypeEntity>())
+        assertEquals(2, response.entityTypes.size)
+        assertNotNull(response.entityTypes.find { it.key == "customer" })
+        assertNotNull(response.entityTypes.find { it.key == "order" })
+    }
+
     // ------ Idempotency Tests ------
 
     @Test
@@ -459,7 +491,238 @@ class TemplateInstallationServiceTest : BaseServiceTest() {
         assertEquals(1, result.entityTypesCreated) // only invoice, customer was skipped
     }
 
+    // ------ Cross-Template Attribute Merge ------
+
+    @Test
+    fun `installBundle merges non-overlapping extended attributes from two templates`() {
+        val bundle = createTestBundle("merge-bundle", listOf("crm", "billing"))
+        whenever(catalogService.getBundleByKey("merge-bundle")).thenReturn(bundle)
+        whenever(installationRepository.findByWorkspaceIdAndManifestKeyIn(eq(workspaceId), any()))
+            .thenReturn(emptyList())
+
+        val crmCustomer = createCatalogEntityType(
+            "customer", "Customer", "Customers",
+            schema = mapOf(
+                "name" to mapOf<String, Any>("key" to "TEXT", "label" to "Name", "type" to "string", "required" to true),
+                "loyalty-tier" to mapOf<String, Any>("key" to "TEXT", "label" to "Loyalty Tier", "type" to "string", "required" to false),
+            ),
+        )
+        val billingCustomer = createCatalogEntityType(
+            "customer", "Customer", "Customers",
+            schema = mapOf(
+                "name" to mapOf<String, Any>("key" to "TEXT", "label" to "Name", "type" to "string", "required" to true),
+                "credit-limit" to mapOf<String, Any>("key" to "CURRENCY", "label" to "Credit Limit", "type" to "number", "format" to "currency"),
+            ),
+        )
+
+        whenever(catalogService.getManifestByKey("crm", ManifestType.TEMPLATE))
+            .thenReturn(createManifestWithEntityTypes(crmCustomer, key = "crm", name = "CRM"))
+        whenever(catalogService.getManifestByKey("billing", ManifestType.TEMPLATE))
+            .thenReturn(createManifestWithEntityTypes(billingCustomer, key = "billing", name = "Billing"))
+
+        stubEntityTypeSave()
+        stubFallbackDefinition()
+
+        service.installBundle(workspaceId, "merge-bundle")
+
+        val captor = argumentCaptor<EntityTypeEntity>()
+        verify(entityTypeRepository).save(captor.capture())
+
+        val saved = captor.firstValue
+        val propLabels = saved.schema.properties!!.values.map { it.label }.toSet()
+        assertTrue(propLabels.contains("Name"), "Should have base 'name' attribute")
+        assertTrue(propLabels.contains("Loyalty Tier"), "Should have CRM's 'loyalty-tier' attribute")
+        assertTrue(propLabels.contains("Credit Limit"), "Should have Billing's 'credit-limit' attribute")
+        assertEquals(3, saved.schema.properties!!.size, "Should have exactly 3 merged attributes")
+    }
+
+    @Test
+    fun `installBundle deduplicates identical attributes across templates`() {
+        val bundle = createTestBundle("dedup-bundle", listOf("crm", "billing"))
+        whenever(catalogService.getBundleByKey("dedup-bundle")).thenReturn(bundle)
+        whenever(installationRepository.findByWorkspaceIdAndManifestKeyIn(eq(workspaceId), any()))
+            .thenReturn(emptyList())
+
+        val phoneAttr = mapOf<String, Any>("key" to "PHONE", "label" to "Phone", "type" to "string", "format" to "phone-number")
+        val crmCustomer = createCatalogEntityType(
+            "customer", "Customer", "Customers",
+            schema = mapOf("name" to mapOf<String, Any>("key" to "TEXT", "label" to "Name", "type" to "string", "required" to true), "phone" to phoneAttr),
+        )
+        val billingCustomer = createCatalogEntityType(
+            "customer", "Customer", "Customers",
+            schema = mapOf("name" to mapOf<String, Any>("key" to "TEXT", "label" to "Name", "type" to "string", "required" to true), "phone" to phoneAttr),
+        )
+
+        whenever(catalogService.getManifestByKey("crm", ManifestType.TEMPLATE))
+            .thenReturn(createManifestWithEntityTypes(crmCustomer, key = "crm", name = "CRM"))
+        whenever(catalogService.getManifestByKey("billing", ManifestType.TEMPLATE))
+            .thenReturn(createManifestWithEntityTypes(billingCustomer, key = "billing", name = "Billing"))
+
+        stubEntityTypeSave()
+        stubFallbackDefinition()
+
+        service.installBundle(workspaceId, "dedup-bundle")
+
+        val captor = argumentCaptor<EntityTypeEntity>()
+        verify(entityTypeRepository).save(captor.capture())
+
+        val saved = captor.firstValue
+        assertEquals(2, saved.schema.properties!!.size, "Should have 'name' and 'phone' — no duplicates")
+    }
+
+    @Test
+    fun `installBundle keeps first definition on attribute conflict and logs warning`() {
+        val bundle = createTestBundle("conflict-bundle", listOf("crm", "billing"))
+        whenever(catalogService.getBundleByKey("conflict-bundle")).thenReturn(bundle)
+        whenever(installationRepository.findByWorkspaceIdAndManifestKeyIn(eq(workspaceId), any()))
+            .thenReturn(emptyList())
+
+        val crmCustomer = createCatalogEntityType(
+            "customer", "Customer", "Customers",
+            schema = mapOf(
+                "name" to mapOf<String, Any>("key" to "TEXT", "label" to "Name", "type" to "string", "required" to true),
+                "tier" to mapOf<String, Any>("key" to "SELECT", "label" to "Tier", "type" to "string", "required" to false),
+            ),
+        )
+        val billingCustomer = createCatalogEntityType(
+            "customer", "Customer", "Customers",
+            schema = mapOf(
+                "name" to mapOf<String, Any>("key" to "TEXT", "label" to "Name", "type" to "string", "required" to true),
+                "tier" to mapOf<String, Any>("key" to "TEXT", "label" to "Tier Level", "type" to "string", "required" to true),
+            ),
+        )
+
+        whenever(catalogService.getManifestByKey("crm", ManifestType.TEMPLATE))
+            .thenReturn(createManifestWithEntityTypes(crmCustomer, key = "crm", name = "CRM"))
+        whenever(catalogService.getManifestByKey("billing", ManifestType.TEMPLATE))
+            .thenReturn(createManifestWithEntityTypes(billingCustomer, key = "billing", name = "Billing"))
+
+        stubEntityTypeSave()
+        stubFallbackDefinition()
+
+        service.installBundle(workspaceId, "conflict-bundle")
+
+        val captor = argumentCaptor<EntityTypeEntity>()
+        verify(entityTypeRepository).save(captor.capture())
+
+        val saved = captor.firstValue
+        assertEquals(2, saved.schema.properties!!.size, "Should have 'name' and 'tier'")
+        // First wins: tier should be SELECT from CRM, not TEXT from billing
+        val tierProp = saved.schema.properties!!.values.find { it.label == "Tier" }
+        assertNotNull(tierProp, "Should have 'tier' attribute with CRM's label")
+        assertEquals(SchemaType.SELECT, tierProp!!.key, "First-wins: 'tier' should keep SELECT from CRM template")
+    }
+
+    @Test
+    fun `installBundle merges extended attributes onto plain ref base`() {
+        val bundle = createTestBundle("extend-bundle", listOf("core", "crm"))
+        whenever(catalogService.getBundleByKey("extend-bundle")).thenReturn(bundle)
+        whenever(installationRepository.findByWorkspaceIdAndManifestKeyIn(eq(workspaceId), any()))
+            .thenReturn(emptyList())
+
+        val baseCustomer = createCatalogEntityType(
+            "customer", "Customer", "Customers",
+            schema = mapOf(
+                "name" to mapOf<String, Any>("key" to "TEXT", "label" to "Name", "type" to "string", "required" to true),
+                "email" to mapOf<String, Any>("key" to "EMAIL", "label" to "Email", "type" to "string", "format" to "email"),
+            ),
+        )
+        val extendedCustomer = createCatalogEntityType(
+            "customer", "Customer", "Customers",
+            schema = mapOf(
+                "name" to mapOf<String, Any>("key" to "TEXT", "label" to "Name", "type" to "string", "required" to true),
+                "vip-status" to mapOf<String, Any>("key" to "SELECT", "label" to "VIP Status", "type" to "string", "required" to false),
+            ),
+        )
+
+        whenever(catalogService.getManifestByKey("core", ManifestType.TEMPLATE))
+            .thenReturn(createManifestWithEntityTypes(baseCustomer, key = "core", name = "Core"))
+        whenever(catalogService.getManifestByKey("crm", ManifestType.TEMPLATE))
+            .thenReturn(createManifestWithEntityTypes(extendedCustomer, key = "crm", name = "CRM"))
+
+        stubEntityTypeSave()
+        stubFallbackDefinition()
+
+        service.installBundle(workspaceId, "extend-bundle")
+
+        val captor = argumentCaptor<EntityTypeEntity>()
+        verify(entityTypeRepository).save(captor.capture())
+
+        val saved = captor.firstValue
+        val propLabels = saved.schema.properties!!.values.map { it.label }.toSet()
+        assertEquals(3, saved.schema.properties!!.size, "Should have base attrs + extended 'vip-status'")
+        assertTrue(propLabels.contains("Email"), "Should keep base 'email'")
+        assertTrue(propLabels.contains("VIP Status"), "Should add extended 'vip-status'")
+    }
+
+    @Test
+    fun `installBundle merges semantic metadata from both templates`() {
+        val bundle = createTestBundle("metadata-bundle", listOf("crm", "billing"))
+        whenever(catalogService.getBundleByKey("metadata-bundle")).thenReturn(bundle)
+        whenever(installationRepository.findByWorkspaceIdAndManifestKeyIn(eq(workspaceId), any()))
+            .thenReturn(emptyList())
+
+        val entityLevelMetadata = CatalogSemanticMetadataModel(
+            id = UUID.randomUUID(),
+            targetType = SemanticMetadataTargetType.ENTITY_TYPE,
+            targetId = "customer",
+            definition = "A customer record",
+            classification = null,
+            tags = listOf("crm"),
+        )
+        val attributeLevelMetadata = CatalogSemanticMetadataModel(
+            id = UUID.randomUUID(),
+            targetType = SemanticMetadataTargetType.ATTRIBUTE,
+            targetId = "credit-limit",
+            definition = "Max credit for the customer",
+            classification = SemanticAttributeClassification.QUANTITATIVE,
+            tags = listOf("billing"),
+        )
+
+        val crmCustomer = createCatalogEntityType(
+            "customer", "Customer", "Customers",
+            semanticMetadata = listOf(entityLevelMetadata),
+        )
+        val billingCustomer = createCatalogEntityType(
+            "customer", "Customer", "Customers",
+            schema = mapOf(
+                "name" to mapOf<String, Any>("key" to "TEXT", "label" to "Name", "type" to "string", "required" to true),
+                "credit-limit" to mapOf<String, Any>("key" to "CURRENCY", "label" to "Credit Limit", "type" to "number", "format" to "currency"),
+            ),
+            semanticMetadata = listOf(attributeLevelMetadata),
+        )
+
+        whenever(catalogService.getManifestByKey("crm", ManifestType.TEMPLATE))
+            .thenReturn(createManifestWithEntityTypes(crmCustomer, key = "crm", name = "CRM"))
+        whenever(catalogService.getManifestByKey("billing", ManifestType.TEMPLATE))
+            .thenReturn(createManifestWithEntityTypes(billingCustomer, key = "billing", name = "Billing"))
+
+        stubEntityTypeSave()
+        stubFallbackDefinition()
+        whenever(semanticMetadataService.upsertMetadataInternal(any(), any(), any(), any(), any())).thenReturn(mock())
+
+        service.installBundle(workspaceId, "metadata-bundle")
+
+        // Should apply both entity-level and attribute-level metadata
+        verify(semanticMetadataService).upsertMetadataInternal(
+            eq(workspaceId), any(), eq(SemanticMetadataTargetType.ENTITY_TYPE), any(),
+            argThat<SaveSemanticMetadataRequest> { definition == "A customer record" },
+        )
+        verify(semanticMetadataService).upsertMetadataInternal(
+            eq(workspaceId), any(), eq(SemanticMetadataTargetType.ATTRIBUTE), any(),
+            argThat<SaveSemanticMetadataRequest> { definition == "Max credit for the customer" },
+        )
+    }
+
     // ------ Test Helpers ------
+
+    private fun createTestBundle(key: String, templateKeys: List<String>) = BundleDetail(
+        id = UUID.randomUUID(),
+        key = key,
+        name = key.replaceFirstChar { it.uppercase() },
+        description = "A test bundle",
+        templateKeys = templateKeys,
+    )
 
     private fun stubEntityTypeSave() {
         whenever(entityTypeRepository.save(any<EntityTypeEntity>())).thenAnswer { invocation ->

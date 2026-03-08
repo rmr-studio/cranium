@@ -66,12 +66,6 @@ class EntityQueryPaginationIntegrationTest : EntityQueryIntegrationTestBase() {
                     typeId = otherWorkspaceTypeId,
                     typeKey = "company",
                     identifierKey = companyNameAttrId,
-                    payload = mapOf(
-                        companyNameAttrId.toString() to EntityAttributePrimitivePayload(
-                            "Other Company $i",
-                            SchemaType.TEXT
-                        )
-                    )
                 )
             )
         }

@@ -1,8 +1,6 @@
 package riven.core.entity.entity
 
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
-import org.hibernate.annotations.Type
 import riven.core.entity.util.AuditableSoftDeletableEntity
 import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
@@ -46,10 +44,6 @@ data class EntityEntity(
     @Column("identifier_key", nullable = false, columnDefinition = "uuid")
     val identifierKey: UUID,
 
-    @Type(JsonBinaryType::class)
-    @Column(name = "payload", columnDefinition = "jsonb", nullable = false)
-    var payload: Map<String, EntityAttributePrimitivePayload>,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "icon_colour", nullable = false)
     var iconColour: IconColour = IconColour.NEUTRAL,
@@ -90,13 +84,18 @@ data class EntityEntity(
     /**
      * Convert this entity to a domain model.
      */
-    fun toModel(audit: Boolean = false, relationships: Map<UUID, List<EntityLink>>): Entity {
+    fun toModel(
+        audit: Boolean = false,
+        relationships: Map<UUID, List<EntityLink>> = emptyMap(),
+        attributes: Map<UUID, EntityAttributePrimitivePayload> = emptyMap(),
+    ): Entity {
         val id = requireNotNull(this.id) { "EntityEntity ID cannot be null" }
 
+        val primitiveAttributes: Map<UUID, EntityAttribute> =
+            attributes.map { (key, value) -> key to EntityAttribute(payload = value) }.toMap()
 
         val payload: Map<UUID, EntityAttribute> =
-            this.payload.map { (key, value) -> UUID.fromString(key) to EntityAttribute(payload = value) }
-                .toMap() + relationships.mapValues { entry ->
+            primitiveAttributes + relationships.mapValues { entry ->
                 EntityAttribute(
                     payload =
                         EntityAttributeRelationPayload(

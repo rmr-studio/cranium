@@ -26,6 +26,7 @@ class EntityContextService(
     private val entityTypeRepository: EntityTypeRepository,
     private val entityRelationshipService: EntityRelationshipService,
     private val entityTypeRelationshipService: EntityTypeRelationshipService,
+    private val entityAttributeService: riven.core.service.entity.EntityAttributeService,
     private val logger: KLogger
 ) {
 
@@ -101,8 +102,9 @@ class EntityContextService(
             emptyMap()
         }
 
-        // Convert to domain models
-        val entity = entityEntity.toModel(audit = false, relationships = relationships)
+        // Load attributes and convert to domain models
+        val attributes = entityAttributeService.getAttributes(entityId)
+        val entity = entityEntity.toModel(audit = false, relationships = relationships, attributes = attributes)
         val entityType = entityTypeEntity.toModel()
 
         // Build context from payload

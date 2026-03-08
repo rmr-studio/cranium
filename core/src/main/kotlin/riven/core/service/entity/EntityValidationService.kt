@@ -7,6 +7,7 @@ import riven.core.enums.common.validation.ValidationScope
 import riven.core.enums.entity.validation.EntityTypeChangeType
 import riven.core.models.entity.EntityTypeSchema
 import riven.core.models.entity.RelationshipDefinition
+import riven.core.models.entity.payload.EntityAttributePrimitivePayload
 import riven.core.models.entity.validation.EntityTypeSchemaChange
 import riven.core.models.entity.validation.EntityTypeValidationSummary
 import riven.core.models.entity.validation.EntityValidationError
@@ -25,15 +26,19 @@ class EntityValidationService(
 
     /**
      * Validate entity payload against its type schema.
+     * Accepts either a pre-extracted attributes map or falls back to the entity's JSONB payload.
      */
     fun validateEntity(
         entity: EntityEntity,
-        entityType: EntityTypeEntity
+        entityType: EntityTypeEntity,
+        attributes: Map<UUID, EntityAttributePrimitivePayload> = emptyMap(),
     ): List<String> {
+        val payloadForValidation: Map<String, Any?> =
+            attributes.map { (key, value) -> key.toString() to value.value }.toMap()
+
         return schemaService.validate(
             schema = entityType.schema,
-            // Only validate ATTRIBUTE properties in this context. Relationship validation is separate.
-            payload = entity.payload.mapValues { it.value.value },
+            payload = payloadForValidation,
             scope = ValidationScope.STRICT
         )
     }
@@ -181,16 +186,21 @@ class EntityValidationService(
     fun validateExistingEntitiesAgainstNewSchema(
         entities: List<EntityEntity>,
         newSchema: EntityTypeSchema,
+        attributesByEntityId: Map<UUID, Map<UUID, EntityAttributePrimitivePayload>> = emptyMap(),
     ): EntityTypeValidationSummary {
         var validCount = 0
         var invalidCount = 0
         val sampleErrors = mutableListOf<EntityValidationError>()
 
         entities.forEach { entity ->
+            val entityId = requireNotNull(entity.id)
+            val attrs = attributesByEntityId[entityId] ?: emptyMap()
+            val payloadForValidation: Map<String, Any?> =
+                attrs.map { (key, value) -> key.toString() to value.value }.toMap()
 
             val errors = schemaService.validate(
                 schema = newSchema,
-                payload = entity.payload.map { it.key.toString() to it.value }.toMap(),
+                payload = payloadForValidation,
                 scope = ValidationScope.STRICT
             )
 

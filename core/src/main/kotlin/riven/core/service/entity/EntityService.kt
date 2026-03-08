@@ -41,7 +41,8 @@ class EntityService(
     private val entityRelationshipService: EntityRelationshipService,
     private val entityTypeRelationshipService: EntityTypeRelationshipService,
     private val entityValidationService: EntityValidationService,
-    private val entityAttributeService: EntityTypeAttributeService,
+    private val entityTypeAttributeService: EntityTypeAttributeService,
+    private val entityAttributeService: EntityAttributeService,
     private val authTokenService: AuthTokenService,
     private val activityService: ActivityService
 ) {
@@ -54,9 +55,9 @@ class EntityService(
             entityId = id,
             workspaceId = entity.workspaceId
         )
+        val attributes = entityAttributeService.getAttributes(id)
 
-        return entity.toModel(relationships = relationships)
-
+        return entity.toModel(relationships = relationships, attributes = attributes)
     }
 
     fun getEntitiesByIds(ids: Set<UUID>): List<EntityEntity> {
@@ -73,14 +74,20 @@ class EntityService(
         }
 
         require(entities.all { it.workspaceId == workspaceId }) { "One or more entities do not belong to the specified workspace" }
+        val entityIds = entities.mapNotNull { it.id }.toSet()
         val relationships = entityRelationshipService.findRelatedEntities(
-            entityIds = entities.mapNotNull { it.id }.toSet(),
+            entityIds = entityIds,
             workspaceId = workspaceId
         )
+        val allAttributes = entityAttributeService.getAttributesForEntities(entityIds)
 
         return entities.map {
             val id = requireNotNull(it.id)
-            it.toModel(audit = true, relationships = relationships[id] ?: emptyMap())
+            it.toModel(
+                audit = true,
+                relationships = relationships[id] ?: emptyMap(),
+                attributes = allAttributes[id] ?: emptyMap(),
+            )
         }
     }
 
@@ -97,14 +104,20 @@ class EntityService(
 
         require(entities.all { it.workspaceId == workspaceId }) { "One or more entities do not belong to the specified workspace" }
 
+        val entityIds = entities.mapNotNull { it.id }.toSet()
         val relationships = entityRelationshipService.findRelatedEntities(
-            entityIds = entities.mapNotNull { it.id }.toSet(),
+            entityIds = entityIds,
             workspaceId = workspaceId
         )
+        val allAttributes = entityAttributeService.getAttributesForEntities(entityIds)
 
         return entities.map {
             val id = requireNotNull(it.id)
-            it.toModel(audit = true, relationships = relationships[id] ?: emptyMap())
+            it.toModel(
+                audit = true,
+                relationships = relationships[id] ?: emptyMap(),
+                attributes = allAttributes[id] ?: emptyMap(),
+            )
         }.groupBy { it.typeId }
 
     }
@@ -129,8 +142,8 @@ class EntityService(
             // Check if this is an update (existing entity) or create (new entity)
             val prev: EntityEntity? = id?.let { findOrThrow { entityRepository.findById(it) } }
 
-            val attributePayload: Map<String, EntityAttributePrimitivePayload> = payload.mapNotNull { (key, value) ->
-                key.toString() to value.payload.let {
+            val attributePayload: Map<UUID, EntityAttributePrimitivePayload> = payload.mapNotNull { (key, value) ->
+                key to value.payload.let {
                     when (it) {
                         is EntityAttributePrimitivePayload -> it
                         else -> return@mapNotNull null
@@ -159,7 +172,6 @@ class EntityService(
                     return@let it.copy(
                         iconType = icon?.type ?: it.iconType,
                         iconColour = icon?.colour ?: it.iconColour,
-                        payload = attributePayload,
                     )
                 }
 
@@ -170,12 +182,11 @@ class EntityService(
                     iconType = icon?.type ?: type.iconType,
                     iconColour = icon?.colour ?: type.iconColour,
                     identifierKey = type.identifierKey,
-                    payload = attributePayload,
                 )
             }
 
             // Validate payload against schema
-            entityValidationService.validateEntity(entity, type).run {
+            entityValidationService.validateEntity(entity, type, attributes = attributePayload).run {
                 if (isNotEmpty()) {
                     throw SchemaValidationException(this)
                 }
@@ -184,14 +195,22 @@ class EntityService(
             return entityRepository.save(entity).run {
                 val entityId = requireNotNull(this.id) { "Saved entity ID cannot be null" }
 
+                // Save normalized attributes
+                entityAttributeService.saveAttributes(
+                    entityId = entityId,
+                    workspaceId = workspaceId,
+                    typeId = typeId,
+                    attributes = attributePayload,
+                )
+
                 // Handle Unique Constraints
-                val uniqueAttributes = entityAttributeService.extractUniqueAttributes(type, payload)
+                val uniqueAttributes = entityTypeAttributeService.extractUniqueAttributes(type, payload)
 
                 val uniqueValuesToSave = uniqueAttributes
                     .filterValues { it != null }
                     .mapNotNull { (fieldId, value) ->
                         if (value == null) return@mapNotNull null
-                        entityAttributeService.checkAttributeUniqueness(
+                        entityTypeAttributeService.checkAttributeUniqueness(
                             typeId = typeId,
                             fieldId = fieldId,
                             value = value.value,
@@ -201,7 +220,7 @@ class EntityService(
                     }
                     .toMap()
 
-                entityAttributeService.saveUniqueValues(
+                entityTypeAttributeService.saveUniqueValues(
                     workspaceId = workspaceId,
                     entityId = entityId,
                     typeId = typeId,
@@ -226,7 +245,11 @@ class EntityService(
                 val links: Map<UUID, List<EntityLink>> = entityRelationshipService.findRelatedEntities(entityId, workspaceId)
 
                 SaveEntityResponse(
-                    entity = entity.toModel(audit = true, relationships = links),
+                    entity = entity.toModel(
+                        audit = true,
+                        relationships = links,
+                        attributes = attributePayload,
+                    ),
                     impactedEntities = null
                 )
             }
@@ -301,7 +324,8 @@ class EntityService(
             )
         }
 
-        entityAttributeService.deleteEntities(workspaceId, deletedRowIds)
+        entityTypeAttributeService.deleteEntities(workspaceId, deletedRowIds)
+        entityAttributeService.softDeleteByEntityIds(workspaceId, deletedRowIds)
         entityRelationshipService.archiveEntities(deletedRowIds, workspaceId)
 
         // Log activity for each deleted entity
@@ -329,12 +353,14 @@ class EntityService(
                 entityIds = impactedEntityIds.toSet(),
                 workspaceId = workspaceId
             )
+            val impactedAttributes = entityAttributeService.getAttributesForEntities(impactedEntityIds.toSet())
             impactedEntityEntities
                 .map { impactedEntity ->
                     val impactedId = requireNotNull(impactedEntity.id)
                     impactedEntity.toModel(
                         audit = true,
-                        relationships = impactedRelationships[impactedId] ?: emptyMap()
+                        relationships = impactedRelationships[impactedId] ?: emptyMap(),
+                        attributes = impactedAttributes[impactedId] ?: emptyMap(),
                     )
                 }
                 .groupBy { it.typeId }
@@ -353,9 +379,16 @@ class EntityService(
      * Get all entities for an workspace.
      */
     fun getWorkspaceEntities(workspaceId: UUID): List<Entity> {
-        return findManyResults {
-            entityRepository.findByWorkspaceId(workspaceId)
-        }.map { it.toModel(relationships = emptyMap()) }
+        val entities = findManyResults { entityRepository.findByWorkspaceId(workspaceId) }
+        val entityIds = entities.mapNotNull { it.id }.toSet()
+        val allAttributes = entityAttributeService.getAttributesForEntities(entityIds)
+        return entities.map {
+            val id = requireNotNull(it.id)
+            it.toModel(
+                relationships = emptyMap(),
+                attributes = allAttributes[id] ?: emptyMap(),
+            )
+        }
     }
 
 

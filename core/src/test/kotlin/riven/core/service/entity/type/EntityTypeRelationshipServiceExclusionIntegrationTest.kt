@@ -186,14 +186,12 @@ class EntityTypeRelationshipServiceExclusionIntegrationTest {
         val savedSource = entityRepository.save(EntityEntity(
             workspaceId = workspaceId, typeId = sourceTypeId, typeKey = "source_type",
             identifierKey = nameAttrId,
-            payload = mapOf(nameAttrId.toString() to EntityAttributePrimitivePayload("Source 1", SchemaType.TEXT)),
         ))
         sourceEntityId = savedSource.id!!
 
         val savedTarget = entityRepository.save(EntityEntity(
             workspaceId = workspaceId, typeId = targetTypeId, typeKey = "target_type",
             identifierKey = nameAttrId,
-            payload = mapOf(nameAttrId.toString() to EntityAttributePrimitivePayload("Target 1", SchemaType.TEXT)),
         ))
         targetEntityId = savedTarget.id!!
 

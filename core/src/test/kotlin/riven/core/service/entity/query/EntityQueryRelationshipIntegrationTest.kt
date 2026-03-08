@@ -430,13 +430,6 @@ class EntityQueryRelationshipIntegrationTest : EntityQueryIntegrationTestBase() 
                     typeId = employeeTypeId,
                     typeKey = "employee",
                     identifierKey = employeeFirstNameAttrId,
-                    payload = mapOf(
-                        employeeFirstNameAttrId.toString() to EntityAttributePrimitivePayload("Freelance", SchemaType.TEXT),
-                        employeeLastNameAttrId.toString() to EntityAttributePrimitivePayload("Dev", SchemaType.TEXT),
-                        employeeEmailAttrId.toString() to EntityAttributePrimitivePayload("freelance@dev.com", SchemaType.EMAIL),
-                        employeeSalaryAttrId.toString() to EntityAttributePrimitivePayload(50000.0, SchemaType.NUMBER),
-                        employeeDepartmentAttrId.toString() to EntityAttributePrimitivePayload("Freelance", SchemaType.TEXT)
-                    )
                 )
             ).id!!
 

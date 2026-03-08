@@ -23,6 +23,7 @@ class EntityTypeAttributeService(
     private val entityRepository: EntityRepository,
     private val uniqueEntityValueRepository: EntityUniqueValuesRepository,
     private val semanticMetadataService: EntityTypeSemanticMetadataService,
+    private val entityAttributeService: riven.core.service.entity.EntityAttributeService,
 ) {
 
     fun saveAttributeDefinition(
@@ -61,9 +62,12 @@ class EntityTypeAttributeService(
 
         if (breakingChanges.any { it.breaking }) {
             val existingEntities = entityRepository.findByTypeId(typeId)
+            val entityIds = existingEntities.mapNotNull { it.id }.toSet()
+            val attributesByEntityId = entityAttributeService.getAttributesForEntities(entityIds)
             val validationSummary = entityValidationService.validateExistingEntitiesAgainstNewSchema(
                 existingEntities,
                 updatedSchema,
+                attributesByEntityId = attributesByEntityId,
             )
 
             if (validationSummary.invalidCount > 0) {

@@ -160,12 +160,10 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
                 e.icon_type as iconType,
                 e.icon_colour as iconColour,
                 e.type_key as typeKey,
-                COALESCE(
-                    e.payload -> e.identifier_key::text ->> 'value',
-                    e.id::text
-                ) as label
+                COALESCE(ea.value #>> '{}', e.id::text) as label
             FROM entity_relationships r
             JOIN entities e ON r.target_entity_id = e.id
+            LEFT JOIN entity_attributes ea ON ea.entity_id = e.id AND ea.attribute_id = e.identifier_key AND ea.deleted = false
             JOIN relationship_definitions rd ON r.relationship_definition_id = rd.id AND rd.deleted = false
             WHERE r.source_entity_id = :sourceId
             AND r.deleted = false
@@ -190,12 +188,10 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
                 e.icon_type as iconType,
                 e.icon_colour as iconColour,
                 e.type_key as typeKey,
-                COALESCE(
-                    e.payload -> e.identifier_key::text ->> 'value',
-                    e.id::text
-                ) as label
+                COALESCE(ea.value #>> '{}', e.id::text) as label
             FROM entity_relationships r
             JOIN entities e ON r.target_entity_id = e.id
+            LEFT JOIN entity_attributes ea ON ea.entity_id = e.id AND ea.attribute_id = e.identifier_key AND ea.deleted = false
             JOIN relationship_definitions rd ON r.relationship_definition_id = rd.id AND rd.deleted = false
             WHERE r.source_entity_id = ANY(:ids)
             AND r.deleted = false
@@ -227,12 +223,10 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
                 e.icon_type as iconType,
                 e.icon_colour as iconColour,
                 e.type_key as typeKey,
-                COALESCE(
-                    e.payload -> e.identifier_key::text ->> 'value',
-                    e.id::text
-                ) as label
+                COALESCE(ea.value #>> '{}', e.id::text) as label
             FROM entity_relationships r
             JOIN entities e ON r.source_entity_id = e.id
+            LEFT JOIN entity_attributes ea ON ea.entity_id = e.id AND ea.attribute_id = e.identifier_key AND ea.deleted = false
             JOIN relationship_definitions rd ON r.relationship_definition_id = rd.id AND rd.deleted = false
             LEFT JOIN relationship_target_rules rtr ON rtr.relationship_definition_id = r.relationship_definition_id
             LEFT JOIN target_info ti ON true
@@ -270,12 +264,10 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
                 e.icon_type as iconType,
                 e.icon_colour as iconColour,
                 e.type_key as typeKey,
-                COALESCE(
-                    e.payload -> e.identifier_key::text ->> 'value',
-                    e.id::text
-                ) as label
+                COALESCE(ea.value #>> '{}', e.id::text) as label
             FROM entity_relationships r
             JOIN entities e ON r.source_entity_id = e.id
+            LEFT JOIN entity_attributes ea ON ea.entity_id = e.id AND ea.attribute_id = e.identifier_key AND ea.deleted = false
             JOIN relationship_definitions rd ON r.relationship_definition_id = rd.id AND rd.deleted = false
             LEFT JOIN relationship_target_rules rtr ON rtr.relationship_definition_id = r.relationship_definition_id
             JOIN entities target_e ON r.target_entity_id = target_e.id

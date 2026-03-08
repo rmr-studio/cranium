@@ -55,6 +55,9 @@ class EntityContextServiceTest {
     @MockitoBean
     private lateinit var entityTypeRelationshipService: EntityTypeRelationshipService
 
+    @MockitoBean
+    private lateinit var entityAttributeService: riven.core.service.entity.EntityAttributeService
+
     @Autowired
     private lateinit var entityContextService: EntityContextService
 
@@ -111,10 +114,6 @@ class EntityContextServiceTest {
             typeId = typeId,
             typeKey = "task",
             identifierKey = statusFieldId,
-            payload = mapOf(
-                statusFieldId.toString() to EntityAttributePrimitivePayload("active", SchemaType.TEXT),
-                countFieldId.toString() to EntityAttributePrimitivePayload(42, SchemaType.NUMBER)
-            ),
             iconType = IconType.FILE,
             iconColour = IconColour.NEUTRAL
         ).apply {
@@ -125,6 +124,10 @@ class EntityContextServiceTest {
         `when`(entityRepository.findById(entityId)).thenReturn(Optional.of(entity))
         `when`(entityTypeRepository.findById(typeId)).thenReturn(Optional.of(entityType))
         `when`(entityRelationshipService.findRelatedEntities(entityId, workspaceId)).thenReturn(emptyMap())
+        `when`(entityAttributeService.getAttributes(entityId)).thenReturn(mapOf(
+            statusFieldId to EntityAttributePrimitivePayload("active", SchemaType.TEXT),
+            countFieldId to EntityAttributePrimitivePayload(42, SchemaType.NUMBER)
+        ))
 
         val context = entityContextService.buildContextWithRelationships(entityId, workspaceId)
 
@@ -172,9 +175,6 @@ class EntityContextServiceTest {
             typeId = typeId,
             typeKey = "task",
             identifierKey = fieldId,
-            payload = mapOf(
-                fieldId.toString() to EntityAttributePrimitivePayload(null, SchemaType.TEXT)
-            ),
             iconType = IconType.FILE,
             iconColour = IconColour.NEUTRAL
         ).apply {
@@ -185,6 +185,9 @@ class EntityContextServiceTest {
         `when`(entityRepository.findById(entityId)).thenReturn(Optional.of(entity))
         `when`(entityTypeRepository.findById(typeId)).thenReturn(Optional.of(entityType))
         `when`(entityRelationshipService.findRelatedEntities(entityId, workspaceId)).thenReturn(emptyMap())
+        `when`(entityAttributeService.getAttributes(entityId)).thenReturn(mapOf(
+            fieldId to EntityAttributePrimitivePayload(null, SchemaType.TEXT)
+        ))
 
         val context = entityContextService.buildContextWithRelationships(entityId, workspaceId)
 
@@ -233,10 +236,6 @@ class EntityContextServiceTest {
             typeId = typeId,
             typeKey = "task",
             identifierKey = statusFieldId,
-            payload = mapOf(
-                statusFieldId.toString() to EntityAttributePrimitivePayload("active", SchemaType.TEXT),
-                countFieldId.toString() to EntityAttributePrimitivePayload(15, SchemaType.NUMBER)
-            ),
             iconType = IconType.FILE,
             iconColour = IconColour.NEUTRAL
         ).apply {
@@ -247,6 +246,10 @@ class EntityContextServiceTest {
         `when`(entityRepository.findById(entityId)).thenReturn(Optional.of(entity))
         `when`(entityTypeRepository.findById(typeId)).thenReturn(Optional.of(entityType))
         `when`(entityRelationshipService.findRelatedEntities(entityId, workspaceId)).thenReturn(emptyMap())
+        `when`(entityAttributeService.getAttributes(entityId)).thenReturn(mapOf(
+            statusFieldId to EntityAttributePrimitivePayload("active", SchemaType.TEXT),
+            countFieldId to EntityAttributePrimitivePayload(15, SchemaType.NUMBER)
+        ))
 
         val context = entityContextService.buildContextWithRelationships(entityId, workspaceId)
         val expressionEvaluator = WorkflowNodeExpressionEvaluatorService()

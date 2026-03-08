@@ -105,7 +105,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entity with valid string payload
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = mapOf(
                 nameAttributeKey to EntityAttributePrimitivePayload(
@@ -116,7 +116,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: No validation errors
         assertTrue(errors.isEmpty(), "Should have no validation errors for valid string")
@@ -141,13 +141,13 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entity with empty payload (missing required field)
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = emptyMap()
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: Should have validation error for missing required field
         assertFalse(errors.isEmpty(), "Should have validation errors for missing required field")
@@ -177,13 +177,13 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entity with empty payload
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = emptyMap()
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: No validation errors (optional field can be missing)
         assertTrue(errors.isEmpty(), "Should have no validation errors for missing optional field")
@@ -211,7 +211,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entity with valid email
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = mapOf(
                 emailAttributeKey to EntityAttributePrimitivePayload(
@@ -222,7 +222,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: No validation errors
         assertTrue(errors.isEmpty(), "Should have no validation errors for valid email")
@@ -248,7 +248,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entity with invalid email
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = mapOf(
                 emailAttributeKey to EntityAttributePrimitivePayload(
@@ -259,7 +259,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: Should have validation error for invalid email
         assertFalse(errors.isEmpty(), "Should have validation errors for invalid email format")
@@ -290,7 +290,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entity with valid phone number
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = mapOf(
                 phoneKey to EntityAttributePrimitivePayload(
@@ -301,7 +301,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: No validation errors
         assertTrue(errors.isEmpty(), "Should have no validation errors for valid phone: $errors")
@@ -328,7 +328,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entity with valid URL
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = mapOf(
                 urlKey to EntityAttributePrimitivePayload(
@@ -339,7 +339,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: No validation errors
         assertTrue(errors.isEmpty(), "Should have no validation errors for valid URL")
@@ -366,7 +366,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entity with valid number
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = mapOf(
                 ageAttributeKey to EntityAttributePrimitivePayload(
@@ -377,7 +377,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: No validation errors
         assertTrue(errors.isEmpty(), "Should have no validation errors for valid number")
@@ -406,7 +406,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entity with number below minimum
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = mapOf(
                 priceKey to EntityAttributePrimitivePayload(
@@ -417,7 +417,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: Should have validation error
         assertFalse(errors.isEmpty(), "Should have validation errors for number below minimum")
@@ -451,7 +451,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entity with number above maximum
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = mapOf(
                 percentageKey to EntityAttributePrimitivePayload(
@@ -462,7 +462,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: Should have validation error
         assertFalse(errors.isEmpty(), "Should have validation errors for number above maximum")
@@ -494,7 +494,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entity with valid boolean
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = mapOf(
                 isActiveKey to EntityAttributePrimitivePayload(
@@ -505,7 +505,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: No validation errors
         assertTrue(errors.isEmpty(), "Should have no validation errors for valid boolean")
@@ -531,7 +531,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entity with string instead of boolean
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = mapOf(
                 isActiveKey to EntityAttributePrimitivePayload(
@@ -542,7 +542,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: Should have validation error
         assertFalse(errors.isEmpty(), "Should have validation errors for wrong type")
@@ -577,7 +577,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entity with string shorter than minLength
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = mapOf(
                 passwordKey to EntityAttributePrimitivePayload(
@@ -588,7 +588,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: Should have validation error
         assertFalse(errors.isEmpty(), "Should have validation errors for string below minLength")
@@ -621,7 +621,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entity with string longer than maxLength
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = mapOf(
                 bioKey to EntityAttributePrimitivePayload(
@@ -632,7 +632,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: Should have validation error
         assertFalse(errors.isEmpty(), "Should have validation errors for string above maxLength")
@@ -667,7 +667,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entity with valid enum value
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = mapOf(
                 statusKey to EntityAttributePrimitivePayload(
@@ -678,7 +678,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: No validation errors
         assertTrue(errors.isEmpty(), "Should have no validation errors for valid enum value")
@@ -707,7 +707,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entity with invalid enum value
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = mapOf(
                 statusKey to EntityAttributePrimitivePayload(
@@ -718,7 +718,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: Should have validation error
         assertFalse(errors.isEmpty(), "Should have validation errors for invalid enum value")
@@ -753,7 +753,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entity with value matching pattern
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = mapOf(
                 codeKey to EntityAttributePrimitivePayload(
@@ -764,7 +764,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: No validation errors
         assertTrue(errors.isEmpty(), "Should have no validation errors for value matching regex pattern")
@@ -793,7 +793,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entity with value not matching pattern
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = mapOf(
                 codeKey to EntityAttributePrimitivePayload(
@@ -804,7 +804,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: Should have validation error
         assertFalse(errors.isEmpty(), "Should have validation errors for regex pattern mismatch")
@@ -840,7 +840,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
 //        )
 //
 //        // And: Entity with valid array
-//        val entity = createEntity(
+//        val (entity, attributes) = createEntity(
 //            typeId = entityType.id!!,
 //            payload = mapOf(
 //                tagsKey to EntityAttributePrimitivePayload(
@@ -851,7 +851,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
 //        )
 //
 //        // When: Validating entity
-//        val errors = entityValidationService.validateEntity(entity, entityType)
+//        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 //
 //        // Then: No validation errors
 //        assertTrue(errors.isEmpty(), "Should have no validation errors for valid array")
@@ -881,7 +881,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
 //        )
 //
 //        // And: Entity with empty array
-//        val entity = createEntity(
+//        val (entity, attributes) = createEntity(
 //            typeId = entityType.id!!,
 //            payload = mapOf(
 //                tagsKey to EntityAttributePrimitivePayload(
@@ -892,7 +892,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
 //        )
 //
 //        // When: Validating entity
-//        val errors = entityValidationService.validateEntity(entity, entityType)
+//        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 //
 //        // Then: No validation errors
 //        assertTrue(errors.isEmpty(), "Should have no validation errors for empty optional array")
@@ -937,7 +937,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entity with valid nested object
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = mapOf(
                 addressKey to EntityAttributePrimitivePayload(
@@ -951,7 +951,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: No validation errors
         assertTrue(errors.isEmpty(), "Should have no validation errors for valid nested object")
@@ -994,7 +994,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entity with nested object missing required field
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = mapOf(
                 addressKey to EntityAttributePrimitivePayload(
@@ -1008,7 +1008,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: Should have validation error
         assertFalse(errors.isEmpty(), "Should have validation errors for missing required nested field")
@@ -1059,7 +1059,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entity with all valid attributes
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = mapOf(
                 nameAttributeKey to EntityAttributePrimitivePayload(
@@ -1082,7 +1082,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: No validation errors
         assertTrue(errors.isEmpty(), "Should have no validation errors for all valid attributes")
@@ -1110,7 +1110,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
 
         // And: Entity with both attribute and relationship payloads
         val relationshipKey = UUID.randomUUID()
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = mapOf(
                 nameAttributeKey to EntityAttributePrimitivePayload(
@@ -1124,7 +1124,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: No validation errors (relationship payload is excluded)
         assertTrue(
@@ -1160,7 +1160,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
 
         // And: Entity with valid attribute, invalid email, and relationships
         val relationshipKey = UUID.randomUUID()
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = mapOf(
                 nameAttributeKey to EntityAttributePrimitivePayload(
@@ -1178,7 +1178,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: Should only have error for invalid email attribute
         assertFalse(errors.isEmpty(), "Should have validation errors for invalid email")
@@ -1418,7 +1418,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entities that match the schema
-        val entities = listOf(
+        val pairs = listOf(
             createEntity(
                 typeId = UUID.randomUUID(),
                 payload = mapOf(
@@ -1438,19 +1438,17 @@ class EntityValidationServiceTest : BaseServiceTest() {
                 )
             )
         )
+        val entities = pairs.map { it.first }
+        val attributesByEntityId = pairs.associate { it.first.id!! to it.second }
 
         // When: Validating entities against new schema
-        val summary = entityValidationService.validateExistingEntitiesAgainstNewSchema(entities, newSchema)
+        val summary = entityValidationService.validateExistingEntitiesAgainstNewSchema(entities, newSchema, attributesByEntityId)
 
-        // Then: All entities should be valid (but due to bug, they're currently invalid)
-        // TODO: Once bug is fixed, these assertions should be:
-        //   assertEquals(2, summary.validCount)
-        //   assertEquals(0, summary.invalidCount)
-        //   assertTrue(summary.sampleErrors.isEmpty())
+        // Then: All entities should be valid
         assertEquals(2, summary.totalEntities)
-        assertEquals(0, summary.validCount, "Currently fails due to bug in validateExistingEntitiesAgainstNewSchema")
-        assertEquals(2, summary.invalidCount, "Currently fails due to bug in validateExistingEntitiesAgainstNewSchema")
-        assertFalse(summary.sampleErrors.isEmpty(), "Errors are present due to bug")
+        assertEquals(2, summary.validCount)
+        assertEquals(0, summary.invalidCount)
+        assertTrue(summary.sampleErrors.isEmpty())
     }
 
     @Test
@@ -1471,7 +1469,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entities with missing or invalid email
-        val entities = listOf(
+        val pairs = listOf(
             createEntity(
                 typeId = UUID.randomUUID(),
                 payload = mapOf(
@@ -1495,19 +1493,17 @@ class EntityValidationServiceTest : BaseServiceTest() {
                 )
             )
         )
+        val entities = pairs.map { it.first }
+        val attributesByEntityId = pairs.associate { it.first.id!! to it.second }
 
         // When: Validating entities against new schema
-        val summary = entityValidationService.validateExistingEntitiesAgainstNewSchema(entities, newSchema)
+        val summary = entityValidationService.validateExistingEntitiesAgainstNewSchema(entities, newSchema, attributesByEntityId)
 
-        // Then: Should identify invalid entities (but due to bug, all are invalid including the valid one)
-        // TODO: Once bug is fixed, these assertions should be:
-        //   assertEquals(1, summary.validCount)
-        //   assertEquals(2, summary.invalidCount)
-        //   assertEquals(2, summary.sampleErrors.size)
+        // Then: Should identify invalid entities
         assertEquals(3, summary.totalEntities)
-        assertEquals(0, summary.validCount, "Currently all fail due to bug")
-        assertEquals(3, summary.invalidCount, "Currently all fail due to bug")
-        assertEquals(3, summary.sampleErrors.size, "All entities have errors due to bug")
+        assertEquals(1, summary.validCount)
+        assertEquals(2, summary.invalidCount)
+        assertEquals(2, summary.sampleErrors.size)
     }
 
     @Test
@@ -1527,15 +1523,17 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: 15 entities all missing required field
-        val entities = (1..15).map {
+        val pairs = (1..15).map {
             createEntity(
                 typeId = UUID.randomUUID(),
                 payload = emptyMap()
             )
         }
+        val entities = pairs.map { it.first }
+        val attributesByEntityId = pairs.associate { it.first.id!! to it.second }
 
         // When: Validating entities against new schema
-        val summary = entityValidationService.validateExistingEntitiesAgainstNewSchema(entities, newSchema)
+        val summary = entityValidationService.validateExistingEntitiesAgainstNewSchema(entities, newSchema, attributesByEntityId)
 
         // Then: Should limit sample errors to 10
         assertEquals(15, summary.totalEntities)
@@ -1567,7 +1565,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entity with valid date (ISO 8601 format)
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = mapOf(
                 birthDateKey to EntityAttributePrimitivePayload(
@@ -1578,7 +1576,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: No validation errors
         assertTrue(errors.isEmpty(), "Should have no validation errors for valid date format")
@@ -1605,7 +1603,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // And: Entity with valid datetime (ISO 8601 format)
-        val entity = createEntity(
+        val (entity, attributes) = createEntity(
             typeId = entityType.id!!,
             payload = mapOf(
                 createdAtKey to EntityAttributePrimitivePayload(
@@ -1616,7 +1614,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
         )
 
         // When: Validating entity
-        val errors = entityValidationService.validateEntity(entity, entityType)
+        val errors = entityValidationService.validateEntity(entity, entityType, attributes)
 
         // Then: No validation errors
         assertTrue(errors.isEmpty(), "Should have no validation errors for valid datetime format")
@@ -1647,24 +1645,19 @@ class EntityValidationServiceTest : BaseServiceTest() {
         typeId: UUID,
         payload: Map<UUID, riven.core.models.entity.payload.EntityAttributePayload>,
         workspaceId: UUID = this.workspaceId
-    ): EntityEntity {
-        // Filter and convert to Map<String, EntityAttributePrimitivePayload>
-        val entityPayload = payload.mapNotNull { (key, value) ->
-            when (value) {
-                is EntityAttributePrimitivePayload -> key.toString() to value
-                else -> null
-            }
-        }.toMap()
-
-        return EntityEntity(
+    ): Pair<EntityEntity, Map<UUID, EntityAttributePrimitivePayload>> {
+        val entity = EntityEntity(
             id = UUID.randomUUID(),
             workspaceId = workspaceId,
             typeId = typeId,
-            payload = entityPayload,
             identifierKey = nameAttributeKey,
             iconType = IconType.FILE,
             iconColour = IconColour.NEUTRAL,
             typeKey = "test-entity-type"
         )
+        val attributes = payload
+            .filterValues { it is EntityAttributePrimitivePayload }
+            .mapValues { it.value as EntityAttributePrimitivePayload }
+        return entity to attributes
     }
 }

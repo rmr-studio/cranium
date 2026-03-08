@@ -49,7 +49,6 @@ CREATE TABLE IF NOT EXISTS public.entities
     "type_key"              TEXT        NOT NULL,                       -- Denormalized key from entity_type for easier access
 
     "identifier_key"        UUID        NOT NULL,                       -- Duplicate key from entity_type for faster lookups without needing separate query
-    "payload"               JSONB       NOT NULL     DEFAULT '{}'::jsonb,
     "icon_type"             TEXT        NOT NULL     DEFAULT 'FILE',    -- Lucide Icon Representation,
     "icon_colour"           TEXT        NOT NULL     DEFAULT 'NEUTRAL', --
 

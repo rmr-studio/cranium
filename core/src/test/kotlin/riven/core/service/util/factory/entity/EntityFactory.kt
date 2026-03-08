@@ -16,7 +16,6 @@ import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.models.common.validation.Schema
 import riven.core.models.entity.EntityTypeSchema
 import riven.core.models.entity.configuration.EntityTypeAttributeColumn
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
 import java.util.*
 
 object EntityFactory {
@@ -164,7 +163,6 @@ object EntityFactory {
         typeId: UUID = UUID.randomUUID(),
         typeKey: String = "test_entity",
         identifierKey: UUID = UUID.randomUUID(),
-        payload: Map<String, EntityAttributePrimitivePayload> = emptyMap(),
         iconColour: IconColour = IconColour.NEUTRAL,
         iconType: IconType = IconType.FILE,
     ): EntityEntity {
@@ -174,7 +172,6 @@ object EntityFactory {
             typeId = typeId,
             typeKey = typeKey,
             identifierKey = identifierKey,
-            payload = payload,
             iconColour = iconColour,
             iconType = iconType,
         )

@@ -157,9 +157,6 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
         typeId = typeId,
         typeKey = typeKey,
         identifierKey = UUID.randomUUID(),
-        payload = mapOf(
-            UUID.randomUUID().toString() to EntityAttributePrimitivePayload(value = "Test", schemaType = SchemaType.TEXT)
-        ),
         iconType = IconType.CIRCLE_DASHED,
         iconColour = IconColour.NEUTRAL,
     )

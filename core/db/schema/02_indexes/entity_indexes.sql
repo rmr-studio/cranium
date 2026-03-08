@@ -14,11 +14,6 @@ CREATE INDEX IF NOT EXISTS idx_entities_workspace_type
     ON entities (workspace_id, type_id)
     WHERE deleted = FALSE;
 
-DROP INDEX IF EXISTS idx_entities_payload_gin;
-CREATE INDEX IF NOT EXISTS idx_entities_payload_gin
-    ON entities USING GIN (payload)
-    WHERE deleted = FALSE AND deleted_at IS NULL;
-
 -- Relationship Definitions Indexes
 DROP INDEX IF EXISTS idx_rel_def_workspace_source;
 CREATE INDEX IF NOT EXISTS idx_rel_def_workspace_source

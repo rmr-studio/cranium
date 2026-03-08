@@ -107,7 +107,25 @@ _Which parts of this page render as React Server Components?_
 
 ---
 
-## 6. Responsive Layout
+## 6. Design Direction
+
+_Visual tone, inspiration references, and design constraints for this page_
+
+### Inspiration
+
+_Wiki links to `3.1. Visual Design Inspiration/` references, screenshots, or external links_
+
+-
+
+### Design Constraints
+
+_Fixed elements, brand requirements, density expectations, animation stance_
+
+-
+
+---
+
+## 7. Responsive Layout
 
 | Breakpoint | Layout Change |
 | ---------- | ------------- |
@@ -119,7 +137,7 @@ _Which features collapse, reorder, or hide at smaller breakpoints?_
 
 ---
 
-## 7. Tasks
+## 8. Tasks
 
 - [ ]
 - [ ]

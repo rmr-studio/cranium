@@ -4,7 +4,7 @@ tags:
 Created:
 Updated:
 ---
-# Frontend Architecture: {{title}}
+# Frontend Design — {{title}}
 
 ---
 

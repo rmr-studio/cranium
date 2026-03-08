@@ -2,6 +2,7 @@ apis/BlockApi.ts
 apis/EntityApi.ts
 apis/KnowledgeApi.ts
 apis/StorageApi.ts
+apis/TemplatesApi.ts
 apis/UserApi.ts
 apis/WorkflowApi.ts
 apis/WorkspaceApi.ts
@@ -49,6 +50,8 @@ docs/BlockTypeNesting.md
 docs/BreakpointConfig.md
 docs/BulkSaveSemanticMetadataRequest.md
 docs/BulkUpdateErrorHandling.md
+docs/BundleDetail.md
+docs/BundleInstallationResponse.md
 docs/ColumnOptions.md
 docs/ComponentType.md
 docs/Computed.md
@@ -60,6 +63,7 @@ docs/CountMatches.md
 docs/CreateBlockTypeRequest.md
 docs/CreateEntityTypeRequest.md
 docs/CreateWorkflowEdgeRequest.md
+docs/CreatedEntityTypeSummary.md
 docs/DataFormat.md
 docs/DataPath.md
 docs/DataType.md
@@ -110,6 +114,8 @@ docs/HydrateBlocksRequest.md
 docs/Icon.md
 docs/IconColour.md
 docs/IconType.md
+docs/InstallBundleRequest.md
+docs/InstallTemplateRequest.md
 docs/IsRelatedTo.md
 docs/KnowledgeApi.md
 docs/LayoutGrid.md
@@ -118,6 +124,7 @@ docs/ListConfig.md
 docs/ListDisplayConfig.md
 docs/ListFilterLogicType.md
 docs/Literal.md
+docs/ManifestSummary.md
 docs/Metadata.md
 docs/MoveBlockOperation.md
 docs/Node.md
@@ -204,6 +211,8 @@ docs/TargetEquals.md
 docs/TargetMatches.md
 docs/TargetTypeMatches.md
 docs/Template.md
+docs/TemplateInstallationResponse.md
+docs/TemplatesApi.md
 docs/ThemeTokens.md
 docs/TreeLayout.md
 docs/TreeLayoutColumn.md
@@ -317,6 +326,8 @@ models/BlockTypeNesting.ts
 models/BreakpointConfig.ts
 models/BulkSaveSemanticMetadataRequest.ts
 models/BulkUpdateErrorHandling.ts
+models/BundleDetail.ts
+models/BundleInstallationResponse.ts
 models/ColumnOptions.ts
 models/ComponentType.ts
 models/Computed.ts
@@ -328,6 +339,7 @@ models/CountMatches.ts
 models/CreateBlockTypeRequest.ts
 models/CreateEntityTypeRequest.ts
 models/CreateWorkflowEdgeRequest.ts
+models/CreatedEntityTypeSummary.ts
 models/DataFormat.ts
 models/DataPath.ts
 models/DataType.ts
@@ -377,6 +389,8 @@ models/HydrateBlocksRequest.ts
 models/Icon.ts
 models/IconColour.ts
 models/IconType.ts
+models/InstallBundleRequest.ts
+models/InstallTemplateRequest.ts
 models/IsRelatedTo.ts
 models/LayoutGrid.ts
 models/LayoutGridItem.ts
@@ -384,6 +398,7 @@ models/ListConfig.ts
 models/ListDisplayConfig.ts
 models/ListFilterLogicType.ts
 models/Literal.ts
+models/ManifestSummary.ts
 models/Metadata.ts
 models/MoveBlockOperation.ts
 models/Node.ts
@@ -469,6 +484,7 @@ models/TargetEquals.ts
 models/TargetMatches.ts
 models/TargetTypeMatches.ts
 models/Template.ts
+models/TemplateInstallationResponse.ts
 models/ThemeTokens.ts
 models/TreeLayout.ts
 models/TreeLayoutColumn.ts

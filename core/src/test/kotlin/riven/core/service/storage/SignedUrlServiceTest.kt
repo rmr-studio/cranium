@@ -68,10 +68,14 @@ class SignedUrlServiceTest {
         val storageKey = "workspace-id/avatar/some-uuid.png"
         val token = signedUrlService.generateToken(storageKey, Duration.ofHours(1))
 
-        // Tamper with the last character of the token
-        val tampered = token.dropLast(1) + if (token.last() == 'A') "B" else "A"
+        // Decode, replace the signature entirely, re-encode
+        val decoded = String(java.util.Base64.getUrlDecoder().decode(token))
+        val lastColonIndex = decoded.lastIndexOf(':')
+        val payload = decoded.substring(0, lastColonIndex)
+        val tamperedToken = java.util.Base64.getUrlEncoder().withoutPadding()
+            .encodeToString("$payload:invalidsignature".toByteArray())
 
-        val result = signedUrlService.validateToken(tampered)
+        val result = signedUrlService.validateToken(tamperedToken)
 
         assertNull(result)
     }

@@ -7,6 +7,7 @@ import riven.core.entity.util.AuditableSoftDeletableEntity
 import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.entity.semantics.SemanticGroup
+import riven.core.enums.integration.SourceType
 import riven.core.models.common.Icon
 import riven.core.models.common.display.DisplayName
 import riven.core.models.entity.EntityType
@@ -57,6 +58,16 @@ data class EntityTypeEntity(
     @Column(name = "semantic_group", nullable = false)
     var semanticGroup: SemanticGroup = SemanticGroup.UNCATEGORIZED,
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "source_type", nullable = false)
+    val sourceType: SourceType = SourceType.USER_CREATED,
+
+    @Column(name = "source_integration_id", columnDefinition = "uuid")
+    val sourceIntegrationId: UUID? = null,
+
+    @Column(name = "readonly", nullable = false)
+    val readonly: Boolean = false,
+
     @Column(name = "identifier_key", nullable = false)
     val identifierKey: UUID,
 
@@ -95,6 +106,9 @@ data class EntityTypeEntity(
             icon = Icon(this.iconType, this.iconColour),
             identifierKey = this.identifierKey,
             semanticGroup = this.semanticGroup,
+            sourceType = this.sourceType,
+            sourceIntegrationId = this.sourceIntegrationId,
+            readonly = this.readonly,
             workspaceId = this.workspaceId,
             protected = this.protected,
             schema = this.schema,

@@ -5,6 +5,7 @@ import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
+import riven.core.configuration.properties.ManifestConfigurationProperties
 import riven.core.enums.catalog.ManifestType
 import riven.core.models.catalog.ScannedManifest
 import riven.core.repository.catalog.ManifestCatalogRepository
@@ -25,12 +26,14 @@ class ManifestLoaderService(
     private val integrationDefinitionStaleSyncService: IntegrationDefinitionStaleSyncService,
     private val manifestCatalogRepository: ManifestCatalogRepository,
     private val healthIndicator: ManifestCatalogHealthIndicator,
+    private val manifestProperties: ManifestConfigurationProperties,
     private val logger: KLogger
 ) {
 
     /** Triggers the full manifest load pipeline asynchronously after application startup. */
     @EventListener(ApplicationReadyEvent::class)
     fun onApplicationReady(event: ApplicationReadyEvent) {
+        if (!manifestProperties.autoLoad) return
         Thread({
             healthIndicator.loadState = ManifestCatalogHealthIndicator.LoadState.LOADING
             try {

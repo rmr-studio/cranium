@@ -217,7 +217,43 @@
             "required": ["source"],
             "properties": {
               "source": { "type": "string", "description": "Source field path from the external provider." },
-              "transform": { "type": "object", "description": "Optional transformation configuration." }
+              "transform": {
+                "type": "object",
+                "description": "Optional transformation configuration with discriminated type.",
+                "required": ["type"],
+                "oneOf": [
+                  {
+                    "properties": {
+                      "type": { "const": "direct" }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "properties": {
+                      "type": { "const": "type_coercion" },
+                      "targetType": { "type": "string", "enum": ["number", "boolean", "date", "datetime", "string"] }
+                    },
+                    "required": ["type", "targetType"],
+                    "additionalProperties": false
+                  },
+                  {
+                    "properties": {
+                      "type": { "const": "default_value" },
+                      "value": {}
+                    },
+                    "required": ["type", "value"],
+                    "additionalProperties": false
+                  },
+                  {
+                    "properties": {
+                      "type": { "const": "json_path_extraction" },
+                      "path": { "type": "string" }
+                    },
+                    "required": ["type", "path"],
+                    "additionalProperties": false
+                  }
+                ]
+              }
             },
             "additionalProperties": false
           },

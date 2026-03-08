@@ -10,6 +10,7 @@ import org.mockito.kotlin.*
 import org.springframework.core.io.ClassPathResource
 import org.springframework.core.io.Resource
 import org.springframework.core.io.support.ResourcePatternResolver
+import riven.core.configuration.properties.ManifestConfigurationProperties
 import riven.core.enums.catalog.ManifestType
 import java.net.URI
 
@@ -74,7 +75,7 @@ class ManifestScannerServiceTest {
         resourcePatternResolver = mock()
         objectMapper = ObjectMapper().registerModule(KotlinModule.Builder().build())
         logger = mock()
-        service = ManifestScannerService(resourcePatternResolver, objectMapper, logger, "classpath:manifests")
+        service = ManifestScannerService(resourcePatternResolver, objectMapper, ManifestConfigurationProperties(), logger)
     }
 
     // ------ scanModels ------

@@ -442,6 +442,45 @@ class EntityQueryFacadeServiceTest : BaseServiceTest() {
     }
 
     @Test
+    fun `queryEntities with attribute-only projection does not hydrate or leak relationships`() {
+        val entityId = UUID.randomUUID()
+        val attr1Id = UUID.randomUUID()
+        val entity = Entity(
+            id = entityId,
+            workspaceId = workspaceId,
+            typeId = entityTypeId,
+            payload = mapOf(
+                attr1Id to EntityAttribute(payload = EntityAttributePrimitivePayload(value = "keep", schemaType = SchemaType.TEXT)),
+            ),
+            icon = Icon(type = IconType.FILE, colour = IconColour.NEUTRAL),
+            identifierKey = attr1Id,
+        )
+        val queryResult = EntityQueryResult(
+            entities = listOf(entity),
+            totalCount = 1,
+            hasNextPage = false,
+            projection = null,
+        )
+
+        runBlocking {
+            whenever(entityQueryService.execute(any(), eq(workspaceId), any(), any(), any()))
+                .thenReturn(queryResult)
+        }
+
+        val request = EntityQueryRequest(
+            projection = QueryProjection(includeAttributes = listOf(attr1Id))
+        )
+        val response = service.queryEntities(workspaceId, entityTypeId, request)
+
+        val resultPayload = response.entities.first().payload
+        assertTrue(resultPayload.containsKey(attr1Id))
+        assertEquals(1, resultPayload.size, "Only the requested attribute should be present")
+
+        // Verify relationship hydration was never called
+        verify(entityRelationshipService, never()).findRelatedEntities(any<Set<UUID>>(), any())
+    }
+
+    @Test
     fun `queryEntities with null projection returns full payload`() {
         val attr1Id = UUID.randomUUID()
         val attr2Id = UUID.randomUUID()

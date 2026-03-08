@@ -54,7 +54,11 @@ class EntityQueryFacadeService(
             )
         }
 
-        val hydrated = hydrateRelationships(result.entities, workspaceId)
+        val hydrated = if (shouldHydrateRelationships(request.projection)) {
+            hydrateRelationships(result.entities, workspaceId)
+        } else {
+            result.entities
+        }
         val entities = applyProjection(hydrated, request.projection)
 
         return EntityQueryResponse(
@@ -84,13 +88,22 @@ class EntityQueryFacadeService(
             val filtered = entity.payload.filter { (key, attr) ->
                 val isRelationship = attr.payload is EntityAttributeRelationPayload
                 if (isRelationship) {
-                    includeRels?.contains(key) ?: true
+                    includeRels?.contains(key) ?: false
                 } else {
-                    includeAttrs?.contains(key) ?: true
+                    includeAttrs?.contains(key) ?: false
                 }
             }
             entity.copy(payload = filtered)
         }
+    }
+
+    /**
+     * Returns true when the projection requires relationship data, false when hydration can be skipped.
+     */
+    private fun shouldHydrateRelationships(projection: QueryProjection?): Boolean {
+        if (projection == null) return true
+        if (projection.includeAttributes == null && projection.includeRelationships == null) return true
+        return !projection.includeRelationships.isNullOrEmpty()
     }
 
     private fun hydrateRelationships(entities: List<Entity>, workspaceId: UUID): List<Entity> {

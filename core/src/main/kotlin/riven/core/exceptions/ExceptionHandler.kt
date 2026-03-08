@@ -167,9 +167,9 @@ class ExceptionHandler(private val logger: KLogger, private val config: Applicat
     fun handleIllegalStateException(ex: IllegalStateException): ResponseEntity<ErrorResponse> {
         storeExceptionForAnalytics(ex)
         return ErrorResponse(
-            statusCode = HttpStatus.BAD_REQUEST,
-            error = "INVALID STATE",
-            message = ex.message ?: "Invalid request state",
+            statusCode = HttpStatus.INTERNAL_SERVER_ERROR,
+            error = "INTERNAL_ERROR",
+            message = ex.message ?: "An unexpected server error occurred",
             stackTrace = config.includeStackTrace.takeIf { it }?.let { ex.stackTraceToString() }
         ).also { logger.error { it } }.let {
             ResponseEntity(it, it.statusCode)

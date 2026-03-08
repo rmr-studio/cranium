@@ -54,12 +54,10 @@ class EntityQueryAssembler(
      * @param pagination Pagination configuration with limit and offset
      * @param paramGen Shared parameter name generator for the entire query tree.
      *   Created by the caller and passed through to ensure unique parameter names.
-     * @return [AssembledQuery] with separate data and count [SqlFragment]s
-     * @throws SchemaValidationException if pagination parameters are invalid
-     */
-    /**
      * @param includeCount When false, skips count query assembly and fetches limit+1 rows
      *   for hasNextPage detection instead.
+     * @return [AssembledQuery] with separate data and count [SqlFragment]s
+     * @throws SchemaValidationException if pagination parameters are invalid
      */
     fun assemble(
         entityTypeId: UUID,

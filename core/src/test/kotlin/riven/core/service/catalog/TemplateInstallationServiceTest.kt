@@ -371,9 +371,10 @@ class TemplateInstallationServiceTest : BaseServiceTest() {
 
         // Only order should be created, customer is reused
         verify(entityTypeRepository, times(1)).save(any<EntityTypeEntity>())
-        assertEquals(2, response.entityTypes.size)
-        assertNotNull(response.entityTypes.find { it.key == "customer" })
+        assertEquals(1, response.entityTypesCreated)
+        assertEquals(1, response.entityTypes.size)
         assertNotNull(response.entityTypes.find { it.key == "order" })
+        assertNull(response.entityTypes.find { it.key == "customer" })
     }
 
     // ------ Idempotency Tests ------

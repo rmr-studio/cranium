@@ -95,7 +95,7 @@ class TemplateInstallationService(
         recordTemplateInstallation(workspaceId, templateKey, userId, mergedResults)
         logTemplateActivity(userId, workspaceId, templateKey, manifest, newResults)
 
-        return buildResponse(templateKey, manifest, mergedResults, relationshipsCreated)
+        return buildResponse(templateKey, manifest, newResults, relationshipsCreated)
     }
 
     /**
@@ -120,13 +120,14 @@ class TemplateInstallationService(
         )
 
         val skippedEntityIdMap = resolveExistingEntityTypeIds(workspaceId, templatesToSkip)
-        val (manifests, allEntityTypes) = loadManifestsAndMergeEntityTypes(templatesToInstall, skippedEntityIdMap)
+        val (manifests, allCandidateEntityTypes) = loadManifestsAndMergeEntityTypes(templatesToInstall, skippedEntityIdMap)
 
-        val creationResults = createEntityTypes(workspaceId, allEntityTypes)
-        val mergedIdMap = creationResults + skippedEntityIdMap
+        val (toCreate, reusedFromWorkspace) = partitionEntityTypesByExistence(workspaceId, allCandidateEntityTypes)
+        val creationResults = createEntityTypes(workspaceId, toCreate)
+        val mergedIdMap = creationResults + reusedFromWorkspace + skippedEntityIdMap
 
         val relationshipsCreated = prepareAndCreateRelationships(workspaceId, manifests, mergedIdMap)
-        applySemanticMetadata(workspaceId, allEntityTypes, creationResults)
+        applySemanticMetadata(workspaceId, toCreate, creationResults)
         recordBundleTemplateInstallations(workspaceId, manifests, templatesToInstall, mergedIdMap, userId)
         logBundleActivity(userId, workspaceId, bundleKey, bundle, creationResults, templatesToInstall, templatesToSkip)
 

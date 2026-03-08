@@ -11,9 +11,8 @@ import riven.core.models.entity.Entity
  * when constructing this result.
  *
  * @property entities Matching entities for the current page (may be empty)
- * @property totalCount Total number of matching entities across all pages
- * @property hasNextPage Whether more results exist beyond the current page,
- *   computed as `(offset + limit) < totalCount`
+ * @property totalCount Total number of matching entities across all pages. Null when count was skipped.
+ * @property hasNextPage Whether more results exist beyond the current page
  * @property projection The projection used for the query, passed through so callers
  *   can see what field selection hints were applied
  */
@@ -22,8 +21,8 @@ data class EntityQueryResult(
     @Schema(description = "Matching entities for the current page.")
     val entities: List<Entity>,
 
-    @Schema(description = "Total number of matching entities across all pages.")
-    val totalCount: Long,
+    @Schema(description = "Total number of matching entities across all pages. Null when count was skipped.", nullable = true)
+    val totalCount: Long?,
 
     @Schema(description = "Whether more results exist beyond the current page.")
     val hasNextPage: Boolean,

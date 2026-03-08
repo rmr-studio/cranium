@@ -81,11 +81,13 @@ class EntityQueryService(
         workspaceId: UUID,
         pagination: QueryPagination = QueryPagination(),
         projection: QueryProjection? = null,
+        includeCount: Boolean = true,
     ): EntityQueryResult {
         logger.debug {
             "Executing entity query for entity type ${query.entityTypeId} " +
                     "with filter: ${query.filter != null}, " +
                     "pagination: limit=${pagination.limit} offset=${pagination.offset}, " +
+                    "includeCount: $includeCount, " +
                     "maxDepth: ${query.maxDepth}"
         }
 
@@ -112,24 +114,41 @@ class EntityQueryService(
         // Step 3: Assemble SQL
         val relationshipDirections = resolvedDefinitions.mapValues { it.value.second }
         val paramGen = ParameterNameGenerator()
-        val assembled = assembler.assemble(entityTypeId, workspaceId, query.filter, pagination, paramGen, relationshipDirections)
+        val assembled = assembler.assemble(entityTypeId, workspaceId, query.filter, pagination, paramGen, relationshipDirections, includeCount)
 
         logger.debug {
-            "Assembled SQL with ${assembled.dataQuery.parameters.size} data parameters " +
-                    "and ${assembled.countQuery.parameters.size} count parameters"
+            "Assembled SQL with ${assembled.dataQuery.parameters.size} data parameters" +
+                    if (assembled.countQuery != null) " and ${assembled.countQuery.parameters.size} count parameters" else " (count skipped)"
         }
 
-        // Step 4: Execute Queries in Parallel
-        val (entityIds, totalCount) = coroutineScope {
-            val dataDeferred = async(Dispatchers.IO) { executeDataQuery(assembled.dataQuery) }
-            val countDeferred = async(Dispatchers.IO) { executeCountQuery(assembled.countQuery) }
-            Pair(dataDeferred.await(), countDeferred.await())
+        // Step 4: Execute Queries
+        val (entityIds, totalCount) = if (includeCount) {
+            coroutineScope {
+                val dataDeferred = async(Dispatchers.IO) { executeDataQuery(assembled.dataQuery) }
+                val countDeferred = async(Dispatchers.IO) { executeCountQuery(assembled.countQuery!!) }
+                Pair(dataDeferred.await(), countDeferred.await())
+            }
+        } else {
+            val ids = withContext(Dispatchers.IO) { executeDataQuery(assembled.dataQuery) }
+            Pair(ids, null)
         }
 
         logger.debug { "Query returned ${entityIds.size} entity IDs with totalCount=$totalCount" }
 
-        // Step 5: Load Entities by IDs
-        if (entityIds.isEmpty()) {
+        // Step 5: Determine hasNextPage and trim results
+        val hasNextPage = if (includeCount) {
+            (pagination.offset + pagination.limit) < (totalCount ?: 0L)
+        } else {
+            entityIds.size > pagination.limit
+        }
+        val trimmedIds = if (!includeCount && entityIds.size > pagination.limit) {
+            entityIds.take(pagination.limit)
+        } else {
+            entityIds
+        }
+
+        // Step 6: Load Entities by IDs
+        if (trimmedIds.isEmpty()) {
             return EntityQueryResult(
                 entities = emptyList(),
                 totalCount = totalCount,
@@ -139,18 +158,15 @@ class EntityQueryService(
         }
 
         val entityEntities = withContext(Dispatchers.IO) {
-            entityRepository.findByIdIn(entityIds)
+            entityRepository.findByIdIn(trimmedIds)
         }
 
         // Convert to domain models (no relationships loaded in Phase 5)
         val entities = entityEntities.map { it.toModel(audit = true, relationships = emptyMap()) }
 
-        // Step 6: Re-sort to match original SQL order
-        val idToIndex = entityIds.withIndex().associate { it.value to it.index }
+        // Step 7: Re-sort to match original SQL order
+        val idToIndex = trimmedIds.withIndex().associate { it.value to it.index }
         val sortedEntities = entities.sortedBy { idToIndex[it.id] ?: Int.MAX_VALUE }
-
-        // Step 7: Build Result
-        val hasNextPage = (pagination.offset + pagination.limit) < totalCount
 
         return EntityQueryResult(
             entities = sortedEntities,

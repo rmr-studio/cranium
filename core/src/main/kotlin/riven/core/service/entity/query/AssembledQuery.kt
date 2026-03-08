@@ -11,10 +11,11 @@ package riven.core.service.entity.query
  * The executor (Phase 5) runs these queries separately -- potentially in parallel --
  * and combines the results into an [riven.core.models.entity.query.EntityQueryResult].
  *
- * @property dataQuery SELECT e.* query with ORDER BY, LIMIT, and OFFSET clauses
- * @property countQuery SELECT COUNT(*) query with the same WHERE clause but no ORDER BY or LIMIT/OFFSET
+ * @property dataQuery SELECT e.id query with ORDER BY, LIMIT, and OFFSET clauses
+ * @property countQuery SELECT COUNT(*) query with the same WHERE clause but no ORDER BY or LIMIT/OFFSET.
+ *   Null when includeCount is false (count is skipped for scroll-pagination).
  */
 data class AssembledQuery(
     val dataQuery: SqlFragment,
-    val countQuery: SqlFragment,
+    val countQuery: SqlFragment?,
 )

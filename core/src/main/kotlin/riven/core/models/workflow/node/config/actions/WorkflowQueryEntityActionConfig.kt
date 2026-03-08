@@ -359,7 +359,7 @@ data class WorkflowQueryEntityActionConfig(
         // Return QueryEntityOutput with resolved data
         return QueryEntityOutput(
             entities = entityMaps,
-            totalCount = result.totalCount.toInt(),
+            totalCount = (result.totalCount ?: 0L).toInt(),
             hasMore = result.hasNextPage
         )
     }

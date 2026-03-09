@@ -14,7 +14,6 @@ import riven.core.entity.entity.EntityRelationshipEntity
 import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.entity.SystemRelationshipType
 import riven.core.enums.workspace.WorkspaceRoles
 import riven.core.exceptions.InvalidRelationshipException
@@ -23,10 +22,8 @@ import riven.core.models.entity.RelationshipDefinition
 import riven.core.models.entity.RelationshipTargetRule
 import riven.core.enums.common.validation.SchemaType
 import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.projection.entity.SemanticGroupProjection
 import riven.core.repository.entity.EntityRelationshipRepository
 import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.EntityTypeRepository
 import riven.core.repository.entity.RelationshipDefinitionRepository
 import riven.core.repository.entity.RelationshipTargetRuleRepository
 import riven.core.service.auth.AuthTokenService
@@ -67,9 +64,6 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
     private lateinit var entityRepository: EntityRepository
 
     @MockitoBean
-    private lateinit var entityTypeRepository: EntityTypeRepository
-
-    @MockitoBean
     private lateinit var definitionRepository: RelationshipDefinitionRepository
 
     @MockitoBean
@@ -92,17 +86,9 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
         reset(
             entityRelationshipRepository,
             entityRepository,
-            entityTypeRepository,
             definitionRepository,
             targetRuleRepository,
         )
-
-        // Default: resolve any entity type IDs to UNCATEGORIZED semantic group
-        whenever(entityTypeRepository.findSemanticGroupsByIds(any())).thenAnswer { invocation ->
-            @Suppress("UNCHECKED_CAST")
-            val ids = invocation.arguments[0] as Collection<UUID>
-            ids.map { typeId -> mockSemanticGroupProjection(typeId, SemanticGroup.UNCATEGORIZED) }
-        }
     }
 
     // ------ Helper builders ------
@@ -156,12 +142,6 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
         iconType = IconType.CIRCLE_DASHED,
         iconColour = IconColour.NEUTRAL,
     )
-
-    private fun mockSemanticGroupProjection(id: UUID, group: SemanticGroup): SemanticGroupProjection =
-        object : SemanticGroupProjection {
-            override fun getId(): UUID = id
-            override fun getSemanticGroup(): SemanticGroup = group
-        }
 
     // ------ Save: new links ------
 

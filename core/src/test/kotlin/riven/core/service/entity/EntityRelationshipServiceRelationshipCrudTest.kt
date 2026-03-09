@@ -18,15 +18,12 @@ import riven.core.enums.workspace.WorkspaceRoles
 import riven.core.exceptions.ConflictException
 import riven.core.exceptions.InvalidRelationshipException
 import riven.core.exceptions.NotFoundException
-import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.models.entity.RelationshipDefinition
 import riven.core.models.entity.RelationshipTargetRule
 import riven.core.models.request.entity.AddRelationshipRequest
-import riven.core.projection.entity.SemanticGroupProjection
 import riven.core.models.request.entity.UpdateRelationshipRequest
 import riven.core.repository.entity.EntityRelationshipRepository
 import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.EntityTypeRepository
 import riven.core.repository.entity.RelationshipDefinitionRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.auth.AuthTokenService
@@ -66,9 +63,6 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
 
     @MockitoBean
     private lateinit var entityRepository: EntityRepository
-
-    @MockitoBean
-    private lateinit var entityTypeRepository: EntityTypeRepository
 
     @MockitoBean
     private lateinit var definitionRepository: RelationshipDefinitionRepository
@@ -123,29 +117,15 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
         )
     }
 
-    private fun mockSemanticGroupProjection(id: UUID, group: SemanticGroup): SemanticGroupProjection =
-        object : SemanticGroupProjection {
-            override fun getId(): UUID = id
-            override fun getSemanticGroup(): SemanticGroup = group
-        }
-
     @BeforeEach
     fun setup() {
         reset(
             entityRelationshipRepository,
             entityRepository,
-            entityTypeRepository,
             definitionRepository,
             entityTypeRelationshipService,
             activityService,
         )
-
-        // Default: resolve any entity type IDs to UNCATEGORIZED semantic group
-        whenever(entityTypeRepository.findSemanticGroupsByIds(any())).thenAnswer { invocation ->
-            @Suppress("UNCHECKED_CAST")
-            val ids = invocation.arguments[0] as Collection<UUID>
-            ids.map { typeId -> mockSemanticGroupProjection(typeId, SemanticGroup.UNCATEGORIZED) }
-        }
     }
 
     // ------ addRelationship (fallback) ------

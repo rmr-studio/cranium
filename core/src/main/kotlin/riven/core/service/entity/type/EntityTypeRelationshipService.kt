@@ -363,18 +363,23 @@ class EntityTypeRelationshipService(
         return entity.toModel(rules)
     }
 
-    // ------ Exclude Entity Type ------
+    // ------ Remove Target Rule ------
 
     /**
-     * Excludes an entity type from a relationship definition (target-side opt-out).
+     * Removes a target rule for an entity type from a relationship definition.
      *
-     * Deletes the explicit target rule and soft-deletes any existing instance links.
+     * If this is the last target rule on the definition, the entire definition is deleted
+     * (cascading to all instance links). Otherwise, only the rule and its associated
+     * instance links are removed.
      *
-     * @return Impact analysis if confirmation needed, null if exclusion was executed
+     * Uses the two-pass impact pattern: if instance data exists and `impactConfirmed`
+     * is false, returns impact analysis for user confirmation.
+     *
+     * @return Impact analysis if confirmation needed, null if removal was executed
      */
     @Transactional
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
-    fun excludeEntityTypeFromDefinition(
+    fun removeTargetRule(
         workspaceId: UUID,
         definitionId: UUID,
         entityTypeId: UUID,
@@ -384,10 +389,20 @@ class EntityTypeRelationshipService(
         val definition = ServiceUtil.findOrThrow { definitionRepository.findByIdAndWorkspaceId(definitionId, workspaceId) }
 
         require(definition.sourceEntityTypeId != entityTypeId) {
-            "Cannot exclude the source entity type from its own definition"
+            "Cannot remove the source entity type from its own definition"
         }
 
         validateEntityTypeBelongsToWorkspace(entityTypeId, workspaceId)
+
+        val allRules = targetRuleRepository.findByRelationshipDefinitionId(definitionId)
+        val targetRule = allRules.find { it.targetEntityTypeId == entityTypeId }
+            ?: throw NotFoundException("No target rule for entity type $entityTypeId on definition $definitionId")
+
+        val isLastRule = allRules.size == 1
+
+        if (isLastRule) {
+            return deleteRelationshipDefinition(workspaceId, definitionId, impactConfirmed)
+        }
 
         val linkCount = entityRelationshipRepository.countByDefinitionIdAndTargetEntityTypeId(definitionId, entityTypeId)
 
@@ -396,34 +411,29 @@ class EntityTypeRelationshipService(
                 definitionId = definitionId,
                 definitionName = definition.name,
                 impactedLinkCount = linkCount,
+                deletesDefinition = false,
             )
         }
 
-        // Soft-delete instance links for this entity type
         if (linkCount > 0) {
             entityRelationshipRepository.softDeleteByDefinitionIdAndTargetEntityTypeId(definitionId, entityTypeId)
         }
 
-        // Delete explicit rule if present
-        val existingRule = targetRuleRepository.findByRelationshipDefinitionId(definitionId)
-            .find { it.targetEntityTypeId == entityTypeId }
-
-        if (existingRule != null) {
-            targetRuleRepository.delete(existingRule)
-            logger.info { "Deleted explicit target rule for entity type $entityTypeId from definition $definitionId" }
-        }
+        targetRuleRepository.delete(targetRule)
 
         activityService.log(
             activity = Activity.ENTITY_RELATIONSHIP,
-            operation = OperationType.UPDATE,
+            operation = OperationType.DELETE,
             userId = userId,
             workspaceId = workspaceId,
             entityType = ApplicationEntityType.ENTITY_TYPE,
             entityId = entityTypeId,
             "relationshipId" to definitionId.toString(),
-            "action" to "exclude",
+            "action" to "remove_target_rule",
+            "isLastRule" to false,
         )
 
+        logger.info { "Removed target rule for entity type $entityTypeId from definition $definitionId" }
         return null
     }
 

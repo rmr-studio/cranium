@@ -467,6 +467,268 @@ class EntityTypeRelationshipServiceTest : BaseServiceTest() {
         assertTrue(result.any { it.name == "Origin Relationship" })
     }
 
+    // ------ Remove Target Rule ------
+
+    @Test
+    fun `removeTargetRule - last rule with links - impactConfirmed false - returns definition impact`() {
+        val defId = UUID.randomUUID()
+        val targetEntityTypeId = UUID.randomUUID()
+        val definitionEntity = EntityFactory.createRelationshipDefinitionEntity(
+            id = defId,
+            workspaceId = workspaceId,
+            sourceEntityTypeId = sourceEntityTypeId,
+            name = "Has Contacts",
+        )
+        val rule = EntityFactory.createTargetRuleEntity(
+            relationshipDefinitionId = defId,
+            targetEntityTypeId = targetEntityTypeId,
+        )
+        val entityType = mock<EntityTypeEntity> {
+            on { this.workspaceId } doReturn workspaceId
+        }
+
+        whenever(definitionRepository.findByIdAndWorkspaceId(defId, workspaceId)).thenReturn(Optional.of(definitionEntity))
+        whenever(entityTypeRepository.findById(targetEntityTypeId)).thenReturn(Optional.of(entityType))
+        whenever(targetRuleRepository.findByRelationshipDefinitionId(defId)).thenReturn(listOf(rule))
+        whenever(entityRelationshipRepository.countByDefinitionId(defId)).thenReturn(7)
+
+        val result = service.removeTargetRule(workspaceId, defId, targetEntityTypeId, impactConfirmed = false)
+
+        assertNotNull(result)
+        assertEquals(defId, result!!.definitionId)
+        assertEquals("Has Contacts", result.definitionName)
+        assertEquals(7L, result.impactedLinkCount)
+        assertTrue(result.deletesDefinition)
+
+        // Should NOT have deleted anything yet
+        verify(definitionRepository, never()).save(argThat<RelationshipDefinitionEntity> { deleted })
+        verify(targetRuleRepository, never()).delete(any())
+    }
+
+    @Test
+    fun `removeTargetRule - last rule with links - impactConfirmed true - deletes entire definition`() {
+        val defId = UUID.randomUUID()
+        val targetEntityTypeId = UUID.randomUUID()
+        val definitionEntity = EntityFactory.createRelationshipDefinitionEntity(
+            id = defId,
+            workspaceId = workspaceId,
+            sourceEntityTypeId = sourceEntityTypeId,
+            name = "Has Contacts",
+        )
+        val rule = EntityFactory.createTargetRuleEntity(
+            relationshipDefinitionId = defId,
+            targetEntityTypeId = targetEntityTypeId,
+        )
+        val entityType = mock<EntityTypeEntity> {
+            on { this.workspaceId } doReturn workspaceId
+        }
+
+        whenever(definitionRepository.findByIdAndWorkspaceId(defId, workspaceId)).thenReturn(Optional.of(definitionEntity))
+        whenever(entityTypeRepository.findById(targetEntityTypeId)).thenReturn(Optional.of(entityType))
+        whenever(targetRuleRepository.findByRelationshipDefinitionId(defId)).thenReturn(listOf(rule))
+        whenever(entityRelationshipRepository.countByDefinitionId(defId)).thenReturn(7)
+        whenever(definitionRepository.save(any<RelationshipDefinitionEntity>())).thenAnswer { it.arguments[0] }
+
+        val result = service.removeTargetRule(workspaceId, defId, targetEntityTypeId, impactConfirmed = true)
+
+        assertNull(result)
+
+        // Full definition deletion: soft-delete links, soft-delete definition, hard-delete rules
+        verify(entityRelationshipRepository).softDeleteByDefinitionId(defId)
+        verify(definitionRepository).save(argThat<RelationshipDefinitionEntity> { deleted })
+        verify(targetRuleRepository).deleteByRelationshipDefinitionId(defId)
+    }
+
+    @Test
+    fun `removeTargetRule - last rule no links - deletes definition without impact`() {
+        val defId = UUID.randomUUID()
+        val targetEntityTypeId = UUID.randomUUID()
+        val definitionEntity = EntityFactory.createRelationshipDefinitionEntity(
+            id = defId,
+            workspaceId = workspaceId,
+            sourceEntityTypeId = sourceEntityTypeId,
+            name = "Has Contacts",
+        )
+        val rule = EntityFactory.createTargetRuleEntity(
+            relationshipDefinitionId = defId,
+            targetEntityTypeId = targetEntityTypeId,
+        )
+        val entityType = mock<EntityTypeEntity> {
+            on { this.workspaceId } doReturn workspaceId
+        }
+
+        whenever(definitionRepository.findByIdAndWorkspaceId(defId, workspaceId)).thenReturn(Optional.of(definitionEntity))
+        whenever(entityTypeRepository.findById(targetEntityTypeId)).thenReturn(Optional.of(entityType))
+        whenever(targetRuleRepository.findByRelationshipDefinitionId(defId)).thenReturn(listOf(rule))
+        whenever(entityRelationshipRepository.countByDefinitionId(defId)).thenReturn(0)
+        whenever(definitionRepository.save(any<RelationshipDefinitionEntity>())).thenAnswer { it.arguments[0] }
+
+        val result = service.removeTargetRule(workspaceId, defId, targetEntityTypeId, impactConfirmed = false)
+
+        assertNull(result)
+        verify(definitionRepository).save(argThat<RelationshipDefinitionEntity> { deleted })
+        verify(targetRuleRepository).deleteByRelationshipDefinitionId(defId)
+    }
+
+    @Test
+    fun `removeTargetRule - multiple rules with links - impactConfirmed false - returns rule impact`() {
+        val defId = UUID.randomUUID()
+        val targetEntityTypeId = UUID.randomUUID()
+        val otherTargetTypeId = UUID.randomUUID()
+        val definitionEntity = EntityFactory.createRelationshipDefinitionEntity(
+            id = defId,
+            workspaceId = workspaceId,
+            sourceEntityTypeId = sourceEntityTypeId,
+            name = "Has Contacts",
+        )
+        val targetRule = EntityFactory.createTargetRuleEntity(
+            relationshipDefinitionId = defId,
+            targetEntityTypeId = targetEntityTypeId,
+        )
+        val otherRule = EntityFactory.createTargetRuleEntity(
+            relationshipDefinitionId = defId,
+            targetEntityTypeId = otherTargetTypeId,
+        )
+        val entityType = mock<EntityTypeEntity> {
+            on { this.workspaceId } doReturn workspaceId
+        }
+
+        whenever(definitionRepository.findByIdAndWorkspaceId(defId, workspaceId)).thenReturn(Optional.of(definitionEntity))
+        whenever(entityTypeRepository.findById(targetEntityTypeId)).thenReturn(Optional.of(entityType))
+        whenever(targetRuleRepository.findByRelationshipDefinitionId(defId)).thenReturn(listOf(targetRule, otherRule))
+        whenever(entityRelationshipRepository.countByDefinitionIdAndTargetEntityTypeId(defId, targetEntityTypeId)).thenReturn(3)
+
+        val result = service.removeTargetRule(workspaceId, defId, targetEntityTypeId, impactConfirmed = false)
+
+        assertNotNull(result)
+        assertEquals(defId, result!!.definitionId)
+        assertEquals(3L, result.impactedLinkCount)
+        assertFalse(result.deletesDefinition)
+
+        // Should NOT have deleted anything yet
+        verify(targetRuleRepository, never()).delete(any())
+        verify(definitionRepository, never()).save(argThat<RelationshipDefinitionEntity> { deleted })
+    }
+
+    @Test
+    fun `removeTargetRule - multiple rules with links - impactConfirmed true - deletes only rule and its links`() {
+        val defId = UUID.randomUUID()
+        val targetEntityTypeId = UUID.randomUUID()
+        val otherTargetTypeId = UUID.randomUUID()
+        val definitionEntity = EntityFactory.createRelationshipDefinitionEntity(
+            id = defId,
+            workspaceId = workspaceId,
+            sourceEntityTypeId = sourceEntityTypeId,
+            name = "Has Contacts",
+        )
+        val targetRule = EntityFactory.createTargetRuleEntity(
+            relationshipDefinitionId = defId,
+            targetEntityTypeId = targetEntityTypeId,
+        )
+        val otherRule = EntityFactory.createTargetRuleEntity(
+            relationshipDefinitionId = defId,
+            targetEntityTypeId = otherTargetTypeId,
+        )
+        val entityType = mock<EntityTypeEntity> {
+            on { this.workspaceId } doReturn workspaceId
+        }
+
+        whenever(definitionRepository.findByIdAndWorkspaceId(defId, workspaceId)).thenReturn(Optional.of(definitionEntity))
+        whenever(entityTypeRepository.findById(targetEntityTypeId)).thenReturn(Optional.of(entityType))
+        whenever(targetRuleRepository.findByRelationshipDefinitionId(defId)).thenReturn(listOf(targetRule, otherRule))
+        whenever(entityRelationshipRepository.countByDefinitionIdAndTargetEntityTypeId(defId, targetEntityTypeId)).thenReturn(3)
+
+        val result = service.removeTargetRule(workspaceId, defId, targetEntityTypeId, impactConfirmed = true)
+
+        assertNull(result)
+
+        // Only deletes the target rule and its links — definition survives
+        verify(entityRelationshipRepository).softDeleteByDefinitionIdAndTargetEntityTypeId(defId, targetEntityTypeId)
+        verify(targetRuleRepository).delete(targetRule)
+        verify(definitionRepository, never()).save(argThat<RelationshipDefinitionEntity> { deleted })
+    }
+
+    @Test
+    fun `removeTargetRule - multiple rules no links - deletes rule without impact`() {
+        val defId = UUID.randomUUID()
+        val targetEntityTypeId = UUID.randomUUID()
+        val otherTargetTypeId = UUID.randomUUID()
+        val definitionEntity = EntityFactory.createRelationshipDefinitionEntity(
+            id = defId,
+            workspaceId = workspaceId,
+            sourceEntityTypeId = sourceEntityTypeId,
+            name = "Has Contacts",
+        )
+        val targetRule = EntityFactory.createTargetRuleEntity(
+            relationshipDefinitionId = defId,
+            targetEntityTypeId = targetEntityTypeId,
+        )
+        val otherRule = EntityFactory.createTargetRuleEntity(
+            relationshipDefinitionId = defId,
+            targetEntityTypeId = otherTargetTypeId,
+        )
+        val entityType = mock<EntityTypeEntity> {
+            on { this.workspaceId } doReturn workspaceId
+        }
+
+        whenever(definitionRepository.findByIdAndWorkspaceId(defId, workspaceId)).thenReturn(Optional.of(definitionEntity))
+        whenever(entityTypeRepository.findById(targetEntityTypeId)).thenReturn(Optional.of(entityType))
+        whenever(targetRuleRepository.findByRelationshipDefinitionId(defId)).thenReturn(listOf(targetRule, otherRule))
+        whenever(entityRelationshipRepository.countByDefinitionIdAndTargetEntityTypeId(defId, targetEntityTypeId)).thenReturn(0)
+
+        val result = service.removeTargetRule(workspaceId, defId, targetEntityTypeId, impactConfirmed = false)
+
+        assertNull(result)
+        verify(targetRuleRepository).delete(targetRule)
+        verify(definitionRepository, never()).save(argThat<RelationshipDefinitionEntity> { deleted })
+    }
+
+    @Test
+    fun `removeTargetRule - no matching rule - throws NotFoundException`() {
+        val defId = UUID.randomUUID()
+        val targetEntityTypeId = UUID.randomUUID()
+        val definitionEntity = EntityFactory.createRelationshipDefinitionEntity(
+            id = defId,
+            workspaceId = workspaceId,
+            sourceEntityTypeId = sourceEntityTypeId,
+            name = "Has Contacts",
+        )
+        val unrelatedRule = EntityFactory.createTargetRuleEntity(
+            relationshipDefinitionId = defId,
+            targetEntityTypeId = UUID.randomUUID(), // different type
+        )
+        val entityType = mock<EntityTypeEntity> {
+            on { this.workspaceId } doReturn workspaceId
+        }
+
+        whenever(definitionRepository.findByIdAndWorkspaceId(defId, workspaceId)).thenReturn(Optional.of(definitionEntity))
+        whenever(entityTypeRepository.findById(targetEntityTypeId)).thenReturn(Optional.of(entityType))
+        whenever(targetRuleRepository.findByRelationshipDefinitionId(defId)).thenReturn(listOf(unrelatedRule))
+
+        assertThrows(riven.core.exceptions.NotFoundException::class.java) {
+            service.removeTargetRule(workspaceId, defId, targetEntityTypeId, impactConfirmed = false)
+        }
+    }
+
+    @Test
+    fun `removeTargetRule - source entity type as target - throws IllegalArgumentException`() {
+        val defId = UUID.randomUUID()
+        val definitionEntity = EntityFactory.createRelationshipDefinitionEntity(
+            id = defId,
+            workspaceId = workspaceId,
+            sourceEntityTypeId = sourceEntityTypeId,
+            name = "Has Contacts",
+        )
+
+        whenever(definitionRepository.findByIdAndWorkspaceId(defId, workspaceId)).thenReturn(Optional.of(definitionEntity))
+
+        assertThrows(IllegalArgumentException::class.java) {
+            service.removeTargetRule(workspaceId, defId, sourceEntityTypeId, impactConfirmed = false)
+        }
+    }
+
+    // ------ Read ------
+
     @Test
     fun `getDefinitionsForEntityType - filters out inverse definitions from other workspaces`() {
         val entityTypeId = UUID.randomUUID()

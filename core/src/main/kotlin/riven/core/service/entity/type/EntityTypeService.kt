@@ -242,36 +242,29 @@ class EntityTypeService(
             }
 
             is DeleteRelationshipDefinitionRequest -> {
-                if (definition.sourceEntityTypeKey != null) {
-                    // Target-side exclusion: the key field is the target type opting out
+                val impact = if (definition.sourceEntityTypeKey != null) {
+                    // Target-side removal: remove the target rule for this entity type
                     val entityTypeId = requireNotNull(existing.id)
-                    val impact = entityTypeRelationshipService.excludeEntityTypeFromDefinition(
+                    entityTypeRelationshipService.removeTargetRule(
                         workspaceId = workspaceId,
                         definitionId = definition.id,
                         entityTypeId = entityTypeId,
                         impactConfirmed = impactConfirmed,
                     )
-                    if (impact != null) {
-                        return EntityTypeImpactResponse(
-                            error = null,
-                            updatedEntityTypes = null,
-                            impact = impact,
-                        )
-                    }
                 } else {
-                    // Source-side deletion (existing flow)
-                    val impact = entityTypeRelationshipService.deleteRelationshipDefinition(
+                    // Source-side deletion
+                    entityTypeRelationshipService.deleteRelationshipDefinition(
                         workspaceId = workspaceId,
                         definitionId = definition.id,
                         impactConfirmed = impactConfirmed,
                     )
-                    if (impact != null) {
-                        return EntityTypeImpactResponse(
-                            error = null,
-                            updatedEntityTypes = null,
-                            impact = impact,
-                        )
-                    }
+                }
+                if (impact != null) {
+                    return EntityTypeImpactResponse(
+                        error = null,
+                        updatedEntityTypes = null,
+                        impact = impact,
+                    )
                 }
             }
 

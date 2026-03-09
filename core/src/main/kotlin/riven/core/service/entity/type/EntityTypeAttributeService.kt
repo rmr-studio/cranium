@@ -12,10 +12,12 @@ import riven.core.models.entity.payload.EntityAttributeRequest
 import riven.core.models.request.entity.type.SaveAttributeDefinitionRequest
 import riven.core.repository.entity.EntityRepository
 import riven.core.repository.entity.EntityUniqueValuesRepository
+import riven.core.enums.common.validation.SchemaType
 import riven.core.service.entity.EntityAttributeService
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.service.entity.EntityTypeSemanticMetadataService
 import riven.core.service.entity.EntityValidationService
+import riven.core.service.schema.SchemaService
 import java.util.*
 
 @Service
@@ -25,6 +27,8 @@ class EntityTypeAttributeService(
     private val uniqueEntityValueRepository: EntityUniqueValuesRepository,
     private val semanticMetadataService: EntityTypeSemanticMetadataService,
     private val entityAttributeService: EntityAttributeService,
+    private val schemaService: SchemaService,
+    private val sequenceService: EntityTypeSequenceService,
 ) {
 
     fun saveAttributeDefinition(
@@ -46,6 +50,21 @@ class EntityTypeAttributeService(
                     listOf("Attribute with 'unique' constraint must be of type STRING or NUMBER")
                 )
             }
+        }
+
+        // Validate default value if present
+        attribute.options?.default?.let { defaultValue ->
+            val defaultErrors = schemaService.validateDefault(attribute, defaultValue)
+            if (defaultErrors.isNotEmpty()) {
+                throw SchemaValidationException(
+                    defaultErrors.map { "Attribute '${id}': $it" }
+                )
+            }
+        }
+
+        // Initialize sequence for new ID-type attributes
+        if (isNewAttribute && attribute.key == SchemaType.ID) {
+            sequenceService.initializeSequence(typeId, id)
         }
 
         val updatedSchema = type.schema.copy(

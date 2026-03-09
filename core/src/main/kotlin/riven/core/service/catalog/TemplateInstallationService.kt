@@ -749,7 +749,8 @@ class TemplateInstallationService(
         val opts = optionsRaw as? Map<String, Any> ?: return null
 
         return Schema.SchemaOptions(
-            default = null,
+            default = opts["default"],
+            prefix = opts["prefix"] as? String,
             regex = opts["regex"] as? String,
             enum = (opts["enum"] as? List<*>)?.map { it.toString() },
             minLength = (opts["minLength"] as? Number)?.toInt(),

@@ -715,6 +715,73 @@ class TemplateInstallationServiceTest : BaseServiceTest() {
         )
     }
 
+    // ------ Schema Options Parsing ------
+
+    @Test
+    fun `installTemplate parses default value from schema options`() {
+        val manifest = createManifestWithEntityTypes(
+            createCatalogEntityType(
+                key = "task",
+                singular = "Task",
+                plural = "Tasks",
+                schema = mapOf(
+                    "status" to mapOf<String, Any>(
+                        "key" to "SELECT",
+                        "label" to "Status",
+                        "type" to "string",
+                        "required" to false,
+                        "options" to mapOf(
+                            "enum" to listOf("draft", "active", "done"),
+                            "default" to "draft"
+                        )
+                    ),
+                    "name" to mapOf<String, Any>(
+                        "key" to "TEXT",
+                        "label" to "Name",
+                        "type" to "string",
+                        "required" to true,
+                    )
+                ),
+            )
+        )
+
+        val savedType = captureEntityType(manifest)
+        val statusAttr = savedType.schema.properties!!.values.first { it.label == "Status" }
+        assertEquals("draft", statusAttr.options?.default)
+    }
+
+    @Test
+    fun `installTemplate parses prefix from ID schema options`() {
+        val manifest = createManifestWithEntityTypes(
+            createCatalogEntityType(
+                key = "ticket",
+                singular = "Ticket",
+                plural = "Tickets",
+                schema = mapOf(
+                    "reference" to mapOf<String, Any>(
+                        "key" to "ID",
+                        "label" to "Reference",
+                        "type" to "string",
+                        "required" to false,
+                        "options" to mapOf(
+                            "prefix" to "TKT"
+                        )
+                    ),
+                    "name" to mapOf<String, Any>(
+                        "key" to "TEXT",
+                        "label" to "Name",
+                        "type" to "string",
+                        "required" to true,
+                    )
+                ),
+            )
+        )
+
+        val savedType = captureEntityType(manifest)
+        val refAttr = savedType.schema.properties!!.values.first { it.label == "Reference" }
+        assertEquals("TKT", refAttr.options?.prefix)
+    }
+
     // ------ Test Helpers ------
 
     private fun createTestBundle(key: String, templateKeys: List<String>) = BundleDetail(
@@ -734,6 +801,18 @@ class TemplateInstallationServiceTest : BaseServiceTest() {
 
     private fun stubFallbackDefinition() {
         whenever(relationshipService.createFallbackDefinition(any(), any())).thenReturn(mock())
+    }
+
+    private fun captureEntityType(manifest: ManifestDetail): EntityTypeEntity {
+        whenever(catalogService.getManifestByKey("test-template", ManifestType.TEMPLATE)).thenReturn(manifest)
+        stubEntityTypeSave()
+        stubFallbackDefinition()
+
+        service.installTemplate(workspaceId, "test-template")
+
+        val captor = argumentCaptor<EntityTypeEntity>()
+        verify(entityTypeRepository).save(captor.capture())
+        return captor.firstValue
     }
 
     private fun stubRelationshipCreation() {

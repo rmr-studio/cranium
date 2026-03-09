@@ -23,3 +23,18 @@
 - StorageController — 6 REST endpoints under /api/v1/storage/
 - FileMetadataEntity — JPA entity for file metadata persistence
 - StorageConfigurationProperties — @ConfigurationProperties for provider and signed URL config
+
+## 2026-03-09 — Simplify Entity Relationship System
+
+**Domains affected:** Entity, Catalog
+**What changed:**
+- Removed semantic group-based targeting from relationship target rules — all rules now require explicit `targetEntityTypeId`
+- Removed `allowPolymorphic` column from relationship definitions — polymorphic behavior is now derived from `systemType` (only system-managed CONNECTED_ENTITIES definitions are polymorphic)
+- Removed `relationship_definition_exclusions` table and all exclusion infrastructure (entity, repository, service methods, tests)
+- Simplified inverse relationship link queries by removing CTE, semantic matching, and exclusion NOT EXISTS subqueries
+- Made `target_entity_type_id` NOT NULL in `relationship_target_rules`
+- Updated catalog pipeline (entities, models, resolver, upsert, installation, materialization) to match simplified relationship model
+- Removed `SemanticGroup` from relationship targeting context (enum retained for entity type classification)
+
+**New cross-domain dependencies:** no
+**New components introduced:** none — this is a pure simplification/removal

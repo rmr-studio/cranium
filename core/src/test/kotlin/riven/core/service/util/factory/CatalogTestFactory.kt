@@ -60,14 +60,12 @@ object CatalogTestFactory {
             name = "customer-orders",
             iconType = IconType.LINK,
             iconColour = IconColour.NEUTRAL,
-            allowPolymorphic = false,
             cardinalityDefault = EntityRelationshipCardinality.ONE_TO_MANY,
             `protected` = false,
             targetRules = listOf(
                 CatalogRelationshipTargetRuleModel(
                     id = UUID.randomUUID(),
                     targetEntityTypeKey = "order",
-                    semanticTypeConstraint = null,
                     cardinalityOverride = null,
                     inverseVisible = true,
                     inverseName = "Orders",

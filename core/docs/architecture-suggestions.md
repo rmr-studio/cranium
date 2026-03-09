@@ -41,3 +41,9 @@ This would allow `time-entry` (and any future entity type) to use a stable, uniq
 - **Inject defaults:** `EntityService.saveEntity()` should inject attribute defaults before validation runs, so that attributes with configured defaults (e.g. a SELECT attribute defaulting to `"draft"`) are pre-populated on creation.
 
 This applies to all attribute types, not just `ID`.
+
+## 2026-03-09 — Relationship Simplification May Affect System Design Docs
+
+**Trigger:** Removed semantic group targeting, polymorphic toggle, and exclusion mechanism from entity relationships
+**Affected vault notes:** Entity domain relationship documentation, any diagrams showing relationship targeting flow
+**Suggested update:** Review and update relationship architecture documentation to reflect simplified model where all target rules are explicit (type ID based) and polymorphic behavior is system-only (CONNECTED_ENTITIES)

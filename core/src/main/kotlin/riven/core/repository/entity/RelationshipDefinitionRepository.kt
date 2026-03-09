@@ -52,13 +52,6 @@ interface RelationshipDefinitionRepository : JpaRepository<RelationshipDefinitio
                 SELECT rtr2.relationshipDefinitionId FROM RelationshipTargetRuleEntity rtr2
                 WHERE rtr2.targetEntityTypeId IN :entityTypeIds
             )
-            OR rd.id IN (
-                SELECT rtr3.relationshipDefinitionId FROM RelationshipTargetRuleEntity rtr3, EntityTypeEntity et
-                WHERE rtr3.semanticTypeConstraint IS NOT NULL
-                AND rtr3.semanticTypeConstraint = et.semanticGroup
-                AND et.id IN :entityTypeIds
-                AND et.semanticGroup <> riven.core.enums.entity.semantics.SemanticGroup.UNCATEGORIZED
-            )
         )
     """)
     fun findDefinitionsWithRulesForEntityTypes(workspaceId: UUID, entityTypeIds: List<UUID>): List<Array<Any?>>

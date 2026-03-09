@@ -49,7 +49,6 @@ data class NormalizedRelationship(
     val name: String,
     val iconType: String = "LINK",
     val iconColour: String = "NEUTRAL",
-    val allowPolymorphic: Boolean = false,
     val cardinalityDefault: EntityRelationshipCardinality,
     val `protected`: Boolean,
     val targetRules: List<NormalizedTargetRule>,
@@ -58,7 +57,6 @@ data class NormalizedRelationship(
 
 data class NormalizedTargetRule(
     val targetEntityTypeKey: String,
-    val semanticTypeConstraint: String? = null,
     val cardinalityOverride: EntityRelationshipCardinality? = null,
     val inverseVisible: Boolean? = null,
     val inverseName: String? = null

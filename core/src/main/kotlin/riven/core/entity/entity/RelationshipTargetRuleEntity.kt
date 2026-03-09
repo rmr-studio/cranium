@@ -3,7 +3,6 @@ package riven.core.entity.entity
 import jakarta.persistence.*
 import riven.core.entity.util.AuditableEntity
 import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.models.entity.RelationshipTargetRule
 import java.util.*
 
@@ -28,12 +27,8 @@ data class RelationshipTargetRuleEntity(
     @Column(name = "relationship_definition_id", nullable = false, columnDefinition = "uuid")
     val relationshipDefinitionId: UUID,
 
-    @Column(name = "target_entity_type_id", nullable = true, columnDefinition = "uuid")
-    val targetEntityTypeId: UUID?,
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "semantic_type_constraint", nullable = true)
-    val semanticTypeConstraint: SemanticGroup? = null,
+    @Column(name = "target_entity_type_id", nullable = false, columnDefinition = "uuid")
+    val targetEntityTypeId: UUID,
 
     @Enumerated(EnumType.STRING)
     @Column(name = "cardinality_override", nullable = true)
@@ -49,7 +44,6 @@ data class RelationshipTargetRuleEntity(
             id = id,
             relationshipDefinitionId = this.relationshipDefinitionId,
             targetEntityTypeId = this.targetEntityTypeId,
-            semanticTypeConstraint = this.semanticTypeConstraint,
             cardinalityOverride = this.cardinalityOverride,
             inverseName = this.inverseName,
             createdAt = this.createdAt,

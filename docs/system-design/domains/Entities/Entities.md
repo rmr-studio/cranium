@@ -70,9 +70,8 @@ The Entities domain provides a flexible, schema-driven data management system. E
 | EntityAttributeEntity | Normalized per-attribute values for entity instances | id, entityId, workspaceId, typeId, attributeId, schemaType, value |
 | EntityRelationshipEntity | Relationship instances linking entities | id, sourceId, targetId, definitionId, workspaceId, semanticContext, linkSource |
 | EntityUniqueValueEntity | Unique constraint tracking for entity attributes | entityId, typeId, fieldId, value, workspaceId |
-| RelationshipDefinitionEntity | Relationship definitions (type-level configuration) | id, workspaceId, sourceEntityTypeId, name, iconType, iconColour, allowPolymorphic, cardinalityDefault, protected, systemType |
-| RelationshipTargetRuleEntity | Per-target-type configuration for relationship definitions | id, relationshipDefinitionId, targetEntityTypeId, semanticTypeConstraint, cardinalityOverride, inverseName |
-| RelationshipDefinitionExclusionEntity | Target-side opt-out records for relationship definitions | id, relationshipDefinitionId, entityTypeId |
+| RelationshipDefinitionEntity | Relationship definitions (type-level configuration) | id, workspaceId, sourceEntityTypeId, name, iconType, iconColour, cardinalityDefault, protected, systemType |
+| RelationshipTargetRuleEntity | Per-target-type configuration for relationship definitions | id, relationshipDefinitionId, targetEntityTypeId, cardinalityOverride, inverseName |
 | EntityTypeSemanticMetadataEntity | Semantic metadata records for entity types, attributes, and relationships | id, workspaceId, entityTypeId, targetType, targetId, definition, classification, tags |
 
 ### Database Tables
@@ -86,7 +85,6 @@ The Entities domain provides a flexible, schema-driven data management system. E
 | entity_unique_values | EntityUniqueValueEntity | Normalized unique value tracking for uniqueness constraints |
 | relationship_definitions | RelationshipDefinitionEntity | Relationship type-level configuration. Indexed on (workspace_id, source_entity_type_id) |
 | relationship_target_rules | RelationshipTargetRuleEntity | Per-target-type rules with cardinality overrides. Indexed on definition_id and target_entity_type_id |
-| relationship_definition_exclusions | RelationshipDefinitionExclusionEntity | Target-side opt-out records. Unique on (definition_id, entity_type_id). Hard-deleted when reversed or when definition is deleted |
 | entity_type_semantic_metadata | EntityTypeSemanticMetadataEntity | Single-table discriminator pattern for type/attribute/relationship metadata. JSONB tags column. Partial indexes on soft-delete flag |
 
 ---
@@ -122,7 +120,7 @@ None. The Entities domain operates entirely within the application database (Pos
 | Decision | Summary |
 | -------- | ------- |
 | Normalized attribute storage | Entity attributes stored in dedicated `entity_attributes` table (one row per attribute per entity) for indexed cross-entity queries, EXISTS-based filtering, and future trigram fuzzy matching. Replaced earlier JSONB payload approach. |
-| Always bidirectional | All relationships are always bidirectional. Inverse visibility resolved at query time by matching target types against rules. Target-side exclusions allow entity types to opt out without affecting other types. |
+| Always bidirectional | All relationships are always bidirectional. Inverse visibility resolved at query time by matching target types against explicit target rules. |
 | Table-based relationship definitions | Relationship configuration stored in dedicated relationship_definitions and relationship_target_rules tables instead of JSONB field on entity_types |
 | Write-time cardinality enforcement | Cardinality limits enforced at relationship insert time, not just at schema level |
 | Fallback connection definitions | System-managed CONNECTED_ENTITIES definitions auto-created per entity type enable lightweight linking without user-defined relationship schemas |
@@ -137,7 +135,6 @@ None. The Entities domain operates entirely within the application database (Pos
 
 | Issue | Impact | Effort |
 | ----- | ------ | ------ |
-| Semantic type constraint matching stubbed | EntityRelationshipService.findMatchingRule() only matches by explicit type ID; semantic constraint lookup not yet implemented | Low |
 | Missing cross-type attribute validation in query filters | Relationship filters validate against root entity type attributes instead of target entity type | Low |
 | CountMatches filter unsupported | RelationshipSqlGenerator throws UnsupportedOperationException for CountMatches filter variant | Low |
 
@@ -152,5 +149,6 @@ None. The Entities domain operates entirely within the application database (Pos
 | 2026-02-19 | Entity Semantics subdomain implemented — semantic metadata service, repository, lifecycle hooks, KnowledgeController | Semantic Metadata Foundation |
 | 2026-02-21 | Entity relationship overhaul — replaced ORIGIN/REFERENCE sync with table-based architecture, added relationship_definitions and relationship_target_rules tables, write-time cardinality enforcement, query-time inverse resolution | Entity Relationships |
 | 2026-03-01 | Entity Connections — system-managed CONNECTED_ENTITIES definitions, unified relationship CRUD API (addRelationship, getRelationships, updateRelationship, removeRelationship), IS_RELATED_TO query filter, bidirectional existence queries | Entity Connections / Unified Relationship CRUD |
-| 2026-03-06 | Always bidirectional — removed `inverse_visible` flag. Added target-side exclusion mechanism (`relationship_definition_exclusions` table) allowing entity types to opt out of implicit relationship definitions. Exclusions respected in definition resolution and native inverse link queries. | Target-Side Exclusions / Always Bidirectional |
+| 2026-03-06 | Always bidirectional — removed `inverse_visible` flag. Inverse visibility resolved at query time via explicit target rules. | Always Bidirectional |
+| 2026-03-09 | Relationship simplification — removed `allowPolymorphic` field (replaced with computed `isPolymorphic` derived from `systemType != null`), removed `semanticTypeConstraint` from target rules, removed `relationship_definition_exclusions` table and exclusion mechanism, made `targetEntityTypeId` non-nullable. Only system definitions (CONNECTED_ENTITIES) are polymorphic. Repository queries converted from native SQL to JPQL. | Relationship Simplification |
 | 2026-03-09 | Entity attributes normalization — extracted attribute storage from JSONB `payload` column on `entities` table into normalized `entity_attributes` table. AttributeSqlGenerator rewritten from JSONB operators to EXISTS subqueries. New EntityAttributeService, EntityAttributeRepository, EntityAttributeEntity components. | Entity Attributes Normalization |

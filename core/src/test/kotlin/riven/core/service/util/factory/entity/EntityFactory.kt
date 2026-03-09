@@ -4,7 +4,6 @@ import riven.core.entity.entity.EntityEntity
 import riven.core.entity.entity.EntityRelationshipEntity
 import riven.core.entity.entity.EntityTypeEntity
 import riven.core.entity.entity.RelationshipDefinitionEntity
-import riven.core.entity.entity.RelationshipDefinitionExclusionEntity
 import riven.core.entity.entity.RelationshipTargetRuleEntity
 import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
@@ -104,7 +103,6 @@ object EntityFactory {
         sourceEntityTypeId: UUID = UUID.randomUUID(),
         name: String = "Related Entity",
         cardinalityDefault: EntityRelationshipCardinality = EntityRelationshipCardinality.MANY_TO_MANY,
-        allowPolymorphic: Boolean = false,
         protected: Boolean = false,
     ): RelationshipDefinitionEntity {
         return RelationshipDefinitionEntity(
@@ -113,7 +111,6 @@ object EntityFactory {
             sourceEntityTypeId = sourceEntityTypeId,
             name = name,
             cardinalityDefault = cardinalityDefault,
-            allowPolymorphic = allowPolymorphic,
             protected = protected,
         )
     }
@@ -124,8 +121,7 @@ object EntityFactory {
     fun createTargetRuleEntity(
         id: UUID = UUID.randomUUID(),
         relationshipDefinitionId: UUID = UUID.randomUUID(),
-        targetEntityTypeId: UUID? = UUID.randomUUID(),
-        semanticTypeConstraint: SemanticGroup? = null,
+        targetEntityTypeId: UUID = UUID.randomUUID(),
         cardinalityOverride: EntityRelationshipCardinality? = null,
         inverseName: String = "Inverse",
     ): RelationshipTargetRuleEntity {
@@ -133,24 +129,8 @@ object EntityFactory {
             id = id,
             relationshipDefinitionId = relationshipDefinitionId,
             targetEntityTypeId = targetEntityTypeId,
-            semanticTypeConstraint = semanticTypeConstraint,
             cardinalityOverride = cardinalityOverride,
             inverseName = inverseName,
-        )
-    }
-
-    /**
-     * Creates a RelationshipDefinitionExclusionEntity for testing.
-     */
-    fun createExclusionEntity(
-        id: UUID = UUID.randomUUID(),
-        relationshipDefinitionId: UUID = UUID.randomUUID(),
-        entityTypeId: UUID = UUID.randomUUID(),
-    ): RelationshipDefinitionExclusionEntity {
-        return RelationshipDefinitionExclusionEntity(
-            id = id,
-            relationshipDefinitionId = relationshipDefinitionId,
-            entityTypeId = entityTypeId,
         )
     }
 

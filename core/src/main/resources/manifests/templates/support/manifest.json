@@ -13,7 +13,6 @@
       "key": "customer-support-tickets",
       "sourceEntityTypeKey": "customer",
       "name": "Support Tickets",
-      "allowPolymorphic": false,
       "protected": false,
       "targetRules": [
         {

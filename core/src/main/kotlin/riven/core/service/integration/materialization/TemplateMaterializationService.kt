@@ -321,7 +321,6 @@ class TemplateMaterializationService(
                 name = catalogRel.name,
                 iconType = catalogRel.iconType,
                 iconColour = catalogRel.iconColour,
-                allowPolymorphic = catalogRel.allowPolymorphic,
                 cardinalityDefault = catalogRel.cardinalityDefault,
                 `protected` = true
             )
@@ -342,10 +341,10 @@ class TemplateMaterializationService(
     ) {
         for (catalogRule in catalogTargetRules) {
             val targetEntityTypeId = keyToIdMap[catalogRule.targetEntityTypeKey]
-            if (targetEntityTypeId == null && catalogRule.semanticTypeConstraint == null) {
+            if (targetEntityTypeId == null) {
                 logger.warn {
                     "Skipping target rule for relationship '$relationshipName': " +
-                        "unresolvable target key '${catalogRule.targetEntityTypeKey}' and no semantic constraint"
+                        "unresolvable target key '${catalogRule.targetEntityTypeKey}'"
                 }
                 continue
             }
@@ -354,7 +353,6 @@ class TemplateMaterializationService(
                 RelationshipTargetRuleEntity(
                     relationshipDefinitionId = relationshipDefId,
                     targetEntityTypeId = targetEntityTypeId,
-                    semanticTypeConstraint = catalogRule.semanticTypeConstraint,
                     cardinalityOverride = catalogRule.cardinalityOverride,
                     inverseName = catalogRule.inverseName ?: relationshipName
                 )

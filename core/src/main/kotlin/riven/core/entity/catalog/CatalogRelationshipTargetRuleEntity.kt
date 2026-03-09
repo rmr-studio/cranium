@@ -3,7 +3,6 @@ package riven.core.entity.catalog
 import jakarta.persistence.*
 import org.hibernate.annotations.UpdateTimestamp
 import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.models.catalog.CatalogRelationshipTargetRuleModel
 import java.time.ZonedDateTime
 import java.util.*
@@ -29,10 +28,6 @@ data class CatalogRelationshipTargetRuleEntity(
     val targetEntityTypeKey: String,
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "semantic_type_constraint")
-    val semanticTypeConstraint: SemanticGroup? = null,
-
-    @Enumerated(EnumType.STRING)
     @Column(name = "cardinality_override")
     val cardinalityOverride: EntityRelationshipCardinality? = null,
 
@@ -53,7 +48,6 @@ data class CatalogRelationshipTargetRuleEntity(
     fun toModel() = CatalogRelationshipTargetRuleModel(
         id = id!!,
         targetEntityTypeKey = targetEntityTypeKey,
-        semanticTypeConstraint = semanticTypeConstraint,
         cardinalityOverride = cardinalityOverride,
         inverseVisible = inverseVisible,
         inverseName = inverseName

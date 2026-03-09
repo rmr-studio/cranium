@@ -353,7 +353,6 @@ class TemplateInstallationService(
                 )
             SaveTargetRuleRequest(
                 targetEntityTypeId = targetResult.entityTypeId,
-                semanticTypeConstraint = rule.semanticTypeConstraint,
                 cardinalityOverride = rule.cardinalityOverride,
                 inverseName = rule.inverseName ?: "",
             )
@@ -371,7 +370,6 @@ class TemplateInstallationService(
             name = catalogRel.name,
             iconType = catalogRel.iconType,
             iconColour = catalogRel.iconColour,
-            allowPolymorphic = catalogRel.allowPolymorphic,
             cardinalityDefault = catalogRel.cardinalityDefault,
             targetRules = targetRules,
             semantics = semantics,

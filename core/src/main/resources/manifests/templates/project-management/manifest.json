@@ -467,7 +467,6 @@
       "key": "client-projects",
       "sourceEntityTypeKey": "customer",
       "name": "Projects",
-      "allowPolymorphic": false,
       "protected": false,
       "targetRules": [
         {
@@ -485,7 +484,6 @@
       "key": "project-deliverables",
       "sourceEntityTypeKey": "project",
       "name": "Deliverables",
-      "allowPolymorphic": false,
       "protected": false,
       "targetRules": [
         {
@@ -503,7 +501,6 @@
       "key": "project-team-members",
       "sourceEntityTypeKey": "project",
       "name": "Team Members",
-      "allowPolymorphic": false,
       "protected": false,
       "targetRules": [
         {
@@ -521,7 +518,6 @@
       "key": "project-time-entries",
       "sourceEntityTypeKey": "project",
       "name": "Time Entries",
-      "allowPolymorphic": false,
       "protected": false,
       "targetRules": [
         {
@@ -539,7 +535,6 @@
       "key": "team-member-time-entries",
       "sourceEntityTypeKey": "team-member",
       "name": "Time Entries",
-      "allowPolymorphic": false,
       "protected": false,
       "targetRules": [
         {

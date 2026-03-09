@@ -63,7 +63,7 @@ Pure in-memory transformation service that resolves scanned manifests into fully
 **Relationship normalization:**
 
 - **Shorthand format:** `targetEntityTypeKey` + `cardinality` fields produce a single-target-rule relationship
-- **Full format:** `targetRules` array with per-rule `cardinalityOverride`, `semanticTypeConstraint`, `inverseVisible`, `inverseName`
+- **Full format:** `targetRules` array with per-rule `cardinalityOverride`, `inverseVisible`, `inverseName`
 - **Mutual exclusivity:** A relationship node with both shorthand and `targetRules` fields returns null (marks manifest stale)
 - **Protected default:** `true` for INTEGRATION manifests, `false` for TEMPLATE manifests
 - **Full format cardinality default:** `ONE_TO_MANY` when no explicit cardinality is provided

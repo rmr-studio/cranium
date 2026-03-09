@@ -117,7 +117,6 @@ CREATE TABLE IF NOT EXISTS public.relationship_definitions
     "name"                  TEXT    NOT NULL,
     "icon_type"             TEXT    NOT NULL,
     "icon_value"            TEXT    NOT NULL,
-    "allow_polymorphic"     BOOLEAN NOT NULL         DEFAULT FALSE,
     "cardinality_default"   TEXT    NOT NULL CHECK (cardinality_default IN
                                                     ('ONE_TO_ONE', 'ONE_TO_MANY', 'MANY_TO_ONE', 'MANY_TO_MANY')),
     "protected"             BOOLEAN NOT NULL         DEFAULT FALSE,
@@ -137,35 +136,14 @@ CREATE TABLE IF NOT EXISTS public.relationship_target_rules
 (
     "id"                         UUID PRIMARY KEY         DEFAULT uuid_generate_v4(),
     "relationship_definition_id" UUID NOT NULL REFERENCES public.relationship_definitions (id) ON DELETE CASCADE,
-    "target_entity_type_id"      UUID REFERENCES public.entity_types (id) ON DELETE CASCADE,
-    "semantic_type_constraint"   TEXT,
+    "target_entity_type_id"      UUID NOT NULL REFERENCES public.entity_types (id) ON DELETE CASCADE,
     "cardinality_override"       TEXT CHECK (cardinality_override IN
                                              ('ONE_TO_ONE', 'ONE_TO_MANY', 'MANY_TO_ONE', 'MANY_TO_MANY')),
     "inverse_name"               TEXT NOT NULL,
     "created_at"                 TIMESTAMP WITH TIME ZONE DEFAULT now(),
     "updated_at"                 TIMESTAMP WITH TIME ZONE DEFAULT now(),
     "created_by"                 UUID,
-    "updated_by"                 UUID,
-
-    CONSTRAINT chk_target_or_semantic CHECK (
-        target_entity_type_id IS NOT NULL OR semantic_type_constraint IS NOT NULL
-        )
-);
-
--- =====================================================
--- RELATIONSHIP DEFINITION EXCLUSIONS TABLE
--- =====================================================
-CREATE TABLE IF NOT EXISTS public.relationship_definition_exclusions
-(
-    "id"                         UUID PRIMARY KEY         DEFAULT uuid_generate_v4(),
-    "relationship_definition_id" UUID NOT NULL REFERENCES public.relationship_definitions (id) ON DELETE CASCADE,
-    "entity_type_id"             UUID NOT NULL REFERENCES public.entity_types (id) ON DELETE CASCADE,
-    "created_at"                 TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    "updated_at"                 TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    "created_by"                 UUID REFERENCES users (id) ON DELETE SET NULL,
-    "updated_by"                 UUID REFERENCES users (id) ON DELETE SET NULL,
-
-    CONSTRAINT uq_exclusion_def_type UNIQUE (relationship_definition_id, entity_type_id)
+    "updated_by"                 UUID
 );
 
 -- =====================================================

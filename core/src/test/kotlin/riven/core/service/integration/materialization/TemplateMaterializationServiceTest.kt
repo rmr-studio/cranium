@@ -386,7 +386,6 @@ class TemplateMaterializationServiceTest {
             name = "Company",
             iconType = IconType.BUILDING,
             iconColour = IconColour.GREEN,
-            allowPolymorphic = false,
             cardinalityDefault = EntityRelationshipCardinality.MANY_TO_ONE,
             `protected` = true
         )
@@ -489,7 +488,6 @@ class TemplateMaterializationServiceTest {
             key = "note-associations",
             sourceEntityTypeKey = "hubspot-note",
             name = "Associated With",
-            allowPolymorphic = true,
             cardinalityDefault = EntityRelationshipCardinality.MANY_TO_MANY,
             `protected` = true
         )

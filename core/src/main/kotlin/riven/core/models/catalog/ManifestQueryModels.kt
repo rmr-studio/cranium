@@ -64,7 +64,6 @@ data class CatalogRelationshipModel(
     val name: String,
     val iconType: IconType,
     val iconColour: IconColour,
-    val allowPolymorphic: Boolean,
     val cardinalityDefault: EntityRelationshipCardinality,
     val `protected`: Boolean,
     val targetRules: List<CatalogRelationshipTargetRuleModel>
@@ -74,7 +73,6 @@ data class CatalogRelationshipModel(
 data class CatalogRelationshipTargetRuleModel(
     val id: UUID,
     val targetEntityTypeKey: String,
-    val semanticTypeConstraint: SemanticGroup?,
     val cardinalityOverride: EntityRelationshipCardinality?,
     val inverseVisible: Boolean,
     val inverseName: String?

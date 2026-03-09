@@ -431,7 +431,6 @@
       "key": "customer-subscriptions",
       "sourceEntityTypeKey": "customer",
       "name": "Subscriptions",
-      "allowPolymorphic": false,
       "protected": false,
       "targetRules": [
         {
@@ -449,7 +448,6 @@
       "key": "subscription-plan",
       "sourceEntityTypeKey": "subscription",
       "name": "Plan",
-      "allowPolymorphic": false,
       "protected": false,
       "targetRules": [
         {
@@ -467,7 +465,6 @@
       "key": "customer-churn-events",
       "sourceEntityTypeKey": "customer",
       "name": "Churn Events",
-      "allowPolymorphic": false,
       "protected": false,
       "targetRules": [
         {
@@ -485,7 +482,6 @@
       "key": "customer-feature-usage",
       "sourceEntityTypeKey": "customer",
       "name": "Feature Usage",
-      "allowPolymorphic": false,
       "protected": false,
       "targetRules": [
         {

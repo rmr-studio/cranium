@@ -41,9 +41,6 @@ data class RelationshipDefinitionEntity(
     @Column(name = "icon_value", nullable = false)
     var iconColour: IconColour = IconColour.NEUTRAL,
 
-    @Column(name = "allow_polymorphic", nullable = false)
-    var allowPolymorphic: Boolean = false,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "cardinality_default", nullable = false)
     var cardinalityDefault: EntityRelationshipCardinality,
@@ -58,7 +55,6 @@ data class RelationshipDefinitionEntity(
 
     fun toModel(
         targetRules: List<RelationshipTargetRule> = emptyList(),
-        excludedEntityTypeIds: List<UUID> = emptyList(),
     ): RelationshipDefinition {
         val id = requireNotNull(this.id) { "RelationshipDefinitionEntity ID cannot be null" }
         return RelationshipDefinition(
@@ -67,12 +63,10 @@ data class RelationshipDefinitionEntity(
             sourceEntityTypeId = this.sourceEntityTypeId,
             name = this.name,
             icon = Icon(this.iconType, this.iconColour),
-            allowPolymorphic = this.allowPolymorphic,
             cardinalityDefault = this.cardinalityDefault,
             protected = this.protected,
             systemType = this.systemType,
             targetRules = targetRules,
-            excludedEntityTypeIds = excludedEntityTypeIds,
             createdAt = this.createdAt,
             updatedAt = this.updatedAt,
             createdBy = this.createdBy,

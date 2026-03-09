@@ -415,8 +415,6 @@ class EntityRelationshipService(
         targetTypesByEntityId: Map<UUID, UUID>,
         semanticGroupByTypeId: Map<UUID, SemanticGroup>,
     ) {
-        if (definition.allowPolymorphic) return
-
         val rules = definition.targetRules
         targetTypesByEntityId.forEach { (entityId, typeId) ->
             val semanticGroup = semanticGroupByTypeId.getValue(typeId)
@@ -537,18 +535,8 @@ class EntityRelationshipService(
         targetTypeId: UUID,
         targetSemanticGroup: SemanticGroup,
     ): RelationshipTargetRule? {
-        // First: exact type ID match takes precedence
-        val typeMatch = rules.find { it.targetEntityTypeId == targetTypeId }
-        if (typeMatch != null) return typeMatch
-
-        // Second: semantic group constraint match
-        // UNCATEGORIZED types do not match semantic rules — they must use explicit type ID rules
-        if (targetSemanticGroup == SemanticGroup.UNCATEGORIZED) return null
-
-        return rules.find { rule ->
-            rule.targetEntityTypeId == null &&
-                rule.semanticTypeConstraint == targetSemanticGroup
-        }
+        // Exact type ID match
+        return rules.find { it.targetEntityTypeId == targetTypeId }
     }
 
     /**

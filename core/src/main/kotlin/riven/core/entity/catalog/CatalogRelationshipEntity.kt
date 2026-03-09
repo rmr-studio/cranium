@@ -50,9 +50,6 @@ data class CatalogRelationshipEntity(
     @Column(name = "icon_colour", nullable = false)
     val iconColour: IconColour = IconColour.NEUTRAL,
 
-    @Column(name = "allow_polymorphic", nullable = false)
-    val allowPolymorphic: Boolean = false,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "cardinality_default", nullable = false)
     val cardinalityDefault: EntityRelationshipCardinality,
@@ -75,7 +72,6 @@ data class CatalogRelationshipEntity(
         name = name,
         iconType = iconType,
         iconColour = iconColour,
-        allowPolymorphic = allowPolymorphic,
         cardinalityDefault = cardinalityDefault,
         `protected` = `protected`,
         targetRules = targetRules

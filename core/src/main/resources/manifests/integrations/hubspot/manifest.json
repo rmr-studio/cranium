@@ -733,7 +733,6 @@
       "key": "note-associations",
       "sourceEntityTypeKey": "hubspot-note",
       "name": "Associated With",
-      "allowPolymorphic": true,
       "targetRules": [
         {
           "targetEntityTypeKey": "hubspot-contact",

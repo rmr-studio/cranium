@@ -74,7 +74,6 @@ object CatalogFactory {
         catalogRelationshipId: UUID,
         id: UUID = UUID.randomUUID(),
         targetEntityTypeKey: String = "target-entity-type",
-        semanticTypeConstraint: SemanticGroup = SemanticGroup.CUSTOMER,
         cardinalityOverride: EntityRelationshipCardinality = EntityRelationshipCardinality.ONE_TO_ONE,
         inverseVisible: Boolean = true,
         inverseName: String = "reverse-test"
@@ -82,7 +81,6 @@ object CatalogFactory {
         id = id,
         catalogRelationshipId = catalogRelationshipId,
         targetEntityTypeKey = targetEntityTypeKey,
-        semanticTypeConstraint = semanticTypeConstraint,
         cardinalityOverride = cardinalityOverride,
         inverseVisible = inverseVisible,
         inverseName = inverseName

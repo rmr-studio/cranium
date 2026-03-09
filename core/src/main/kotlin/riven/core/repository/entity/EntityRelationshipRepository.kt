@@ -104,6 +104,29 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
     fun findByIdAndWorkspaceId(id: UUID, workspaceId: UUID): Optional<EntityRelationshipEntity>
 
     /**
+     * Count relationship links for a definition where the target entity belongs to a specific entity type.
+     */
+    @Query("""
+        SELECT COUNT(r) FROM EntityRelationshipEntity r
+        JOIN EntityEntity e ON r.targetId = e.id
+        WHERE r.definitionId = :definitionId AND e.typeId = :targetEntityTypeId AND r.deleted = false
+    """)
+    fun countByDefinitionIdAndTargetEntityTypeId(definitionId: UUID, targetEntityTypeId: UUID): Long
+
+    /**
+     * Soft-delete relationship links for a definition where the target entity belongs to a specific entity type.
+     */
+    @Modifying
+    @Query("""
+        UPDATE EntityRelationshipEntity r
+        SET r.deleted = true, r.deletedAt = CURRENT_TIMESTAMP
+        WHERE r.definitionId = :definitionId
+        AND r.deleted = false
+        AND r.targetId IN (SELECT e.id FROM EntityEntity e WHERE e.typeId = :targetEntityTypeId)
+    """)
+    fun softDeleteByDefinitionIdAndTargetEntityTypeId(definitionId: UUID, targetEntityTypeId: UUID)
+
+    /**
      * Find all relationships where the given entity is either source or target for a specific definition.
      */
     @Query("""
@@ -210,11 +233,6 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
      */
     @Query(
         value = """
-            WITH target_info AS (
-                SELECT e.type_id, et.semantic_group
-                FROM entities e JOIN entity_types et ON et.id = e.type_id
-                WHERE e.id = :targetId
-            )
             SELECT DISTINCT
                 e.id as id,
                 e.workspace_id as workspaceId,
@@ -228,20 +246,12 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
             JOIN entities e ON r.source_entity_id = e.id
             LEFT JOIN entity_attributes ea ON ea.entity_id = e.id AND ea.attribute_id = e.identifier_key AND ea.deleted = false
             JOIN relationship_definitions rd ON r.relationship_definition_id = rd.id AND rd.deleted = false
+            JOIN entities target_e ON r.target_entity_id = target_e.id
             LEFT JOIN relationship_target_rules rtr ON rtr.relationship_definition_id = r.relationship_definition_id
-            LEFT JOIN target_info ti ON true
             WHERE r.target_entity_id = :targetId
             AND (
-                rtr.target_entity_type_id = ti.type_id
-                OR (rtr.semantic_type_constraint IS NOT NULL
-                    AND rtr.semantic_type_constraint = ti.semantic_group
-                    AND ti.semantic_group <> 'UNCATEGORIZED')
+                rtr.target_entity_type_id = target_e.type_id
                 OR rd.system_type = :systemType
-            )
-            AND NOT EXISTS (
-                SELECT 1 FROM relationship_definition_exclusions rde
-                WHERE rde.relationship_definition_id = r.relationship_definition_id
-                AND rde.entity_type_id = ti.type_id
             )
             AND r.deleted = false
             AND e.deleted = false
@@ -271,19 +281,10 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
             JOIN relationship_definitions rd ON r.relationship_definition_id = rd.id AND rd.deleted = false
             LEFT JOIN relationship_target_rules rtr ON rtr.relationship_definition_id = r.relationship_definition_id
             JOIN entities target_e ON r.target_entity_id = target_e.id
-            JOIN entity_types target_et ON target_e.type_id = target_et.id
             WHERE r.target_entity_id = ANY(:ids)
             AND (
                 rtr.target_entity_type_id = target_e.type_id
-                OR (rtr.semantic_type_constraint IS NOT NULL
-                    AND rtr.semantic_type_constraint = target_et.semantic_group
-                    AND target_et.semantic_group <> 'UNCATEGORIZED')
                 OR rd.system_type = :systemType
-            )
-            AND NOT EXISTS (
-                SELECT 1 FROM relationship_definition_exclusions rde
-                WHERE rde.relationship_definition_id = r.relationship_definition_id
-                AND rde.entity_type_id = target_e.type_id
             )
             AND r.deleted = false
             AND e.deleted = false
@@ -292,56 +293,4 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
         nativeQuery = true
     )
     fun findInverseEntityLinksByTargetIdIn(ids: Array<UUID>, workspaceId: UUID, systemType: String): List<EntityLinkProjection>
-
-    /**
-     * Count non-deleted relationships for a definition where the target entity is of a specific type.
-     */
-    @Query(
-        value = """
-            SELECT count(*) FROM entity_relationships r
-            JOIN entities e ON r.target_entity_id = e.id
-            WHERE r.relationship_definition_id = :definitionId
-            AND e.type_id = :entityTypeId
-            AND r.deleted = false
-        """,
-        nativeQuery = true
-    )
-    fun countByDefinitionIdAndTargetEntityTypeId(definitionId: UUID, entityTypeId: UUID): Long
-
-    /**
-     * Soft-delete relationships for a definition where the target entity is of a specific type.
-     */
-    @Modifying
-    @Query(
-        value = """
-            UPDATE entity_relationships
-            SET deleted = true, deleted_at = CURRENT_TIMESTAMP
-            WHERE relationship_definition_id = :definitionId
-            AND target_entity_id IN (
-                SELECT id FROM entities WHERE type_id = :entityTypeId
-            )
-            AND deleted = false
-        """,
-        nativeQuery = true
-    )
-    fun softDeleteByDefinitionIdAndTargetEntityTypeId(definitionId: UUID, entityTypeId: UUID)
-
-    /**
-     * Restore soft-deleted relationships for a definition where the target entity is of a specific type.
-     * Must be native SQL to bypass @SQLRestriction("deleted = false").
-     */
-    @Modifying
-    @Query(
-        value = """
-            UPDATE entity_relationships
-            SET deleted = false, deleted_at = NULL
-            WHERE relationship_definition_id = :definitionId
-            AND target_entity_id IN (
-                SELECT id FROM entities WHERE type_id = :entityTypeId
-            )
-            AND deleted = true
-        """,
-        nativeQuery = true
-    )
-    fun restoreByDefinitionIdAndTargetEntityTypeId(definitionId: UUID, entityTypeId: UUID)
 }

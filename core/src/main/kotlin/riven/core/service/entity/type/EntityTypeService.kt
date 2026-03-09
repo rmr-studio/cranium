@@ -154,12 +154,6 @@ class EntityTypeService(
         val saved = entityTypeRepository.save(existing)
         val savedId = requireNotNull(saved.id)
 
-        if (request.semanticGroup != null && request.semanticGroup != oldSemanticGroup) {
-            entityTypeRelationshipService.cleanupExclusionsAfterSemanticGroupChange(
-                workspaceId, savedId, oldSemanticGroup, request.semanticGroup,
-            )
-        }
-
         activityService.log(
             activity = Activity.ENTITY_TYPE,
             operation = OperationType.UPDATE,

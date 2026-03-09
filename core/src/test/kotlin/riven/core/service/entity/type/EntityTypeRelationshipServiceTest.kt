@@ -14,7 +14,6 @@ import riven.core.entity.entity.RelationshipTargetRuleEntity
 import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.entity.entity.EntityTypeEntity
-import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.entity.EntityRelationshipCardinality
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.enums.workspace.WorkspaceRoles
@@ -22,7 +21,6 @@ import riven.core.models.request.entity.type.SaveRelationshipDefinitionRequest
 import riven.core.models.request.entity.type.SaveTargetRuleRequest
 import riven.core.repository.entity.EntityRelationshipRepository
 import riven.core.repository.entity.EntityTypeRepository
-import riven.core.repository.entity.RelationshipDefinitionExclusionRepository
 import riven.core.repository.entity.RelationshipDefinitionRepository
 import riven.core.repository.entity.RelationshipTargetRuleRepository
 import riven.core.service.activity.ActivityService
@@ -68,9 +66,6 @@ class EntityTypeRelationshipServiceTest : BaseServiceTest() {
     private lateinit var entityTypeRepository: EntityTypeRepository
 
     @MockitoBean
-    private lateinit var exclusionRepository: RelationshipDefinitionExclusionRepository
-
-    @MockitoBean
     private lateinit var entityRelationshipRepository: EntityRelationshipRepository
 
     @MockitoBean
@@ -89,7 +84,6 @@ class EntityTypeRelationshipServiceTest : BaseServiceTest() {
         reset(
             definitionRepository,
             targetRuleRepository,
-            exclusionRepository,
             entityTypeRepository,
             entityRelationshipRepository,
             activityService,
@@ -172,66 +166,6 @@ class EntityTypeRelationshipServiceTest : BaseServiceTest() {
         assertEquals(2, result.targetRules.size)
 
         verify(targetRuleRepository).saveAll(argThat<List<RelationshipTargetRuleEntity>> { size == 2 })
-    }
-
-    @Test
-    fun `createRelationshipDefinition - polymorphic - saves definition with no rules`() {
-        val request = SaveRelationshipDefinitionRequest(
-            key = "related_any",
-            id = UUID.randomUUID(),
-            name = "Related Anything",
-            iconType = IconType.LINK,
-            iconColour = IconColour.NEUTRAL,
-            allowPolymorphic = true,
-            cardinalityDefault = EntityRelationshipCardinality.MANY_TO_MANY,
-            targetRules = emptyList(),
-        )
-
-        whenever(definitionRepository.save(any<RelationshipDefinitionEntity>())).thenAnswer { invocation ->
-            val entity = invocation.arguments[0] as RelationshipDefinitionEntity
-            if (entity.id == null) entity.copy(id = UUID.randomUUID()) else entity
-        }
-        whenever(targetRuleRepository.saveAll(any<List<RelationshipTargetRuleEntity>>())).thenAnswer { invocation ->
-            @Suppress("UNCHECKED_CAST")
-            val entities = invocation.arguments[0] as List<RelationshipTargetRuleEntity>
-            entities.map { if (it.id == null) it.copy(id = UUID.randomUUID()) else it }
-        }
-
-        val result = service.createRelationshipDefinition(workspaceId, sourceEntityTypeId, request)
-
-        assertTrue(result.allowPolymorphic)
-        assertTrue(result.targetRules.isEmpty())
-    }
-
-    @Test
-    fun `createRelationshipDefinition - with semantic constraint - saves rule with constraint`() {
-        val request = SaveRelationshipDefinitionRequest(
-            key = "organizations",
-            id = UUID.randomUUID(),
-            name = "Organizations",
-            iconType = IconType.LINK,
-            iconColour = IconColour.NEUTRAL,
-            cardinalityDefault = EntityRelationshipCardinality.MANY_TO_MANY,
-            targetRules = listOf(
-                SaveTargetRuleRequest(semanticTypeConstraint = SemanticGroup.OPERATIONAL, inverseName = "Organizations")
-            ),
-        )
-
-        whenever(definitionRepository.save(any<RelationshipDefinitionEntity>())).thenAnswer { invocation ->
-            val entity = invocation.arguments[0] as RelationshipDefinitionEntity
-            if (entity.id == null) entity.copy(id = UUID.randomUUID()) else entity
-        }
-        whenever(targetRuleRepository.saveAll(any<List<RelationshipTargetRuleEntity>>())).thenAnswer { invocation ->
-            @Suppress("UNCHECKED_CAST")
-            val entities = invocation.arguments[0] as List<RelationshipTargetRuleEntity>
-            entities.map { if (it.id == null) it.copy(id = UUID.randomUUID()) else it }
-        }
-
-        val result = service.createRelationshipDefinition(workspaceId, sourceEntityTypeId, request)
-
-        assertEquals(1, result.targetRules.size)
-        assertEquals(SemanticGroup.OPERATIONAL, result.targetRules[0].semanticTypeConstraint)
-        assertNull(result.targetRules[0].targetEntityTypeId)
     }
 
     // ------ Update ------
@@ -523,110 +457,14 @@ class EntityTypeRelationshipServiceTest : BaseServiceTest() {
             .thenReturn(listOf(inverseRule))
         whenever(definitionRepository.findAllById(listOf(inverseDefId)))
             .thenReturn(listOf(inverseDef))
-        whenever(exclusionRepository.findByEntityTypeId(entityTypeId))
-            .thenReturn(emptyList())
         whenever(targetRuleRepository.findByRelationshipDefinitionIdIn(any()))
             .thenReturn(listOf(inverseRule))
-        whenever(exclusionRepository.findByRelationshipDefinitionIdIn(any()))
-            .thenReturn(emptyList())
 
         val result = service.getDefinitionsForEntityType(workspaceId, entityTypeId)
 
         assertEquals(2, result.size)
         assertTrue(result.any { it.name == "Forward Relationship" })
         assertTrue(result.any { it.name == "Origin Relationship" })
-    }
-
-    @Test
-    fun `getDefinitionsForEntityType - includes inverse definitions via semantic group match`() {
-        val entityTypeId = UUID.randomUUID()
-        val semanticDefId = UUID.randomUUID()
-        val otherSourceTypeId = UUID.randomUUID()
-
-        val entityType = EntityFactory.createEntityType(
-            id = entityTypeId,
-            semanticGroup = SemanticGroup.CUSTOMER,
-        )
-        val semanticDef = EntityFactory.createRelationshipDefinitionEntity(
-            id = semanticDefId,
-            workspaceId = workspaceId,
-            sourceEntityTypeId = otherSourceTypeId,
-            name = "Semantic Relationship",
-        )
-        val semanticRule = EntityFactory.createTargetRuleEntity(
-            relationshipDefinitionId = semanticDefId,
-            targetEntityTypeId = null,
-            semanticTypeConstraint = SemanticGroup.CUSTOMER,
-        )
-
-        // No explicit rules point at this entity type
-        whenever(definitionRepository.findByWorkspaceIdAndSourceEntityTypeId(workspaceId, entityTypeId))
-            .thenReturn(emptyList())
-        whenever(targetRuleRepository.findByTargetEntityTypeId(entityTypeId))
-            .thenReturn(emptyList())
-        // Semantic group lookup finds the rule
-        whenever(entityTypeRepository.findById(entityTypeId))
-            .thenReturn(Optional.of(entityType))
-        whenever(targetRuleRepository.findBySemanticTypeConstraint(SemanticGroup.CUSTOMER))
-            .thenReturn(listOf(semanticRule))
-        whenever(definitionRepository.findAllById(listOf(semanticDefId)))
-            .thenReturn(listOf(semanticDef))
-        whenever(exclusionRepository.findByEntityTypeId(entityTypeId))
-            .thenReturn(emptyList())
-        whenever(targetRuleRepository.findByRelationshipDefinitionIdIn(any()))
-            .thenReturn(listOf(semanticRule))
-        whenever(exclusionRepository.findByRelationshipDefinitionIdIn(any()))
-            .thenReturn(emptyList())
-
-        val result = service.getDefinitionsForEntityType(workspaceId, entityTypeId)
-
-        assertEquals(1, result.size)
-        assertEquals("Semantic Relationship", result[0].name)
-    }
-
-    @Test
-    fun `getDefinitionsForEntityType - self-referential semantic rule - no duplicate definitions`() {
-        val entityTypeId = UUID.randomUUID()
-        val defId = UUID.randomUUID()
-
-        // Entity type is both source AND matches its own semantic rule
-        val entityType = EntityFactory.createEntityType(
-            id = entityTypeId,
-            semanticGroup = SemanticGroup.CUSTOMER,
-        )
-        val forwardDef = EntityFactory.createRelationshipDefinitionEntity(
-            id = defId,
-            workspaceId = workspaceId,
-            sourceEntityTypeId = entityTypeId, // This type is the source
-            name = "Customer Connections",
-        )
-        val semanticRule = EntityFactory.createTargetRuleEntity(
-            relationshipDefinitionId = defId,
-            targetEntityTypeId = null,
-            semanticTypeConstraint = SemanticGroup.CUSTOMER, // Matches the source type's group
-        )
-
-        whenever(definitionRepository.findByWorkspaceIdAndSourceEntityTypeId(workspaceId, entityTypeId))
-            .thenReturn(listOf(forwardDef))
-        whenever(targetRuleRepository.findByTargetEntityTypeId(entityTypeId))
-            .thenReturn(emptyList())
-        whenever(entityTypeRepository.findById(entityTypeId))
-            .thenReturn(Optional.of(entityType))
-        whenever(targetRuleRepository.findBySemanticTypeConstraint(SemanticGroup.CUSTOMER))
-            .thenReturn(listOf(semanticRule)) // Would match this definition as inverse too
-        // findAllById should NOT be called because the defId is already in forward set
-        whenever(exclusionRepository.findByEntityTypeId(entityTypeId))
-            .thenReturn(emptyList())
-        whenever(targetRuleRepository.findByRelationshipDefinitionIdIn(any()))
-            .thenReturn(listOf(semanticRule))
-        whenever(exclusionRepository.findByRelationshipDefinitionIdIn(any()))
-            .thenReturn(emptyList())
-
-        val result = service.getDefinitionsForEntityType(workspaceId, entityTypeId)
-
-        // Should appear exactly once (as forward), not twice
-        assertEquals(1, result.size)
-        assertEquals("Customer Connections", result[0].name)
     }
 
     @Test
@@ -652,34 +490,8 @@ class EntityTypeRelationshipServiceTest : BaseServiceTest() {
             .thenReturn(listOf(inverseRule))
         whenever(definitionRepository.findAllById(listOf(inverseDefId)))
             .thenReturn(listOf(otherWorkspaceDef))
-        whenever(exclusionRepository.findByEntityTypeId(entityTypeId))
-            .thenReturn(emptyList())
-
         val result = service.getDefinitionsForEntityType(workspaceId, entityTypeId)
 
         assertTrue(result.isEmpty())
-    }
-
-    @Test
-    fun `getDefinitionsForEntityType - UNCATEGORIZED type does not match semantic rules`() {
-        val entityTypeId = UUID.randomUUID()
-
-        val entityType = EntityFactory.createEntityType(
-            id = entityTypeId,
-            semanticGroup = SemanticGroup.UNCATEGORIZED,
-        )
-
-        whenever(definitionRepository.findByWorkspaceIdAndSourceEntityTypeId(workspaceId, entityTypeId))
-            .thenReturn(emptyList())
-        whenever(targetRuleRepository.findByTargetEntityTypeId(entityTypeId))
-            .thenReturn(emptyList())
-        whenever(entityTypeRepository.findById(entityTypeId))
-            .thenReturn(Optional.of(entityType))
-
-        val result = service.getDefinitionsForEntityType(workspaceId, entityTypeId)
-
-        assertTrue(result.isEmpty())
-        // Should never query semantic rules for UNCATEGORIZED
-        verify(targetRuleRepository, never()).findBySemanticTypeConstraint(any())
     }
 }

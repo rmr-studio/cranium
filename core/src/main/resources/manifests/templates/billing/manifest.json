@@ -13,7 +13,6 @@
       "key": "customer-invoices",
       "sourceEntityTypeKey": "customer",
       "name": "Invoices",
-      "allowPolymorphic": false,
       "protected": false,
       "targetRules": [
         {

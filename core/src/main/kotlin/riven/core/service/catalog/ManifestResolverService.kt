@@ -317,7 +317,6 @@ class ManifestResolverService(
             name = rel.get("name").asText(),
             iconType = icon?.get("type")?.asText() ?: "LINK",
             iconColour = icon?.get("colour")?.asText() ?: "NEUTRAL",
-            allowPolymorphic = rel.get("allowPolymorphic")?.asBoolean() ?: false,
             cardinalityDefault = cardinality,
             `protected` = isProtected,
             targetRules = listOf(NormalizedTargetRule(targetEntityTypeKey = targetKey)),
@@ -334,15 +333,8 @@ class ManifestResolverService(
         val targetRulesArray = rel.get("targetRules") as? ArrayNode ?: objectMapper.createArrayNode()
         val targetRules = targetRulesArray.map { rule ->
             val cardinalityOverrideStr = rule.get("cardinalityOverride")?.asText()
-            val semanticTypeConstraintStr = rule.get("semanticTypeConstraint")?.asText()
             NormalizedTargetRule(
                 targetEntityTypeKey = rule.get("targetEntityTypeKey").asText(),
-                semanticTypeConstraint = semanticTypeConstraintStr?.let {
-                    try { riven.core.enums.entity.semantics.SemanticGroup.valueOf(it); it } catch (_: IllegalArgumentException) {
-                        logger.warn { "Invalid semanticTypeConstraint '$it' in target rule for '${rule.get("targetEntityTypeKey")?.asText()}', ignoring" }
-                        null
-                    }
-                },
                 cardinalityOverride = cardinalityOverrideStr?.let {
                     try { EntityRelationshipCardinality.valueOf(it) } catch (_: IllegalArgumentException) { null }
                 },
@@ -360,7 +352,6 @@ class ManifestResolverService(
             name = rel.get("name").asText(),
             iconType = icon?.get("type")?.asText() ?: "LINK",
             iconColour = icon?.get("colour")?.asText() ?: "NEUTRAL",
-            allowPolymorphic = rel.get("allowPolymorphic")?.asBoolean() ?: false,
             cardinalityDefault = cardinalityDefault,
             `protected` = isProtected,
             targetRules = targetRules,

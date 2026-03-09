@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import riven.core.entity.entity.RelationshipTargetRuleEntity
-import riven.core.enums.entity.semantics.SemanticGroup
 import java.util.*
 
 @Repository
@@ -23,6 +22,4 @@ interface RelationshipTargetRuleRepository : JpaRepository<RelationshipTargetRul
     fun findByTargetEntityTypeId(entityTypeId: UUID): List<RelationshipTargetRuleEntity>
 
     fun findByTargetEntityTypeIdIn(entityTypeIds: List<UUID>): List<RelationshipTargetRuleEntity>
-
-    fun findBySemanticTypeConstraint(semanticGroup: SemanticGroup): List<RelationshipTargetRuleEntity>
 }

@@ -185,10 +185,6 @@
         "icon": {
           "$ref": "#/$defs/icon"
         },
-        "allowPolymorphic": {
-          "type": "boolean",
-          "description": "Whether this relationship supports multiple target entity types."
-        },
         "cardinality": {
           "type": "string",
           "enum": ["ONE_TO_ONE", "ONE_TO_MANY", "MANY_TO_ONE", "MANY_TO_MANY"],
@@ -237,21 +233,6 @@
         "targetEntityTypeKey": {
           "type": "string",
           "description": "Key of the target entity type."
-        },
-        "semanticTypeConstraint": {
-          "type": "string",
-          "enum": [
-            "CUSTOMER",
-            "PRODUCT",
-            "TRANSACTION",
-            "COMMUNICATION",
-            "SUPPORT",
-            "FINANCIAL",
-            "OPERATIONAL",
-            "CUSTOM",
-            "UNCATEGORIZED"
-          ],
-          "description": "Optional semantic group constraint on the target."
         },
         "cardinalityOverride": {
           "type": "string",

@@ -96,14 +96,12 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
             sourceEntityTypeId = sourceEntityTypeId,
             name = "Connected Entities",
             cardinalityDefault = EntityRelationshipCardinality.MANY_TO_MANY,
-            allowPolymorphic = true,
             protected = true,
         ).copy(systemType = SystemRelationshipType.CONNECTED_ENTITIES)
     }
 
     private fun buildTypedDefinition(
         cardinality: EntityRelationshipCardinality = EntityRelationshipCardinality.MANY_TO_MANY,
-        allowPolymorphic: Boolean = false,
         targetRules: List<RelationshipTargetRule> = emptyList(),
     ): RelationshipDefinition {
         return RelationshipDefinition(
@@ -115,7 +113,6 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
                 riven.core.enums.common.icon.IconType.LINK,
                 riven.core.enums.common.icon.IconColour.NEUTRAL,
             ),
-            allowPolymorphic = allowPolymorphic,
             cardinalityDefault = cardinality,
             protected = false,
             targetRules = targetRules,
@@ -313,7 +310,6 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
             id = UUID.randomUUID(),
             relationshipDefinitionId = typedDefId,
             targetEntityTypeId = targetEntityTypeId,
-            semanticTypeConstraint = null,
             cardinalityOverride = null,
             inverseName = "Source Type",
             createdAt = null,
@@ -367,7 +363,6 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
             id = UUID.randomUUID(),
             relationshipDefinitionId = typedDefId,
             targetEntityTypeId = targetEntityTypeId,
-            semanticTypeConstraint = null,
             cardinalityOverride = null,
             inverseName = "Source Type",
             createdAt = null,
@@ -415,7 +410,6 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
             id = UUID.randomUUID(),
             relationshipDefinitionId = typedDefId,
             targetEntityTypeId = targetEntityTypeId,
-            semanticTypeConstraint = null,
             cardinalityOverride = null,
             inverseName = "Source Type",
             createdAt = null,
@@ -463,7 +457,7 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
             id = targetEntityId,
             workspaceId = workspaceId,
         )
-        val definition = buildTypedDefinition(allowPolymorphic = true)
+        val definition = buildTypedDefinition()
         val existingRel = EntityFactory.createRelationshipEntity(
             workspaceId = workspaceId,
             sourceId = sourceEntityId,

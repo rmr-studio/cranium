@@ -106,11 +106,10 @@ class EntityQueryIntegrationTestConfig {
     fun entityTypeRelationshipService(
         definitionRepository: RelationshipDefinitionRepository,
         targetRuleRepository: RelationshipTargetRuleRepository,
-        exclusionRepository: riven.core.repository.entity.RelationshipDefinitionExclusionRepository,
         entityRelationshipRepository: EntityRelationshipRepository,
         entityTypeRepository: EntityTypeRepository,
     ) = EntityTypeRelationshipService(
-        definitionRepository, targetRuleRepository, exclusionRepository, entityRelationshipRepository,
+        definitionRepository, targetRuleRepository, entityRelationshipRepository,
         entityTypeRepository,
         org.mockito.Mockito.mock(riven.core.service.activity.ActivityService::class.java),
         org.mockito.Mockito.mock(riven.core.service.auth.AuthTokenService::class.java),
@@ -460,7 +459,6 @@ abstract class EntityQueryIntegrationTestBase {
             sourceEntityTypeId = companyTypeId,
             name = "Owner",
             cardinalityDefault = EntityRelationshipCardinality.MANY_TO_ONE,
-            allowPolymorphic = false,
         )).id!!
         targetRuleRepository.save(RelationshipTargetRuleEntity(
             relationshipDefinitionId = companyOwnerRelId,

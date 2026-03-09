@@ -586,7 +586,6 @@
       "key": "customer-orders",
       "sourceEntityTypeKey": "customer",
       "name": "Orders",
-      "allowPolymorphic": false,
       "protected": false,
       "targetRules": [
         {
@@ -604,7 +603,6 @@
       "key": "order-products",
       "sourceEntityTypeKey": "order",
       "name": "Products",
-      "allowPolymorphic": false,
       "protected": false,
       "targetRules": [
         {
@@ -622,7 +620,6 @@
       "key": "customer-returns",
       "sourceEntityTypeKey": "customer",
       "name": "Returns",
-      "allowPolymorphic": false,
       "protected": false,
       "targetRules": [
         {
@@ -640,7 +637,6 @@
       "key": "order-returns",
       "sourceEntityTypeKey": "order",
       "name": "Returns",
-      "allowPolymorphic": false,
       "protected": false,
       "targetRules": [
         {
@@ -658,7 +654,6 @@
       "key": "product-supplier",
       "sourceEntityTypeKey": "product",
       "name": "Suppliers",
-      "allowPolymorphic": false,
       "protected": false,
       "targetRules": [
         {
@@ -676,7 +671,6 @@
       "key": "customer-acquisition-channel",
       "sourceEntityTypeKey": "customer",
       "name": "Acquisition Channel",
-      "allowPolymorphic": false,
       "protected": false,
       "targetRules": [
         {

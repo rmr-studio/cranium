@@ -240,7 +240,6 @@ class ManifestUpsertService(
                     name = rel.name,
                     iconType = IconType.valueOf(rel.iconType),
                     iconColour = IconColour.valueOf(rel.iconColour),
-                    allowPolymorphic = rel.allowPolymorphic,
                     cardinalityDefault = rel.cardinalityDefault,
                     `protected` = rel.`protected`
                 )
@@ -250,7 +249,6 @@ class ManifestUpsertService(
                 CatalogRelationshipTargetRuleEntity(
                     catalogRelationshipId = savedRel.id!!,
                     targetEntityTypeKey = rule.targetEntityTypeKey,
-                    semanticTypeConstraint = rule.semanticTypeConstraint?.let { SemanticGroup.valueOf(it) },
                     cardinalityOverride = rule.cardinalityOverride,
                     inverseVisible = rule.inverseVisible ?: false,
                     inverseName = rule.inverseName

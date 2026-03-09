@@ -1620,6 +1620,62 @@ class EntityValidationServiceTest : BaseServiceTest() {
         assertTrue(errors.isEmpty(), "Should have no validation errors for valid datetime format")
     }
 
+    // ========== TEST CASE: ID Read-Only Enforcement ==========
+
+    @Test
+    fun `validateEntity rejects modification of ID attribute on update`() {
+        val idAttrKey = UUID.randomUUID()
+        val schema = Schema<UUID>(
+            key = SchemaType.OBJECT,
+            type = DataType.OBJECT,
+            properties = mapOf(
+                nameAttributeKey to Schema(
+                    key = SchemaType.TEXT, type = DataType.STRING, label = "Name", required = true
+                ),
+                idAttrKey to Schema(
+                    key = SchemaType.ID, type = DataType.STRING, label = "Reference",
+                    options = Schema.SchemaOptions(prefix = "TSK"),
+                ),
+            ),
+        )
+
+        val entityType = EntityTypeEntity(
+            id = UUID.randomUUID(),
+            key = "task",
+            displayNameSingular = "Task",
+            displayNamePlural = "Tasks",
+            identifierKey = nameAttributeKey,
+            workspaceId = workspaceId,
+            schema = schema,
+            columns = emptyList(),
+        )
+
+        val entity = EntityEntity(
+            id = UUID.randomUUID(),
+            workspaceId = workspaceId,
+            typeId = entityType.id!!,
+            typeKey = "task",
+            identifierKey = nameAttributeKey,
+        )
+
+        val attributes = mapOf(
+            nameAttributeKey to EntityAttributePrimitivePayload(value = "My Task", schemaType = SchemaType.TEXT),
+            idAttrKey to EntityAttributePrimitivePayload(value = "TSK-999", schemaType = SchemaType.ID),
+        )
+
+        val errors = entityValidationService.validateEntity(
+            entity = entity,
+            entityType = entityType,
+            attributes = attributes,
+            isUpdate = true,
+            previousAttributes = mapOf(
+                idAttrKey to EntityAttributePrimitivePayload(value = "TSK-1", schemaType = SchemaType.ID),
+            ),
+        )
+
+        assertTrue(errors.any { it.contains("cannot be modified") })
+    }
+
     // ========== Helper Methods ==========
 
     private fun createEntityType(

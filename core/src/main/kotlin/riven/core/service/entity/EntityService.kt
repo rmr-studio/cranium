@@ -12,6 +12,7 @@ import riven.core.enums.core.ApplicationEntityType
 import riven.core.enums.util.OperationType
 import riven.core.exceptions.SchemaValidationException
 import riven.core.models.common.Icon
+import riven.core.models.common.validation.Schema
 import riven.core.models.entity.Entity
 import riven.core.models.entity.EntityLink
 import riven.core.models.entity.payload.EntityAttributePrimitivePayload
@@ -24,8 +25,10 @@ import riven.core.repository.entity.EntityRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.activity.log
 import riven.core.service.auth.AuthTokenService
+import riven.core.enums.common.validation.SchemaType
 import riven.core.service.entity.type.EntityTypeAttributeService
 import riven.core.service.entity.type.EntityTypeRelationshipService
+import riven.core.service.entity.type.EntityTypeSequenceService
 import riven.core.service.entity.type.EntityTypeService
 import riven.core.util.ServiceUtil.findManyResults
 import riven.core.util.ServiceUtil.findOrThrow
@@ -44,7 +47,8 @@ class EntityService(
     private val entityTypeAttributeService: EntityTypeAttributeService,
     private val entityAttributeService: EntityAttributeService,
     private val authTokenService: AuthTokenService,
-    private val activityService: ActivityService
+    private val activityService: ActivityService,
+    private val sequenceService: EntityTypeSequenceService,
 ) {
 
 
@@ -166,6 +170,18 @@ class EntityService(
                 require(this.typeId == entityTypeId) { "Entity type cannot be changed" }
             }
 
+            // Load previous attributes for updates
+            val previousAttributes = if (prev != null) entityAttributeService.getAttributes(requireNotNull(prev.id)) else emptyMap()
+
+            // Inject defaults and generate IDs
+            val enrichedPayload = injectDefaultsAndGenerateIds(
+                attributePayload = attributePayload,
+                schema = type.schema,
+                entityTypeId = typeId,
+                isCreate = prev == null,
+                previousAttributes = previousAttributes,
+            )
+
             // Either update the existing entity or create a new one
             val entity = prev.let {
                 if (it != null) {
@@ -186,7 +202,13 @@ class EntityService(
             }
 
             // Validate payload against schema
-            entityValidationService.validateEntity(entity, type, attributes = attributePayload).run {
+            entityValidationService.validateEntity(
+                entity,
+                type,
+                attributes = enrichedPayload,
+                isUpdate = prev != null,
+                previousAttributes = previousAttributes,
+            ).run {
                 if (isNotEmpty()) {
                     throw SchemaValidationException(this)
                 }
@@ -200,7 +222,7 @@ class EntityService(
                     entityId = entityId,
                     workspaceId = workspaceId,
                     typeId = typeId,
-                    attributes = attributePayload,
+                    attributes = enrichedPayload,
                 )
 
                 // Handle Unique Constraints
@@ -248,7 +270,7 @@ class EntityService(
                     entity = this.toModel(
                         audit = true,
                         relationships = links,
-                        attributes = attributePayload,
+                        attributes = enrichedPayload,
                     ),
                     impactedEntities = null
                 )
@@ -260,6 +282,48 @@ class EntityService(
         } catch (e: Exception) {
             throw e
         }
+    }
+
+    /**
+     * Enriches the attribute payload with default values from the schema and auto-generated IDs.
+     * On create: generates IDs for ID-type attributes and injects defaults for missing attributes.
+     * On update: carries forward existing ID values from the database when not in payload.
+     */
+    private fun injectDefaultsAndGenerateIds(
+        attributePayload: Map<UUID, EntityAttributePrimitivePayload>,
+        schema: Schema<UUID>,
+        entityTypeId: UUID,
+        isCreate: Boolean,
+        previousAttributes: Map<UUID, EntityAttributePrimitivePayload> = emptyMap(),
+    ): Map<UUID, EntityAttributePrimitivePayload> {
+        val enriched = attributePayload.toMutableMap()
+
+        schema.properties?.forEach { (attrId, attrSchema) ->
+            if (attrSchema.key == SchemaType.ID) {
+                if (isCreate && !enriched.containsKey(attrId)) {
+                    // Generate new sequential ID on create
+                    val prefix = requireNotNull(attrSchema.options?.prefix) {
+                        "ID attribute '$attrId' must have a prefix configured in options"
+                    }
+                    val nextVal = sequenceService.nextValue(entityTypeId, attrId)
+                    enriched[attrId] = EntityAttributePrimitivePayload(
+                        value = sequenceService.formatId(prefix, nextVal),
+                        schemaType = SchemaType.ID,
+                    )
+                } else if (!isCreate && !enriched.containsKey(attrId)) {
+                    // Carry forward existing ID on update
+                    previousAttributes[attrId]?.let { enriched[attrId] = it }
+                }
+            } else if (isCreate && !enriched.containsKey(attrId) && attrSchema.options?.default != null) {
+                // Inject default value for attributes not provided on create
+                enriched[attrId] = EntityAttributePrimitivePayload(
+                    value = attrSchema.options!!.default!!,
+                    schemaType = attrSchema.key,
+                )
+            }
+        }
+
+        return enriched
     }
 
     /**

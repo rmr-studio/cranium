@@ -3,6 +3,7 @@ package riven.core.service.entity
 import org.springframework.stereotype.Service
 import riven.core.entity.entity.EntityEntity
 import riven.core.entity.entity.EntityTypeEntity
+import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.common.validation.ValidationScope
 import riven.core.enums.entity.validation.EntityTypeChangeType
 import riven.core.models.entity.EntityTypeSchema
@@ -32,15 +33,35 @@ class EntityValidationService(
         entity: EntityEntity,
         entityType: EntityTypeEntity,
         attributes: Map<UUID, EntityAttributePrimitivePayload>,
+        isUpdate: Boolean = false,
+        previousAttributes: Map<UUID, EntityAttributePrimitivePayload> = emptyMap(),
     ): List<String> {
+        val errors = mutableListOf<String>()
+
+        // Validate ID attributes are not modified on updates
+        if (isUpdate) {
+            entityType.schema.properties?.forEach { (attrId, attrSchema) ->
+                if (attrSchema.key == SchemaType.ID) {
+                    val prevValue = previousAttributes[attrId]?.value
+                    val newValue = attributes[attrId]?.value
+                    if (prevValue != null && newValue != null && prevValue != newValue) {
+                        errors += "Attribute '${attrSchema.label ?: attrId}' is an auto-generated ID and cannot be modified"
+                    }
+                }
+            }
+        }
+
+        // Existing schema validation
         val payloadForValidation: Map<String, Any?> =
             attributes.map { (key, value) -> key.toString() to value.value }.toMap()
 
-        return schemaService.validate(
+        errors += schemaService.validate(
             schema = entityType.schema,
             payload = payloadForValidation,
             scope = ValidationScope.STRICT
         )
+
+        return errors
     }
 
     /**

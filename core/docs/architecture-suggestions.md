@@ -1,6 +1,6 @@
 # Architecture Suggestions
 
-## 2026-03-08 — Auto-Generated Identifier (`ID` SchemaType) and Template Default Value Support
+## 2026-03-08 — Auto-Generated Identifier (`ID` SchemaType) and Template Default Value Support — ✅ IMPLEMENTED 2026-03-09
 
 **Trigger:** The `time-entry` entity in the project-management manifest uses `"identifierKey": "description"` — a freetext field that is neither unique nor stable. Fixing this properly requires two pieces of infrastructure that do not yet exist.
 

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.networknt.schema.JsonSchemaFactory
 import com.networknt.schema.SpecVersion
 import org.springframework.stereotype.Service
+import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.common.validation.ValidationScope
 import riven.core.enums.core.DataFormat
 import riven.core.enums.core.DataType
@@ -78,6 +79,57 @@ class SchemaService(
         }
     }
 
+    /**
+     * Validates a default value against a single attribute schema.
+     * Returns error messages if the default is incompatible with the schema type,
+     * format, or constraint options.
+     *
+     * @param schema The attribute schema to validate against.
+     * @param defaultValue The proposed default value (null is always valid — means "no default").
+     * @return A list of validation error messages; empty if the default is valid.
+     */
+    fun <T> validateDefault(schema: Schema<T>, defaultValue: Any?): List<String> {
+        if (defaultValue == null) return emptyList()
+
+        // ID attributes are auto-generated — they must not have user-supplied defaults
+        if (schema.key == SchemaType.ID) {
+            return listOf("ID attributes cannot have default values — they are auto-generated")
+        }
+
+        val errors = mutableListOf<String>()
+        val path = "default"
+
+        when (schema.type) {
+            DataType.STRING -> {
+                if (defaultValue !is String) {
+                    errors += "Default value must be a string for ${schema.key} attribute, got ${defaultValue::class.simpleName}"
+                } else {
+                    validateStringFormat(schema, defaultValue, path)?.let { errors += it }
+                    validateStringConstraints(schema, defaultValue, path)?.let { errors += it }
+                }
+            }
+            DataType.NUMBER -> {
+                if (defaultValue !is Number) {
+                    errors += "Default value must be a number for ${schema.key} attribute, got ${defaultValue::class.simpleName}"
+                } else {
+                    validateNumberFormat(schema, defaultValue.toDouble(), path)?.let { errors += it }
+                    validateNumberConstraints(schema, defaultValue.toDouble(), path)?.let { errors += it }
+                }
+            }
+            DataType.BOOLEAN -> {
+                if (defaultValue !is Boolean) {
+                    errors += "Default value must be a boolean for ${schema.key} attribute, got ${defaultValue::class.simpleName}"
+                } else {
+                    validateBooleanConstraints(schema, defaultValue, path)?.let { errors += it }
+                }
+            }
+            else -> {
+                errors += "Default values are not supported for ${schema.type} attributes"
+            }
+        }
+
+        return errors
+    }
 
     /**
      * Recursively validates a runtime payload against a BlockSchema and accumulates validation messages.

@@ -35,8 +35,11 @@ import riven.core.repository.entity.EntityTypeRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.activity.log
 import riven.core.service.auth.AuthTokenService
+import riven.core.exceptions.SchemaValidationException
 import riven.core.service.entity.EntityTypeSemanticMetadataService
 import riven.core.service.entity.type.EntityTypeRelationshipService
+import riven.core.service.entity.type.EntityTypeSequenceService
+import riven.core.service.schema.SchemaService
 import java.util.*
 
 /**
@@ -53,6 +56,8 @@ class TemplateInstallationService(
     private val semanticMetadataService: EntityTypeSemanticMetadataService,
     private val authTokenService: AuthTokenService,
     private val activityService: ActivityService,
+    private val schemaService: SchemaService,
+    private val sequenceService: EntityTypeSequenceService,
     private val logger: KLogger,
 ) {
 
@@ -202,6 +207,13 @@ class TemplateInstallationService(
 
             relationshipService.createFallbackDefinition(workspaceId, savedId)
 
+            // Initialize sequences for ID-type attributes
+            entity.schema.properties?.forEach { (attrId, attrSchema) ->
+                if (attrSchema.key == SchemaType.ID) {
+                    sequenceService.initializeSequence(savedId, attrId)
+                }
+            }
+
             results[catalogType.key] = EntityTypeCreationResult(
                 entityTypeId = savedId,
                 attributeKeyMap = attributeKeyMap,
@@ -286,6 +298,24 @@ class TemplateInstallationService(
                 protected = isIdentifier || (attrDef["protected"] as? Boolean ?: false),
                 options = parseSchemaOptions(attrDef["options"]),
             )
+
+            // Validate default value if present
+            val attrSchema = properties[attrId]!!
+            attrSchema.options?.default?.let { defaultValue ->
+                val defaultErrors = schemaService.validateDefault(attrSchema, defaultValue)
+                if (defaultErrors.isNotEmpty()) {
+                    throw SchemaValidationException(
+                        defaultErrors.map { "Attribute '$attrKey': $it" }
+                    )
+                }
+            }
+
+            // Validate ID attributes have a prefix
+            if (attrSchema.key == SchemaType.ID && attrSchema.options?.prefix.isNullOrBlank()) {
+                throw SchemaValidationException(
+                    listOf("ID attribute '$attrKey' must have a non-blank 'prefix' in options")
+                )
+            }
 
             columns.add(EntityTypeAttributeColumn(key = attrId, type = EntityPropertyType.ATTRIBUTE))
         }
@@ -747,7 +777,8 @@ class TemplateInstallationService(
         val opts = optionsRaw as? Map<String, Any> ?: return null
 
         return Schema.SchemaOptions(
-            default = null,
+            default = opts["default"],
+            prefix = opts["prefix"] as? String,
             regex = opts["regex"] as? String,
             enum = (opts["enum"] as? List<*>)?.map { it.toString() },
             minLength = (opts["minLength"] as? Number)?.toInt(),

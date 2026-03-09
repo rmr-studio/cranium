@@ -31,8 +31,12 @@ import riven.core.repository.catalog.WorkspaceTemplateInstallationRepository
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.auth.AuthTokenService
+import riven.core.exceptions.SchemaValidationException
+import riven.core.models.common.validation.Schema
 import riven.core.service.entity.EntityTypeSemanticMetadataService
 import riven.core.service.entity.type.EntityTypeRelationshipService
+import riven.core.service.entity.type.EntityTypeSequenceService
+import riven.core.service.schema.SchemaService
 import riven.core.service.util.BaseServiceTest
 import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.factory.CatalogTestFactory.createCatalogEntityType
@@ -61,6 +65,12 @@ class TemplateInstallationServiceTest : BaseServiceTest() {
     @MockitoBean
     private lateinit var activityService: ActivityService
 
+    @MockitoBean
+    private lateinit var schemaService: SchemaService
+
+    @MockitoBean
+    private lateinit var sequenceService: EntityTypeSequenceService
+
     @Autowired
     private lateinit var service: TemplateInstallationService
 
@@ -70,6 +80,7 @@ class TemplateInstallationServiceTest : BaseServiceTest() {
         whenever(installationRepository.findByWorkspaceIdAndManifestKey(any(), any())).thenReturn(null)
         whenever(installationRepository.save(any<WorkspaceTemplateInstallationEntity>())).thenAnswer { it.arguments[0] }
         whenever(entityTypeRepository.findByworkspaceIdAndKeyIn(any(), any())).thenReturn(emptyList())
+        whenever(schemaService.validateDefault(any<Schema<UUID>>(), any())).thenReturn(emptyList())
     }
 
     // ------ Entity Type Creation ------
@@ -713,6 +724,192 @@ class TemplateInstallationServiceTest : BaseServiceTest() {
         )
     }
 
+    // ------ Schema Options Parsing ------
+
+    @Test
+    fun `installTemplate parses default value from schema options`() {
+        val manifest = createManifestWithEntityTypes(
+            createCatalogEntityType(
+                key = "task",
+                singular = "Task",
+                plural = "Tasks",
+                schema = mapOf(
+                    "status" to mapOf<String, Any>(
+                        "key" to "SELECT",
+                        "label" to "Status",
+                        "type" to "string",
+                        "required" to false,
+                        "options" to mapOf(
+                            "enum" to listOf("draft", "active", "done"),
+                            "default" to "draft"
+                        )
+                    ),
+                    "name" to mapOf<String, Any>(
+                        "key" to "TEXT",
+                        "label" to "Name",
+                        "type" to "string",
+                        "required" to true,
+                    )
+                ),
+            )
+        )
+
+        val savedType = captureEntityType(manifest)
+        val statusAttr = savedType.schema.properties!!.values.first { it.label == "Status" }
+        assertEquals("draft", statusAttr.options?.default)
+    }
+
+    @Test
+    fun `installTemplate parses prefix from ID schema options`() {
+        val manifest = createManifestWithEntityTypes(
+            createCatalogEntityType(
+                key = "ticket",
+                singular = "Ticket",
+                plural = "Tickets",
+                schema = mapOf(
+                    "reference" to mapOf<String, Any>(
+                        "key" to "ID",
+                        "label" to "Reference",
+                        "type" to "string",
+                        "required" to false,
+                        "options" to mapOf(
+                            "prefix" to "TKT"
+                        )
+                    ),
+                    "name" to mapOf<String, Any>(
+                        "key" to "TEXT",
+                        "label" to "Name",
+                        "type" to "string",
+                        "required" to true,
+                    )
+                ),
+            )
+        )
+
+        val savedType = captureEntityType(manifest)
+        val refAttr = savedType.schema.properties!!.values.first { it.label == "Reference" }
+        assertEquals("TKT", refAttr.options?.prefix)
+    }
+
+    // ------ Default Validation ------
+
+    @Test
+    fun `installTemplate rejects invalid default value for SELECT attribute`() {
+        val manifest = createManifestWithEntityTypes(
+            createCatalogEntityType(
+                key = "task",
+                singular = "Task",
+                plural = "Tasks",
+                schema = mapOf(
+                    "name" to mapOf<String, Any>(
+                        "key" to "TEXT",
+                        "label" to "Name",
+                        "type" to "string",
+                        "required" to true,
+                    ),
+                    "status" to mapOf<String, Any>(
+                        "key" to "SELECT",
+                        "label" to "Status",
+                        "type" to "string",
+                        "required" to false,
+                        "options" to mapOf(
+                            "enum" to listOf("draft", "active", "done"),
+                            "default" to "invalid_status"
+                        )
+                    ),
+                ),
+            )
+        )
+
+        whenever(catalogService.getManifestByKey("test-template", ManifestType.TEMPLATE)).thenReturn(manifest)
+        whenever(schemaService.validateDefault(any<Schema<UUID>>(), eq("invalid_status")))
+            .thenReturn(listOf("Value at default must be one of: draft, active, done"))
+
+        val exception = assertThrows<SchemaValidationException> {
+            service.installTemplate(workspaceId, "test-template")
+        }
+
+        assertTrue(exception.reasons.any { it.contains("must be one of") })
+    }
+
+    // ------ Sequence Initialization ------
+
+    @Test
+    fun `installTemplate initializes sequence for ID-type attributes`() {
+        val manifest = createManifestWithEntityTypes(
+            createCatalogEntityType(
+                key = "ticket",
+                singular = "Ticket",
+                plural = "Tickets",
+                schema = mapOf(
+                    "reference" to mapOf<String, Any>(
+                        "key" to "ID",
+                        "label" to "Reference",
+                        "type" to "string",
+                        "required" to false,
+                        "options" to mapOf(
+                            "prefix" to "TKT"
+                        )
+                    ),
+                    "name" to mapOf<String, Any>(
+                        "key" to "TEXT",
+                        "label" to "Name",
+                        "type" to "string",
+                        "required" to true,
+                    )
+                ),
+            )
+        )
+
+        whenever(catalogService.getManifestByKey("test-template", ManifestType.TEMPLATE)).thenReturn(manifest)
+        stubEntityTypeSave()
+        stubFallbackDefinition()
+
+        service.installTemplate(workspaceId, "test-template")
+
+        // Verify initializeSequence was called exactly once (for the ID attribute, not for TEXT)
+        val entityTypeIdCaptor = argumentCaptor<UUID>()
+        val attrIdCaptor = argumentCaptor<UUID>()
+        verify(sequenceService).initializeSequence(entityTypeIdCaptor.capture(), attrIdCaptor.capture())
+
+        // Verify the entity type ID is valid (non-null, assigned by save stub)
+        assertNotNull(entityTypeIdCaptor.firstValue)
+        assertNotNull(attrIdCaptor.firstValue)
+    }
+
+    // ------ Prefix Validation ------
+
+    @Test
+    fun `installTemplate rejects ID attribute without prefix`() {
+        val manifest = createManifestWithEntityTypes(
+            createCatalogEntityType(
+                key = "ticket",
+                singular = "Ticket",
+                plural = "Tickets",
+                schema = mapOf(
+                    "reference" to mapOf<String, Any>(
+                        "key" to "ID",
+                        "label" to "Reference",
+                        "type" to "string",
+                        "required" to false,
+                    ),
+                    "name" to mapOf<String, Any>(
+                        "key" to "TEXT",
+                        "label" to "Name",
+                        "type" to "string",
+                        "required" to true,
+                    )
+                ),
+            )
+        )
+
+        whenever(catalogService.getManifestByKey("test-template", ManifestType.TEMPLATE)).thenReturn(manifest)
+
+        assertThrows<SchemaValidationException> {
+            service.installTemplate(workspaceId, "test-template")
+        }
+    }
+
     // ------ Test Helpers ------
 
     private fun createTestBundle(key: String, templateKeys: List<String>) = BundleDetail(
@@ -732,6 +929,18 @@ class TemplateInstallationServiceTest : BaseServiceTest() {
 
     private fun stubFallbackDefinition() {
         whenever(relationshipService.createFallbackDefinition(any(), any())).thenReturn(mock())
+    }
+
+    private fun captureEntityType(manifest: ManifestDetail): EntityTypeEntity {
+        whenever(catalogService.getManifestByKey("test-template", ManifestType.TEMPLATE)).thenReturn(manifest)
+        stubEntityTypeSave()
+        stubFallbackDefinition()
+
+        service.installTemplate(workspaceId, "test-template")
+
+        val captor = argumentCaptor<EntityTypeEntity>()
+        verify(entityTypeRepository).save(captor.capture())
+        return captor.firstValue
     }
 
     private fun stubRelationshipCreation() {

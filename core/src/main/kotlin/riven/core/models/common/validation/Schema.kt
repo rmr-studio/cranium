@@ -56,6 +56,7 @@ data class Schema<T>(
 ) {
     data class SchemaOptions(
         val default: JsonValue? = null,
+        val prefix: String? = null,
         val regex: String? = null,
         val enum: List<String>? = null,
         val enumSorting: OptionSortingType? = null,

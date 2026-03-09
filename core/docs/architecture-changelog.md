@@ -1,5 +1,26 @@
 # Architecture Changelog
 
+## [2026-03-09] — ID SchemaType and Template Default Value Support
+
+**Domains affected:** Entity, Catalog
+**What changed:**
+
+- Added `ID` to `SchemaType` enum — auto-generates prefixed sequential identifiers (e.g. `PKR-1`)
+- Added `prefix` field to `SchemaOptions` for configuring ID attribute prefixes
+- Created `entity_type_sequences` table and `EntityTypeSequenceService` for atomic counter management
+- Sequence increment uses `REQUIRES_NEW` transaction to minimise lock duration (gaps accepted on rollback)
+- `TemplateInstallationService.parseSchemaOptions()` now parses `default` and `prefix` from manifests
+- Default values validated at definition time via `SchemaService.validateDefault()` — rejects invalid defaults before storage
+- `EntityService.saveEntity()` injects defaults and generates IDs on entity creation
+- ID attributes are read-only after creation — updates cannot modify them
+- Sequence rows initialized during template installation and manual attribute creation
+
+**New cross-domain dependencies:** No — Entity and Catalog already have existing dependency
+**New components introduced:**
+- `EntityTypeSequenceService` — manages atomic counter increment for ID generation
+- `EntityTypeSequenceEntity` / `EntityTypeSequenceRepository` — persistence for sequence counters
+- `SchemaService.validateDefault()` — validates default values against attribute schema constraints
+
 ## [2026-03-06] — Storage Domain Vault Documentation (Phase 1: Storage Foundation)
 
 **Domains affected:** Storage (new domain)

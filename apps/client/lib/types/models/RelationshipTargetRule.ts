@@ -20,13 +20,6 @@ import {
     EntityRelationshipCardinalityToJSON,
     EntityRelationshipCardinalityToJSONTyped,
 } from './EntityRelationshipCardinality';
-import type { SemanticGroup } from './SemanticGroup';
-import {
-    SemanticGroupFromJSON,
-    SemanticGroupFromJSONTyped,
-    SemanticGroupToJSON,
-    SemanticGroupToJSONTyped,
-} from './SemanticGroup';
 
 /**
  * 
@@ -51,13 +44,7 @@ export interface RelationshipTargetRule {
      * @type {string}
      * @memberof RelationshipTargetRule
      */
-    targetEntityTypeId?: string;
-    /**
-     * 
-     * @type {SemanticGroup}
-     * @memberof RelationshipTargetRule
-     */
-    semanticTypeConstraint?: SemanticGroup;
+    targetEntityTypeId: string;
     /**
      * 
      * @type {EntityRelationshipCardinality}
@@ -92,6 +79,7 @@ export interface RelationshipTargetRule {
 export function instanceOfRelationshipTargetRule(value: object): value is RelationshipTargetRule {
     if (!('id' in value) || value['id'] === undefined) return false;
     if (!('relationshipDefinitionId' in value) || value['relationshipDefinitionId'] === undefined) return false;
+    if (!('targetEntityTypeId' in value) || value['targetEntityTypeId'] === undefined) return false;
     if (!('inverseName' in value) || value['inverseName'] === undefined) return false;
     return true;
 }
@@ -108,8 +96,7 @@ export function RelationshipTargetRuleFromJSONTyped(json: any, ignoreDiscriminat
         
         'id': json['id'],
         'relationshipDefinitionId': json['relationshipDefinitionId'],
-        'targetEntityTypeId': json['targetEntityTypeId'] == null ? undefined : json['targetEntityTypeId'],
-        'semanticTypeConstraint': json['semanticTypeConstraint'] == null ? undefined : SemanticGroupFromJSON(json['semanticTypeConstraint']),
+        'targetEntityTypeId': json['targetEntityTypeId'],
         'cardinalityOverride': json['cardinalityOverride'] == null ? undefined : EntityRelationshipCardinalityFromJSON(json['cardinalityOverride']),
         'inverseName': json['inverseName'],
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
@@ -131,7 +118,6 @@ export function RelationshipTargetRuleToJSONTyped(value?: RelationshipTargetRule
         'id': value['id'],
         'relationshipDefinitionId': value['relationshipDefinitionId'],
         'targetEntityTypeId': value['targetEntityTypeId'],
-        'semanticTypeConstraint': SemanticGroupToJSON(value['semanticTypeConstraint']),
         'cardinalityOverride': EntityRelationshipCardinalityToJSON(value['cardinalityOverride']),
         'inverseName': value['inverseName'],
         'createdAt': value['createdAt'] == null ? value['createdAt'] : value['createdAt'].toISOString(),

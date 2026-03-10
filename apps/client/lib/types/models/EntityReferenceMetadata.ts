@@ -88,12 +88,6 @@ export interface EntityReferenceMetadata {
      * @type {boolean}
      * @memberof EntityReferenceMetadata
      */
-    readonly: boolean;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof EntityReferenceMetadata
-     */
     deletable: boolean;
     /**
      * 
@@ -101,6 +95,12 @@ export interface EntityReferenceMetadata {
      * @memberof EntityReferenceMetadata
      */
     meta: BlockMeta;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof EntityReferenceMetadata
+     */
+    readonly: boolean;
     /**
      * 
      * @type {BlockMetadataType}
@@ -169,9 +169,9 @@ export interface EntityReferenceMetadata {
  * Check if a given object implements the EntityReferenceMetadata interface.
  */
 export function instanceOfEntityReferenceMetadata(value: object): value is EntityReferenceMetadata {
-    if (!('readonly' in value) || value['readonly'] === undefined) return false;
     if (!('deletable' in value) || value['deletable'] === undefined) return false;
     if (!('meta' in value) || value['meta'] === undefined) return false;
+    if (!('readonly' in value) || value['readonly'] === undefined) return false;
     if (!('type' in value) || value['type'] === undefined) return false;
     if (!('fetchPolicy' in value) || value['fetchPolicy'] === undefined) return false;
     if (!('path' in value) || value['path'] === undefined) return false;
@@ -194,9 +194,9 @@ export function EntityReferenceMetadataFromJSONTyped(json: any, ignoreDiscrimina
     }
     return {
         
-        'readonly': json['readonly'],
         'deletable': json['deletable'],
         'meta': BlockMetaFromJSON(json['meta']),
+        'readonly': json['readonly'],
         'type': BlockMetadataTypeFromJSON(json['type']),
         'fetchPolicy': BlockReferenceFetchPolicyFromJSON(json['fetchPolicy']),
         'path': json['path'],
@@ -221,9 +221,9 @@ export function EntityReferenceMetadataToJSONTyped(value?: EntityReferenceMetada
 
     return {
         
-        'readonly': value['readonly'],
         'deletable': value['deletable'],
         'meta': BlockMetaToJSON(value['meta']),
+        'readonly': value['readonly'],
         'type': BlockMetadataTypeToJSON(value['type']),
         'fetchPolicy': BlockReferenceFetchPolicyToJSON(value['fetchPolicy']),
         'path': value['path'],

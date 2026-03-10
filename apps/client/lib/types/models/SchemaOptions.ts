@@ -38,6 +38,12 @@ export interface SchemaOptions {
      * @type {string}
      * @memberof SchemaOptions
      */
+    prefix?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof SchemaOptions
+     */
     regex?: string;
     /**
      * 
@@ -109,6 +115,7 @@ export function SchemaOptionsFromJSONTyped(json: any, ignoreDiscriminator: boole
     return {
         
         '_default': json['default'] == null ? undefined : json['default'],
+        'prefix': json['prefix'] == null ? undefined : json['prefix'],
         'regex': json['regex'] == null ? undefined : json['regex'],
         '_enum': json['enum'] == null ? undefined : json['enum'],
         'enumSorting': json['enumSorting'] == null ? undefined : OptionSortingTypeFromJSON(json['enumSorting']),
@@ -133,6 +140,7 @@ export function SchemaOptionsToJSONTyped(value?: SchemaOptions | null, ignoreDis
     return {
         
         'default': value['_default'],
+        'prefix': value['prefix'],
         'regex': value['regex'],
         'enum': value['_enum'],
         'enumSorting': OptionSortingTypeToJSON(value['enumSorting']),

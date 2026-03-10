@@ -80,12 +80,6 @@ export interface RelationshipDefinition {
     icon: Icon;
     /**
      * 
-     * @type {boolean}
-     * @memberof RelationshipDefinition
-     */
-    allowPolymorphic: boolean;
-    /**
-     * 
      * @type {EntityRelationshipCardinality}
      * @memberof RelationshipDefinition
      */
@@ -110,12 +104,6 @@ export interface RelationshipDefinition {
     targetRules: Array<RelationshipTargetRule>;
     /**
      * 
-     * @type {Array<string>}
-     * @memberof RelationshipDefinition
-     */
-    excludedEntityTypeIds: Array<string>;
-    /**
-     * 
      * @type {Date}
      * @memberof RelationshipDefinition
      */
@@ -138,6 +126,12 @@ export interface RelationshipDefinition {
      * @memberof RelationshipDefinition
      */
     updatedBy?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof RelationshipDefinition
+     */
+    isPolymorphic: boolean;
 }
 
 
@@ -151,11 +145,10 @@ export function instanceOfRelationshipDefinition(value: object): value is Relati
     if (!('sourceEntityTypeId' in value) || value['sourceEntityTypeId'] === undefined) return false;
     if (!('name' in value) || value['name'] === undefined) return false;
     if (!('icon' in value) || value['icon'] === undefined) return false;
-    if (!('allowPolymorphic' in value) || value['allowPolymorphic'] === undefined) return false;
     if (!('cardinalityDefault' in value) || value['cardinalityDefault'] === undefined) return false;
     if (!('_protected' in value) || value['_protected'] === undefined) return false;
     if (!('targetRules' in value) || value['targetRules'] === undefined) return false;
-    if (!('excludedEntityTypeIds' in value) || value['excludedEntityTypeIds'] === undefined) return false;
+    if (!('isPolymorphic' in value) || value['isPolymorphic'] === undefined) return false;
     return true;
 }
 
@@ -174,16 +167,15 @@ export function RelationshipDefinitionFromJSONTyped(json: any, ignoreDiscriminat
         'sourceEntityTypeId': json['sourceEntityTypeId'],
         'name': json['name'],
         'icon': IconFromJSON(json['icon']),
-        'allowPolymorphic': json['allowPolymorphic'],
         'cardinalityDefault': EntityRelationshipCardinalityFromJSON(json['cardinalityDefault']),
         '_protected': json['protected'],
         'systemType': json['systemType'] == null ? undefined : SystemRelationshipTypeFromJSON(json['systemType']),
         'targetRules': ((json['targetRules'] as Array<any>).map(RelationshipTargetRuleFromJSON)),
-        'excludedEntityTypeIds': json['excludedEntityTypeIds'],
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
         'updatedAt': json['updatedAt'] == null ? undefined : (new Date(json['updatedAt'])),
         'createdBy': json['createdBy'] == null ? undefined : json['createdBy'],
         'updatedBy': json['updatedBy'] == null ? undefined : json['updatedBy'],
+        'isPolymorphic': json['isPolymorphic'],
     };
 }
 
@@ -203,16 +195,15 @@ export function RelationshipDefinitionToJSONTyped(value?: RelationshipDefinition
         'sourceEntityTypeId': value['sourceEntityTypeId'],
         'name': value['name'],
         'icon': IconToJSON(value['icon']),
-        'allowPolymorphic': value['allowPolymorphic'],
         'cardinalityDefault': EntityRelationshipCardinalityToJSON(value['cardinalityDefault']),
         'protected': value['_protected'],
         'systemType': SystemRelationshipTypeToJSON(value['systemType']),
         'targetRules': ((value['targetRules'] as Array<any>).map(RelationshipTargetRuleToJSON)),
-        'excludedEntityTypeIds': value['excludedEntityTypeIds'],
         'createdAt': value['createdAt'] == null ? value['createdAt'] : value['createdAt'].toISOString(),
         'updatedAt': value['updatedAt'] == null ? value['updatedAt'] : value['updatedAt'].toISOString(),
         'createdBy': value['createdBy'],
         'updatedBy': value['updatedBy'],
+        'isPolymorphic': value['isPolymorphic'],
     };
 }
 

@@ -9,6 +9,7 @@ Name | Type
 `definitionId` | string
 `definitionName` | string
 `impactedLinkCount` | number
+`deletesDefinition` | boolean
 
 ## Example
 
@@ -20,6 +21,7 @@ const example = {
   "definitionId": null,
   "definitionName": null,
   "impactedLinkCount": null,
+  "deletesDefinition": null,
 } satisfies DeleteDefinitionImpact
 
 console.log(example)

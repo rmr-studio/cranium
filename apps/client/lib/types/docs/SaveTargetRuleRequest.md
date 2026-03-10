@@ -9,7 +9,6 @@ Name | Type
 ------------ | -------------
 `id` | string
 `targetEntityTypeId` | string
-`semanticTypeConstraint` | [SemanticGroup](SemanticGroup.md)
 `cardinalityOverride` | [EntityRelationshipCardinality](EntityRelationshipCardinality.md)
 `inverseName` | string
 
@@ -22,7 +21,6 @@ import type { SaveTargetRuleRequest } from ''
 const example = {
   "id": null,
   "targetEntityTypeId": null,
-  "semanticTypeConstraint": null,
   "cardinalityOverride": null,
   "inverseName": null,
 } satisfies SaveTargetRuleRequest

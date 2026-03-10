@@ -14,6 +14,9 @@ Name | Type
 `_protected` | boolean
 `identifierKey` | string
 `semanticGroup` | [SemanticGroup](SemanticGroup.md)
+`sourceType` | [SourceType](SourceType.md)
+`sourceIntegrationId` | string
+`readonly` | boolean
 `workspaceId` | string
 `schema` | [SchemaUUID](SchemaUUID.md)
 `columns` | [Array&lt;EntityTypeAttributeColumn&gt;](EntityTypeAttributeColumn.md)
@@ -40,6 +43,9 @@ const example = {
   "_protected": null,
   "identifierKey": null,
   "semanticGroup": null,
+  "sourceType": null,
+  "sourceIntegrationId": null,
+  "readonly": null,
   "workspaceId": null,
   "schema": null,
   "columns": null,

@@ -32,6 +32,7 @@ export interface GetUserByIdRequest {
 
 export interface UpdateUserProfileRequest {
     user: User;
+    avatar?: Blob;
 }
 
 /**
@@ -172,7 +173,7 @@ export class UserApi extends runtime.BaseAPI {
     }
 
     /**
-     * Updates the profile of the authenticated user based on the provided data.
+     * Updates the profile of the authenticated user based on the provided data. Optionally accepts an avatar file upload.
      * Update current user\'s profile
      */
     async updateUserProfileRaw(requestParameters: UpdateUserProfileRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<User>> {
@@ -187,8 +188,6 @@ export class UserApi extends runtime.BaseAPI {
 
         const headerParameters: runtime.HTTPHeaders = {};
 
-        headerParameters['Content-Type'] = 'application/json';
-
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
             const tokenString = await token("bearerAuth", []);
@@ -197,6 +196,30 @@ export class UserApi extends runtime.BaseAPI {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
+        const consumes: runtime.Consume[] = [
+            { contentType: 'multipart/form-data' },
+        ];
+        // @ts-ignore: canConsumeForm may be unused
+        const canConsumeForm = runtime.canConsumeForm(consumes);
+
+        let formParams: { append(param: string, value: any): any };
+        let useForm = false;
+        // use FormData to transmit files using content-type "multipart/form-data"
+        useForm = canConsumeForm;
+        if (useForm) {
+            formParams = new FormData();
+        } else {
+            formParams = new URLSearchParams();
+        }
+
+        if (requestParameters['user'] != null) {
+            formParams.append('user', new Blob([JSON.stringify(UserToJSON(requestParameters['user']))], { type: "application/json", }));
+                    }
+
+        if (requestParameters['avatar'] != null) {
+            formParams.append('avatar', requestParameters['avatar'] as any);
+        }
+
 
         let urlPath = `/api/v1/user/`;
 
@@ -205,14 +228,14 @@ export class UserApi extends runtime.BaseAPI {
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
-            body: UserToJSON(requestParameters['user']),
+            body: formParams,
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => UserFromJSON(jsonValue));
     }
 
     /**
-     * Updates the profile of the authenticated user based on the provided data.
+     * Updates the profile of the authenticated user based on the provided data. Optionally accepts an avatar file upload.
      * Update current user\'s profile
      */
     async updateUserProfile(requestParameters: UpdateUserProfileRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<User> {

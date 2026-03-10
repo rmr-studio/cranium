@@ -14,6 +14,7 @@ All URIs are relative to *http://localhost:8081*
 | [**getEntityTypeByKeyForWorkspace**](EntityApi.md#getentitytypebykeyforworkspace) | **GET** /api/v1/entity/schema/workspace/{workspaceId}/key/{key} | Get an entity type by key for a workspace |
 | [**getEntityTypesForWorkspace**](EntityApi.md#getentitytypesforworkspace) | **GET** /api/v1/entity/schema/workspace/{workspaceId} | Get all entity types for a workspace |
 | [**getRelationships**](EntityApi.md#getrelationships) | **GET** /api/v1/entity/workspace/{workspaceId}/entities/{entityId}/relationships | Get all relationships for an entity |
+| [**queryEntities**](EntityApi.md#queryentities) | **POST** /api/v1/entity/workspace/{workspaceId}/type/{entityTypeId}/query | Query entities with filtering, pagination, and sorting |
 | [**removeRelationship**](EntityApi.md#removerelationship) | **DELETE** /api/v1/entity/workspace/{workspaceId}/relationships/{relationshipId} | Delete a relationship |
 | [**saveEntity**](EntityApi.md#saveentityoperation) | **POST** /api/v1/entity/workspace/{workspaceId}/type/{entityTypeId} | Saves an entity instance |
 | [**saveEntityTypeDefinition**](EntityApi.md#saveentitytypedefinition) | **POST** /api/v1/entity/schema/workspace/{workspaceId}/definition | Add or update an attribute or relationship |
@@ -783,6 +784,84 @@ example().catch(console.error);
 |-------------|-------------|------------------|
 | **200** | Relationships retrieved successfully |  -  |
 | **404** | Entity not found |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## queryEntities
+
+> EntityQueryResponse queryEntities(workspaceId, entityTypeId, entityQueryRequest)
+
+Query entities with filtering, pagination, and sorting
+
+### Example
+
+```ts
+import {
+  Configuration,
+  EntityApi,
+} from '';
+import type { QueryEntitiesRequest } from '';
+
+async function example() {
+  console.log("🚀 Testing  SDK...");
+  const config = new Configuration({ 
+    // Configure HTTP bearer authorization: bearerAuth
+    accessToken: "YOUR BEARER TOKEN",
+  });
+  const api = new EntityApi(config);
+
+  const body = {
+    // string
+    workspaceId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // string
+    entityTypeId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // EntityQueryRequest
+    entityQueryRequest: ...,
+  } satisfies QueryEntitiesRequest;
+
+  try {
+    const data = await api.queryEntities(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **workspaceId** | `string` |  | [Defaults to `undefined`] |
+| **entityTypeId** | `string` |  | [Defaults to `undefined`] |
+| **entityQueryRequest** | [EntityQueryRequest](EntityQueryRequest.md) |  | |
+
+### Return type
+
+[**EntityQueryResponse**](EntityQueryResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: `application/json`
+- **Accept**: `*/*`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Query executed successfully |  -  |
+| **400** | Invalid filter or pagination parameters |  -  |
+| **403** | Access denied to workspace |  -  |
+| **404** | Entity type not found |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 

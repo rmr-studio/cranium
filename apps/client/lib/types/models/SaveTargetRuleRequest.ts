@@ -20,13 +20,6 @@ import {
     EntityRelationshipCardinalityToJSON,
     EntityRelationshipCardinalityToJSONTyped,
 } from './EntityRelationshipCardinality';
-import type { SemanticGroup } from './SemanticGroup';
-import {
-    SemanticGroupFromJSON,
-    SemanticGroupFromJSONTyped,
-    SemanticGroupToJSON,
-    SemanticGroupToJSONTyped,
-} from './SemanticGroup';
 
 /**
  * Request to save a target rule for a relationship definition
@@ -45,13 +38,7 @@ export interface SaveTargetRuleRequest {
      * @type {string}
      * @memberof SaveTargetRuleRequest
      */
-    targetEntityTypeId?: string;
-    /**
-     * 
-     * @type {SemanticGroup}
-     * @memberof SaveTargetRuleRequest
-     */
-    semanticTypeConstraint?: SemanticGroup;
+    targetEntityTypeId: string;
     /**
      * 
      * @type {EntityRelationshipCardinality}
@@ -72,6 +59,7 @@ export interface SaveTargetRuleRequest {
  * Check if a given object implements the SaveTargetRuleRequest interface.
  */
 export function instanceOfSaveTargetRuleRequest(value: object): value is SaveTargetRuleRequest {
+    if (!('targetEntityTypeId' in value) || value['targetEntityTypeId'] === undefined) return false;
     if (!('inverseName' in value) || value['inverseName'] === undefined) return false;
     return true;
 }
@@ -87,8 +75,7 @@ export function SaveTargetRuleRequestFromJSONTyped(json: any, ignoreDiscriminato
     return {
         
         'id': json['id'] == null ? undefined : json['id'],
-        'targetEntityTypeId': json['targetEntityTypeId'] == null ? undefined : json['targetEntityTypeId'],
-        'semanticTypeConstraint': json['semanticTypeConstraint'] == null ? undefined : SemanticGroupFromJSON(json['semanticTypeConstraint']),
+        'targetEntityTypeId': json['targetEntityTypeId'],
         'cardinalityOverride': json['cardinalityOverride'] == null ? undefined : EntityRelationshipCardinalityFromJSON(json['cardinalityOverride']),
         'inverseName': json['inverseName'],
     };
@@ -107,7 +94,6 @@ export function SaveTargetRuleRequestToJSONTyped(value?: SaveTargetRuleRequest |
         
         'id': value['id'],
         'targetEntityTypeId': value['targetEntityTypeId'],
-        'semanticTypeConstraint': SemanticGroupToJSON(value['semanticTypeConstraint']),
         'cardinalityOverride': EntityRelationshipCardinalityToJSON(value['cardinalityOverride']),
         'inverseName': value['inverseName'],
     };

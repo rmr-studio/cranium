@@ -9,7 +9,6 @@ Name | Type
 `id` | string
 `relationshipDefinitionId` | string
 `targetEntityTypeId` | string
-`semanticTypeConstraint` | [SemanticGroup](SemanticGroup.md)
 `cardinalityOverride` | [EntityRelationshipCardinality](EntityRelationshipCardinality.md)
 `inverseName` | string
 `createdAt` | Date
@@ -25,7 +24,6 @@ const example = {
   "id": null,
   "relationshipDefinitionId": null,
   "targetEntityTypeId": null,
-  "semanticTypeConstraint": null,
   "cardinalityOverride": null,
   "inverseName": null,
   "createdAt": null,

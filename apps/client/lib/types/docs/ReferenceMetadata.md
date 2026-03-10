@@ -6,9 +6,9 @@
 
 Name | Type
 ------------ | -------------
-`readonly` | boolean
 `deletable` | boolean
 `meta` | [BlockMeta](BlockMeta.md)
+`readonly` | boolean
 `type` | [BlockMetadataType](BlockMetadataType.md)
 `fetchPolicy` | [BlockReferenceFetchPolicy](BlockReferenceFetchPolicy.md)
 `path` | string
@@ -20,9 +20,9 @@ import type { ReferenceMetadata } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "readonly": null,
   "deletable": null,
   "meta": null,
+  "readonly": null,
   "type": null,
   "fetchPolicy": null,
   "path": null,

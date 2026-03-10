@@ -33,7 +33,8 @@ export enum SchemaType {
     Select = 'SELECT',
     MultiSelect = 'MULTI_SELECT',
     FileAttachment = 'FILE_ATTACHMENT',
-    Location = 'LOCATION'
+    Location = 'LOCATION',
+    Id = 'ID'
 }
 
 

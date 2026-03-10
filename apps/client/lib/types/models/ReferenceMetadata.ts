@@ -46,12 +46,6 @@ export interface ReferenceMetadata {
      * @type {boolean}
      * @memberof ReferenceMetadata
      */
-    readonly: boolean;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof ReferenceMetadata
-     */
     deletable: boolean;
     /**
      * 
@@ -59,6 +53,12 @@ export interface ReferenceMetadata {
      * @memberof ReferenceMetadata
      */
     meta: BlockMeta;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ReferenceMetadata
+     */
+    readonly: boolean;
     /**
      * 
      * @type {BlockMetadataType}
@@ -85,9 +85,9 @@ export interface ReferenceMetadata {
  * Check if a given object implements the ReferenceMetadata interface.
  */
 export function instanceOfReferenceMetadata(value: object): value is ReferenceMetadata {
-    if (!('readonly' in value) || value['readonly'] === undefined) return false;
     if (!('deletable' in value) || value['deletable'] === undefined) return false;
     if (!('meta' in value) || value['meta'] === undefined) return false;
+    if (!('readonly' in value) || value['readonly'] === undefined) return false;
     if (!('type' in value) || value['type'] === undefined) return false;
     if (!('fetchPolicy' in value) || value['fetchPolicy'] === undefined) return false;
     if (!('path' in value) || value['path'] === undefined) return false;
@@ -104,9 +104,9 @@ export function ReferenceMetadataFromJSONTyped(json: any, ignoreDiscriminator: b
     }
     return {
         
-        'readonly': json['readonly'],
         'deletable': json['deletable'],
         'meta': BlockMetaFromJSON(json['meta']),
+        'readonly': json['readonly'],
         'type': BlockMetadataTypeFromJSON(json['type']),
         'fetchPolicy': BlockReferenceFetchPolicyFromJSON(json['fetchPolicy']),
         'path': json['path'],
@@ -124,9 +124,9 @@ export function ReferenceMetadataToJSONTyped(value?: ReferenceMetadata | null, i
 
     return {
         
-        'readonly': value['readonly'],
         'deletable': value['deletable'],
         'meta': BlockMetaToJSON(value['meta']),
+        'readonly': value['readonly'],
         'type': BlockMetadataTypeToJSON(value['type']),
         'fetchPolicy': BlockReferenceFetchPolicyToJSON(value['fetchPolicy']),
         'path': value['path'],

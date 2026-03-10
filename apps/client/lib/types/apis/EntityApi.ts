@@ -20,6 +20,8 @@ import type {
   DeleteEntityResponse,
   DeleteTypeDefinitionRequest,
   Entity,
+  EntityQueryRequest,
+  EntityQueryResponse,
   EntityType,
   EntityTypeImpactResponse,
   RelationshipResponse,
@@ -40,6 +42,10 @@ import {
     DeleteTypeDefinitionRequestToJSON,
     EntityFromJSON,
     EntityToJSON,
+    EntityQueryRequestFromJSON,
+    EntityQueryRequestToJSON,
+    EntityQueryResponseFromJSON,
+    EntityQueryResponseToJSON,
     EntityTypeFromJSON,
     EntityTypeToJSON,
     EntityTypeImpactResponseFromJSON,
@@ -109,6 +115,12 @@ export interface GetRelationshipsRequest {
     workspaceId: string;
     entityId: string;
     definitionId?: string;
+}
+
+export interface QueryEntitiesRequest {
+    workspaceId: string;
+    entityTypeId: string;
+    entityQueryRequest: EntityQueryRequest;
 }
 
 export interface RemoveRelationshipRequest {
@@ -710,6 +722,69 @@ export class EntityApi extends runtime.BaseAPI {
      */
     async getRelationships(requestParameters: GetRelationshipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<RelationshipResponse>> {
         const response = await this.getRelationshipsRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Query entities with filtering, pagination, and sorting
+     */
+    async queryEntitiesRaw(requestParameters: QueryEntitiesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EntityQueryResponse>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling queryEntities().'
+            );
+        }
+
+        if (requestParameters['entityTypeId'] == null) {
+            throw new runtime.RequiredError(
+                'entityTypeId',
+                'Required parameter "entityTypeId" was null or undefined when calling queryEntities().'
+            );
+        }
+
+        if (requestParameters['entityQueryRequest'] == null) {
+            throw new runtime.RequiredError(
+                'entityQueryRequest',
+                'Required parameter "entityQueryRequest" was null or undefined when calling queryEntities().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/v1/entity/workspace/{workspaceId}/type/{entityTypeId}/query`;
+        urlPath = urlPath.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId'])));
+        urlPath = urlPath.replace(`{${"entityTypeId"}}`, encodeURIComponent(String(requestParameters['entityTypeId'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: EntityQueryRequestToJSON(requestParameters['entityQueryRequest']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => EntityQueryResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Query entities with filtering, pagination, and sorting
+     */
+    async queryEntities(requestParameters: QueryEntitiesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EntityQueryResponse> {
+        const response = await this.queryEntitiesRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

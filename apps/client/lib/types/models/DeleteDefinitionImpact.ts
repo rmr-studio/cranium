@@ -37,6 +37,12 @@ export interface DeleteDefinitionImpact {
      * @memberof DeleteDefinitionImpact
      */
     impactedLinkCount: number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof DeleteDefinitionImpact
+     */
+    deletesDefinition: boolean;
 }
 
 /**
@@ -46,6 +52,7 @@ export function instanceOfDeleteDefinitionImpact(value: object): value is Delete
     if (!('definitionId' in value) || value['definitionId'] === undefined) return false;
     if (!('definitionName' in value) || value['definitionName'] === undefined) return false;
     if (!('impactedLinkCount' in value) || value['impactedLinkCount'] === undefined) return false;
+    if (!('deletesDefinition' in value) || value['deletesDefinition'] === undefined) return false;
     return true;
 }
 
@@ -62,6 +69,7 @@ export function DeleteDefinitionImpactFromJSONTyped(json: any, ignoreDiscriminat
         'definitionId': json['definitionId'],
         'definitionName': json['definitionName'],
         'impactedLinkCount': json['impactedLinkCount'],
+        'deletesDefinition': json['deletesDefinition'],
     };
 }
 
@@ -79,6 +87,7 @@ export function DeleteDefinitionImpactToJSONTyped(value?: DeleteDefinitionImpact
         'definitionId': value['definitionId'],
         'definitionName': value['definitionName'],
         'impactedLinkCount': value['impactedLinkCount'],
+        'deletesDefinition': value['deletesDefinition'],
     };
 }
 

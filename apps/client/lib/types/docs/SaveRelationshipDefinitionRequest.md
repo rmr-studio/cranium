@@ -13,7 +13,6 @@ Name | Type
 `name` | string
 `iconType` | [IconType](IconType.md)
 `iconColour` | [IconColour](IconColour.md)
-`allowPolymorphic` | boolean
 `cardinalityDefault` | [EntityRelationshipCardinality](EntityRelationshipCardinality.md)
 `targetRules` | [Array&lt;SaveTargetRuleRequest&gt;](SaveTargetRuleRequest.md)
 `semantics` | [SaveSemanticMetadataRequest](SaveSemanticMetadataRequest.md)
@@ -31,7 +30,6 @@ const example = {
   "name": null,
   "iconType": null,
   "iconColour": null,
-  "allowPolymorphic": null,
   "cardinalityDefault": null,
   "targetRules": null,
   "semantics": null,

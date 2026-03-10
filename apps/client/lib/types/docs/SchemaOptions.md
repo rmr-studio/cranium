@@ -7,6 +7,7 @@
 Name | Type
 ------------ | -------------
 `_default` | object
+`prefix` | string
 `regex` | string
 `_enum` | Array&lt;string&gt;
 `enumSorting` | [OptionSortingType](OptionSortingType.md)
@@ -25,6 +26,7 @@ import type { SchemaOptions } from ''
 // TODO: Update the object below with actual values
 const example = {
   "_default": null,
+  "prefix": null,
   "regex": null,
   "_enum": null,
   "enumSorting": null,

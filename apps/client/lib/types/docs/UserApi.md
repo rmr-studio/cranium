@@ -226,11 +226,11 @@ example().catch(console.error);
 
 ## updateUserProfile
 
-> User updateUserProfile(user)
+> User updateUserProfile(user, avatar)
 
 Update current user\&#39;s profile
 
-Updates the profile of the authenticated user based on the provided data.
+Updates the profile of the authenticated user based on the provided data. Optionally accepts an avatar file upload.
 
 ### Example
 
@@ -252,6 +252,8 @@ async function example() {
   const body = {
     // User
     user: ...,
+    // Blob (optional)
+    avatar: BINARY_DATA_HERE,
   } satisfies UpdateUserProfileRequest;
 
   try {
@@ -271,7 +273,8 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **user** | [User](User.md) |  | |
+| **user** | [User](User.md) |  | [Defaults to `undefined`] |
+| **avatar** | `Blob` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
@@ -283,7 +286,7 @@ example().catch(console.error);
 
 ### HTTP request headers
 
-- **Content-Type**: `application/json`
+- **Content-Type**: `multipart/form-data`
 - **Accept**: `*/*`
 
 

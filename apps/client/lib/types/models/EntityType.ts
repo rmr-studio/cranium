@@ -20,6 +20,13 @@ import {
     SemanticMetadataBundleToJSON,
     SemanticMetadataBundleToJSONTyped,
 } from './SemanticMetadataBundle';
+import type { SourceType } from './SourceType';
+import {
+    SourceTypeFromJSON,
+    SourceTypeFromJSONTyped,
+    SourceTypeToJSON,
+    SourceTypeToJSONTyped,
+} from './SourceType';
 import type { DisplayName } from './DisplayName';
 import {
     DisplayNameFromJSON,
@@ -119,6 +126,24 @@ export interface EntityType {
     semanticGroup: SemanticGroup;
     /**
      * 
+     * @type {SourceType}
+     * @memberof EntityType
+     */
+    sourceType: SourceType;
+    /**
+     * 
+     * @type {string}
+     * @memberof EntityType
+     */
+    sourceIntegrationId?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof EntityType
+     */
+    readonly: boolean;
+    /**
+     * 
      * @type {string}
      * @memberof EntityType
      */
@@ -193,6 +218,8 @@ export function instanceOfEntityType(value: object): value is EntityType {
     if (!('_protected' in value) || value['_protected'] === undefined) return false;
     if (!('identifierKey' in value) || value['identifierKey'] === undefined) return false;
     if (!('semanticGroup' in value) || value['semanticGroup'] === undefined) return false;
+    if (!('sourceType' in value) || value['sourceType'] === undefined) return false;
+    if (!('readonly' in value) || value['readonly'] === undefined) return false;
     if (!('schema' in value) || value['schema'] === undefined) return false;
     if (!('columns' in value) || value['columns'] === undefined) return false;
     if (!('entitiesCount' in value) || value['entitiesCount'] === undefined) return false;
@@ -218,6 +245,9 @@ export function EntityTypeFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         '_protected': json['protected'],
         'identifierKey': json['identifierKey'],
         'semanticGroup': SemanticGroupFromJSON(json['semanticGroup']),
+        'sourceType': SourceTypeFromJSON(json['sourceType']),
+        'sourceIntegrationId': json['sourceIntegrationId'] == null ? undefined : json['sourceIntegrationId'],
+        'readonly': json['readonly'],
         'workspaceId': json['workspaceId'] == null ? undefined : json['workspaceId'],
         'schema': SchemaUUIDFromJSON(json['schema']),
         'columns': ((json['columns'] as Array<any>).map(EntityTypeAttributeColumnFromJSON)),
@@ -250,6 +280,9 @@ export function EntityTypeToJSONTyped(value?: EntityType | null, ignoreDiscrimin
         'protected': value['_protected'],
         'identifierKey': value['identifierKey'],
         'semanticGroup': SemanticGroupToJSON(value['semanticGroup']),
+        'sourceType': SourceTypeToJSON(value['sourceType']),
+        'sourceIntegrationId': value['sourceIntegrationId'],
+        'readonly': value['readonly'],
         'workspaceId': value['workspaceId'],
         'schema': SchemaUUIDToJSON(value['schema']),
         'columns': ((value['columns'] as Array<any>).map(EntityTypeAttributeColumnToJSON)),

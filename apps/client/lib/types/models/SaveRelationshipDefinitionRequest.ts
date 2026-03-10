@@ -100,12 +100,6 @@ export interface SaveRelationshipDefinitionRequest {
     iconColour?: IconColour;
     /**
      * 
-     * @type {boolean}
-     * @memberof SaveRelationshipDefinitionRequest
-     */
-    allowPolymorphic: boolean;
-    /**
-     * 
      * @type {EntityRelationshipCardinality}
      * @memberof SaveRelationshipDefinitionRequest
      */
@@ -133,7 +127,6 @@ export function instanceOfSaveRelationshipDefinitionRequest(value: object): valu
     if (!('key' in value) || value['key'] === undefined) return false;
     if (!('type' in value) || value['type'] === undefined) return false;
     if (!('name' in value) || value['name'] === undefined) return false;
-    if (!('allowPolymorphic' in value) || value['allowPolymorphic'] === undefined) return false;
     if (!('cardinalityDefault' in value) || value['cardinalityDefault'] === undefined) return false;
     if (!('targetRules' in value) || value['targetRules'] === undefined) return false;
     return true;
@@ -155,7 +148,6 @@ export function SaveRelationshipDefinitionRequestFromJSONTyped(json: any, ignore
         'name': json['name'],
         'iconType': json['iconType'] == null ? undefined : IconTypeFromJSON(json['iconType']),
         'iconColour': json['iconColour'] == null ? undefined : IconColourFromJSON(json['iconColour']),
-        'allowPolymorphic': json['allowPolymorphic'],
         'cardinalityDefault': EntityRelationshipCardinalityFromJSON(json['cardinalityDefault']),
         'targetRules': ((json['targetRules'] as Array<any>).map(SaveTargetRuleRequestFromJSON)),
         'semantics': json['semantics'] == null ? undefined : SaveSemanticMetadataRequestFromJSON(json['semantics']),
@@ -179,7 +171,6 @@ export function SaveRelationshipDefinitionRequestToJSONTyped(value?: SaveRelatio
         'name': value['name'],
         'iconType': IconTypeToJSON(value['iconType']),
         'iconColour': IconColourToJSON(value['iconColour']),
-        'allowPolymorphic': value['allowPolymorphic'],
         'cardinalityDefault': EntityRelationshipCardinalityToJSON(value['cardinalityDefault']),
         'targetRules': ((value['targetRules'] as Array<any>).map(SaveTargetRuleRequestToJSON)),
         'semantics': SaveSemanticMetadataRequestToJSON(value['semantics']),

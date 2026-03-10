@@ -11,16 +11,15 @@ Name | Type
 `sourceEntityTypeId` | string
 `name` | string
 `icon` | [Icon](Icon.md)
-`allowPolymorphic` | boolean
 `cardinalityDefault` | [EntityRelationshipCardinality](EntityRelationshipCardinality.md)
 `_protected` | boolean
 `systemType` | [SystemRelationshipType](SystemRelationshipType.md)
 `targetRules` | [Array&lt;RelationshipTargetRule&gt;](RelationshipTargetRule.md)
-`excludedEntityTypeIds` | Array&lt;string&gt;
 `createdAt` | Date
 `updatedAt` | Date
 `createdBy` | string
 `updatedBy` | string
+`isPolymorphic` | boolean
 
 ## Example
 
@@ -34,16 +33,15 @@ const example = {
   "sourceEntityTypeId": null,
   "name": null,
   "icon": null,
-  "allowPolymorphic": null,
   "cardinalityDefault": null,
   "_protected": null,
   "systemType": null,
   "targetRules": null,
-  "excludedEntityTypeIds": null,
   "createdAt": null,
   "updatedAt": null,
   "createdBy": null,
   "updatedBy": null,
+  "isPolymorphic": null,
 } satisfies RelationshipDefinition
 
 console.log(example)

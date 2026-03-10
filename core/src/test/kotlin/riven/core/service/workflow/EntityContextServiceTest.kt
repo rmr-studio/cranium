@@ -102,7 +102,6 @@ class EntityContextServiceTest {
             protected = false,
             version = 1,
             schema = schema,
-            columns = emptyList()
         ).apply {
             createdAt = ZonedDateTime.now()
             updatedAt = ZonedDateTime.now()
@@ -163,7 +162,6 @@ class EntityContextServiceTest {
             protected = false,
             version = 1,
             schema = schema,
-            columns = emptyList()
         ).apply {
             createdAt = ZonedDateTime.now()
             updatedAt = ZonedDateTime.now()
@@ -224,7 +222,6 @@ class EntityContextServiceTest {
             protected = false,
             version = 1,
             schema = schema,
-            columns = emptyList()
         ).apply {
             createdAt = ZonedDateTime.now()
             updatedAt = ZonedDateTime.now()

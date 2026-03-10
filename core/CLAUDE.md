@@ -153,12 +153,17 @@ Multi-tenant workspace-scoped backend API for a configurable data platform with 
 
 - If you encounter ANY correction from the user. Point out the mistake made, and suggest to the user if they would like to add this to the relevant CLAUDE.md that this mistake should never be repeated again. Write it as a result to prevent yourself from making the same mistake again.
 
-### 4.Verification Before Marking as complete
+### 4. Verification Before Marking as complete
 
 - Never mark a task complete without proving it works
 - Run ./gradlew test and confirm compilation with ./gradlew build before marking any task done.
 - If you are testing a singular service for a minor change. You can run an isolated version of the gradle testing suite to only run tests on that domain, or serivce class. But for any task that is not menial. You must perform the afforementioned.
--
+
+### 5. Bug Fix Testing
+
+- Every bug reported by the user that results in a code fix **must** have an accompanying unit test that confirms the fixed behaviour.
+- The test should include a KDoc comment with: a brief description of the original bug, a concise overview of the fix, and what the test is verifying.
+- The test must fail without the fix and pass with it — it should directly exercise the code path that was broken.
 
 ## Known Inconsistencies
 

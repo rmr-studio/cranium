@@ -16,7 +16,6 @@ import riven.core.enums.common.icon.IconType
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataFormat
 import riven.core.enums.core.DataType
-import riven.core.enums.entity.EntityPropertyType
 import riven.core.enums.entity.EntityRelationshipCardinality
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
@@ -140,11 +139,11 @@ class TemplateInstallationServiceTest : BaseServiceTest() {
         assertEquals(SchemaType.EMAIL, identifierProp.key)
         assertTrue(identifierProp.protected, "Identifier attribute should be protected")
 
-        // Verify columns match properties
-        assertEquals(3, saved.columns.size)
-        saved.columns.forEach { col ->
-            assertEquals(EntityPropertyType.ATTRIBUTE, col.type)
-            assertTrue(properties.containsKey(col.key))
+        // Verify column configuration order matches properties
+        assertNotNull(saved.columnConfiguration)
+        assertEquals(3, saved.columnConfiguration!!.order.size)
+        saved.columnConfiguration!!.order.forEach { id ->
+            assertTrue(properties.containsKey(id))
         }
     }
 

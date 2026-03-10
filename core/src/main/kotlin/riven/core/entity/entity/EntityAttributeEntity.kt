@@ -1,5 +1,6 @@
 package riven.core.entity.entity
 
+import com.fasterxml.jackson.databind.JsonNode
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.SQLRestriction
@@ -50,7 +51,7 @@ data class EntityAttributeEntity(
 
     @Type(JsonBinaryType::class)
     @Column(name = "value", columnDefinition = "jsonb", nullable = false)
-    val value: Any,
+    val value: JsonNode,
 
     @Column(name = "deleted", nullable = false)
     override var deleted: Boolean = false,
@@ -60,12 +61,31 @@ data class EntityAttributeEntity(
 ) : AuditableSoftDeletableEntity() {
 
     /**
-     * Convert to a domain payload.
+     * Convert to a domain payload, unwrapping JsonNode to a plain value.
      */
     fun toPrimitivePayload(): EntityAttributePrimitivePayload {
         return EntityAttributePrimitivePayload(
-            value = value,
+            value = unwrapJsonNode(value),
             schemaType = schemaType,
         )
+    }
+
+    companion object {
+        /**
+         * Recursively unwrap a JsonNode to plain Kotlin/Java types
+         * so the domain layer works with native types (String, Number, List, Map).
+         */
+        fun unwrapJsonNode(node: JsonNode): Any? = when {
+            node.isNull -> null
+            node.isTextual -> node.textValue()
+            node.isBoolean -> node.booleanValue()
+            node.isInt -> node.intValue()
+            node.isLong -> node.longValue()
+            node.isDouble || node.isFloat -> node.doubleValue()
+            node.isBigDecimal -> node.decimalValue()
+            node.isArray -> node.map { unwrapJsonNode(it) }
+            node.isObject -> node.properties().associate { (k, v) -> k to unwrapJsonNode(v) }
+            else -> node.toString()
+        }
     }
 }

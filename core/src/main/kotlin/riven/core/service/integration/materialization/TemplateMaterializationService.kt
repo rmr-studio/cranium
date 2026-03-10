@@ -14,13 +14,13 @@ import riven.core.enums.catalog.ManifestType
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataFormat
 import riven.core.enums.core.DataType
-import riven.core.enums.entity.EntityPropertyType
 import riven.core.enums.integration.SourceType
 import riven.core.exceptions.NotFoundException
 import riven.core.models.common.Icon
 import riven.core.models.common.validation.Schema
 import riven.core.models.entity.EntityTypeSchema
-import riven.core.models.entity.configuration.EntityTypeAttributeColumn
+import riven.core.models.entity.configuration.ColumnConfiguration
+import riven.core.models.entity.configuration.ColumnOverride
 import riven.core.models.integration.materialization.MaterializationResult
 import riven.core.repository.catalog.CatalogEntityTypeRepository
 import riven.core.repository.catalog.CatalogRelationshipRepository
@@ -141,7 +141,7 @@ class TemplateMaterializationService(
     ): EntityTypeEntity {
         val schema = buildWorkspaceSchema(catalogType.schema, integrationSlug, catalogType.key)
         val identifierKey = resolveIdentifierKey(catalogType.identifierKey, integrationSlug, catalogType.key)
-        val columns = buildColumnsFromSchema(schema, catalogType.columns, integrationSlug, catalogType.key)
+        val columnConfiguration = buildColumnConfigurationFromSchema(schema, catalogType.columns, integrationSlug, catalogType.key)
 
         val entity = EntityTypeEntity(
             key = catalogType.key,
@@ -156,7 +156,7 @@ class TemplateMaterializationService(
             identifierKey = identifierKey,
             workspaceId = workspaceId,
             schema = schema,
-            columns = columns
+            columnConfiguration = columnConfiguration
         )
 
         return entityTypeRepository.save(entity)
@@ -230,28 +230,36 @@ class TemplateMaterializationService(
     }
 
     /**
-     * Builds EntityTypeAttributeColumn list from the schema.
-     * If catalog columns are present, maps them with UUID keys. Otherwise, generates from schema.
+     * Builds a ColumnConfiguration from schema and optional catalog column definitions.
+     * Generates ordering from catalog columns (if present) or schema properties, and
+     * stores non-default width overrides.
      */
-    private fun buildColumnsFromSchema(
+    private fun buildColumnConfigurationFromSchema(
         schema: EntityTypeSchema,
         catalogColumns: List<Map<String, Any>>?,
         integrationSlug: String,
         entityTypeKey: String
-    ): List<EntityTypeAttributeColumn> {
+    ): ColumnConfiguration {
         if (catalogColumns != null) {
-            return catalogColumns.mapNotNull { col ->
-                val stringKey = col["key"] as? String ?: return@mapNotNull null
+            val order = mutableListOf<UUID>()
+            val overrides = mutableMapOf<UUID, ColumnOverride>()
+
+            catalogColumns.forEach { col ->
+                val stringKey = col["key"] as? String ?: return@forEach
                 val uuid = generateAttributeUuid(integrationSlug, entityTypeKey, stringKey)
-                val width = (col["width"] as? Number)?.toInt() ?: 150
-                EntityTypeAttributeColumn(key = uuid, type = EntityPropertyType.ATTRIBUTE, width = width)
+                order.add(uuid)
+                val width = (col["width"] as? Number)?.toInt()
+                if (width != null && width != 150) {
+                    overrides[uuid] = ColumnOverride(width = width)
+                }
             }
+
+            return ColumnConfiguration(order = order, overrides = overrides)
         }
 
-        // Fallback: generate columns from schema properties
-        return schema.properties?.map { (uuid, _) ->
-            EntityTypeAttributeColumn(key = uuid, type = EntityPropertyType.ATTRIBUTE)
-        } ?: emptyList()
+        // Fallback: generate order from schema properties
+        val order = schema.properties?.keys?.toList() ?: emptyList()
+        return ColumnConfiguration(order = order)
     }
 
     // ------ Relationship Materialization ------

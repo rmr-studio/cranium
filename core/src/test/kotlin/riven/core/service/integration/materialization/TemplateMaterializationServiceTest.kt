@@ -281,8 +281,9 @@ class TemplateMaterializationServiceTest {
         service.materializeIntegrationTemplates(workspaceId, integrationSlug)
 
         verify(entityTypeRepository).save(argThat { entity ->
-            entity.columns.isNotEmpty() &&
-                entity.columns.all { col -> col.key != UUID(0, 0) }
+            entity.columnConfiguration != null &&
+                entity.columnConfiguration!!.order.isNotEmpty() &&
+                entity.columnConfiguration!!.order.all { id -> id != UUID(0, 0) }
         })
     }
 
@@ -313,7 +314,6 @@ class TemplateMaterializationServiceTest {
                 key = SchemaType.OBJECT,
                 type = DataType.OBJECT
             ),
-            columns = emptyList()
         )
 
         whenever(catalogEntityTypeRepository.findByManifestId(manifestId))
@@ -347,7 +347,6 @@ class TemplateMaterializationServiceTest {
                 key = SchemaType.OBJECT,
                 type = DataType.OBJECT
             ),
-            columns = emptyList()
         )
 
         whenever(catalogEntityTypeRepository.findByManifestId(manifestId))

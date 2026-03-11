@@ -33,10 +33,9 @@ import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
-import riven.core.enums.entity.EntityPropertyType
+import riven.core.models.entity.configuration.ColumnConfiguration
 import riven.core.enums.entity.EntityRelationshipCardinality
 import riven.core.models.common.validation.Schema
-import riven.core.models.entity.configuration.EntityTypeAttributeColumn
 import riven.core.models.entity.payload.EntityAttributePrimitivePayload
 import riven.core.repository.entity.EntityRelationshipRepository
 import riven.core.repository.entity.EntityRepository
@@ -122,6 +121,9 @@ class EntityQueryIntegrationTestConfig {
         entityAttributeRepository: riven.core.repository.entity.EntityAttributeRepository,
     ) = riven.core.service.entity.EntityAttributeService(
         entityAttributeRepository,
+        com.fasterxml.jackson.databind.ObjectMapper().apply {
+            findAndRegisterModules()
+        },
         org.mockito.Mockito.mock(io.github.oshai.kotlinlogging.KLogger::class.java),
     )
 
@@ -315,13 +317,8 @@ abstract class EntityQueryIntegrationTestBase {
                     )
                 )
             ),
-            columns = listOf(
-                EntityTypeAttributeColumn(companyNameAttrId, EntityPropertyType.ATTRIBUTE),
-                EntityTypeAttributeColumn(companyIndustryAttrId, EntityPropertyType.ATTRIBUTE),
-                EntityTypeAttributeColumn(companyRevenueAttrId, EntityPropertyType.ATTRIBUTE),
-                EntityTypeAttributeColumn(companyActiveAttrId, EntityPropertyType.ATTRIBUTE),
-                EntityTypeAttributeColumn(companyFoundedAttrId, EntityPropertyType.ATTRIBUTE),
-                EntityTypeAttributeColumn(companyWebsiteAttrId, EntityPropertyType.ATTRIBUTE)
+            columnConfiguration = ColumnConfiguration(
+                order = listOf(companyNameAttrId, companyIndustryAttrId, companyRevenueAttrId, companyActiveAttrId, companyFoundedAttrId, companyWebsiteAttrId)
             )
         )
         val savedCompanyType = entityTypeRepository.save(companyType)
@@ -372,12 +369,8 @@ abstract class EntityQueryIntegrationTestBase {
                     )
                 )
             ),
-            columns = listOf(
-                EntityTypeAttributeColumn(employeeFirstNameAttrId, EntityPropertyType.ATTRIBUTE),
-                EntityTypeAttributeColumn(employeeLastNameAttrId, EntityPropertyType.ATTRIBUTE),
-                EntityTypeAttributeColumn(employeeEmailAttrId, EntityPropertyType.ATTRIBUTE),
-                EntityTypeAttributeColumn(employeeSalaryAttrId, EntityPropertyType.ATTRIBUTE),
-                EntityTypeAttributeColumn(employeeDepartmentAttrId, EntityPropertyType.ATTRIBUTE)
+            columnConfiguration = ColumnConfiguration(
+                order = listOf(employeeFirstNameAttrId, employeeLastNameAttrId, employeeEmailAttrId, employeeSalaryAttrId, employeeDepartmentAttrId)
             )
         )
         val savedEmployeeType = entityTypeRepository.save(employeeType)
@@ -416,10 +409,8 @@ abstract class EntityQueryIntegrationTestBase {
                     )
                 )
             ),
-            columns = listOf(
-                EntityTypeAttributeColumn(projectTitleAttrId, EntityPropertyType.ATTRIBUTE),
-                EntityTypeAttributeColumn(projectBudgetAttrId, EntityPropertyType.ATTRIBUTE),
-                EntityTypeAttributeColumn(projectStatusAttrId, EntityPropertyType.ATTRIBUTE)
+            columnConfiguration = ColumnConfiguration(
+                order = listOf(projectTitleAttrId, projectBudgetAttrId, projectStatusAttrId)
             )
         )
         val savedProjectType = entityTypeRepository.save(projectType)

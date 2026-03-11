@@ -8,10 +8,9 @@ import riven.core.entity.entity.EntityEntity
 import riven.core.entity.entity.EntityTypeEntity
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
-import riven.core.enums.entity.EntityPropertyType
 import riven.core.enums.entity.query.FilterOperator
 import riven.core.models.common.validation.Schema
-import riven.core.models.entity.configuration.EntityTypeAttributeColumn
+import riven.core.models.entity.configuration.ColumnConfiguration
 import riven.core.models.entity.payload.EntityAttributePrimitivePayload
 import riven.core.models.entity.query.EntityQuery
 import riven.core.models.entity.query.filter.FilterValue
@@ -51,8 +50,8 @@ class EntityQueryPaginationIntegrationTest : EntityQueryIntegrationTestBase() {
                     )
                 )
             ),
-            columns = listOf(
-                EntityTypeAttributeColumn(companyNameAttrId, EntityPropertyType.ATTRIBUTE)
+            columnConfiguration = ColumnConfiguration(
+                order = listOf(companyNameAttrId)
             )
         )
         val saved = entityTypeRepository.save(otherCompanyType)

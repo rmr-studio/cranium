@@ -1,5 +1,6 @@
 package riven.core.service.entity
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -18,6 +19,7 @@ import java.util.*
 @Service
 class EntityAttributeService(
     private val entityAttributeRepository: EntityAttributeRepository,
+    private val objectMapper: ObjectMapper,
     private val logger: KLogger,
 ) {
 
@@ -50,7 +52,7 @@ class EntityAttributeService(
                 typeId = typeId,
                 attributeId = attributeId,
                 schemaType = payload.schemaType,
-                value = value,
+                value = objectMapper.valueToTree(value),
             )
         }
 

@@ -16,7 +16,6 @@ import riven.core.enums.common.icon.IconType
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataFormat
 import riven.core.enums.core.DataType
-import riven.core.enums.entity.EntityPropertyType
 import riven.core.enums.entity.EntityRelationshipCardinality
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
@@ -140,12 +139,12 @@ class TemplateInstallationServiceTest : BaseServiceTest() {
         assertEquals(SchemaType.EMAIL, identifierProp.key)
         assertTrue(identifierProp.protected, "Identifier attribute should be protected")
 
-        // Verify columns match properties
-        assertEquals(3, saved.columns.size)
-        saved.columns.forEach { col ->
-            assertEquals(EntityPropertyType.ATTRIBUTE, col.type)
-            assertTrue(properties.containsKey(col.key))
-        }
+        // Verify column configuration order matches properties exactly (no duplicates, no missing)
+        assertNotNull(saved.columnConfiguration)
+        val order = saved.columnConfiguration!!.order
+        assertEquals(3, order.size)
+        assertEquals(order.size, order.distinct().size, "Column order should not contain duplicates")
+        assertEquals(properties.keys, order.toSet(), "Column order should contain every property exactly once")
     }
 
     @Test

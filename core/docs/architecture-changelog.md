@@ -1,5 +1,21 @@
 # Architecture Changelog
 
+## [2026-03-10] — Derive Entity Type Columns at Read-Time
+
+**Domains affected:** Entity, Integration/Materialization, Catalog
+**What changed:**
+
+- Replaced stored `columns: List<EntityTypeAttributeColumn>` JSONB on `EntityTypeEntity` with `columnConfiguration: ColumnConfiguration?` — stores only ordering and display overrides
+- Columns are now derived at read-time via `EntityTypeService.assembleColumns()` from schema attributes + relationship definitions + stored configuration
+- Removed ~100 lines of column sync code: `updateColumnOrdering()`, `reorderEntityTypeColumns()`, `addInverseColumnsToTargetTypes()`, `removeInverseColumnsFromTargetTypes()`, `refreshSourceEntityTypeAfterTargetRemoval()`
+- Eliminated cross-entity writes on relationship mutations (no more N+1 saves to propagate inverse columns)
+- Updated `UpdateEntityTypeConfigurationRequest` to accept `ColumnConfiguration` instead of `List<EntityTypeAttributeColumn>`
+- Updated `TemplateMaterializationService` and `TemplateInstallationService` to produce `ColumnConfiguration` instead of column lists
+- SQL schema: `entity_types.columns` → `entity_types.column_configuration`
+
+**New cross-domain dependencies:** no
+**New components introduced:** `ColumnConfiguration`, `ColumnOverride` — configuration models for column ordering and display overrides
+
 ## [2026-03-09] — ID SchemaType and Template Default Value Support
 
 **Domains affected:** Entity, Catalog

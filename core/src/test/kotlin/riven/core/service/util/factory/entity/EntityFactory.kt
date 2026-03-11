@@ -9,12 +9,11 @@ import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
-import riven.core.enums.entity.EntityPropertyType
 import riven.core.enums.entity.EntityRelationshipCardinality
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.models.common.validation.Schema
 import riven.core.models.entity.EntityTypeSchema
-import riven.core.models.entity.configuration.EntityTypeAttributeColumn
+import riven.core.models.entity.configuration.ColumnConfiguration
 import java.util.*
 
 object EntityFactory {
@@ -29,15 +28,15 @@ object EntityFactory {
         displayNamePlural: String = "Test Entities",
         workspaceId: UUID = UUID.randomUUID(),
         schema: EntityTypeSchema = createSimpleSchema(),
-        order: List<EntityTypeAttributeColumn>? = null,
+        columnConfiguration: ColumnConfiguration? = null,
         version: Int = 1,
         protected: Boolean = false,
         identifierKey: UUID = schema.properties?.keys?.first() ?: UUID.randomUUID(),
         semanticGroup: SemanticGroup = SemanticGroup.UNCATEGORIZED,
     ): EntityTypeEntity {
-        val defaultOrder = order ?: (schema.properties?.keys ?: listOf()).map { attrId ->
-            EntityTypeAttributeColumn(attrId, EntityPropertyType.ATTRIBUTE)
-        }
+        val defaultConfig = columnConfiguration ?: ColumnConfiguration(
+            order = schema.properties?.keys?.toList() ?: emptyList()
+        )
 
         return EntityTypeEntity(
             id = id,
@@ -46,7 +45,7 @@ object EntityFactory {
             displayNamePlural = displayNamePlural,
             workspaceId = workspaceId,
             schema = schema,
-            columns = defaultOrder,
+            columnConfiguration = defaultConfig,
             version = version,
             protected = protected,
             identifierKey = identifierKey,

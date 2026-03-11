@@ -96,7 +96,6 @@ class EntityServiceTest : BaseServiceTest() {
                 type = DataType.OBJECT,
                 properties = properties,
             ),
-            columns = emptyList(),
         )
     }
 

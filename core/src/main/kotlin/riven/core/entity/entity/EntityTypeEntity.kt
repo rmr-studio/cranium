@@ -13,7 +13,7 @@ import riven.core.models.common.Icon
 import riven.core.models.common.display.DisplayName
 import riven.core.models.entity.EntityType
 import riven.core.models.entity.EntityTypeSchema
-import riven.core.models.entity.configuration.EntityTypeAttributeColumn
+import riven.core.models.entity.configuration.ColumnConfiguration
 import java.util.*
 
 /**
@@ -87,8 +87,8 @@ data class EntityTypeEntity(
     var schema: EntityTypeSchema,
 
     @Type(JsonBinaryType::class)
-    @Column(name = "columns", columnDefinition = "jsonb", nullable = true)
-    var columns: List<EntityTypeAttributeColumn>,
+    @Column(name = "column_configuration", columnDefinition = "jsonb", nullable = true)
+    var columnConfiguration: ColumnConfiguration? = null,
 
     // Number of entities of this type, calculated via trigger on entities table
     @Column(name = "count", nullable = false)
@@ -114,7 +114,7 @@ data class EntityTypeEntity(
             workspaceId = this.workspaceId,
             protected = this.protected,
             schema = this.schema,
-            columns = this.columns,
+            columnConfiguration = this.columnConfiguration,
             createdAt = this.createdAt,
             updatedAt = this.updatedAt,
             createdBy = this.createdBy,

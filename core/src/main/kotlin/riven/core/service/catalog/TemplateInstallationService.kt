@@ -11,7 +11,6 @@ import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.ApplicationEntityType
 import riven.core.enums.core.DataFormat
 import riven.core.enums.core.DataType
-import riven.core.enums.entity.EntityPropertyType
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.enums.util.OperationType
 import riven.core.models.catalog.CatalogEntityTypeModel
@@ -19,7 +18,7 @@ import riven.core.models.catalog.CatalogRelationshipModel
 import riven.core.models.catalog.CatalogSemanticMetadataModel
 import riven.core.models.catalog.ManifestDetail
 import riven.core.models.common.validation.Schema
-import riven.core.models.entity.configuration.EntityTypeAttributeColumn
+import riven.core.models.entity.configuration.ColumnConfiguration
 import riven.core.models.request.entity.type.SaveRelationshipDefinitionRequest
 import riven.core.models.request.entity.type.SaveSemanticMetadataRequest
 import riven.core.models.request.entity.type.SaveTargetRuleRequest
@@ -238,7 +237,7 @@ class TemplateInstallationService(
         workspaceId: UUID,
         catalogType: CatalogEntityTypeModel,
     ): Pair<EntityTypeEntity, Map<String, UUID>> {
-        val (properties, columns, attributeKeyMap) = buildAttributeSchema(catalogType)
+        val (properties, columnOrder, attributeKeyMap) = buildAttributeSchema(catalogType)
 
         require(catalogType.identifierKey == null || catalogType.identifierKey in attributeKeyMap) {
             "identifierKey '${catalogType.identifierKey}' not found in schema attributes for entity type '${catalogType.key}'"
@@ -264,7 +263,7 @@ class TemplateInstallationService(
                 required = true,
                 properties = properties,
             ),
-            columns = columns,
+            columnConfiguration = ColumnConfiguration(order = columnOrder),
         )
 
         return entity to attributeKeyMap
@@ -275,10 +274,10 @@ class TemplateInstallationService(
      */
     private fun buildAttributeSchema(
         catalogType: CatalogEntityTypeModel,
-    ): Triple<Map<UUID, Schema<UUID>>, List<EntityTypeAttributeColumn>, Map<String, UUID>> {
+    ): Triple<Map<UUID, Schema<UUID>>, List<UUID>, Map<String, UUID>> {
         val attributeKeyMap = mutableMapOf<String, UUID>()
         val properties = mutableMapOf<UUID, Schema<UUID>>()
-        val columns = mutableListOf<EntityTypeAttributeColumn>()
+        val columnOrder = mutableListOf<UUID>()
 
         for ((attrKey, attrDefRaw) in catalogType.schema) {
             @Suppress("UNCHECKED_CAST")
@@ -317,10 +316,10 @@ class TemplateInstallationService(
                 )
             }
 
-            columns.add(EntityTypeAttributeColumn(key = attrId, type = EntityPropertyType.ATTRIBUTE))
+            columnOrder.add(attrId)
         }
 
-        return Triple(properties, columns, attributeKeyMap)
+        return Triple(properties, columnOrder, attributeKeyMap)
     }
 
     // ------ Relationship Creation ------

@@ -280,9 +280,12 @@ class TemplateMaterializationServiceTest {
 
         service.materializeIntegrationTemplates(workspaceId, integrationSlug)
 
+        val expectedEmailUuid = UUID.nameUUIDFromBytes("hubspot:hubspot-contact:email".toByteArray())
+        val expectedFirstNameUuid = UUID.nameUUIDFromBytes("hubspot:hubspot-contact:first-name".toByteArray())
+
         verify(entityTypeRepository).save(argThat { entity ->
-            entity.columns.isNotEmpty() &&
-                entity.columns.all { col -> col.key != UUID(0, 0) }
+            entity.columnConfiguration != null &&
+                entity.columnConfiguration!!.order == listOf(expectedEmailUuid, expectedFirstNameUuid)
         })
     }
 
@@ -313,7 +316,6 @@ class TemplateMaterializationServiceTest {
                 key = SchemaType.OBJECT,
                 type = DataType.OBJECT
             ),
-            columns = emptyList()
         )
 
         whenever(catalogEntityTypeRepository.findByManifestId(manifestId))
@@ -347,7 +349,6 @@ class TemplateMaterializationServiceTest {
                 key = SchemaType.OBJECT,
                 type = DataType.OBJECT
             ),
-            columns = emptyList()
         )
 
         whenever(catalogEntityTypeRepository.findByManifestId(manifestId))

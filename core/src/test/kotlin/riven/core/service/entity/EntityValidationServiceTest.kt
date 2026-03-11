@@ -1647,7 +1647,6 @@ class EntityValidationServiceTest : BaseServiceTest() {
             identifierKey = nameAttributeKey,
             workspaceId = workspaceId,
             schema = schema,
-            columns = emptyList(),
         )
 
         val entity = EntityEntity(
@@ -1690,7 +1689,6 @@ class EntityValidationServiceTest : BaseServiceTest() {
             displayNamePlural = "Test Entities",
             workspaceId = workspaceId,
             schema = schema,
-            columns = emptyList(),
             identifierKey = nameAttributeKey,
             iconType = IconType.CIRCLE_DASHED,
             iconColour = IconColour.NEUTRAL

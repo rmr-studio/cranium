@@ -1,27 +1,21 @@
-import { useAuth } from "@/components/provider/auth-context";
-import { AuthenticatedQueryResult } from "@/lib/interfaces/interface";
-import { type EntityType } from "@/lib/types/entity";
-import { useQuery } from "@tanstack/react-query";
-import { EntityTypeService } from "../../../service/entity-type.service";
+import { useAuth } from '@/components/provider/auth-context';
+import { useAuthenticatedQuery } from '@/hooks/query/use-authenticated-query';
+import { AuthenticatedQueryResult } from '@/lib/interfaces/interface';
+import { type EntityType } from '@/lib/types/entity';
+import { EntityTypeService } from '../../../service/entity-type.service';
+import { entityKeys } from '../entity-query-keys';
 
 export function useEntityTypes(workspaceId?: string): AuthenticatedQueryResult<EntityType[]> {
-  const { session, loading } = useAuth();
-  const query = useQuery({
-    queryKey: ['entityTypes', workspaceId],
-    queryFn: async () => {
-      return await EntityTypeService.getEntityTypes(session, workspaceId!); // non-null assertion as enabled ensures workspaceId is defined
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    enabled: !!session && !!workspaceId && !loading,
+  const { session } = useAuth();
+  return useAuthenticatedQuery({
+    queryKey: entityKeys.entityTypes.list(workspaceId!),
+    queryFn: () => EntityTypeService.getEntityTypes(session, workspaceId!),
+    staleTime: 5 * 60 * 1000,
+    enabled: !!workspaceId,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
-    gcTime: 10 * 60 * 1000, // 10 minutes garbage collection
+    gcTime: 10 * 60 * 1000,
   });
-
-  return {
-    isLoadingAuth: loading,
-    ...query,
-  };
 }
 
 export function useEntityTypeByKey(
@@ -29,21 +23,14 @@ export function useEntityTypeByKey(
   workspaceId?: string,
   include?: string[],
 ): AuthenticatedQueryResult<EntityType> {
-  const { session, loading } = useAuth();
-  const query = useQuery({
-    queryKey: ['entityType', key, workspaceId, include],
-    queryFn: async () => {
-      return await EntityTypeService.getEntityTypeByKey(session, workspaceId!, key, include); // non-null assertion as enabled ensures workspaceId is defined;
-    },
-    staleTime: 10 * 60 * 1000, // 10 minutes
-    enabled: !!key && !!workspaceId && !!session && !loading,
+  const { session } = useAuth();
+  return useAuthenticatedQuery({
+    queryKey: entityKeys.entityTypes.byKey(key!, workspaceId!, include),
+    queryFn: () => EntityTypeService.getEntityTypeByKey(session, workspaceId!, key, include),
+    staleTime: 10 * 60 * 1000,
+    enabled: !!key && !!workspaceId,
     refetchOnWindowFocus: false,
     retry: 1,
-    gcTime: 30 * 60 * 1000, // 30 minutes garbage collection
+    gcTime: 30 * 60 * 1000,
   });
-
-  return {
-    isLoadingAuth: loading,
-    ...query,
-  };
 }

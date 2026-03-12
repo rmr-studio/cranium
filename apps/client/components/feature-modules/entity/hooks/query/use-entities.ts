@@ -41,6 +41,10 @@ export function useEntitiesFromManyTypes(
       );
       return Object.values(response).flat();
     },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
     enabled: !!workspaceId && sortedTypeIds.length > 0,
   });
 

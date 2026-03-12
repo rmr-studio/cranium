@@ -1,5 +1,11 @@
 # Architecture Suggestions
 
+## 2026-03-12 — Onboarding Domain Documentation Stub Needed
+
+**Trigger:** Introduced new `onboarding` domain with cross-domain orchestration service
+**Affected vault notes:** `System Design/` — no existing Onboarding section
+**Suggested update:** Create `System Design/Onboarding/` vault section documenting the onboarding flow, atomicity guarantees (Phase 1 transactional, Phase 2 best-effort), the Internal method pattern for bypassing `@PreAuthorize`, and the `onboardingCompletedAt` idempotency gate.
+
 ## 2026-03-08 — Auto-Generated Identifier (`ID` SchemaType) and Template Default Value Support — ✅ IMPLEMENTED 2026-03-09
 
 **Trigger:** The `time-entry` entity in the project-management manifest uses `"identifierKey": "description"` — a freetext field that is neither unique nor stable. Fixing this properly requires two pieces of infrastructure that do not yet exist.

@@ -124,6 +124,7 @@ class UserService(
             email = user.email
             phone = user.phone
             avatarUrl = user.avatarUrl
+            onboardingCompletedAt = user.onboardingCompletedAt ?: onboardingCompletedAt
 
             // Update default workspace if provided
             defaultWorkspace = user.defaultWorkspace?.id?.let { workspaceId ->

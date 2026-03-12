@@ -2,6 +2,7 @@ package riven.core.models.user
 
 import riven.core.models.workspace.Workspace
 import riven.core.models.workspace.WorkspaceMember
+import java.time.ZonedDateTime
 import java.util.*
 
 data class User(
@@ -11,7 +12,8 @@ data class User(
     var phone: String? = null,
     var avatarUrl: String? = null,
     val memberships: List<WorkspaceMember> = listOf(),
-    var defaultWorkspace: Workspace? = null
+    var defaultWorkspace: Workspace? = null,
+    var onboardingCompletedAt: ZonedDateTime? = null
 ) {
     /**
      * Convert User to UserDisplay (lightweight representation).

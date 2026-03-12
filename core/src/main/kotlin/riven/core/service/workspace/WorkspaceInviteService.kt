@@ -46,8 +46,21 @@ class WorkspaceInviteService(
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId) and @workspaceSecurity.hasWorkspaceRoleOrHigher(#workspaceId, 'ADMIN')")
     @Throws(AccessDeniedException::class, IllegalArgumentException::class)
     fun createWorkspaceInvitation(workspaceId: UUID, email: String, role: WorkspaceRoles): WorkspaceInvite {
+        val userId = authTokenService.getUserId()
+        return createWorkspaceInvitationInternal(workspaceId, email, role, userId)
+    }
 
-        // Disallow invitation with the Owner role, ensure that this is only down through specified transfer of ownership methods
+    /**
+     * Create a workspace invitation without workspace access check. Used during onboarding
+     * when the workspace role is not yet in the JWT.
+     *
+     * @param workspaceId the workspace to invite the user into
+     * @param email the invitee's email address
+     * @param role the role to assign to the invitee
+     * @param invitedBy the UUID of the user sending the invitation
+     */
+    @Throws(IllegalArgumentException::class)
+    fun createWorkspaceInvitationInternal(workspaceId: UUID, email: String, role: WorkspaceRoles, invitedBy: UUID): WorkspaceInvite {
         if (role == WorkspaceRoles.OWNER) {
             throw IllegalArgumentException("Cannot create an invite with the Owner role. Use transfer ownership methods instead.")
         }
@@ -55,15 +68,11 @@ class WorkspaceInviteService(
         findManyResults {
             workspaceMemberRepository.findByWorkspaceId(workspaceId)
         }.run {
-            // Assert that the email is not already a member of the workspace.
-            if (this.any {
-                    it.user?.email == email
-                }) {
+            if (this.any { it.user?.email == email }) {
                 throw ConflictException("User with this email is already a member of the workspace.")
             }
         }
 
-        // Check if there is currently not a pending invite for this email.
         workspaceInviteRepository.findByworkspaceIdAndEmailAndInviteStatus(
             workspaceId = workspaceId,
             email = email,
@@ -74,31 +83,29 @@ class WorkspaceInviteService(
             }
         }
 
-        WorkspaceInviteEntity(
+        val entity = workspaceInviteRepository.save(
+            WorkspaceInviteEntity(
+                workspaceId = workspaceId,
+                email = email,
+                role = role,
+                inviteStatus = WorkspaceInviteStatus.PENDING,
+                invitedBy = invitedBy,
+            )
+        )
+
+        activityService.log(
+            activity = Activity.WORKSPACE_MEMBER_INVITE,
+            operation = OperationType.CREATE,
+            userId = invitedBy,
             workspaceId = workspaceId,
-            email = email,
-            role = role,
-            inviteStatus = WorkspaceInviteStatus.PENDING,
-            invitedBy = authTokenService.getUserId(),
-        ).let {
-            workspaceInviteRepository.save(it).run {
-                // TODO: Send out invitational email
+            entityType = ApplicationEntityType.WORKSPACE,
+            entityId = entity.id,
+            "inviteId" to entity.id.toString(),
+            "email" to email,
+            "role" to role.toString()
+        )
 
-                activityService.log(
-                    activity = Activity.WORKSPACE_MEMBER_INVITE,
-                    operation = OperationType.CREATE,
-                    userId = authTokenService.getUserId(),
-                    workspaceId = workspaceId,
-                    entityType = ApplicationEntityType.WORKSPACE,
-                    entityId = this.id,
-                    "inviteId" to this.id.toString(),
-                    "email" to email,
-                    "role" to role.toString()
-                )
-                return this.toModel()
-            }
-        }
-
+        return entity.toModel()
     }
 
     /**

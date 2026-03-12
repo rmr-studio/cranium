@@ -76,6 +76,17 @@ class StorageService(
         domain: StorageDomain,
         file: MultipartFile,
         metadata: Map<String, String>? = null
+    ): UploadFileResponse = uploadFileInternal(workspaceId, domain, file, metadata)
+
+    /**
+     * Upload a file without workspace access check. Used during onboarding when the
+     * workspace role is not yet in the JWT.
+     */
+    fun uploadFileInternal(
+        workspaceId: UUID,
+        domain: StorageDomain,
+        file: MultipartFile,
+        metadata: Map<String, String>? = null
     ): UploadFileResponse {
         val userId = authTokenService.getUserId()
         metadata?.run { validateMetadata(this) }

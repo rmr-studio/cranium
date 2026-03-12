@@ -1,4 +1,4 @@
-import { DataType, SchemaType } from '@/lib/types/common';
+import { DataType, IconColour, IconType, SchemaType } from '@/lib/types/common';
 import type { SchemaUUID } from '@/lib/types/common';
 import {
   Entity,
@@ -31,7 +31,7 @@ function createMockSchema(overrides: Partial<SchemaUUID> = {}): SchemaUUID {
     key: SchemaType.Text,
     type: DataType.String,
     label: 'Name',
-    icon: { type: 'ALargeSmall' as any, colour: 'Neutral' as any },
+    icon: { type: IconType.ALargeSmall, colour: IconColour.Neutral },
     required: false,
     unique: false,
     _protected: false,
@@ -45,9 +45,9 @@ function createMockEntity(overrides: Partial<Entity> = {}): Entity {
     workspaceId: 'workspace-uuid',
     typeId: 'type-uuid',
     payload: {},
-    icon: { type: 'Box' as any, colour: 'Neutral' as any },
+    icon: { type: IconType.Box, colour: IconColour.Neutral },
     identifierKey: 'name',
-    sourceType: 'MANUAL' as any,
+    sourceType: 'MANUAL' as Entity['sourceType'],
     syncVersion: 0,
     identifier: '',
     ...overrides,
@@ -62,7 +62,7 @@ function createMockRelationshipDefinition(
     workspaceId: 'workspace-uuid',
     sourceEntityTypeId: 'type-uuid',
     name: 'Related Items',
-    icon: { type: 'Link' as any, colour: 'Neutral' as any },
+    icon: { type: IconType.Link, colour: IconColour.Neutral },
     cardinalityDefault: EntityRelationshipCardinality.ManyToMany,
     _protected: false,
     targetRules: [],
@@ -77,7 +77,7 @@ function createMockEntityLink(overrides: Partial<EntityLink> = {}): EntityLink {
     workspaceId: 'workspace-uuid',
     definitionId: 'rel-uuid',
     sourceEntityId: 'entity-uuid-1234-5678',
-    icon: { type: 'Box' as any, colour: 'Neutral' as any },
+    icon: { type: IconType.Box, colour: IconColour.Neutral },
     key: 'related-type',
     label: 'Related Item',
     ...overrides,
@@ -89,12 +89,12 @@ function createMockEntityType(overrides: Partial<EntityType> = {}): EntityType {
     id: 'type-uuid',
     key: 'contact',
     version: 1,
-    icon: { type: 'User' as any, colour: 'Neutral' as any },
-    name: { singular: 'Contact', plural: 'Contacts' } as any,
+    icon: { type: IconType.User, colour: IconColour.Neutral },
+    name: { singular: 'Contact', plural: 'Contacts' } as EntityType['name'],
     _protected: false,
     identifierKey: 'name',
-    semanticGroup: 'CUSTOM' as any,
-    sourceType: 'MANUAL' as any,
+    semanticGroup: 'CUSTOM' as EntityType['semanticGroup'],
+    sourceType: 'MANUAL' as EntityType['sourceType'],
     readonly: false,
     schema: createMockSchema({ properties: {} }),
     columns: [],
@@ -144,6 +144,7 @@ describe('isEntityRow', () => {
 
 describe('transformEntitiesToRows', () => {
   it('filters out entities with null payload', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const entity = createMockEntity({ payload: null as any });
     const rows = transformEntitiesToRows([entity]);
     expect(rows).toHaveLength(0);
@@ -512,6 +513,7 @@ describe('extractUniqueAttributeValues', () => {
   it('skips entities where the attribute is null or undefined', () => {
     const entity = createMockEntity({
       payload: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         name: null as any,
       },
     });

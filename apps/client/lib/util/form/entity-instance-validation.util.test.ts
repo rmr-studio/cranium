@@ -1,4 +1,4 @@
-import { DataFormat, DataType, IconColour, IconType, SchemaType } from '@/lib/types/common';
+import { DataType, IconColour, IconType, SchemaType } from '@/lib/types/common';
 import type { SchemaUUID } from '@/lib/types/common';
 import { EntityRelationshipCardinality } from '@/lib/types/entity';
 import type { RelationshipDefinition } from '@/lib/types/entity';

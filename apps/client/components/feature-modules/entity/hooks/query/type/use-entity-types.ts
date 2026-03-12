@@ -3,7 +3,7 @@ import { useAuthenticatedQuery } from '@/hooks/query/use-authenticated-query';
 import { AuthenticatedQueryResult } from '@/lib/interfaces/interface';
 import { type EntityType } from '@/lib/types/entity';
 import { EntityTypeService } from '../../../service/entity-type.service';
-import { entityKeys } from '../entity-query-keys';
+import { entityKeys } from '@/components/feature-modules/entity/hooks/query/entity-query-keys';
 
 export function useEntityTypes(workspaceId?: string): AuthenticatedQueryResult<EntityType[]> {
   const { session } = useAuth();

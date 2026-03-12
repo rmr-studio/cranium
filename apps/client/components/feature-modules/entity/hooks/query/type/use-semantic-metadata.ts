@@ -3,7 +3,7 @@ import { useAuthenticatedQuery } from '@/hooks/query/use-authenticated-query';
 import { AuthenticatedQueryResult } from '@/lib/interfaces/interface';
 import { type SemanticMetadataBundle } from '@/lib/types/entity';
 import { KnowledgeService } from '../../../service/knowledge.service';
-import { entityKeys } from '../entity-query-keys';
+import { entityKeys } from '@/components/feature-modules/entity/hooks/query/entity-query-keys';
 
 export function useSemanticMetadata(
   workspaceId?: string,

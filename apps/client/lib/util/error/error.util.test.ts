@@ -3,7 +3,7 @@ import {
   isResponseError,
   fromError,
   ResponseError,
-} from './error.util';
+} from '@/lib/util/error/error.util';
 import { ResponseError as OpenApiResponseError } from '@/lib/types';
 
 function createMockOpenApiError(status: number, body: object | string): OpenApiResponseError {
@@ -66,11 +66,9 @@ describe('normalizeApiError', () => {
       message: 'Bad request',
     });
 
-    try {
-      await normalizeApiError(apiError);
-    } catch (error: unknown) {
-      expect((error as Record<string, unknown>).cause).toBeDefined();
-    }
+    await expect(normalizeApiError(apiError)).rejects.toMatchObject({
+      cause: apiError,
+    });
   });
 });
 

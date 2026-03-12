@@ -11,6 +11,9 @@ export const entityKeys = {
     /** Full key for a specific entity type's entity list */
     list: (workspaceId: string, typeId: string) =>
       ['entities', workspaceId, typeId] as const,
+    /** Key for batch entity queries across multiple types */
+    batch: (workspaceId: string, typeIds: string[]) =>
+      ['entities', workspaceId, 'batch', typeIds] as const,
   },
   entityTypes: {
     /** Key for the full entity types list in a workspace */

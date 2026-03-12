@@ -8,7 +8,7 @@ import { MutationFunctionContext, useMutation, useQueryClient, type UseMutationO
 import { useRef } from 'react';
 import { toast } from 'sonner';
 import { EntityTypeService } from '../../../service/entity-type.service';
-import { entityKeys } from '../../query/entity-query-keys';
+import { entityKeys } from '@/components/feature-modules/entity/hooks/query/entity-query-keys';
 
 export function useSaveDefinitionMutation(
   workspaceId: string,

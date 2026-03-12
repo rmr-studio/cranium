@@ -4,7 +4,7 @@ import { useMutation, useQueryClient, type UseMutationOptions } from '@tanstack/
 import { useRef } from 'react';
 import { toast } from 'sonner';
 import { EntityService } from '../../../service/entity.service';
-import { entityKeys } from '../../query/entity-query-keys';
+import { entityKeys } from '@/components/feature-modules/entity/hooks/query/entity-query-keys';
 
 export function useSaveEntityMutation(
   workspaceId: string,

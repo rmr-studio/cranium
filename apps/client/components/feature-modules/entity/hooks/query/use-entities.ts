@@ -2,7 +2,6 @@ import { useAuth } from '@/components/provider/auth-context';
 import { useAuthenticatedQuery } from '@/hooks/query/use-authenticated-query';
 import { AuthenticatedMultiQueryResult, AuthenticatedQueryResult } from '@/lib/interfaces/interface';
 import { Entity } from '@/lib/types/entity';
-import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { EntityService } from '../../service/entity.service';
 import { entityKeys } from './entity-query-keys';
@@ -27,28 +26,28 @@ export function useEntitiesFromManyTypes(
   workspaceId: string,
   typeIds: string[],
 ): AuthenticatedMultiQueryResult<Entity[]> {
-  const { session, loading } = useAuth();
+  const { session } = useAuth();
 
   // Sort typeIds for cache key stability
   const sortedTypeIds = useMemo(() => [...typeIds].sort(), [typeIds]);
 
-  const query = useQuery({
-    queryKey: ['entities', workspaceId, 'batch', sortedTypeIds],
+  const result = useAuthenticatedQuery({
+    queryKey: entityKeys.entities.batch(workspaceId, sortedTypeIds),
     queryFn: async () => {
-      const result = await EntityService.getEntitiesForTypes(
+      const response = await EntityService.getEntitiesForTypes(
         session,
         workspaceId,
         sortedTypeIds,
       );
-      return Object.values(result).flat();
+      return Object.values(response).flat();
     },
-    enabled: !!session && !loading && !!workspaceId && sortedTypeIds.length > 0,
+    enabled: !!workspaceId && sortedTypeIds.length > 0,
   });
 
   return {
-    data: query.data ?? [],
-    isLoading: query.isLoading,
-    isError: query.isError,
-    isLoadingAuth: loading,
+    data: result.data ?? [],
+    isLoading: result.isLoading,
+    isError: result.isError,
+    isLoadingAuth: result.isLoadingAuth,
   };
 }

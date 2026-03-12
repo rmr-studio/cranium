@@ -1,28 +1,19 @@
 'use client';
 
-import { ColumnResizingConfig, DataTable, DataTableProvider } from '@/components/ui/data-table';
+import { ActionColumnConfig, ColumnResizingConfig, DataTable, DataTableProvider } from '@/components/ui/data-table';
 import { Form } from '@/components/ui/form';
-import { SchemaUUID } from '@/lib/types/common';
+import type { QueryFilter } from '@/lib/types/models/QueryFilter';
 import {
   Entity,
-  EntityAttributePrimitivePayload,
-  EntityAttributeRelationPayloadReference,
-  EntityAttributeRequest,
-  EntityLink,
-  EntityPropertyType,
-  EntityType,
-  isRelationshipPayload,
-  RelationshipDefinition,
-  SaveEntityRequest,
   EntityAttributeDefinition,
+  EntityType,
   EntityTypeDefinition,
-  SaveEntityResponse,
+  RelationshipDefinition,
 } from '@/lib/types/entity';
 import { debounce } from '@/lib/util/debounce.util';
 import type { ClassNameProps } from '@riven/utils';
 import { cn } from '@riven/utils';
 
-import type { QueryFilter } from '@/lib/types/models/QueryFilter';
 import { Button } from '@riven/ui/button';
 import { Row } from '@tanstack/react-table';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -30,7 +21,9 @@ import { MoreHorizontal, Plus } from 'lucide-react';
 import { FC, useCallback, useMemo, useRef, useState } from 'react';
 import { useConfigFormState } from '../../context/configuration-provider';
 import { useEntityDraft } from '../../context/entity-provider';
-import { useSaveEntityMutation } from '../../hooks/mutation/instance/use-save-entity-mutation';
+import { useEntityColumnConfig } from '../../hooks/use-entity-column-config';
+import { useEntityInlineEdit } from '../../hooks/use-entity-inline-edit';
+import { useEntityTableData } from '../../hooks/use-entity-table-data';
 import { EntityQueryBuilder } from '../query/entity-query-builder';
 import { EntityTypeHeader } from '../ui/entity-type-header';
 import { AttributeFormModal } from '../ui/modals/type/attribute-form-modal';
@@ -39,15 +32,7 @@ import { ColumnHeaderPopover } from './column-header-popover';
 import { ColumnVisibilityPopover } from './column-visibility-popover';
 import { EntityDraftRow } from './entity-draft-row';
 import EntityActionBar from './entity-table-action-bar';
-import {
-  applyColumnOrdering,
-  EntityRow,
-  generateColumnsFromEntityType,
-  generateSearchConfigFromEntityType,
-  isDraftRow,
-  transformEntitiesToRows,
-} from './entity-table-utils';
-
+import { EntityRow, isDraftRow } from './entity-table-utils';
 
 export interface Props extends ClassNameProps {
   entityType: EntityType;
@@ -56,7 +41,6 @@ export interface Props extends ClassNameProps {
   workspaceId: string;
 }
 
-// Internal component with draft mode hooks
 export const EntityDataTable: FC<Props> = ({
   entityType,
   entities,
@@ -66,6 +50,18 @@ export const EntityDataTable: FC<Props> = ({
 }) => {
   const { isDraftMode, enterDraftMode } = useEntityDraft();
   const { form } = useConfigFormState();
+
+  // Extracted hooks
+  const { rowData, columns, searchableColumns } = useEntityTableData(entityType, entities, isDraftMode);
+  const { handleCellEdit } = useEntityInlineEdit(workspaceId, entityType, entities);
+  const {
+    handleColumnResize,
+    handleHideColumn,
+    handleToggleVisibility,
+    handleReorder,
+    handleShowAll,
+    handleHideAll,
+  } = useEntityColumnConfig(form, entityType);
 
   // Column header popover state
   const [activePopoverColumnId, setActivePopoverColumnId] = useState<string | null>(null);
@@ -80,25 +76,6 @@ export const EntityDataTable: FC<Props> = ({
   >();
   const [deletingDefinition, setDeletingDefinition] = useState<EntityTypeDefinition | undefined>();
 
-  const handleConflict = (request: SaveEntityRequest, response: SaveEntityResponse) => {};
-
-  // Update entity mutation for inline editing
-  const { mutateAsync: saveEntity } = useSaveEntityMutation(
-    workspaceId,
-    entityType.id,
-    undefined,
-    handleConflict,
-  );
-
-  const handleColumnResize = (columnSizing: Record<string, number>) => {
-    const current = form.getValues('columnConfiguration');
-    const updatedOverrides = { ...current.overrides };
-    Object.entries(columnSizing).forEach(([key, width]) => {
-      updatedOverrides[key] = { ...updatedOverrides[key], width };
-    });
-    form.setValue('columnConfiguration.overrides', updatedOverrides, { shouldDirty: true });
-  };
-
   // Header click handler — opens column popover
   const handleHeaderClick = useCallback(
     (columnId: string, anchorEl: HTMLElement) => {
@@ -108,67 +85,6 @@ export const EntityDataTable: FC<Props> = ({
     },
     [isDraftMode],
   );
-
-  // Hide a column via form state
-  const handleHideColumn = useCallback(
-    (columnId: string) => {
-      const current = form.getValues('columnConfiguration');
-      form.setValue(
-        `columnConfiguration.overrides`,
-        {
-          ...current.overrides,
-          [columnId]: { ...current.overrides[columnId], visible: false },
-        },
-        { shouldDirty: true },
-      );
-    },
-    [form],
-  );
-
-  // Visibility popover handlers
-  const handleToggleVisibility = useCallback(
-    (columnId: string) => {
-      if (columnId === entityType.identifierKey) return;
-      const current = form.getValues('columnConfiguration');
-      const currentVisible = current.overrides[columnId]?.visible !== false;
-      form.setValue(
-        `columnConfiguration.overrides`,
-        {
-          ...current.overrides,
-          [columnId]: { ...current.overrides[columnId], visible: !currentVisible },
-        },
-        { shouldDirty: true },
-      );
-    },
-    [form, entityType.identifierKey],
-  );
-
-  const handleReorder = useCallback(
-    (newOrder: string[]) => {
-      form.setValue('columnConfiguration.order', newOrder, { shouldDirty: true });
-    },
-    [form],
-  );
-
-  const handleShowAll = useCallback(() => {
-    const current = form.getValues('columnConfiguration');
-    const updatedOverrides = { ...current.overrides };
-    Object.keys(updatedOverrides).forEach((key) => {
-      updatedOverrides[key] = { ...updatedOverrides[key], visible: true };
-    });
-    form.setValue('columnConfiguration.overrides', updatedOverrides, { shouldDirty: true });
-  }, [form]);
-
-  const handleHideAll = useCallback(() => {
-    const current = form.getValues('columnConfiguration');
-    const updatedOverrides = { ...current.overrides };
-    Object.keys(updatedOverrides).forEach((key) => {
-      // Never hide the identifier
-      if (key === entityType.identifierKey) return;
-      updatedOverrides[key] = { ...updatedOverrides[key], visible: false };
-    });
-    form.setValue('columnConfiguration.overrides', updatedOverrides, { shouldDirty: true });
-  }, [form, entityType.identifierKey]);
 
   // End-of-header content
   const endOfHeaderContent = useMemo(
@@ -231,40 +147,6 @@ export const EntityDataTable: FC<Props> = ({
     ],
   );
 
-  // Transform entities to row data
-  const rowData = useMemo(() => {
-    // Sort entities by createdAt (oldest first) before transforming
-    const sortedEntities = [...entities].sort((a, b) => {
-      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-      return dateA - dateB; // Ascending order (oldest first)
-    });
-
-    const rows = transformEntitiesToRows(sortedEntities);
-
-    // Append draft row placeholder when in draft mode (at bottom)
-    if (isDraftMode) {
-      const draftRow: EntityRow = {
-        _entityId: '_draft',
-        _isDraft: true,
-      };
-      return [...rows, draftRow];
-    }
-
-    return rows;
-  }, [entities, isDraftMode]);
-
-  // Generate columns from entity type with inline editing enabled
-  const columns = useMemo(() => {
-    const generatedColumns = generateColumnsFromEntityType(entityType, { enableEditing: true });
-    return applyColumnOrdering(generatedColumns, entityType.columnConfiguration);
-  }, [entityType]);
-
-  // Generate search configuration
-  const searchableColumns = useMemo<string[]>(() => {
-    return generateSearchConfigFromEntityType(entityType);
-  }, [entityType]);
-
   const emptyMessage = loadingEntities
     ? 'Loading entities...'
     : `No ${entityType.name.plural} found.`;
@@ -284,11 +166,10 @@ export const EntityDataTable: FC<Props> = ({
   // Custom row renderer for draft mode
   const customRowRenderer = useCallback(
     (row: Row<EntityRow>) => {
-      // Check if this is the draft row using type-safe guard
       if (isDraftRow(row.original)) {
         return <EntityDraftRow key="_draft" entityType={entityType} row={row} />;
       }
-      return null; // Use default rendering
+      return null;
     },
     [entityType],
   );
@@ -297,97 +178,29 @@ export const EntityDataTable: FC<Props> = ({
   const debouncedResizeHandler = useRef(
     debounce((columnSizing: Record<string, number>) => {
       handleColumnResize(columnSizing);
-    }, 500), // Wait 500ms after user stops dragging before persisting
+    }, 500),
   ).current;
 
   // Column resizing configuration
   const columnResizingConfig: ColumnResizingConfig = useMemo(
     () => ({
       enabled: true,
-      columnResizeMode: 'onChange' as const, // Live resizing during drag
+      columnResizeMode: 'onChange' as const,
+    }),
+    [],
+  );
+
+  // Action column configuration
+  const actionColumnConfig: ActionColumnConfig = useMemo(
+    () => ({
+      dragHandle: { enabled: true, visibility: 'hover-or-selected' },
+      checkbox: { enabled: true, visibility: 'hover-or-selected' },
     }),
     [],
   );
 
   // Row ID getter for inline editing
   const getRowId = useCallback((row: EntityRow, _index: number) => row._entityId, []);
-
-  // Cell edit handler for inline editing
-  const handleCellEdit = useCallback(
-    async (row: EntityRow, columnId: string, newValue: any, _oldValue: any): Promise<boolean> => {
-      // Don't allow editing draft rows
-      if (isDraftRow(row)) return false;
-      const entity = entities.find((e) => e.id === row._entityId);
-      if (!entity) return false;
-
-      // Determine if updated column is an attribute or relationship
-      const attributeDef: SchemaUUID | undefined = entityType.schema.properties?.[columnId];
-      const relationshipDef: RelationshipDefinition | undefined = entityType.relationships?.find(
-        (rel) => rel.id === columnId,
-      );
-
-      // Prepare updated entity payload
-      if (attributeDef) {
-        const payloadEntry: EntityAttributePrimitivePayload = {
-          type: EntityPropertyType.Attribute,
-          value: newValue,
-          schemaType: attributeDef.key,
-        };
-
-        return await updateEntity(entity, columnId, { payload: payloadEntry });
-      }
-
-      if (relationshipDef) {
-        const relationship: EntityLink[] = newValue;
-        const relationshipEntry: EntityAttributeRelationPayloadReference = {
-          type: EntityPropertyType.Relationship,
-          relations: relationship.map((rel) => rel.id),
-        };
-
-        return await updateEntity(entity, columnId, { payload: relationshipEntry });
-      }
-
-      return false;
-    },
-    [entities, entityType],
-  );
-
-  const updateEntity = async (
-    entity: Entity,
-    columnId: string,
-    entry: EntityAttributeRequest,
-  ): Promise<boolean> => {
-    const payload: Map<string, EntityAttributeRequest> = new Map();
-    Object.entries(entity.payload).forEach(([key, value]) => {
-      if (isRelationshipPayload(value.payload)) {
-        payload.set(key, {
-          payload: {
-            type: EntityPropertyType.Relationship,
-            relations: value.payload.relations.map((rel) => rel.id),
-          },
-        });
-      } else {
-        payload.set(key, {
-          payload: {
-            type: EntityPropertyType.Attribute,
-            value: value.payload.value,
-            schemaType: value.payload.schemaType,
-          },
-        });
-      }
-    });
-
-    const updatedEntity: SaveEntityRequest = {
-      id: entity.id,
-      payload: {
-        ...Object.fromEntries(payload),
-        [columnId]: entry,
-      },
-    };
-
-    const response = await saveEntity(updatedEntity);
-    return !response.errors && !!response.entity;
-  };
 
   // Query filter state (EntityQueryBuilder)
   const [_queryFilter, setQueryFilter] = useState<QueryFilter | undefined>();
@@ -439,7 +252,7 @@ export const EntityDataTable: FC<Props> = ({
               ),
             }}
             enableDragDrop
-            alwaysShowActionHandles={true}
+            actionColumnConfig={actionColumnConfig}
             getRowId={(row) => row._entityId}
             search={searchConfig}
             filterContent={filterContent}

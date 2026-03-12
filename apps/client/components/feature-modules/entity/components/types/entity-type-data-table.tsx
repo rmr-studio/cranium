@@ -1,4 +1,4 @@
-import { DataTable, DataTableProvider } from '@/components/ui/data-table';
+import { ActionColumnConfig, DataTable, DataTableProvider } from '@/components/ui/data-table';
 import { TooltipProvider } from '@riven/ui/tooltip';
 import { Button } from '@riven/ui/button';
 import {
@@ -105,6 +105,14 @@ const {
     [identifierKey],
   );
 
+  const actionColumnConfig: ActionColumnConfig = useMemo(
+    () => ({
+      dragHandle: { enabled: true, visibility: 'always' },
+      checkbox: { enabled: false, visibility: 'hover-or-selected' },
+    }),
+    [],
+  );
+
   const toolbarActions = useMemo(
     () => (
       <Button onClick={onAdd} variant="outline" size="icon" className="size-9">
@@ -121,7 +129,7 @@ const {
         <DataTable
           columns={columns}
           enableDragDrop
-          alwaysShowActionHandles={true}
+          actionColumnConfig={actionColumnConfig}
           onReorder={handleFieldsReorder}
           getRowId={(row) => row.id}
           disableDragForRow={disableDragForRow}

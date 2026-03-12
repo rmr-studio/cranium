@@ -12,8 +12,8 @@ This roadmap delivers a unified multi-step onboarding experience that takes new 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation & Camera System** - Step framework, split-panel layout, and camera-style viewport transitions
-- [ ] **Phase 2: Required Steps** - User profile and workspace setup forms with live preview mockups
+- [x] **Phase 1: Foundation & Camera System** - Step framework, split-panel layout, and camera-style viewport transitions
+- [x] **Phase 2: Required Steps** - User profile and workspace setup forms with live preview mockups (completed 2026-03-12)
 - [ ] **Phase 3: Optional Steps** - Template selection and team invite steps with previews
 - [ ] **Phase 4: Submission & Completion** - Consolidated payload, sequential API calls, celebration screen, and redirect
 
@@ -29,12 +29,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Navigating between steps triggers smooth camera-style zoom/pan transitions on the preview panel
   4. Optional steps show a visible "Skip" affordance and required steps validate before allowing forward navigation
   5. Adding a new step requires only a config entry and components, not animation/navigation rewrites
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans executed
 
 Plans:
-- [ ] 01-01: Onboarding store, step config, and step navigation framework
-- [ ] 01-02: Split-panel layout and virtual canvas camera system
-- [ ] 01-03: Step transitions, validation gating, and progress indicator
+- [x] 01-01: Onboarding store, step config, and step navigation framework
+- [x] 01-02: Split-panel layout and virtual canvas camera system
+- [x] 01-03: Step transitions, validation gating, and progress indicator
 
 ### Phase 2: Required Steps
 **Goal**: Users can fill out their profile and workspace details with real-time preview feedback
@@ -45,11 +45,11 @@ Plans:
   2. User can enter workspace name, currency, plan, and avatar on the workspace step with inline validation
   3. Profile preview mockup updates live as the user types their name and uploads an avatar
   4. Workspace preview mockup updates live with workspace name and avatar
-**Plans:** TBD
+**Plans:** 2/2 plans complete
 
 Plans:
-- [ ] 02-01: Profile step form, schema, and live preview mockup
-- [ ] 02-02: Workspace step form, schema, and live preview mockup
+- [ ] 02-01-PLAN.md — Store extension, nav validation wiring, profile step form and live preview
+- [ ] 02-02-PLAN.md — Workspace step form, plan selector, and live preview
 
 ### Phase 3: Optional Steps
 **Goal**: Users can optionally select templates and invite teammates before completing onboarding
@@ -89,7 +89,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Camera System | 2/3 | In Progress|  |
-| 2. Required Steps | 0/2 | Not started | - |
+| 1. Foundation & Camera System | 3/3 | Complete | 2026-03-12 |
+| 2. Required Steps | 2/2 | Complete   | 2026-03-12 |
 | 3. Optional Steps | 0/2 | Not started | - |
 | 4. Submission & Completion | 0/2 | Not started | - |

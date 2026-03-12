@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: "Checkpoint: 01-02 Task 3 - awaiting visual verification"
-last_updated: "2026-03-11T06:49:15.803Z"
+stopped_at: Completed 02-required-steps-02-02-PLAN.md
+last_updated: "2026-03-12T09:31:29.784Z"
 last_activity: 2026-03-08 -- Roadmap created
 progress:
   total_phases: 4
-  completed_phases: 0
-  total_plans: 3
-  completed_plans: 2
+  completed_phases: 2
+  total_plans: 5
+  completed_plans: 5
   percent: 0
 ---
 
@@ -52,6 +52,8 @@ Progress: [░░░░░░░░░░] 0%
 *Updated after each plan completion*
 | Phase 01-foundation-camera-system P01 | 3 | 2 tasks | 5 files |
 | Phase 01 P02 | 3 | 2 tasks | 10 files |
+| Phase 02-required-steps P01 | 15 | 3 tasks | 8 files |
+| Phase 02-required-steps P02 | 4 | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -67,6 +69,10 @@ Recent decisions affecting current work:
 - [Phase 01-01]: cameraX = index * SECTION_WIDTH (800) ensures monotonicity and extensibility
 - [Phase 01-foundation-camera-system]: Three-phase camera animation locked at 200ms each (600ms total) — not configurable per user decision
 - [Phase 01-foundation-camera-system]: isAnimating ref guards rapid navigation to prevent animation conflicts without triggering re-renders
+- [Phase 02-required-steps]: formTrigger bridge pattern: store acts as decoupled bridge between nav controls and step form, no prop drilling
+- [Phase 02-required-steps]: liveData stays unvalidated for preview reactivity; validatedData receives committed data only on successful Next
+- [Phase 02-required-steps]: avatar-helpers extracted to utils/ to avoid duplication between profile-preview and workspace-preview
+- [Phase 02-required-steps]: Plan selector uses clickable cards with shouldValidate:false — validation only on Next click
 
 ### Pending Todos
 
@@ -79,6 +85,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T06:49:05.053Z
-Stopped at: Checkpoint: 01-02 Task 3 - awaiting visual verification
+Last session: 2026-03-12T09:31:12.914Z
+Stopped at: Completed 02-required-steps-02-02-PLAN.md
 Resume file: None

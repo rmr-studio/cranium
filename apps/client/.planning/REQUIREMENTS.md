@@ -17,18 +17,18 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### User Profile
 
-- [ ] **PROF-01**: User can enter their display name (required, min 3 chars)
-- [ ] **PROF-02**: User can enter their phone number (required, validated as mobile)
-- [ ] **PROF-03**: User can upload an avatar image (optional, max 2MB, JPEG/PNG/GIF)
-- [ ] **PROF-04**: Profile preview mockup on the right panel updates live as user types name and uploads avatar
+- [x] **PROF-01**: User can enter their display name (required, min 3 chars)
+- [x] **PROF-02**: User can enter their phone number (required, validated as mobile)
+- [x] **PROF-03**: User can upload an avatar image (optional, max 2MB, JPEG/PNG/GIF)
+- [x] **PROF-04**: Profile preview mockup on the right panel updates live as user types name and uploads avatar
 
 ### Workspace Setup
 
-- [ ] **WORK-01**: User can enter a workspace name (required, min 3 chars)
-- [ ] **WORK-02**: User can select a default currency from a dropdown
-- [ ] **WORK-03**: User can select a workspace plan (FREE, STARTUP, SCALE, ENTERPRISE)
-- [ ] **WORK-04**: User can upload a workspace avatar (optional, max 5MB, JPEG/PNG/WebP)
-- [ ] **WORK-05**: Workspace preview mockup on the right panel updates live with workspace name and avatar
+- [x] **WORK-01**: User can enter a workspace name (required, min 3 chars)
+- [x] **WORK-02**: User can select a default currency from a dropdown
+- [x] **WORK-03**: User can select a workspace plan (FREE, STARTUP, SCALE, ENTERPRISE)
+- [x] **WORK-04**: User can upload a workspace avatar (optional, max 5MB, JPEG/PNG/WebP)
+- [x] **WORK-05**: Workspace preview mockup on the right panel updates live with workspace name and avatar
 
 ### Split-Panel & Camera
 
@@ -109,15 +109,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STEP-03 | Phase 1 | Complete |
 | STEP-04 | Phase 1 | Pending |
 | STEP-05 | Phase 1 | Pending |
-| PROF-01 | Phase 2 | Pending |
-| PROF-02 | Phase 2 | Pending |
-| PROF-03 | Phase 2 | Pending |
-| PROF-04 | Phase 2 | Pending |
-| WORK-01 | Phase 2 | Pending |
-| WORK-02 | Phase 2 | Pending |
-| WORK-03 | Phase 2 | Pending |
-| WORK-04 | Phase 2 | Pending |
-| WORK-05 | Phase 2 | Pending |
+| PROF-01 | Phase 2 | Complete |
+| PROF-02 | Phase 2 | Complete |
+| PROF-03 | Phase 2 | Complete |
+| PROF-04 | Phase 2 | Complete |
+| WORK-01 | Phase 2 | Complete |
+| WORK-02 | Phase 2 | Complete |
+| WORK-03 | Phase 2 | Complete |
+| WORK-04 | Phase 2 | Complete |
+| WORK-05 | Phase 2 | Complete |
 | ANIM-01 | Phase 1 | Complete |
 | ANIM-02 | Phase 1 | Complete |
 | ANIM-03 | Phase 1 | Complete |

@@ -104,7 +104,6 @@ export function DataTableBody<TData>({
             isSelectionEnabled={isSelectionEnabled}
             enableInlineEdit={enableInlineEdit}
             focusedCell={focusedCell}
-            alwaysShowActionHandles={alwaysShowActionHandles}
             hasEndOfHeaderContent={hasEndOfHeaderContent}
           />
         );

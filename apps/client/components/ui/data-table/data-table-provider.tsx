@@ -303,13 +303,11 @@ export function useSelection<TData>() {
     TData,
     {
       rowSelection: DataTableStore<TData>['rowSelection'];
-      hoveredRowId: string | null;
       selectedCount: number;
       hasSelections: boolean;
     }
   >((state) => ({
     rowSelection: state.rowSelection,
-    hoveredRowId: state.hoveredRowId,
     selectedCount: state.getSelectedCount(),
     hasSelections: state.hasSelections(),
   }));

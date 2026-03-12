@@ -54,8 +54,6 @@ interface FilteringSliceState {
 interface SelectionSliceState {
   /** Row selection state (TanStack Table format) */
   rowSelection: RowSelectionState;
-  /** ID of currently hovered row (for conditional checkbox display) */
-  hoveredRowId: string | null;
 }
 
 interface ColumnSliceState {
@@ -134,7 +132,6 @@ interface SelectionActions<TData> {
   setRowSelection: (
     selection: RowSelectionState | ((prev: RowSelectionState) => RowSelectionState),
   ) => void;
-  setHoveredRowId: (rowId: string | null) => void;
   /** Clear all row selections */
   clearSelection: () => void;
   /** Get selected row data (requires table instance) */
@@ -411,7 +408,6 @@ export const createDataTableStore = <TData>(options: CreateDataTableStoreOptions
 
       // Selection slice
       rowSelection: {},
-      hoveredRowId: null,
 
       // Column slice
       columnSizing: initialColumnSizing,
@@ -539,8 +535,6 @@ export const createDataTableStore = <TData>(options: CreateDataTableStoreOptions
           rowSelection: typeof selection === 'function' ? selection(state.rowSelection) : selection,
         })),
 
-      setHoveredRowId: (rowId) => set({ hoveredRowId: rowId }),
-
       clearSelection: () => set({ rowSelection: {} }),
 
       getSelectedRows: () => {
@@ -616,8 +610,8 @@ export const createDataTableStore = <TData>(options: CreateDataTableStoreOptions
       },
 
       commitEdit: async () => {
-        const { editingCell, pendingValue, tableData, onCellEdit: cellEditCallback } = get();
-        if (!editingCell || !cellEditCallback) return;
+        const { editingCell, pendingValue, tableData, onCellEdit: cellEditCallback, isSaving } = get();
+        if (!editingCell || !cellEditCallback || isSaving) return;
 
         const { rowId, columnId } = editingCell;
         const rowIndex = tableData.findIndex((r, idx) => getRowId(r, idx) === rowId);

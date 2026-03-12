@@ -5,12 +5,11 @@ import { cn } from '@riven/utils';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Row, flexRender } from '@tanstack/react-table';
-import { GripVertical } from 'lucide-react';
 import React from 'react';
-import { Checkbox } from '../../checkbox';
 import { useCellInteraction, useDataTableActions, useDataTableStore } from '../data-table-provider';
-import type { ColumnResizingConfig, RowActionsConfig } from '../data-table.types';
+import type { ActionColumnConfig, ColumnResizingConfig, RowActionsConfig } from '../data-table.types';
 import { isEditableColumn } from '../data-table.types';
+import { ActionCell } from './action-cell';
 import { EditableCell } from './cells/editable-cell';
 import { RowActionsMenu } from './row-actions-menu';
 
@@ -25,7 +24,7 @@ interface DraggableRowProps<TData> {
   enableInlineEdit?: boolean;
   isSelectionEnabled: boolean;
   focusedCell?: { rowId: string; columnId: string } | null;
-  alwaysShowActionHandles?: boolean;
+  actionColumnConfig?: ActionColumnConfig;
   /** Render an empty trailing td to match the endOfHeaderContent th */
   hasEndOfHeaderContent?: boolean;
 }
@@ -41,15 +40,12 @@ function DraggableRowComponent<TData>({
   isSelectionEnabled,
   enableInlineEdit,
   focusedCell,
-  alwaysShowActionHandles = false,
+  actionColumnConfig,
   hasEndOfHeaderContent = false,
 }: DraggableRowProps<TData>) {
   const isMounted = useDataTableStore<TData, boolean>((state) => state.isMounted);
 
-  const { setHoveredRowId, setFocusedCell, focusNextCell, focusPrevCell } =
-    useDataTableActions<TData>();
-
-  const hoveredRowId = useDataTableStore<TData, string | null>((state) => state.hoveredRowId);
+  const { setFocusedCell, focusNextCell, focusPrevCell } = useDataTableActions<TData>();
 
   const { exitToFocused, commitEdit, startEditing, editingCell, updatePendingValue } =
     useCellInteraction();
@@ -68,65 +64,37 @@ function DraggableRowComponent<TData>({
       }
     : undefined;
 
-  const hasSelections = useDataTableStore<TData, boolean>((state) => state.hasSelections());
-  const isVisible = alwaysShowActionHandles || hasSelections || hoveredRowId === row.id;
-
   return (
     <TableRow
       ref={enableDragDrop && isMounted ? setNodeRef : undefined}
       style={style}
       data-state={row.getIsSelected() ? 'selected' : undefined}
       className={cn(
+        'group/row',
         isDragging && 'opacity-0',
         onRowClick && !disabled && 'cursor-pointer',
         disabled && 'pointer-events-none opacity-40',
       )}
       onClick={() => !disabled && onRowClick?.(row)}
-      onMouseEnter={() => setHoveredRowId(row.id)}
-      onMouseLeave={() => setHoveredRowId(null)}
     >
       {/* Data cells (includes selection checkbox if enabled) */}
       {row.getVisibleCells().map((cell) => {
-        // Special handling for selection column - make it sticky
+        // Special handling for action column
         if (cell.column.id === 'actions') {
           return (
-            <TableCell
+            <ActionCell<TData>
               key={cell.id}
-              className={cn(
-                'border-l border-l-accent/40 first:border-l-transparent',
-                isVisible
-                  ? 'opacity-100'
-                  : 'opacity-0 transition-opacity duration-300 group-hover:opacity-100',
-              )}
-              style={{
-                width: `${cell.column.getSize()}px`,
-                maxWidth: `${cell.column.getSize()}px`,
-              }}
-            >
-              <div className="flex items-center gap-2">
-                {enableDragDrop && isMounted && (
-                  <button
-                    className={cn(
-                      'cursor-grab text-muted-foreground transition-colors hover:text-foreground active:cursor-grabbing',
-                      isDragDisabled && 'cursor-not-allowed opacity-30',
-                    )}
-                    {...(isMounted && !isDragDisabled ? attributes : {})}
-                    {...(isMounted && !isDragDisabled ? listeners : {})}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <GripVertical className="h-4 w-4" />
-                  </button>
-                )}
-                {isSelectionEnabled && (
-                  <Checkbox
-                    checked={row.getIsSelected()}
-                    onCheckedChange={(value) => row.toggleSelected(!!value)}
-                    aria-label="Select row"
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                )}
-              </div>
-            </TableCell>
+              isSelected={row.getIsSelected()}
+              onToggleSelected={(value) => row.toggleSelected(value)}
+              enableDragDrop={enableDragDrop}
+              isSelectionEnabled={isSelectionEnabled}
+              isDragDisabled={isDragDisabled}
+              isMounted={isMounted}
+              dragAttributes={attributes}
+              dragListeners={listeners}
+              cellSize={cell.column.getSize()}
+              actionColumnConfig={actionColumnConfig}
+            />
           );
         }
 
@@ -220,14 +188,17 @@ function DraggableRowComponent<TData>({
 
 // Memoize to prevent unnecessary re-renders
 export const DraggableRow = React.memo(DraggableRowComponent, (prevProps, nextProps) => {
-  // Re-render only if row ID, disabled state, or focus state changes
+  // Re-render only if row ID, disabled state, focus state, or config changes
   return (
     prevProps.row.id === nextProps.row.id &&
+    prevProps.row.original === nextProps.row.original &&
     prevProps.disabled === nextProps.disabled &&
     prevProps.enableDragDrop === nextProps.enableDragDrop &&
     prevProps.isSelectionEnabled === nextProps.isSelectionEnabled &&
     prevProps.focusedCell?.rowId === nextProps.focusedCell?.rowId &&
     prevProps.focusedCell?.columnId === nextProps.focusedCell?.columnId &&
-    prevProps.hasEndOfHeaderContent === nextProps.hasEndOfHeaderContent
+    prevProps.hasEndOfHeaderContent === nextProps.hasEndOfHeaderContent &&
+    prevProps.actionColumnConfig === nextProps.actionColumnConfig &&
+    prevProps.enableInlineEdit === nextProps.enableInlineEdit
   );
 }) as typeof DraggableRowComponent;

@@ -6,7 +6,7 @@ tags:
 Domains:
   - "[[Workspaces & Users]]"
 Created: 2026-02-08
-Updated: 2026-03-07
+Updated: 2026-03-12
 ---
 # WorkspaceService
 
@@ -44,6 +44,7 @@ Manages workspace lifecycle (CRUD) and workspace membership. On workspace creati
 
 - `WorkspaceController` — REST API layer
 - [[WorkspaceInviteService]] — calls addMemberToWorkspace on invitation acceptance
+- [[OnboardingService]] — creates workspace during onboarding flow
 
 ---
 
@@ -52,10 +53,12 @@ Manages workspace lifecycle (CRUD) and workspace membership. On workspace creati
 **saveWorkspace:**
 - Creates workspace + OWNER member in single transaction
 - If request.id is null, creates new; otherwise updates existing
-- On creation: adds creator as OWNER with WorkspaceMemberEntity
-- Default workspace logic: if user has no memberships OR request.isDefault flag set, assigns workspace as user's defaultWorkspace via UserService
+- Refactored into extracted private methods for readability: `createOrUpdateWorkspaceEntity`, `createOwnerMember`, `uploadWorkspaceAvatar`, `logWorkspaceActivity`, `publishWorkspaceAnalytics`, `setDefaultWorkspaceIfNeeded`
+- On creation: adds creator as OWNER via `createOwnerMember`
+- Default workspace logic: `setDefaultWorkspaceIfNeeded` checks if user has no memberships OR request.isDefault flag set, assigns workspace as user's defaultWorkspace via UserService
 - Currency validation: uses Java Currency.getInstance, throws IllegalArgumentException for invalid codes
-- Avatar upload: if avatar file provided, uploads AFTER workspace save + member creation (so workspace ID exists and @PreAuthorize passes). Calls `storageService.uploadFile(id, StorageDomain.AVATAR, file)` which returns UploadFileResponse. Sets `this.avatarUrl = uploadResponse.file.storageKey` and saves again
+- Avatar upload: if avatar file provided, `uploadWorkspaceAvatar` calls `storageService.uploadFileInternal(workspaceId, StorageDomain.AVATAR, file)` (uses internal method to bypass @PreAuthorize, since workspace role may not yet be in JWT during onboarding). Sets `entity.avatarUrl = uploadResponse.file.storageKey` and saves again
+- Analytics publishing: `publishWorkspaceAnalytics` publishes `WorkspaceCreatedEvent` or `WorkspaceUpdatedEvent` via ApplicationEventPublisher
 
 **deleteWorkspace:**
 - Soft-delete (sets deleted=true, deletedAt=now)

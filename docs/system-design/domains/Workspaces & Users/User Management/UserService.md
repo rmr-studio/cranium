@@ -6,7 +6,7 @@ tags:
 Domains:
   - "[[Workspaces & Users]]"
 Created: 2026-02-08
-Updated: 2026-03-07
+Updated: 2026-03-12
 ---
 # UserService
 
@@ -40,6 +40,7 @@ Manages user profile CRUD with session-aware retrieval. Provides optimized works
 
 - `UserController` — REST API layer
 - [[WorkspaceService]] — calls getUserWithWorkspacesFromSession during workspace creation for default workspace logic
+- [[OnboardingService]] — marks onboarding completion via updateUserDetails
 
 ---
 
@@ -60,7 +61,7 @@ Manages user profile CRUD with session-aware retrieval. Provides optimized works
 **updateUserDetails:**
 - Retrieves session user ID via `val sessionUserId = authTokenService.getUserId()` (val assignment)
 - Validates session user ID matches target user.id (throws AccessDeniedException if mismatch) — self-only enforcement
-- Updates name, email, phone, avatarUrl fields
+- Updates name, email, phone, avatarUrl, and `onboardingCompletedAt` fields (onboardingCompletedAt is only set if the incoming value is non-null, otherwise the existing value is preserved)
 - Default workspace update: if user.defaultWorkspace.id provided, looks up WorkspaceEntity via WorkspaceRepository
 - Saves updated UserEntity
 - If optional `avatar: MultipartFile?` is provided: calls `storageService.uploadUserFile(sessionUserId, StorageDomain.AVATAR, file)` to upload, then sets `entity.avatarUrl` to returned storage key and saves again
@@ -95,7 +96,7 @@ Retrieves UserEntity by ID. No workspace memberships loaded.
 
 ### `updateUserDetails(user, avatar?): User`
 
-Updates session user's profile. Validates session match. Updates name, email, phone, avatarUrl, defaultWorkspace. If optional avatar MultipartFile is provided, uploads via StorageService and sets avatarUrl to the returned storage key.
+Updates session user's profile. Validates session match. Updates name, email, phone, avatarUrl, onboardingCompletedAt, defaultWorkspace. If optional avatar MultipartFile is provided, uploads via StorageService and sets avatarUrl to the returned storage key.
 
 ### `deleteUserProfile(userId)`
 

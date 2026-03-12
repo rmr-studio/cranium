@@ -48,3 +48,4 @@ UserService provides session-based user retrieval (extracting user ID from JWT) 
 | Date | Change | Feature/ADR |
 | ---- | ------ | ----------- |
 | 2026-02-08 | Subdomain overview created | [[03-01-PLAN]] |
+| 2026-03-12 | Added `onboarding_completed_at` (nullable timestamp) field to User entity and model — tracks whether a user has completed the onboarding flow | [[Onboarding]] |

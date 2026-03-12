@@ -6,7 +6,7 @@ tags:
 Domains:
   - "[[Workspaces & Users]]"
 Created: 2026-02-08
-Updated: 2026-02-08
+Updated: 2026-03-12
 ---
 # WorkspaceInviteService
 
@@ -42,18 +42,25 @@ Manages the workspace invitation workflow — creating invitations, handling acc
 ## Used By
 
 - `InviteController` — REST API layer
+- [[OnboardingService]] — sends workspace invitations during onboarding flow
 
 ---
 
 ## Key Logic
 
 **createWorkspaceInvitation:**
+- Requires workspace access + ADMIN+ role via `@PreAuthorize`
+- Retrieves `userId` via `authTokenService.getUserId()` as `val` assignment
+- Delegates to `createWorkspaceInvitationInternal(workspaceId, email, role, userId)`
+
+**createWorkspaceInvitationInternal:**
+- Internal method without `@PreAuthorize` — used by [[OnboardingService]] when workspace role is not yet in the JWT
+- Accepts explicit `invitedBy` UUID parameter instead of extracting from auth token
 - Validates role != OWNER (throws IllegalArgumentException — directs to "transfer ownership methods")
 - Checks no existing member with target email via WorkspaceMemberRepository join to user table (throws ConflictException if already member)
 - Checks no pending invite for email (throws IllegalArgumentException if duplicate pending)
-- Creates WorkspaceInviteEntity with status=PENDING, invitedBy=current user ID
+- Creates WorkspaceInviteEntity with status=PENDING, invitedBy=invitedBy parameter
 - Logs WORKSPACE_MEMBER_INVITE CREATE activity
-- TODO: Send invitation email (line 84)
 - Returns WorkspaceInvite model
 
 **handleInvitationResponse:**
@@ -83,7 +90,11 @@ Manages the workspace invitation workflow — creating invitations, handling acc
 
 ### `createWorkspaceInvitation(workspaceId, email, role): WorkspaceInvite`
 
-Creates pending invitation. ADMIN+ required. Validates role != OWNER, no existing member, no duplicate pending invite.
+Creates pending invitation. ADMIN+ required via `@PreAuthorize`. Delegates to `createWorkspaceInvitationInternal`.
+
+### `createWorkspaceInvitationInternal(workspaceId, email, role, invitedBy): WorkspaceInvite`
+
+Creates pending invitation without workspace access check. Validates role != OWNER, no existing member, no duplicate pending invite. Used by [[OnboardingService]] when workspace role is not yet in the JWT.
 
 ### `handleInvitationResponse(token, accepted: Boolean)`
 

@@ -93,19 +93,19 @@ export function DraggableColumnHeader<TData, TValue>({
       style={style}
       key={header.id}
       className={cn(
-        'relative border-l px-3 py-2 first:border-l-transparent',
+        'group/header relative border-l px-3 py-2 first:border-l-transparent',
         onHeaderClick && !isActionsColumn && 'cursor-pointer hover:bg-muted/50',
       )}
       onClick={handleClick}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1">
-          {/* Drag handle for column reordering — separate from resize zone */}
+          {/* Drag handle for column reordering — visible on hover */}
           {enableColumnOrdering && !isActionsColumn && isMounted && (
             <button
               className={cn(
                 'cursor-grab text-muted-foreground/50 hover:text-muted-foreground active:cursor-grabbing',
-                'shrink-0 -ml-1',
+                'shrink-0 -ml-1 opacity-0 transition-opacity duration-150 group-hover/header:opacity-100',
               )}
               {...attributes}
               {...listeners}

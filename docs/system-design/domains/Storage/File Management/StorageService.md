@@ -4,7 +4,7 @@ tags:
   - component/active
   - architecture/component
 Created: 2026-03-07
-Updated: 2026-03-07
+Updated: 2026-03-12
 Domains:
   - "[[Storage]]"
 ---
@@ -47,12 +47,16 @@ Central orchestrator for all file storage operations. Coordinates content valida
 
 - [[StorageController]] -- REST endpoints for all storage operations
 - `UserService` -- Avatar uploads via `uploadUserFile`
+- [[WorkspaceService]] -- Workspace avatar upload during creation via `uploadFileInternal`
+- [[OnboardingService]] -- File uploads during onboarding flow via `uploadFileInternal`
 
 ---
 
 ## Key Logic
 
 ### Upload flow
+
+`uploadFile` delegates to `uploadFileInternal` (which contains the actual logic). `uploadFileInternal` is also callable directly without `@PreAuthorize` for onboarding and internal service use.
 
 1. Detect MIME type via Tika magic bytes
 2. Validate content type against `StorageDomain` allowlist
@@ -101,7 +105,11 @@ Both `batchUpload` and `batchDelete` process each item independently. A failure 
 
 ### `uploadFile(workspaceId, domain, file, metadata?): UploadFileResponse`
 
-Upload a file with full validation, storage, metadata persistence, and activity logging. Returns file metadata and signed download URL.
+Upload a file with full validation, storage, metadata persistence, and activity logging. Returns file metadata and signed download URL. Delegates to `uploadFileInternal`.
+
+### `uploadFileInternal(workspaceId, domain, file, metadata?): UploadFileResponse`
+
+Internal method without `@PreAuthorize` -- used by [[WorkspaceService]] for avatar uploads during workspace creation and by [[OnboardingService]] when the workspace role is not yet in the JWT. Contains the full upload logic (identical to `uploadFile` but bypasses workspace access check).
 
 ### `uploadUserFile(userId, domain, file): String`
 
@@ -164,6 +172,7 @@ Download a file using a signed URL token. No `@PreAuthorize` -- the token is the
 
 ## Gotchas
 
+- **`uploadFileInternal` has no `@PreAuthorize`** -- it is called by `WorkspaceService` for avatar uploads during workspace creation and by `OnboardingService` during onboarding flows where workspace role is not yet in the JWT. Unlike `uploadUserFile`, it performs full metadata persistence and activity logging.
 - **`uploadUserFile` has no `@PreAuthorize`** -- it is called by `UserService` for avatar uploads where the user is authenticated but not necessarily in a workspace context. It also skips metadata persistence entirely.
 - **`downloadFile` has no `@PreAuthorize`** -- the signed token replaces workspace-scoped auth. This is intentional so files can be served to contexts without workspace sessions.
 - **Physical delete failure is non-fatal** -- if the provider fails to delete the file, the soft-delete on metadata is preserved. This avoids orphaned metadata but may leave orphaned files in storage.

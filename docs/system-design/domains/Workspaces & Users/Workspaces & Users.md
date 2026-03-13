@@ -63,6 +63,7 @@ flowchart TD
 | [[Workspace Management]] | Workspace CRUD, membership management, activity logging |
 | [[Team Management]] | Invitation workflow, member onboarding (future: team features) |
 | [[User Management]] | User profile CRUD, session-based user retrieval, default workspace |
+| [[Onboarding]] | Single-request onboarding flow: workspace creation, profile setup, template installation, team invites |
 | [[Auth & Authorization]] | JWT decoding, authority extraction, role-based access control, workspace security checks |
 
 ### Integrations
@@ -91,7 +92,7 @@ flowchart TD
 | Workspace | Multi-tenant container | id, name, plan, defaultCurrency, memberCount, deleted |
 | WorkspaceMember | User-workspace association with role | workspaceId, userId, role |
 | WorkspaceInvite | Pending invitation | workspaceId, email, role, inviteStatus, token, invitedBy |
-| User | Application user profile | id, name, email, phone, avatarUrl, defaultWorkspace |
+| User | Application user profile | id, name, email, phone, avatarUrl, defaultWorkspace, onboardingCompletedAt |
 
 ### Database Tables
 
@@ -120,6 +121,7 @@ flowchart TD
 | Domain | What We Consume | Via Component | Related Flow |
 |--------|----------------|---------------|--------------|
 | [[Storage]] | File upload for workspace and user avatars | [[StorageService]] | [[Flow - File Upload]] |
+| [[Catalog]] | Template and bundle installation during onboarding | [[TemplateInstallationService]] | [[Onboarding]] |
 
 ### Consumed By
 
@@ -156,3 +158,4 @@ flowchart TD
 | Date | Change | Feature/ADR |
 | ---- | ------ | ----------- |
 | 2026-02-08 | Domain structure created | [[03-01-PLAN]] |
+| 2026-03-12 | Added [[Onboarding]] subdomain; `onboardingCompletedAt` field on User; new dependency on [[Catalog]] domain | [[Onboarding]] |

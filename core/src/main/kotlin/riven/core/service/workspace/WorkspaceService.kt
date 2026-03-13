@@ -67,98 +67,121 @@ class WorkspaceService(
     }
 
     /**
-     * Transactional given our createWorkspace method creates both an Workspace and its first member.
+     * Creates or updates a workspace, then uploads avatar outside the transaction boundary
+     * to prevent orphaned files on rollback.
      */
     @Throws(AccessDeniedException::class, IllegalArgumentException::class)
-    @Transactional
     fun saveWorkspace(request: SaveWorkspaceRequest, avatar: MultipartFile? = null): Workspace {
-        // Gets the user ID from the auth token to act as the Workspace creator
-        authTokenService.getUserId().let { userId ->
-            val currency: Currency = getCurrency(request.defaultCurrency)
+        val (workspace, entity) = saveWorkspaceTransactional(request)
 
-            // Create and save the workspace entity
-            val entity = request.id.let {
-                if (it == null) {
-                    return@let WorkspaceEntity(
-                        name = request.name,
-                        plan = request.plan,
-                        defaultCurrency = currency,
-                    )
-                }
+        avatar?.let { file ->
+            uploadWorkspaceAvatar(workspace.id, entity, file)
+        }
 
-                findOrThrow { workspaceRepository.findById(it) }.apply {
-                    this.name = request.name
-                    this.plan = request.plan
-                    this.defaultCurrency = currency
-                }
+        return workspace
+    }
+
+    @Transactional
+    private fun saveWorkspaceTransactional(request: SaveWorkspaceRequest): Pair<Workspace, WorkspaceEntity> {
+        val userId = authTokenService.getUserId()
+        val currency = getCurrency(request.defaultCurrency)
+        val isUpdate = request.id != null
+
+        if (isUpdate) {
+            findOrThrow { workspaceMemberRepository.findByWorkspaceIdAndUserId(request.id!!, userId) }
+        }
+
+        val entity = createOrUpdateWorkspaceEntity(request, currency)
+        val saved = workspaceRepository.save(entity)
+        val workspaceId = requireNotNull(saved.id) { "WorkspaceEntity must have a non-null id after save" }
+
+        logWorkspaceActivity(userId, workspaceId, saved.name, isUpdate)
+
+        if (!isUpdate) {
+            createOwnerMember(workspaceId, userId)
+        }
+
+        publishWorkspaceAnalytics(saved, request, userId)
+
+        val workspace = saved.toModel().also { workspace ->
+            setDefaultWorkspaceIfNeeded(workspace, request, userId)
+        }
+
+        return workspace to saved
+    }
+
+    private fun createOrUpdateWorkspaceEntity(request: SaveWorkspaceRequest, currency: Currency): WorkspaceEntity {
+        return if (request.id == null) {
+            WorkspaceEntity(
+                name = request.name,
+                plan = request.plan,
+                defaultCurrency = currency,
+            )
+        } else {
+            findOrThrow { workspaceRepository.findById(request.id) }.apply {
+                this.name = request.name
+                this.plan = request.plan
+                this.defaultCurrency = currency
             }
+        }
+    }
 
-            workspaceRepository.save(entity).run {
-                val id = requireNotNull(this.id) { "WorkspaceEntity must have a non-null id after save" }
-                // Log the activity of creating an workspace
-                activityService.log(
-                    activity = riven.core.enums.activity.Activity.WORKSPACE,
-                    operation = riven.core.enums.util.OperationType.CREATE,
-                    userId = userId,
-                    workspaceId = id,
-                    entityType = ApplicationEntityType.WORKSPACE,
-                    entityId = this.id,
-                    "workspaceId" to id.toString(),
-                    "name" to name
-                )
+    private fun createOwnerMember(workspaceId: UUID, userId: UUID) {
+        workspaceMemberRepository.save(
+            WorkspaceMemberEntity(
+                workspaceId = workspaceId,
+                userId = userId,
+                role = WorkspaceRoles.OWNER
+            )
+        )
+    }
 
-                if (request.id == null) {
-                    // Add the creator as the first member/owner of the workspace
-                    WorkspaceMemberEntity(
-                        workspaceId = id,
-                        userId = userId,
-                        role = WorkspaceRoles.OWNER
-                    ).run {
-                        workspaceMemberRepository.save(this)
-                    }
-                }
+    private fun uploadWorkspaceAvatar(workspaceId: UUID, entity: WorkspaceEntity, file: MultipartFile) {
+        val uploadResponse = storageService.uploadFileInternal(workspaceId, StorageDomain.AVATAR, file)
+        entity.avatarUrl = uploadResponse.file.storageKey
+        workspaceRepository.save(entity)
+    }
 
-                // Upload avatar after save + member creation so workspace ID exists and @PreAuthorize passes
-                avatar?.let { file ->
-                    val uploadResponse = storageService.uploadFile(id, StorageDomain.AVATAR, file)
-                    this.avatarUrl = uploadResponse.file.storageKey
-                    workspaceRepository.save(this)
-                }
+    private fun logWorkspaceActivity(userId: UUID, workspaceId: UUID, name: String, isUpdate: Boolean = false) {
+        activityService.log(
+            activity = riven.core.enums.activity.Activity.WORKSPACE,
+            operation = if (isUpdate) riven.core.enums.util.OperationType.UPDATE else riven.core.enums.util.OperationType.CREATE,
+            userId = userId,
+            workspaceId = workspaceId,
+            entityType = ApplicationEntityType.WORKSPACE,
+            entityId = workspaceId,
+            "workspaceId" to workspaceId.toString(),
+            "name" to name
+        )
+    }
 
-                // Publish analytics event after membership is persisted so memberCount is accurate
-                val analyticsEvent = if (request.id == null) {
-                    WorkspaceCreatedEvent(
-                        workspaceId = id,
-                        workspaceName = name,
-                        createdAt = this.createdAt,
-                        memberCount = 1,
-                        userId = userId
-                    )
-                } else {
-                    WorkspaceUpdatedEvent(
-                        workspaceId = id,
-                        workspaceName = name,
-                        createdAt = this.createdAt,
-                        memberCount = this.memberCount,
-                        userId = userId
-                    )
-                }
-                applicationEventPublisher.publishEvent(analyticsEvent)
+    private fun publishWorkspaceAnalytics(entity: WorkspaceEntity, request: SaveWorkspaceRequest, userId: UUID) {
+        val id = requireNotNull(entity.id)
+        val analyticsEvent = if (request.id == null) {
+            WorkspaceCreatedEvent(
+                workspaceId = id,
+                workspaceName = entity.name,
+                createdAt = entity.createdAt,
+                memberCount = 1,
+                userId = userId
+            )
+        } else {
+            WorkspaceUpdatedEvent(
+                workspaceId = id,
+                workspaceName = entity.name,
+                createdAt = entity.createdAt,
+                memberCount = entity.memberCount,
+                userId = userId
+            )
+        }
+        applicationEventPublisher.publishEvent(analyticsEvent)
+    }
 
-                return this.toModel().also { workspace ->
-                    userService.getUserWithWorkspacesFromSession().let {
-                        // Membership array should be empty until transaction is over. Meaning we can determine if this is the first workspace made by the user
-                        // Can also manually specify for the workspace to become the new default
-                        if (it.memberships.isEmpty() || request.isDefault) {
-                            it.apply {
-                                defaultWorkspace = workspace
-                            }.run {
-                                userService.updateUserDetails(this)
-                            }
-                        }
-                    }
-                }
-            }
+    private fun setDefaultWorkspaceIfNeeded(workspace: Workspace, request: SaveWorkspaceRequest, userId: UUID) {
+        val user = userService.getUserWithWorkspacesFromSession()
+        if (user.memberships.isEmpty() || request.isDefault) {
+            user.defaultWorkspace = workspace
+            userService.updateUserDetails(user)
         }
     }
 

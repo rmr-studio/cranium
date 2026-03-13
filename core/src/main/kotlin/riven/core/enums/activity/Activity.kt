@@ -30,6 +30,7 @@ enum class Activity {
     INTEGRATION_CONNECTION,
     FILE_UPLOAD,
     FILE_DELETE,
-    FILE_UPDATE
+    FILE_UPDATE,
+    ONBOARDING
 }
 

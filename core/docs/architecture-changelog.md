@@ -1,5 +1,26 @@
 # Architecture Changelog
 
+## [2026-03-12] — Unified Onboarding Endpoint
+
+**Domains affected:** Onboarding (new), Workspace, User, Catalog, Storage
+**What changed:**
+
+- Introduced new `onboarding` domain with `OnboardingService` and `OnboardingController`
+- Added `POST /api/v1/onboarding/complete` endpoint that atomically creates a workspace + updates user profile, then best-effort installs templates and sends invitations
+- Added `onboarding_completed_at` column to `users` table and `UserEntity` for idempotency gating
+- Added `ONBOARDING` to `Activity` enum for audit trail
+- Extracted `Internal` method variants (no `@PreAuthorize`) on `TemplateInstallationService`, `WorkspaceInviteService`, and `StorageService` for cross-domain calls during onboarding when workspace role is not yet in JWT
+- Refactored `WorkspaceService.saveWorkspace` — flattened `userId.let` nesting, extracted named private methods (`createOrUpdateWorkspaceEntity`, `createOwnerMember`, `uploadWorkspaceAvatar`, `publishWorkspaceAnalytics`, `setDefaultWorkspaceIfNeeded`)
+- Fixed workspace avatar upload bug: `saveWorkspace` now calls `uploadFileInternal` instead of `uploadFile` (which requires `@PreAuthorize` that fails on newly-created workspaces)
+- Restored and fixed `WorkspaceInviteServiceTest` and `WorkspaceFactory` (previously commented out)
+
+**New cross-domain dependencies:** yes — Onboarding → Workspace, User, Catalog (TemplateInstallation), Storage, Activity
+**New components introduced:**
+- `OnboardingService` — orchestrates the full onboarding flow with TransactionTemplate for atomicity
+- `OnboardingController` — single endpoint for complete onboarding
+- `CompleteOnboardingRequest` / `CompleteOnboardingResponse` — request/response models
+- `TemplateInstallResult` / `InviteResult` — best-effort result models
+
 ## [2026-03-10] — Derive Entity Type Columns at Read-Time
 
 **Domains affected:** Entity, Integration/Materialization, Catalog

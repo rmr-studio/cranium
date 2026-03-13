@@ -52,3 +52,4 @@ Cross-references: [[WorkspaceSecurity]] (from Auth & Authorization subdomain) â€
 | Date | Change | Feature/ADR |
 | ---- | ------ | ----------- |
 | 2026-02-08 | Subdomain overview created | [[03-01-PLAN]] |
+| 2026-03-12 | `saveWorkspace` refactored: logic extracted into private methods; now uses `storageService.uploadFileInternal` for avatar uploads | [[Onboarding]] |

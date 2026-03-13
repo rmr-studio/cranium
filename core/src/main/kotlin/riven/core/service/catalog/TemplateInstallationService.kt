@@ -73,7 +73,15 @@ class TemplateInstallationService(
      */
     @Transactional
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
-    fun installTemplate(workspaceId: UUID, templateKey: String): TemplateInstallationResponse {
+    fun installTemplate(workspaceId: UUID, templateKey: String): TemplateInstallationResponse =
+        installTemplateInternal(workspaceId, templateKey)
+
+    /**
+     * Install a template without workspace access check. Used during onboarding when the
+     * workspace role is not yet in the JWT.
+     */
+    @Transactional
+    internal fun installTemplateInternal(workspaceId: UUID, templateKey: String): TemplateInstallationResponse {
         val userId = authTokenService.getUserId()
 
         val existingInstallation = installationRepository.findByWorkspaceIdAndManifestKey(workspaceId, templateKey)
@@ -115,7 +123,15 @@ class TemplateInstallationService(
      */
     @Transactional
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
-    fun installBundle(workspaceId: UUID, bundleKey: String): BundleInstallationResponse {
+    fun installBundle(workspaceId: UUID, bundleKey: String): BundleInstallationResponse =
+        installBundleInternal(workspaceId, bundleKey)
+
+    /**
+     * Install a bundle without workspace access check. Used during onboarding when the
+     * workspace role is not yet in the JWT.
+     */
+    @Transactional
+    internal fun installBundleInternal(workspaceId: UUID, bundleKey: String): BundleInstallationResponse {
         val userId = authTokenService.getUserId()
         val bundle = catalogService.getBundleByKey(bundleKey)
 

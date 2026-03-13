@@ -4,6 +4,7 @@ tags:
   - component/active
   - architecture/component
 Created: 2026-03-09
+Updated: 2026-03-12
 Domains:
   - "[[Catalog]]"
 ---
@@ -43,6 +44,7 @@ Orchestrates template and bundle installation into workspaces — reads fully-re
 ## Used By
 
 - [[TemplateController]] — delegates template and bundle installation requests
+- [[OnboardingService]] — installs templates and bundles during onboarding via `installTemplateInternal` and `installBundleInternal`
 
 ---
 
@@ -96,11 +98,19 @@ Relationship semantics are stored on the source entity type's `semanticMetadata`
 
 ### `installTemplate(workspaceId: UUID, templateKey: String): TemplateInstallationResponse`
 
-Installs a single template into a workspace atomically. Returns early with zero counts if already installed. Creates entity types, relationships, and semantic metadata. Annotated with `@Transactional` and `@PreAuthorize`.
+Installs a single template into a workspace atomically. Returns early with zero counts if already installed. Creates entity types, relationships, and semantic metadata. Annotated with `@Transactional` and `@PreAuthorize`. Delegates to `installTemplateInternal`.
+
+### `installTemplateInternal(workspaceId: UUID, templateKey: String): TemplateInstallationResponse`
+
+Internal method without `@PreAuthorize` — used by [[OnboardingService]] when the workspace role is not yet in the JWT. Contains the full template installation logic (identical to `installTemplate` but bypasses workspace access check). Annotated with `@Transactional`.
 
 ### `installBundle(workspaceId: UUID, bundleKey: String): BundleInstallationResponse`
 
-Installs all templates in a bundle, skipping already-installed ones. Deduplicates shared entity types across templates and resolves cross-template relationships. Returns summary of installed/skipped templates. Annotated with `@Transactional` and `@PreAuthorize`.
+Installs all templates in a bundle, skipping already-installed ones. Deduplicates shared entity types across templates and resolves cross-template relationships. Returns summary of installed/skipped templates. Annotated with `@Transactional` and `@PreAuthorize`. Delegates to `installBundleInternal`.
+
+### `installBundleInternal(workspaceId: UUID, bundleKey: String): BundleInstallationResponse`
+
+Internal method without `@PreAuthorize` — used by [[OnboardingService]] when the workspace role is not yet in the JWT. Contains the full bundle installation logic (identical to `installBundle` but bypasses workspace access check). Annotated with `@Transactional`.
 
 ---
 

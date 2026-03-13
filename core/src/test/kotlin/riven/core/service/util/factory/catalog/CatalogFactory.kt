@@ -19,7 +19,8 @@ object CatalogFactory {
         name: String = "Test Manifest",
         description: String = "A test manifest",
         manifestVersion: String = "1.0.0",
-        stale: Boolean = false
+        stale: Boolean = false,
+        templateKeys: List<String>? = null
     ) = ManifestCatalogEntity(
         id = id,
         key = key,
@@ -27,7 +28,8 @@ object CatalogFactory {
         description = description,
         manifestType = type,
         manifestVersion = manifestVersion,
-        stale = stale
+        stale = stale,
+        templateKeys = templateKeys
     )
 
     fun createEntityTypeEntity(

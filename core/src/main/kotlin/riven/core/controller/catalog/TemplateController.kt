@@ -8,6 +8,7 @@ import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import riven.core.models.catalog.BundleDetail
+import riven.core.models.catalog.BundlePreview
 import riven.core.models.catalog.ManifestSummary
 import riven.core.models.request.catalog.InstallBundleRequest
 import riven.core.models.request.catalog.InstallTemplateRequest
@@ -68,6 +69,22 @@ class TemplateController(
     )
     fun listBundles(): ResponseEntity<List<BundleDetail>> =
         ResponseEntity.ok(catalogService.getAvailableBundles())
+
+    @GetMapping("/bundles/{bundleKey}")
+    @Operation(
+        summary = "Get bundle preview",
+        description = "Returns a detailed preview of a bundle including all entity types, " +
+            "attributes, and relationships grouped by template. Used for onboarding."
+    )
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Bundle preview retrieved successfully"),
+        ApiResponse(responseCode = "401", description = "Unauthorized access"),
+        ApiResponse(responseCode = "404", description = "Bundle not found"),
+    )
+    fun getBundlePreview(
+        @PathVariable bundleKey: String,
+    ): ResponseEntity<BundlePreview> =
+        ResponseEntity.ok(catalogService.getBundlePreview(bundleKey))
 
     @PostMapping("/{workspaceId}/install-bundle")
     @Operation(

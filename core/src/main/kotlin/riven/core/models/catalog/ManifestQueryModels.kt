@@ -103,3 +103,21 @@ data class BundleDetail(
     val description: String?,
     val templateKeys: List<String>
 )
+
+/** Full bundle preview with hydrated template contents, used for onboarding. */
+data class BundlePreview(
+    val id: UUID,
+    val key: String,
+    val name: String,
+    val description: String?,
+    val templates: List<BundleTemplatePreview>,
+)
+
+/** Single template within a bundle preview, with entity types and relationships. */
+data class BundleTemplatePreview(
+    val key: String,
+    val name: String,
+    val description: String?,
+    val entityTypes: List<CatalogEntityTypeModel>,
+    val relationships: List<CatalogRelationshipModel>,
+)

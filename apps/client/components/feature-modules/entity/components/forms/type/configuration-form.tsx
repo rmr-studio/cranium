@@ -17,12 +17,13 @@ import {
 } from '@riven/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { TagInput } from '@/components/ui/tag-input';
+import { SchemaType } from '@/lib/types/common';
 import { EntityAttributeDefinition, SemanticGroup } from '@/lib/types/entity';
 import { cn } from '@/lib/util/utils';
 import { Info } from 'lucide-react';
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useMemo } from 'react';
 import { useWatch } from 'react-hook-form';
-import { useConfigForm } from '../../../context/configuration-provider';
+import { useConfigCurrentType, useConfigForm } from '../../../context/configuration-provider';
 
 const CATEGORY_LABELS: Record<SemanticGroup, string> = {
   [SemanticGroup.Customer]: 'Customer',
@@ -42,6 +43,14 @@ interface Props {
 
 export const ConfigurationForm: FC<Props> = ({ availableIdentifiers }) => {
   const form = useConfigForm();
+  const entityType = useConfigCurrentType();
+
+  const idAttribute = useMemo(() => {
+    if (!entityType?.schema?.properties) return undefined;
+    return Object.entries(entityType.schema.properties).find(
+      ([, attr]) => attr.key === SchemaType.Id,
+    );
+  }, [entityType?.schema?.properties]);
 
   const identifierKey = useWatch({
     control: form.control,
@@ -229,6 +238,40 @@ export const ConfigurationForm: FC<Props> = ({ availableIdentifiers }) => {
           />
         </div>
       </div>
+
+      {idAttribute && (
+        <>
+          <Separator />
+          <div className="p-5">
+            <p className="mb-3.5 text-xs font-medium tracking-widest text-muted-foreground/70 uppercase">
+              Record ID
+            </p>
+            <FormField
+              control={form.control}
+              name="idPrefix"
+              render={({ field }) => (
+                <FormItem className="gap-1">
+                  <FormLabel className="text-sm font-medium text-muted-foreground">
+                    ID Prefix
+                  </FormLabel>
+                  <FormDescription className="text-xs italic">
+                    Records will be numbered as PREFIX-1, PREFIX-2, etc.
+                  </FormDescription>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g., TKT"
+                      maxLength={10}
+                      className="w-full max-w-xs uppercase"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </>
+      )}
 
       <Separator />
 

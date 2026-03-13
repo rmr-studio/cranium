@@ -1,5 +1,6 @@
 'use client';
 
+import { SchemaType } from '@/lib/types/common';
 import { EntityType } from '@/lib/types/entity';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createContext, useContext, useEffect, useRef, type ReactNode } from 'react';
@@ -10,6 +11,7 @@ import { z } from 'zod';
 import { useStore } from 'zustand';
 import { baseEntityTypeFormSchema } from '../hooks/form/type/use-new-type-form';
 import { useSaveEntityTypeConfiguration } from '../hooks/mutation/type/use-save-configuration-mutation';
+import { useSaveDefinitionMutation } from '../hooks/mutation/type/use-save-definition-mutation';
 import {
   createEntityTypeConfigStore,
   EntityTypeConfigStore,
@@ -29,6 +31,7 @@ export interface EntityTypeConfigurationProviderProps {
 const entityTypeFormSchema = z
   .object({
     identifierKey: z.string().min(1, 'Identifier key is required').refine(isUUID),
+    idPrefix: z.string().max(10, 'Prefix must be 10 characters or fewer').optional(),
     columnConfiguration: z.object({
       order: z.array(z.string()),
       overrides: z.record(
@@ -52,6 +55,11 @@ export const EntityTypeConfigurationProvider = ({
   const storeRef = useRef<EntityTypeConfigStoreApi | null>(null);
   const unsavedToastRef = useRef<string | number | undefined>(undefined);
 
+  // Find Id attribute prefix for form initialization
+  const idAttribute = entityType.schema.properties
+    ? Object.values(entityType.schema.properties).find((attr) => attr.key === SchemaType.Id)
+    : undefined;
+
   // Create form instance
   const form = useForm<EntityTypeFormValues>({
     resolver: zodResolver(entityTypeFormSchema),
@@ -64,7 +72,7 @@ export const EntityTypeConfigurationProvider = ({
       type: entityType.type,
       semanticGroup: entityType.semanticGroup,
       tags: entityType.semantics?.entityType?.tags ?? [],
-
+      idPrefix: idAttribute?.options?.prefix ?? '',
       icon: entityType.icon,
       columnConfiguration: entityType.columnConfiguration ?? {
         order: entityType.columns.map((col) => col.key),
@@ -82,6 +90,8 @@ export const EntityTypeConfigurationProvider = ({
     },
   });
 
+  const { mutateAsync: saveDefinition } = useSaveDefinitionMutation(workspaceId);
+
   // Create store only once per entity type
   if (!storeRef.current) {
     storeRef.current = createEntityTypeConfigStore(
@@ -90,6 +100,7 @@ export const EntityTypeConfigurationProvider = ({
       entityType,
       form,
       updateType,
+      saveDefinition,
     );
   }
 

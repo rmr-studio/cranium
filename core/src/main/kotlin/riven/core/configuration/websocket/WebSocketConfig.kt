@@ -1,0 +1,43 @@
+package riven.core.configuration.websocket
+
+import org.springframework.context.annotation.Configuration
+import org.springframework.messaging.simp.config.ChannelRegistration
+import org.springframework.messaging.simp.config.MessageBrokerRegistry
+import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker
+import org.springframework.web.socket.config.annotation.StompEndpointRegistry
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer
+import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration
+import riven.core.configuration.properties.SecurityConfigurationProperties
+import riven.core.configuration.properties.WebSocketConfigurationProperties
+
+@Configuration
+@EnableWebSocketMessageBroker
+class WebSocketConfig(
+    private val wsProperties: WebSocketConfigurationProperties,
+    private val securityProperties: SecurityConfigurationProperties,
+    private val webSocketSecurityInterceptor: WebSocketSecurityInterceptor,
+) : WebSocketMessageBrokerConfigurer {
+
+    override fun registerStompEndpoints(registry: StompEndpointRegistry) {
+        val origins = wsProperties.allowedOrigins.ifEmpty { securityProperties.allowedOrigins }
+        registry.addEndpoint(wsProperties.endpoint)
+            .setAllowedOrigins(*origins.toTypedArray())
+    }
+
+    override fun configureMessageBroker(registry: MessageBrokerRegistry) {
+        registry.enableSimpleBroker("/topic", "/queue")
+            .setHeartbeatValue(longArrayOf(wsProperties.serverHeartbeatMs, wsProperties.clientHeartbeatMs))
+        registry.setApplicationDestinationPrefixes("/app")
+    }
+
+    override fun configureWebSocketTransport(registration: WebSocketTransportRegistration) {
+        registration
+            .setMessageSizeLimit(wsProperties.maxMessageSizeBytes)
+            .setSendBufferSizeLimit(wsProperties.sendBufferSizeBytes)
+            .setSendTimeLimit(wsProperties.sendTimeoutMs.toInt())
+    }
+
+    override fun configureClientInboundChannel(registration: ChannelRegistration) {
+        registration.interceptors(webSocketSecurityInterceptor)
+    }
+}

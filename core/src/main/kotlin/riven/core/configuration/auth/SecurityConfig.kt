@@ -38,6 +38,7 @@ class SecurityConfig(
                     .requestMatchers("/docs/**").permitAll() // Allow OpenAPI documentation
                     .requestMatchers("/public/**").permitAll() // Allow public endpoints
                     .requestMatchers("/api/v1/storage/download/{token}").permitAll() // Allow signed URL downloads (token is the auth)
+                    .requestMatchers("/ws/**").permitAll() // WebSocket upgrade handled by STOMP interceptor
                     .anyRequest().authenticated() // Require authentication for all other endpoints
             }
             .oauth2ResourceServer { oauth2 ->

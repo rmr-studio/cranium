@@ -59,13 +59,22 @@ export function DataTableHeader<TData>({
             </SortableContext>
           ) : (
             headerGroup.headers.map((header) => {
+              const isActionsColumn = header.id === 'actions';
               return (
                 <TableHead
                   key={header.id}
-                  className={cn('relative border-l px-3 py-2 first:border-l-transparent')}
+                  className={cn(
+                    'relative border-l px-3 py-2 first:border-l-transparent',
+                    onHeaderClick && !isActionsColumn && 'cursor-pointer hover:bg-muted/50',
+                  )}
                   style={{
                     width: `${header.getSize()}px`,
                   }}
+                  onClick={
+                    onHeaderClick && !isActionsColumn
+                      ? (e) => onHeaderClick(header.id, e.currentTarget)
+                      : undefined
+                  }
                 >
                   <div className="flex items-center justify-between">
                     {header.isPlaceholder

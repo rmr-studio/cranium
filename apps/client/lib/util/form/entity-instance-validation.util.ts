@@ -180,10 +180,9 @@ function buildNumberSchema(schema: SchemaUUID): z.ZodNumber {
 function buildArraySchema(schema: SchemaUUID): z.ZodArray<any> {
   const options = schema.options;
 
-  // For MULTI_SELECT with enum options
-  if (schema.key === SchemaType.MultiSelect && options?._enum && options._enum.length > 0) {
-    const enumValues = options._enum as [string, ...string[]];
-    return z.array(z.enum(enumValues));
+  // For MULTI_SELECT, allow any string (users can create new options beyond the enum)
+  if (schema.key === SchemaType.MultiSelect) {
+    return z.array(z.string());
   }
 
   // For FILE_ATTACHMENT

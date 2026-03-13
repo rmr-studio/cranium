@@ -5,6 +5,7 @@ import { Input } from '@riven/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { IconCell } from '@/components/ui/icon/icon-cell';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ColumnConfiguration, EntityType, SystemRelationshipType } from '@/lib/types/entity';
 import {
   DndContext,
@@ -80,20 +81,38 @@ const SortableVisibilityItem: FC<SortableVisibilityItemProps> = ({ column, onTog
       </button>
       <IconCell readonly type={column.iconType} colour={column.iconColour} className="size-4" />
       <span className="flex-1 truncate text-sm">{column.name}</span>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="size-6"
-        onClick={() => onToggle(column.id)}
-        disabled={column.isIdentifier}
-        title={column.isIdentifier ? 'Identifier column cannot be hidden' : undefined}
-      >
-        {column.visible ? (
-          <Eye className="size-3.5" />
-        ) : (
-          <EyeOff className="size-3.5 text-muted-foreground/50" />
-        )}
-      </Button>
+      {column.isIdentifier ? (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                disabled
+              >
+                <Eye className="size-3.5" />
+              </Button>
+            </span>
+          </TooltipTrigger>
+          <TooltipContent side="left" className="text-xs">
+            Identifier column cannot be hidden
+          </TooltipContent>
+        </Tooltip>
+      ) : (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-6"
+          onClick={() => onToggle(column.id)}
+        >
+          {column.visible ? (
+            <Eye className="size-3.5" />
+          ) : (
+            <EyeOff className="size-3.5 text-muted-foreground/50" />
+          )}
+        </Button>
+      )}
     </div>
   );
 };

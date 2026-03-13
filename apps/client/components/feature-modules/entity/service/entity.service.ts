@@ -8,6 +8,7 @@ import {
   SaveEntityRequest,
   SaveEntityResponse,
 } from '@/lib/types/entity';
+import { fromError, isSaveEntityResponse } from '@/lib/util/error/error.util';
 import { validateSession, validateUuid } from '@/lib/util/service/service.util';
 
 export class EntityService {
@@ -32,12 +33,27 @@ export class EntityService {
         saveEntityRequest: request,
       });
     } catch (error) {
-      // Both 400 (validation) and 409 (impact) return SaveEntityResponse payload
-      if (
-        error instanceof ResponseError &&
-        (error.response.status === 400 || error.response.status === 409)
-      ) {
-        return await error.response.json();
+      if (error instanceof ResponseError) {
+        const body = await error.response.json();
+
+        // 409 (impact conflicts) always return SaveEntityResponse
+        if (error.response.status === 409) {
+          return body as SaveEntityResponse;
+        }
+
+        // 400 can be either SaveEntityResponse (schema validation) or
+        // ErrorResponse (relationship constraint violations)
+        if (error.response.status === 400) {
+          if (isSaveEntityResponse(body)) {
+            return body as SaveEntityResponse;
+          }
+          // Re-throw as a structured error for mutation onError handling
+          throw fromError({
+            message: body.message ?? 'Validation failed',
+            status: error.response.status,
+            error: body.error ?? 'VALIDATION_ERROR',
+          });
+        }
       }
       throw error;
     }

@@ -19,31 +19,12 @@ interface EntityTypeConfigState {
 
   // Derived state
   isDirty: boolean;
-
-  // Draft values for persistence (synced from form)
-  draftValues: Partial<EntityTypeFormValues> | null;
-
-  // Timestamp for staleness detection
-  lastSavedAt: number | null;
-  lastModifiedAt: number | null;
 }
 
 // Actions interface
 interface EntityTypeConfigActions {
   // Update dirty state (called from form subscription)
   setDirty: (isDirty: boolean) => void;
-
-  // Save draft to localStorage
-  saveDraft: (values: Partial<EntityTypeFormValues>) => void;
-
-  // Load draft from localStorage
-  loadDraft: () => Partial<EntityTypeFormValues> | null;
-
-  // Clear draft after successful save
-  clearDraft: () => void;
-
-  // Mark as saved
-  markSaved: () => void;
 
   // Submit handler for form
   handleSubmit: (values: EntityTypeFormValues) => Promise<void>;
@@ -62,8 +43,6 @@ export const createEntityTypeConfigStore = (
   form: UseFormReturn<EntityTypeFormValues>,
   updateMutation: (request: UpdateEntityTypeConfigurationRequest) => Promise<EntityType>,
 ): StoreApi<EntityTypeConfigStore> => {
-  const storageKey = `${workspaceId}-entity-type-draft-${entityTypeKey}`;
-
   return create<EntityTypeConfigStore>()(
     subscribeWithSelector((set, get) => ({
       // Initial state
@@ -72,62 +51,9 @@ export const createEntityTypeConfigStore = (
       entityType,
       form,
       isDirty: false,
-      draftValues: null,
-      lastSavedAt: null,
-      lastModifiedAt: null,
 
       setDirty: (isDirty) => {
-        set({
-          isDirty,
-          lastModifiedAt: isDirty ? Date.now() : get().lastModifiedAt,
-        });
-      },
-
-      saveDraft: (values) => {
-        const draft = { ...values, _timestamp: Date.now() };
-        localStorage.setItem(storageKey, JSON.stringify(draft));
-        set({
-          draftValues: values,
-          lastModifiedAt: Date.now(),
-        });
-      },
-
-      loadDraft: () => {
-        try {
-          const stored = localStorage.getItem(storageKey);
-          if (!stored) return null;
-
-          const draft = JSON.parse(stored);
-          const { _timestamp, ...values } = draft;
-
-          // Check if draft is stale (older than 7 days)
-          const isStale = Date.now() - _timestamp > 7 * 24 * 60 * 60 * 1000;
-          if (isStale) {
-            localStorage.removeItem(storageKey);
-            return null;
-          }
-
-          set({ draftValues: values });
-          return values;
-        } catch (error) {
-          console.error('Failed to load draft:', error);
-          return null;
-        }
-      },
-
-      clearDraft: () => {
-        localStorage.removeItem(storageKey);
-        set({ draftValues: null });
-      },
-
-      markSaved: () => {
-        const now = Date.now();
-        set({
-          isDirty: false,
-          lastSavedAt: now,
-          lastModifiedAt: now,
-        });
-        get().clearDraft();
+        set({ isDirty });
       },
 
       handleSubmit: async (values: EntityTypeFormValues): Promise<void> => {
@@ -179,20 +105,13 @@ export const createEntityTypeConfigStore = (
         // Call the mutation
         await updateMutation(request);
 
-        // Mark as saved in store and clear draft
-
         // Reset form dirty state
         form.reset(form.getValues());
-        get().markSaved();
+        set({ isDirty: false });
       },
 
       reset: () => {
-        set({
-          isDirty: false,
-          draftValues: null,
-          lastSavedAt: null,
-          lastModifiedAt: null,
-        });
+        set({ isDirty: false });
       },
     })),
   );

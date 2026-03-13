@@ -4,6 +4,7 @@ import { Cell } from '@tanstack/react-table';
 import { Loader2 } from 'lucide-react';
 import { useCallback, useEffect, useRef } from 'react';
 import { UseFormReturn, useFormState } from 'react-hook-form';
+import { toast } from 'sonner';
 import { useDataTableStore } from '../../data-table-provider';
 import { ColumnEditConfig, isEditableColumn } from '../../data-table.types';
 
@@ -44,6 +45,7 @@ export function EditableCell<TData, TCellValue, TValue = TCellValue>({
   );
 
   const handleSaveRef = useRef<() => void>(() => {});
+  const isSavingRef = useRef(false);
 
   const { errors, isValid } = useFormState({ control: form.control });
 
@@ -53,45 +55,54 @@ export function EditableCell<TData, TCellValue, TValue = TCellValue>({
    * Uses the isEqual function to compare values for changes
    */
   const handleSave = useCallback(async () => {
-    // Validate the form
+    // Guard against concurrent saves (e.g. popover blur + click-outside both firing)
+    if (isSavingRef.current) return;
+    isSavingRef.current = true;
 
-    if (!isValid) {
-      onCancel();
-      return;
-    }
-
-    // Get the new value from the form
-    const { value: newEditValue } = form.getValues();
-
-    // Get the original cell value
-    const originalCellValue: TCellValue = cell.getValue();
-
-    // Parse the original cell value to edit format for comparison
-    const parseValue = editConfig.parseValue ?? ((val: TCellValue) => val as unknown as TValue);
-    const originalEditValue: TValue = parseValue(originalCellValue);
-
-    // Check if the value has changed
-    const isEqual =
-      editConfig.isEqual ?? ((a: TValue, b: TValue) => JSON.stringify(a) === JSON.stringify(b));
-    const hasChanged = !isEqual(originalEditValue, newEditValue);
-
-    // Only save if the value has changed
-    if (!hasChanged) {
-      onCancel(); // Close editor without saving
-      return;
-    }
-
-    // Format the value back to cell format for saving
-    const formatValue = editConfig.formatValue ?? ((val: TValue) => val as unknown as TCellValue);
-    const newCellValue: TCellValue = formatValue(newEditValue);
-
-    // TODO: Save the entity with the new value
-    // This is where you would call the entity save API
     try {
-      await onSave(newCellValue);
-    } catch (error) {
-      console.error('Failed to save cell value:', error);
-      // Form stays open on error so user can retry
+      // Validate the form — use trigger() for a fresh validation result
+      // rather than relying on potentially stale isValid from useFormState
+      const valid = await form.trigger();
+
+      if (!valid) {
+        onCancel();
+        return;
+      }
+
+      // Get the new value from the form
+      const { value: newEditValue } = form.getValues();
+
+      // Get the original cell value
+      const originalCellValue: TCellValue = cell.getValue();
+
+      // Parse the original cell value to edit format for comparison
+      const parseValue = editConfig.parseValue ?? ((val: TCellValue) => val as unknown as TValue);
+      const originalEditValue: TValue = parseValue(originalCellValue);
+
+      // Check if the value has changed
+      const isEqual =
+        editConfig.isEqual ?? ((a: TValue, b: TValue) => JSON.stringify(a) === JSON.stringify(b));
+      const hasChanged = !isEqual(originalEditValue, newEditValue);
+
+      // Only save if the value has changed
+      if (!hasChanged) {
+        onCancel(); // Close editor without saving
+        return;
+      }
+
+      // Format the value back to cell format for saving
+      const formatValue =
+        editConfig.formatValue ?? ((val: TValue) => val as unknown as TCellValue);
+      const newCellValue: TCellValue = formatValue(newEditValue);
+
+      try {
+        await onSave(newCellValue);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Failed to save';
+        toast.error(message);
+      }
+    } finally {
+      isSavingRef.current = false;
     }
   }, [onSave, onCancel, cell, editConfig, form, errors, isValid]);
 
@@ -124,7 +135,7 @@ export function EditableCell<TData, TCellValue, TValue = TCellValue>({
 
   // Render: Delegate to column's custom render function
   return (
-    <div className="relative w-full" onKeyDown={handleKeyDown}>
+    <div className="relative -my-2 flex w-full items-center" onKeyDown={handleKeyDown}>
       {editConfig.render({
         cell: cell as any,
         form: form as any,

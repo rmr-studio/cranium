@@ -112,6 +112,17 @@ export function formatError(error: ResponseError): string {
     return parts.join("\n");
 }
 
+/**
+ * Discriminates between SaveEntityResponse (has entity/errors array) and
+ * ErrorResponse (has error string + message string) from the backend.
+ * Used when a 400 response could be either shape.
+ */
+export function isSaveEntityResponse(body: unknown): boolean {
+  if (typeof body !== 'object' || body === null) return false;
+  const obj = body as Record<string, unknown>;
+  return 'entity' in obj || Array.isArray(obj.errors);
+}
+
 export function isResponseError(error: unknown): error is ResponseError {
     return (
         typeof error === "object" &&

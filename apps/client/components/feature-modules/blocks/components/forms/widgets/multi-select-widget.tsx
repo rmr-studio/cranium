@@ -1,14 +1,12 @@
 'use client';
 
 import { Badge } from '@riven/ui/badge';
-import { Button } from '@riven/ui/button';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@riven/ui/command';
 import { Label } from '@riven/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
+import { Popover, PopoverContent, PopoverAnchor } from '@riven/ui/popover';
 import { OptionalTooltip } from '@/components/ui/optional-tooltip';
 import { cn } from '@riven/utils';
-import { Check, ChevronsUpDown, CircleAlert, X } from 'lucide-react';
-import { FC, useState, useEffect } from 'react';
+import { Check, CircleAlert, Plus, X } from 'lucide-react';
+import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { FormWidgetProps } from '../form-widget.types';
 
 export const MultiSelectWidget: FC<FormWidgetProps<string[]>> = ({
@@ -25,30 +23,141 @@ export const MultiSelectWidget: FC<FormWidgetProps<string[]>> = ({
   autoFocus,
 }) => {
   const [open, setOpen] = useState(false);
-  const hasErrors = errors && errors.length > 0;
+  const [inputValue, setInputValue] = useState('');
+  const [highlightedIndex, setHighlightedIndex] = useState(0);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
-  // Auto-open popover when autoFocus is true (e.g., in table cell edit mode)
+  const hasErrors = errors && errors.length > 0;
+  const safeValue = value ?? [];
+  const trimmedInput = inputValue.trim().toLowerCase();
+
+  // Merge schema options with any user-created values so they appear in the dropdown
+  const allOptions = [
+    ...options,
+    ...safeValue
+      .filter((v) => !options.some((opt) => opt.value === v))
+      .map((v) => ({ label: v, value: v })),
+  ];
+
+  // Filter options based on input
+  const filteredOptions = allOptions.filter(
+    (opt) => !trimmedInput || opt.label.toLowerCase().includes(trimmedInput),
+  );
+
+  const canCreate =
+    trimmedInput.length > 0 &&
+    !allOptions.some((opt) => opt.label.toLowerCase() === trimmedInput) &&
+    !safeValue.some((v) => v.toLowerCase() === trimmedInput);
+
+  // Build the selectable items list: filtered options + optional create
+  const selectableItems = [
+    ...filteredOptions.map((opt) => ({ type: 'option' as const, option: opt })),
+    ...(canCreate ? [{ type: 'create' as const, option: { label: inputValue.trim(), value: inputValue.trim() } }] : []),
+  ];
+
+  // Auto-open when autoFocus
   useEffect(() => {
     if (autoFocus && !disabled) {
-      // Small delay to ensure DOM is ready
-      const timer = setTimeout(() => setOpen(true), 0);
+      const timer = setTimeout(() => {
+        setOpen(true);
+        inputRef.current?.focus();
+      }, 0);
       return () => clearTimeout(timer);
     }
   }, [autoFocus, disabled]);
 
-  const selectedOptions = options.filter((opt) => value.includes(opt.value));
+  // Reset highlight when filtered list changes
+  useEffect(() => {
+    setHighlightedIndex(0);
+  }, [inputValue]);
 
-  const handleSelect = (selectedValue: string) => {
-    const newValue = value.includes(selectedValue)
-      ? value.filter((v) => v !== selectedValue)
-      : [...value, selectedValue];
-    onChange(newValue);
+  // Scroll highlighted item into view
+  useEffect(() => {
+    if (!listRef.current) return;
+    const items = listRef.current.querySelectorAll('[data-item]');
+    items[highlightedIndex]?.scrollIntoView({ block: 'nearest' });
+  }, [highlightedIndex]);
+
+  const handleClose = useCallback(() => {
+    setOpen(false);
+    setInputValue('');
+    onBlur?.();
+  }, [onBlur]);
+
+  const handleToggle = useCallback(
+    (optionValue: string) => {
+      const newValue = safeValue.includes(optionValue)
+        ? safeValue.filter((v) => v !== optionValue)
+        : [...safeValue, optionValue];
+      onChange(newValue);
+      setInputValue('');
+      inputRef.current?.focus();
+    },
+    [safeValue, onChange],
+  );
+
+  const handleCreate = useCallback(
+    (newTag: string) => {
+      const trimmed = newTag.trim();
+      if (!trimmed || safeValue.includes(trimmed)) return;
+      onChange([...safeValue, trimmed]);
+      setInputValue('');
+      inputRef.current?.focus();
+    },
+    [safeValue, onChange],
+  );
+
+  const handleRemove = useCallback(
+    (valueToRemove: string, e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onChange(safeValue.filter((v) => v !== valueToRemove));
+      inputRef.current?.focus();
+    },
+    [safeValue, onChange],
+  );
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      handleClose();
+      return;
+    }
+
+    if (e.key === 'Backspace' && !inputValue && safeValue.length > 0) {
+      onChange(safeValue.slice(0, -1));
+      return;
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setHighlightedIndex((i) => Math.min(i + 1, selectableItems.length - 1));
+      return;
+    }
+
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setHighlightedIndex((i) => Math.max(i - 1, 0));
+      return;
+    }
+
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation();
+      const item = selectableItems[highlightedIndex];
+      if (!item) return;
+      if (item.type === 'create') {
+        handleCreate(item.option.value);
+      } else {
+        handleToggle(item.option.value);
+      }
+    }
   };
 
-  const handleRemove = (valueToRemove: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    onChange(value.filter((v) => v !== valueToRemove));
-  };
+  const isInline = !label && !description;
+  const selectedOptions = allOptions.filter((opt) => safeValue.includes(opt.value));
 
   return (
     <OptionalTooltip
@@ -66,71 +175,142 @@ export const MultiSelectWidget: FC<FormWidgetProps<string[]>> = ({
           <Popover
             open={open}
             onOpenChange={(isOpen) => {
-              setOpen(isOpen);
-              // Call onBlur when popover closes (handles both selection and click-outside)
-              if (!isOpen) {
-                onBlur?.();
+              if (isOpen) {
+                setOpen(true);
+                inputRef.current?.focus();
+              } else {
+                handleClose();
               }
             }}
           >
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={open}
-                disabled={disabled}
+            <PopoverAnchor asChild>
+              <div
+                ref={containerRef}
+                onClick={() => {
+                  if (!disabled) {
+                    setOpen(true);
+                    inputRef.current?.focus();
+                  }
+                }}
                 className={cn(
-                  'h-auto min-h-10 w-full justify-between',
-                  !value.length && 'text-muted-foreground',
-                  hasErrors && 'border-destructive',
+                  'flex flex-wrap items-center gap-1 rounded-md bg-transparent text-sm',
+                  isInline
+                    ? 'min-h-8 px-1.5 py-1'
+                    : 'min-h-10 border border-input px-2 py-1.5 shadow-xs dark:bg-input/30',
+                  !isInline && 'focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50',
+                  hasErrors && !isInline && 'border-destructive',
+                  disabled && 'cursor-not-allowed opacity-50',
                 )}
               >
-                <div className="flex flex-1 flex-wrap gap-1">
-                  {selectedOptions.length > 0 ? (
-                    selectedOptions.map((option) => (
-                      <Badge key={option.value} variant="secondary" className="mr-1">
-                        {option.label}
-
-                        <div
-                          className="ml-1 rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
-                          onClick={(e) => handleRemove(option.value, e)}
-                        >
-                          <X className="h-3 w-3" />
-                          <span className="sr-only">Remove {option.label}</span>
-                        </div>
-                      </Badge>
-                    ))
-                  ) : (
-                    <span>{placeholder || 'Select options...'}</span>
-                  )}
-                </div>
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-full p-0" align="start">
-              <Command>
-                <CommandInput placeholder="Search..." />
-                <CommandEmpty>No option found.</CommandEmpty>
-                <CommandGroup className="max-h-64 overflow-auto">
-                  {options.map((option) => {
-                    const isSelected = value.includes(option.value);
-                    return (
-                      <CommandItem
-                        key={option.value}
-                        value={option.value}
-                        onSelect={() => {
-                          handleSelect(option.value);
+                {selectedOptions.map((option) => (
+                  <Badge key={option.value} variant="secondary" className="gap-1 py-0.5 pr-1 pl-2 text-xs">
+                    {option.label}
+                    {!disabled && (
+                      <span
+                        role="button"
+                        tabIndex={-1}
+                        onPointerDown={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
                         }}
+                        onClick={(e) => handleRemove(option.value, e)}
+                        className="rounded-full p-0.5 transition-colors hover:bg-foreground/10"
                       >
-                        <Check
-                          className={cn('mr-2 h-4 w-4', isSelected ? 'opacity-100' : 'opacity-0')}
-                        />
+                        <X className="size-2.5" />
+                      </span>
+                    )}
+                  </Badge>
+                ))}
+                <input
+                  ref={inputRef}
+                  value={inputValue}
+                  onChange={(e) => {
+                    setInputValue(e.target.value);
+                    if (!open) setOpen(true);
+                  }}
+                  onKeyDown={handleKeyDown}
+                  onFocus={() => {
+                    if (!open && !disabled) setOpen(true);
+                  }}
+                  disabled={disabled}
+                  placeholder={safeValue.length === 0 ? (placeholder || 'Select options...') : ''}
+                  className="min-w-16 flex-1 border-none bg-transparent py-0.5 text-sm outline-none placeholder:text-muted-foreground"
+                />
+              </div>
+            </PopoverAnchor>
+            <PopoverContent
+              className="w-[var(--radix-popover-trigger-width)] p-0"
+              align="start"
+              sideOffset={4}
+              onOpenAutoFocus={(e) => e.preventDefault()}
+              onCloseAutoFocus={(e) => e.preventDefault()}
+              onInteractOutside={(e) => {
+                // Allow clicks within the anchor container
+                if (containerRef.current?.contains(e.target as Node)) {
+                  e.preventDefault();
+                }
+              }}
+            >
+              <div className="max-h-60 overflow-y-auto p-1" ref={listRef}>
+                {filteredOptions.length === 0 && !canCreate && (
+                  <div className="py-4 text-center text-sm text-muted-foreground">
+                    {options.length === 0 ? 'Type to create an option' : 'No options found'}
+                  </div>
+                )}
+                {filteredOptions.length > 0 && (
+                  <p className="px-2 py-1.5 text-xs text-muted-foreground">
+                    Select an option{options.length === 0 || canCreate ? ' or create one' : ''}
+                  </p>
+                )}
+                {filteredOptions.map((option, idx) => {
+                  const isSelected = safeValue.includes(option.value);
+                  return (
+                    <button
+                      key={option.value}
+                      data-item
+                      type="button"
+                      onPointerDown={(e) => e.preventDefault()}
+                      onClick={() => handleToggle(option.value)}
+                      onMouseEnter={() => setHighlightedIndex(idx)}
+                      className={cn(
+                        'flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm outline-none transition-colors',
+                        highlightedIndex === idx && 'bg-accent',
+                      )}
+                    >
+                      <Check
+                        className={cn(
+                          'size-3.5 shrink-0 transition-opacity',
+                          isSelected ? 'opacity-100' : 'opacity-0',
+                        )}
+                      />
+                      <Badge variant="secondary" className="text-xs">
                         {option.label}
-                      </CommandItem>
-                    );
-                  })}
-                </CommandGroup>
-              </Command>
+                      </Badge>
+                    </button>
+                  );
+                })}
+                {canCreate && (
+                  <button
+                    data-item
+                    type="button"
+                    onPointerDown={(e) => e.preventDefault()}
+                    onClick={() => handleCreate(inputValue)}
+                    onMouseEnter={() => setHighlightedIndex(filteredOptions.length)}
+                    className={cn(
+                      'flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm outline-none transition-colors',
+                      highlightedIndex === filteredOptions.length && 'bg-accent',
+                    )}
+                  >
+                    <Plus className="size-3.5 shrink-0" />
+                    <span className="flex items-center gap-1.5">
+                      Create
+                      <Badge variant="secondary" className="text-xs">
+                        {inputValue.trim()}
+                      </Badge>
+                    </span>
+                  </button>
+                )}
+              </div>
             </PopoverContent>
           </Popover>
           {displayError === 'tooltip' && hasErrors && (

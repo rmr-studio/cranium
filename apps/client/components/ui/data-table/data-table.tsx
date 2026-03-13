@@ -18,6 +18,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@riven/utils';
 import {
   closestCenter,
+  CollisionDetection,
   DndContext,
   DragEndEvent,
   DragOverlay,
@@ -30,6 +31,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { GripVertical } from 'lucide-react';
 import {
   AccessorKeyColumnDef,
   ColumnDef,
@@ -111,9 +113,11 @@ export const DEFAULT_COLUMN_WIDTH = 250;
 function DragOverlayRow<TData>({
   table,
   activeRowId,
+  actionColumnConfig,
 }: {
   table: ReturnType<typeof useReactTable<TData>>;
   activeRowId: UniqueIdentifier;
+  actionColumnConfig?: ActionColumnConfig;
 }) {
   const row = table.getRowModel().rows.find((r) => r.id === String(activeRowId));
   if (!row) return null;
@@ -121,22 +125,31 @@ function DragOverlayRow<TData>({
   return (
     <table className="table-fixed border-separate border-spacing-0 opacity-60" style={{ width: table.getTotalSize() }}>
       <tbody>
-        <tr>
+        <tr className="border-b">
           {row.getVisibleCells().map((cell) => (
             <td
               key={cell.id}
-              className="px-4 py-2"
+              className="p-2 align-middle whitespace-nowrap"
               style={{
                 width: `${cell.column.getSize()}px`,
                 minWidth: `${cell.column.getSize()}px`,
                 maxWidth: `${cell.column.getSize()}px`,
               }}
             >
-              <div className="overflow-hidden text-ellipsis">
-                {cell.column.id === 'actions'
-                  ? null
-                  : flexRender(cell.column.columnDef.cell, cell.getContext())}
-              </div>
+              {cell.column.id === 'actions' ? (
+                <div className="flex items-center gap-2">
+                  {actionColumnConfig?.dragHandle?.enabled !== false && (
+                    <GripVertical className="h-4 w-4 text-muted-foreground" />
+                  )}
+                  {actionColumnConfig?.checkbox?.enabled !== false && (
+                    <Checkbox disabled checked={row.getIsSelected()} aria-hidden />
+                  )}
+                </div>
+              ) : (
+                <div className="overflow-hidden text-ellipsis">
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </div>
+              )}
             </td>
           ))}
         </tr>
@@ -584,6 +597,8 @@ export function DataTable<TData, TValue>({
     return table.getAllLeafColumns().map((col) => col.id as UniqueIdentifier);
   }, [table]);
 
+  const columnIdSet = useMemo(() => new Set<UniqueIdentifier>(columnIds), [columnIds]);
+
   const rowIds = useMemo(() => {
     return table.getRowModel().rows.map((row) => row.id as UniqueIdentifier);
   }, [table, tableData]);
@@ -595,6 +610,23 @@ export function DataTable<TData, TValue>({
       .filter((col) => col.id !== 'actions')
       .map((col) => col.id as UniqueIdentifier);
   }, [table]);
+
+  // Custom collision detection that only considers droppables of the same type
+  // as the active item (rows only collide with rows, columns with columns).
+  // This prevents row drags from snapping to column headers near the top.
+  const scopedCollisionDetection: CollisionDetection = useCallback(
+    (args) => {
+      const isColumnDrag = columnIdSet.has(args.active.id);
+      const allowedIds = isColumnDrag ? columnIdSet : new Set<UniqueIdentifier>(rowIds);
+
+      const filteredDroppables = args.droppableContainers.filter((container) =>
+        allowedIds.has(container.id),
+      );
+
+      return closestCenter({ ...args, droppableContainers: filteredDroppables });
+    },
+    [columnIdSet, rowIds],
+  );
 
   // ========================================================================
   // DragOverlay State
@@ -644,6 +676,8 @@ export function DataTable<TData, TValue>({
       // Handle row reordering
       const oldIndex = rowIds.indexOf(active.id);
       const newIndex = rowIds.indexOf(over.id);
+
+      if (oldIndex === -1 || newIndex === -1) return;
 
       // Call onReorder callback if provided
       if (onReorder) {
@@ -718,7 +752,7 @@ export function DataTable<TData, TValue>({
     </div>
   );
 
-  // Custom modifier that applies axis restriction based on what's being dragged
+// Custom modifier that applies axis restriction based on what's being dragged
   // - Column headers: restrict to horizontal axis (y: 0)
   // - Rows: restrict to vertical axis (x: 0)
   const axisRestrictionModifier: Modifier = useCallback(
@@ -742,7 +776,7 @@ export function DataTable<TData, TValue>({
     isDragDropEnabled || columnOrdering?.enabled ? (
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCenter}
+        collisionDetection={scopedCollisionDetection}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onDragCancel={handleDragCancel}
@@ -750,7 +784,13 @@ export function DataTable<TData, TValue>({
       >
         {tableContent}
         <DragOverlay dropAnimation={null}>
-          {activeRowId ? <DragOverlayRow table={table} activeRowId={activeRowId} /> : null}
+          {activeRowId ? (
+            <DragOverlayRow
+              table={table}
+              activeRowId={activeRowId}
+              actionColumnConfig={actionColumnConfig}
+            />
+          ) : null}
         </DragOverlay>
       </DndContext>
     ) : (

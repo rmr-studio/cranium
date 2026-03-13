@@ -103,7 +103,11 @@ export function createRelationshipRenderer<TData>(
   relationship: EntityRelationshipDefinition,
   isTargetSide?: boolean,
 ): (props: EditRenderProps<TData, EntityLink[]>) => React.ReactNode {
-  return function RelationshipEditRenderer({ form, onSave }) {
+  return function RelationshipEditRenderer({ form, cell, onSave }) {
+    // Extract the entity ID from the row for constraint checking
+    const sourceEntityId = (cell.row.original as Record<string, unknown>)?.['_entityId'] as
+      | string
+      | undefined;
     const value: EntityLink[] = useWatch({
       control: form.control,
       name: 'value',
@@ -143,6 +147,7 @@ export function createRelationshipRenderer<TData>(
         autoFocus
         value={value}
         errors={errorMessages}
+        sourceEntityId={sourceEntityId}
         handleBlur={onBlur}
         handleChange={handleChange}
         handleRemove={handleRemove}

@@ -23,6 +23,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useSaveDefinitionMutation } from '../../hooks/mutation/type/use-save-definition-mutation';
 import { EntityRow } from './entity-table-utils';
 
@@ -253,22 +254,38 @@ const PopoverMenuItem: FC<PopoverMenuItemProps> = ({
   destructive,
   disabled,
   title,
-}) => (
-  <button
-    type="button"
-    className={`flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors ${
-      destructive
-        ? 'text-destructive hover:bg-destructive/10'
-        : 'hover:bg-accent'
-    } ${disabled ? 'pointer-events-none opacity-50' : 'cursor-default'}`}
-    onClick={onClick}
-    disabled={disabled}
-    title={title}
-  >
-    <Icon className="size-4" />
-    <span>{label}</span>
-  </button>
-);
+}) => {
+  const button = (
+    <button
+      type="button"
+      className={`flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors ${
+        destructive
+          ? 'text-destructive hover:bg-destructive/10'
+          : 'hover:bg-accent'
+      } ${disabled ? 'opacity-50' : 'cursor-default'}`}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      <Icon className="size-4" />
+      <span>{label}</span>
+    </button>
+  );
+
+  if (disabled && title) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className="block">{button}</span>
+        </TooltipTrigger>
+        <TooltipContent side="left" className="text-xs">
+          {title}
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return button;
+};
 
 // Helper to resolve column ID to definition info
 function getColumnDefinitionInfo(

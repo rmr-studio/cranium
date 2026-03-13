@@ -4,7 +4,6 @@ import { EntityType } from '@/lib/types/entity';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createContext, useContext, useEffect, useRef, type ReactNode } from 'react';
 import { useForm, useFormState } from 'react-hook-form';
-import { toast } from 'sonner';
 import { isUUID } from 'validator';
 import { z } from 'zod';
 import { useStore } from 'zustand';
@@ -50,7 +49,6 @@ export const EntityTypeConfigurationProvider = ({
   entityType,
 }: EntityTypeConfigurationProviderProps) => {
   const storeRef = useRef<EntityTypeConfigStoreApi | null>(null);
-  const unsavedToastRef = useRef<string | number | undefined>(undefined);
 
   // Create form instance
   const form = useForm<EntityTypeFormValues>({
@@ -93,72 +91,24 @@ export const EntityTypeConfigurationProvider = ({
     );
   }
 
-  // Load draft and set up form watchers on mount
-  useEffect(() => {
-    const store = storeRef.current?.getState();
-    if (!store) return;
-
-    // Check for draft and prompt user to restore
-    const draft = store.loadDraft();
-    if (draft && !unsavedToastRef.current) {
-      unsavedToastRef.current = toast.info('Unsaved changes found', {
-        description: 'Would you like to restore your previous changes?',
-        action: {
-          label: 'Restore',
-          onClick: () => {
-            form.reset(draft, {
-              keepDefaultValues: true,
-            });
-            store.setDirty(true);
-          },
-        },
-        cancel: {
-          label: 'Dismiss',
-          onClick: () => {
-            store.clearDraft();
-          },
-        },
-        onDismiss: () => {
-          store.clearDraft();
-        },
-      });
-    }
-  }, [entityType.key]);
-
   const { dirtyFields } = useFormState({
     control: form.control,
   });
 
-  // Subscribe to form changes for dirty state tracking and auto-save
+  // Subscribe to form changes for dirty state tracking
   useEffect(() => {
     const store = storeRef.current?.getState();
     if (!store) return;
 
-    const debouncedSaveRef = { current: null as NodeJS.Timeout | null };
-
-    const subscription = form.watch((values) => {
+    const subscription = form.watch(() => {
       const dirty = Object.keys(dirtyFields).length > 0;
       store.setDirty(dirty);
-
-      if (dirty) {
-        if (debouncedSaveRef.current) {
-          clearTimeout(debouncedSaveRef.current);
-        }
-
-        debouncedSaveRef.current = setTimeout(() => {
-          const curr = form.getValues();
-          store.saveDraft(curr);
-        }, 1000);
-      }
     });
 
     return () => {
       subscription.unsubscribe();
-      if (debouncedSaveRef.current) {
-        clearTimeout(debouncedSaveRef.current);
-      }
     };
-  }, [form]);
+  }, [form, dirtyFields]);
 
   return (
     <EntityTypeConfigContext.Provider value={storeRef.current}>

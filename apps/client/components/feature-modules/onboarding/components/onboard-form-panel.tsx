@@ -123,7 +123,6 @@ export const OnboardFormPanel: FC<Propless> = () => {
         </motion.div>
       )}
 
-      {submissionStatus === 'success' && null}
     </div>
   );
 };

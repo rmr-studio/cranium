@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation & Camera System** - Step framework, split-panel layout, and camera-style viewport transitions
 - [x] **Phase 2: Required Steps** - User profile and workspace setup forms with live preview mockups (completed 2026-03-12)
-- [ ] **Phase 3: Optional Steps** - Template selection and team invite steps with previews
+- [x] **Phase 3: Optional Steps** - Template selection and team invite steps with previews (completed 2026-03-13)
 - [ ] **Phase 4: Submission & Completion** - Consolidated payload, sequential API calls, celebration screen, and redirect
 
 ## Phase Details
@@ -61,7 +61,7 @@ Plans:
   3. User can skip the template step entirely and set up entity types later
   4. User can enter teammate emails with assigned roles and sees a team roster preview
   5. User can skip the invite step and invite teammates later
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 03-01-PLAN.md — Template catalog integration, bundle selection UI, and live preview
@@ -91,5 +91,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 |-------|----------------|--------|-----------|
 | 1. Foundation & Camera System | 3/3 | Complete | 2026-03-12 |
 | 2. Required Steps | 2/2 | Complete   | 2026-03-12 |
-| 3. Optional Steps | 1/2 | In Progress|  |
+| 3. Optional Steps | 2/2 | Complete   | 2026-03-13 |
 | 4. Submission & Completion | 0/2 | Not started | - |

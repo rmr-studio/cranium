@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 03-optional-steps/03-02-PLAN.md
-last_updated: "2026-03-13T07:25:07.115Z"
+stopped_at: Completed 03-optional-steps 03-01-PLAN.md
+last_updated: "2026-03-13T07:27:43.744Z"
 last_activity: 2026-03-08 -- Roadmap created
 progress:
   total_phases: 4
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 7
-  completed_plans: 6
+  completed_plans: 7
   percent: 0
 ---
 
@@ -55,6 +55,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02-required-steps P01 | 15 | 3 tasks | 8 files |
 | Phase 02-required-steps P02 | 4 | 3 tasks | 6 files |
 | Phase 03-optional-steps P02 | 18 | 3 tasks | 4 files |
+| Phase 03-optional-steps P01 | 8 | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,9 @@ Recent decisions affecting current work:
 - [Phase 02-required-steps]: Plan selector uses clickable cards with shouldValidate:false — validation only on Next click
 - [Phase 03-optional-steps]: INVITE_ROLES excludes WorkspaceRoles.Owner — only Admin and Member selectable during onboarding
 - [Phase 03-optional-steps]: Soft cap at 10 invites with informational message rather than hard block
+- [Phase 03-optional-steps]: toggleBundleSelection exported as pure helper for test isolation without React/DOM setup
+- [Phase 03-optional-steps]: useBundles fetches both listBundles and listTemplates in single Promise.all with query key ['bundles']
+- [Phase 03-optional-steps]: Optional step formTrigger pattern: always-true async function, liveData provides reactivity without validation
 
 ### Pending Todos
 
@@ -88,6 +92,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-13T07:25:07.113Z
-Stopped at: Completed 03-optional-steps/03-02-PLAN.md
+Last session: 2026-03-13T07:27:43.742Z
+Stopped at: Completed 03-optional-steps 03-01-PLAN.md
 Resume file: None

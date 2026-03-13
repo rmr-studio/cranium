@@ -24,6 +24,7 @@ Idempotent persistence layer for resolved manifests. Upserts the catalog entry k
 - Delete and reinsert all child rows (entity types, relationships, target rules, field mappings, semantic metadata) within a single `@Transactional` boundary
 - Handle stale manifests by updating only the catalog row without creating child rows
 - Map resolved domain models to 5 JPA entity types for persistence
+- Persist bundle manifests (catalog entry only, no child rows — bundles store templateKeys JSONB)
 
 ---
 
@@ -41,6 +42,7 @@ Idempotent persistence layer for resolved manifests. Upserts the catalog entry k
 ## Used By
 
 - [[ManifestLoaderService]] — calls `upsertManifest()` for each resolved manifest during the loading pipeline
+- [[ManifestLoaderService]] — calls `upsertBundle()` for each resolved bundle during the loading pipeline
 
 ---
 
@@ -71,6 +73,14 @@ Idempotent persistence layer for resolved manifests. Upserts the catalog entry k
 5. `catalog_field_mappings` (depends on manifest)
 6. Explicit `flush()` after all deletes before inserts begin
 
+**Bundle upsert flow (`upsertBundle`):**
+
+1. Compute SHA-256 content hash from bundle fields (name, description, manifestVersion, templateKeys)
+2. Look up existing catalog entry by `(key, BUNDLE)`
+3. If hashes match and stale flag unchanged: touch `lastLoadedAt` and return early
+4. Create or update the `manifest_catalog` row with `templateKeys` JSONB
+5. No child row handling — bundles have no entity types, relationships, or field mappings
+
 **Entity type insertion with semantic metadata:**
 
 1. Map each `ResolvedEntityType` to `CatalogEntityTypeEntity` (icon, semantic group, schema, columns)
@@ -86,6 +96,10 @@ Idempotent persistence layer for resolved manifests. Upserts the catalog entry k
 
 Single entry point. Persists a resolved manifest idempotently within a `@Transactional` boundary. Creates or updates the catalog entry, then reconciles all child rows via delete-then-reinsert. Short-circuits on content hash match or stale manifest.
 
+### `upsertBundle(resolved: ResolvedBundle)`
+
+Persists a resolved bundle to the catalog. Bundles have no child rows — only the catalog entry with `templateKeys` JSONB. Uses the same content hash idempotency pattern as `upsertManifest()`.
+
 ---
 
 ## Data Access
@@ -98,6 +112,7 @@ Single entry point. Persists a resolved manifest idempotently within a `@Transac
 - `CatalogRelationshipTargetRuleEntity` — target rules with cardinality overrides and semantic constraints
 - `CatalogFieldMappingEntity` — field mappings per entity type
 - `CatalogSemanticMetadataEntity` — semantic metadata for entity types that declare semantics
+- `ManifestCatalogEntity` — bundle catalog entries (with `templateKeys` JSONB, `manifestType = BUNDLE`)
 
 **Tables written to:** `manifest_catalog`, `catalog_entity_types`, `catalog_relationships`, `catalog_relationship_target_rules`, `catalog_field_mappings`, `catalog_semantic_metadata`
 
@@ -109,6 +124,7 @@ Single entry point. Persists a resolved manifest idempotently within a `@Transac
 - **Hash stabilizes child UUIDs across reloads:** When content hasn't changed, the early return preserves existing child row UUIDs. Without the hash check, every reload would delete and recreate children with new UUIDs, breaking any external references.
 - **Stale manifests skip children entirely:** A stale manifest only updates the catalog row (`stale = true`, touched `lastLoadedAt`). No child rows are created or deleted. This means a previously non-stale manifest that becomes stale retains its last-known child rows until it becomes non-stale again.
 - **Content hash is null for stale manifests:** `computeContentHash()` is only called when `resolved.stale == false`. Stale catalog entries store `contentHash = null`, so the next non-stale load will always trigger a full reconciliation.
+- **Bundles have no children:** Unlike template/model/integration manifests, bundles only persist a catalog row with a `templateKeys` JSONB array. There is no cascading delete or child reconciliation for bundles.
 
 ---
 

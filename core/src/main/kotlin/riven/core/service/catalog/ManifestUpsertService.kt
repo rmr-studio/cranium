@@ -5,6 +5,7 @@ import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import riven.core.entity.catalog.*
+import riven.core.enums.catalog.ManifestType
 import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.entity.semantics.SemanticGroup
@@ -65,6 +66,48 @@ class ManifestUpsertService(
         insertFieldMappings(manifestId, resolved.fieldMappings)
     }
 
+    /**
+     * Persists a resolved bundle to the catalog. Bundles have no child rows
+     * (no entity types or relationships) — only the catalog entry with templateKeys JSONB.
+     */
+    @Transactional
+    fun upsertBundle(resolved: ResolvedBundle) {
+        val contentHash = computeBundleContentHash(resolved)
+        val existing = manifestCatalogRepository.findByKeyAndManifestType(resolved.key, ManifestType.BUNDLE)
+
+        if (existing != null && contentHash == existing.contentHash && existing.stale == resolved.stale) {
+            existing.lastLoadedAt = ZonedDateTime.now()
+            manifestCatalogRepository.save(existing)
+            return
+        }
+
+        val entity = if (existing != null) {
+            existing.copy(
+                name = resolved.name,
+                description = resolved.description,
+                manifestVersion = resolved.manifestVersion,
+                lastLoadedAt = ZonedDateTime.now(),
+                stale = resolved.stale,
+                contentHash = contentHash,
+                templateKeys = resolved.templateKeys,
+            )
+        } else {
+            ManifestCatalogEntity(
+                key = resolved.key,
+                name = resolved.name,
+                description = resolved.description,
+                manifestType = ManifestType.BUNDLE,
+                manifestVersion = resolved.manifestVersion,
+                lastLoadedAt = ZonedDateTime.now(),
+                stale = resolved.stale,
+                contentHash = contentHash,
+                templateKeys = resolved.templateKeys,
+            )
+        }
+
+        manifestCatalogRepository.save(entity)
+    }
+
     // ------ Private Helpers ------
 
     private fun persistCatalogEntry(
@@ -106,6 +149,20 @@ class ManifestUpsertService(
                 "entityTypes" to resolved.entityTypes,
                 "relationships" to resolved.relationships,
                 "fieldMappings" to resolved.fieldMappings
+            )
+        )
+        return MessageDigest.getInstance("SHA-256")
+            .digest(content.toByteArray())
+            .joinToString("") { "%02x".format(it) }
+    }
+
+    private fun computeBundleContentHash(resolved: ResolvedBundle): String {
+        val content = objectMapper.writeValueAsString(
+            mapOf(
+                "name" to resolved.name,
+                "description" to resolved.description,
+                "manifestVersion" to resolved.manifestVersion,
+                "templateKeys" to resolved.templateKeys,
             )
         )
         return MessageDigest.getInstance("SHA-256")
@@ -183,7 +240,6 @@ class ManifestUpsertService(
                     name = rel.name,
                     iconType = IconType.valueOf(rel.iconType),
                     iconColour = IconColour.valueOf(rel.iconColour),
-                    allowPolymorphic = rel.allowPolymorphic,
                     cardinalityDefault = rel.cardinalityDefault,
                     `protected` = rel.`protected`
                 )
@@ -193,7 +249,6 @@ class ManifestUpsertService(
                 CatalogRelationshipTargetRuleEntity(
                     catalogRelationshipId = savedRel.id!!,
                     targetEntityTypeKey = rule.targetEntityTypeKey,
-                    semanticTypeConstraint = rule.semanticTypeConstraint?.let { SemanticGroup.valueOf(it) },
                     cardinalityOverride = rule.cardinalityOverride,
                     inverseVisible = rule.inverseVisible ?: false,
                     inverseName = rule.inverseName

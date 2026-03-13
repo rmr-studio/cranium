@@ -61,6 +61,7 @@ export function DataTableProvider<TData>({
   initialData,
   initialColumnSizing,
   initialColumnOrder,
+  initialColumnVisibility,
   onReorder,
   onColumnWidthsChange,
   onColumnOrderChange,
@@ -78,6 +79,7 @@ export function DataTableProvider<TData>({
       initialData,
       initialColumnSizing,
       initialColumnOrder,
+      initialColumnVisibility,
       getRowId,
       onCellEdit,
     });

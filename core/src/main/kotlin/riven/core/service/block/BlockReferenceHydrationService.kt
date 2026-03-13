@@ -10,6 +10,7 @@ import riven.core.models.block.tree.ReferenceItem
 import riven.core.models.block.tree.ReferencePayload
 import riven.core.models.request.block.EntityReferenceRequest
 import riven.core.models.response.block.internal.BlockHydrationResult
+import riven.core.service.entity.EntityAttributeService
 import riven.core.service.entity.EntityService
 import java.util.*
 
@@ -25,6 +26,7 @@ import java.util.*
 class BlockReferenceHydrationService(
     private val entityService: EntityService,
     private val blockService: BlockService,
+    private val entityAttributeService: EntityAttributeService,
     private val logger: KLogger
 ) {
 
@@ -60,9 +62,16 @@ class BlockReferenceHydrationService(
 
         // Batch fetch all entities and blocks
         val entitiesById = if (entityIds.isNotEmpty()) {
-            entityService.getEntitiesByIds(entityIds)
+            val entityEntities = entityService.getEntitiesByIds(entityIds)
+            val allAttributes = entityAttributeService.getAttributesForEntities(entityIds)
+            entityEntities
                 .associateBy { it.id }
-                .mapValues { it.value.toModel(relationships = emptyMap()) }
+                .mapValues {
+                    it.value.toModel(
+                        relationships = emptyMap(),
+                        attributes = allAttributes[it.key] ?: emptyMap(),
+                    )
+                }
         } else {
             emptyMap()
         }

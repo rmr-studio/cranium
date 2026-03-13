@@ -3,10 +3,12 @@ package riven.core.service.entity
 import org.springframework.stereotype.Service
 import riven.core.entity.entity.EntityEntity
 import riven.core.entity.entity.EntityTypeEntity
+import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.common.validation.ValidationScope
 import riven.core.enums.entity.validation.EntityTypeChangeType
 import riven.core.models.entity.EntityTypeSchema
 import riven.core.models.entity.RelationshipDefinition
+import riven.core.models.entity.payload.EntityAttributePrimitivePayload
 import riven.core.models.entity.validation.EntityTypeSchemaChange
 import riven.core.models.entity.validation.EntityTypeValidationSummary
 import riven.core.models.entity.validation.EntityValidationError
@@ -25,17 +27,41 @@ class EntityValidationService(
 
     /**
      * Validate entity payload against its type schema.
+     * Accepts either a pre-extracted attributes map or falls back to the entity's JSONB payload.
      */
     fun validateEntity(
         entity: EntityEntity,
-        entityType: EntityTypeEntity
+        entityType: EntityTypeEntity,
+        attributes: Map<UUID, EntityAttributePrimitivePayload>,
+        isUpdate: Boolean = false,
+        previousAttributes: Map<UUID, EntityAttributePrimitivePayload> = emptyMap(),
     ): List<String> {
-        return schemaService.validate(
+        val errors = mutableListOf<String>()
+
+        // Validate ID attributes are not modified on updates
+        if (isUpdate) {
+            entityType.schema.properties?.forEach { (attrId, attrSchema) ->
+                if (attrSchema.key == SchemaType.ID) {
+                    val prevValue = previousAttributes[attrId]?.value
+                    val newValue = attributes[attrId]?.value
+                    if (prevValue != null && newValue != null && prevValue != newValue) {
+                        errors += "Attribute '${attrSchema.label ?: attrId}' is an auto-generated ID and cannot be modified"
+                    }
+                }
+            }
+        }
+
+        // Existing schema validation
+        val payloadForValidation: Map<String, Any?> =
+            attributes.map { (key, value) -> key.toString() to value.value }.toMap()
+
+        errors += schemaService.validate(
             schema = entityType.schema,
-            // Only validate ATTRIBUTE properties in this context. Relationship validation is separate.
-            payload = entity.payload.mapValues { it.value.value },
+            payload = payloadForValidation,
             scope = ValidationScope.STRICT
         )
+
+        return errors
     }
 
     /**
@@ -181,16 +207,21 @@ class EntityValidationService(
     fun validateExistingEntitiesAgainstNewSchema(
         entities: List<EntityEntity>,
         newSchema: EntityTypeSchema,
+        attributesByEntityId: Map<UUID, Map<UUID, EntityAttributePrimitivePayload>>,
     ): EntityTypeValidationSummary {
         var validCount = 0
         var invalidCount = 0
         val sampleErrors = mutableListOf<EntityValidationError>()
 
         entities.forEach { entity ->
+            val entityId = requireNotNull(entity.id)
+            val attrs = attributesByEntityId[entityId] ?: emptyMap()
+            val payloadForValidation: Map<String, Any?> =
+                attrs.map { (key, value) -> key.toString() to value.value }.toMap()
 
             val errors = schemaService.validate(
                 schema = newSchema,
-                payload = entity.payload.map { it.key.toString() to it.value }.toMap(),
+                payload = payloadForValidation,
                 scope = ValidationScope.STRICT
             )
 

@@ -26,6 +26,7 @@ export const EntityTypeOverview: FC<EntityTypeOverviewProps> = ({ entityType }) 
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const tabParam = searchParams.get('tab');
+  const editParam = searchParams.get('edit');
 
   // Valid tab values
   const validTabs = ['configuration', 'attributes'];
@@ -139,7 +140,7 @@ export const EntityTypeOverview: FC<EntityTypeOverviewProps> = ({ entityType }) 
 
             {/* Attributes Tab */}
             <TabsContent value="attributes" className="space-y-4">
-              <EntityTypesAttributes type={entityType} />
+              <EntityTypesAttributes type={entityType} editDefinitionId={editParam ?? undefined} />
             </TabsContent>
           </Tabs>
         </div>

@@ -10,6 +10,7 @@ export { Logo } from "./logo";
 export { Label } from "./label";
 export { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "./popover";
 export { ScrollArea, ScrollBar } from "./scroll-area";
+export { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectScrollDownButton, SelectScrollUpButton, SelectSeparator, SelectTrigger, SelectValue } from "./select";
 export { Separator } from "./separator";
 export { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell, TableCaption } from "./table";
 export { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";

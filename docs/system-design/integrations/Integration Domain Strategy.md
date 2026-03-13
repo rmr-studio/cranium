@@ -96,13 +96,13 @@ Cross-reference of domain priorities against Riven's core intelligence outcomes.
 
 **Read-only entity types:**
 
-| Type | Key Attributes | Semantic Classification |
-|---|---|---|
-| `STRIPE_CUSTOMER` | stripe_customer_id, email | identifier, identifier |
+| Type                  | Key Attributes                                    | Semantic Classification                          |
+| --------------------- | ------------------------------------------------- | ------------------------------------------------ |
+| `STRIPE_CUSTOMER`     | stripe_customer_id, email                         | identifier, identifier                           |
 | `STRIPE_SUBSCRIPTION` | mrr, plan_tier, renewal_date, subscription_status | quantitative, categorical, temporal, categorical |
-| `STRIPE_INVOICE` | amount_due, due_date, payment_status | quantitative, temporal, categorical |
-| `STRIPE_PAYMENT` | amount_paid, payment_date, payment_method | quantitative, temporal, categorical |
-| `STRIPE_PLAN` | plan_name, price, billing_interval | identifier, quantitative, categorical |
+| `STRIPE_INVOICE`      | amount_due, due_date, payment_status              | quantitative, temporal, categorical              |
+| `STRIPE_PAYMENT`      | amount_paid, payment_date, payment_method         | quantitative, temporal, categorical              |
+| `STRIPE_PLAN`         | plan_name, price, billing_interval                | identifier, quantitative, categorical            |
 
 **Internal relationships:**
 - STRIPE_SUBSCRIPTION to STRIPE_CUSTOMER — many-to-one

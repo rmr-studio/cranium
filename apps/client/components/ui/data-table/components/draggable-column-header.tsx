@@ -14,6 +14,7 @@ interface DraggableColumnHeaderProps<TData, TValue> {
   enableColumnOrdering: boolean;
   columnResizing?: ColumnResizingConfig;
   addingNewEntry: boolean;
+  onHeaderClick?: (columnId: string, anchorEl: HTMLElement) => void;
 }
 
 export function DraggableColumnHeader<TData, TValue>({
@@ -21,6 +22,7 @@ export function DraggableColumnHeader<TData, TValue>({
   enableColumnOrdering,
   columnResizing,
   addingNewEntry,
+  onHeaderClick,
 }: DraggableColumnHeaderProps<TData, TValue>) {
   const isMounted = useDataTableStore<TData, boolean>((state) => state.isMounted);
   const resizingColumnId = useDataTableStore<TData, string | null>(
@@ -65,6 +67,14 @@ export function DraggableColumnHeader<TData, TValue>({
     [header, setResizingColumnId],
   );
 
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLTableCellElement>) => {
+      if (!onHeaderClick || isActionsColumn || isAnyColumnResizing || isDragging) return;
+      onHeaderClick(header.id, e.currentTarget);
+    },
+    [onHeaderClick, header.id, isActionsColumn, isAnyColumnResizing, isDragging],
+  );
+
   const style = isMounted
     ? {
         transform: isAnyColumnResizing ? undefined : CSS.Transform.toString(transform),
@@ -83,8 +93,10 @@ export function DraggableColumnHeader<TData, TValue>({
       key={header.id}
       className={cn(
         'relative border-l px-3 py-2 first:border-l-transparent',
-        enableColumnOrdering && !isActionsColumn && 'cursor-move',
+        enableColumnOrdering && !isActionsColumn && (onHeaderClick ? 'cursor-default' : 'cursor-move'),
+        onHeaderClick && !isActionsColumn && 'cursor-default',
       )}
+      onClick={handleClick}
       {...(isMounted && enableColumnOrdering ? attributes : {})}
       {...(isMounted && enableColumnOrdering ? listeners : {})}
     >

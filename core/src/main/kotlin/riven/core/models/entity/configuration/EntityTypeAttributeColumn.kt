@@ -6,5 +6,6 @@ import java.util.*
 data class EntityTypeAttributeColumn(
     val key: UUID,
     val type: EntityPropertyType,
+    val visible: Boolean = true,
     val width: Int = 150
 )

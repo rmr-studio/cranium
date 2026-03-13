@@ -14,11 +14,6 @@ CREATE INDEX IF NOT EXISTS idx_entities_workspace_type
     ON entities (workspace_id, type_id)
     WHERE deleted = FALSE;
 
-DROP INDEX IF EXISTS idx_entities_payload_gin;
-CREATE INDEX IF NOT EXISTS idx_entities_payload_gin
-    ON entities USING GIN (payload)
-    WHERE deleted = FALSE AND deleted_at IS NULL;
-
 -- Relationship Definitions Indexes
 DROP INDEX IF EXISTS idx_rel_def_workspace_source;
 CREATE INDEX IF NOT EXISTS idx_rel_def_workspace_source
@@ -33,11 +28,6 @@ CREATE INDEX IF NOT EXISTS idx_target_rule_def
 DROP INDEX IF EXISTS idx_target_rule_type;
 CREATE INDEX IF NOT EXISTS idx_target_rule_type
     ON relationship_target_rules (target_entity_type_id);
-
-DROP INDEX IF EXISTS idx_target_rule_semantic;
-CREATE INDEX IF NOT EXISTS idx_target_rule_semantic
-    ON relationship_target_rules (semantic_type_constraint)
-    WHERE semantic_type_constraint IS NOT NULL;
 
 -- Entity Relationships Indexes
 DROP INDEX IF EXISTS idx_entity_relationships_workspace_source;
@@ -72,10 +62,22 @@ CREATE INDEX IF NOT EXISTS idx_entities_source_external_id
     ON entities (source_external_id)
     WHERE source_external_id IS NOT NULL;
 
-DROP INDEX IF EXISTS idx_excl_entity_type;
-CREATE INDEX IF NOT EXISTS idx_excl_entity_type
-    ON relationship_definition_exclusions (entity_type_id);
+-- =====================================================
+-- ENTITY ATTRIBUTE INDEXES
+-- =====================================================
 
-DROP INDEX IF EXISTS idx_excl_definition;
-CREATE INDEX IF NOT EXISTS idx_excl_definition
-    ON relationship_definition_exclusions (relationship_definition_id);
+-- Primary lookup: attributes for a given entity
+CREATE UNIQUE INDEX IF NOT EXISTS idx_entity_attributes_entity_id
+    ON public.entity_attributes (entity_id, attribute_id) WHERE deleted = false;
+
+-- Filter by attribute across a type
+CREATE INDEX IF NOT EXISTS idx_entity_attributes_type_attribute
+    ON public.entity_attributes (attribute_id, type_id) WHERE deleted = false;
+
+-- Value lookup for equality/range filters
+CREATE INDEX IF NOT EXISTS idx_entity_attributes_value_lookup
+    ON public.entity_attributes (attribute_id, type_id, value) WHERE deleted = false;
+
+-- Workspace-scoped queries
+CREATE INDEX IF NOT EXISTS idx_entity_attributes_workspace
+    ON public.entity_attributes (workspace_id) WHERE deleted = false;

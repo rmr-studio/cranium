@@ -15,7 +15,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@riven/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { DialogControl } from '@/lib/interfaces/interface';
@@ -91,6 +91,7 @@ interface Props {
   attribute?: EntityAttributeDefinition;
   type: EntityType;
   semanticMetadata?: EntityTypeSemanticMetadata;
+  onSuccess?: (definitionId: string) => void;
 }
 
 export const SchemaForm: FC<Props> = ({
@@ -100,6 +101,7 @@ export const SchemaForm: FC<Props> = ({
   dialog,
   workspaceId,
   semanticMetadata,
+  onSuccess: onSuccessCallback,
 }) => {
   const { open, setOpen } = dialog;
 

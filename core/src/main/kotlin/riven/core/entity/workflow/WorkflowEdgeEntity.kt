@@ -1,6 +1,7 @@
 package riven.core.entity.workflow
 
 import jakarta.persistence.*
+import org.hibernate.annotations.SQLRestriction
 import riven.core.entity.util.AuditableSoftDeletableEntity
 import riven.core.models.workflow.WorkflowEdge
 import riven.core.models.workflow.node.WorkflowNode
@@ -14,7 +15,7 @@ import java.util.*
         Index(name = "idx_workflow_edges_target_node_id", columnList = "workspace_id, target_node_id"),
     ]
 )
-
+@SQLRestriction("deleted = false")
 data class WorkflowEdgeEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

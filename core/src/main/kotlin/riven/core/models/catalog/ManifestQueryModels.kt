@@ -64,7 +64,6 @@ data class CatalogRelationshipModel(
     val name: String,
     val iconType: IconType,
     val iconColour: IconColour,
-    val allowPolymorphic: Boolean,
     val cardinalityDefault: EntityRelationshipCardinality,
     val `protected`: Boolean,
     val targetRules: List<CatalogRelationshipTargetRuleModel>
@@ -74,7 +73,6 @@ data class CatalogRelationshipModel(
 data class CatalogRelationshipTargetRuleModel(
     val id: UUID,
     val targetEntityTypeKey: String,
-    val semanticTypeConstraint: SemanticGroup?,
     val cardinalityOverride: EntityRelationshipCardinality?,
     val inverseVisible: Boolean,
     val inverseName: String?
@@ -95,4 +93,31 @@ data class CatalogFieldMappingModel(
     val id: UUID,
     val entityTypeKey: String,
     val mappings: Map<String, Any>
+)
+
+/** Bundle detail with list of template keys. */
+data class BundleDetail(
+    val id: UUID,
+    val key: String,
+    val name: String,
+    val description: String?,
+    val templateKeys: List<String>
+)
+
+/** Full bundle preview with hydrated template contents, used for onboarding. */
+data class BundlePreview(
+    val id: UUID,
+    val key: String,
+    val name: String,
+    val description: String?,
+    val templates: List<BundleTemplatePreview>,
+)
+
+/** Single template within a bundle preview, with entity types and relationships. */
+data class BundleTemplatePreview(
+    val key: String,
+    val name: String,
+    val description: String?,
+    val entityTypes: List<CatalogEntityTypeModel>,
+    val relationships: List<CatalogRelationshipModel>,
 )

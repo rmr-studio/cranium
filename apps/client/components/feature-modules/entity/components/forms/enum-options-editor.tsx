@@ -9,7 +9,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@riven/ui/select';
 import { OptionSortingType } from '@/lib/types/common';
 import {
   DndContext,

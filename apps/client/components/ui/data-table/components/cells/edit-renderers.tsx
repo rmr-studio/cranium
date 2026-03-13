@@ -101,6 +101,7 @@ export function createAttributeRenderer<TData>(
  */
 export function createRelationshipRenderer<TData>(
   relationship: EntityRelationshipDefinition,
+  isTargetSide?: boolean,
 ): (props: EditRenderProps<TData, EntityLink[]>) => React.ReactNode {
   return function RelationshipEditRenderer({ form, onSave }) {
     const value: EntityLink[] = useWatch({
@@ -138,6 +139,7 @@ export function createRelationshipRenderer<TData>(
     return (
       <EntityRelationshipPicker
         relationship={relationship}
+        isTargetSide={isTargetSide}
         autoFocus
         value={value}
         errors={errorMessages}

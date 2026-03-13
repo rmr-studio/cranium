@@ -33,10 +33,9 @@ import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
-import riven.core.enums.entity.EntityPropertyType
+import riven.core.models.entity.configuration.ColumnConfiguration
 import riven.core.enums.entity.EntityRelationshipCardinality
 import riven.core.models.common.validation.Schema
-import riven.core.models.entity.configuration.EntityTypeAttributeColumn
 import riven.core.models.entity.payload.EntityAttributePrimitivePayload
 import riven.core.repository.entity.EntityRelationshipRepository
 import riven.core.repository.entity.EntityRepository
@@ -106,15 +105,25 @@ class EntityQueryIntegrationTestConfig {
     fun entityTypeRelationshipService(
         definitionRepository: RelationshipDefinitionRepository,
         targetRuleRepository: RelationshipTargetRuleRepository,
-        exclusionRepository: riven.core.repository.entity.RelationshipDefinitionExclusionRepository,
         entityRelationshipRepository: EntityRelationshipRepository,
         entityTypeRepository: EntityTypeRepository,
     ) = EntityTypeRelationshipService(
-        definitionRepository, targetRuleRepository, exclusionRepository, entityRelationshipRepository,
+        definitionRepository, targetRuleRepository, entityRelationshipRepository,
         entityTypeRepository,
         org.mockito.Mockito.mock(riven.core.service.activity.ActivityService::class.java),
         org.mockito.Mockito.mock(riven.core.service.auth.AuthTokenService::class.java),
         org.mockito.Mockito.mock(riven.core.service.entity.EntityTypeSemanticMetadataService::class.java),
+        org.mockito.Mockito.mock(io.github.oshai.kotlinlogging.KLogger::class.java),
+    )
+
+    @Bean
+    fun entityAttributeService(
+        entityAttributeRepository: riven.core.repository.entity.EntityAttributeRepository,
+    ) = riven.core.service.entity.EntityAttributeService(
+        entityAttributeRepository,
+        com.fasterxml.jackson.databind.ObjectMapper().apply {
+            findAndRegisterModules()
+        },
         org.mockito.Mockito.mock(io.github.oshai.kotlinlogging.KLogger::class.java),
     )
 
@@ -125,8 +134,9 @@ class EntityQueryIntegrationTestConfig {
         assembler: EntityQueryAssembler,
         validator: QueryFilterValidator,
         entityTypeRelationshipService: EntityTypeRelationshipService,
+        entityAttributeService: riven.core.service.entity.EntityAttributeService,
         dataSource: DataSource,
-    ) = EntityQueryService(entityTypeRepository, entityRepository, assembler, validator, entityTypeRelationshipService, dataSource, QueryConfigurationProperties())
+    ) = EntityQueryService(entityTypeRepository, entityRepository, assembler, validator, entityTypeRelationshipService, entityAttributeService, dataSource, QueryConfigurationProperties())
 }
 
 /**
@@ -167,6 +177,9 @@ abstract class EntityQueryIntegrationTestBase {
 
     @Autowired
     protected lateinit var jdbcTemplate: JdbcTemplate
+
+    @Autowired
+    protected lateinit var objectMapper: ObjectMapper
 
     companion object {
         @JvmStatic
@@ -241,6 +254,7 @@ abstract class EntityQueryIntegrationTestBase {
     }
 
     protected fun truncateAll() {
+        jdbcTemplate.execute("TRUNCATE TABLE entity_attributes CASCADE")
         jdbcTemplate.execute("TRUNCATE TABLE entity_relationships CASCADE")
         jdbcTemplate.execute("TRUNCATE TABLE relationship_target_rules CASCADE")
         jdbcTemplate.execute("TRUNCATE TABLE relationship_definitions CASCADE")
@@ -303,13 +317,8 @@ abstract class EntityQueryIntegrationTestBase {
                     )
                 )
             ),
-            columns = listOf(
-                EntityTypeAttributeColumn(companyNameAttrId, EntityPropertyType.ATTRIBUTE),
-                EntityTypeAttributeColumn(companyIndustryAttrId, EntityPropertyType.ATTRIBUTE),
-                EntityTypeAttributeColumn(companyRevenueAttrId, EntityPropertyType.ATTRIBUTE),
-                EntityTypeAttributeColumn(companyActiveAttrId, EntityPropertyType.ATTRIBUTE),
-                EntityTypeAttributeColumn(companyFoundedAttrId, EntityPropertyType.ATTRIBUTE),
-                EntityTypeAttributeColumn(companyWebsiteAttrId, EntityPropertyType.ATTRIBUTE)
+            columnConfiguration = ColumnConfiguration(
+                order = listOf(companyNameAttrId, companyIndustryAttrId, companyRevenueAttrId, companyActiveAttrId, companyFoundedAttrId, companyWebsiteAttrId)
             )
         )
         val savedCompanyType = entityTypeRepository.save(companyType)
@@ -360,12 +369,8 @@ abstract class EntityQueryIntegrationTestBase {
                     )
                 )
             ),
-            columns = listOf(
-                EntityTypeAttributeColumn(employeeFirstNameAttrId, EntityPropertyType.ATTRIBUTE),
-                EntityTypeAttributeColumn(employeeLastNameAttrId, EntityPropertyType.ATTRIBUTE),
-                EntityTypeAttributeColumn(employeeEmailAttrId, EntityPropertyType.ATTRIBUTE),
-                EntityTypeAttributeColumn(employeeSalaryAttrId, EntityPropertyType.ATTRIBUTE),
-                EntityTypeAttributeColumn(employeeDepartmentAttrId, EntityPropertyType.ATTRIBUTE)
+            columnConfiguration = ColumnConfiguration(
+                order = listOf(employeeFirstNameAttrId, employeeLastNameAttrId, employeeEmailAttrId, employeeSalaryAttrId, employeeDepartmentAttrId)
             )
         )
         val savedEmployeeType = entityTypeRepository.save(employeeType)
@@ -404,10 +409,8 @@ abstract class EntityQueryIntegrationTestBase {
                     )
                 )
             ),
-            columns = listOf(
-                EntityTypeAttributeColumn(projectTitleAttrId, EntityPropertyType.ATTRIBUTE),
-                EntityTypeAttributeColumn(projectBudgetAttrId, EntityPropertyType.ATTRIBUTE),
-                EntityTypeAttributeColumn(projectStatusAttrId, EntityPropertyType.ATTRIBUTE)
+            columnConfiguration = ColumnConfiguration(
+                order = listOf(projectTitleAttrId, projectBudgetAttrId, projectStatusAttrId)
             )
         )
         val savedProjectType = entityTypeRepository.save(projectType)
@@ -447,7 +450,6 @@ abstract class EntityQueryIntegrationTestBase {
             sourceEntityTypeId = companyTypeId,
             name = "Owner",
             cardinalityDefault = EntityRelationshipCardinality.MANY_TO_ONE,
-            allowPolymorphic = false,
         )).id!!
         targetRuleRepository.save(RelationshipTargetRuleEntity(
             relationshipDefinitionId = companyOwnerRelId,
@@ -544,16 +546,36 @@ abstract class EntityQueryIntegrationTestBase {
         projects.forEach { projectEntities[it.first] = it.second }
     }
 
+    protected fun insertAttributes(entityId: UUID, typeId: UUID, workspaceId: UUID, attributes: Map<UUID, EntityAttributePrimitivePayload>) {
+        val now = java.sql.Timestamp.from(java.time.Instant.now())
+        attributes.forEach { (attrId, payload) ->
+            val valueJson = objectMapper.writeValueAsString(payload.value)
+            jdbcTemplate.update(
+                """INSERT INTO entity_attributes (id, entity_id, workspace_id, type_id, attribute_id, schema_type, value, deleted, created_at, updated_at)
+                   VALUES (?::uuid, ?::uuid, ?::uuid, ?::uuid, ?::uuid, ?, ?::jsonb, false, ?, ?)""",
+                UUID.randomUUID().toString(),
+                entityId.toString(),
+                workspaceId.toString(),
+                typeId.toString(),
+                attrId.toString(),
+                payload.schemaType.name,
+                valueJson,
+                now,
+                now
+            )
+        }
+    }
+
     protected fun createCompany(name: String, industry: String, revenue: Double, active: String, founded: String, website: String?): Pair<String, UUID> {
-        val payload = mutableMapOf(
-            companyNameAttrId.toString() to EntityAttributePrimitivePayload(name, SchemaType.TEXT),
-            companyIndustryAttrId.toString() to EntityAttributePrimitivePayload(industry, SchemaType.TEXT),
-            companyRevenueAttrId.toString() to EntityAttributePrimitivePayload(revenue, SchemaType.NUMBER),
-            companyActiveAttrId.toString() to EntityAttributePrimitivePayload(active, SchemaType.TEXT),
-            companyFoundedAttrId.toString() to EntityAttributePrimitivePayload(founded, SchemaType.TEXT)
+        val attributes = mutableMapOf(
+            companyNameAttrId to EntityAttributePrimitivePayload(name, SchemaType.TEXT),
+            companyIndustryAttrId to EntityAttributePrimitivePayload(industry, SchemaType.TEXT),
+            companyRevenueAttrId to EntityAttributePrimitivePayload(revenue, SchemaType.NUMBER),
+            companyActiveAttrId to EntityAttributePrimitivePayload(active, SchemaType.TEXT),
+            companyFoundedAttrId to EntityAttributePrimitivePayload(founded, SchemaType.TEXT)
         )
         if (website != null) {
-            payload[companyWebsiteAttrId.toString()] = EntityAttributePrimitivePayload(website, SchemaType.TEXT)
+            attributes[companyWebsiteAttrId] = EntityAttributePrimitivePayload(website, SchemaType.TEXT)
         }
 
         val entity = EntityEntity(
@@ -561,19 +583,19 @@ abstract class EntityQueryIntegrationTestBase {
             typeId = companyTypeId,
             typeKey = "company",
             identifierKey = companyNameAttrId,
-            payload = payload
         )
         val saved = entityRepository.save(entity)
+        insertAttributes(saved.id!!, companyTypeId, workspaceId, attributes)
         return name to saved.id!!
     }
 
     private fun createEmployee(firstName: String, lastName: String, email: String, salary: Double, department: String): Pair<String, UUID> {
-        val payload = mapOf(
-            employeeFirstNameAttrId.toString() to EntityAttributePrimitivePayload(firstName, SchemaType.TEXT),
-            employeeLastNameAttrId.toString() to EntityAttributePrimitivePayload(lastName, SchemaType.TEXT),
-            employeeEmailAttrId.toString() to EntityAttributePrimitivePayload(email, SchemaType.EMAIL),
-            employeeSalaryAttrId.toString() to EntityAttributePrimitivePayload(salary, SchemaType.NUMBER),
-            employeeDepartmentAttrId.toString() to EntityAttributePrimitivePayload(department, SchemaType.TEXT)
+        val attributes = mapOf(
+            employeeFirstNameAttrId to EntityAttributePrimitivePayload(firstName, SchemaType.TEXT),
+            employeeLastNameAttrId to EntityAttributePrimitivePayload(lastName, SchemaType.TEXT),
+            employeeEmailAttrId to EntityAttributePrimitivePayload(email, SchemaType.EMAIL),
+            employeeSalaryAttrId to EntityAttributePrimitivePayload(salary, SchemaType.NUMBER),
+            employeeDepartmentAttrId to EntityAttributePrimitivePayload(department, SchemaType.TEXT)
         )
 
         val entity = EntityEntity(
@@ -581,17 +603,17 @@ abstract class EntityQueryIntegrationTestBase {
             typeId = employeeTypeId,
             typeKey = "employee",
             identifierKey = employeeFirstNameAttrId,
-            payload = payload
         )
         val saved = entityRepository.save(entity)
+        insertAttributes(saved.id!!, employeeTypeId, workspaceId, attributes)
         return "$firstName $lastName" to saved.id!!
     }
 
     private fun createProject(title: String, budget: Double, status: String): Pair<String, UUID> {
-        val payload = mapOf(
-            projectTitleAttrId.toString() to EntityAttributePrimitivePayload(title, SchemaType.TEXT),
-            projectBudgetAttrId.toString() to EntityAttributePrimitivePayload(budget, SchemaType.NUMBER),
-            projectStatusAttrId.toString() to EntityAttributePrimitivePayload(status, SchemaType.TEXT)
+        val attributes = mapOf(
+            projectTitleAttrId to EntityAttributePrimitivePayload(title, SchemaType.TEXT),
+            projectBudgetAttrId to EntityAttributePrimitivePayload(budget, SchemaType.NUMBER),
+            projectStatusAttrId to EntityAttributePrimitivePayload(status, SchemaType.TEXT)
         )
 
         val entity = EntityEntity(
@@ -599,9 +621,9 @@ abstract class EntityQueryIntegrationTestBase {
             typeId = projectTypeId,
             typeKey = "project",
             identifierKey = projectTitleAttrId,
-            payload = payload
         )
         val saved = entityRepository.save(entity)
+        insertAttributes(saved.id!!, projectTypeId, workspaceId, attributes)
         return title to saved.id!!
     }
 

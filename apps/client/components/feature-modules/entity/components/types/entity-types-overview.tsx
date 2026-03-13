@@ -132,16 +132,6 @@ export const EntityTypesOverview: FC<Props> = ({ workspaceId }) => {
             searchableColumns: ['name.plural', 'name.singular'],
             placeholder: 'Search entity types...',
           }}
-          filter={{
-            enabled: true,
-            filters: [
-              {
-                column: '_protected',
-                type: 'boolean',
-                label: 'Protected',
-              },
-            ],
-          }}
           onRowClick={(row) => {
             router.push(`/dashboard/workspace/${workspaceId}/entity/${row.original.key}`);
           }}

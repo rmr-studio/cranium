@@ -6,7 +6,7 @@
  */
 
 import { Cell } from '@tanstack/react-table';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 
 // ============================================================================

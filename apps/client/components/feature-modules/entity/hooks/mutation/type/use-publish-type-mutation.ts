@@ -4,6 +4,7 @@ import { MutationFunctionContext, useMutation, UseMutationOptions, useQueryClien
 import { useRef } from 'react';
 import { toast } from 'sonner';
 import { EntityTypeService } from '../../../service/entity-type.service';
+import { entityKeys } from '../../query/entity-query-keys';
 
 export function usePublishEntityTypeMutation(
   workspaceId: string,
@@ -32,16 +33,11 @@ export function usePublishEntityTypeMutation(
       submissionToastRef.current = undefined;
       toast.success(`Entity type created successfully!`);
 
-      // Update the specific entity type in cache
-      queryClient.setQueryData(['entityType', response.key, workspaceId], response);
+      // Invalidate entity type queries (partial match handles varying `include` param)
+      queryClient.invalidateQueries({ queryKey: entityKeys.entityTypes.byKey(response.key, workspaceId) });
 
-      // Update the entity types list in cache
-      queryClient.setQueryData<EntityType[]>(['entityTypes', workspaceId], (oldData) => {
-        if (!oldData) return [response];
-
-        // Add new entity type to the list
-        return [...oldData, response];
-      });
+      // Invalidate the entity types list
+      queryClient.invalidateQueries({ queryKey: entityKeys.entityTypes.list(workspaceId) });
 
       return response;
     },

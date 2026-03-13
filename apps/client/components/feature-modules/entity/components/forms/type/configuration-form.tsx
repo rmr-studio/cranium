@@ -14,10 +14,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@riven/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { TagInput } from '@/components/ui/tag-input';
-import { EntityAttributeDefinition, EntityPropertyType, SemanticGroup } from '@/lib/types/entity';
+import { EntityAttributeDefinition, SemanticGroup } from '@/lib/types/entity';
 import { cn } from '@/lib/util/utils';
 import { Info } from 'lucide-react';
 import { FC, useEffect } from 'react';
@@ -48,9 +48,9 @@ export const ConfigurationForm: FC<Props> = ({ availableIdentifiers }) => {
     name: 'identifierKey',
   });
 
-  const columns = useWatch({
+  const columnConfiguration = useWatch({
     control: form.control,
-    name: 'columns',
+    name: 'columnConfiguration',
   });
 
   const semanticGroup = useWatch({
@@ -58,43 +58,27 @@ export const ConfigurationForm: FC<Props> = ({ availableIdentifiers }) => {
     name: 'semanticGroup',
   });
 
-  // Watch for identifier key changes and auto-recolumns to ensure identifier is first
+  const description = useWatch({
+    control: form.control,
+    name: 'description',
+  });
+
+  // Watch for identifier key changes and auto-reorder to ensure identifier is first
   useEffect(() => {
-    if (columns.length <= 1) return;
+    const order = columnConfiguration.order;
+    if (order.length <= 1) return;
 
-    // Check if identifier is already first
-    const firstItem = columns[0];
-    if (firstItem?.key === identifierKey && firstItem?.type === EntityPropertyType.Attribute) {
-      return;
+    const idx = order.indexOf(identifierKey);
+    if (idx === 0) return; // Already first
+
+    if (idx > 0) {
+      // Move identifier to front
+      const newOrder = [identifierKey, ...order.filter((_, i) => i !== idx)];
+      form.setValue('columnConfiguration.order', newOrder, { shouldDirty: true });
+    } else {
+      // Identifier not in order array, add it at front
+      form.setValue('columnConfiguration.order', [identifierKey, ...order], { shouldDirty: true });
     }
-
-    // Find identifier in current columns
-    const identifierIndex = columns.findIndex(
-      (item) => item.key === identifierKey && item.type === EntityPropertyType.Attribute,
-    );
-
-    if (identifierIndex !== -1) {
-      const identifierItem = columns[identifierIndex];
-      form.setValue(
-        'columns',
-        [identifierItem, ...columns.filter((_, idx) => idx !== identifierIndex)],
-        { shouldDirty: true },
-      );
-      return;
-    }
-
-    form.setValue(
-      'columns',
-      [
-        {
-          key: identifierKey,
-          type: EntityPropertyType.Attribute,
-          width: 150,
-        },
-        ...columns,
-      ],
-      { shouldDirty: true },
-    );
   }, [identifierKey]);
 
   return (
@@ -163,14 +147,14 @@ export const ConfigurationForm: FC<Props> = ({ availableIdentifiers }) => {
                 <Textarea
                   className={cn(
                     'max-h-72 resize-none',
-                    semanticGroup === SemanticGroup.Custom && 'border-amber-500/40',
+                    semanticGroup === SemanticGroup.Custom && !description && 'border-amber-500/40',
                   )}
                   placeholder="Describe what this entity type represents..."
                   rows={2}
                   {...field}
                 />
               </FormControl>
-              {semanticGroup === SemanticGroup.Custom && (
+              {semanticGroup === SemanticGroup.Custom && !description && (
                 <p className="flex items-center gap-1.5 pt-0.5 text-xs text-amber-600 dark:text-amber-400">
                   <Info className="size-3 shrink-0" />
                   A description helps the system understand this type&apos;s purpose

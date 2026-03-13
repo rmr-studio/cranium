@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Index
 import jakarta.persistence.Table
+import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.Type
 import riven.core.entity.util.AuditableSoftDeletableEntity
 import riven.core.enums.storage.StorageDomain
@@ -25,6 +26,7 @@ import java.util.UUID
         Index(name = "uq_file_metadata_storage_key", columnList = "storage_key", unique = true),
     ]
 )
+@SQLRestriction("deleted = false")
 data class FileMetadataEntity(
 
     @Id

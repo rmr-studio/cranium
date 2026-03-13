@@ -1,6 +1,5 @@
 import { AuthGuard } from '@/components/feature-modules/authentication/components/auth-guard';
 import { OnboardWrapper } from '@/components/feature-modules/onboarding/context/onboard.wrapper';
-import { BGPattern } from '@/components/ui/background/grids';
 import { Navbar } from '@/components/ui/nav/navbar';
 import { DashboardContent } from '@/components/ui/sidebar/dashboard-content';
 import { IconRail } from '@/components/ui/sidebar/icon-rail';
@@ -14,11 +13,10 @@ const layout: FC<ChildNodeProps> = ({ children }) => {
     <AuthGuard>
       <OnboardWrapper>
         <IconRailProvider>
-          <div className="flex h-screen w-full">
+          <div className="flex h-screen w-full bg-primary py-0.5 dark:bg-secondary">
             <IconRail />
             <SubPanel />
             <DashboardContent>
-              <BGPattern variant="grid" mask="fade-edges" className="opacity-5" />
               <header className="relative">
                 <Navbar />
               </header>

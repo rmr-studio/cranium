@@ -2,6 +2,7 @@ package riven.core.entity.workflow
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
+import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.Type
 import riven.core.entity.util.AuditableSoftDeletableEntity
 import riven.core.enums.workflow.WorkflowNodeType
@@ -45,6 +46,7 @@ import java.util.*
         Index(name = "idx_workflow_nodes_key", columnList = "workspace_id, key"),
     ]
 )
+@SQLRestriction("deleted = false")
 data class WorkflowNodeEntity(
 
     @Id

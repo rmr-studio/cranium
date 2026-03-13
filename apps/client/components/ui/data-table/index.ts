@@ -71,7 +71,6 @@ export type { DataTableProps } from './data-table';
 
 export { DataTableToolbar } from './components/data-table-toolbar';
 export { DataTableSearchInput } from './components/data-table-search-input';
-export { DataTableFilterButton } from './components/data-table-filter-button';
 export { DataTableSelectionBar } from './components/data-table-selection-bar';
 export { DataTableHeader } from './components/data-table-header';
 export { DataTableBody } from './components/data-table-body';

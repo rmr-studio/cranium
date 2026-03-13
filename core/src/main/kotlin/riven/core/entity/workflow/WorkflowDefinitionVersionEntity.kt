@@ -2,6 +2,7 @@ package riven.core.entity.workflow
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
+import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.Type
 import riven.core.entity.util.AuditableSoftDeletableEntity
 import riven.core.models.workflow.WorkflowDefinitionVersion
@@ -19,6 +20,7 @@ import java.util.*
         ),
     ]
 )
+@SQLRestriction("deleted = false")
 data class WorkflowDefinitionVersionEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

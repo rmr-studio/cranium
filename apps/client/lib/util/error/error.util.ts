@@ -127,6 +127,11 @@ export function isResponseError(error: unknown): error is ResponseError {
  * The backend returns ErrorResponse with { statusCode, error, message, stackTrace }
  */
 export async function normalizeApiError(error: unknown): Promise<never> {
+    // Guard: don't double-normalize
+    if (isResponseError(error)) {
+        throw error;
+    }
+
     // Handle OpenAPI-generated ResponseError
     if (error instanceof OpenApiResponseError) {
         const response = error.response;
@@ -140,6 +145,7 @@ export async function normalizeApiError(error: unknown): Promise<never> {
                 error: body.error ?? "API_ERROR",
                 message: body.message ?? "An unexpected error occurred",
                 stackTrace: body.stackTrace,
+                cause: error,
             }) as ResponseError;
         } catch (parseError) {
             // If JSON parsing fails, create error from response metadata
@@ -150,6 +156,7 @@ export async function normalizeApiError(error: unknown): Promise<never> {
                 status: response.status,
                 error: "API_ERROR",
                 message: response.statusText || "An unexpected error occurred",
+                cause: error,
             }) as ResponseError;
         }
     }

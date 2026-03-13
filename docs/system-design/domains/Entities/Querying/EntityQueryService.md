@@ -4,7 +4,7 @@ tags:
   - component/active
   - architecture/component
 Created: 2026-02-08
-Updated: 2026-02-21
+Updated: 2026-03-09
 Domains:
   - "[[Entities]]"
 ---
@@ -39,6 +39,7 @@ Entry point for entity queries, orchestrating validation → assembly → execut
 - `RelationshipDefinitionRepository` — Load relationship definitions for filter validation and direction resolution
 - `RelationshipTargetRuleRepository` — Load relationship definitions for filter validation and direction resolution
 - `NamedParameterJdbcTemplate` — Execute parameterized SQL with configured timeout
+- [[EntityAttributeService]] — Batch-load attributes for query result hydration
 - [[ParameterNameGenerator]] — Unique parameter naming
 
 ## Used By
@@ -64,7 +65,8 @@ Entry point for entity queries, orchestrating validation → assembly → execut
    - Data query: `SELECT e.id ... ORDER BY ... LIMIT/OFFSET`
    - Count query: `SELECT COUNT(*) ...`
 6. **Load entities** by IDs from repository
-7. **Re-sort** entities to match SQL ORDER BY (repository doesn't preserve order)
+6b. **Load attributes** via `entityAttributeService.getAttributesForEntities()` — batch-loads all attributes for matched entity IDs
+7. **Re-sort** entities to match SQL ORDER BY and pass attributes to `toModel(attributes = ...)`
 8. **Build result** with entities, totalCount, hasNextPage
 
 **Query timeout:**
@@ -103,7 +105,7 @@ Executes entity query with optional filters and pagination. Returns matching ent
 - **Parallel execution:** Data and count queries run concurrently via coroutines (Dispatchers.IO)
 - **Re-sorting required:** `EntityRepository.findByIdIn()` doesn't preserve order, must re-sort by SQL ORDER BY
 - **Attribute validation limitation:** Nested filters validate against root type attributes only (known Phase 5 simplification)
-- **No relationship loading:** Phase 5 entities returned with `relationships = emptyMap()`, hydration deferred to future phase
+- **Attribute hydration in query results:** Query results now include hydrated attributes via `entityAttributeService.getAttributesForEntities()`. Relationships still returned as `emptyMap()` in query results (hydration deferred to future phase).
 - **FORWARD/INVERSE direction affects SQL:** The correlation column in `RelationshipSqlGenerator` differs by direction — `source_entity_id` for FORWARD, `target_entity_id` for INVERSE. Using the wrong direction silently produces incorrect results rather than an error.
 
 ---
@@ -129,3 +131,9 @@ Executes entity query with optional filters and pagination. Returns matching ent
 ### 2026-03-01 — IsRelatedTo filter support
 
 - `QueryFilter.IsRelatedTo` nodes are now handled in the validation pipeline — skipped during both attribute validation and relationship definition validation (no references to validate).
+
+### 2026-03-09 — Attribute hydration in query results
+
+- Added `EntityAttributeService` as a dependency for batch-loading attributes.
+- Query execution pipeline now includes attribute hydration step after entity loading.
+- `EntityEntity.toModel()` called with `attributes` parameter populated from normalized table.

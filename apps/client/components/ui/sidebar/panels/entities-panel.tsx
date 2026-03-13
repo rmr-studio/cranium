@@ -61,7 +61,7 @@ export function EntitiesPanel() {
       </Link>
 
       <Link
-        href={`${basePath}/new`}
+        href={`${basePath}?new`}
         className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
       >
         <PlusCircle className="size-4" />

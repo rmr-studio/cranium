@@ -8,7 +8,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@riven/ui/select';
 import type { ConfigWidgetProps } from "./config-widget.types";
 
 export const EnumWidget: FC<ConfigWidgetProps<string>> = ({

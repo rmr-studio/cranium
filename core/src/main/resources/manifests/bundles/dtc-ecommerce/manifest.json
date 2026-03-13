@@ -1,0 +1,7 @@
+{
+  "manifestVersion": "1.0",
+  "key": "dtc-ecommerce",
+  "name": "DTC E-commerce",
+  "description": "Direct-to-consumer e-commerce setup with CRM, support, and full order management.",
+  "templates": ["crm", "support", "ecommerce"]
+}

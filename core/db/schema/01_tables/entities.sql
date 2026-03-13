@@ -8,25 +8,25 @@
 CREATE TABLE IF NOT EXISTS public.entity_types
 (
     "id"                    UUID PRIMARY KEY         DEFAULT uuid_generate_v4(),
-    "key"                   TEXT    NOT NULL,
+    "key"                   TEXT        NOT NULL,
     "workspace_id"          UUID REFERENCES workspaces (id) ON DELETE CASCADE,
-    "identifier_key"        UUID    NOT NULL,
-    "display_name_singular" TEXT    NOT NULL,
-    "display_name_plural"   TEXT    NOT NULL,
-    "icon_type"             TEXT    NOT NULL         DEFAULT 'CIRCLE_DASHED', -- Lucide Icon Representation,
-    "icon_colour"           TEXT    NOT NULL         DEFAULT 'NEUTRAL',       -- Colour of the icon,
-    "protected"             BOOLEAN NOT NULL         DEFAULT FALSE,
-    "schema"                JSONB   NOT NULL,
-    "columns"               JSONB,
-    "semantic_group"        TEXT    NOT NULL         DEFAULT 'UNCATEGORIZED',
+    "identifier_key"        UUID        NOT NULL,
+    "display_name_singular" TEXT        NOT NULL,
+    "display_name_plural"   TEXT        NOT NULL,
+    "icon_type"             TEXT        NOT NULL     DEFAULT 'CIRCLE_DASHED', -- Lucide Icon Representation,
+    "icon_colour"           TEXT        NOT NULL     DEFAULT 'NEUTRAL',       -- Colour of the icon,
+    "protected"             BOOLEAN     NOT NULL     DEFAULT FALSE,
+    "schema"                JSONB       NOT NULL,
+    "column_configuration"  JSONB,
+    "semantic_group"        TEXT        NOT NULL     DEFAULT 'UNCATEGORIZED',
     -- Source discriminator fields for integration entity types
     "source_type"           VARCHAR(50) NOT NULL     DEFAULT 'USER_CREATED',
     "source_integration_id" UUID        REFERENCES integration_definitions (id) ON DELETE SET NULL,
-    "readonly"              BOOLEAN NOT NULL         DEFAULT FALSE,
+    "readonly"              BOOLEAN     NOT NULL     DEFAULT FALSE,
     -- Denormalized count of entities of this type for faster access
-    "count"                 INTEGER NOT NULL         DEFAULT 0,
-    "version"               INTEGER NOT NULL         DEFAULT 1,
-    "deleted"               BOOLEAN NOT NULL         DEFAULT FALSE,
+    "count"                 INTEGER     NOT NULL     DEFAULT 0,
+    "version"               INTEGER     NOT NULL     DEFAULT 1,
+    "deleted"               BOOLEAN     NOT NULL     DEFAULT FALSE,
     "created_at"            TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     "updated_at"            TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     "created_by"            UUID,
@@ -49,7 +49,6 @@ CREATE TABLE IF NOT EXISTS public.entities
     "type_key"              TEXT        NOT NULL,                       -- Denormalized key from entity_type for easier access
 
     "identifier_key"        UUID        NOT NULL,                       -- Duplicate key from entity_type for faster lookups without needing separate query
-    "payload"               JSONB       NOT NULL     DEFAULT '{}'::jsonb,
     "icon_type"             TEXT        NOT NULL     DEFAULT 'FILE',    -- Lucide Icon Representation,
     "icon_colour"           TEXT        NOT NULL     DEFAULT 'NEUTRAL', --
 
@@ -70,6 +69,31 @@ CREATE TABLE IF NOT EXISTS public.entities
     "last_synced_at"        TIMESTAMPTZ,
     "sync_version"          BIGINT      NOT NULL     DEFAULT 0
 );
+
+-- =====================================================
+-- ENTITY ATTRIBUTES TABLE
+-- =====================================================
+-- Normalized storage for entity attribute values.
+-- Replaces the JSONB payload column on the entities table to enable
+-- indexed cross-entity queries, EXISTS-based filtering, and future
+-- trigram fuzzy matching.
+CREATE TABLE IF NOT EXISTS public.entity_attributes
+(
+    "id"           UUID PRIMARY KEY         DEFAULT uuid_generate_v4(),
+    "entity_id"    UUID        NOT NULL REFERENCES entities (id) ON DELETE CASCADE,
+    "workspace_id" UUID        NOT NULL REFERENCES workspaces (id) ON DELETE CASCADE,
+    "type_id"      UUID        NOT NULL REFERENCES entity_types (id) ON DELETE CASCADE,
+    "attribute_id" UUID        NOT NULL,
+    "schema_type"  VARCHAR(50) NOT NULL,
+    "value"        JSONB       NOT NULL,
+    "deleted"      BOOLEAN     NOT NULL     DEFAULT FALSE,
+    "deleted_at"   TIMESTAMP WITH TIME ZONE DEFAULT NULL,
+    "created_at"   TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    "updated_at"   TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    "created_by"   UUID,
+    "updated_by"   UUID
+);
+
 
 -- =====================================================
 -- ENTITIES UNIQUE VALUES TABLE
@@ -118,7 +142,6 @@ CREATE TABLE IF NOT EXISTS public.relationship_definitions
     "name"                  TEXT    NOT NULL,
     "icon_type"             TEXT    NOT NULL,
     "icon_value"            TEXT    NOT NULL,
-    "allow_polymorphic"     BOOLEAN NOT NULL         DEFAULT FALSE,
     "cardinality_default"   TEXT    NOT NULL CHECK (cardinality_default IN
                                                     ('ONE_TO_ONE', 'ONE_TO_MANY', 'MANY_TO_ONE', 'MANY_TO_MANY')),
     "protected"             BOOLEAN NOT NULL         DEFAULT FALSE,
@@ -138,35 +161,14 @@ CREATE TABLE IF NOT EXISTS public.relationship_target_rules
 (
     "id"                         UUID PRIMARY KEY         DEFAULT uuid_generate_v4(),
     "relationship_definition_id" UUID NOT NULL REFERENCES public.relationship_definitions (id) ON DELETE CASCADE,
-    "target_entity_type_id"      UUID REFERENCES public.entity_types (id) ON DELETE CASCADE,
-    "semantic_type_constraint"   TEXT,
+    "target_entity_type_id"      UUID NOT NULL REFERENCES public.entity_types (id) ON DELETE CASCADE,
     "cardinality_override"       TEXT CHECK (cardinality_override IN
                                              ('ONE_TO_ONE', 'ONE_TO_MANY', 'MANY_TO_ONE', 'MANY_TO_MANY')),
     "inverse_name"               TEXT NOT NULL,
     "created_at"                 TIMESTAMP WITH TIME ZONE DEFAULT now(),
     "updated_at"                 TIMESTAMP WITH TIME ZONE DEFAULT now(),
     "created_by"                 UUID,
-    "updated_by"                 UUID,
-
-    CONSTRAINT chk_target_or_semantic CHECK (
-        target_entity_type_id IS NOT NULL OR semantic_type_constraint IS NOT NULL
-        )
-);
-
--- =====================================================
--- RELATIONSHIP DEFINITION EXCLUSIONS TABLE
--- =====================================================
-CREATE TABLE IF NOT EXISTS public.relationship_definition_exclusions
-(
-    "id"                         UUID PRIMARY KEY         DEFAULT uuid_generate_v4(),
-    "relationship_definition_id" UUID NOT NULL REFERENCES public.relationship_definitions (id) ON DELETE CASCADE,
-    "entity_type_id"             UUID NOT NULL REFERENCES public.entity_types (id) ON DELETE CASCADE,
-    "created_at"                 TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    "updated_at"                 TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    "created_by"                 UUID REFERENCES users (id) ON DELETE SET NULL,
-    "updated_by"                 UUID REFERENCES users (id) ON DELETE SET NULL,
-
-    CONSTRAINT uq_exclusion_def_type UNIQUE (relationship_definition_id, entity_type_id)
+    "updated_by"                 UUID
 );
 
 -- =====================================================
@@ -234,6 +236,21 @@ CREATE TABLE IF NOT EXISTS public.entity_type_semantic_metadata
     -- (1) new entity types get new UUIDs, (2) attribute/relationship removal hard-deletes metadata,
     -- (3) soft-delete only occurs on entity type deletion, and (4) restore is explicitly unimplemented.
     UNIQUE (entity_type_id, target_type, target_id)
+);
+
+-- =====================================================
+-- ENTITY TYPE SEQUENCES TABLE
+-- =====================================================
+-- Stores monotonically increasing counters for ID-type attributes.
+-- Each row tracks the current sequence value for one (entity_type, attribute) pair.
+-- Counter only increments — never decremented on soft-delete — so IDs are never reused.
+CREATE TABLE IF NOT EXISTS public.entity_type_sequences
+(
+    "entity_type_id" UUID   NOT NULL REFERENCES entity_types (id) ON DELETE CASCADE,
+    "attribute_id"   UUID   NOT NULL,
+    "current_value"  BIGINT NOT NULL DEFAULT 0,
+
+    PRIMARY KEY (entity_type_id, attribute_id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_entity_semantic_metadata_workspace

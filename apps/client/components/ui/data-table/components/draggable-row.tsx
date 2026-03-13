@@ -26,6 +26,8 @@ interface DraggableRowProps<TData> {
   isSelectionEnabled: boolean;
   focusedCell?: { rowId: string; columnId: string } | null;
   alwaysShowActionHandles?: boolean;
+  /** Render an empty trailing td to match the endOfHeaderContent th */
+  hasEndOfHeaderContent?: boolean;
 }
 
 function DraggableRowComponent<TData>({
@@ -40,6 +42,7 @@ function DraggableRowComponent<TData>({
   enableInlineEdit,
   focusedCell,
   alwaysShowActionHandles = false,
+  hasEndOfHeaderContent = false,
 }: DraggableRowProps<TData>) {
   const isMounted = useDataTableStore<TData, boolean>((state) => state.isMounted);
 
@@ -74,7 +77,7 @@ function DraggableRowComponent<TData>({
       style={style}
       data-state={row.getIsSelected() ? 'selected' : undefined}
       className={cn(
-        isDragging && 'opacity-50',
+        isDragging && 'opacity-0',
         onRowClick && !disabled && 'cursor-pointer',
         disabled && 'pointer-events-none opacity-40',
       )}
@@ -90,7 +93,7 @@ function DraggableRowComponent<TData>({
             <TableCell
               key={cell.id}
               className={cn(
-                'flex items-center gap-2 border-l border-l-accent/40 first:border-l-transparent',
+                'border-l border-l-accent/40 first:border-l-transparent',
                 isVisible
                   ? 'opacity-100'
                   : 'opacity-0 transition-opacity duration-300 group-hover:opacity-100',
@@ -100,27 +103,29 @@ function DraggableRowComponent<TData>({
                 maxWidth: `${cell.column.getSize()}px`,
               }}
             >
-              {enableDragDrop && isMounted && (
-                <button
-                  className={cn(
-                    'cursor-grab text-muted-foreground transition-colors hover:text-foreground active:cursor-grabbing',
-                    isDragDisabled && 'cursor-not-allowed opacity-30',
-                  )}
-                  {...(isMounted && !isDragDisabled ? attributes : {})}
-                  {...(isMounted && !isDragDisabled ? listeners : {})}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <GripVertical className="h-4 w-4" />
-                </button>
-              )}
-              {isSelectionEnabled && (
-                <Checkbox
-                  checked={row.getIsSelected()}
-                  onCheckedChange={(value) => row.toggleSelected(!!value)}
-                  aria-label="Select row"
-                  onClick={(e) => e.stopPropagation()}
-                />
-              )}
+              <div className="flex items-center gap-2">
+                {enableDragDrop && isMounted && (
+                  <button
+                    className={cn(
+                      'cursor-grab text-muted-foreground transition-colors hover:text-foreground active:cursor-grabbing',
+                      isDragDisabled && 'cursor-not-allowed opacity-30',
+                    )}
+                    {...(isMounted && !isDragDisabled ? attributes : {})}
+                    {...(isMounted && !isDragDisabled ? listeners : {})}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <GripVertical className="h-4 w-4" />
+                  </button>
+                )}
+                {isSelectionEnabled && (
+                  <Checkbox
+                    checked={row.getIsSelected()}
+                    onCheckedChange={(value) => row.toggleSelected(!!value)}
+                    aria-label="Select row"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                )}
+              </div>
             </TableCell>
           );
         }
@@ -207,6 +212,8 @@ function DraggableRowComponent<TData>({
           <RowActionsMenu row={row.original} config={rowActions} />
         </TableCell>
       )}
+      {/* Empty cell to match endOfHeaderContent column */}
+      {hasEndOfHeaderContent && <TableCell />}
     </TableRow>
   );
 }
@@ -220,6 +227,7 @@ export const DraggableRow = React.memo(DraggableRowComponent, (prevProps, nextPr
     prevProps.enableDragDrop === nextProps.enableDragDrop &&
     prevProps.isSelectionEnabled === nextProps.isSelectionEnabled &&
     prevProps.focusedCell?.rowId === nextProps.focusedCell?.rowId &&
-    prevProps.focusedCell?.columnId === nextProps.focusedCell?.columnId
+    prevProps.focusedCell?.columnId === nextProps.focusedCell?.columnId &&
+    prevProps.hasEndOfHeaderContent === nextProps.hasEndOfHeaderContent
   );
 }) as typeof DraggableRowComponent;

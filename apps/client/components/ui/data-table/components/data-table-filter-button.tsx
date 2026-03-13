@@ -11,7 +11,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@riven/ui/select';
 import { cn } from '@riven/utils';
 import { X } from 'lucide-react';
 import { useEffect } from 'react';

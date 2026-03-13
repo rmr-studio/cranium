@@ -38,7 +38,7 @@ function WorkspaceIcon() {
   const letter = workspace?.name?.charAt(0)?.toUpperCase() ?? 'W';
 
   return (
-    <div className="flex size-8 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground">
+    <div className="flex size-8 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground dark:bg-muted-foreground">
       {letter}
     </div>
   );
@@ -51,9 +51,9 @@ export function IconRail() {
 
   return (
     <TooltipProvider delayDuration={0}>
-      <aside className="flex h-full w-(--icon-rail-width) shrink-0 flex-col items-center bg-foreground">
+      <aside className="flex h-full w-(--icon-rail-width) shrink-0 flex-col items-center bg-foreground dark:bg-secondary">
         {/* Top section — matches header height */}
-        <div className="flex h-(--header-height) w-full shrink-0 flex-col items-center justify-center gap-1 border-b border-background/15 [--logo-primary:var(--background)]">
+        <div className="flex h-(--header-height) w-full shrink-0 flex-col items-center justify-center gap-1 border-b border-background/15 [--logo-primary:var(--background)] dark:[--logo-primary:var(--foreground)]">
           <Logo size={24} />
         </div>
 
@@ -89,8 +89,9 @@ export function IconRail() {
                   aria-label={item.label}
                   aria-pressed={selectedPanel === item.id}
                   className={cn(
-                    'flex size-10 items-center justify-center rounded-md text-background/60 transition-colors hover:bg-background/10 hover:text-background',
-                    selectedPanel ===item.id && 'bg-background/15 text-background',
+                    'flex size-10 items-center justify-center rounded-md text-background/60 transition-colors hover:bg-background/10 hover:text-background dark:text-foreground/50',
+                    selectedPanel === item.id &&
+                      'dark:bg-foreground/20 bg-background/15 text-background dark:text-foreground',
                   )}
                 >
                   {item.icon}
@@ -102,10 +103,12 @@ export function IconRail() {
         </nav>
 
         {/* Keyboard shortcut hint */}
-        <div className="mb-3 mt-auto flex flex-col items-center">
+        <div className="mt-auto mb-3 flex flex-col items-center">
           <KbdGroup className="scale-75 text-background/40">
             <Kbd className="h-4 min-w-4 bg-background/10 text-[10px] text-background/40">
-              {typeof navigator !== 'undefined' && /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl'}
+              {typeof navigator !== 'undefined' && /Mac|iPod|iPhone|iPad/.test(navigator.platform)
+                ? '⌘'
+                : 'Ctrl'}
             </Kbd>
             <Kbd className="h-4 min-w-4 bg-background/10 text-[10px] text-background/40">B</Kbd>
           </KbdGroup>

@@ -39,9 +39,9 @@ export function SubPanel() {
           animate={{ width: 'var(--sub-panel-width)', opacity: 1 }}
           exit={{ width: 0, opacity: 0 }}
           transition={{ duration: 0.2, ease: 'linear' }}
-          className="h-full shrink-0 overflow-hidden border-r border-foreground/15 bg-sidebar"
+          className="h-full shrink-0 overflow-hidden"
         >
-          <div className="flex h-full w-(--sub-panel-width) flex-col">
+          <div className="flex h-full w-(--sub-panel-width) flex-col rounded-r-xl border-r-4 border-r-primary bg-background dark:border-r-secondary">
             {/* Header */}
             <div className="flex min-h-(--header-height) shrink-0 items-center justify-between border-b px-4">
               <span className="text-sm font-semibold text-sidebar-foreground">

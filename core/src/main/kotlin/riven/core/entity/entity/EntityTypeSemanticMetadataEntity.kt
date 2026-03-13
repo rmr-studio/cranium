@@ -2,6 +2,7 @@ package riven.core.entity.entity
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
+import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.Type
 import riven.core.entity.util.AuditableSoftDeletableEntity
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
@@ -22,6 +23,7 @@ import java.util.*
         UniqueConstraint(columnNames = ["entity_type_id", "target_type", "target_id"])
     ]
 )
+@SQLRestriction("deleted = false")
 data class EntityTypeSemanticMetadataEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

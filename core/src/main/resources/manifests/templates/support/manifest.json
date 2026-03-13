@@ -1,0 +1,30 @@
+{
+  "manifestVersion": "1.0",
+  "key": "support",
+  "name": "Support",
+  "description": "Customer support ticket management for tracking issues, questions, and feedback through resolution. Depends on the CRM template for the customer entity type.",
+  "entityTypes": [
+    {
+      "$ref": "models/support-ticket"
+    }
+  ],
+  "relationships": [
+    {
+      "key": "customer-support-tickets",
+      "sourceEntityTypeKey": "customer",
+      "name": "Support Tickets",
+      "protected": false,
+      "targetRules": [
+        {
+          "targetEntityTypeKey": "support-ticket",
+          "cardinalityOverride": "ONE_TO_MANY",
+          "inverseName": "Customer"
+        }
+      ],
+      "semantics": {
+        "definition": "A customer submits support tickets when they encounter issues, have questions, or want to request features.",
+        "tags": ["support", "customer-service"]
+      }
+    }
+  ]
+}

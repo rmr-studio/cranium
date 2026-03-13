@@ -1,6 +1,7 @@
 package riven.core.entity.entity
 
 import jakarta.persistence.*
+import org.hibernate.annotations.SQLRestriction
 import riven.core.entity.util.AuditableSoftDeletableEntity
 import riven.core.enums.integration.SourceType
 import riven.core.models.entity.EntityRelationship
@@ -18,6 +19,7 @@ import java.util.*
         Index(name = "idx_entity_relationships_definition", columnList = "relationship_definition_id"),
     ]
 )
+@SQLRestriction("deleted = false")
 data class EntityRelationshipEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

@@ -1,17 +1,20 @@
 package riven.core.entity.user
 
 import jakarta.persistence.*
+import org.hibernate.annotations.SQLRestriction
 import riven.core.entity.util.AuditableSoftDeletableEntity
 import riven.core.entity.workspace.WorkspaceEntity
 import riven.core.models.user.User
 import riven.core.models.user.UserDisplay
 import riven.core.models.workspace.WorkspaceMember
+import java.time.ZonedDateTime
 import java.util.*
 
 @Entity
 @Table(
     name = "users",
 )
+@SQLRestriction("deleted = false")
 data class UserEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -35,6 +38,9 @@ data class UserEntity(
     @JoinColumn(name = "default_workspace_id", referencedColumnName = "id", insertable = true, updatable = true)
     var defaultWorkspace: WorkspaceEntity? = null,
 
+    @Column(name = "onboarding_completed_at", nullable = true)
+    var onboardingCompletedAt: ZonedDateTime? = null,
+
     ) : AuditableSoftDeletableEntity() {
 
 
@@ -51,6 +57,7 @@ data class UserEntity(
                 avatarUrl = this.avatarUrl,
                 memberships = memberships,
                 defaultWorkspace = this.defaultWorkspace?.toModel(),
+                onboardingCompletedAt = this.onboardingCompletedAt,
             )
         }
     }

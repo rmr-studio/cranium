@@ -34,6 +34,13 @@ A dedicated identity resolution service needs to implemented that should be used
 - Learns from confirmed/rejected matches over time
 - Handles merge and unmerge when users correct mistakes
 
+This could also be combined with `Identifier` semantic categories for entity attributes
+Every time a new attribute is added, it will compare with other Identifer marked attributes that have a fuzzy similarity to the value provided.
+	- This should present a user with a notification with the potential pairing
+	- Will need to move entity attributes into its own database table
+
+During querying. We would need to perform a join on the `EntityAttributeEntity` with its `attributeId` with its associated `EntityTypeSemanticMetadataEntity`
+on its `target_id` in order to retrieve all attribute values and their associated `classification`
 ### Success Criteria
 
 _How do we know this feature is working correctly?_

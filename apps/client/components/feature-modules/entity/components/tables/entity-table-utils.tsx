@@ -9,14 +9,15 @@ import { ColumnEditConfig } from '@/components/ui/data-table/data-table.types';
 import { IconCell } from '@/components/ui/icon/icon-cell';
 import { DataFormat, DataType, SchemaType, SchemaUUID } from '@/lib/types/common';
 import {
+  ColumnConfiguration,
   Entity,
   EntityAttribute,
   EntityLink,
   EntityRelationshipCardinality,
   EntityType,
-  EntityTypeAttributeColumn,
   isRelationshipPayload,
   RelationshipDefinition,
+  SystemRelationshipType,
 } from '@/lib/types/entity';
 import { iconFormSchema } from '@/lib/util/form/common/icon.form';
 import { buildFieldSchema } from '@/lib/util/form/entity-instance-validation.util';
@@ -382,7 +383,7 @@ export function generateColumnsFromEntityType(
     columns.push({
       accessorKey: attributeId,
       size:
-        entityType.columns?.find((col) => col.key === attributeId)?.width ?? DEFAULT_COLUMN_WIDTH,
+        entityType.columnConfiguration?.overrides[attributeId]?.width ?? DEFAULT_COLUMN_WIDTH,
       header: (_) => {
         const { icon, label } = schema;
         const { type, colour } = icon;
@@ -410,8 +411,16 @@ export function generateColumnsFromEntityType(
     });
   });
 
-  // Generate relationship columns
-  entityType.relationships?.forEach((relationship) => {
+  // Generate relationship columns (exclude system relationships like Connected Entities)
+  entityType.relationships
+    ?.filter((rel) => rel.systemType !== SystemRelationshipType.ConnectedEntities)
+    .forEach((relationship) => {
+    // Determine if this is a target-side relationship (defined on another entity type)
+    const isTargetSide = relationship.sourceEntityTypeId !== entityType.id;
+    const headerName = isTargetSide
+      ? relationship.targetRules?.find((r) => r.targetEntityTypeId === entityType.id)?.inverseName || relationship.name
+      : relationship.name;
+
     // Create edit config if editing is enabled
     const editConfig: ColumnEditConfig<EntityRow, EntityLink[], EntityLink[]> | undefined =
       options?.enableEditing
@@ -432,7 +441,7 @@ export function generateColumnsFromEntityType(
                 mode: 'onBlur',
               });
             },
-            render: createRelationshipRenderer<EntityRow>(relationship),
+            render: createRelationshipRenderer<EntityRow>(relationship, isTargetSide),
             parseValue: (val: EntityLink[]) => val,
             formatValue: (val: EntityLink[]) => val,
             isEqual: createRelationshipEqualityFn(relationship),
@@ -442,14 +451,14 @@ export function generateColumnsFromEntityType(
     columns.push({
       accessorKey: relationship.id,
       size:
-        entityType.columns?.find((col) => col.key === relationship.id)?.width ??
+        entityType.columnConfiguration?.overrides[relationship.id]?.width ??
         DEFAULT_COLUMN_WIDTH,
       header: () => {
-        const { icon, name } = relationship;
+        const { icon } = relationship;
         return (
           <div className="flex items-center">
             <IconCell readonly type={icon.type} colour={icon.colour} className="mr-2 size-4" />
-            <span>{name}</span>
+            <span>{headerName}</span>
           </div>
         );
       },
@@ -503,26 +512,31 @@ export function generateColumnsFromEntityType(
 }
 
 /**
- * Apply column ordering based on entity type columns array
+ * Apply column ordering and visibility based on columnConfiguration
  */
 export function applyColumnOrdering(
   columns: AccessorKeyColumnDef<EntityRow>[],
-  columnsOrder: EntityTypeAttributeColumn[],
+  columnConfiguration?: ColumnConfiguration,
 ): AccessorKeyColumnDef<EntityRow>[] {
+  if (!columnConfiguration) return columns;
+
+  const { order, overrides } = columnConfiguration;
   const orderedColumns: AccessorKeyColumnDef<EntityRow>[] = [];
   const columnMap = new Map(columns.map((col) => [col['accessorKey'], col]));
 
-  // Add columns in order array sequence
-  columnsOrder.forEach((orderItem) => {
-    const column = columnMap.get(orderItem.key);
+  // Add columns in order array sequence, filtering out hidden columns
+  order.forEach((key) => {
+    if (overrides[key]?.visible === false) return;
+    const column = columnMap.get(key);
     if (column) {
       orderedColumns.push(column);
-      columnMap.delete(orderItem.key);
+      columnMap.delete(key);
     }
   });
 
-  // Add remaining columns (not in order array)
-  columnMap.forEach((column) => {
+  // Add remaining columns (not in order array), filtering out hidden columns
+  columnMap.forEach((column, key) => {
+    if (overrides[key]?.visible === false) return;
     orderedColumns.push(column);
   });
 

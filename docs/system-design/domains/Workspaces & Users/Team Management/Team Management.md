@@ -56,3 +56,4 @@ WorkspaceInviteService enforces invitation business rules and updates invitation
 | Date | Change | Feature/ADR |
 | ---- | ------ | ----------- |
 | 2026-02-08 | Subdomain overview created | [[03-01-PLAN]] |
+| 2026-03-12 | Added `createWorkspaceInvitationInternal` method to [[WorkspaceInviteService]] — bypasses `@PreAuthorize` for system-initiated invitations during onboarding | [[Onboarding]] |

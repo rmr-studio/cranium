@@ -37,6 +37,7 @@ CRUD service for entity instances with validation, relationship hydration, and u
 - [[EntityTypeRelationshipService]] — Loads relationship definitions for entity type during save operations
 - [[EntityValidationService]] — Schema validation
 - [[EntityTypeAttributeService]] — Unique constraint handling
+- [[EntityAttributeService]] — Normalized attribute persistence and batch-loading
 - `AuthTokenService` — JWT user extraction
 - `ActivityService` — Audit logging
 
@@ -54,10 +55,11 @@ CRUD service for entity instances with validation, relationship hydration, and u
 2. Split payload into attributes vs. relationships
 3. Validate attribute payload against type schema via [[EntityValidationService]]
 4. Save entity to database
-5. Check and save unique constraints via [[EntityTypeAttributeService]]
-6. Save relationships via `saveRelationshipsPerDefinition()`: extract `relationshipPayload: Map<UUID, List<UUID>>` (keyed by definition ID → target entity IDs); load definitions via [[EntityTypeRelationshipService]]; for each definition in the payload, delegate to [[EntityRelationshipService]] with the resolved definition
-7. Log activity with CREATE or UPDATE operation
-8. Return saved entity (`impactedEntities` is always `null` — bidirectional sync removed)
+5. Save attributes to normalized `entity_attributes` table via [[EntityAttributeService]] (delete-all + re-insert)
+6. Check and save unique constraints via [[EntityTypeAttributeService]]
+7. Save relationships via `saveRelationshipsPerDefinition()`: extract `relationshipPayload: Map<UUID, List<UUID>>` (keyed by definition ID → target entity IDs); load definitions via [[EntityTypeRelationshipService]]; for each definition in the payload, delegate to [[EntityRelationshipService]] with the resolved definition
+8. Log activity with CREATE or UPDATE operation
+9. Return saved entity (`impactedEntities` is always `null` — bidirectional sync removed)
 
 **Unique constraint enforcement:**
 
@@ -69,7 +71,7 @@ CRUD service for entity instances with validation, relationship hydration, and u
 **Delete entities:**
 
 1. Find all entities that link TO the deleted entities (impacted sources)
-2. Delete entity rows, unique values, and relationships
+2. Delete entity rows, unique values, attributes (via [[EntityAttributeService]]), and relationships
 3. Log activity for each deleted entity
 4. Return impacted entities with updated relationship data
 
@@ -79,6 +81,12 @@ CRUD service for entity instances with validation, relationship hydration, and u
 - Returns `Map<UUID, List<EntityLink>>` keyed by relationship definition ID (not field ID)
 - Includes inverse-visible links (relationships where this entity is the target)
 - Entity model includes `relationships` property for API responses
+
+**Attribute hydration:**
+
+- All retrieval methods batch-load attributes via `entityAttributeService.getAttributesForEntities()`
+- Attributes passed to `EntityEntity.toModel(attributes = ...)` to construct the payload
+- `getWorkspaceEntities()` also loads attributes (unlike relationships, which are skipped for performance)
 
 ---
 
@@ -119,6 +127,7 @@ Retrieves all entities in workspace (across all types). Relationships NOT hydrat
 - **Impacted entities:** `SaveEntityResponse.impactedEntities` is always `null` — bidirectional sync was removed. `DeleteEntityResponse` still includes impacted entities (entities that were linking to the deleted ones).
 - **Validation vs. exceptions:** Schema validation errors returned in SaveEntityResponse.errors (not thrown), but unique constraint violations throw exceptions
 - **Entity type immutability:** Cannot change entity's type after creation (validated in saveEntity)
+- **Attribute persistence:** Attributes are saved to the normalized `entity_attributes` table separately from the entity row. The `EntityEntity` no longer has a `payload` column.
 
 ---
 
@@ -128,6 +137,7 @@ Retrieves all entities in workspace (across all types). Relationships NOT hydrat
 - [[EntityTypeRelationshipService]] — Provides relationship definitions during save
 - [[EntityValidationService]] — Schema validation
 - [[EntityTypeAttributeService]] — Unique constraint operations
+- [[EntityAttributeService]] — Normalized attribute CRUD
 - [[Entity Management]] — Parent subdomain
 
 ---
@@ -140,3 +150,12 @@ Retrieves all entities in workspace (across all types). Relationships NOT hydrat
 - Relationship save flow now uses `saveRelationshipsPerDefinition()`: payload keyed by definition ID (not field ID), definitions resolved via `EntityTypeRelationshipService`, then delegated per-definition to `EntityRelationshipService`.
 - `findRelatedEntities` hydration map is now keyed by definition ID; inverse-visible links included.
 - `SaveEntityResponse.impactedEntities` always `null` — bidirectional sync removed.
+
+### 2026-03-09 — Entity attributes normalization
+
+- Added `EntityAttributeService` as a constructor dependency for attribute persistence and batch-loading.
+- Save flow now persists attributes to normalized `entity_attributes` table (delete-all + re-insert) after entity row save.
+- All retrieval methods (`getEntity`, `getEntitiesByTypeId`, `getEntitiesByTypeIds`, `getWorkspaceEntities`) batch-load attributes via `entityAttributeService.getAttributesForEntities()`.
+- Delete flow soft-deletes attributes via `entityAttributeService.softDeleteByEntityIds()`.
+- `EntityEntity.toModel()` now accepts optional `attributes` parameter alongside `relationships`.
+- `EntityEntity.payload` JSONB column removed — attribute data now lives in `entity_attributes` table.

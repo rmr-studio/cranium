@@ -1,0 +1,30 @@
+{
+  "manifestVersion": "1.0",
+  "key": "billing",
+  "name": "Billing",
+  "description": "Invoice management for tracking billing documents, payment status, and revenue across the invoice lifecycle.",
+  "entityTypes": [
+    {
+      "$ref": "models/invoice"
+    }
+  ],
+  "relationships": [
+    {
+      "key": "customer-invoices",
+      "sourceEntityTypeKey": "customer",
+      "name": "Invoices",
+      "protected": false,
+      "targetRules": [
+        {
+          "targetEntityTypeKey": "invoice",
+          "cardinalityOverride": "ONE_TO_MANY",
+          "inverseName": "Customer"
+        }
+      ],
+      "semantics": {
+        "definition": "A customer receives invoices for their subscription charges and any additional services.",
+        "tags": ["billing", "finance"]
+      }
+    }
+  ]
+}

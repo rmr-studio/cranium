@@ -2,6 +2,7 @@ package riven.core.entity.block
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
+import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.Type
 import riven.core.entity.util.AuditableSoftDeletableEntity
 import riven.core.models.block.Block
@@ -12,6 +13,7 @@ import java.util.*
 @Table(
     name = "blocks"
 )
+@SQLRestriction("deleted = false")
 data class BlockEntity(
 
     @Id

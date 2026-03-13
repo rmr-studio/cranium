@@ -1,6 +1,8 @@
 package riven.core.entity.catalog
 
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
+import org.hibernate.annotations.Type
 import org.hibernate.annotations.UpdateTimestamp
 import riven.core.enums.catalog.ManifestType
 import riven.core.models.catalog.*
@@ -52,6 +54,10 @@ data class ManifestCatalogEntity(
     @Column(name = "content_hash", length = 64)
     var contentHash: String? = null,
 
+    @Type(JsonBinaryType::class)
+    @Column(name = "template_keys", columnDefinition = "jsonb")
+    val templateKeys: List<String>? = null,
+
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: ZonedDateTime = ZonedDateTime.now(),
 
@@ -83,5 +89,13 @@ data class ManifestCatalogEntity(
         entityTypes = entityTypes,
         relationships = relationships,
         fieldMappings = fieldMappings
+    )
+
+    fun toBundleDetail() = BundleDetail(
+        id = id!!,
+        key = key,
+        name = name,
+        description = description,
+        templateKeys = templateKeys ?: emptyList()
     )
 }

@@ -17,6 +17,8 @@ CREATE TABLE IF NOT EXISTS "users"
     "updated_by"           UUID,
 
     "deleted"              BOOLEAN          NOT NULL DEFAULT FALSE,
-    "deleted_at"           TIMESTAMP WITH TIME ZONE  DEFAULT NULL
+    "deleted_at"           TIMESTAMP WITH TIME ZONE  DEFAULT NULL,
+
+    "onboarding_completed_at" TIMESTAMP WITH TIME ZONE DEFAULT NULL
 );
 

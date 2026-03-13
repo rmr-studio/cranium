@@ -22,6 +22,7 @@ Scans classpath directories for manifest JSON files, validates them against JSON
 - Scan classpath for model manifests (`models/*.json`)
 - Scan classpath for template manifests (`templates/*/manifest.json`)
 - Scan classpath for integration manifests (`integrations/*/manifest.json`)
+- Scan classpath for bundle manifests (`bundles/*/manifest.json`)
 - Validate each manifest against its JSON Schema before returning
 - Skip invalid or unparseable manifests with WARN-level logging
 - Derive manifest keys from filename (models) or directory name (templates, integrations)
@@ -46,6 +47,7 @@ Scans classpath directories for manifest JSON files, validates them against JSON
 **Key derivation:**
 - Models: filename without extension (e.g., `contact.json` -> `contact`)
 - Templates/Integrations: parent directory name (e.g., `templates/crm/manifest.json` -> `crm`)
+- Bundles: parent directory name (e.g., `bundles/saas-starter/manifest.json` -> `saas-starter`)
 
 **Schema validation:**
 Each manifest is validated against a JSON Schema using networknt's `JsonSchemaFactory` (V201909). Manifests that fail validation are skipped entirely — the pipeline continues with remaining manifests.
@@ -68,6 +70,10 @@ Scans `templates/*/manifest.json` from the classpath. Returns a map of template 
 ### `scanIntegrations(): Map<String, Map<String, Any>>`
 
 Scans `integrations/*/manifest.json` from the classpath. Returns a map of integration key to parsed manifest content.
+
+### `scanBundles(): List<ScannedManifest>`
+
+Scans `bundles/*/manifest.json` from the classpath. Validated against `bundle.schema.json`. Returns a list of scanned bundle manifests.
 
 ---
 

@@ -4,6 +4,7 @@ import { useMutation, useQueryClient, type UseMutationOptions } from '@tanstack/
 import { useRef } from 'react';
 import { toast } from 'sonner';
 import { EntityService } from '../../../service/entity.service';
+import { entityKeys } from '@/components/feature-modules/entity/hooks/query/entity-query-keys';
 
 export function useSaveEntityMutation(
   workspaceId: string,
@@ -47,7 +48,7 @@ export function useSaveEntityMutation(
 
         // Update the entity in the cache for its entity type
         queryClient.setQueryData<Entity[]>(
-          ['entities', workspaceId, entityTypeId],
+          entityKeys.entities.list(workspaceId, entityTypeId),
           (currentEntities) => {
             if (!currentEntities) return [savedEntity];
 
@@ -70,7 +71,7 @@ export function useSaveEntityMutation(
           Object.entries(response.impactedEntities).forEach(
             ([impactedTypeId, impactedEntities]) => {
               queryClient.setQueryData<Entity[]>(
-                ['entities', workspaceId, impactedTypeId],
+                entityKeys.entities.list(workspaceId, impactedTypeId),
                 (currentEntities) => {
                   if (!currentEntities) return impactedEntities;
 

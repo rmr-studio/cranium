@@ -1,5 +1,29 @@
 # Architecture Changelog
 
+## 2026-03-09 — Entity Attributes Normalization
+
+**Domains affected:** Entities
+
+**What changed:**
+
+- Extracted entity attribute storage from JSONB `payload` column on `entities` table into normalized `entity_attributes` table (one row per attribute per entity)
+- `EntityEntity.payload` JSONB column removed; `EntityEntity.toModel()` now accepts optional `attributes` parameter
+- `AttributeSqlGenerator` completely rewritten — JSONB operators (`@>`, `->`, `->>`) replaced with EXISTS/NOT EXISTS subqueries against `entity_attributes`. ObjectMapper dependency removed.
+- `EntityService` save flow now persists attributes to `entity_attributes` via `EntityAttributeService` (delete-all + re-insert). All retrieval methods batch-load attributes.
+- `EntityService` delete flow soft-deletes attributes via `EntityAttributeService.softDeleteByEntityIds()`
+- `EntityQueryService` now hydrates query results with attributes from normalized table
+- `EntityValidationService.validateEntity()` and `validateExistingEntitiesAgainstNewSchema()` accept optional attributes parameters (read from normalized table instead of entity payload)
+- `EntityTypeAttributeService` loads attributes from normalized table during breaking change validation
+- Cross-domain consumers (`BlockReferenceHydrationService`, `EntityContextService`) now inject `EntityAttributeService` for attribute loading
+
+**New cross-domain dependencies:** No (both cross-domain consumers already depended on Entities domain)
+
+**New components introduced:**
+
+- `EntityAttributeService` — Service for normalized attribute CRUD with delete-all + re-insert pattern
+- `EntityAttributeRepository` — JPA repository with derived queries, native hard-delete, and native soft-delete
+- `EntityAttributeEntity` — JPA entity mapping to `entity_attributes` table with JSONB value column and soft-delete support
+
 ## 2026-03-01 — Unified Relationship CRUD (Connection → Relationship refactor)
 
 **Domains affected:** Entities

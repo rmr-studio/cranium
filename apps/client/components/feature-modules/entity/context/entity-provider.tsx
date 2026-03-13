@@ -36,13 +36,15 @@ export const EntityDraftProvider = ({
   // Build dynamic Zod schema from entity type
   const schema = useMemo(
     () => buildZodSchemaFromEntityType(entityType),
-    [entityType.key, entityType.schema, entityType.relationships],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: version increments when schema changes
+    [entityType.id, entityType.version],
   );
 
   // Build default values from entity type (includes attribute defaults and relationship arrays)
   const defaultValues = useMemo(
     () => buildDefaultValuesFromEntityType(entityType),
-    [entityType.key, entityType.schema, entityType.relationships],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: version increments when schema changes
+    [entityType.id, entityType.version],
   );
 
   // Create form instance with dynamic schema

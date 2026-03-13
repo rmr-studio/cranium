@@ -16,8 +16,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { EntityRelationshipCardinality, EntityType, SemanticGroup } from '@/lib/types/entity';
+} from '@riven/ui/select';
+import { EntityRelationshipCardinality, EntityType } from '@/lib/types/entity';
 import { cn } from '@/lib/util/utils';
 import { Button } from '@riven/ui/button';
 import {
@@ -35,17 +35,9 @@ import { useFormContext } from 'react-hook-form';
 
 // ---- Human-friendly labels ----
 
-const SEMANTIC_GROUP_LABELS: Record<SemanticGroup, string> = {
-  [SemanticGroup.Customer]: 'Customer',
-  [SemanticGroup.Product]: 'Product',
-  [SemanticGroup.Transaction]: 'Transaction',
-  [SemanticGroup.Communication]: 'Communication',
-  [SemanticGroup.Support]: 'Support',
-  [SemanticGroup.Financial]: 'Financial',
-  [SemanticGroup.Operational]: 'Operational',
-  [SemanticGroup.Custom]: 'Custom',
-  [SemanticGroup.Uncategorized]: 'Uncategorized',
-};
+// TEMPORARILY DISABLED: Semantic group labels removed while semantic group
+// target rules are disabled. See target-rule-list.tsx for full context.
+// Restore SEMANTIC_GROUP_LABELS and SemanticGroup import when re-enabling.
 
 const CARDINALITY_LABELS: Record<EntityRelationshipCardinality, string> = {
   [EntityRelationshipCardinality.OneToOne]: 'One to One',
@@ -189,7 +181,10 @@ export const TargetRuleItem: FC<TargetRuleItemProps> = ({
   isExistingRule,
 }) => {
   const form = useFormContext<RelationshipFormValues>();
-  const ruleType = form.watch(`targetRules.${index}.ruleType`);
+
+  // TEMPORARILY DISABLED: Semantic group target rules are not available.
+  // All rules are currently 'entity-type' only. When re-enabling, restore
+  // the ruleType watch and the conditional rendering for 'semantic-group'.
 
   // Keys already used in OTHER rules (to prevent duplicates)
   const allRules = form.watch('targetRules');
@@ -200,61 +195,28 @@ export const TargetRuleItem: FC<TargetRuleItemProps> = ({
 
   return (
     <div className="flex items-center gap-2 rounded-lg border p-2">
-      {/* Selector - takes most of the width */}
+      {/* Entity type selector */}
       <div className="min-w-0 flex-1">
-        {ruleType === 'entity-type' ? (
-          <FormField
-            control={form.control}
-            name={`targetRules.${index}.targetEntityTypeKey`}
-            render={({ field, fieldState }) => (
-              <FormItem className="space-y-0">
-                <FormControl>
-                  <EntityTypeSingleSelect
-                    value={field.value}
-                    onChange={field.onChange}
-                    availableTypes={availableTypes}
-                    disabledKeys={usedKeys}
-                    currentEntityKey={currentEntityKey}
-                    disabled={isExistingRule}
-                    hasError={!!fieldState.error}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        ) : (
-          <FormField
-            control={form.control}
-            name={`targetRules.${index}.semanticTypeConstraint`}
-            render={({ field, fieldState }) => (
-              <FormItem className="space-y-0">
-                <FormControl>
-                  <Select
-                    value={field.value ?? ''}
-                    onValueChange={(val) =>
-                      field.onChange(val ? (val as SemanticGroup) : undefined)
-                    }
-                  >
-                    <SelectTrigger
-                      className={cn('w-full', fieldState.error && 'border-destructive')}
-                    >
-                      <SelectValue placeholder="Select semantic group..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.values(SemanticGroup).map((group) => (
-                        <SelectItem key={group} value={group}>
-                          {SEMANTIC_GROUP_LABELS[group]}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
+        <FormField
+          control={form.control}
+          name={`targetRules.${index}.targetEntityTypeKey`}
+          render={({ field, fieldState }) => (
+            <FormItem className="space-y-0">
+              <FormControl>
+                <EntityTypeSingleSelect
+                  value={field.value}
+                  onChange={field.onChange}
+                  availableTypes={availableTypes}
+                  disabledKeys={usedKeys}
+                  currentEntityKey={currentEntityKey}
+                  disabled={isExistingRule}
+                  hasError={!!fieldState.error}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
 
       {/* Overflow menu: rarely-used constraints */}

@@ -64,21 +64,21 @@ interface EntityUniqueValuesRepository : JpaRepository<EntityUniqueValueEntity, 
         fieldValue: String
     )
 
-    @Modifying(clearAutomatically = true)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(
         value = """
             UPDATE entities_unique_values
             SET deleted = true, deleted_at = CURRENT_TIMESTAMP
-            WHERE 
+            WHERE
                 workspace_id = :workspaceId
-                AND entity_id in :ids 
+                AND entity_id in :ids
                 AND deleted = false
         """,
         nativeQuery = true
     )
     fun deleteEntities(workspaceId: UUID, ids: Collection<UUID>): Int
 
-    @Modifying(clearAutomatically = true)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(
         value = """
             UPDATE entities_unique_values

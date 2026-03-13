@@ -1,3 +1,5 @@
+import { type ColumnConfiguration } from '../models/ColumnConfiguration';
+import { type ColumnOverride } from '../models/ColumnOverride';
 import { type Entity } from '../models/Entity';
 import { type EntityType } from '../models/EntityType';
 
@@ -23,6 +25,8 @@ import { SemanticMetadataTargetType } from '../models/SemanticMetadataTargetType
 import { SystemRelationshipType } from '../models/SystemRelationshipType';
 
 export type {
+  ColumnConfiguration,
+  ColumnOverride,
   DeleteDefinitionImpact,
   Entity,
   EntityAttribute,

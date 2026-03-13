@@ -415,6 +415,39 @@ class ManifestResolverServiceTest {
         }
 
         @Test
+        fun `cross-model reference in template resolves via modelIndex`() {
+            val templateJson = buildTemplateJson(
+                entityTypes = listOf(buildInlineEntityType("deal", "Deal")),
+                relationships = listOf(
+                    buildShorthandRelationship("customer-deals", "customer", "deal")
+                )
+            )
+            val modelIndex = mapOf("customer" to buildModelJson())
+            val scanned = ScannedManifest("saas", ManifestType.TEMPLATE, templateJson)
+
+            val result = service.resolveManifest(scanned, modelIndex)
+
+            assertFalse(result.stale)
+            assertEquals(1, result.relationships.size)
+        }
+
+        @Test
+        fun `cross-model reference not in modelIndex still returns stale`() {
+            val templateJson = buildTemplateJson(
+                entityTypes = listOf(buildInlineEntityType("deal", "Deal")),
+                relationships = listOf(
+                    buildShorthandRelationship("unknown-deals", "unknown", "deal")
+                )
+            )
+            val modelIndex = mapOf("customer" to buildModelJson())
+            val scanned = ScannedManifest("bad", ManifestType.TEMPLATE, templateJson)
+
+            val result = service.resolveManifest(scanned, modelIndex)
+
+            assertTrue(result.stale)
+        }
+
+        @Test
         fun `duplicate relationship keys detected`() {
             val templateJson = buildTemplateJson(
                 entityTypes = listOf(

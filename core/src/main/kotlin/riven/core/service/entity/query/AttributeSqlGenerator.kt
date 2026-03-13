@@ -6,55 +6,38 @@ import riven.core.enums.entity.query.FilterOperator
 import java.util.*
 
 /**
- * Generates parameterized SQL fragments for filtering entities by JSONB attribute values.
+ * Generates parameterized SQL fragments for filtering entities by attribute values
+ * stored in the `entity_attributes` table.
  *
- * This generator converts [FilterOperator] conditions into PostgreSQL SQL with appropriate
- * JSONB operators, optimized for GIN index usage where possible.
+ * All operators produce EXISTS or NOT EXISTS subqueries that correlate on
+ * `entity_id = {entityAlias}.id`, enabling indexed lookups via the composite
+ * `(attribute_id, type_id, value)` index.
  *
- * ## GIN Index Optimization
+ * ## Value Extraction
  *
- * The EQUALS operator uses the `@>` containment operator, which leverages GIN indexes
- * with `jsonb_path_ops`. This allows PostgreSQL to use index scans for exact value matches:
- * ```sql
- * e.payload @> '{"uuid-key": {"value": "some-value"}}'::jsonb
- * ```
- *
- * ## Key Existence Checks
- *
- * Operators like NOT_EQUALS and NOT_IN require checking that the attribute key exists
- * before comparing values. Without this check, entities missing the attribute would
- * incorrectly match (since NULL != value evaluates to NULL, which is falsy but
- * conceptually different from "attribute exists and differs").
- *
- * ## Type Coercion
- *
- * Numeric comparisons use regex-guarded casts to prevent PostgreSQL cast errors on
- * non-numeric values. Non-numeric values silently fail to match rather than throwing errors.
+ * The `value` column is JSONB. To extract the raw text representation for comparisons,
+ * we use `(a.value #>> '{}')` which extracts the top-level JSON value as text
+ * (unwrapping quotes from JSON strings, producing raw numbers for JSON numbers, etc.).
  *
  * ## Entity Alias Parameterization
  *
- * The [entityAlias] parameter on [generate] controls which table alias is used in SQL
- * references (e.g., `e.payload` vs `t_0.payload`). This supports nested relationship
- * filters where the target entity uses a different alias than the root entity. The default
- * value `"e"` preserves backward compatibility with existing callers.
- *
- * @property objectMapper Jackson ObjectMapper for JSON serialization in containment queries
+ * The [entityAlias] parameter controls which table alias is used for correlation
+ * (e.g., `e.id` vs `t_0.id`). This supports nested relationship filters where the
+ * target entity uses a different alias than the root entity.
  */
 @Component
 class AttributeSqlGenerator(
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
 ) {
 
     /**
      * Generates a SQL fragment for filtering by an attribute value.
      *
-     * @param attributeId UUID key of the attribute in the entity's JSONB payload
+     * @param attributeId UUID key of the attribute in the entity_attributes table
      * @param operator Comparison operator to apply
      * @param value Value to compare against (may be null for IS_NULL/IS_NOT_NULL)
      * @param paramGen Generator for unique parameter names
      * @param entityAlias Table alias for the entity being filtered. Defaults to `"e"` (root entity).
-     *   Pass a different alias (e.g., `"t_0"`) when generating SQL for nested relationship filters
-     *   that reference a target entity rather than the root entity.
      * @return SqlFragment with parameterized SQL and bound values
      */
     fun generate(
@@ -67,14 +50,7 @@ class AttributeSqlGenerator(
         FilterOperator.EQUALS -> generateEquals(attributeId, value, paramGen, entityAlias)
         FilterOperator.NOT_EQUALS -> generateNotEquals(attributeId, value, paramGen, entityAlias)
         FilterOperator.GREATER_THAN -> generateNumericComparison(attributeId, ">", value, paramGen, entityAlias)
-        FilterOperator.GREATER_THAN_OR_EQUALS -> generateNumericComparison(
-            attributeId,
-            ">=",
-            value,
-            paramGen,
-            entityAlias
-        )
-
+        FilterOperator.GREATER_THAN_OR_EQUALS -> generateNumericComparison(attributeId, ">=", value, paramGen, entityAlias)
         FilterOperator.LESS_THAN -> generateNumericComparison(attributeId, "<", value, paramGen, entityAlias)
         FilterOperator.LESS_THAN_OR_EQUALS -> generateNumericComparison(attributeId, "<=", value, paramGen, entityAlias)
         FilterOperator.IN -> generateIn(attributeId, value, paramGen, entityAlias)
@@ -87,79 +63,73 @@ class AttributeSqlGenerator(
         FilterOperator.ENDS_WITH -> generateEndsWith(attributeId, value, paramGen, entityAlias)
     }
 
+    // ------ Operator Implementations ------
+
     /**
-     * Generates GIN-optimized equality check using JSONB containment operator.
-     *
-     * Uses `@>` containment which can leverage GIN indexes with `jsonb_path_ops`.
+     * EXISTS subquery with JSONB value equality.
      * If value is null, delegates to IS_NULL semantics.
      */
     private fun generateEquals(
         attributeId: UUID,
         value: Any?,
         paramGen: ParameterNameGenerator,
-        entityAlias: String
+        entityAlias: String,
     ): SqlFragment {
-        if (value == null) {
-            return generateIsNull(attributeId, paramGen, entityAlias)
-        }
+        if (value == null) return generateIsNull(attributeId, paramGen, entityAlias)
 
-        val paramName = paramGen.next("eq")
-        val jsonObject = mapOf(attributeId.toString() to mapOf("value" to value))
-        val jsonValue = objectMapper.writeValueAsString(jsonObject)
+        val alias = paramGen.next("a")
+        val attrParam = paramGen.next("eq_attr")
+        val valParam = paramGen.next("eq_val")
 
         return SqlFragment(
-            sql = "${entityAlias}.payload @> :$paramName::jsonb",
-            parameters = mapOf(paramName to jsonValue)
-        )
-    }
-
-    /**
-     * Generates inequality check with key existence verification.
-     *
-     * Must check key exists first, otherwise entities missing the attribute
-     * would incorrectly match (NULL != 'value' is NULL/unknown, not true).
-     */
-    private fun generateNotEquals(
-        attributeId: UUID,
-        value: Any?,
-        paramGen: ParameterNameGenerator,
-        entityAlias: String
-    ): SqlFragment {
-        if (value == null) {
-            return generateIsNotNull(attributeId, paramGen, entityAlias)
-        }
-
-        val keyParam = paramGen.next("neq_key")
-        val valParam = paramGen.next("neq_val")
-        val attrKey = attributeId.toString()
-
-        return SqlFragment(
-            sql = "(jsonb_exists(${entityAlias}.payload, :$keyParam) AND (${entityAlias}.payload->:$keyParam->>'value') != :$valParam)",
+            sql = "EXISTS (SELECT 1 FROM entity_attributes $alias WHERE $alias.entity_id = $entityAlias.id AND $alias.attribute_id = :$attrParam AND $alias.value = :$valParam::jsonb AND $alias.deleted = false)",
             parameters = mapOf(
-                keyParam to attrKey,
-                valParam to value.toString()
+                attrParam to attributeId,
+                valParam to serializeJsonbValue(value),
             )
         )
     }
 
     /**
-     * Generates numeric comparison with regex-guarded cast.
-     *
-     * Uses a CASE expression to check if the value matches numeric format before
-     * casting. Non-numeric values silently fail to match rather than throwing errors.
+     * EXISTS with value inequality. Requires the attribute to exist (otherwise NOT EXISTS
+     * would incorrectly match entities missing the attribute).
+     */
+    private fun generateNotEquals(
+        attributeId: UUID,
+        value: Any?,
+        paramGen: ParameterNameGenerator,
+        entityAlias: String,
+    ): SqlFragment {
+        if (value == null) return generateIsNotNull(attributeId, paramGen, entityAlias)
+
+        val alias = paramGen.next("a")
+        val attrParam = paramGen.next("neq_attr")
+        val valParam = paramGen.next("neq_val")
+
+        return SqlFragment(
+            sql = "EXISTS (SELECT 1 FROM entity_attributes $alias WHERE $alias.entity_id = $entityAlias.id AND $alias.attribute_id = :$attrParam AND $alias.value != :$valParam::jsonb AND $alias.deleted = false)",
+            parameters = mapOf(
+                attrParam to attributeId,
+                valParam to serializeJsonbValue(value),
+            )
+        )
+    }
+
+    /**
+     * Numeric comparison with regex-guarded cast.
+     * Non-numeric values silently fail to match.
      */
     private fun generateNumericComparison(
         attributeId: UUID,
         sqlOperator: String,
         value: Any?,
         paramGen: ParameterNameGenerator,
-        entityAlias: String
+        entityAlias: String,
     ): SqlFragment {
-        val keyParam = paramGen.next("num_key")
+        val alias = paramGen.next("a")
+        val attrParam = paramGen.next("num_attr")
         val valParam = paramGen.next("num_val")
-        val attrKey = attributeId.toString()
 
-        // Convert value to numeric, defaulting to 0 if null (though null comparisons are unusual)
         val numericValue = when (value) {
             is Number -> value
             is String -> value.toBigDecimalOrNull() ?: 0
@@ -168,223 +138,203 @@ class AttributeSqlGenerator(
         }
 
         return SqlFragment(
-            sql = """CASE
-    WHEN (${entityAlias}.payload->:$keyParam->>'value') ~ '^-?[0-9]+(\.[0-9]+)?$'
-    THEN (${entityAlias}.payload->:$keyParam->>'value')::numeric $sqlOperator :$valParam
-    ELSE false
-END""",
+            sql = """EXISTS (SELECT 1 FROM entity_attributes $alias WHERE $alias.entity_id = $entityAlias.id AND $alias.attribute_id = :$attrParam AND $alias.deleted = false AND CASE WHEN ($alias.value #>> '{}') ~ '^-?[0-9]+(\.[0-9]+)?$' THEN ($alias.value #>> '{}')::numeric $sqlOperator :$valParam ELSE false END)""",
             parameters = mapOf(
-                keyParam to attrKey,
-                valParam to numericValue
+                attrParam to attributeId,
+                valParam to numericValue,
             )
         )
     }
 
     /**
-     * Generates case-insensitive substring containment check.
+     * Case-insensitive substring containment via ILIKE.
      */
     private fun generateContains(
         attributeId: UUID,
         value: Any?,
         paramGen: ParameterNameGenerator,
-        entityAlias: String
+        entityAlias: String,
     ): SqlFragment {
-        val keyParam = paramGen.next("contains_key")
+        val alias = paramGen.next("a")
+        val attrParam = paramGen.next("contains_attr")
         val valParam = paramGen.next("contains_val")
-        val attrKey = attributeId.toString()
 
         return SqlFragment(
-            sql = "(${entityAlias}.payload->:$keyParam->>'value') ILIKE :$valParam ESCAPE '\\'",
+            sql = "EXISTS (SELECT 1 FROM entity_attributes $alias WHERE $alias.entity_id = $entityAlias.id AND $alias.attribute_id = :$attrParam AND ($alias.value #>> '{}') ILIKE :$valParam ESCAPE '\\' AND $alias.deleted = false)",
             parameters = mapOf(
-                keyParam to attrKey,
-                valParam to "%${escapeLikePattern(value?.toString() ?: "")}%"
+                attrParam to attributeId,
+                valParam to "%${escapeLikePattern(value?.toString() ?: "")}%",
             )
         )
     }
 
     /**
-     * Generates case-insensitive substring non-containment check.
+     * Case-insensitive substring non-containment.
      */
     private fun generateNotContains(
         attributeId: UUID,
         value: Any?,
         paramGen: ParameterNameGenerator,
-        entityAlias: String
+        entityAlias: String,
     ): SqlFragment {
-        val keyParam = paramGen.next("ncontains_key")
-        val valParam = paramGen.next("ncontains_val")
-        val attrKey = attributeId.toString()
+        val alias = paramGen.next("a")
+        val attrParam = paramGen.next("nc_attr")
+        val valParam = paramGen.next("nc_val")
 
         return SqlFragment(
-            sql = "NOT ((${entityAlias}.payload->:$keyParam->>'value') ILIKE :$valParam ESCAPE '\\')",
+            sql = "NOT EXISTS (SELECT 1 FROM entity_attributes $alias WHERE $alias.entity_id = $entityAlias.id AND $alias.attribute_id = :$attrParam AND ($alias.value #>> '{}') ILIKE :$valParam ESCAPE '\\' AND $alias.deleted = false)",
             parameters = mapOf(
-                keyParam to attrKey,
-                valParam to "%${escapeLikePattern(value?.toString() ?: "")}%"
+                attrParam to attributeId,
+                valParam to "%${escapeLikePattern(value?.toString() ?: "")}%",
             )
         )
     }
 
     /**
-     * Generates case-insensitive prefix match.
+     * Case-insensitive prefix match.
      */
     private fun generateStartsWith(
         attributeId: UUID,
         value: Any?,
         paramGen: ParameterNameGenerator,
-        entityAlias: String
+        entityAlias: String,
     ): SqlFragment {
-        val keyParam = paramGen.next("starts_key")
-        val valParam = paramGen.next("starts_val")
-        val attrKey = attributeId.toString()
+        val alias = paramGen.next("a")
+        val attrParam = paramGen.next("sw_attr")
+        val valParam = paramGen.next("sw_val")
 
         return SqlFragment(
-            sql = "(${entityAlias}.payload->:$keyParam->>'value') ILIKE :$valParam ESCAPE '\\'",
+            sql = "EXISTS (SELECT 1 FROM entity_attributes $alias WHERE $alias.entity_id = $entityAlias.id AND $alias.attribute_id = :$attrParam AND ($alias.value #>> '{}') ILIKE :$valParam ESCAPE '\\' AND $alias.deleted = false)",
             parameters = mapOf(
-                keyParam to attrKey,
-                valParam to "${escapeLikePattern(value?.toString() ?: "")}%"
+                attrParam to attributeId,
+                valParam to "${escapeLikePattern(value?.toString() ?: "")}%",
             )
         )
     }
 
     /**
-     * Generates case-insensitive suffix match.
+     * Case-insensitive suffix match.
      */
     private fun generateEndsWith(
         attributeId: UUID,
         value: Any?,
         paramGen: ParameterNameGenerator,
-        entityAlias: String
+        entityAlias: String,
     ): SqlFragment {
-        val keyParam = paramGen.next("ends_key")
-        val valParam = paramGen.next("ends_val")
-        val attrKey = attributeId.toString()
+        val alias = paramGen.next("a")
+        val attrParam = paramGen.next("ew_attr")
+        val valParam = paramGen.next("ew_val")
 
         return SqlFragment(
-            sql = "(${entityAlias}.payload->:$keyParam->>'value') ILIKE :$valParam ESCAPE '\\'",
+            sql = "EXISTS (SELECT 1 FROM entity_attributes $alias WHERE $alias.entity_id = $entityAlias.id AND $alias.attribute_id = :$attrParam AND ($alias.value #>> '{}') ILIKE :$valParam ESCAPE '\\' AND $alias.deleted = false)",
             parameters = mapOf(
-                keyParam to attrKey,
-                valParam to "%${escapeLikePattern(value?.toString() ?: "")}"
+                attrParam to attributeId,
+                valParam to "%${escapeLikePattern(value?.toString() ?: "")}",
             )
         )
     }
 
     /**
-     * Generates IN list membership check.
-     *
-     * Returns ALWAYS_FALSE for empty lists (IN with empty set never matches).
+     * IN list membership check.
+     * Returns ALWAYS_FALSE for empty lists.
      */
     private fun generateIn(
         attributeId: UUID,
         value: Any?,
         paramGen: ParameterNameGenerator,
-        entityAlias: String
+        entityAlias: String,
     ): SqlFragment {
         val values = extractListValues(value)
+        if (values.isEmpty()) return SqlFragment.ALWAYS_FALSE
 
-        if (values.isEmpty()) {
-            return SqlFragment.ALWAYS_FALSE
-        }
-
-        val keyParam = paramGen.next("in_key")
+        val alias = paramGen.next("a")
+        val attrParam = paramGen.next("in_attr")
         val valsParam = paramGen.next("in_vals")
-        val attrKey = attributeId.toString()
 
         return SqlFragment(
-            sql = "(${entityAlias}.payload->:$keyParam->>'value') IN (:$valsParam)",
+            sql = "EXISTS (SELECT 1 FROM entity_attributes $alias WHERE $alias.entity_id = $entityAlias.id AND $alias.attribute_id = :$attrParam AND ($alias.value #>> '{}') IN (:$valsParam) AND $alias.deleted = false)",
             parameters = mapOf(
-                keyParam to attrKey,
-                valsParam to values.map { it?.toString() ?: "" }
+                attrParam to attributeId,
+                valsParam to values.map { it?.toString() ?: "" },
             )
         )
     }
 
     /**
-     * Generates NOT IN list membership check with key existence verification.
-     *
-     * Returns ALWAYS_TRUE for empty lists (NOT IN empty set always matches).
-     * Must check key exists, otherwise missing attributes would incorrectly match.
+     * NOT IN list membership check.
+     * Returns ALWAYS_TRUE for empty lists.
+     * Uses NOT EXISTS to match entities that either lack the attribute OR have a value not in the list.
      */
     private fun generateNotIn(
         attributeId: UUID,
         value: Any?,
         paramGen: ParameterNameGenerator,
-        entityAlias: String
+        entityAlias: String,
     ): SqlFragment {
         val values = extractListValues(value)
+        if (values.isEmpty()) return SqlFragment.ALWAYS_TRUE
 
-        if (values.isEmpty()) {
-            return SqlFragment.ALWAYS_TRUE
-        }
-
-        val keyParam = paramGen.next("nin_key")
+        val alias = paramGen.next("a")
+        val attrParam = paramGen.next("nin_attr")
         val valsParam = paramGen.next("nin_vals")
-        val attrKey = attributeId.toString()
 
         return SqlFragment(
-            sql = "(jsonb_exists(${entityAlias}.payload, :$keyParam) AND (${entityAlias}.payload->:$keyParam->>'value') NOT IN (:$valsParam))",
+            sql = "NOT EXISTS (SELECT 1 FROM entity_attributes $alias WHERE $alias.entity_id = $entityAlias.id AND $alias.attribute_id = :$attrParam AND ($alias.value #>> '{}') IN (:$valsParam) AND $alias.deleted = false)",
             parameters = mapOf(
-                keyParam to attrKey,
-                valsParam to values.map { it?.toString() ?: "" }
+                attrParam to attributeId,
+                valsParam to values.map { it?.toString() ?: "" },
             )
         )
     }
 
     /**
-     * Generates null check for attribute value.
-     *
-     * Matches both missing attribute keys AND explicit JSON null values.
-     * PostgreSQL's `->>` operator returns SQL NULL for both cases.
+     * No matching attribute row exists for this entity (attribute is absent or soft-deleted).
      */
     private fun generateIsNull(
         attributeId: UUID,
         paramGen: ParameterNameGenerator,
-        entityAlias: String
+        entityAlias: String,
     ): SqlFragment {
-        val keyParam = paramGen.next("isnull_key")
-        val attrKey = attributeId.toString()
+        val alias = paramGen.next("a")
+        val attrParam = paramGen.next("isnull_attr")
 
         return SqlFragment(
-            sql = "(${entityAlias}.payload->:$keyParam->>'value') IS NULL",
-            parameters = mapOf(keyParam to attrKey)
+            sql = "NOT EXISTS (SELECT 1 FROM entity_attributes $alias WHERE $alias.entity_id = $entityAlias.id AND $alias.attribute_id = :$attrParam AND $alias.deleted = false)",
+            parameters = mapOf(attrParam to attributeId)
         )
     }
 
     /**
-     * Generates not-null check for attribute value.
-     *
-     * Matches entities that have the attribute with a non-null value.
+     * A matching attribute row exists for this entity.
      */
     private fun generateIsNotNull(
         attributeId: UUID,
         paramGen: ParameterNameGenerator,
-        entityAlias: String
+        entityAlias: String,
     ): SqlFragment {
-        val keyParam = paramGen.next("notnull_key")
-        val attrKey = attributeId.toString()
+        val alias = paramGen.next("a")
+        val attrParam = paramGen.next("notnull_attr")
 
         return SqlFragment(
-            sql = "(${entityAlias}.payload->:$keyParam->>'value') IS NOT NULL",
-            parameters = mapOf(keyParam to attrKey)
+            sql = "EXISTS (SELECT 1 FROM entity_attributes $alias WHERE $alias.entity_id = $entityAlias.id AND $alias.attribute_id = :$attrParam AND $alias.deleted = false)",
+            parameters = mapOf(attrParam to attributeId)
         )
     }
 
+    // ------ Private Helpers ------
+
     /**
-     * Escapes SQL LIKE metacharacters so they are treated as literal characters.
-     *
-     * Backslash is escaped first to avoid double-escaping the escape characters
-     * inserted for '%' and '_'.
+     * Serializes a value as a JSON literal string for JSONB comparison.
+     * Strings are quoted, numbers/booleans are raw.
      */
+    private fun serializeJsonbValue(value: Any): String = objectMapper.writeValueAsString(value)
+
     private fun escapeLikePattern(value: String): String =
         value
             .replace("\\", "\\\\")
             .replace("%", "\\%")
             .replace("_", "\\_")
 
-    /**
-     * Extracts list values from the value parameter.
-     *
-     * Handles both List<Any?> and single values (wrapped as single-element list).
-     */
     private fun extractListValues(value: Any?): List<Any?> = when (value) {
         is List<*> -> value
         null -> emptyList()

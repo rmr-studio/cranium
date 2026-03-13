@@ -9,7 +9,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@riven/ui/select';
 import type { ConfigWidgetProps } from "./config-widget.types";
 
 const DURATION_UNITS = {

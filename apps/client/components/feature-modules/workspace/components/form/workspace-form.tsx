@@ -22,7 +22,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@riven/ui/select';
 import { cn } from '@riven/utils';
 import type { ClassNameProps } from '@riven/utils';
 import { isValidCurrency } from '@/lib/util/utils';

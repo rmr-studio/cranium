@@ -4,7 +4,7 @@ import { Schema } from '@/lib/types/common';
 import { DataFormat, DataType } from '@/lib/types/common';
 import { AccessorKeyColumnDef, ColumnDef } from '@tanstack/react-table';
 import { useMemo } from 'react';
-import { ColumnFilter, DataTable, FilterConfig, FilterOption, SearchConfig } from '.';
+import { ColumnFilter, DataTable, FilterOption, SearchConfig } from '.';
 import { Badge } from '../badge';
 
 /**
@@ -238,18 +238,6 @@ export function SchemaDataTable<TData extends Record<string, any>>({
     return customColumns ?? generateColumnsFromSchema<TData>(schema);
   }, [schema, customColumns]);
 
-  // Generate filters from schema
-  const filters = useMemo(() => {
-    if (!enableFilters) return undefined;
-    const schemaFilters = customFilters ?? generateFiltersFromSchema<TData>(schema);
-    if (schemaFilters.length === 0) return undefined;
-
-    return {
-      enabled: true,
-      filters: schemaFilters,
-    } as FilterConfig<TData>;
-  }, [schema, customFilters, enableFilters]);
-
   // Generate search config from schema
   const searchConfig = useMemo(() => {
     if (!enableSearch) return undefined;
@@ -275,7 +263,6 @@ export function SchemaDataTable<TData extends Record<string, any>>({
       className={className}
       emptyMessage={emptyMessage}
       search={searchConfig}
-      filter={filters}
       enableSorting={enableSorting}
     />
   );

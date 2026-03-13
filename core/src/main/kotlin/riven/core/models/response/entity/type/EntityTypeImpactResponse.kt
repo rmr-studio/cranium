@@ -4,12 +4,17 @@ import riven.core.models.entity.EntityType
 import java.util.*
 
 /**
- * Result of an impact check when deleting a relationship definition with existing instance data.
+ * Result of an impact check when a destructive relationship operation has existing instance data.
+ *
+ * @param deletesDefinition When true, the entire relationship definition will be removed
+ *     (e.g. removing the last target rule). When false, only the target rule and its
+ *     associated links are removed but the definition survives.
  */
 data class DeleteDefinitionImpact(
     val definitionId: UUID,
     val definitionName: String,
     val impactedLinkCount: Long,
+    val deletesDefinition: Boolean = true,
 )
 
 data class EntityTypeImpactResponse(

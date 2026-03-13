@@ -4,7 +4,7 @@ tags:
   - component/active
   - architecture/component
 Created: 2026-02-08
-Updated: 2026-02-08
+Updated: 2026-03-09
 Domains:
   - "[[Entities]]"
 ---
@@ -46,7 +46,8 @@ Schema validation for entity save operations and breaking change detection for e
 
 - Uses `SchemaService.validate()` with `ValidationScope.STRICT`
 - Only validates ATTRIBUTE properties (relationships validated separately)
-- Converts entity payload to `Map<String, Any?>` for schema engine
+- Accepts optional `attributes: Map<UUID, EntityAttributePrimitivePayload>` parameter for pre-extracted attribute data
+- Converts attributes map to `Map<String, Any?>` (UUID keys → string keys, payload values extracted) for schema engine
 - Returns list of error strings (empty if valid)
 
 **Breaking change detection:**
@@ -62,6 +63,8 @@ TODO comments indicate future optimization: Query existing data to auto-apply no
 **Bulk validation:**
 
 - Validates list of entities against new schema
+- Accepts optional `attributesByEntityId: Map<UUID, Map<UUID, EntityAttributePrimitivePayload>>` for pre-loaded attribute data
+- Looks up each entity's attributes from the map (falling back to empty map if not present)
 - Tracks valid count, invalid count
 - Collects first 10 sample errors for UI display
 - Returns `EntityTypeValidationSummary` for impact analysis
@@ -70,9 +73,9 @@ TODO comments indicate future optimization: Query existing data to auto-apply no
 
 ## Public Methods
 
-### `validateEntity(entity, entityType): List<String>`
+### `validateEntity(entity, entityType, attributes?): List<String>`
 
-Validates single entity instance against its type schema. Used during entity save operations.
+Validates entity against its type schema using pre-extracted attributes map. The `attributes` parameter defaults to `emptyMap()` — callers must provide the attribute data from the normalized `entity_attributes` table.
 
 ### `validateRelationshipEntity(entityId, relationships): List<String>`
 
@@ -82,9 +85,9 @@ Validates relationship entity constraints (required relationships, type matching
 
 Compares two schemas and identifies breaking changes. Each change includes type, path, description, and breaking flag.
 
-### `validateExistingEntitiesAgainstNewSchema(entities, newSchema): EntityTypeValidationSummary`
+### `validateExistingEntitiesAgainstNewSchema(entities, newSchema, attributesByEntityId?): EntityTypeValidationSummary`
 
-Runs new schema against all existing entities to determine impact. Returns summary with counts and sample errors.
+Runs new schema against all existing entities to determine impact. Accepts optional `attributesByEntityId` map for pre-loaded attribute data from the normalized table. Returns summary with counts and sample errors.
 
 ---
 
@@ -103,3 +106,12 @@ Runs new schema against all existing entities to determine impact. Returns summa
 - [[EntityService]] — Primary consumer for instance validation
 - [[EntityTypeAttributeService]] — Uses for schema change validation
 - [[Validation]] — Parent subdomain
+
+---
+
+## Changelog
+
+### 2026-03-09 — Attributes parameter for normalized table support
+
+- `validateEntity()` now accepts optional `attributes: Map<UUID, EntityAttributePrimitivePayload>` parameter. Validation reads from this map instead of entity payload.
+- `validateExistingEntitiesAgainstNewSchema()` now accepts optional `attributesByEntityId` parameter for batch validation with pre-loaded attribute data.

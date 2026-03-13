@@ -1,5 +1,6 @@
 import { DataTable, DataTableProvider } from '@/components/ui/data-table';
 import { TooltipProvider } from '@riven/ui/tooltip';
+import { Button } from '@riven/ui/button';
 import {
   EntityPropertyType,
   EntityType,
@@ -8,12 +9,13 @@ import {
   type EntityTypeDefinition,
 } from '@/lib/types/entity';
 import { Row } from '@tanstack/react-table';
-import { Edit2, Trash2 } from 'lucide-react';
+import { Edit2, Plus, Trash2 } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { FC, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 import { useConfigForm } from '../../context/configuration-provider';
 import { useSemanticMetadata } from '../../hooks/query/type/use-semantic-metadata';
+import { useEntityTypes } from '../../hooks/query/type/use-entity-types';
 import { useEntityTypeTable } from '../../hooks/use-entity-type-table';
 
 interface Props {
@@ -21,22 +23,24 @@ interface Props {
   identifierKey: string;
   onEdit: (definition: EntityTypeDefinition) => void;
   onDelete: (definition: EntityTypeDefinition) => void;
+  onAdd: () => void;
 }
 
-const EntityTypeDataTable: FC<Props> = ({ type, identifierKey, onEdit, onDelete }) => {
+const EntityTypeDataTable: FC<Props> = ({ type, identifierKey, onEdit, onDelete, onAdd }) => {
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const { data: semanticBundle } = useSemanticMetadata(workspaceId, type.id);
+  const { data: allEntityTypes } = useEntityTypes(workspaceId);
 
-  const {
+const {
     sortedRowData,
     columns,
     onDelete: deleteRow,
     onEdit: editRow,
-  } = useEntityTypeTable(type, identifierKey, onEdit, onDelete, semanticBundle);
+  } = useEntityTypeTable(type, identifierKey, onEdit, onDelete, semanticBundle, allEntityTypes);
 
   const form = useConfigForm();
 
-  const columnData: EntityTypeAttributeColumn[] = form.watch('columns');
+  const columnData: EntityTypeAttributeColumn[] = form.watch('columns') ?? [];
 
   const columnSizeMap = useMemo<Map<string, number>>(() => {
     const map = new Map<string, number>();
@@ -101,6 +105,16 @@ const EntityTypeDataTable: FC<Props> = ({ type, identifierKey, onEdit, onDelete 
     [identifierKey],
   );
 
+  const toolbarActions = useMemo(
+    () => (
+      <Button onClick={onAdd} variant="outline" size="icon" className="size-9">
+        <Plus className="size-4" />
+        <span className="sr-only">Add new</span>
+      </Button>
+    ),
+    [onAdd],
+  );
+
   return (
     <DataTableProvider initialData={sortedRowData}>
       <TooltipProvider>
@@ -114,28 +128,9 @@ const EntityTypeDataTable: FC<Props> = ({ type, identifierKey, onEdit, onDelete 
           search={{
             enabled: true,
             searchableColumns: ['label'],
-            placeholder: 'Search fields...',
+            placeholder: 'Search attributes...',
           }}
-          filter={{
-            enabled: true,
-            filters: [
-              {
-                column: 'type',
-                type: 'select',
-                label: 'Type',
-                options: [
-                  {
-                    label: 'Attributes',
-                    value: EntityPropertyType.Attribute,
-                  },
-                  {
-                    label: 'Relationships',
-                    value: EntityPropertyType.Relationship,
-                  },
-                ],
-              },
-            ],
-          }}
+          toolbarActions={toolbarActions}
           rowActions={{
             enabled: true,
             menuLabel: 'Actions',

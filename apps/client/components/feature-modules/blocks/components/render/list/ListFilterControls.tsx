@@ -9,7 +9,7 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
+} from '@riven/ui/select';
 import { FC, useMemo, useState } from "react";
 import type { BlockType } from "@/lib/types/block";
 import { FilterSpec, getSortableFields } from "../../../util/list/list-sorting.util";

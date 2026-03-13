@@ -36,7 +36,7 @@ interface EntityTypeSemanticMetadataRepository : JpaRepository<EntityTypeSemanti
 
     fun findByEntityTypeId(entityTypeId: UUID): List<EntityTypeSemanticMetadataEntity>
 
-    @Modifying(clearAutomatically = true)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(
         "DELETE FROM EntityTypeSemanticMetadataEntity e " +
             "WHERE e.entityTypeId = :entityTypeId " +
@@ -49,7 +49,7 @@ interface EntityTypeSemanticMetadataRepository : JpaRepository<EntityTypeSemanti
         targetId: UUID
     )
 
-    @Modifying(clearAutomatically = true)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(
         "UPDATE EntityTypeSemanticMetadataEntity e " +
             "SET e.deleted = true, e.deletedAt = CURRENT_TIMESTAMP " +

@@ -20,6 +20,9 @@ Handles the lifecycle of entity instances — creating, updating, reading, and s
 | [[EntityRelationshipService]] | Instance-level relationship data management | Service |
 | [[EntityController]] | REST API for entity operations | Controller |
 | [[EntityRepository]] | JPA repository for entity persistence | Repository |
+| [[EntityAttributeService]] | Normalized entity attribute persistence and batch-loading | Service |
+| [[EntityAttributeRepository]] | JPA repository for entity_attributes table | Repository |
+| [[EntityAttributeEntity]] | JPA entity for normalized attribute values | Entity |
 
 ## Technical Debt
 
@@ -37,3 +40,4 @@ Handles the lifecycle of entity instances — creating, updating, reading, and s
 | 2026-02-21 | EntityRelationshipService rewritten — removed bidirectional sync, added write-time cardinality enforcement and target type validation | Entity Relationships |
 | 2026-03-01 | EntityRelationshipService updated — semantic group matching implemented (was stubbed), target-side cardinality batch-optimized, new EntityTypeRepository dependency | Semantic Entity Groups |
 | 2026-03-01 | EntityRelationshipService expanded with unified relationship CRUD (addRelationship, getRelationships, updateRelationship, removeRelationship); EntityController upgraded with 4 relationship endpoints under `/relationships` | Unified Relationship CRUD |
+| 2026-03-09 | Entity attributes normalized — new EntityAttributeService, EntityAttributeRepository, EntityAttributeEntity for per-attribute storage replacing JSONB payload column | Entity Attributes Normalization |

@@ -1,9 +1,7 @@
 'use client';
 
-import { Button } from '@riven/ui/button';
 import { ColumnResizingConfig, DataTable, DataTableProvider } from '@/components/ui/data-table';
 import { Form } from '@/components/ui/form';
-import type { ClassNameProps } from '@riven/utils';
 import { SchemaUUID } from '@/lib/types/common';
 import {
   Entity,
@@ -12,34 +10,44 @@ import {
   EntityAttributeRequest,
   EntityLink,
   EntityPropertyType,
-  RelationshipDefinition,
   EntityType,
   isRelationshipPayload,
+  RelationshipDefinition,
   SaveEntityRequest,
+  EntityAttributeDefinition,
+  EntityTypeDefinition,
   SaveEntityResponse,
 } from '@/lib/types/entity';
 import { debounce } from '@/lib/util/debounce.util';
+import type { ClassNameProps } from '@riven/utils';
 import { cn } from '@riven/utils';
 
+import type { QueryFilter } from '@/lib/types/models/QueryFilter';
+import { Button } from '@riven/ui/button';
 import { Row } from '@tanstack/react-table';
-import { Plus } from 'lucide-react';
-import { FC, useCallback, useMemo, useRef } from 'react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { MoreHorizontal, Plus } from 'lucide-react';
+import { FC, useCallback, useMemo, useRef, useState } from 'react';
 import { useConfigFormState } from '../../context/configuration-provider';
 import { useEntityDraft } from '../../context/entity-provider';
 import { useSaveEntityMutation } from '../../hooks/mutation/instance/use-save-entity-mutation';
+import { EntityQueryBuilder } from '../query/entity-query-builder';
 import { EntityTypeHeader } from '../ui/entity-type-header';
-import { EntityTypeSaveButton } from '../ui/entity-type-save-button';
+import { AttributeFormModal } from '../ui/modals/type/attribute-form-modal';
+import { DeleteDefinitionModal } from '../ui/modals/type/delete-definition-modal';
+import { ColumnHeaderPopover } from './column-header-popover';
+import { ColumnVisibilityPopover } from './column-visibility-popover';
 import { EntityDraftRow } from './entity-draft-row';
 import EntityActionBar from './entity-table-action-bar';
 import {
   applyColumnOrdering,
   EntityRow,
   generateColumnsFromEntityType,
-  generateFiltersFromEntityType,
   generateSearchConfigFromEntityType,
   isDraftRow,
   transformEntitiesToRows,
 } from './entity-table-utils';
+
 
 export interface Props extends ClassNameProps {
   entityType: EntityType;
@@ -57,7 +65,20 @@ export const EntityDataTable: FC<Props> = ({
   workspaceId,
 }) => {
   const { isDraftMode, enterDraftMode } = useEntityDraft();
-  const { form, handleSubmit } = useConfigFormState();
+  const { form } = useConfigFormState();
+
+  // Column header popover state
+  const [activePopoverColumnId, setActivePopoverColumnId] = useState<string | null>(null);
+  const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(null);
+  const [visibilityPopoverOpen, setVisibilityPopoverOpen] = useState(false);
+
+  // Attribute/relationship modal state
+  const [attributeDialogOpen, setAttributeDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [editingDefinition, setEditingDefinition] = useState<
+    EntityAttributeDefinition | RelationshipDefinition | undefined
+  >();
+  const [deletingDefinition, setDeletingDefinition] = useState<EntityTypeDefinition | undefined>();
 
   const handleConflict = (request: SaveEntityRequest, response: SaveEntityResponse) => {};
 
@@ -69,18 +90,146 @@ export const EntityDataTable: FC<Props> = ({
     handleConflict,
   );
 
-  const handleColumnResize = (entityType: EntityType, columnSizing: Record<string, number>) => {
-    // Update entity type columns sizing in form state
-    const updatedColumns = entityType.columns.map((col) => {
-      return {
-        ...col,
-        width: columnSizing[col.key] ?? col.width,
-      };
+  const handleColumnResize = (columnSizing: Record<string, number>) => {
+    const current = form.getValues('columnConfiguration');
+    const updatedOverrides = { ...current.overrides };
+    Object.entries(columnSizing).forEach(([key, width]) => {
+      updatedOverrides[key] = { ...updatedOverrides[key], width };
     });
-    form.setValue('columns', updatedColumns, {
-      shouldDirty: true,
-    });
+    form.setValue('columnConfiguration.overrides', updatedOverrides, { shouldDirty: true });
   };
+
+  // Header click handler — opens column popover
+  const handleHeaderClick = useCallback(
+    (columnId: string, anchorEl: HTMLElement) => {
+      if (isDraftMode) return;
+      setActivePopoverColumnId(columnId);
+      setPopoverAnchorEl(anchorEl);
+    },
+    [isDraftMode],
+  );
+
+  // Hide a column via form state
+  const handleHideColumn = useCallback(
+    (columnId: string) => {
+      const current = form.getValues('columnConfiguration');
+      form.setValue(
+        `columnConfiguration.overrides`,
+        {
+          ...current.overrides,
+          [columnId]: { ...current.overrides[columnId], visible: false },
+        },
+        { shouldDirty: true },
+      );
+    },
+    [form],
+  );
+
+  // Visibility popover handlers
+  const handleToggleVisibility = useCallback(
+    (columnId: string) => {
+      if (columnId === entityType.identifierKey) return;
+      const current = form.getValues('columnConfiguration');
+      const currentVisible = current.overrides[columnId]?.visible !== false;
+      form.setValue(
+        `columnConfiguration.overrides`,
+        {
+          ...current.overrides,
+          [columnId]: { ...current.overrides[columnId], visible: !currentVisible },
+        },
+        { shouldDirty: true },
+      );
+    },
+    [form, entityType.identifierKey],
+  );
+
+  const handleReorder = useCallback(
+    (newOrder: string[]) => {
+      form.setValue('columnConfiguration.order', newOrder, { shouldDirty: true });
+    },
+    [form],
+  );
+
+  const handleShowAll = useCallback(() => {
+    const current = form.getValues('columnConfiguration');
+    const updatedOverrides = { ...current.overrides };
+    Object.keys(updatedOverrides).forEach((key) => {
+      updatedOverrides[key] = { ...updatedOverrides[key], visible: true };
+    });
+    form.setValue('columnConfiguration.overrides', updatedOverrides, { shouldDirty: true });
+  }, [form]);
+
+  const handleHideAll = useCallback(() => {
+    const current = form.getValues('columnConfiguration');
+    const updatedOverrides = { ...current.overrides };
+    Object.keys(updatedOverrides).forEach((key) => {
+      // Never hide the identifier
+      if (key === entityType.identifierKey) return;
+      updatedOverrides[key] = { ...updatedOverrides[key], visible: false };
+    });
+    form.setValue('columnConfiguration.overrides', updatedOverrides, { shouldDirty: true });
+  }, [form, entityType.identifierKey]);
+
+  // End-of-header content
+  const endOfHeaderContent = useMemo(
+    () => (
+      <div className="flex items-center gap-1">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              onClick={() => {
+                setEditingDefinition(undefined);
+                setAttributeDialogOpen(true);
+              }}
+              variant="ghost"
+              size="icon"
+              className="size-7"
+              disabled={isDraftMode}
+            >
+              <Plus className="size-4" />
+              <span className="sr-only">Add property</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="top">Add property</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <ColumnVisibilityPopover
+            entityType={entityType}
+            columnConfiguration={form.getValues('columnConfiguration')}
+            onToggleVisibility={handleToggleVisibility}
+            onReorder={handleReorder}
+            onShowAll={handleShowAll}
+            onHideAll={handleHideAll}
+            open={visibilityPopoverOpen}
+            onOpenChange={setVisibilityPopoverOpen}
+          >
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7"
+                disabled={isDraftMode}
+              >
+                <MoreHorizontal className="size-4" />
+                <span className="sr-only">Manage columns</span>
+              </Button>
+            </TooltipTrigger>
+          </ColumnVisibilityPopover>
+          <TooltipContent side="top">Column settings</TooltipContent>
+        </Tooltip>
+      </div>
+    ),
+    [
+      entityType,
+      form,
+      visibilityPopoverOpen,
+      handleToggleVisibility,
+      handleReorder,
+      handleShowAll,
+      handleHideAll,
+      isDraftMode,
+    ],
+  );
 
   // Transform entities to row data
   const rowData = useMemo(() => {
@@ -108,13 +257,8 @@ export const EntityDataTable: FC<Props> = ({
   // Generate columns from entity type with inline editing enabled
   const columns = useMemo(() => {
     const generatedColumns = generateColumnsFromEntityType(entityType, { enableEditing: true });
-    return applyColumnOrdering(generatedColumns, entityType.columns);
+    return applyColumnOrdering(generatedColumns, entityType.columnConfiguration);
   }, [entityType]);
-
-  // Generate filters from entity type and actual data
-  const filters = useMemo(() => {
-    return generateFiltersFromEntityType(entityType, entities);
-  }, [entityType, entities]);
 
   // Generate search configuration
   const searchableColumns = useMemo<string[]>(() => {
@@ -124,17 +268,17 @@ export const EntityDataTable: FC<Props> = ({
   const emptyMessage = loadingEntities
     ? 'Loading entities...'
     : `No ${entityType.name.plural} found.`;
-  const enableSearch = entities.length > 10;
 
-  // Search configuration
+  // Search configuration — always show when searchable columns exist
   const searchConfig = useMemo(
     () => ({
-      enabled: enableSearch && searchableColumns.length > 0,
-      searchableColumns: searchableColumns as any,
-      placeholder: 'Search entities...',
+      // enabled: searchableColumns.length > 0,
+      enabled: true,
+      searchableColumns,
+      placeholder: `Search ${entityType.name.plural.toLowerCase()}...`,
       disabled: isDraftMode,
     }),
-    [enableSearch, searchableColumns, isDraftMode],
+    [searchableColumns, isDraftMode, entityType.name.plural],
   );
 
   // Custom row renderer for draft mode
@@ -151,8 +295,8 @@ export const EntityDataTable: FC<Props> = ({
 
   // Create debounced resize handler (stable across re-renders)
   const debouncedResizeHandler = useRef(
-    debounce((entityType: EntityType, columnSizing: Record<string, number>) => {
-      handleColumnResize(entityType, columnSizing);
+    debounce((columnSizing: Record<string, number>) => {
+      handleColumnResize(columnSizing);
     }, 500), // Wait 500ms after user stops dragging before persisting
   ).current;
 
@@ -178,8 +322,9 @@ export const EntityDataTable: FC<Props> = ({
 
       // Determine if updated column is an attribute or relationship
       const attributeDef: SchemaUUID | undefined = entityType.schema.properties?.[columnId];
-      const relationshipDef: RelationshipDefinition | undefined =
-        entityType.relationships?.find((rel) => rel.id === columnId);
+      const relationshipDef: RelationshipDefinition | undefined = entityType.relationships?.find(
+        (rel) => rel.id === columnId,
+      );
 
       // Prepare updated entity payload
       if (attributeDef) {
@@ -244,36 +389,40 @@ export const EntityDataTable: FC<Props> = ({
     return !response.errors && !!response.entity;
   };
 
+  // Query filter state (EntityQueryBuilder)
+  const [_queryFilter, setQueryFilter] = useState<QueryFilter | undefined>();
+  const handleQueryFilterChange = useCallback((filter: QueryFilter | undefined) => {
+    setQueryFilter(filter);
+    // TODO: integrate with server-side entity query when API hook is wired up
+  }, []);
+
+  // Custom filter UI for the entity data table
+  const filterContent = useMemo(
+    () => (
+      <EntityQueryBuilder
+        entityType={entityType}
+        value={_queryFilter}
+        onChange={handleQueryFilterChange}
+      />
+    ),
+    [entityType, _queryFilter, handleQueryFilterChange],
+  );
+
   return (
     <Form {...form}>
       <div className="w-full min-w-0 space-y-4">
-        {/* Draft mode controls */}
-        <div>
-          <div className="flex flex-col justify-between gap-4 lg:flex-row">
-            <div className="flex flex-col gap-2">
-              <EntityTypeHeader>
-                <div className="text-sm text-muted-foreground italic">
-                  Manage your entities and their data
-                </div>
-              </EntityTypeHeader>
-            </div>
-            <div className="flex gap-2">
-              <EntityTypeSaveButton onSubmit={handleSubmit} />
-
-              <Button onClick={enterDraftMode} variant="outline" size="sm" disabled={isDraftMode}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add New
-              </Button>
-            </div>
+        <EntityTypeHeader>
+          <div className="text-sm text-muted-foreground italic">
+            Manage your entities and their data
           </div>
-        </div>
+        </EntityTypeHeader>
 
-        {/* Data table with custom row rendering for draft */}
+        {/* Data table with toolbar: search | filter + add */}
         <DataTableProvider
           initialData={rowData}
           getRowId={getRowId}
           onCellEdit={handleCellEdit}
-          onColumnWidthsChange={(columnSizing) => debouncedResizeHandler(entityType, columnSizing)}
+          onColumnWidthsChange={(columnSizing) => debouncedResizeHandler(columnSizing)}
         >
           <DataTable
             columns={columns}
@@ -293,19 +442,72 @@ export const EntityDataTable: FC<Props> = ({
             alwaysShowActionHandles={true}
             getRowId={(row) => row._entityId}
             search={searchConfig}
-            filter={{
-              enabled: filters.length > 0,
-              filters,
-              disabled: isDraftMode,
-            }}
+            filterContent={filterContent}
             columnResizing={columnResizingConfig}
             emptyMessage={emptyMessage}
             className={cn(className)}
             enableInlineEdit={true}
             customRowRenderer={customRowRenderer}
             addingNewEntry={isDraftMode}
+            onHeaderClick={handleHeaderClick}
+            endOfHeaderContent={endOfHeaderContent}
+            scrollContainerClassName="max-h-[calc(100dvh-18rem)]"
+            footerContent={
+              !isDraftMode ? (
+                <button
+                  type="button"
+                  onClick={enterDraftMode}
+                  className="flex w-full items-center gap-1.5 border-t border-border/40 px-3 py-1.5 text-sm text-muted-foreground/50 transition-colors hover:bg-muted/30 hover:text-muted-foreground"
+                >
+                  <Plus className="size-3.5" />
+                  <span>New {entityType.name.singular}</span>
+                </button>
+              ) : undefined
+            }
+          />
+
+          {/* Column header popover — must be inside DataTableProvider */}
+          <ColumnHeaderPopover
+            columnId={activePopoverColumnId}
+            entityType={entityType}
+            workspaceId={workspaceId}
+            anchorEl={popoverAnchorEl}
+            onClose={() => {
+              setActivePopoverColumnId(null);
+              setPopoverAnchorEl(null);
+            }}
+            onEditProperties={(def) => {
+              setEditingDefinition(def.definition);
+              setAttributeDialogOpen(true);
+            }}
+            onDelete={(def) => {
+              setDeletingDefinition(def);
+              setDeleteDialogOpen(true);
+            }}
+            onInsert={(_position, _refColumnId) => {
+              setEditingDefinition(undefined);
+              setAttributeDialogOpen(true);
+            }}
+            onHide={handleHideColumn}
           />
         </DataTableProvider>
+
+        {/* Attribute/relationship form modal */}
+        <AttributeFormModal
+          dialog={{ open: attributeDialogOpen, setOpen: setAttributeDialogOpen }}
+          type={entityType}
+          selectedAttribute={editingDefinition}
+        />
+
+        {/* Delete definition modal */}
+        {deletingDefinition && (
+          <DeleteDefinitionModal
+            workspaceId={workspaceId}
+            dialog={{ open: deleteDialogOpen, setOpen: setDeleteDialogOpen }}
+            type={entityType}
+            definition={deletingDefinition}
+          />
+        )}
       </div>
     </Form>
   );

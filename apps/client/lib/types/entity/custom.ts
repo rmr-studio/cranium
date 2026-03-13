@@ -28,10 +28,18 @@ export interface EntityTypeAttributeRow {
   additionalConstraints: string[];
   dataType?: DataType;
   unique?: boolean;
+  // Icon for this attribute or relationship
+  icon?: Icon;
   // Relationship-specific fields (optional for attributes)
   cardinalityDefault?: EntityRelationshipCardinality;
   allowPolymorphic?: boolean;
   targetRules?: RelationshipTargetRule[];
+  // Resolved target entity type names (for relationships)
+  targetEntityTypeNames?: string[];
+  // Target-side relationship metadata
+  isTargetSide?: boolean;
+  sourceEntityTypeId?: string;
+  sourceEntityTypeKey?: string;
   // Semantic metadata fields (optional, populated from SemanticMetadataBundle)
   classification?: SemanticAttributeClassification;
   definition?: string;

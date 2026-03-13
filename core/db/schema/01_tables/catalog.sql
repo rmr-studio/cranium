@@ -11,11 +11,12 @@ CREATE TABLE IF NOT EXISTS manifest_catalog (
     key VARCHAR(255) NOT NULL,
     name VARCHAR(255) NOT NULL,
     description TEXT,
-    manifest_type VARCHAR(50) NOT NULL CHECK (manifest_type IN ('MODEL', 'TEMPLATE', 'INTEGRATION')),
+    manifest_type VARCHAR(50) NOT NULL CHECK (manifest_type IN ('MODEL', 'TEMPLATE', 'INTEGRATION', 'BUNDLE')),
     manifest_version VARCHAR(50),
     last_loaded_at TIMESTAMPTZ,
     stale BOOLEAN NOT NULL DEFAULT false,
     content_hash VARCHAR(64),
+    template_keys JSONB,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 
@@ -62,17 +63,12 @@ CREATE TABLE IF NOT EXISTS catalog_relationships (
     name TEXT NOT NULL,
     icon_type TEXT NOT NULL DEFAULT 'LINK',
     icon_colour TEXT NOT NULL DEFAULT 'NEUTRAL',
-    allow_polymorphic BOOLEAN NOT NULL DEFAULT FALSE,
     cardinality_default TEXT NOT NULL CHECK (cardinality_default IN ('ONE_TO_ONE', 'ONE_TO_MANY', 'MANY_TO_ONE', 'MANY_TO_MANY')),
     protected BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 
-    UNIQUE (manifest_id, key),
-    CONSTRAINT fk_catalog_relationships_source_entity
-        FOREIGN KEY (manifest_id, source_entity_type_key)
-        REFERENCES catalog_entity_types(manifest_id, key)
-        ON DELETE CASCADE
+    UNIQUE (manifest_id, key)
 );
 
 -- =====================================================
@@ -85,7 +81,6 @@ CREATE TABLE IF NOT EXISTS catalog_relationship_target_rules (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     catalog_relationship_id UUID NOT NULL REFERENCES catalog_relationships(id) ON DELETE CASCADE,
     target_entity_type_key VARCHAR(255) NOT NULL,
-    semantic_type_constraint TEXT CHECK (semantic_type_constraint IN ('CUSTOMER', 'PRODUCT', 'TRANSACTION', 'COMMUNICATION', 'SUPPORT', 'FINANCIAL', 'OPERATIONAL', 'CUSTOM', 'UNCATEGORIZED')),
     cardinality_override TEXT CHECK (cardinality_override IN ('ONE_TO_ONE', 'ONE_TO_MANY', 'MANY_TO_ONE', 'MANY_TO_MANY')),
     inverse_visible BOOLEAN NOT NULL DEFAULT FALSE,
     inverse_name TEXT,
@@ -132,4 +127,21 @@ CREATE TABLE IF NOT EXISTS catalog_semantic_metadata (
 
     UNIQUE (catalog_entity_type_id, target_type, target_id),
     CHECK (jsonb_typeof(tags) = 'array')
+);
+
+-- =====================================================
+-- WORKSPACE TEMPLATE INSTALLATIONS TABLE
+-- =====================================================
+-- Tracks which templates have been installed into which workspaces.
+-- Enables duplication protection, merge tracking, and future uninstall support.
+
+CREATE TABLE IF NOT EXISTS workspace_template_installations (
+    id                 UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    workspace_id       UUID NOT NULL REFERENCES workspaces(id),
+    manifest_key       VARCHAR(255) NOT NULL,
+    installed_by       UUID NOT NULL REFERENCES users(id),
+    installed_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+    attribute_mappings JSONB NOT NULL DEFAULT '{}'::jsonb,
+
+    UNIQUE (workspace_id, manifest_key)
 );

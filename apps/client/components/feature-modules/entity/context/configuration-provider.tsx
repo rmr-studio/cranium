@@ -1,6 +1,6 @@
 'use client';
 
-import { EntityType, EntityPropertyType } from '@/lib/types/entity';
+import { EntityType } from '@/lib/types/entity';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createContext, useContext, useEffect, useRef, type ReactNode } from 'react';
 import { useForm, useFormState } from 'react-hook-form';
@@ -29,13 +29,16 @@ export interface EntityTypeConfigurationProviderProps {
 const entityTypeFormSchema = z
   .object({
     identifierKey: z.string().min(1, 'Identifier key is required').refine(isUUID),
-    columns: z.array(
-      z.object({
-        key: z.string().min(1, 'Ordering key is required').refine(isUUID),
-        type: z.nativeEnum(EntityPropertyType),
-        width: z.number().min(150, 'Minimum width is 150').max(1000, 'Maximum width is 1000'),
-      }),
-    ),
+    columnConfiguration: z.object({
+      order: z.array(z.string()),
+      overrides: z.record(
+        z.string(),
+        z.object({
+          width: z.number().min(150).max(1000).optional(),
+          visible: z.boolean().optional(),
+        }),
+      ),
+    }),
   })
   .extend(baseEntityTypeFormSchema.shape);
 
@@ -63,7 +66,12 @@ export const EntityTypeConfigurationProvider = ({
       tags: entityType.semantics?.entityType?.tags ?? [],
 
       icon: entityType.icon,
-      columns: entityType.columns,
+      columnConfiguration: entityType.columnConfiguration ?? {
+        order: entityType.columns.map((col) => col.key),
+        overrides: Object.fromEntries(
+          entityType.columns.map((col) => [col.key, { width: col.width, visible: true }]),
+        ),
+      },
     },
   });
 

@@ -1,0 +1,117 @@
+{
+  "manifestVersion": "1.0",
+  "key": "support-ticket",
+  "name": "Support Ticket",
+  "description": "A customer support request tracking an issue, question, or feedback from initial report through resolution. Used to manage support workload, measure response quality, and identify recurring issues.",
+  "displayName": {
+    "singular": "Support Ticket",
+    "plural": "Support Tickets"
+  },
+  "semanticGroup": "SUPPORT",
+  "identifierKey": "subject",
+  "attributes": {
+    "subject": {
+      "key": "TEXT",
+      "label": "Subject",
+      "type": "string",
+      "required": true,
+      "semantics": {
+        "definition": "A brief summary of the support request, serving as the primary human-readable identifier for the ticket.",
+        "classification": "IDENTIFIER",
+        "tags": ["display-name", "search"]
+      }
+    },
+    "description": {
+      "key": "TEXT",
+      "label": "Description",
+      "type": "string",
+      "semantics": {
+        "definition": "A detailed account of the issue, question, or feedback provided by the customer or support agent.",
+        "classification": "FREETEXT",
+        "tags": ["detail", "context"]
+      }
+    },
+    "priority": {
+      "key": "SELECT",
+      "label": "Priority",
+      "type": "string",
+      "required": true,
+      "options": {
+        "enum": ["low", "medium", "high", "critical"],
+        "default": "medium"
+      },
+      "semantics": {
+        "definition": "The urgency level of the support request, determining SLA targets and queue ordering.",
+        "classification": "CATEGORICAL",
+        "tags": ["triage", "sla", "urgency"]
+      }
+    },
+    "status": {
+      "key": "SELECT",
+      "label": "Status",
+      "type": "string",
+      "required": true,
+      "options": {
+        "enum": ["open", "in-progress", "resolved", "closed"],
+        "default": "open"
+      },
+      "semantics": {
+        "definition": "The current resolution state of the ticket, tracking progress from initial report through to closure.",
+        "classification": "CATEGORICAL",
+        "tags": ["lifecycle", "workflow"]
+      }
+    },
+    "channel": {
+      "key": "SELECT",
+      "label": "Channel",
+      "type": "string",
+      "options": {
+        "enum": ["email", "chat", "phone", "web"]
+      },
+      "semantics": {
+        "definition": "The communication channel through which the support request was initially received.",
+        "classification": "CATEGORICAL",
+        "tags": ["source", "communication"]
+      }
+    },
+    "created-date": {
+      "key": "DATE",
+      "label": "Created Date",
+      "type": "string",
+      "format": "date",
+      "semantics": {
+        "definition": "The date the support ticket was created, marking the start of the SLA clock.",
+        "classification": "TEMPORAL",
+        "tags": ["sla", "timeline"]
+      }
+    },
+    "resolved-date": {
+      "key": "DATE",
+      "label": "Resolved Date",
+      "type": "string",
+      "format": "date",
+      "semantics": {
+        "definition": "The date the support ticket was resolved, used to calculate resolution time and SLA compliance.",
+        "classification": "TEMPORAL",
+        "tags": ["sla", "resolution"]
+      }
+    },
+    "category": {
+      "key": "SELECT",
+      "label": "Category",
+      "type": "string",
+      "options": {
+        "enum": ["billing", "technical", "general", "feature-request"]
+      },
+      "semantics": {
+        "definition": "The type of issue or request, used for routing, trend analysis, and workload distribution.",
+        "classification": "CATEGORICAL",
+        "tags": ["routing", "analysis", "classification"]
+      }
+    }
+  },
+  "semantics": {
+    "definition": "A support ticket tracks a customer issue, question, or piece of feedback through its lifecycle from creation to resolution. It is the primary unit of work for customer support operations and feeds into service quality metrics.",
+    "tags": ["support", "service", "customer-success", "operations"]
+  }
+}

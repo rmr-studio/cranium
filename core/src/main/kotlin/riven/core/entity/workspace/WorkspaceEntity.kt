@@ -1,6 +1,7 @@
 package riven.core.entity.workspace
 
 import jakarta.persistence.*
+import org.hibernate.annotations.SQLRestriction
 import riven.core.entity.util.AuditableSoftDeletableEntity
 import riven.core.enums.workspace.WorkspacePlan
 import riven.core.models.workspace.Workspace
@@ -13,6 +14,7 @@ import java.util.*
         UniqueConstraint(name = "workspace_name_unique", columnNames = ["name"])
     ]
 )
+@SQLRestriction("deleted = false")
 data class WorkspaceEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

@@ -90,7 +90,7 @@ Multi-tenant workspace-scoped backend API for a configurable data platform with 
 
 - **Frameworks:** JUnit 5, Mockito via `mockito-kotlin` (prefer `whenever`/`verify` over `Mockito.when`/`Mockito.verify`).
 - **Unit tests:** `@SpringBootTest` with targeted `classes = [...]` to load only the service under test + its security config. Mock all dependencies with `@MockitoBean`.
-- **Security in tests:** Use the custom `@WithUserPersona` annotation (in `service.util`) to set up JWT security context with workspace roles.
+- **Security in tests:** Use the custom `@WithUserPersona` annotation (in `service.util`) to set up JWT security context with workspace roles. This is **mandatory** for any test that touches JWT-authenticated code paths — it sets up a real `JwtAuthenticationToken` with a signed JWT in the `SecurityContext`, which both `@PreAuthorize` (authority checks) and `AuthTokenService.getUserId()` (principal extraction) depend on. Apply it at **class level** for a test-wide persona, or at **method level** to override for specific test cases. **Important:** JUnit 5 `@Nested` inner classes do **not** inherit the outer class's `@WithUserPersona` — you must re-apply it on the nested class or on individual methods within it if those tests call code that reads the JWT principal (e.g. `authTokenService.getUserId()`).
 - **Test data:** Use factory classes in `src/test/kotlin/riven/core/service/util/factory/` — extend these for new domains.
 - **Integration tests:** Use `@ActiveProfiles("integration")` with Testcontainers PostgreSQL. Base classes provide shared container and `@DynamicPropertySource` wiring. Exclude security and Temporal auto-configuration.
 - **Unit test profile:** `application-test.yml` uses H2 in PostgreSQL-compat mode with `ddl-auto: create-drop`.
@@ -153,12 +153,17 @@ Multi-tenant workspace-scoped backend API for a configurable data platform with 
 
 - If you encounter ANY correction from the user. Point out the mistake made, and suggest to the user if they would like to add this to the relevant CLAUDE.md that this mistake should never be repeated again. Write it as a result to prevent yourself from making the same mistake again.
 
-### 4.Verification Before Marking as complete
+### 4. Verification Before Marking as complete
 
 - Never mark a task complete without proving it works
-- Run ./gradlew test and confirm compilation with ./gradlew build before marking any task done.
-- If you are testing a singular service for a minor change. You can run an isolated version of the gradle testing suite to only run tests on that domain, or serivce class. But for any task that is not menial. You must perform the afforementioned.
--
+- Run ./gradlew test and confirm compilation with ./gradlew build before marking any task done. This is the final verification gate and is never optional.
+- During iteration, you may run isolated tests (e.g. a single service class or domain) for faster feedback. However, isolated tests do not replace the full verification gate above — always run the full suite before marking done.
+
+### 5. Bug Fix Testing
+
+- Every bug reported by the user that results in a code fix **must** have an accompanying regression test at the appropriate level (unit, integration, or security) that confirms the fixed behaviour.
+- The test should include a KDoc comment with: a brief description of the original bug, a concise overview of the fix, and what the test is verifying.
+- The test must fail without the fix and pass with it — it should directly exercise the code path that was broken.
 
 ## Known Inconsistencies
 

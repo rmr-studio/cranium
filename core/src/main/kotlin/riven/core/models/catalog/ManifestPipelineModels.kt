@@ -49,7 +49,6 @@ data class NormalizedRelationship(
     val name: String,
     val iconType: String = "LINK",
     val iconColour: String = "NEUTRAL",
-    val allowPolymorphic: Boolean = false,
     val cardinalityDefault: EntityRelationshipCardinality,
     val `protected`: Boolean,
     val targetRules: List<NormalizedTargetRule>,
@@ -58,7 +57,6 @@ data class NormalizedRelationship(
 
 data class NormalizedTargetRule(
     val targetEntityTypeKey: String,
-    val semanticTypeConstraint: String? = null,
     val cardinalityOverride: EntityRelationshipCardinality? = null,
     val inverseVisible: Boolean? = null,
     val inverseName: String? = null
@@ -72,4 +70,14 @@ data class ResolvedRelationshipSemantics(
 data class ResolvedFieldMapping(
     val entityTypeKey: String,
     val mappings: Map<String, Any>
+)
+
+/** Output of ManifestResolverService for bundles -- template key list, ready for catalog persistence. */
+data class ResolvedBundle(
+    val key: String,
+    val name: String,
+    val description: String?,
+    val manifestVersion: String?,
+    val templateKeys: List<String>,
+    val stale: Boolean = false
 )

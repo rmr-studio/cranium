@@ -23,6 +23,7 @@ import { useEntitiesFromManyTypes } from '../../../hooks/query/use-entities';
 
 export interface EntityRelationshipPickerProps {
   relationship: RelationshipDefinition;
+  isTargetSide?: boolean;
   autoFocus?: boolean;
   value: EntityLink[];
   errors?: string[];
@@ -33,6 +34,7 @@ export interface EntityRelationshipPickerProps {
 
 export const EntityRelationshipPicker: FC<EntityRelationshipPickerProps> = ({
   relationship,
+  isTargetSide,
   autoFocus,
   value,
   errors,
@@ -53,6 +55,12 @@ export const EntityRelationshipPicker: FC<EntityRelationshipPickerProps> = ({
 
   const types: EntityType[] = useMemo(() => {
     if (!entityTypes) return [];
+
+    // For target-side relationships, show entities of the source type
+    if (isTargetSide) {
+      return entityTypes.filter((et) => et.id === relationship.sourceEntityTypeId);
+    }
+
     if (relationship.allowPolymorphic) return entityTypes;
 
     const targetTypeIds = new Set(
@@ -70,7 +78,7 @@ export const EntityRelationshipPicker: FC<EntityRelationshipPickerProps> = ({
     return entityTypes.filter(
       (et) => targetTypeIds.has(et.id) || semanticGroups.has(et.semanticGroup),
     );
-  }, [entityTypes, relationship]);
+  }, [entityTypes, relationship, isTargetSide]);
 
   const {
     data: entities = [],

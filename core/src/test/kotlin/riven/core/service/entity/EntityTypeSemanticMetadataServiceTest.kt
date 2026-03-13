@@ -24,7 +24,6 @@ import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.enums.workspace.WorkspaceRoles
 import riven.core.exceptions.NotFoundException
 import riven.core.models.common.validation.Schema
-import riven.core.models.entity.configuration.EntityTypeAttributeColumn
 import riven.core.models.request.entity.type.BulkSaveSemanticMetadataRequest
 import riven.core.models.request.entity.type.SaveSemanticMetadataRequest
 import riven.core.repository.entity.EntityTypeRepository
@@ -457,7 +456,7 @@ class EntityTypeSemanticMetadataServiceTest : BaseServiceTest() {
                     )
                 )
             ),
-            columns = listOf(EntityTypeAttributeColumn(key = attrId, type = riven.core.enums.entity.EntityPropertyType.ATTRIBUTE)),
+            columnConfiguration = riven.core.models.entity.configuration.ColumnConfiguration(order = listOf(attrId)),
             identifierKey = attrId,
         )
     }

@@ -63,6 +63,8 @@ interface ColumnSliceState {
   columnSizing: Record<string, number>;
   /** Ordered array of column IDs */
   columnOrder: string[];
+  /** Column visibility by column ID */
+  columnVisibility: Record<string, boolean>;
 }
 
 interface UISliceState {
@@ -144,6 +146,8 @@ interface ColumnActions {
     sizing: Record<string, number> | ((prev: Record<string, number>) => Record<string, number>),
   ) => void;
   setColumnOrder: (order: string[]) => void;
+  setColumnVisibility: (visibility: Record<string, boolean>) => void;
+  toggleColumnVisibility: (columnId: string) => void;
 }
 
 interface UIActions {
@@ -227,6 +231,8 @@ export interface CreateDataTableStoreOptions<TData> {
   initialColumnSizing?: Record<string, number>;
   /** Initial column order */
   initialColumnOrder?: string[];
+  /** Initial column visibility */
+  initialColumnVisibility?: Record<string, boolean>;
   /** Callback for cell edit (returns true on success) */
   onCellEdit?: (row: TData, columnId: string, newValue: any, oldValue: any) => Promise<boolean>;
   /** Function to get unique row ID */
@@ -375,6 +381,7 @@ export const createDataTableStore = <TData>(options: CreateDataTableStoreOptions
   const {
     initialData,
     initialColumnSizing = {},
+    initialColumnVisibility = {},
     onCellEdit,
     getRowId = (row: TData, index: number) => String(index),
   } = options;
@@ -409,6 +416,7 @@ export const createDataTableStore = <TData>(options: CreateDataTableStoreOptions
       // Column slice
       columnSizing: initialColumnSizing,
       columnOrder: [],
+      columnVisibility: initialColumnVisibility,
 
       // UI slice
       isMounted: false,
@@ -551,6 +559,16 @@ export const createDataTableStore = <TData>(options: CreateDataTableStoreOptions
         })),
 
       setColumnOrder: (order) => set({ columnOrder: order }),
+
+      setColumnVisibility: (visibility) => set({ columnVisibility: visibility }),
+
+      toggleColumnVisibility: (columnId) =>
+        set((state) => ({
+          columnVisibility: {
+            ...state.columnVisibility,
+            [columnId]: !(state.columnVisibility[columnId] ?? true),
+          },
+        })),
 
       // ================================================================
       // UI Actions

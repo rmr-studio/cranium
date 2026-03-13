@@ -169,7 +169,7 @@ export const createEntityTypeConfigStore = (
           },
           icon: values.icon,
           semanticGroup: values.semanticGroup,
-          columns: values.columns,
+          columnConfiguration: values.columnConfiguration,
           semantics:
             values.description || values.tags.length > 0
               ? { definition: values.description, tags: values.tags }

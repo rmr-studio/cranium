@@ -19,7 +19,8 @@ object CatalogFactory {
         name: String = "Test Manifest",
         description: String = "A test manifest",
         manifestVersion: String = "1.0.0",
-        stale: Boolean = false
+        stale: Boolean = false,
+        templateKeys: List<String>? = null
     ) = ManifestCatalogEntity(
         id = id,
         key = key,
@@ -27,7 +28,8 @@ object CatalogFactory {
         description = description,
         manifestType = type,
         manifestVersion = manifestVersion,
-        stale = stale
+        stale = stale,
+        templateKeys = templateKeys
     )
 
     fun createEntityTypeEntity(
@@ -74,7 +76,6 @@ object CatalogFactory {
         catalogRelationshipId: UUID,
         id: UUID = UUID.randomUUID(),
         targetEntityTypeKey: String = "target-entity-type",
-        semanticTypeConstraint: SemanticGroup = SemanticGroup.CUSTOMER,
         cardinalityOverride: EntityRelationshipCardinality = EntityRelationshipCardinality.ONE_TO_ONE,
         inverseVisible: Boolean = true,
         inverseName: String = "reverse-test"
@@ -82,7 +83,6 @@ object CatalogFactory {
         id = id,
         catalogRelationshipId = catalogRelationshipId,
         targetEntityTypeKey = targetEntityTypeKey,
-        semanticTypeConstraint = semanticTypeConstraint,
         cardinalityOverride = cardinalityOverride,
         inverseVisible = inverseVisible,
         inverseName = inverseName

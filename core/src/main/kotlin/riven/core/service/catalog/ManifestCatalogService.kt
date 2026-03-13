@@ -4,6 +4,9 @@ import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
 import riven.core.enums.catalog.ManifestType
 import riven.core.exceptions.NotFoundException
+import riven.core.models.catalog.BundleDetail
+import riven.core.models.catalog.BundlePreview
+import riven.core.models.catalog.BundleTemplatePreview
 import riven.core.models.catalog.CatalogEntityTypeModel
 import riven.core.models.catalog.ManifestDetail
 import riven.core.models.catalog.ManifestSummary
@@ -41,6 +44,51 @@ class ManifestCatalogService(
      */
     fun getAvailableModels(): List<ManifestSummary> =
         getManifestSummaries(ManifestType.MODEL)
+
+    /** Returns all non-stale bundle manifests with their template key lists. */
+    fun getAvailableBundles(): List<BundleDetail> {
+        val manifests = manifestCatalogRepository.findByManifestTypeAndStaleFalse(ManifestType.BUNDLE)
+        return manifests.map { it.toBundleDetail() }
+    }
+
+    /**
+     * Returns a bundle detail by key.
+     *
+     * @throws NotFoundException if the bundle key doesn't exist or is stale
+     */
+    fun getBundleByKey(key: String): BundleDetail {
+        require(key.isNotBlank()) { "Bundle key must not be blank" }
+        val catalog = manifestCatalogRepository.findByKeyAndManifestTypeAndStaleFalse(key, ManifestType.BUNDLE)
+            ?: throw NotFoundException("Bundle not found: $key")
+        return catalog.toBundleDetail()
+    }
+
+    /**
+     * Returns a detailed preview of a bundle including all entity types, attributes, and
+     * relationships grouped by template. Used for onboarding previews.
+     *
+     * @throws NotFoundException if the bundle key doesn't exist or any referenced template is missing
+     */
+    fun getBundlePreview(bundleKey: String): BundlePreview {
+        val bundle = getBundleByKey(bundleKey)
+        val templates = bundle.templateKeys.map { key ->
+            val manifest = getManifestByKey(key, ManifestType.TEMPLATE)
+            BundleTemplatePreview(
+                key = manifest.key,
+                name = manifest.name,
+                description = manifest.description,
+                entityTypes = manifest.entityTypes,
+                relationships = manifest.relationships,
+            )
+        }
+        return BundlePreview(
+            id = bundle.id,
+            key = bundle.key,
+            name = bundle.name,
+            description = bundle.description,
+            templates = templates,
+        )
+    }
 
     /**
      * Returns a fully hydrated manifest detail including entity types (with semantic metadata),

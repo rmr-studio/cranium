@@ -41,8 +41,13 @@ class ManifestResolverService(
             return buildStaleManifest(scanned)
         }
 
-        val entityTypeKeys = entityTypes.map { it.key }.toSet()
-        if (relationships.isNotEmpty() && !validateRelationships(relationships, entityTypeKeys)) {
+        val localEntityTypeKeys = entityTypes.map { it.key }.toSet()
+        val validEntityTypeKeys = if (scanned.type == ManifestType.TEMPLATE) {
+            localEntityTypeKeys + modelIndex.keys
+        } else {
+            localEntityTypeKeys
+        }
+        if (relationships.isNotEmpty() && !validateRelationships(relationships, validEntityTypeKeys)) {
             return buildStaleManifest(scanned)
         }
 
@@ -59,6 +64,24 @@ class ManifestResolverService(
             relationships = relationships,
             fieldMappings = fieldMappings,
             stale = false
+        )
+    }
+
+    /**
+     * Resolves a bundle manifest into a ResolvedBundle.
+     * Bundles are lightweight — they only store a list of template keys.
+     * No entity type resolution needed; that happens at installation time.
+     */
+    fun resolveBundle(scanned: ScannedManifest): ResolvedBundle {
+        require(scanned.type == ManifestType.BUNDLE) { "Expected BUNDLE manifest, got ${scanned.type}" }
+        val json = scanned.json
+
+        return ResolvedBundle(
+            key = json.get("key").asText(),
+            name = json.get("name").asText(),
+            description = json.get("description")?.asText(),
+            manifestVersion = json.get("manifestVersion")?.asText(),
+            templateKeys = json.get("templates").map { it.asText() },
         )
     }
 
@@ -80,6 +103,7 @@ class ManifestResolverService(
             }
             ManifestType.TEMPLATE -> resolveTemplateEntityTypes(json, modelIndex)
             ManifestType.INTEGRATION -> resolveIntegrationEntityTypes(json)
+            ManifestType.BUNDLE -> emptyList<ResolvedEntityType>() to false
         }
     }
 
@@ -293,7 +317,6 @@ class ManifestResolverService(
             name = rel.get("name").asText(),
             iconType = icon?.get("type")?.asText() ?: "LINK",
             iconColour = icon?.get("colour")?.asText() ?: "NEUTRAL",
-            allowPolymorphic = rel.get("allowPolymorphic")?.asBoolean() ?: false,
             cardinalityDefault = cardinality,
             `protected` = isProtected,
             targetRules = listOf(NormalizedTargetRule(targetEntityTypeKey = targetKey)),
@@ -310,15 +333,8 @@ class ManifestResolverService(
         val targetRulesArray = rel.get("targetRules") as? ArrayNode ?: objectMapper.createArrayNode()
         val targetRules = targetRulesArray.map { rule ->
             val cardinalityOverrideStr = rule.get("cardinalityOverride")?.asText()
-            val semanticTypeConstraintStr = rule.get("semanticTypeConstraint")?.asText()
             NormalizedTargetRule(
                 targetEntityTypeKey = rule.get("targetEntityTypeKey").asText(),
-                semanticTypeConstraint = semanticTypeConstraintStr?.let {
-                    try { riven.core.enums.entity.semantics.SemanticGroup.valueOf(it); it } catch (_: IllegalArgumentException) {
-                        logger.warn { "Invalid semanticTypeConstraint '$it' in target rule for '${rule.get("targetEntityTypeKey")?.asText()}', ignoring" }
-                        null
-                    }
-                },
                 cardinalityOverride = cardinalityOverrideStr?.let {
                     try { EntityRelationshipCardinality.valueOf(it) } catch (_: IllegalArgumentException) { null }
                 },
@@ -336,7 +352,6 @@ class ManifestResolverService(
             name = rel.get("name").asText(),
             iconType = icon?.get("type")?.asText() ?: "LINK",
             iconColour = icon?.get("colour")?.asText() ?: "NEUTRAL",
-            allowPolymorphic = rel.get("allowPolymorphic")?.asBoolean() ?: false,
             cardinalityDefault = cardinalityDefault,
             `protected` = isProtected,
             targetRules = targetRules,

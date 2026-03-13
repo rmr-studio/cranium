@@ -4,7 +4,7 @@ tags:
   - layer/service
   - architecture/component
 Created: 2026-02-08
-Updated: 2026-02-08
+Updated: 2026-03-09
 Domains:
   - "[[Entities]]"
 ---
@@ -16,20 +16,20 @@ Part of [[Querying]]
 
 ## Purpose
 
-Generates parameterized SQL fragments for filtering entities by JSONB attribute values, converting FilterOperator conditions into PostgreSQL SQL with appropriate JSONB operators optimized for GIN index usage.
+Generates parameterized SQL fragments for filtering entities by attribute values stored in the normalized `entity_attributes` table. All operators produce EXISTS or NOT EXISTS subqueries correlating on `entity_id = {entityAlias}.id`, enabling indexed lookups.
 
 ---
 
 ## Responsibilities
 
 **This component owns:**
-- Converting FilterOperator conditions to PostgreSQL JSONB SQL
-- Optimizing EQUALS operator for GIN index usage (`@>` containment)
-- Adding key existence checks for NOT_EQUALS and NOT_IN (prevent NULL mismatches)
-- Generating regex-guarded numeric casts for comparisons (prevent PostgreSQL errors)
+- Converting FilterOperator conditions to EXISTS/NOT EXISTS subqueries against `entity_attributes`
+- JSONB value comparison using `value = :val::jsonb` for equality and `(value #>> '{}')` for text extraction
+- Regex-guarded numeric casts for comparisons (prevent PostgreSQL errors)
 - Escaping LIKE metacharacters for safe pattern matching
 - Handling entity alias parameterization for nested relationship filters
 - Generating ALWAYS_TRUE/ALWAYS_FALSE fragments for empty IN/NOT_IN lists
+- Serializing values to JSONB literals via `serializeJsonbValue()` helper
 
 **Explicitly NOT responsible for:**
 - Validating filter structure or attribute IDs (delegated to validation layer)
@@ -50,19 +50,16 @@ Generates parameterized SQL fragments for filtering entities by JSONB attribute 
 
 ### External Dependencies
 
-|Service/Library|Purpose|Failure Impact|
-|---|---|---|
-|Jackson ObjectMapper|JSON serialization for GIN containment queries|Cannot generate EQUALS operator SQL|
-|Spring Framework|Dependency injection via @Component|Cannot instantiate component|
+None. ObjectMapper dependency removed — JSONB serialization handled by `serializeJsonbValue()` helper.
 
 ### Injected Dependencies
 
 ```kotlin
 @Component
-class AttributeSqlGenerator(
-    private val objectMapper: ObjectMapper
-)
+class AttributeSqlGenerator
 ```
+
+No constructor dependencies. Stateless component.
 
 ---
 
@@ -81,14 +78,14 @@ class AttributeSqlGenerator(
 
 #### `generate(attributeId: UUID, operator: FilterOperator, value: Any?, paramGen: ParameterNameGenerator, entityAlias: String = "e"): SqlFragment`
 
-- **Purpose:** Generates a SQL fragment for filtering by an attribute value
+- **Purpose:** Generates an EXISTS/NOT EXISTS subquery fragment for filtering by an attribute value in the `entity_attributes` table
 - **When to use:** For each attribute comparison in a filter tree
 - **Side effects:** Increments paramGen counter (pure function otherwise)
 - **Throws:** None (all operators supported, invalid inputs produce safe SQL)
 - **Returns:** SqlFragment with parameterized SQL and bound values
 
 **Parameters:**
-- `attributeId`: UUID key of the attribute in the entity's JSONB payload
+- `attributeId`: UUID of the attribute in the `entity_attributes` table
 - `operator`: Comparison operator (EQUALS, GREATER_THAN, CONTAINS, etc.)
 - `value`: Value to compare against (may be null for IS_NULL/IS_NOT_NULL)
 - `paramGen`: Generator for unique parameter names (shared across query tree)
@@ -118,73 +115,57 @@ when (operator) {
 
 ## Key Logic
 
-### GIN Index Optimization
+### EXISTS Subquery Pattern
 
-**EQUALS operator uses `@>` containment for index efficiency:**
-
-```sql
-e.payload @> '{"attr-uuid": {"value": "some-value"}}'::jsonb
-```
-
-**Why `@>` instead of `->>` equality:**
-- GIN indexes with `jsonb_path_ops` can use index scans for containment checks
-- `->>` equality (`payload->>'attr-uuid' = 'value'`) requires sequential scan of JSONB values
-- `@>` is semantically correct: "payload contains this exact key-value pair"
-
-**JSON structure:**
-The containment check wraps the value in the expected schema structure:
-```json
-{
-  "attribute-uuid": {
-    "value": "actual-value"
-  }
-}
-```
-
-**Edge case - null values:**
-If value is null, delegates to IS_NULL operator (containment doesn't work for null).
-
-### Key Existence Checks
-
-**NOT_EQUALS and NOT_IN require key existence verification:**
+**All operators use EXISTS/NOT EXISTS subqueries against `entity_attributes`:**
 
 ```sql
--- NOT_EQUALS
-(jsonb_exists(e.payload, :key) AND (e.payload->:key->>'value') != :val)
-
--- NOT_IN
-(jsonb_exists(e.payload, :key) AND (e.payload->:key->>'value') NOT IN (:vals))
+EXISTS (
+    SELECT 1 FROM entity_attributes a_0
+    WHERE a_0.entity_id = e.id
+    AND a_0.attribute_id = :eq_attr_1
+    AND a_0.value = :eq_val_2::jsonb
+    AND a_0.deleted = false
+)
 ```
 
-**Why key existence check is required:**
+**Why EXISTS subqueries instead of JSONB operators:**
+- Enables B-tree indexing on `(attribute_id, type_id, value)` for fast lookups
+- Eliminates GIN index dependency (`jsonb_path_ops` no longer needed)
+- Each subquery correlates on `entity_id = {entityAlias}.id` for correct entity scoping
+- `deleted = false` filter in every subquery respects soft-delete semantics
 
-Without `jsonb_exists()`:
-- Entities missing the attribute would match NOT_EQUALS (NULL != 'value' is NULL/unknown)
-- SQL treats NULL as "no match" but conceptually it's different from "has attribute and differs"
+**Value comparison approaches:**
+- **Equality:** `a.value = :val::jsonb` — direct JSONB comparison (strings quoted, numbers raw)
+- **Text extraction:** `(a.value #>> '{}')` — extracts top-level JSON value as text for ILIKE, IN, numeric casts
+- **Serialization:** `serializeJsonbValue()` helper converts values to JSONB literals (strings → `"quoted"`, numbers/booleans → raw)
 
-With `jsonb_exists()`:
-- Only entities that HAVE the attribute and the value differs will match
-- Entities missing the attribute are excluded (correct semantics)
+### Attribute Existence Semantics
 
-**Operators requiring key check:**
-- NOT_EQUALS
-- NOT_IN
+**EXISTS vs NOT EXISTS handles null/missing correctly:**
 
-**Operators NOT requiring key check:**
-- EQUALS, CONTAINS, STARTS_WITH, ENDS_WITH (missing attribute correctly doesn't match)
-- IS_NULL, IS_NOT_NULL (explicitly check for presence/absence)
-- Numeric comparisons (CASE expression handles missing values)
+- **EQUALS:** EXISTS subquery — only matches if attribute row exists with matching value
+- **NOT_EQUALS:** EXISTS with `!=` — only matches if attribute row exists with different value. Entities missing the attribute are excluded (no row = no match in EXISTS).
+- **IS_NULL:** NOT EXISTS — matches when no attribute row exists (attribute absent or soft-deleted)
+- **IS_NOT_NULL:** EXISTS — matches when attribute row exists (regardless of value)
+
+**Key difference from JSONB approach:**
+Previously, NOT_EQUALS required an explicit `jsonb_exists()` check to exclude missing keys. With normalized rows, EXISTS naturally excludes entities without the attribute.
 
 ### Numeric Comparison Type Safety
 
 **Regex-guarded cast prevents PostgreSQL errors:**
 
 ```sql
-CASE
-    WHEN (e.payload->:key->>'value') ~ '^-?[0-9]+(\.[0-9]+)?$'
-    THEN (e.payload->:key->>'value')::numeric > :val
-    ELSE false
-END
+EXISTS (SELECT 1 FROM entity_attributes a_0
+    WHERE a_0.entity_id = e.id
+    AND a_0.attribute_id = :num_attr_1
+    AND a_0.deleted = false
+    AND CASE
+        WHEN (a_0.value #>> '{}') ~ '^-?[0-9]+(\.[0-9]+)?$'
+        THEN (a_0.value #>> '{}')::numeric > :num_val_2
+        ELSE false
+    END)
 ```
 
 **Why regex guard is needed:**
@@ -240,7 +221,7 @@ Incorrect (backslash last):
 **SQL ESCAPE clause:**
 All LIKE queries use `ESCAPE '\\'` to declare backslash as escape character:
 ```sql
-(e.payload->:key->>'value') ILIKE :val ESCAPE '\\'
+(a.value #>> '{}') ILIKE :val ESCAPE '\\'
 ```
 
 **Operators using escaping:**
@@ -256,13 +237,13 @@ All LIKE queries use `ESCAPE '\\'` to declare backslash as escape character:
 Default (root entity):
 ```kotlin
 generator.generate(attrId, EQUALS, "Active", paramGen)
-// SQL: e.payload @> :eq_0::jsonb
+// SQL: EXISTS (SELECT 1 FROM entity_attributes a_0 WHERE a_0.entity_id = e.id AND ...)
 ```
 
 Custom alias (relationship target):
 ```kotlin
 generator.generate(attrId, EQUALS, "Active", paramGen, entityAlias = "t_1")
-// SQL: t_1.payload @> :eq_0::jsonb
+// SQL: EXISTS (SELECT 1 FROM entity_attributes a_0 WHERE a_0.entity_id = t_1.id AND ...)
 ```
 
 **Why this is needed:**
@@ -275,7 +256,7 @@ EXISTS (
     JOIN entities t_1 ON r_0.target_entity_id = t_1.id
     WHERE r_0.source_entity_id = e.id
       AND r_0.relationship_field_id = :rel_2
-      AND t_1.payload @> :eq_3::jsonb  -- References t_1, not e
+      AND EXISTS (SELECT 1 FROM entity_attributes a_4 WHERE a_4.entity_id = t_1.id AND ...)  -- Correlates on t_1, not e
 )
 ```
 
@@ -312,13 +293,16 @@ if (values.isEmpty()) {
 
 ### EQUALS
 
-**GIN-optimized containment:**
+**EXISTS subquery with JSONB equality:**
 ```sql
-e.payload @> '{"attr-uuid": {"value": "Active"}}'::jsonb
+EXISTS (SELECT 1 FROM entity_attributes a_0
+    WHERE a_0.entity_id = e.id AND a_0.attribute_id = :eq_attr_1
+    AND a_0.value = :eq_val_2::jsonb AND a_0.deleted = false)
 ```
 
 **Parameters:**
-- `eq_N`: JSON string with containment structure
+- `eq_attr_N`: Attribute UUID
+- `eq_val_N`: JSONB literal (via serializeJsonbValue)
 
 **Edge case:** If value is null, delegates to IS_NULL.
 
@@ -326,14 +310,16 @@ e.payload @> '{"attr-uuid": {"value": "Active"}}'::jsonb
 
 ### NOT_EQUALS
 
-**Key existence + inequality:**
+**EXISTS subquery with JSONB inequality:**
 ```sql
-(jsonb_exists(e.payload, :key) AND (e.payload->:key->>'value') != :val)
+EXISTS (SELECT 1 FROM entity_attributes a_0
+    WHERE a_0.entity_id = e.id AND a_0.attribute_id = :neq_attr_1
+    AND a_0.value != :neq_val_2::jsonb AND a_0.deleted = false)
 ```
 
 **Parameters:**
-- `neq_key_N`: Attribute UUID string
-- `neq_val_N`: Value as string (toString())
+- `neq_attr_N`: Attribute UUID
+- `neq_val_N`: JSONB literal (via serializeJsonbValue)
 
 **Edge case:** If value is null, delegates to IS_NOT_NULL.
 
@@ -341,18 +327,18 @@ e.payload @> '{"attr-uuid": {"value": "Active"}}'::jsonb
 
 ### GREATER_THAN / GREATER_THAN_OR_EQUALS / LESS_THAN / LESS_THAN_OR_EQUALS
 
-**Regex-guarded numeric comparison:**
+**EXISTS subquery with regex-guarded numeric comparison:**
 ```sql
-CASE
-    WHEN (e.payload->:key->>'value') ~ '^-?[0-9]+(\.[0-9]+)?$'
-    THEN (e.payload->:key->>'value')::numeric > :val
-    ELSE false
-END
+EXISTS (SELECT 1 FROM entity_attributes a_0
+    WHERE a_0.entity_id = e.id AND a_0.attribute_id = :num_attr_1
+    AND a_0.deleted = false
+    AND CASE WHEN (a_0.value #>> '{}') ~ '^-?[0-9]+(\.[0-9]+)?$'
+        THEN (a_0.value #>> '{}')::numeric > :num_val_2 ELSE false END)
 ```
 
 **Parameters:**
-- `num_key_N`: Attribute UUID string
-- `num_val_N`: Numeric value (coerced from input)
+- `num_attr_N`: Attribute UUID
+- `num_val_N`: Numeric value
 
 **Non-numeric values:** Fail to match (ELSE false).
 
@@ -360,13 +346,15 @@ END
 
 ### IN
 
-**List membership with extraction:**
+**EXISTS subquery with list membership:**
 ```sql
-(e.payload->:key->>'value') IN (:vals)
+EXISTS (SELECT 1 FROM entity_attributes a_0
+    WHERE a_0.entity_id = e.id AND a_0.attribute_id = :in_attr_1
+    AND (a_0.value #>> '{}') IN (:in_vals_2) AND a_0.deleted = false)
 ```
 
 **Parameters:**
-- `in_key_N`: Attribute UUID string
+- `in_attr_N`: Attribute UUID
 - `in_vals_N`: List of string values
 
 **Value extraction:**
@@ -380,13 +368,15 @@ END
 
 ### NOT_IN
 
-**Key existence + list non-membership:**
+**EXISTS subquery with list non-membership:**
 ```sql
-(jsonb_exists(e.payload, :key) AND (e.payload->:key->>'value') NOT IN (:vals))
+EXISTS (SELECT 1 FROM entity_attributes a_0
+    WHERE a_0.entity_id = e.id AND a_0.attribute_id = :nin_attr_1
+    AND (a_0.value #>> '{}') NOT IN (:nin_vals_2) AND a_0.deleted = false)
 ```
 
 **Parameters:**
-- `nin_key_N`: Attribute UUID string
+- `nin_attr_N`: Attribute UUID
 - `nin_vals_N`: List of string values
 
 **Empty list:** Returns `SqlFragment.ALWAYS_TRUE`.
@@ -395,13 +385,15 @@ END
 
 ### CONTAINS
 
-**Case-insensitive substring match:**
+**EXISTS subquery with case-insensitive substring match:**
 ```sql
-(e.payload->:key->>'value') ILIKE :val ESCAPE '\\'
+EXISTS (SELECT 1 FROM entity_attributes a_0
+    WHERE a_0.entity_id = e.id AND a_0.attribute_id = :contains_attr_1
+    AND (a_0.value #>> '{}') ILIKE :contains_val_2 ESCAPE '\\' AND a_0.deleted = false)
 ```
 
 **Parameters:**
-- `contains_key_N`: Attribute UUID string
+- `contains_attr_N`: Attribute UUID
 - `contains_val_N`: `%{escaped}%` pattern
 
 **Case sensitivity:** ILIKE is case-insensitive.
@@ -410,72 +402,78 @@ END
 
 ### NOT_CONTAINS
 
-**Case-insensitive substring non-match:**
+**NOT EXISTS subquery with case-insensitive substring match:**
 ```sql
-NOT ((e.payload->:key->>'value') ILIKE :val ESCAPE '\\')
+NOT EXISTS (SELECT 1 FROM entity_attributes a_0
+    WHERE a_0.entity_id = e.id AND a_0.attribute_id = :nc_attr_1
+    AND (a_0.value #>> '{}') ILIKE :nc_val_2 ESCAPE '\\' AND a_0.deleted = false)
 ```
 
 **Parameters:**
-- `ncontains_key_N`: Attribute UUID string
+- `ncontains_attr_N`: Attribute UUID
 - `ncontains_val_N`: `%{escaped}%` pattern
 
 ---
 
 ### STARTS_WITH
 
-**Case-insensitive prefix match:**
+**EXISTS subquery with case-insensitive prefix match:**
 ```sql
-(e.payload->:key->>'value') ILIKE :val ESCAPE '\\'
+EXISTS (SELECT 1 FROM entity_attributes a_0
+    WHERE a_0.entity_id = e.id AND a_0.attribute_id = :starts_attr_1
+    AND (a_0.value #>> '{}') ILIKE :starts_val_2 ESCAPE '\\' AND a_0.deleted = false)
 ```
 
 **Parameters:**
-- `starts_key_N`: Attribute UUID string
+- `starts_attr_N`: Attribute UUID
 - `starts_val_N`: `{escaped}%` pattern
 
 ---
 
 ### ENDS_WITH
 
-**Case-insensitive suffix match:**
+**EXISTS subquery with case-insensitive suffix match:**
 ```sql
-(e.payload->:key->>'value') ILIKE :val ESCAPE '\\'
+EXISTS (SELECT 1 FROM entity_attributes a_0
+    WHERE a_0.entity_id = e.id AND a_0.attribute_id = :ends_attr_1
+    AND (a_0.value #>> '{}') ILIKE :ends_val_2 ESCAPE '\\' AND a_0.deleted = false)
 ```
 
 **Parameters:**
-- `ends_key_N`: Attribute UUID string
+- `ends_attr_N`: Attribute UUID
 - `ends_val_N`: `%{escaped}` pattern
 
 ---
 
 ### IS_NULL
 
-**Null or missing attribute check:**
+**NOT EXISTS subquery — matches when no active attribute row exists:**
 ```sql
-(e.payload->:key->>'value') IS NULL
+NOT EXISTS (SELECT 1 FROM entity_attributes a_0
+    WHERE a_0.entity_id = e.id AND a_0.attribute_id = :isnull_attr_1
+    AND a_0.deleted = false)
 ```
 
 **Parameters:**
-- `isnull_key_N`: Attribute UUID string
+- `isnull_attr_N`: Attribute UUID
 
-**Matches:**
-- Missing attribute key (key doesn't exist in payload)
-- Explicit JSON null value (`{"attr": {"value": null}}`)
-
-**Why:** PostgreSQL's `->>` operator returns SQL NULL for both cases.
+**Matches:** Entities where no active attribute row exists (attribute absent or soft-deleted).
 
 ---
 
 ### IS_NOT_NULL
 
-**Non-null attribute check:**
+**EXISTS subquery — matches when an active attribute row exists:**
 ```sql
-(e.payload->:key->>'value') IS NOT NULL
+EXISTS (SELECT 1 FROM entity_attributes a_0
+    WHERE a_0.entity_id = e.id AND a_0.attribute_id = :notnull_attr_1
+    AND a_0.deleted = false)
 ```
 
 **Parameters:**
-- `notnull_key_N`: Attribute UUID string
+- `notnull_attr_N`: Attribute UUID
 
-**Matches:** Entities with attribute key present and non-null value.
+**Matches:** Entities where an active attribute row exists.
 
 ---
 
@@ -497,32 +495,16 @@ None - all operators are supported and invalid inputs produce safe SQL.
 
 ## Gotchas & Edge Cases
 
-> [!warning] GIN Index Requires jsonb_path_ops
-> The EQUALS operator's `@>` containment check is optimized for GIN indexes with `jsonb_path_ops` opclass:
+> [!warning] Composite Index Required
+> The EXISTS subqueries rely on the composite index `(attribute_id, type_id, value)` on `entity_attributes`:
 > ```sql
-> CREATE INDEX idx_entities_payload_gin ON entities USING GIN (payload jsonb_path_ops);
+> CREATE INDEX idx_entity_attributes_type_attr_value ON entity_attributes (attribute_id, type_id, value);
 > ```
 >
-> **Without GIN index:** Sequential scan of JSONB payloads (slow for large tables).
->
-> **With wrong opclass:** `jsonb_ops` (default) can use the index but less efficiently than `jsonb_path_ops`.
+> **Without this index:** Sequential scan of `entity_attributes` for each filter condition.
 
-> [!warning] Key Existence Check is Critical for NOT_EQUALS
-> NOT_EQUALS without `jsonb_exists()` produces incorrect results:
->
-> **Without key check:**
-> ```sql
-> (e.payload->>'status') != 'Active'
-> ```
-> - Matches entities missing 'status' attribute (NULL != 'Active' is NULL, treated as no match but returns rows)
->
-> **With key check:**
-> ```sql
-> (jsonb_exists(e.payload, 'status') AND (e.payload->>'status') != 'Active')
-> ```
-> - Only matches entities WITH 'status' attribute where value differs
->
-> **Impact:** Without key check, queries produce unexpected results (missing attributes treated as "not equal").
+> [!warning] Soft-Delete Filter in Subqueries
+> Every EXISTS subquery includes `AND a.deleted = false` to respect soft-delete semantics. This is critical because the subqueries use raw table references (not Hibernate entities), so `@SQLRestriction` does not apply.
 
 > [!warning] Numeric Comparison Regex is Strict
 > The regex `^-?[0-9]+(\.[0-9]+)?$` accepts standard numeric formats but rejects:
@@ -558,7 +540,6 @@ None - all operators are supported and invalid inputs produce safe SQL.
 ### Known Limitations
 
 - No support for array operations (check if JSONB array contains value)
-- No support for nested JSONB path traversal (only top-level attribute keys)
 - No support for scientific notation in numeric comparisons
 - CONTAINS/STARTS_WITH/ENDS_WITH are always case-insensitive (no LIKE variant)
 - IN/NOT_IN convert values to strings (may have type coercion issues)
@@ -568,7 +549,6 @@ None - all operators are supported and invalid inputs produce safe SQL.
 **Thread-safe** with Spring singleton:
 - Singleton Spring bean shared across threads
 - Stateless (no mutable fields)
-- ObjectMapper is thread-safe
 - Each method call is independent
 - No synchronization needed
 
@@ -584,20 +564,20 @@ None - all operators are supported and invalid inputs produce safe SQL.
 
 - **Location:** `src/test/kotlin/riven/core/service/entity/query/AttributeSqlGeneratorTest.kt`
 - **Key scenarios covered:**
-  - EQUALS uses GIN containment operator
+  - EQUALS generates EXISTS subquery with JSONB equality
   - EQUALS with null value delegates to IS_NULL
-  - NOT_EQUALS includes key existence check
-  - Numeric comparisons use regex-guarded CASE
-  - CONTAINS/STARTS_WITH/ENDS_WITH escape LIKE metacharacters
+  - NOT_EQUALS generates EXISTS subquery with inequality
+  - Numeric comparisons use regex-guarded CASE in EXISTS subquery
+  - CONTAINS/STARTS_WITH/ENDS_WITH escape LIKE metacharacters in EXISTS subquery
   - IN with empty list returns ALWAYS_FALSE
   - NOT_IN with empty list returns ALWAYS_TRUE
-  - NOT_IN includes key existence check
-  - IS_NULL matches missing keys and explicit nulls
-  - Custom entityAlias appears in generated SQL
+  - IS_NULL generates NOT EXISTS subquery
+  - IS_NOT_NULL generates EXISTS subquery
+  - Custom entityAlias appears in correlated subquery
 
 ### How to Test Manually
 
-1. Create AttributeSqlGenerator with ObjectMapper
+1. Create AttributeSqlGenerator (no constructor dependencies)
 2. Create ParameterNameGenerator
 3. Call generate() with test operator and value
 4. Inspect returned SqlFragment:
@@ -623,3 +603,13 @@ None - all operators are supported and invalid inputs produce safe SQL.
 |Date|Change|Reason|
 |---|---|---|
 |2026-02-08|Initial documentation|Phase 2 - Entities domain documentation (Plan 02-03)|
+|2026-03-09|Rewritten for normalized `entity_attributes` table|Entity Attributes Normalization|
+
+### 2026-03-09 — Rewritten for normalized entity_attributes table
+
+- All SQL patterns changed from JSONB operators (`@>`, `->`, `->>`) to EXISTS/NOT EXISTS subqueries against `entity_attributes` table.
+- ObjectMapper dependency removed — JSONB serialization handled by new `serializeJsonbValue()` helper.
+- GIN index optimization replaced by composite B-tree index on `(attribute_id, type_id, value)`.
+- Value extraction uses `(a.value #>> '{}')` instead of `(e.payload->:key->>'value')`.
+- Key existence checks (`jsonb_exists()`) no longer needed — EXISTS subquery semantics handle missing attributes naturally.
+- Each subquery includes `AND a.deleted = false` for soft-delete compliance.

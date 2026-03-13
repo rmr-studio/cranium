@@ -1,0 +1,15 @@
+{
+  "manifestVersion": "1.0",
+  "key": "crm",
+  "name": "CRM",
+  "description": "Core customer relationship management with contact records and communication tracking. The foundational template that other domain templates build upon.",
+  "entityTypes": [
+    {
+      "$ref": "models/customer"
+    },
+    {
+      "$ref": "models/communication"
+    }
+  ],
+  "relationships": []
+}

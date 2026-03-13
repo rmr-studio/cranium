@@ -27,6 +27,7 @@ Pure in-memory transformation service that resolves scanned manifests into fully
 - Detect duplicate relationship keys
 - Validate field mapping attribute keys against resolved entity type schemas
 - Degrade gracefully to stale manifests on any resolution failure
+- Resolve bundle manifests into lightweight `ResolvedBundle` objects (template key list extraction, no entity type resolution)
 
 ---
 
@@ -48,6 +49,7 @@ Pure in-memory transformation service that resolves scanned manifests into fully
 - **MODEL:** Parsed directly as a single entity type with `readonly=false`
 - **TEMPLATE:** Iterates `entityTypes` array. Entries with `$ref` are resolved from the model index; entries without are parsed inline. Any unresolved `$ref` marks the entire manifest stale
 - **INTEGRATION:** All entity types parsed with `readonly=true` by default
+- **BUNDLE:** No entity type resolution — bundles are resolved separately via `resolveBundle()`
 
 **$ref + extend merge:**
 
@@ -61,7 +63,7 @@ Pure in-memory transformation service that resolves scanned manifests into fully
 **Relationship normalization:**
 
 - **Shorthand format:** `targetEntityTypeKey` + `cardinality` fields produce a single-target-rule relationship
-- **Full format:** `targetRules` array with per-rule `cardinalityOverride`, `semanticTypeConstraint`, `inverseVisible`, `inverseName`
+- **Full format:** `targetRules` array with per-rule `cardinalityOverride`, `inverseVisible`, `inverseName`
 - **Mutual exclusivity:** A relationship node with both shorthand and `targetRules` fields returns null (marks manifest stale)
 - **Protected default:** `true` for INTEGRATION manifests, `false` for TEMPLATE manifests
 - **Full format cardinality default:** `ONE_TO_MANY` when no explicit cardinality is provided
@@ -89,6 +91,10 @@ Any resolution failure (unresolved `$ref`, mutual exclusivity violation, invalid
 
 Resolves a single scanned manifest through all four phases: entity type resolution, relationship normalization, relationship validation, and field mapping resolution. Returns a manifest with `stale=true` if any phase fails.
 
+### `resolveBundle(scanned: ScannedManifest): ResolvedBundle`
+
+Resolves a bundle manifest into a `ResolvedBundle`. Lightweight — extracts key, name, description, manifestVersion, and templateKeys list from the JSON. No entity type resolution; that happens at installation time via [[TemplateInstallationService]]. Requires `scanned.type == BUNDLE`.
+
 ---
 
 ## Gotchas
@@ -98,6 +104,7 @@ Resolves a single scanned manifest through all four phases: entity type resoluti
 - **Field mappings are lenient:** Unlike entity types and relationships, invalid field mapping keys do not mark the manifest stale — they are silently skipped with a warning. This allows partial field mappings to succeed
 - **Full format cardinality:** Relationships using the full `targetRules` format always default to `ONE_TO_MANY`. Per-rule overrides are specified via `cardinalityOverride` on individual target rules
 - **Shorthand requires both fields:** A shorthand relationship must have both `targetEntityTypeKey` and `cardinality` present. Missing either returns null for that relationship
+- **Bundle resolution is trivial:** `resolveBundle()` does pure field extraction with no validation beyond the `require(type == BUNDLE)` check. Schema validation happens upstream in [[ManifestScannerService]]. Entity type resolution happens downstream at installation time.
 
 ---
 

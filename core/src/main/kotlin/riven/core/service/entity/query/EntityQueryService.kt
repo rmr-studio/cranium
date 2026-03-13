@@ -24,6 +24,7 @@ import riven.core.models.entity.query.filter.QueryFilter
 import riven.core.models.entity.query.pagination.QueryPagination
 import riven.core.repository.entity.EntityRepository
 import riven.core.repository.entity.EntityTypeRepository
+import riven.core.service.entity.EntityAttributeService
 import riven.core.service.entity.type.EntityTypeRelationshipService
 import java.util.*
 import javax.sql.DataSource
@@ -51,6 +52,7 @@ class EntityQueryService(
     private val assembler: EntityQueryAssembler,
     private val validator: QueryFilterValidator,
     private val entityTypeRelationshipService: EntityTypeRelationshipService,
+    private val entityAttributeService: EntityAttributeService,
     dataSource: DataSource,
     queryProperties: QueryConfigurationProperties,
 ) {
@@ -161,8 +163,18 @@ class EntityQueryService(
             entityRepository.findByIdIn(trimmedIds)
         }
 
-        // Convert to domain models (no relationships loaded in Phase 5)
-        val entities = entityEntities.map { it.toModel(audit = true, relationships = emptyMap()) }
+        // Load attributes and convert to domain models
+        val allAttributes = withContext(Dispatchers.IO) {
+            entityAttributeService.getAttributesForEntities(trimmedIds)
+        }
+        val entities = entityEntities.map {
+            val eid = requireNotNull(it.id)
+            it.toModel(
+                audit = true,
+                relationships = emptyMap(),
+                attributes = allAttributes[eid] ?: emptyMap(),
+            )
+        }
 
         // Step 7: Re-sort to match original SQL order
         val idToIndex = trimmedIds.withIndex().associate { it.value to it.index }

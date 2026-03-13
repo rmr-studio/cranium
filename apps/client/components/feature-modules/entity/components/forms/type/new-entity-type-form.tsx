@@ -16,7 +16,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@riven/ui/select';
 import { TagInput } from '@/components/ui/tag-input';
 import { EntityType, SemanticGroup } from '@/lib/types/entity';
 import { cn } from '@/lib/util/utils';
@@ -56,6 +56,7 @@ export const NewEntityTypeForm: FC<Props> = ({ workspaceId, children, open, onOp
   const { form, handleSubmit } = useNewEntityTypeForm(workspaceId);
 
   const semanticGroup = form.watch('semanticGroup');
+  const description = form.watch('description');
 
   const onSubmit = async (values: NewEntityTypeFormValues) => {
     await handleSubmit(values);
@@ -136,7 +137,7 @@ export const NewEntityTypeForm: FC<Props> = ({ workspaceId, children, open, onOp
                     <Textarea
                       className={cn(
                         'max-h-72',
-                        semanticGroup === SemanticGroup.Custom && 'border-amber-500/50',
+                        semanticGroup === SemanticGroup.Custom && !description && 'border-amber-500/50',
                       )}
                       placeholder="Describe what this entity type represents..."
                       rows={3}
@@ -146,7 +147,7 @@ export const NewEntityTypeForm: FC<Props> = ({ workspaceId, children, open, onOp
                   <p
                     className={cn(
                       'min-h-4 text-xs',
-                      semanticGroup === SemanticGroup.Custom
+                      semanticGroup === SemanticGroup.Custom && !description
                         ? 'text-amber-600 dark:text-amber-400'
                         : 'invisible',
                     )}

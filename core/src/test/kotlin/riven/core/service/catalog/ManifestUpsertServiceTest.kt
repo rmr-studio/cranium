@@ -311,7 +311,6 @@ class ManifestUpsertServiceTest {
         name = "Deals",
         iconType = "LINK",
         iconColour = "NEUTRAL",
-        allowPolymorphic = false,
         cardinalityDefault = EntityRelationshipCardinality.ONE_TO_MANY,
         `protected` = false,
         targetRules = listOf(

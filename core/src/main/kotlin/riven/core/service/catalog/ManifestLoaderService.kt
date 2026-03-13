@@ -61,17 +61,19 @@ class ManifestLoaderService(
         val scannedModels = scannerService.scanModels()
         val scannedTemplates = scannerService.scanTemplates()
         val scannedIntegrations = scannerService.scanIntegrations()
+        val scannedBundles = scannerService.scanBundles()
 
         val (modelIndex, modelsResult) = loadModels(scannedModels, seenManifests)
         val templatesResult = loadTemplates(scannedTemplates, modelIndex, seenManifests)
         val integrationsResult = loadIntegrations(scannedIntegrations, seenManifests)
+        val bundlesResult = loadBundles(scannedBundles, seenManifests)
 
-        reconcileStaleEntries(scannedModels.size + scannedTemplates.size + scannedIntegrations.size, seenManifests)
+        reconcileStaleEntries(scannedModels.size + scannedTemplates.size + scannedIntegrations.size + scannedBundles.size, seenManifests)
         integrationDefinitionStaleSyncService.syncStaleFlags()
 
-        val totalSkipped = modelsResult.skipped + templatesResult.skipped + integrationsResult.skipped
+        val totalSkipped = modelsResult.skipped + templatesResult.skipped + integrationsResult.skipped + bundlesResult.skipped
         val staleCount = manifestCatalogRepository.findByStaleTrue().size
-        logger.info { "Manifest load complete: ${modelsResult.loaded} models, ${templatesResult.loaded} templates, ${integrationsResult.loaded} integrations loaded. $staleCount stale. $totalSkipped skipped." }
+        logger.info { "Manifest load complete: ${modelsResult.loaded} models, ${templatesResult.loaded} templates, ${integrationsResult.loaded} integrations, ${bundlesResult.loaded} bundles loaded. $staleCount stale. $totalSkipped skipped." }
     }
 
     // ------ Phase Loaders ------
@@ -146,6 +148,30 @@ class ManifestLoaderService(
                 }
             } catch (e: Exception) {
                 logger.warn(e) { "Failed to load integration manifest: ${scanned.key}" }
+                skipped++
+            }
+        }
+
+        return PhaseResult(loaded, skipped)
+    }
+
+    private fun loadBundles(
+        scannedBundles: List<ScannedManifest>,
+        seenManifests: MutableSet<Pair<String, ManifestType>>
+    ): PhaseResult {
+        var loaded = 0
+        var skipped = 0
+
+        for (scanned in scannedBundles) {
+            try {
+                val resolved = resolverService.resolveBundle(scanned)
+                upsertService.upsertBundle(resolved)
+                if (!resolved.stale) {
+                    loaded++
+                    seenManifests.add(scanned.key to scanned.type)
+                }
+            } catch (e: Exception) {
+                logger.warn(e) { "Failed to load bundle manifest: ${scanned.key}" }
                 skipped++
             }
         }

@@ -24,6 +24,12 @@ import { useSaveDefinitionMutation } from '../../mutation/type/use-save-definiti
 
 // ---- Schemas ----
 
+// NOTE: The schema retains 'semantic-group' as a valid ruleType and the
+// allowPolymorphic field for backwards compatibility with existing data.
+// However, the UI currently only creates 'entity-type' rules and forces
+// allowPolymorphic to false. When re-enabling these features, update the
+// UI components (target-rule-list.tsx, target-rule-item.tsx, relationship-form.tsx).
+
 const targetRuleSchema = z.object({
   id: z.string().optional(),
   ruleType: z.enum(['entity-type', 'semantic-group']),
@@ -47,6 +53,14 @@ export const relationshipFormSchema = z
     targetRules: z.array(targetRuleSchema),
   })
   .superRefine((data, ctx) => {
+    if (!data.allowPolymorphic && data.targetRules.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'At least one target rule is required',
+        path: ['targetRules'],
+      });
+    }
+
     data.targetRules.forEach((rule, index) => {
       if (rule.ruleType === 'entity-type') {
         if (typeof rule.targetEntityTypeKey !== 'string' || rule.targetEntityTypeKey.length === 0) {

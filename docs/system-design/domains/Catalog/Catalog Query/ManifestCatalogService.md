@@ -23,6 +23,8 @@ Read-only query service for the manifest catalog. Provides downstream services w
 - List available models (non-stale, MODEL type)
 - Retrieve a fully hydrated manifest by key and type, including entity types, relationships, target rules, semantic metadata, and field mappings
 - Retrieve entity types for a specific manifest
+- List available bundles (non-stale, BUNDLE type) with template key lists
+- Retrieve a specific bundle by key with template key list
 - Throw `NotFoundException` for missing or stale manifests
 
 ---
@@ -40,6 +42,7 @@ Read-only query service for the manifest catalog. Provides downstream services w
 ## Used By
 
 - Downstream services — consumed via direct service injection (no REST controllers)
+- [[TemplateInstallationService]] — queries template manifests and bundles for workspace installation
 
 ---
 
@@ -62,6 +65,14 @@ Returns summaries of all non-stale TEMPLATE-type manifests.
 ### `getAvailableModels(): List<ManifestSummary>`
 
 Returns summaries of all non-stale MODEL-type manifests.
+
+### `getAvailableBundles(): List<BundleDetail>`
+
+Returns all non-stale BUNDLE-type manifests with their template key lists.
+
+### `getBundleByKey(key: String): BundleDetail`
+
+Returns a specific bundle by key. Throws `NotFoundException` if the bundle does not exist or is stale.
 
 ### `getManifestByKey(key: String, manifestType: ManifestType): ManifestDetail`
 

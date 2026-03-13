@@ -50,10 +50,20 @@ class ManifestScannerService(
 
     /** Scans classpath integrations directory for integration manifests. Key derived from directory name. */
     fun scanIntegrations(): List<ScannedManifest> {
-        val resources = resourcePatternResolver.getResources("${manifestProperties.basePath}/integrations/*/manifest.json")
+        val resources =
+            resourcePatternResolver.getResources("${manifestProperties.basePath}/integrations/*/manifest.json")
         return resources.mapNotNull { resource ->
             val key = extractDirectoryName(resource, "integrations")
             parseAndValidate(resource, key, ManifestType.INTEGRATION, "manifests/schemas/integration.schema.json")
+        }
+    }
+
+    /** Scans classpath bundles directory for bundle manifests. Key derived from directory name. */
+    fun scanBundles(): List<ScannedManifest> {
+        val resources = resourcePatternResolver.getResources("${manifestProperties.basePath}/bundles/*/manifest.json")
+        return resources.mapNotNull { resource ->
+            val key = extractDirectoryName(resource, "bundles")
+            parseAndValidate(resource, key, ManifestType.BUNDLE, "manifests/schemas/bundle.schema.json")
         }
     }
 

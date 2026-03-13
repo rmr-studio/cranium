@@ -19,7 +19,7 @@ Top-level orchestrator for the manifest loading pipeline — scans, resolves, an
 
 ## Responsibilities
 
-- Orchestrate the full Scan → Resolve → Upsert pipeline across models, templates, and integrations
+- Orchestrate the full Scan → Resolve → Upsert pipeline across models, templates, integrations, and bundles
 - Fire on `ApplicationReadyEvent` in a dedicated background thread to avoid blocking startup
 - Build an in-memory model index during model loading for template `$ref` resolution
 - Isolate individual manifest failures (log and skip) to prevent one bad manifest from aborting the pipeline
@@ -47,17 +47,18 @@ Top-level orchestrator for the manifest loading pipeline — scans, resolves, an
 
 ## Key Logic
 
-**3-phase pipeline (models → templates → integrations):**
+**4-phase pipeline (models → templates → integrations → bundles):**
 
 1. **Models first:** Scan and load model manifests. Non-stale models are indexed by key into an in-memory `modelIndex` map (key → raw JSON). This ordering is intentional — templates depend on models for `$ref` resolution.
 2. **Templates second:** Scan and load template manifests, passing the `modelIndex` to the resolver so `$ref` references can be expanded against loaded models.
-3. **Integrations last:** Scan and load integration manifests with no model index (they don't reference models).
+3. **Integrations third:** Scan and load integration manifests with no model index (they don't reference models).
+4. **Bundles last:** Scan and load bundle manifests. Bundles are resolved via `resolverService.resolveBundle()` and persisted via `upsertService.upsertBundle()` — separate methods from the manifest flow since bundles have no entity types or child rows.
 
 Each phase iterates its scanned manifests individually: resolve, upsert, and track in a `seenManifests` set. Failures are caught per-manifest, logged at WARN, and the manifest is skipped.
 
 **Post-load reconciliation:**
 
-After all three phases, if any manifests were scanned, `reconciliationService.reconcileStaleEntries(seenManifests)` marks any catalog entries NOT in the seen set as stale. If zero manifests were found (likely a classpath misconfiguration), reconciliation is skipped entirely to avoid marking everything stale.
+After all four phases, if any manifests were scanned (including bundles), `reconciliationService.reconcileStaleEntries(seenManifests)` marks any catalog entries NOT in the seen set as stale. If zero manifests were found (likely a classpath misconfiguration), reconciliation is skipped entirely to avoid marking everything stale.
 
 **Cross-domain stale sync:**
 
@@ -96,7 +97,7 @@ Executes the full pipeline: scan all manifest types, resolve and upsert each, re
 
 - **No `@Transactional`:** The main method is deliberately non-transactional. Each manifest is upserted individually by [[ManifestUpsertService]], so a failure mid-pipeline does not roll back previously loaded manifests.
 - **Background thread, not async:** Uses a raw `Thread("manifest-loader")` rather than `@Async` or a thread pool. This means there is no timeout or retry mechanism — if the thread hangs, the health indicator stays in LOADING indefinitely.
-- **Model ordering is load-bearing:** Models MUST load before templates. The `modelIndex` built during model loading is passed to template resolution. Reordering the phases would break `$ref` resolution.
+- **Model ordering is load-bearing:** Models MUST load before templates. The `modelIndex` built during model loading is passed to template resolution. Bundles and integrations have no ordering dependency on other phases.
 - **Empty classpath guard:** If zero manifests are scanned across all three types, stale reconciliation is skipped. This prevents a classpath misconfiguration from marking the entire catalog stale.
 - **8 constructor dependencies:** High fan-in reflects the orchestrator role. This service delegates all real work and holds no domain logic itself.
 

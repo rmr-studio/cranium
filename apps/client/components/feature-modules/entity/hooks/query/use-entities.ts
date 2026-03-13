@@ -1,54 +1,57 @@
-import { useAuth } from "@/components/provider/auth-context";
-import { AuthenticatedMultiQueryResult, AuthenticatedQueryResult } from "@/lib/interfaces/interface";
-import { Entity } from "@/lib/types/entity";
-import { useQueries, useQuery } from "@tanstack/react-query";
-import { EntityService } from "../../service/entity.service";
+import { useAuth } from '@/components/provider/auth-context';
+import { useAuthenticatedQuery } from '@/hooks/query/use-authenticated-query';
+import { AuthenticatedMultiQueryResult, AuthenticatedQueryResult } from '@/lib/interfaces/interface';
+import { Entity } from '@/lib/types/entity';
+import { useMemo } from 'react';
+import { EntityService } from '@/components/feature-modules/entity/service/entity.service';
+import { entityKeys } from '@/components/feature-modules/entity/hooks/query/entity-query-keys';
 
 export function useEntities(
   workspaceId?: string,
   typeId?: string,
 ): AuthenticatedQueryResult<Entity[]> {
-  const { session, loading } = useAuth();
-  const query = useQuery({
-    queryKey: ['entities', workspaceId, typeId],
-    queryFn: async () => {
-      return await EntityService.getEntitiesForType(session, workspaceId!, typeId!); // Non-null assertion as query is disabled when params are missing
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    enabled: !!session && !!workspaceId && !!typeId && !loading,
+  const { session } = useAuth();
+  return useAuthenticatedQuery({
+    queryKey: entityKeys.entities.list(workspaceId!, typeId!),
+    queryFn: () => EntityService.getEntitiesForType(session, workspaceId!, typeId!),
+    staleTime: 5 * 60 * 1000,
+    enabled: !!workspaceId && !!typeId,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
-    gcTime: 10 * 60 * 1000, // 10 minutes garbage collection
+    gcTime: 10 * 60 * 1000,
   });
-
-  return {
-    isLoadingAuth: loading,
-    ...query,
-  };
 }
 
 export function useEntitiesFromManyTypes(
   workspaceId: string,
   typeIds: string[],
 ): AuthenticatedMultiQueryResult<Entity[]> {
-  const { session, loading } = useAuth();
-  const query = useQueries({
-    queries: typeIds.map((typeId) => ({
-      queryKey: ['entities', workspaceId, typeId],
-      queryFn: () => EntityService.getEntitiesForType(session, workspaceId, typeId),
-      enabled: !!session && !!workspaceId,
-    })),
-    combine: (results) => {
-      return {
-        data: results.flatMap((r) => r.data ?? []),
-        isLoading: results.some((r) => r.isLoading),
-        isError: results.some((r) => r.isError),
-      };
+  const { session } = useAuth();
+
+  // Sort typeIds for cache key stability
+  const sortedTypeIds = useMemo(() => [...typeIds].sort(), [typeIds]);
+
+  const result = useAuthenticatedQuery({
+    queryKey: entityKeys.entities.batch(workspaceId, sortedTypeIds),
+    queryFn: async () => {
+      const response = await EntityService.getEntitiesForTypes(
+        session,
+        workspaceId,
+        sortedTypeIds,
+      );
+      return Object.values(response).flat();
     },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    enabled: !!workspaceId && sortedTypeIds.length > 0,
   });
 
   return {
-    ...query,
-    isLoadingAuth: loading,
+    data: result.data ?? [],
+    isLoading: result.isLoading,
+    isError: result.isError,
+    isLoadingAuth: result.isLoadingAuth,
   };
 }

@@ -10,7 +10,7 @@ tags:
 
 ## Overview
 
-Startup-time pipeline that discovers, validates, resolves, and persists manifest definitions from the classpath into the catalog database. Triggered by `ApplicationReadyEvent`, the pipeline runs on a background thread and processes three manifest types: models, templates, and integrations. Each manifest goes through scanning (with JSON Schema validation), reference resolution (`$ref` expansion, `extends` merging, relationship normalization), and idempotent persistence (SHA-256 content hashing with delete-reinsert reconciliation). After all manifests are loaded, stale entries are reconciled and cross-domain stale flags are propagated.
+Startup-time pipeline that discovers, validates, resolves, and persists manifest definitions from the classpath into the catalog database. Triggered by `ApplicationReadyEvent`, the pipeline runs on a background thread and processes four manifest types: models, templates, integrations, and bundles. Each manifest goes through scanning (with JSON Schema validation), reference resolution (`$ref` expansion, `extends` merging, relationship normalization), and idempotent persistence (SHA-256 content hashing with delete-reinsert reconciliation). After all manifests are loaded, stale entries are reconciled and cross-domain stale flags are propagated. Bundle manifests are lightweight — they store only a list of template keys and are resolved separately from other manifest types.
 
 ## Components
 
@@ -31,3 +31,4 @@ Startup-time pipeline that discovers, validates, resolves, and persists manifest
 | Date | Change | Feature/ADR |
 | ---- | ------ | ----------- |
 | 2026-03-06 | Initial manifest pipeline implementation | Template Manifestation |
+| 2026-03-09 | Added bundle manifest scanning, resolution, and upsert across pipeline services | Entity Semantics |

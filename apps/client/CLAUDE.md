@@ -25,7 +25,7 @@ Riven is a unified business tooling SaaS platform that aims to connect all tools
 
 **Feature organization:** Hybrid. Feature code lives in `components/feature-modules/{feature}/` with subdirectories: `components/`, `hooks/query/`, `hooks/mutation/`, `hooks/form/`, `service/`, `store/` (or `stores/`), `context/`. Shared UI lives in `components/ui/`. Shared hooks in `hooks/`. Shared utils in `lib/util/`.
 
-**Import conventions:** Path alias `@/*` maps to project root. Direct imports — no barrel exports at feature-module level. Domain type barrels exist at `lib/types/{domain}/index.ts`. Import generated types from domain barrels (`@/lib/types/entity`), not from `@/lib/types/models/` directly.
+**Import conventions:** Always use the `@/*` path alias — never use relative imports. This applies to all imports: intra-feature, cross-feature, shared, library, and test files. Direct imports — no barrel exports at feature-module level. Domain type barrels exist at `lib/types/{domain}/index.ts`. Import generated types from domain barrels (`@/lib/types/entity`), not from `@/lib/types/models/` directly.
 
 ## Data Fetching and State
 

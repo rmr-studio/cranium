@@ -4,6 +4,7 @@ import { MutationFunctionContext, useMutation, UseMutationOptions, useQueryClien
 import { useRef } from 'react';
 import { toast } from 'sonner';
 import { EntityTypeService } from '../../../service/entity-type.service';
+import { entityKeys } from '../../query/entity-query-keys';
 
 export function useSaveEntityTypeConfiguration(
   workspaceId: string,
@@ -31,18 +32,11 @@ export function useSaveEntityTypeConfiguration(
       toast.dismiss(submissionToastRef.current);
       toast.success(`Entity type updated successfully!`);
 
-      // Update cache for all entity types that were updated
+      // Invalidate entity type queries (partial match handles varying `include` param)
+      queryClient.invalidateQueries({ queryKey: entityKeys.entityTypes.byKey(response.key, workspaceId) });
 
-      // Update individual entity type query cache
-      queryClient.setQueryData(['entityType', response.key, workspaceId], response);
-
-      // Update the entity types list in cache
-      queryClient.setQueryData<EntityType[]>(['entityTypes', workspaceId], (oldData) => {
-        if (!oldData) return [response];
-
-        // Replace all updated entity types in the list
-        return oldData.map((et) => (et.key === response.key ? response : et));
-      });
+      // Invalidate the entity types list
+      queryClient.invalidateQueries({ queryKey: entityKeys.entityTypes.list(workspaceId) });
 
       // Stay on the same page after update
       return response;

@@ -28,6 +28,8 @@ import riven.core.service.entity.type.EntityTypeAttributeService
 import riven.core.service.entity.type.EntityTypeRelationshipService
 import riven.core.service.entity.type.EntityTypeSequenceService
 import riven.core.service.entity.type.EntityTypeService
+import riven.core.enums.util.OperationType
+import riven.core.models.websocket.EntityEvent
 import riven.core.service.util.BaseServiceTest
 import riven.core.service.util.WithUserPersona
 import riven.core.service.util.WorkspaceRole
@@ -346,4 +348,5 @@ class EntityServiceTest : BaseServiceTest() {
         assertEquals("TSK-1", captor.firstValue[idAttrId]?.value)
         verify(sequenceService, never()).nextValue(any(), any())
     }
+
 }

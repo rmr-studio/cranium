@@ -61,11 +61,11 @@ Plans:
   3. User can skip the template step entirely and set up entity types later
   4. User can enter teammate emails with assigned roles and sees a team roster preview
   5. User can skip the invite step and invite teammates later
-**Plans:** TBD
+**Plans:** 1/2 plans executed
 
 Plans:
-- [ ] 03-01: Template catalog integration, selection UI, and preview mockup
-- [ ] 03-02: Team invite form, role assignment, and roster preview mockup
+- [ ] 03-01-PLAN.md — Template catalog integration, bundle selection UI, and live preview
+- [ ] 03-02-PLAN.md — Team invite form, role assignment, and roster preview
 
 ### Phase 4: Submission & Completion
 **Goal**: Users complete onboarding with a single submission that creates their workspace, installs templates, sends invites, and updates their profile
@@ -91,5 +91,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 |-------|----------------|--------|-----------|
 | 1. Foundation & Camera System | 3/3 | Complete | 2026-03-12 |
 | 2. Required Steps | 2/2 | Complete   | 2026-03-12 |
-| 3. Optional Steps | 0/2 | Not started | - |
+| 3. Optional Steps | 1/2 | In Progress|  |
 | 4. Submission & Completion | 0/2 | Not started | - |

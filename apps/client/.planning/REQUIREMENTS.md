@@ -48,10 +48,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Team Invites
 
-- [ ] **INVT-01**: User can enter teammate email addresses to invite
-- [ ] **INVT-02**: User can assign a role (admin, member, viewer) per invite
-- [ ] **INVT-03**: Invite step is skippable -- user can invite teammates later
-- [ ] **INVT-04**: Invite preview mockup shows team roster as emails are entered
+- [x] **INVT-01**: User can enter teammate email addresses to invite
+- [x] **INVT-02**: User can assign a role (admin, member, viewer) per invite
+- [x] **INVT-03**: Invite step is skippable -- user can invite teammates later
+- [x] **INVT-04**: Invite preview mockup shows team roster as emails are entered
 
 ### Submission & Completion
 
@@ -128,10 +128,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TMPL-03 | Phase 3 | Pending |
 | TMPL-04 | Phase 3 | Pending |
 | TMPL-05 | Phase 3 | Pending |
-| INVT-01 | Phase 3 | Pending |
-| INVT-02 | Phase 3 | Pending |
-| INVT-03 | Phase 3 | Pending |
-| INVT-04 | Phase 3 | Pending |
+| INVT-01 | Phase 3 | Complete |
+| INVT-02 | Phase 3 | Complete |
+| INVT-03 | Phase 3 | Complete |
+| INVT-04 | Phase 3 | Complete |
 | SUBT-01 | Phase 4 | Pending |
 | SUBT-02 | Phase 4 | Pending |
 | SUBT-03 | Phase 4 | Pending |

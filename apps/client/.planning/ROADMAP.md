@@ -76,11 +76,11 @@ Plans:
   2. Profile update happens last so the onboarding gate does not open until everything else succeeds
   3. User sees a celebration screen with animation after successful completion
   4. User is automatically redirected to their new workspace dashboard after the celebration
-**Plans:** TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 04-01: Consolidated payload assembly, sequential API submission, and error handling
-- [ ] 04-02: Success celebration screen and workspace redirect
+- [ ] 04-01-PLAN.md — Store extension, API factory, service, mutation hook, payload assembly, loading/error UI
+- [ ] 04-02-PLAN.md — Celebration screen with countdown, partial failure warnings, and workspace redirect
 
 ## Progress
 

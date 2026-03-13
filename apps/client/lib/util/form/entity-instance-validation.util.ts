@@ -1,6 +1,6 @@
 import { entityReferenceFormSchema } from '@/components/feature-modules/entity/components/tables/entity-table-utils';
 
-import { DataFormat, DataType, SchemaType, SchemaUUID } from '@/lib/types/common';
+import { DataFormat, DataType, SchemaOptions, SchemaType, SchemaUUID } from '@/lib/types/common';
 import {
   EntityRelationshipCardinality,
   EntityType,
@@ -38,21 +38,22 @@ export function buildZodSchemaFromEntityType(entityType: EntityType): z.ZodObjec
  */
 export function buildFieldSchema(schema: SchemaUUID): z.ZodTypeAny {
   const attributeType = attributeTypes[schema.key];
+  const mergedOptions: Partial<SchemaOptions> = { ...attributeType.options, ...schema.options };
   let fieldSchema: z.ZodTypeAny;
 
   // Base type mapping
   switch (attributeType.type) {
     case DataType.String:
-      fieldSchema = buildStringSchema(schema);
+      fieldSchema = buildStringSchema(schema, mergedOptions);
       break;
     case DataType.Number:
-      fieldSchema = buildNumberSchema(schema);
+      fieldSchema = buildNumberSchema(schema, mergedOptions);
       break;
     case DataType.Boolean:
       fieldSchema = z.boolean();
       break;
     case DataType.Array:
-      fieldSchema = buildArraySchema(schema);
+      fieldSchema = buildArraySchema(schema, mergedOptions);
       break;
     case DataType.Object:
       fieldSchema = z.record(z.any());
@@ -76,10 +77,10 @@ export function buildFieldSchema(schema: SchemaUUID): z.ZodTypeAny {
 /**
  * Build a Zod schema for string-based fields
  */
-function buildStringSchema(schema: SchemaUUID): z.ZodString {
+function buildStringSchema(schema: SchemaUUID, mergedOptions: Partial<SchemaOptions>): z.ZodString {
   let stringSchema = z.string();
 
-  const options = schema.options;
+  const options = mergedOptions;
   if (schema.required && !exists(options?.minLength)) {
     stringSchema = stringSchema.min(1, `${schema.label || 'Field'} is required`);
   }
@@ -154,13 +155,13 @@ function buildStringSchema(schema: SchemaUUID): z.ZodString {
 /**
  * Build a Zod schema for number-based fields
  */
-function buildNumberSchema(schema: SchemaUUID): z.ZodNumber {
+function buildNumberSchema(schema: SchemaUUID, mergedOptions: Partial<SchemaOptions>): z.ZodNumber {
   let numberSchema = z.number({
     required_error: `${schema.label || 'Field'} is required`,
     invalid_type_error: `${schema.label || 'Field'} must be a number`,
   });
 
-  const options = schema.options;
+  const options = mergedOptions;
   if (options) {
     // Min/max value constraints
     if (options.minimum !== undefined && options.minimum !== null) {
@@ -177,8 +178,8 @@ function buildNumberSchema(schema: SchemaUUID): z.ZodNumber {
 /**
  * Build a Zod schema for array-based fields (MULTI_SELECT, FILE_ATTACHMENT)
  */
-function buildArraySchema(schema: SchemaUUID): z.ZodArray<any> {
-  const options = schema.options;
+function buildArraySchema(schema: SchemaUUID, mergedOptions: Partial<SchemaOptions>): z.ZodArray<any> {
+  const options = mergedOptions;
 
   // For MULTI_SELECT with enum options
   if (schema.key === SchemaType.MultiSelect && options?._enum && options._enum.length > 0) {

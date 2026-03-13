@@ -67,7 +67,7 @@ function makeValidEntityRef() {
     id: VALID_UUID,
     workspaceId: VALID_UUID_2,
     sourceEntityId: VALID_UUID_3,
-    fieldId: VALID_UUID_4,
+    definitionId: VALID_UUID_4,
     label: 'Test Entity',
     key: 'test_entity',
     icon: { type: IconType.Circle, colour: IconColour.Neutral },
@@ -182,7 +182,13 @@ describe('buildFieldSchema', () => {
 
     it('rejects empty string when required and no minLength', () => {
       const schema = buildFieldSchema(makeAttr(SchemaType.Text, { required: true }));
-      expect(schema.safeParse('').success).toBe(false);
+      const result = schema.safeParse('');
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues).toContainEqual(
+          expect.objectContaining({ code: 'too_small', type: 'string', minimum: 1 }),
+        );
+      }
     });
 
     it('accepts non-empty string when required', () => {
@@ -194,7 +200,13 @@ describe('buildFieldSchema', () => {
       const schema = buildFieldSchema(
         makeAttr(SchemaType.Text, { options: { minLength: 5, maxLength: undefined } }),
       );
-      expect(schema.safeParse('hi').success).toBe(false);
+      const result = schema.safeParse('hi');
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues).toContainEqual(
+          expect.objectContaining({ code: 'too_small', type: 'string', minimum: 5 }),
+        );
+      }
       expect(schema.safeParse('hello').success).toBe(true);
     });
 
@@ -202,7 +214,13 @@ describe('buildFieldSchema', () => {
       const schema = buildFieldSchema(
         makeAttr(SchemaType.Text, { options: { maxLength: 5 } }),
       );
-      expect(schema.safeParse('toolong').success).toBe(false);
+      const result = schema.safeParse('toolong');
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues).toContainEqual(
+          expect.objectContaining({ code: 'too_big', type: 'string', maximum: 5 }),
+        );
+      }
       expect(schema.safeParse('ok').success).toBe(true);
     });
 
@@ -214,7 +232,13 @@ describe('buildFieldSchema', () => {
         }),
       );
       expect(schema.safeParse('AB-1234').success).toBe(true);
-      expect(schema.safeParse('invalid').success).toBe(false);
+      const result = schema.safeParse('invalid');
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues).toContainEqual(
+          expect.objectContaining({ code: 'invalid_string', validation: 'regex' }),
+        );
+      }
     });
 
     it('does not apply min(1) when minLength is explicitly set', () => {
@@ -224,9 +248,21 @@ describe('buildFieldSchema', () => {
         makeAttr(SchemaType.Text, { required: true, options: { minLength: 3 } }),
       );
       // Empty string fails because minLength=3
-      expect(schema.safeParse('').success).toBe(false);
+      const emptyResult = schema.safeParse('');
+      expect(emptyResult.success).toBe(false);
+      if (!emptyResult.success) {
+        expect(emptyResult.error.issues).toContainEqual(
+          expect.objectContaining({ code: 'too_small', type: 'string', minimum: 3 }),
+        );
+      }
       // 1-2 chars fail due to minLength
-      expect(schema.safeParse('ab').success).toBe(false);
+      const shortResult = schema.safeParse('ab');
+      expect(shortResult.success).toBe(false);
+      if (!shortResult.success) {
+        expect(shortResult.error.issues).toContainEqual(
+          expect.objectContaining({ code: 'too_small', type: 'string', minimum: 3 }),
+        );
+      }
       // 3+ chars pass
       expect(schema.safeParse('abc').success).toBe(true);
     });
@@ -244,7 +280,13 @@ describe('buildFieldSchema', () => {
 
     it('rejects invalid email', () => {
       const schema = buildFieldSchema(makeAttr(SchemaType.Email));
-      expect(schema.safeParse('not-an-email').success).toBe(false);
+      const result = schema.safeParse('not-an-email');
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues).toContainEqual(
+          expect.objectContaining({ code: 'invalid_string', validation: 'email' }),
+        );
+      }
     });
 
     it('accepts null when optional', () => {
@@ -270,7 +312,13 @@ describe('buildFieldSchema', () => {
 
     it('rejects invalid URL', () => {
       const schema = buildFieldSchema(makeAttr(SchemaType.Url));
-      expect(schema.safeParse('not-a-url').success).toBe(false);
+      const result = schema.safeParse('not-a-url');
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues).toContainEqual(
+          expect.objectContaining({ code: 'invalid_string', validation: 'url' }),
+        );
+      }
     });
 
     it('accepts null when optional', () => {
@@ -402,11 +450,10 @@ describe('buildFieldSchema', () => {
       expect(schema.safeParse(50).success).toBe(true);
     });
 
-    it('Rating has inherent min=1 max=5 from attributeTypes definition', () => {
-      // Rating in schema.util.ts has options: { minimum: 1, maximum: 5 }
-      // but buildFieldSchema only applies options from the SchemaUUID, not attributeTypes options
-      // So we just verify the number schema is created
+    it('enforces inherent Rating min=1 max=5 constraints', () => {
       const schema = buildFieldSchema(makeAttr(SchemaType.Rating));
+      expect(schema.safeParse(0).success).toBe(false);
+      expect(schema.safeParse(6).success).toBe(false);
       expect(schema.safeParse(3).success).toBe(true);
     });
   });
@@ -457,7 +504,13 @@ describe('buildFieldSchema', () => {
           options: { _enum: ['todo', 'in_progress', 'done'] },
         }),
       );
-      expect(schema.safeParse('invalid').success).toBe(false);
+      const result = schema.safeParse('invalid');
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues).toContainEqual(
+          expect.objectContaining({ code: 'invalid_enum_value' }),
+        );
+      }
     });
 
     it('accepts null when optional (no enum)', () => {
@@ -504,7 +557,13 @@ describe('buildFieldSchema', () => {
           options: { _enum: ['bug', 'feature'] },
         }),
       );
-      expect(schema.safeParse(['bug', 'invalid']).success).toBe(false);
+      const result = schema.safeParse(['bug', 'invalid']);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues).toContainEqual(
+          expect.objectContaining({ code: 'invalid_enum_value' }),
+        );
+      }
     });
 
     it('accepts null when optional', () => {
@@ -537,12 +596,53 @@ describe('buildFieldSchema', () => {
 
     it('rejects array with non-URL strings', () => {
       const schema = buildFieldSchema(makeAttr(SchemaType.FileAttachment));
-      expect(schema.safeParse(['not-a-url']).success).toBe(false);
+      const result = schema.safeParse(['not-a-url']);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues).toContainEqual(
+          expect.objectContaining({ code: 'invalid_string', validation: 'url' }),
+        );
+      }
     });
 
     it('accepts null when optional', () => {
       const schema = buildFieldSchema(makeAttr(SchemaType.FileAttachment));
       expect(schema.safeParse(null).success).toBe(true);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // inherent options merging
+  // ---------------------------------------------------------------------------
+
+  describe('inherent options merging', () => {
+    it('applies inherent Rating min/max when no per-instance options exist', () => {
+      const schema = buildFieldSchema(makeAttr(SchemaType.Rating));
+      // Rating has inherent { minimum: 1, maximum: 5 } from attributeTypes
+      expect(schema.safeParse(0).success).toBe(false);
+      expect(schema.safeParse(6).success).toBe(false);
+      expect(schema.safeParse(1).success).toBe(true);
+      expect(schema.safeParse(5).success).toBe(true);
+      expect(schema.safeParse(3).success).toBe(true);
+    });
+
+    it('allows per-instance options to override inherent options', () => {
+      const schema = buildFieldSchema(
+        makeAttr(SchemaType.Rating, { options: { minimum: 0, maximum: 10 } }),
+      );
+      // Per-instance overrides inherent { minimum: 1, maximum: 5 }
+      expect(schema.safeParse(0).success).toBe(true);
+      expect(schema.safeParse(10).success).toBe(true);
+      expect(schema.safeParse(11).success).toBe(false);
+    });
+
+    it('does not interfere when attributeType has no inherent options', () => {
+      // Text has no inherent options — per-instance options should work unchanged
+      const schema = buildFieldSchema(
+        makeAttr(SchemaType.Text, { options: { minLength: 3 } }),
+      );
+      expect(schema.safeParse('ab').success).toBe(false);
+      expect(schema.safeParse('abc').success).toBe(true);
     });
   });
 });
@@ -577,7 +677,13 @@ describe('buildRelationshipFieldSchema', () => {
     const schema = buildRelationshipFieldSchema(
       makeRel('rel-1', EntityRelationshipCardinality.ManyToOne),
     );
-    expect(schema.safeParse([makeValidEntityRef(), makeValidEntityRef()]).success).toBe(false);
+    const result = schema.safeParse([makeValidEntityRef(), makeValidEntityRef()]);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues).toContainEqual(
+        expect.objectContaining({ code: 'too_big', type: 'array', maximum: 1 }),
+      );
+    }
     expect(schema.safeParse([makeValidEntityRef()]).success).toBe(true);
   });
 
@@ -585,7 +691,13 @@ describe('buildRelationshipFieldSchema', () => {
     const schema = buildRelationshipFieldSchema(
       makeRel('rel-1', EntityRelationshipCardinality.OneToOne),
     );
-    expect(schema.safeParse([makeValidEntityRef(), makeValidEntityRef()]).success).toBe(false);
+    const result = schema.safeParse([makeValidEntityRef(), makeValidEntityRef()]);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues).toContainEqual(
+        expect.objectContaining({ code: 'too_big', type: 'array', maximum: 1 }),
+      );
+    }
     expect(schema.safeParse([makeValidEntityRef()]).success).toBe(true);
   });
 
@@ -601,7 +713,13 @@ describe('buildRelationshipFieldSchema', () => {
       makeRel('rel-1', EntityRelationshipCardinality.ManyToMany),
     );
     const badRef = { ...makeValidEntityRef(), id: 'not-a-uuid' };
-    expect(schema.safeParse([badRef]).success).toBe(false);
+    const result = schema.safeParse([badRef]);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues).toContainEqual(
+        expect.objectContaining({ code: 'custom', message: 'Invalid UUID', path: [0, 'id'] }),
+      );
+    }
   });
 
   it('rejects entity reference with empty label', () => {
@@ -609,7 +727,13 @@ describe('buildRelationshipFieldSchema', () => {
       makeRel('rel-1', EntityRelationshipCardinality.ManyToMany),
     );
     const badRef = { ...makeValidEntityRef(), label: '' };
-    expect(schema.safeParse([badRef]).success).toBe(false);
+    const result = schema.safeParse([badRef]);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues).toContainEqual(
+        expect.objectContaining({ code: 'too_small', type: 'string', minimum: 1 }),
+      );
+    }
   });
 });
 

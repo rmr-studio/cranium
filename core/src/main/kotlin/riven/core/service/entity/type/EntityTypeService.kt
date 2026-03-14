@@ -5,6 +5,7 @@ import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import riven.core.entity.entity.EntityTypeEntity
+import riven.core.entity.entity.RelationshipDefinitionEntity
 import riven.core.enums.activity.Activity
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.ApplicationEntityType
@@ -16,6 +17,7 @@ import riven.core.models.common.validation.Schema
 import riven.core.models.entity.EntityType
 import riven.core.models.entity.EntityTypeSchema
 import riven.core.models.entity.EntityTypeSemanticMetadata
+import riven.core.models.common.markDeleted
 import riven.core.models.entity.RelationshipDefinition
 import riven.core.models.entity.SemanticMetadataBundle
 import riven.core.models.entity.configuration.ColumnConfiguration
@@ -323,6 +325,46 @@ class EntityTypeService(
     }
 
 
+    // ------ Integration Lifecycle ------
+
+    /**
+     * Soft-deletes all entity types and their relationship definitions
+     * that belong to the given integration in this workspace.
+     */
+    @Transactional
+    @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
+    fun softDeleteByIntegration(workspaceId: UUID, integrationId: UUID): IntegrationSoftDeleteResult {
+        val userId = authTokenService.getUserId()
+        val entityTypes = entityTypeRepository.findBySourceIntegrationIdAndWorkspaceId(integrationId, workspaceId)
+
+        if (entityTypes.isEmpty()) return IntegrationSoftDeleteResult(0, 0)
+
+        val entityTypeIds = entityTypes.mapNotNull { it.id }
+        val relationships = definitionRepository.findByWorkspaceIdAndSourceEntityTypeIdIn(workspaceId, entityTypeIds)
+
+        val relationshipsSoftDeleted = softDeleteRelationships(relationships)
+        val entityTypesSoftDeleted = softDeleteEntityTypes(entityTypes, userId, workspaceId)
+
+        return IntegrationSoftDeleteResult(entityTypesSoftDeleted, relationshipsSoftDeleted)
+    }
+
+    /**
+     * Restores soft-deleted entity types for a given integration in this workspace.
+     */
+    @Transactional
+    @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
+    fun restoreByIntegration(workspaceId: UUID, integrationId: UUID): Int {
+        val entityTypes = entityTypeRepository.findSoftDeletedBySourceIntegrationIdAndWorkspaceId(integrationId, workspaceId)
+
+        entityTypes.forEach { type ->
+            type.deleted = false
+            type.deletedAt = null
+            entityTypeRepository.save(type)
+        }
+
+        return entityTypes.size
+    }
+
     // ------ Public read operations ------
 
     /**
@@ -527,6 +569,35 @@ class EntityTypeService(
         )
     }
 
+    // ------ Integration Lifecycle Helpers ------
+
+    private fun softDeleteEntityTypes(entityTypes: List<EntityTypeEntity>, userId: UUID, workspaceId: UUID): Int {
+        entityTypes.forEach { type ->
+            type.markDeleted()
+            entityTypeRepository.save(type)
+
+            activityService.log(
+                activity = Activity.ENTITY_TYPE,
+                operation = OperationType.DELETE,
+                userId = userId,
+                workspaceId = workspaceId,
+                entityType = ApplicationEntityType.ENTITY_TYPE,
+                entityId = requireNotNull(type.id),
+                "type" to type.key,
+                "reason" to "integration_disabled",
+            )
+        }
+        return entityTypes.size
+    }
+
+    private fun softDeleteRelationships(relationships: List<RelationshipDefinitionEntity>): Int {
+        relationships.forEach { rel ->
+            rel.markDeleted()
+            definitionRepository.save(rel)
+        }
+        return relationships.size
+    }
+
     companion object {
         const val DEFAULT_COLUMN_WIDTH = 150
 
@@ -572,3 +643,8 @@ class EntityTypeService(
         }
     }
 }
+
+data class IntegrationSoftDeleteResult(
+    val entityTypesSoftDeleted: Int,
+    val relationshipsSoftDeleted: Int
+)

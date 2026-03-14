@@ -37,6 +37,10 @@ import riven.core.service.entity.EntityTypeSemanticMetadataService
 import riven.core.service.util.BaseServiceTest
 import riven.core.service.util.WithUserPersona
 import riven.core.service.util.WorkspaceRole
+import riven.core.entity.entity.RelationshipDefinitionEntity
+import riven.core.enums.activity.Activity
+import riven.core.enums.core.ApplicationEntityType
+import riven.core.enums.util.OperationType
 import riven.core.service.util.factory.entity.EntityFactory
 import java.util.*
 
@@ -908,6 +912,179 @@ class EntityTypeServiceTest : BaseServiceTest() {
 
             assertTrue(exception.message!!.contains("readonly"))
             verify(entityTypeRepository, never()).delete(any<EntityTypeEntity>())
+        }
+    }
+
+    // ------ Integration Lifecycle Tests ------
+
+    @Nested
+    @WithUserPersona(
+        userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
+        email = "test@test.com",
+        displayName = "Test User",
+        roles = [
+            WorkspaceRole(
+                workspaceId = "f8b1c2d3-4e5f-6789-abcd-ef9876543210",
+                role = WorkspaceRoles.OWNER
+            )
+        ]
+    )
+    inner class IntegrationLifecycle {
+
+        private val integrationId: UUID = UUID.randomUUID()
+
+        @Test
+        fun `softDeleteByIntegration - soft-deletes all entity types for integration`() {
+            val et1 = EntityFactory.createEntityType(
+                key = "crm_contact",
+                workspaceId = workspaceId,
+                sourceIntegrationId = integrationId,
+            )
+            val et2 = EntityFactory.createEntityType(
+                key = "crm_deal",
+                workspaceId = workspaceId,
+                sourceIntegrationId = integrationId,
+            )
+
+            whenever(entityTypeRepository.findBySourceIntegrationIdAndWorkspaceId(integrationId, workspaceId))
+                .thenReturn(listOf(et1, et2))
+            whenever(definitionRepository.findByWorkspaceIdAndSourceEntityTypeIdIn(eq(workspaceId), any()))
+                .thenReturn(emptyList())
+            whenever(entityTypeRepository.save(any<EntityTypeEntity>())).thenAnswer { it.arguments[0] }
+
+            val result = service.softDeleteByIntegration(workspaceId, integrationId)
+
+            assertEquals(2, result.entityTypesSoftDeleted)
+            assertEquals(0, result.relationshipsSoftDeleted)
+
+            val captor = argumentCaptor<EntityTypeEntity>()
+            verify(entityTypeRepository, times(2)).save(captor.capture())
+            assertTrue(captor.allValues.all { it.deleted })
+            assertTrue(captor.allValues.all { it.deletedAt != null })
+        }
+
+        @Test
+        fun `softDeleteByIntegration - cascades to relationship definitions`() {
+            val et1 = EntityFactory.createEntityType(
+                key = "crm_contact",
+                workspaceId = workspaceId,
+                sourceIntegrationId = integrationId,
+            )
+            val etId = requireNotNull(et1.id)
+
+            val rel1 = EntityFactory.createRelationshipDefinitionEntity(
+                workspaceId = workspaceId,
+                sourceEntityTypeId = etId,
+                name = "Has Deals",
+            )
+            val rel2 = EntityFactory.createRelationshipDefinitionEntity(
+                workspaceId = workspaceId,
+                sourceEntityTypeId = etId,
+                name = "Has Notes",
+            )
+
+            whenever(entityTypeRepository.findBySourceIntegrationIdAndWorkspaceId(integrationId, workspaceId))
+                .thenReturn(listOf(et1))
+            whenever(definitionRepository.findByWorkspaceIdAndSourceEntityTypeIdIn(eq(workspaceId), any()))
+                .thenReturn(listOf(rel1, rel2))
+            whenever(entityTypeRepository.save(any<EntityTypeEntity>())).thenAnswer { it.arguments[0] }
+            whenever(definitionRepository.save(any<RelationshipDefinitionEntity>())).thenAnswer { it.arguments[0] }
+
+            val result = service.softDeleteByIntegration(workspaceId, integrationId)
+
+            assertEquals(1, result.entityTypesSoftDeleted)
+            assertEquals(2, result.relationshipsSoftDeleted)
+
+            val relCaptor = argumentCaptor<RelationshipDefinitionEntity>()
+            verify(definitionRepository, times(2)).save(relCaptor.capture())
+            assertTrue(relCaptor.allValues.all { it.deleted })
+            assertTrue(relCaptor.allValues.all { it.deletedAt != null })
+        }
+
+        @Test
+        fun `softDeleteByIntegration - returns zero counts when nothing matches`() {
+            whenever(entityTypeRepository.findBySourceIntegrationIdAndWorkspaceId(integrationId, workspaceId))
+                .thenReturn(emptyList())
+
+            val result = service.softDeleteByIntegration(workspaceId, integrationId)
+
+            assertEquals(0, result.entityTypesSoftDeleted)
+            assertEquals(0, result.relationshipsSoftDeleted)
+            verify(entityTypeRepository, never()).save(any<EntityTypeEntity>())
+            verify(definitionRepository, never()).save(any<RelationshipDefinitionEntity>())
+        }
+
+        @Test
+        fun `softDeleteByIntegration - logs activity for each entity type`() {
+            val et1 = EntityFactory.createEntityType(
+                key = "crm_contact",
+                workspaceId = workspaceId,
+                sourceIntegrationId = integrationId,
+            )
+            val et2 = EntityFactory.createEntityType(
+                key = "crm_deal",
+                workspaceId = workspaceId,
+                sourceIntegrationId = integrationId,
+            )
+
+            whenever(entityTypeRepository.findBySourceIntegrationIdAndWorkspaceId(integrationId, workspaceId))
+                .thenReturn(listOf(et1, et2))
+            whenever(definitionRepository.findByWorkspaceIdAndSourceEntityTypeIdIn(eq(workspaceId), any()))
+                .thenReturn(emptyList())
+            whenever(entityTypeRepository.save(any<EntityTypeEntity>())).thenAnswer { it.arguments[0] }
+
+            service.softDeleteByIntegration(workspaceId, integrationId)
+
+            verify(activityService, times(2)).logActivity(
+                activity = eq(Activity.ENTITY_TYPE),
+                operation = eq(OperationType.DELETE),
+                userId = eq(userId),
+                workspaceId = eq(workspaceId),
+                entityType = eq(ApplicationEntityType.ENTITY_TYPE),
+                entityId = any(),
+                timestamp = any(),
+                details = any(),
+            )
+        }
+
+        @Test
+        fun `restoreByIntegration - restores soft-deleted entity types`() {
+            val et1 = EntityFactory.createEntityType(
+                key = "crm_contact",
+                workspaceId = workspaceId,
+                sourceIntegrationId = integrationId,
+                deleted = true,
+            )
+            val et2 = EntityFactory.createEntityType(
+                key = "crm_deal",
+                workspaceId = workspaceId,
+                sourceIntegrationId = integrationId,
+                deleted = true,
+            )
+
+            whenever(entityTypeRepository.findSoftDeletedBySourceIntegrationIdAndWorkspaceId(integrationId, workspaceId))
+                .thenReturn(listOf(et1, et2))
+            whenever(entityTypeRepository.save(any<EntityTypeEntity>())).thenAnswer { it.arguments[0] }
+
+            val result = service.restoreByIntegration(workspaceId, integrationId)
+
+            assertEquals(2, result)
+
+            val captor = argumentCaptor<EntityTypeEntity>()
+            verify(entityTypeRepository, times(2)).save(captor.capture())
+            assertTrue(captor.allValues.all { !it.deleted })
+            assertTrue(captor.allValues.all { it.deletedAt == null })
+        }
+
+        @Test
+        fun `restoreByIntegration - returns zero when no soft-deleted types exist`() {
+            whenever(entityTypeRepository.findSoftDeletedBySourceIntegrationIdAndWorkspaceId(integrationId, workspaceId))
+                .thenReturn(emptyList())
+
+            val result = service.restoreByIntegration(workspaceId, integrationId)
+
+            assertEquals(0, result)
+            verify(entityTypeRepository, never()).save(any<EntityTypeEntity>())
         }
     }
 }

@@ -41,4 +41,24 @@ interface EntityTypeRepository : JpaRepository<EntityTypeEntity, UUID> {
         @Param("keys") keys: List<String>
     ): List<EntityTypeEntity>
 
+    @Query("SELECT e FROM EntityTypeEntity e WHERE e.sourceIntegrationId = :integrationId AND e.workspaceId = :workspaceId")
+    fun findBySourceIntegrationIdAndWorkspaceId(
+        @Param("integrationId") integrationId: UUID,
+        @Param("workspaceId") workspaceId: UUID
+    ): List<EntityTypeEntity>
+
+    @Query(
+        value = """
+            SELECT * FROM entity_types
+            WHERE source_integration_id = :integrationId
+              AND workspace_id = :workspaceId
+              AND deleted = true
+        """,
+        nativeQuery = true
+    )
+    fun findSoftDeletedBySourceIntegrationIdAndWorkspaceId(
+        @Param("integrationId") integrationId: UUID,
+        @Param("workspaceId") workspaceId: UUID
+    ): List<EntityTypeEntity>
+
 }

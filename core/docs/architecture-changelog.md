@@ -1,5 +1,30 @@
 # Architecture Changelog
 
+## [2026-03-14] — Notification Domain
+
+**Domains affected:** notification (new), websocket, activity
+**What changed:**
+
+- Added workspace-scoped notification domain with typed content (Information, ReviewRequest, System) using sealed class hierarchy serialized as JSONB via Jackson polymorphic typing
+- Created `NotificationService` for CRUD, cursor-paginated inbox, per-user read tracking, resolution lifecycle, and WebSocket event publishing
+- Created `NotificationDeliveryService` as a facade for domain event listeners to create notifications and resolve by reference
+- Added `NotificationController` with 6 REST endpoints under `/api/v1/notifications/workspace/{workspaceId}`
+- Per-user read state tracked in `notification_reads` join table with bulk mark-all-read via native SQL
+- Cursor-based pagination on `createdAt` for inbox queries
+- `NotificationEvent` added to `WorkspaceEvent` sealed interface for real-time delivery via existing STOMP infrastructure
+- Added `NOTIFICATION` to `Activity` and `ApplicationEntityType` enums
+
+**New cross-domain dependencies:** yes — notification depends on activity (audit logging), websocket (event publishing via WorkspaceEvent), auth (workspace security)
+**New components introduced:**
+- `NotificationService` — CRUD, inbox, read-state, resolution, soft-delete
+- `NotificationDeliveryService` — domain event translation facade
+- `NotificationController` — REST endpoints for inbox, read-state, create, delete
+- `NotificationEntity` / `NotificationReadEntity` — JPA entities
+- `NotificationRepository` / `NotificationReadRepository` — data access
+- `NotificationContent` sealed class — polymorphic typed content (Information, ReviewRequest, System)
+- `NotificationEvent` — WorkspaceEvent subclass for STOMP delivery
+- `NotificationType`, `NotificationReferenceType`, `ReviewPriority`, `SystemSeverity` — domain enums
+
 ## [2026-03-14] — WebSocket Real-Time Notifications
 
 **Domains affected:** websocket (new), entity, block, workspace

@@ -1,5 +1,26 @@
 # Architecture Changelog
 
+## [2026-03-14] — Integration Enablement Feature
+
+**Domains affected:** Integration, Entity, Catalog
+**What changed:**
+
+- New `IntegrationEnablementService` orchestrates enable/disable lifecycle for workspace integrations.
+- New `IntegrationController` provides REST endpoints for integration management at `/api/v1/integrations/`.
+- New `WorkspaceIntegrationInstallationEntity` tracks which integrations are enabled per workspace with SoftDeletable support.
+- `TemplateMaterializationService` augmented with semantic metadata initialization, fallback relationship creation, and ID sequence initialization — now at parity with `TemplateInstallationService`.
+- `IntegrationConnectionService` refactored: new `enableConnection()` for single-action Nango flow, KLogger injection fixed.
+- `EntityTypeService` gained `softDeleteByIntegration()` and `restoreByIntegration()` for integration lifecycle management.
+- Read-only enforcement added across all entity type mutation paths (`EntityTypeService`, `EntityTypeAttributeService`, `EntityTypeRelationshipService`).
+- New enums: `SyncScope`, `Activity.INTEGRATION_ENABLEMENT`, `ApplicationEntityType.INTEGRATION_INSTALLATION`.
+
+**New cross-domain dependencies:** yes — Integration domain now depends on Entity domain's `EntityTypeService` for soft-delete/restore operations. Previously only Catalog → Entity dependency existed via `TemplateMaterializationService`.
+**New components introduced:**
+- `IntegrationEnablementService` — orchestrator for integration enable/disable lifecycle
+- `IntegrationController` — REST API for integration management
+- `WorkspaceIntegrationInstallationEntity` — installation tracking entity
+- `WorkspaceIntegrationInstallationRepository` — installation data access
+
 ## [2026-03-12] — Unified Onboarding Endpoint
 
 **Domains affected:** Onboarding (new), Workspace, User, Catalog, Storage

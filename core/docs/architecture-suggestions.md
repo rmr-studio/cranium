@@ -1,5 +1,11 @@
 # Architecture Suggestions
 
+## 2026-03-14 — Integration Enablement: Domain Dependency Update
+
+**Trigger:** Integration Enablement feature adds Integration → Entity domain dependency.
+**Affected vault notes:** System Design/Domain Boundaries, System Design/Dependency Map
+**Suggested update:** The Integration domain now directly depends on EntityTypeService for soft-delete/restore operations during disable/enable. This should be reflected in the domain dependency map. Previously, Entity was only accessed via the Catalog domain's materialization service.
+
 ## 2026-03-12 — Onboarding Domain Documentation Stub Needed
 
 **Trigger:** Introduced new `onboarding` domain with cross-domain orchestration service

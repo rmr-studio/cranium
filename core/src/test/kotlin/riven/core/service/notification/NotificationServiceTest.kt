@@ -539,4 +539,74 @@ class NotificationServiceTest : BaseServiceTest() {
             }
         }
     }
+
+    // ------ Security ------
+
+    @Nested
+    @WithUserPersona(
+        userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
+        email = "test@example.com",
+        roles = [WorkspaceRole(workspaceId = "f8b1c2d3-4e5f-6789-abcd-ef9876543210", role = WorkspaceRoles.ADMIN)]
+    )
+    inner class WorkspaceAccessControl {
+
+        @Test
+        fun `getInbox denies access to other workspace`() {
+            val otherWorkspaceId = UUID.randomUUID()
+
+            assertThrows<org.springframework.security.authorization.AuthorizationDeniedException> {
+                notificationService.getInbox(otherWorkspaceId, null, 20)
+            }
+        }
+
+        @Test
+        fun `getUnreadCount denies access to other workspace`() {
+            val otherWorkspaceId = UUID.randomUUID()
+
+            assertThrows<org.springframework.security.authorization.AuthorizationDeniedException> {
+                notificationService.getUnreadCount(otherWorkspaceId)
+            }
+        }
+
+        @Test
+        fun `createNotification denies access to other workspace`() {
+            val otherWorkspaceId = UUID.randomUUID()
+            val request = CreateNotificationRequest(
+                workspaceId = otherWorkspaceId,
+                type = NotificationType.INFORMATION,
+                content = NotificationFactory.informationContent(),
+            )
+
+            assertThrows<org.springframework.security.authorization.AuthorizationDeniedException> {
+                notificationService.createNotification(request)
+            }
+        }
+
+        @Test
+        fun `markAsRead denies access to other workspace`() {
+            val otherWorkspaceId = UUID.randomUUID()
+
+            assertThrows<org.springframework.security.authorization.AuthorizationDeniedException> {
+                notificationService.markAsRead(otherWorkspaceId, UUID.randomUUID())
+            }
+        }
+
+        @Test
+        fun `markAllAsRead denies access to other workspace`() {
+            val otherWorkspaceId = UUID.randomUUID()
+
+            assertThrows<org.springframework.security.authorization.AuthorizationDeniedException> {
+                notificationService.markAllAsRead(otherWorkspaceId)
+            }
+        }
+
+        @Test
+        fun `deleteNotification denies access to other workspace`() {
+            val otherWorkspaceId = UUID.randomUUID()
+
+            assertThrows<org.springframework.security.authorization.AuthorizationDeniedException> {
+                notificationService.deleteNotification(otherWorkspaceId, UUID.randomUUID())
+            }
+        }
+    }
 }

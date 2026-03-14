@@ -140,13 +140,18 @@ class EntityTypeService(
             throw AccessDeniedException("Entity type does not belong to the specified workspace")
         }
 
-        existing.apply {
-            displayNameSingular = request.name.singular
-            displayNamePlural = request.name.plural
-            request.semanticGroup?.let { semanticGroup = it }
-            iconType = request.icon.type
-            iconColour = request.icon.colour
-            request.columnConfiguration?.let { columnConfiguration = it }
+        if (existing.readonly) {
+            // Readonly entity types only allow column configuration changes
+            request.columnConfiguration?.let { existing.columnConfiguration = it }
+        } else {
+            existing.apply {
+                displayNameSingular = request.name.singular
+                displayNamePlural = request.name.plural
+                request.semanticGroup?.let { semanticGroup = it }
+                iconType = request.icon.type
+                iconColour = request.icon.colour
+                request.columnConfiguration?.let { columnConfiguration = it }
+            }
         }
 
         val saved = entityTypeRepository.save(existing)
@@ -184,6 +189,7 @@ class EntityTypeService(
         val (requestIndex: Int?, definition) = request
         val existing =
             ServiceUtil.findOrThrow { entityTypeRepository.findByworkspaceIdAndKey(workspaceId, definition.key) }
+        require(!existing.readonly) { "Cannot modify definitions on a readonly entity type '${existing.key}'" }
         val entityTypeId = requireNotNull(existing.id)
 
         var resolvedDefinitionId: UUID? = definition.id
@@ -226,6 +232,7 @@ class EntityTypeService(
         val (definition) = request
         val existing =
             ServiceUtil.findOrThrow { entityTypeRepository.findByworkspaceIdAndKey(workspaceId, definition.key) }
+        require(!existing.readonly) { "Cannot remove definitions from a readonly entity type '${existing.key}'" }
 
         when (definition) {
             is DeleteAttributeDefinitionRequest -> {
@@ -259,6 +266,7 @@ class EntityTypeService(
     ): EntityTypeImpactResponse {
         val userId = authTokenService.getUserId()
         val existing = ServiceUtil.findOrThrow { entityTypeRepository.findByworkspaceIdAndKey(workspaceId, key) }
+        require(!existing.readonly) { "Cannot delete a readonly entity type '${existing.key}'" }
         val entityTypeId = requireNotNull(existing.id)
         requireNotNull(existing.workspaceId) { "Cannot delete system entity type" }
 

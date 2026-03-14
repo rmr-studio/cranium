@@ -63,6 +63,8 @@ class EntityTypeRelationshipService(
         request: SaveRelationshipDefinitionRequest,
     ): RelationshipDefinition {
         val userId = authTokenService.getUserId()
+        val sourceEntityType = ServiceUtil.findOrThrow { entityTypeRepository.findById(sourceEntityTypeId) }
+        require(!sourceEntityType.readonly) { "Cannot create relationships on a readonly entity type '${sourceEntityType.key}'" }
 
         val entity = RelationshipDefinitionEntity(
             workspaceId = workspaceId,

@@ -10,6 +10,7 @@ import riven.core.enums.common.icon.IconType
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
 import riven.core.enums.entity.EntityRelationshipCardinality
+import riven.core.enums.integration.SourceType
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.models.common.validation.Schema
 import riven.core.models.entity.EntityTypeSchema
@@ -31,6 +32,10 @@ object EntityFactory {
         columnConfiguration: ColumnConfiguration? = null,
         version: Int = 1,
         protected: Boolean = false,
+        readonly: Boolean = false,
+        sourceType: SourceType = SourceType.USER_CREATED,
+        sourceIntegrationId: UUID? = null,
+        deleted: Boolean = false,
         identifierKey: UUID = schema.properties?.keys?.first() ?: UUID.randomUUID(),
         semanticGroup: SemanticGroup = SemanticGroup.UNCATEGORIZED,
     ): EntityTypeEntity {
@@ -38,7 +43,7 @@ object EntityFactory {
             order = schema.properties?.keys?.toList() ?: emptyList()
         )
 
-        return EntityTypeEntity(
+        val entity = EntityTypeEntity(
             id = id,
             key = key,
             displayNameSingular = displayNameSingular,
@@ -48,9 +53,19 @@ object EntityFactory {
             columnConfiguration = defaultConfig,
             version = version,
             protected = protected,
+            readonly = readonly,
+            sourceType = sourceType,
+            sourceIntegrationId = sourceIntegrationId,
             identifierKey = identifierKey,
             semanticGroup = semanticGroup,
         )
+
+        if (deleted) {
+            entity.deleted = true
+            entity.deletedAt = java.time.ZonedDateTime.now()
+        }
+
+        return entity
     }
 
     /**

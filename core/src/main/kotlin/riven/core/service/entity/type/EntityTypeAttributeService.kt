@@ -36,6 +36,7 @@ class EntityTypeAttributeService(
         type: EntityTypeEntity,
         request: SaveAttributeDefinitionRequest
     ) {
+        require(!type.readonly) { "Cannot modify schema attributes of a readonly entity type '${type.key}'" }
         val typeId = requireNotNull(type.id) { "Entity type ID must not be null when saving attribute definition" }
         val (_, id: UUID, attribute: EntityTypeSchema) = request
 
@@ -131,6 +132,7 @@ class EntityTypeAttributeService(
         type: EntityTypeEntity,
         attributeId: UUID
     ) {
+        require(!type.readonly) { "Cannot remove schema attributes from a readonly entity type '${type.key}'" }
         val updatedSchema = type.schema.copy(
             properties = type.schema.properties?.toMutableMap()?.also {
                 // Remove attribute definition

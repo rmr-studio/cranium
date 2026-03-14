@@ -17,6 +17,7 @@ import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
 import riven.core.enums.entity.EntityPropertyType
 import riven.core.enums.entity.EntityRelationshipCardinality
+import riven.core.enums.integration.SourceType
 import riven.core.enums.workspace.WorkspaceRoles
 import riven.core.models.common.display.DisplayName
 import riven.core.models.common.Icon
@@ -761,6 +762,152 @@ class EntityTypeServiceTest : BaseServiceTest() {
             }
 
             assertEquals(4, sourceEntityType.version)
+        }
+    }
+
+    // ------ Readonly Guard Tests ------
+
+    @Nested
+    @WithUserPersona(
+        userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
+        email = "test@test.com",
+        displayName = "Test User",
+        roles = [
+            WorkspaceRole(
+                workspaceId = "f8b1c2d3-4e5f-6789-abcd-ef9876543210",
+                role = WorkspaceRoles.OWNER
+            )
+        ]
+    )
+    inner class ReadonlyGuards {
+
+        /**
+         * Verifies that updateEntityTypeConfiguration on a readonly type only updates
+         * columnConfiguration and skips name, icon, and semanticGroup changes.
+         */
+        @Test
+        fun `updateEntityTypeConfiguration - readonly type - only updates column configuration`() {
+            val entityTypeId = UUID.randomUUID()
+            val entityType = EntityFactory.createEntityType(
+                id = entityTypeId,
+                key = "integration_entity",
+                displayNameSingular = "Original Name",
+                displayNamePlural = "Original Names",
+                workspaceId = workspaceId,
+                readonly = true,
+                sourceType = SourceType.INTEGRATION,
+            )
+
+            val newColumnConfig = ColumnConfiguration(order = listOf(UUID.randomUUID()))
+            val request = UpdateEntityTypeConfigurationRequest(
+                id = entityTypeId,
+                name = DisplayName(singular = "Changed Name", plural = "Changed Names"),
+                icon = Icon(IconType.BUILDING, IconColour.BLUE),
+                columnConfiguration = newColumnConfig,
+            )
+
+            whenever(entityTypeRepository.findById(entityTypeId)).thenReturn(Optional.of(entityType))
+            whenever(entityTypeRepository.save(any<EntityTypeEntity>())).thenAnswer { it.arguments[0] }
+
+            val result = service.updateEntityTypeConfiguration(workspaceId, request)
+
+            val saveCaptor = argumentCaptor<EntityTypeEntity>()
+            verify(entityTypeRepository).save(saveCaptor.capture())
+            val saved = saveCaptor.firstValue
+
+            // Column configuration should be updated
+            assertEquals(newColumnConfig, saved.columnConfiguration)
+
+            // Other fields should remain unchanged
+            assertEquals("Original Name", saved.displayNameSingular)
+            assertEquals("Original Names", saved.displayNamePlural)
+            assertEquals(IconType.CIRCLE_DASHED, saved.iconType)
+            assertEquals(IconColour.NEUTRAL, saved.iconColour)
+        }
+
+        /**
+         * Verifies that saveEntityTypeDefinition throws IllegalArgumentException for a readonly entity type.
+         */
+        @Test
+        fun `saveEntityTypeDefinition - readonly entity type - throws IllegalArgumentException`() {
+            val entityType = EntityFactory.createEntityType(
+                key = "integration_entity",
+                workspaceId = workspaceId,
+                readonly = true,
+                sourceType = SourceType.INTEGRATION,
+            )
+
+            val request = SaveTypeDefinitionRequest(
+                index = null,
+                definition = SaveAttributeDefinitionRequest(
+                    key = "integration_entity",
+                    id = UUID.randomUUID(),
+                    schema = Schema(key = SchemaType.TEXT, type = DataType.STRING, label = "Name"),
+                ),
+            )
+
+            whenever(entityTypeRepository.findByworkspaceIdAndKey(workspaceId, "integration_entity"))
+                .thenReturn(Optional.of(entityType))
+
+            val exception = assertThrows(IllegalArgumentException::class.java) {
+                service.saveEntityTypeDefinition(workspaceId, request)
+            }
+
+            assertTrue(exception.message!!.contains("readonly"))
+            verify(entityTypeRepository, never()).save(any<EntityTypeEntity>())
+        }
+
+        /**
+         * Verifies that removeEntityTypeDefinition throws IllegalArgumentException for a readonly entity type.
+         */
+        @Test
+        fun `removeEntityTypeDefinition - readonly entity type - throws IllegalArgumentException`() {
+            val entityType = EntityFactory.createEntityType(
+                key = "integration_entity",
+                workspaceId = workspaceId,
+                readonly = true,
+                sourceType = SourceType.INTEGRATION,
+            )
+
+            val request = DeleteTypeDefinitionRequest(
+                definition = DeleteAttributeDefinitionRequest(
+                    key = "integration_entity",
+                    id = UUID.randomUUID(),
+                ),
+            )
+
+            whenever(entityTypeRepository.findByworkspaceIdAndKey(workspaceId, "integration_entity"))
+                .thenReturn(Optional.of(entityType))
+
+            val exception = assertThrows(IllegalArgumentException::class.java) {
+                service.removeEntityTypeDefinition(workspaceId, request)
+            }
+
+            assertTrue(exception.message!!.contains("readonly"))
+            verify(entityTypeRepository, never()).save(any<EntityTypeEntity>())
+        }
+
+        /**
+         * Verifies that deleteEntityType throws IllegalArgumentException for a readonly entity type.
+         */
+        @Test
+        fun `deleteEntityType - readonly entity type - throws IllegalArgumentException`() {
+            val entityType = EntityFactory.createEntityType(
+                key = "integration_entity",
+                workspaceId = workspaceId,
+                readonly = true,
+                sourceType = SourceType.INTEGRATION,
+            )
+
+            whenever(entityTypeRepository.findByworkspaceIdAndKey(workspaceId, "integration_entity"))
+                .thenReturn(Optional.of(entityType))
+
+            val exception = assertThrows(IllegalArgumentException::class.java) {
+                service.deleteEntityType(workspaceId, "integration_entity")
+            }
+
+            assertTrue(exception.message!!.contains("readonly"))
+            verify(entityTypeRepository, never()).delete(any<EntityTypeEntity>())
         }
     }
 }

@@ -1,5 +1,16 @@
 # Architecture Suggestions
 
+## [2026-03-14] — Notification Domain: Future Extension Considerations
+
+**Trigger:** Built notification domain with inbox, read-state, resolution lifecycle, and WebSocket delivery.
+**Affected vault notes:** Notification domain documentation (new), System Patterns (notification lifecycle)
+**Suggested update:** Document the following extension gaps identified during implementation:
+
+1. **Expiry cleanup** — expired notifications are filtered from inbox queries but accumulate in the database. Consider a scheduled cleanup job or TTL-based purge.
+2. **Batch notification creation** — `NotificationDeliveryService.createForUser` creates one notification per call. Workspace-wide user-targeted notifications (e.g., notifying all members) require N separate transactions. Consider a batch creation path.
+3. **Forward cursor pagination** — inbox only supports backward pagination (`createdAt < cursor`). No mechanism to fetch "notifications newer than X" for real-time catch-up after reconnection.
+4. **Notification updates** — notifications are immutable after creation. No update endpoint exists for correcting content or extending expiry.
+
 ## [2026-03-14] — WebSocket Infrastructure Documentation Needed
 
 **Trigger:** Added WebSocket real-time notification infrastructure as a new cross-cutting domain.

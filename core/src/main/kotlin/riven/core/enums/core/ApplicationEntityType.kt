@@ -1,5 +1,6 @@
 package riven.core.enums.core
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
 
 @Schema(
@@ -8,16 +9,17 @@ import io.swagger.v3.oas.annotations.media.Schema
     enumAsRef = true,
 )
 enum class ApplicationEntityType {
-    WORKSPACE,
-    BLOCK_TYPE,
-    BLOCK,
-    USER,
-    ENTITY,
-    ENTITY_TYPE,
-    WORKFLOW_DEFINITION,
-    WORKFLOW_NODE,
-    WORKFLOW_EDGE,
-    INTEGRATION_CONNECTION,
-    INTEGRATION_INSTALLATION,
-    FILE
+    @JsonProperty("WORKSPACE") WORKSPACE,
+    @JsonProperty("BLOCK_TYPE") BLOCK_TYPE,
+    @JsonProperty("BLOCK") BLOCK,
+    @JsonProperty("USER") USER,
+    @JsonProperty("ENTITY") ENTITY,
+    @JsonProperty("ENTITY_TYPE") ENTITY_TYPE,
+    @JsonProperty("WORKFLOW_DEFINITION") WORKFLOW_DEFINITION,
+    @JsonProperty("WORKFLOW_NODE") WORKFLOW_NODE,
+    @JsonProperty("WORKFLOW_EDGE") WORKFLOW_EDGE,
+    @JsonProperty("INTEGRATION_CONNECTION") INTEGRATION_CONNECTION,
+    @JsonProperty("FILE") FILE,
+    @JsonProperty("NOTIFICATION") NOTIFICATION,
+    @JsonProperty("INTEGRATION_INSTALLATION") INTEGRATION_INSTALLATION,
 }

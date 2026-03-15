@@ -1,5 +1,6 @@
 package riven.core.models.websocket
 
+import riven.core.enums.notification.NotificationType
 import riven.core.enums.util.OperationType
 import riven.core.enums.websocket.WebSocketChannel
 import java.util.UUID
@@ -74,4 +75,19 @@ data class WorkspaceChangeEvent(
     override val summary: Map<String, Any?> = emptyMap(),
 ) : WorkspaceEvent {
     override val channel: WebSocketChannel = WebSocketChannel.WORKSPACE
+}
+
+/**
+ * Published when a notification is created, resolved, or deleted.
+ * The existing WebSocketEventListener broadcasts this to the NOTIFICATIONS channel.
+ */
+data class NotificationEvent(
+    override val workspaceId: UUID,
+    override val userId: UUID,
+    override val operation: OperationType,
+    override val entityId: UUID?,
+    val notificationType: NotificationType,
+    override val summary: Map<String, Any?> = emptyMap(),
+) : WorkspaceEvent {
+    override val channel: WebSocketChannel = WebSocketChannel.NOTIFICATIONS
 }

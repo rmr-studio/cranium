@@ -49,9 +49,9 @@ CREATE TABLE IF NOT EXISTS integration_connections (
 -- SoftDeletable: disable sets deleted = true, re-enable restores.
 
 CREATE TABLE IF NOT EXISTS workspace_integration_installations (
-    id                        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    workspace_id              UUID NOT NULL REFERENCES workspaces(id),
-    integration_definition_id UUID NOT NULL REFERENCES integration_definitions(id),
+    id                        UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    workspace_id              UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+    integration_definition_id UUID NOT NULL REFERENCES integration_definitions(id) ON DELETE RESTRICT,
     manifest_key              VARCHAR(255) NOT NULL,
     installed_by              UUID NOT NULL,
     installed_at              TIMESTAMPTZ NOT NULL DEFAULT now(),

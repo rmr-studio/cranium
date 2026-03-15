@@ -26,6 +26,7 @@ import riven.core.service.entity.type.EntityTypeRelationshipService
 import riven.core.service.entity.type.EntityTypeService
 import riven.core.service.entity.type.EntityTypeSequenceService
 import riven.core.models.integration.materialization.MaterializationResult
+import riven.core.models.response.integration.EnabledEntityTypeSummary
 import riven.core.repository.catalog.CatalogEntityTypeRepository
 import riven.core.repository.catalog.CatalogRelationshipRepository
 import riven.core.repository.catalog.CatalogRelationshipTargetRuleRepository
@@ -76,7 +77,7 @@ class TemplateMaterializationService(
         val catalogRelationships = catalogRelationshipRepository.findByManifestId(manifest.id!!)
 
         if (catalogEntityTypes.isEmpty()) {
-            return MaterializationResult(0, 0, 0, integrationSlug)
+            return MaterializationResult(0, 0, 0, integrationSlug, emptyList())
         }
 
         val entityTypeKeys = catalogEntityTypes.map { it.key }
@@ -95,7 +96,8 @@ class TemplateMaterializationService(
             entityTypesCreated = entityTypeMaterializationResult.created,
             entityTypesRestored = entityTypeMaterializationResult.restored,
             relationshipsCreated = relationshipsCreated,
-            integrationSlug = integrationSlug
+            integrationSlug = integrationSlug,
+            entityTypes = entityTypeMaterializationResult.entityTypes
         )
     }
 
@@ -115,6 +117,7 @@ class TemplateMaterializationService(
         val existingKeys = existingEntityTypes.map { it.key }.toSet()
         val softDeletedByKey = softDeletedEntityTypes.associateBy { it.key }
         val keyToIdMap = mutableMapOf<String, UUID>()
+        val entityTypeSummaries = mutableListOf<EnabledEntityTypeSummary>()
         var created = 0
         var restored = 0
 
@@ -127,15 +130,17 @@ class TemplateMaterializationService(
             if (softDeleted != null) {
                 val restoredEntity = restoreEntityType(softDeleted)
                 keyToIdMap[catalogType.key] = restoredEntity.id!!
+                entityTypeSummaries.add(buildEntityTypeSummary(restoredEntity))
                 restored++
             } else if (catalogType.key !in existingKeys) {
                 val newEntity = createEntityType(workspaceId, integrationSlug, catalogType)
                 keyToIdMap[catalogType.key] = newEntity.id!!
+                entityTypeSummaries.add(buildEntityTypeSummary(newEntity))
                 created++
             }
         }
 
-        return EntityTypeMaterializationResult(created, restored, keyToIdMap)
+        return EntityTypeMaterializationResult(created, restored, keyToIdMap, entityTypeSummaries)
     }
 
     /**
@@ -203,6 +208,15 @@ class TemplateMaterializationService(
                 sequenceService.initializeSequence(entityTypeId, attrId)
             }
         }
+    }
+
+    private fun buildEntityTypeSummary(entity: EntityTypeEntity): EnabledEntityTypeSummary {
+        return EnabledEntityTypeSummary(
+            id = requireNotNull(entity.id) { "Entity type must be persisted before building summary" },
+            key = entity.key,
+            displayName = entity.displayNameSingular,
+            attributeCount = entity.schema?.properties?.size ?: 0
+        )
     }
 
     // ------ Schema Conversion ------
@@ -442,6 +456,7 @@ class TemplateMaterializationService(
     private data class EntityTypeMaterializationResult(
         val created: Int,
         val restored: Int,
-        val keyToIdMap: Map<String, UUID>
+        val keyToIdMap: Map<String, UUID>,
+        val entityTypes: List<EnabledEntityTypeSummary>
     )
 }

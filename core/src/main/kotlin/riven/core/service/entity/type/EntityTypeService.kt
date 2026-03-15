@@ -22,6 +22,7 @@ import riven.core.models.entity.RelationshipDefinition
 import riven.core.models.entity.SemanticMetadataBundle
 import riven.core.models.entity.configuration.ColumnConfiguration
 import riven.core.models.entity.configuration.EntityTypeAttributeColumn
+import riven.core.models.integration.IntegrationSoftDeleteResult
 import riven.core.models.request.entity.type.*
 import riven.core.models.response.entity.type.DeleteDefinitionImpact
 import riven.core.models.response.entity.type.EntityTypeImpactResponse
@@ -643,8 +644,3 @@ class EntityTypeService(
         }
     }
 }
-
-data class IntegrationSoftDeleteResult(
-    val entityTypesSoftDeleted: Int,
-    val relationshipsSoftDeleted: Int
-)

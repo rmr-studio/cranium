@@ -27,7 +27,7 @@ import riven.core.repository.integration.WorkspaceIntegrationInstallationReposit
 import riven.core.service.activity.ActivityService
 import riven.core.service.auth.AuthTokenService
 import riven.core.service.entity.type.EntityTypeService
-import riven.core.service.entity.type.IntegrationSoftDeleteResult
+import riven.core.models.integration.IntegrationSoftDeleteResult
 import riven.core.service.integration.materialization.TemplateMaterializationService
 import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.WithUserPersona
@@ -332,7 +332,7 @@ class IntegrationEnablementServiceTest {
             whenever(definitionRepository.findById(testIntegrationId))
                 .thenReturn(Optional.empty())
 
-            assertThrows(NotFoundException::class.java) {
+            assertThrows<NotFoundException> {
                 enablementService.enableIntegration(workspaceId, request)
             }
 
@@ -449,7 +449,7 @@ class IntegrationEnablementServiceTest {
             whenever(installationRepository.findByWorkspaceIdAndIntegrationDefinitionId(workspaceId, testIntegrationId))
                 .thenReturn(null)
 
-            assertThrows(NotFoundException::class.java) {
+            assertThrows<NotFoundException> {
                 enablementService.disableIntegration(workspaceId, request)
             }
 

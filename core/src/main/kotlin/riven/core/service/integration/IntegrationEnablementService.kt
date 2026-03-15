@@ -93,7 +93,7 @@ class IntegrationEnablementService(
             entityTypesCreated = materializationResult.entityTypesCreated,
             entityTypesRestored = materializationResult.entityTypesRestored,
             relationshipsCreated = materializationResult.relationshipsCreated,
-            entityTypes = emptyList(),
+            entityTypes = materializationResult.entityTypes,
             syncConfig = syncConfig
         )
     }

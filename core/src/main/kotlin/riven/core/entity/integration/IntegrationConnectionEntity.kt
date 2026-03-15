@@ -49,7 +49,7 @@ data class IntegrationConnectionEntity(
     var connectionMetadata: Map<String, Any>? = null
 ) : AuditableEntity() {
     fun toModel() = IntegrationConnectionModel(
-        id = id!!,
+        id = requireNotNull(id) { "IntegrationConnectionEntity.id must not be null when mapping to model" },
         workspaceId = workspaceId,
         integrationId = integrationId,
         nangoConnectionId = nangoConnectionId,

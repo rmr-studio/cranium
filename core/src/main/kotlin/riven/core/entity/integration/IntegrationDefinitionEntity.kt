@@ -66,7 +66,7 @@ data class IntegrationDefinitionEntity(
     var updatedAt: ZonedDateTime = ZonedDateTime.now()
 ) {
     fun toModel() = IntegrationDefinitionModel(
-        id = id!!,
+        id = requireNotNull(id) { "IntegrationDefinitionEntity.id must not be null when mapping to model" },
         slug = slug,
         name = name,
         iconUrl = iconUrl,

@@ -11,6 +11,7 @@ import riven.core.entity.notification.NotificationReadEntity
 import riven.core.enums.activity.Activity
 import riven.core.enums.core.ApplicationEntityType
 import riven.core.enums.notification.NotificationReferenceType
+import riven.core.enums.notification.NotificationType
 import riven.core.enums.util.OperationType
 import org.springframework.dao.DataIntegrityViolationException
 import riven.core.exceptions.NotFoundException
@@ -39,14 +40,42 @@ class NotificationService(
     private val logger: KLogger,
 ) {
 
+    companion object {
+        /** Notification types that can be created via the public REST API. */
+        private val PUBLIC_NOTIFICATION_TYPES = setOf(NotificationType.INFORMATION)
+    }
+
     // ------ Create ------
 
-    /** Creates a notification and broadcasts it via WebSocket. */
+    /**
+     * Creates a notification from the public REST API.
+     *
+     * Restricts allowed types to [PUBLIC_NOTIFICATION_TYPES] — privileged types
+     * (SYSTEM, REVIEW_REQUEST) must be created via [createInternalNotification].
+     */
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#request.workspaceId)")
     @Transactional
     fun createNotification(request: CreateNotificationRequest): Notification {
+        require(request.type in PUBLIC_NOTIFICATION_TYPES) {
+            "Notification type ${request.type} cannot be created via the public API"
+        }
         val userId = authTokenService.getUserId()
+        return persistAndPublishNotification(request, userId)
+    }
 
+    /**
+     * Creates a notification from internal services (e.g. domain event handlers).
+     *
+     * No type restriction — all [NotificationType] values are allowed. No workspace
+     * auth check because internal callers operate across workspaces by design.
+     */
+    @Transactional
+    fun createInternalNotification(request: CreateNotificationRequest): Notification {
+        val userId = authTokenService.getUserId()
+        return persistAndPublishNotification(request, userId)
+    }
+
+    private fun persistAndPublishNotification(request: CreateNotificationRequest, userId: UUID): Notification {
         val entity = NotificationEntity(
             workspaceId = request.workspaceId,
             userId = request.userId,

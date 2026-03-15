@@ -33,7 +33,7 @@ class NotificationDeliveryService(
         referenceId: UUID? = null,
         expiresAt: ZonedDateTime? = null,
     ): Notification {
-        return notificationService.createNotification(
+        return notificationService.createInternalNotification(
             CreateNotificationRequest(
                 workspaceId = workspaceId,
                 type = type,
@@ -55,7 +55,7 @@ class NotificationDeliveryService(
         referenceId: UUID? = null,
         expiresAt: ZonedDateTime? = null,
     ): Notification {
-        return notificationService.createNotification(
+        return notificationService.createInternalNotification(
             CreateNotificationRequest(
                 workspaceId = workspaceId,
                 userId = userId,

@@ -73,7 +73,7 @@ class NotificationDeliveryServiceTest : BaseServiceTest() {
             updatedBy = null,
         )
 
-        whenever(notificationService.createNotification(any())).thenReturn(notification)
+        whenever(notificationService.createInternalNotification(any())).thenReturn(notification)
 
         deliveryService.createForWorkspace(
             workspaceId = wsId,
@@ -82,7 +82,7 @@ class NotificationDeliveryServiceTest : BaseServiceTest() {
         )
 
         val captor = argumentCaptor<CreateNotificationRequest>()
-        verify(notificationService).createNotification(captor.capture())
+        verify(notificationService).createInternalNotification(captor.capture())
         assertEquals(wsId, captor.firstValue.workspaceId)
         assertNull(captor.firstValue.userId)
         assertEquals(NotificationType.INFORMATION, captor.firstValue.type)
@@ -114,7 +114,7 @@ class NotificationDeliveryServiceTest : BaseServiceTest() {
             updatedBy = null,
         )
 
-        whenever(notificationService.createNotification(any())).thenReturn(notification)
+        whenever(notificationService.createInternalNotification(any())).thenReturn(notification)
 
         deliveryService.createForUser(
             workspaceId = wsId,
@@ -126,7 +126,7 @@ class NotificationDeliveryServiceTest : BaseServiceTest() {
         )
 
         val captor = argumentCaptor<CreateNotificationRequest>()
-        verify(notificationService).createNotification(captor.capture())
+        verify(notificationService).createInternalNotification(captor.capture())
         assertEquals(targetUserId, captor.firstValue.userId)
         assertEquals(NotificationReferenceType.ENTITY_RESOLUTION, captor.firstValue.referenceType)
         assertEquals(referenceId, captor.firstValue.referenceId)
@@ -155,7 +155,7 @@ class NotificationDeliveryServiceTest : BaseServiceTest() {
             updatedBy = null,
         )
 
-        whenever(notificationService.createNotification(any())).thenReturn(notification)
+        whenever(notificationService.createInternalNotification(any())).thenReturn(notification)
 
         deliveryService.createForUser(
             workspaceId = wsId,
@@ -166,7 +166,7 @@ class NotificationDeliveryServiceTest : BaseServiceTest() {
         )
 
         val captor = argumentCaptor<CreateNotificationRequest>()
-        verify(notificationService).createNotification(captor.capture())
+        verify(notificationService).createInternalNotification(captor.capture())
         assertEquals(expiresAt, captor.firstValue.expiresAt)
     }
 }

@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS "notifications" (
 CREATE TABLE IF NOT EXISTS "notification_reads" (
     "id"              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     "user_id"         UUID         NOT NULL REFERENCES "users" ("id"),
-    "notification_id" UUID         NOT NULL REFERENCES "notifications" ("id"),
+    "notification_id" UUID         NOT NULL REFERENCES "notifications" ("id") ON DELETE CASCADE,
     "read_at"         TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "uq_notification_reads_user_notification" UNIQUE ("user_id", "notification_id")
 );

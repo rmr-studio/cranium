@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.RestController
 import riven.core.models.notification.Notification
 import riven.core.models.request.notification.CreateNotificationRequest
@@ -59,7 +60,7 @@ class NotificationController(
     @PostMapping("/workspace/{workspaceId}")
     fun createNotification(
         @PathVariable workspaceId: UUID,
-        @RequestBody request: CreateNotificationRequest,
+        @Valid @RequestBody request: CreateNotificationRequest,
     ): ResponseEntity<Notification> =
         ResponseEntity.status(HttpStatus.CREATED).body(
             notificationService.createNotification(request.copy(workspaceId = workspaceId))

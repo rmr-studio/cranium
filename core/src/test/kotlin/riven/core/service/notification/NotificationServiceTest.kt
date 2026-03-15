@@ -126,52 +126,42 @@ class NotificationServiceTest : BaseServiceTest() {
         }
 
         @Test
-        fun `creates user-targeted review request notification with reference`() {
-            val targetUserId = UUID.randomUUID()
-            val referenceId = UUID.randomUUID()
-
-            val request = CreateNotificationRequest(
-                workspaceId = workspaceId,
-                userId = targetUserId,
-                type = NotificationType.REVIEW_REQUEST,
-                content = NotificationFactory.reviewRequestContent(
-                    title = "Entity Link Detected",
-                    message = "System detected a potential link between Entity A and Entity B.",
-                    priority = ReviewPriority.HIGH,
-                ),
-                referenceType = NotificationReferenceType.ENTITY_RESOLUTION,
-                referenceId = referenceId,
-            )
-
-            val savedEntity = NotificationFactory.createEntity(
-                workspaceId = workspaceId,
-                userId = targetUserId,
-                type = NotificationType.REVIEW_REQUEST,
-                content = request.content,
-                referenceType = NotificationReferenceType.ENTITY_RESOLUTION,
-                referenceId = referenceId,
-            )
-            whenever(notificationRepository.save(any<NotificationEntity>())).thenReturn(savedEntity)
-
-            val result = notificationService.createNotification(request)
-
-            assertEquals(NotificationType.REVIEW_REQUEST, result.type)
-            assertEquals(targetUserId, result.userId)
-            assertEquals(NotificationReferenceType.ENTITY_RESOLUTION, result.referenceType)
-            assertEquals(referenceId, result.referenceId)
-        }
-
-        @Test
-        fun `logs activity on notification creation`() {
+        fun `rejects SYSTEM type via public API`() {
             val request = CreateNotificationRequest(
                 workspaceId = workspaceId,
                 type = NotificationType.SYSTEM,
                 content = NotificationFactory.systemContent(),
             )
 
+            assertThrows<IllegalArgumentException> {
+                notificationService.createNotification(request)
+            }
+        }
+
+        @Test
+        fun `rejects REVIEW_REQUEST type via public API`() {
+            val request = CreateNotificationRequest(
+                workspaceId = workspaceId,
+                type = NotificationType.REVIEW_REQUEST,
+                content = NotificationFactory.reviewRequestContent(),
+            )
+
+            assertThrows<IllegalArgumentException> {
+                notificationService.createNotification(request)
+            }
+        }
+
+        @Test
+        fun `logs activity on notification creation`() {
+            val request = CreateNotificationRequest(
+                workspaceId = workspaceId,
+                type = NotificationType.INFORMATION,
+                content = NotificationFactory.informationContent(),
+            )
+
             val savedEntity = NotificationFactory.createEntity(
                 workspaceId = workspaceId,
-                type = NotificationType.SYSTEM,
+                type = NotificationType.INFORMATION,
                 content = request.content,
             )
             whenever(notificationRepository.save(any<NotificationEntity>())).thenReturn(savedEntity)
@@ -195,14 +185,14 @@ class NotificationServiceTest : BaseServiceTest() {
             val expiresAt = ZonedDateTime.now().plusDays(7)
             val request = CreateNotificationRequest(
                 workspaceId = workspaceId,
-                type = NotificationType.REVIEW_REQUEST,
-                content = NotificationFactory.reviewRequestContent(),
+                type = NotificationType.INFORMATION,
+                content = NotificationFactory.informationContent(),
                 expiresAt = expiresAt,
             )
 
             val savedEntity = NotificationFactory.createEntity(
                 workspaceId = workspaceId,
-                type = NotificationType.REVIEW_REQUEST,
+                type = NotificationType.INFORMATION,
                 content = request.content,
                 expiresAt = expiresAt,
             )
@@ -239,6 +229,73 @@ class NotificationServiceTest : BaseServiceTest() {
             assertEquals(OperationType.CREATE, event.operation)
             assertEquals(NotificationType.INFORMATION, event.notificationType)
             assertEquals(savedEntity.id, event.entityId)
+        }
+    }
+
+    // ------ Internal Create ------
+
+    @Nested
+    @WithUserPersona(
+        userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
+        email = "test@example.com",
+        roles = [WorkspaceRole(workspaceId = "f8b1c2d3-4e5f-6789-abcd-ef9876543210", role = WorkspaceRoles.ADMIN)]
+    )
+    inner class CreateInternalNotification {
+
+        @Test
+        fun `creates privileged notification types via internal method`() {
+            val targetUserId = UUID.randomUUID()
+            val referenceId = UUID.randomUUID()
+
+            val request = CreateNotificationRequest(
+                workspaceId = workspaceId,
+                userId = targetUserId,
+                type = NotificationType.REVIEW_REQUEST,
+                content = NotificationFactory.reviewRequestContent(
+                    title = "Entity Link Detected",
+                    message = "System detected a potential link between Entity A and Entity B.",
+                    priority = ReviewPriority.HIGH,
+                ),
+                referenceType = NotificationReferenceType.ENTITY_RESOLUTION,
+                referenceId = referenceId,
+            )
+
+            val savedEntity = NotificationFactory.createEntity(
+                workspaceId = workspaceId,
+                userId = targetUserId,
+                type = NotificationType.REVIEW_REQUEST,
+                content = request.content,
+                referenceType = NotificationReferenceType.ENTITY_RESOLUTION,
+                referenceId = referenceId,
+            )
+            whenever(notificationRepository.save(any<NotificationEntity>())).thenReturn(savedEntity)
+
+            val result = notificationService.createInternalNotification(request)
+
+            assertEquals(NotificationType.REVIEW_REQUEST, result.type)
+            assertEquals(targetUserId, result.userId)
+            assertEquals(NotificationReferenceType.ENTITY_RESOLUTION, result.referenceType)
+            assertEquals(referenceId, result.referenceId)
+        }
+
+        @Test
+        fun `allows SYSTEM type via internal method`() {
+            val request = CreateNotificationRequest(
+                workspaceId = workspaceId,
+                type = NotificationType.SYSTEM,
+                content = NotificationFactory.systemContent(),
+            )
+
+            val savedEntity = NotificationFactory.createEntity(
+                workspaceId = workspaceId,
+                type = NotificationType.SYSTEM,
+                content = request.content,
+            )
+            whenever(notificationRepository.save(any<NotificationEntity>())).thenReturn(savedEntity)
+
+            val result = notificationService.createInternalNotification(request)
+
+            assertEquals(NotificationType.SYSTEM, result.type)
         }
     }
 

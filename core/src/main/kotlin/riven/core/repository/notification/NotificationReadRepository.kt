@@ -20,7 +20,17 @@ interface NotificationReadRepository : JpaRepository<NotificationReadEntity, UUI
         @Param("notificationIds") notificationIds: Collection<UUID>,
     ): Set<UUID>
 
-    fun existsByUserIdAndNotificationId(userId: UUID, notificationId: UUID): Boolean
+    @Query(
+        """
+        SELECT CASE WHEN COUNT(nr) > 0 THEN true ELSE false END
+        FROM NotificationReadEntity nr
+        WHERE nr.userId = :userId AND nr.notificationId = :notificationId
+        """
+    )
+    fun existsByUserIdAndNotificationId(
+        @Param("userId") userId: UUID,
+        @Param("notificationId") notificationId: UUID,
+    ): Boolean
 
     @Modifying
     @Query(

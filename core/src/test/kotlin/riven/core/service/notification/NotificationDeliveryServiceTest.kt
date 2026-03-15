@@ -2,6 +2,7 @@ package riven.core.service.notification
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
@@ -17,6 +18,7 @@ import riven.core.models.notification.Notification
 import riven.core.models.request.notification.CreateNotificationRequest
 import riven.core.service.util.BaseServiceTest
 import riven.core.service.util.factory.NotificationFactory
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @SpringBootTest(
@@ -128,5 +130,43 @@ class NotificationDeliveryServiceTest : BaseServiceTest() {
         assertEquals(targetUserId, captor.firstValue.userId)
         assertEquals(NotificationReferenceType.ENTITY_RESOLUTION, captor.firstValue.referenceType)
         assertEquals(referenceId, captor.firstValue.referenceId)
+    }
+
+    @Test
+    fun `createForUser forwards expiresAt to CreateNotificationRequest`() {
+        val wsId = UUID.randomUUID()
+        val targetUserId = UUID.randomUUID()
+        val expiresAt = ZonedDateTime.now().plusDays(7)
+        val content = NotificationFactory.reviewRequestContent()
+        val notification = Notification(
+            id = UUID.randomUUID(),
+            workspaceId = wsId,
+            userId = targetUserId,
+            type = NotificationType.REVIEW_REQUEST,
+            content = content,
+            referenceType = null,
+            referenceId = null,
+            resolved = false,
+            resolvedAt = null,
+            expiresAt = expiresAt,
+            createdAt = null,
+            updatedAt = null,
+            createdBy = null,
+            updatedBy = null,
+        )
+
+        whenever(notificationService.createNotification(any())).thenReturn(notification)
+
+        deliveryService.createForUser(
+            workspaceId = wsId,
+            userId = targetUserId,
+            type = NotificationType.REVIEW_REQUEST,
+            content = content,
+            expiresAt = expiresAt,
+        )
+
+        val captor = argumentCaptor<CreateNotificationRequest>()
+        verify(notificationService).createNotification(captor.capture())
+        assertEquals(expiresAt, captor.firstValue.expiresAt)
     }
 }

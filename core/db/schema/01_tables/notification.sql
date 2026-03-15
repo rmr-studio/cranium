@@ -17,7 +17,12 @@ CREATE TABLE IF NOT EXISTS "notifications" (
     "created_by"      UUID,
     "updated_by"      UUID,
     "deleted"         BOOLEAN      NOT NULL DEFAULT FALSE,
-    "deleted_at"      TIMESTAMPTZ
+    "deleted_at"      TIMESTAMPTZ,
+    CONSTRAINT "ck_notifications_reference_pair"
+        CHECK (
+            ("reference_type" IS NULL AND "reference_id" IS NULL) OR
+            ("reference_type" IS NOT NULL AND "reference_id" IS NOT NULL)
+        )
 );
 
 CREATE TABLE IF NOT EXISTS "notification_reads" (

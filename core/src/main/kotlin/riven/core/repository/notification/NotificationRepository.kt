@@ -17,14 +17,15 @@ interface NotificationRepository : JpaRepository<NotificationEntity, UUID> {
         WHERE n.workspaceId = :workspaceId
         AND (n.userId IS NULL OR n.userId = :userId)
         AND (n.expiresAt IS NULL OR n.expiresAt > CURRENT_TIMESTAMP)
-        AND n.createdAt < :cursor
-        ORDER BY n.createdAt DESC
+        AND (n.createdAt < :cursorCreatedAt OR (n.createdAt = :cursorCreatedAt AND n.id < :cursorId))
+        ORDER BY n.createdAt DESC, n.id DESC
         """
     )
     fun findInbox(
         @Param("workspaceId") workspaceId: UUID,
         @Param("userId") userId: UUID,
-        @Param("cursor") cursor: ZonedDateTime,
+        @Param("cursorCreatedAt") cursorCreatedAt: ZonedDateTime,
+        @Param("cursorId") cursorId: UUID,
         pageable: Pageable,
     ): List<NotificationEntity>
 
@@ -58,5 +59,14 @@ interface NotificationRepository : JpaRepository<NotificationEntity, UUID> {
         @Param("referenceId") referenceId: UUID,
     ): List<NotificationEntity>
 
-    fun findByIdAndWorkspaceId(id: UUID, workspaceId: UUID): NotificationEntity?
+    @Query(
+        """
+        SELECT n FROM NotificationEntity n
+        WHERE n.id = :id AND n.workspaceId = :workspaceId
+        """
+    )
+    fun findByIdAndWorkspaceId(
+        @Param("id") id: UUID,
+        @Param("workspaceId") workspaceId: UUID,
+    ): NotificationEntity?
 }

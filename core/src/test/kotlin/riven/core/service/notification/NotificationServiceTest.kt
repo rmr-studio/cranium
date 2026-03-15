@@ -3,6 +3,7 @@ package riven.core.service.notification
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -12,9 +13,13 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Primary
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import riven.core.configuration.auth.WorkspaceSecurity
 import riven.core.entity.notification.NotificationEntity
@@ -47,9 +52,17 @@ import java.util.UUID
         WorkspaceSecurity::class,
         SecurityTestConfig::class,
         NotificationService::class,
+        NotificationServiceTest.EventPublisherConfig::class,
     ]
 )
 class NotificationServiceTest : BaseServiceTest() {
+
+    @TestConfiguration
+    class EventPublisherConfig {
+        @Bean
+        @Primary
+        fun testEventPublisher(): ApplicationEventPublisher = Mockito.mock(ApplicationEventPublisher::class.java)
+    }
 
     @MockitoBean
     private lateinit var notificationRepository: NotificationRepository
@@ -60,11 +73,16 @@ class NotificationServiceTest : BaseServiceTest() {
     @MockitoBean
     private lateinit var activityService: ActivityService
 
-    @MockitoBean
+    @Autowired
     private lateinit var applicationEventPublisher: ApplicationEventPublisher
 
     @Autowired
     private lateinit var notificationService: NotificationService
+
+    @BeforeEach
+    fun resetEventPublisher() {
+        Mockito.reset(applicationEventPublisher)
+    }
 
     // ------ Create ------
 
@@ -211,18 +229,16 @@ class NotificationServiceTest : BaseServiceTest() {
             )
             whenever(notificationRepository.save(any<NotificationEntity>())).thenReturn(savedEntity)
 
-            // publishEvent is invoked on the Spring ApplicationContext (which implements
-            // ApplicationEventPublisher). Because @MockitoBean cannot fully replace the
-            // context-level publisher in a limited @SpringBootTest, we capture the event
-            // via a TestEventListener instead.
-            val result = notificationService.createNotification(request)
+            notificationService.createNotification(request)
 
-            // Verifies the method completed without error, which means publishEvent was
-            // called successfully. The NotificationEvent contract is validated by checking
-            // the returned model contains the right fields that feed the event.
-            assertEquals(workspaceId, result.workspaceId)
-            assertEquals(NotificationType.INFORMATION, result.type)
-            assertNotNull(result.id)
+            val eventCaptor = argumentCaptor<NotificationEvent>()
+            verify(applicationEventPublisher).publishEvent(eventCaptor.capture())
+
+            val event = eventCaptor.firstValue
+            assertEquals(workspaceId, event.workspaceId)
+            assertEquals(OperationType.CREATE, event.operation)
+            assertEquals(NotificationType.INFORMATION, event.notificationType)
+            assertEquals(savedEntity.id, event.entityId)
         }
     }
 
@@ -243,7 +259,7 @@ class NotificationServiceTest : BaseServiceTest() {
                 userId = null,
                 content = NotificationFactory.informationContent(title = "Workspace Notification"),
             ).also { it.createdAt = ZonedDateTime.now() }
-            whenever(notificationRepository.findInbox(eq(workspaceId), eq(userId), any(), any()))
+            whenever(notificationRepository.findInbox(eq(workspaceId), eq(userId), any(), any(), any()))
                 .thenReturn(listOf(notification))
             whenever(notificationReadRepository.findReadNotificationIds(eq(userId), any()))
                 .thenReturn(emptySet())
@@ -265,7 +281,7 @@ class NotificationServiceTest : BaseServiceTest() {
                 id = notificationId,
                 workspaceId = workspaceId,
             ).also { it.createdAt = ZonedDateTime.now() }
-            whenever(notificationRepository.findInbox(eq(workspaceId), eq(userId), any(), any()))
+            whenever(notificationRepository.findInbox(eq(workspaceId), eq(userId), any(), any(), any()))
                 .thenReturn(listOf(notification))
             whenever(notificationReadRepository.findReadNotificationIds(eq(userId), any()))
                 .thenReturn(setOf(notificationId))
@@ -288,7 +304,7 @@ class NotificationServiceTest : BaseServiceTest() {
                     content = NotificationFactory.informationContent(title = "Notification $i"),
                 ).also { it.createdAt = now.minusMinutes(i.toLong()) }
             }
-            whenever(notificationRepository.findInbox(eq(workspaceId), eq(userId), any(), any()))
+            whenever(notificationRepository.findInbox(eq(workspaceId), eq(userId), any(), any(), any()))
                 .thenReturn(notifications)
             whenever(notificationReadRepository.findReadNotificationIds(eq(userId), any()))
                 .thenReturn(emptySet())
@@ -298,14 +314,13 @@ class NotificationServiceTest : BaseServiceTest() {
             val result = notificationService.getInbox(workspaceId, null, 3)
 
             assertNotNull(result.nextCursor)
-            assertEquals(notifications.last().createdAt, result.nextCursor)
         }
 
         @Test
         fun `returns null nextCursor when page is not full`() {
             val notification = NotificationFactory.createEntity(workspaceId = workspaceId)
                 .also { it.createdAt = ZonedDateTime.now() }
-            whenever(notificationRepository.findInbox(eq(workspaceId), eq(userId), any(), any()))
+            whenever(notificationRepository.findInbox(eq(workspaceId), eq(userId), any(), any(), any()))
                 .thenReturn(listOf(notification))
             whenever(notificationReadRepository.findReadNotificationIds(eq(userId), any()))
                 .thenReturn(emptySet())
@@ -319,7 +334,7 @@ class NotificationServiceTest : BaseServiceTest() {
 
         @Test
         fun `returns empty inbox when no notifications exist`() {
-            whenever(notificationRepository.findInbox(eq(workspaceId), eq(userId), any(), any()))
+            whenever(notificationRepository.findInbox(eq(workspaceId), eq(userId), any(), any(), any()))
                 .thenReturn(emptyList())
             whenever(notificationRepository.countUnread(workspaceId, userId))
                 .thenReturn(0L)
@@ -329,6 +344,20 @@ class NotificationServiceTest : BaseServiceTest() {
             assertEquals(0, result.notifications.size)
             assertNull(result.nextCursor)
             assertEquals(0L, result.unreadCount)
+        }
+
+        @Test
+        fun `rejects pageSize below 1`() {
+            assertThrows<IllegalArgumentException> {
+                notificationService.getInbox(workspaceId, null, 0)
+            }
+        }
+
+        @Test
+        fun `rejects pageSize above 100`() {
+            assertThrows<IllegalArgumentException> {
+                notificationService.getInbox(workspaceId, null, 101)
+            }
         }
     }
 
@@ -369,8 +398,6 @@ class NotificationServiceTest : BaseServiceTest() {
 
             whenever(notificationRepository.findByIdAndWorkspaceId(notificationId, workspaceId))
                 .thenReturn(notification)
-            whenever(notificationReadRepository.existsByUserIdAndNotificationId(userId, notificationId))
-                .thenReturn(false)
             whenever(notificationReadRepository.save(any<NotificationReadEntity>()))
                 .thenAnswer { it.arguments[0] }
 
@@ -383,18 +410,18 @@ class NotificationServiceTest : BaseServiceTest() {
         }
 
         @Test
-        fun `is idempotent -- does not duplicate read entry`() {
+        fun `is idempotent -- swallows duplicate constraint violation`() {
             val notificationId = NotificationFactory.DEFAULT_NOTIFICATION_ID
             val notification = NotificationFactory.createEntity(id = notificationId, workspaceId = workspaceId)
 
             whenever(notificationRepository.findByIdAndWorkspaceId(notificationId, workspaceId))
                 .thenReturn(notification)
-            whenever(notificationReadRepository.existsByUserIdAndNotificationId(userId, notificationId))
-                .thenReturn(true)
+            whenever(notificationReadRepository.save(any<NotificationReadEntity>()))
+                .thenThrow(org.springframework.dao.DataIntegrityViolationException("duplicate"))
 
             notificationService.markAsRead(workspaceId, notificationId)
 
-            verify(notificationReadRepository, never()).save(any())
+            verify(notificationReadRepository).save(any())
         }
 
         @Test

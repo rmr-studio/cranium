@@ -12,6 +12,7 @@ import riven.core.enums.activity.Activity
 import riven.core.enums.core.ApplicationEntityType
 import riven.core.enums.notification.NotificationReferenceType
 import riven.core.enums.util.OperationType
+import org.springframework.dao.DataIntegrityViolationException
 import riven.core.exceptions.NotFoundException
 import riven.core.models.common.markDeleted
 import riven.core.models.notification.NotificationInboxItem
@@ -25,6 +26,7 @@ import riven.core.service.activity.ActivityService
 import riven.core.service.activity.log
 import riven.core.service.auth.AuthTokenService
 import java.time.ZonedDateTime
+import java.util.Base64
 import java.util.UUID
 
 @Service
@@ -70,21 +72,24 @@ class NotificationService(
     /** Returns a cursor-paginated inbox for the current user within a workspace. */
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
     @Transactional(readOnly = true)
-    fun getInbox(workspaceId: UUID, cursor: ZonedDateTime?, pageSize: Int): NotificationInboxResponse {
+    fun getInbox(workspaceId: UUID, cursor: String?, pageSize: Int): NotificationInboxResponse {
+        require(pageSize in 1..100) { "pageSize must be between 1 and 100" }
+
         val userId = authTokenService.getUserId()
-        val effectiveCursor = cursor ?: ZonedDateTime.now()
+        val (cursorCreatedAt, cursorId) = decodeCursor(cursor)
 
         val notifications = notificationRepository.findInbox(
             workspaceId = workspaceId,
             userId = userId,
-            cursor = effectiveCursor,
+            cursorCreatedAt = cursorCreatedAt,
+            cursorId = cursorId,
             pageable = PageRequest.of(0, pageSize),
         )
 
         val readIds = fetchReadIds(userId, notifications)
 
         val items = notifications.map { it.toInboxItem(isRead = it.id in readIds) }
-        val nextCursor = if (items.size == pageSize) notifications.last().createdAt else null
+        val nextCursor = if (items.size == pageSize) encodeCursor(notifications.last()) else null
         val unreadCount = countUnread(workspaceId, userId)
 
         return NotificationInboxResponse(
@@ -112,13 +117,13 @@ class NotificationService(
         notificationRepository.findByIdAndWorkspaceId(notificationId, workspaceId)
             ?: throw NotFoundException("Notification not found: $notificationId")
 
-        if (notificationReadRepository.existsByUserIdAndNotificationId(userId, notificationId)) {
-            return
+        try {
+            notificationReadRepository.save(
+                NotificationReadEntity(userId = userId, notificationId = notificationId)
+            )
+        } catch (_: DataIntegrityViolationException) {
+            // Duplicate read entry — idempotent, silently ignored
         }
-
-        notificationReadRepository.save(
-            NotificationReadEntity(userId = userId, notificationId = notificationId)
-        )
     }
 
     /** Marks all visible notifications in the workspace as read for the current user. */
@@ -213,7 +218,6 @@ class NotificationService(
                 summary = mapOf(
                     "title" to entity.content.title,
                     "message" to entity.content.message,
-                    "targetUserId" to entity.userId?.toString(),
                     "referenceType" to entity.referenceType?.name,
                     "referenceId" to entity.referenceId?.toString(),
                 ),
@@ -233,6 +237,22 @@ class NotificationService(
         } else {
             emptySet()
         }
+
+    private fun encodeCursor(entity: NotificationEntity): String {
+        val createdAt = requireNotNull(entity.createdAt) { "createdAt must not be null for cursor encoding" }
+        val id = requireNotNull(entity.id) { "id must not be null for cursor encoding" }
+        return Base64.getUrlEncoder().encodeToString("$createdAt|$id".toByteArray())
+    }
+
+    private fun decodeCursor(cursor: String?): Pair<ZonedDateTime, UUID> {
+        if (cursor == null) {
+            return ZonedDateTime.now() to UUID(Long.MAX_VALUE, Long.MAX_VALUE)
+        }
+        val decoded = String(Base64.getUrlDecoder().decode(cursor))
+        val parts = decoded.split("|", limit = 2)
+        require(parts.size == 2) { "Invalid cursor format" }
+        return ZonedDateTime.parse(parts[0]) to UUID.fromString(parts[1])
+    }
 
     private fun NotificationEntity.toInboxItem(isRead: Boolean): NotificationInboxItem =
         NotificationInboxItem(

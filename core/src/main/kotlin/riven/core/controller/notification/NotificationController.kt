@@ -18,7 +18,6 @@ import riven.core.models.notification.Notification
 import riven.core.models.request.notification.CreateNotificationRequest
 import riven.core.models.response.notification.NotificationInboxResponse
 import riven.core.service.notification.NotificationService
-import java.time.ZonedDateTime
 import java.util.UUID
 
 @RestController
@@ -36,7 +35,7 @@ class NotificationController(
     @GetMapping("/workspace/{workspaceId}")
     fun getInbox(
         @PathVariable workspaceId: UUID,
-        @RequestParam(required = false) cursor: ZonedDateTime?,
+        @RequestParam(required = false) cursor: String?,
         @RequestParam(defaultValue = "20") pageSize: Int,
     ): ResponseEntity<NotificationInboxResponse> =
         ResponseEntity.ok(notificationService.getInbox(workspaceId, cursor, pageSize))

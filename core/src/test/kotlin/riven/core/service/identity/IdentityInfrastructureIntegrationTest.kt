@@ -62,7 +62,7 @@ import java.util.UUID
     ],
 )
 @EnableJpaRepositories(basePackages = ["riven.core.repository.identity"])
-@EntityScan("riven.core.entity")
+@EntityScan("riven.core.entity.identity")
 @EnableJpaAuditing(auditorAwareRef = "identityAuditorProvider", dateTimeProviderRef = "identityDateTimeProvider")
 class IdentityInfrastructureIntegrationTestConfig {
 

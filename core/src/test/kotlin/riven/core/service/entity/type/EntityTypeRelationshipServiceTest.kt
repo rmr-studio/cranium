@@ -15,6 +15,7 @@ import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.entity.entity.EntityTypeEntity
 import riven.core.enums.entity.EntityRelationshipCardinality
+import riven.core.enums.integration.SourceType
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.enums.workspace.WorkspaceRoles
 import riven.core.models.request.entity.type.SaveRelationshipDefinitionRequest
@@ -29,6 +30,7 @@ import riven.core.service.entity.EntityTypeSemanticMetadataService
 import riven.core.service.util.BaseServiceTest
 import riven.core.service.util.WithUserPersona
 import riven.core.service.util.WorkspaceRole
+import org.junit.jupiter.api.Nested
 import riven.core.service.util.factory.entity.EntityFactory
 import java.util.*
 
@@ -108,6 +110,8 @@ class EntityTypeRelationshipServiceTest : BaseServiceTest() {
             ),
         )
 
+        val sourceEntityType = EntityFactory.createEntityType(id = sourceEntityTypeId, workspaceId = workspaceId)
+        whenever(entityTypeRepository.findById(sourceEntityTypeId)).thenReturn(Optional.of(sourceEntityType))
         whenever(definitionRepository.save(any<RelationshipDefinitionEntity>())).thenAnswer { invocation ->
             val entity = invocation.arguments[0] as RelationshipDefinitionEntity
             if (entity.id == null) entity.copy(id = UUID.randomUUID()) else entity
@@ -151,6 +155,8 @@ class EntityTypeRelationshipServiceTest : BaseServiceTest() {
             ),
         )
 
+        val sourceEntityType = EntityFactory.createEntityType(id = sourceEntityTypeId, workspaceId = workspaceId)
+        whenever(entityTypeRepository.findById(sourceEntityTypeId)).thenReturn(Optional.of(sourceEntityType))
         whenever(definitionRepository.save(any<RelationshipDefinitionEntity>())).thenAnswer { invocation ->
             val entity = invocation.arguments[0] as RelationshipDefinitionEntity
             if (entity.id == null) entity.copy(id = UUID.randomUUID()) else entity
@@ -755,5 +761,57 @@ class EntityTypeRelationshipServiceTest : BaseServiceTest() {
         val result = service.getDefinitionsForEntityType(workspaceId, entityTypeId)
 
         assertTrue(result.isEmpty())
+    }
+
+    // ------ Readonly Guard Tests ------
+
+    @Nested
+    @WithUserPersona(
+        userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
+        email = "test@test.com",
+        displayName = "Test User",
+        roles = [
+            WorkspaceRole(
+                workspaceId = "f8b1c2d3-4e5f-6789-abcd-ef9876543210",
+                role = WorkspaceRoles.OWNER
+            )
+        ]
+    )
+    inner class ReadonlyGuards {
+
+        /**
+         * Verifies that createRelationshipDefinition throws IllegalArgumentException
+         * when the source entity type is readonly.
+         */
+        @Test
+        fun `createRelationshipDefinition - readonly source entity type - throws IllegalArgumentException`() {
+            val sourceTypeId = UUID.randomUUID()
+            val sourceEntityType = EntityFactory.createEntityType(
+                id = sourceTypeId,
+                workspaceId = workspaceId,
+                readonly = true,
+                sourceType = SourceType.INTEGRATION,
+            )
+
+            whenever(entityTypeRepository.findById(sourceTypeId)).thenReturn(Optional.of(sourceEntityType))
+
+            val request = SaveRelationshipDefinitionRequest(
+                key = "test_entity",
+                name = "Has Contacts",
+                iconType = IconType.LINK,
+                iconColour = IconColour.NEUTRAL,
+                cardinalityDefault = EntityRelationshipCardinality.ONE_TO_MANY,
+                targetRules = listOf(
+                    SaveTargetRuleRequest(targetEntityTypeId = UUID.randomUUID(), inverseName = "Belongs To")
+                ),
+            )
+
+            val exception = assertThrows(IllegalArgumentException::class.java) {
+                service.createRelationshipDefinition(workspaceId, sourceTypeId, request)
+            }
+
+            assertTrue(exception.message!!.contains("readonly"))
+            verify(definitionRepository, never()).save(any<RelationshipDefinitionEntity>())
+        }
     }
 }

@@ -21,8 +21,12 @@ import riven.core.models.common.validation.Schema
 import riven.core.models.entity.EntityTypeSchema
 import riven.core.models.entity.configuration.ColumnConfiguration
 import riven.core.models.entity.configuration.ColumnOverride
+import riven.core.service.entity.EntityTypeSemanticMetadataService
+import riven.core.service.entity.type.EntityTypeRelationshipService
 import riven.core.service.entity.type.EntityTypeService
+import riven.core.service.entity.type.EntityTypeSequenceService
 import riven.core.models.integration.materialization.MaterializationResult
+import riven.core.models.response.integration.EnabledEntityTypeSummary
 import riven.core.repository.catalog.CatalogEntityTypeRepository
 import riven.core.repository.catalog.CatalogRelationshipRepository
 import riven.core.repository.catalog.CatalogRelationshipTargetRuleRepository
@@ -46,6 +50,9 @@ class TemplateMaterializationService(
     private val catalogRelationshipRepository: CatalogRelationshipRepository,
     private val catalogRelationshipTargetRuleRepository: CatalogRelationshipTargetRuleRepository,
     private val manifestCatalogRepository: ManifestCatalogRepository,
+    private val semanticMetadataService: EntityTypeSemanticMetadataService,
+    private val relationshipService: EntityTypeRelationshipService,
+    private val sequenceService: EntityTypeSequenceService,
     private val objectMapper: ObjectMapper,
     private val logger: KLogger
 ) {
@@ -62,7 +69,7 @@ class TemplateMaterializationService(
      * @return result with counts of created/restored entity types and relationships
      */
     @Transactional
-    fun materializeIntegrationTemplates(workspaceId: UUID, integrationSlug: String): MaterializationResult {
+    fun materializeIntegrationTemplates(workspaceId: UUID, integrationSlug: String, integrationDefinitionId: UUID): MaterializationResult {
         val manifest = manifestCatalogRepository.findByKeyAndManifestType(integrationSlug, ManifestType.INTEGRATION)
             ?: throw NotFoundException("Integration manifest not found for slug: $integrationSlug")
 
@@ -70,7 +77,7 @@ class TemplateMaterializationService(
         val catalogRelationships = catalogRelationshipRepository.findByManifestId(manifest.id!!)
 
         if (catalogEntityTypes.isEmpty()) {
-            return MaterializationResult(0, 0, 0, integrationSlug)
+            return MaterializationResult(0, 0, 0, integrationSlug, emptyList())
         }
 
         val entityTypeKeys = catalogEntityTypes.map { it.key }
@@ -78,7 +85,7 @@ class TemplateMaterializationService(
         val softDeletedEntityTypes = entityTypeRepository.findSoftDeletedByWorkspaceIdAndKeyIn(workspaceId, entityTypeKeys)
 
         val entityTypeMaterializationResult = materializeEntityTypes(
-            workspaceId, integrationSlug, catalogEntityTypes, existingEntityTypes, softDeletedEntityTypes
+            workspaceId, integrationSlug, integrationDefinitionId, catalogEntityTypes, existingEntityTypes, softDeletedEntityTypes
         )
 
         val relationshipsCreated = materializeRelationships(
@@ -89,7 +96,8 @@ class TemplateMaterializationService(
             entityTypesCreated = entityTypeMaterializationResult.created,
             entityTypesRestored = entityTypeMaterializationResult.restored,
             relationshipsCreated = relationshipsCreated,
-            integrationSlug = integrationSlug
+            integrationSlug = integrationSlug,
+            entityTypes = entityTypeMaterializationResult.entityTypes
         )
     }
 
@@ -102,6 +110,7 @@ class TemplateMaterializationService(
     private fun materializeEntityTypes(
         workspaceId: UUID,
         integrationSlug: String,
+        integrationDefinitionId: UUID,
         catalogEntityTypes: List<CatalogEntityTypeEntity>,
         existingEntityTypes: List<EntityTypeEntity>,
         softDeletedEntityTypes: List<EntityTypeEntity>
@@ -109,6 +118,7 @@ class TemplateMaterializationService(
         val existingKeys = existingEntityTypes.map { it.key }.toSet()
         val softDeletedByKey = softDeletedEntityTypes.associateBy { it.key }
         val keyToIdMap = mutableMapOf<String, UUID>()
+        val entityTypeSummaries = mutableListOf<EnabledEntityTypeSummary>()
         var created = 0
         var restored = 0
 
@@ -120,16 +130,20 @@ class TemplateMaterializationService(
 
             if (softDeleted != null) {
                 val restoredEntity = restoreEntityType(softDeleted)
-                keyToIdMap[catalogType.key] = restoredEntity.id!!
+                val restoredId = requireNotNull(restoredEntity.id)
+                relationshipService.createFallbackDefinition(restoredEntity.workspaceId!!, restoredId)
+                keyToIdMap[catalogType.key] = restoredId
+                entityTypeSummaries.add(buildEntityTypeSummary(restoredEntity))
                 restored++
             } else if (catalogType.key !in existingKeys) {
-                val newEntity = createEntityType(workspaceId, integrationSlug, catalogType)
+                val newEntity = createEntityType(workspaceId, integrationSlug, integrationDefinitionId, catalogType)
                 keyToIdMap[catalogType.key] = newEntity.id!!
+                entityTypeSummaries.add(buildEntityTypeSummary(newEntity))
                 created++
             }
         }
 
-        return EntityTypeMaterializationResult(created, restored, keyToIdMap)
+        return EntityTypeMaterializationResult(created, restored, keyToIdMap, entityTypeSummaries)
     }
 
     /**
@@ -138,6 +152,7 @@ class TemplateMaterializationService(
     private fun createEntityType(
         workspaceId: UUID,
         integrationSlug: String,
+        integrationDefinitionId: UUID,
         catalogType: CatalogEntityTypeEntity
     ): EntityTypeEntity {
         val schema = buildWorkspaceSchema(catalogType.schema, integrationSlug, catalogType.key)
@@ -152,6 +167,7 @@ class TemplateMaterializationService(
             iconColour = catalogType.iconColour,
             semanticGroup = catalogType.semanticGroup,
             sourceType = SourceType.INTEGRATION,
+            sourceIntegrationId = integrationDefinitionId,
             readonly = true,
             `protected` = true,
             identifierKey = identifierKey,
@@ -160,7 +176,13 @@ class TemplateMaterializationService(
             columnConfiguration = columnConfiguration
         )
 
-        return entityTypeRepository.save(entity)
+        val savedEntity = entityTypeRepository.save(entity)
+        entityTypeRepository.flush()
+        val savedId = requireNotNull(savedEntity.id)
+
+        initializeEntityTypeMetadata(savedId, workspaceId, schema)
+
+        return savedEntity
     }
 
     /**
@@ -170,6 +192,36 @@ class TemplateMaterializationService(
         entity.deleted = false
         entity.deletedAt = null
         return entityTypeRepository.save(entity)
+    }
+
+    /**
+     * Initializes semantic metadata, fallback relationship, and ID-type attribute sequences
+     * for a newly created entity type. Brings materialization to parity with template installation.
+     */
+    private fun initializeEntityTypeMetadata(entityTypeId: UUID, workspaceId: UUID, schema: EntityTypeSchema) {
+        val attributeIds = schema.properties?.keys?.toList() ?: emptyList()
+        semanticMetadataService.initializeForEntityType(
+            entityTypeId = entityTypeId,
+            workspaceId = workspaceId,
+            attributeIds = attributeIds
+        )
+
+        relationshipService.createFallbackDefinition(workspaceId, entityTypeId)
+
+        schema.properties?.forEach { (attrId, attrSchema) ->
+            if (attrSchema.key == SchemaType.ID) {
+                sequenceService.initializeSequence(entityTypeId, attrId)
+            }
+        }
+    }
+
+    private fun buildEntityTypeSummary(entity: EntityTypeEntity): EnabledEntityTypeSummary {
+        return EnabledEntityTypeSummary(
+            id = requireNotNull(entity.id) { "Entity type must be persisted before building summary" },
+            key = entity.key,
+            displayName = entity.displayNameSingular,
+            attributeCount = entity.schema?.properties?.size ?: 0
+        )
     }
 
     // ------ Schema Conversion ------
@@ -409,6 +461,7 @@ class TemplateMaterializationService(
     private data class EntityTypeMaterializationResult(
         val created: Int,
         val restored: Int,
-        val keyToIdMap: Map<String, UUID>
+        val keyToIdMap: Map<String, UUID>,
+        val entityTypes: List<EnabledEntityTypeSummary>
     )
 }

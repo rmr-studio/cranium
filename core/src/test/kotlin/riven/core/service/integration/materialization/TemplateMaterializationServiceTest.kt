@@ -33,6 +33,9 @@ import riven.core.repository.catalog.ManifestCatalogRepository
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.repository.entity.RelationshipDefinitionRepository
 import riven.core.repository.entity.RelationshipTargetRuleRepository
+import riven.core.service.entity.EntityTypeSemanticMetadataService
+import riven.core.service.entity.type.EntityTypeRelationshipService
+import riven.core.service.entity.type.EntityTypeSequenceService
 import java.util.*
 
 /**
@@ -58,6 +61,7 @@ class TemplateMaterializationServiceTest {
 
     private val workspaceId: UUID = UUID.fromString("f8b1c2d3-4e5f-6789-abcd-ef9876543210")
     private val manifestId: UUID = UUID.fromString("a1b2c3d4-5e6f-7890-abcd-ef1234567890")
+    private val integrationDefinitionId: UUID = UUID.fromString("b2c3d4e5-6f78-9012-abcd-ef2345678901")
     private val integrationSlug = "hubspot"
 
     @MockitoBean
@@ -82,6 +86,15 @@ class TemplateMaterializationServiceTest {
     private lateinit var manifestCatalogRepository: ManifestCatalogRepository
 
     @MockitoBean
+    private lateinit var semanticMetadataService: EntityTypeSemanticMetadataService
+
+    @MockitoBean
+    private lateinit var relationshipService: EntityTypeRelationshipService
+
+    @MockitoBean
+    private lateinit var sequenceService: EntityTypeSequenceService
+
+    @MockitoBean
     private lateinit var objectMapper: ObjectMapper
 
     @MockitoBean
@@ -99,7 +112,7 @@ class TemplateMaterializationServiceTest {
         reset(
             entityTypeRepository, relationshipDefinitionRepository, relationshipTargetRuleRepository,
             catalogEntityTypeRepository, catalogRelationshipRepository, catalogRelationshipTargetRuleRepository,
-            manifestCatalogRepository
+            manifestCatalogRepository, semanticMetadataService, relationshipService, sequenceService
         )
 
         manifestEntity = ManifestCatalogEntity(
@@ -193,6 +206,17 @@ class TemplateMaterializationServiceTest {
         whenever(relationshipDefinitionRepository.findByWorkspaceIdAndSourceEntityTypeIdIn(eq(workspaceId), any()))
             .thenReturn(emptyList())
 
+        // Default: createFallbackDefinition returns a stub entity
+        whenever(relationshipService.createFallbackDefinition(any(), any())).thenReturn(
+            RelationshipDefinitionEntity(
+                id = UUID.randomUUID(),
+                workspaceId = workspaceId,
+                sourceEntityTypeId = UUID.randomUUID(),
+                name = "Connected Entities",
+                cardinalityDefault = EntityRelationshipCardinality.MANY_TO_MANY
+            )
+        )
+
         // Default: save returns the entity with an ID
         whenever(entityTypeRepository.save(any<EntityTypeEntity>())).thenAnswer { invocation ->
             val entity = invocation.getArgument<EntityTypeEntity>(0)
@@ -219,7 +243,7 @@ class TemplateMaterializationServiceTest {
         whenever(catalogRelationshipRepository.findByManifestId(manifestId))
             .thenReturn(emptyList())
 
-        val result = service.materializeIntegrationTemplates(workspaceId, integrationSlug)
+        val result = service.materializeIntegrationTemplates(workspaceId, integrationSlug, integrationDefinitionId)
 
         assertEquals(2, result.entityTypesCreated)
         assertEquals(0, result.entityTypesRestored)
@@ -240,7 +264,7 @@ class TemplateMaterializationServiceTest {
         whenever(catalogRelationshipRepository.findByManifestId(manifestId))
             .thenReturn(emptyList())
 
-        service.materializeIntegrationTemplates(workspaceId, integrationSlug)
+        service.materializeIntegrationTemplates(workspaceId, integrationSlug, integrationDefinitionId)
 
         // UUID v3 is deterministic: same input = same UUID
         val expectedEmailUuid = UUID.nameUUIDFromBytes("$integrationSlug:hubspot-contact:email".toByteArray())
@@ -261,7 +285,7 @@ class TemplateMaterializationServiceTest {
         whenever(catalogRelationshipRepository.findByManifestId(manifestId))
             .thenReturn(emptyList())
 
-        service.materializeIntegrationTemplates(workspaceId, integrationSlug)
+        service.materializeIntegrationTemplates(workspaceId, integrationSlug, integrationDefinitionId)
 
         val expectedIdentifierUuid = UUID.nameUUIDFromBytes("$integrationSlug:hubspot-contact:email".toByteArray())
 
@@ -278,7 +302,7 @@ class TemplateMaterializationServiceTest {
         whenever(catalogRelationshipRepository.findByManifestId(manifestId))
             .thenReturn(emptyList())
 
-        service.materializeIntegrationTemplates(workspaceId, integrationSlug)
+        service.materializeIntegrationTemplates(workspaceId, integrationSlug, integrationDefinitionId)
 
         val expectedEmailUuid = UUID.nameUUIDFromBytes("hubspot:hubspot-contact:email".toByteArray())
         val expectedFirstNameUuid = UUID.nameUUIDFromBytes("hubspot:hubspot-contact:first-name".toByteArray())
@@ -295,7 +319,7 @@ class TemplateMaterializationServiceTest {
             .thenReturn(null)
 
         assertThrows(NotFoundException::class.java) {
-            service.materializeIntegrationTemplates(workspaceId, integrationSlug)
+            service.materializeIntegrationTemplates(workspaceId, integrationSlug, integrationDefinitionId)
         }
 
         verify(entityTypeRepository, never()).save(any<EntityTypeEntity>())
@@ -325,7 +349,7 @@ class TemplateMaterializationServiceTest {
         whenever(entityTypeRepository.findByworkspaceIdAndKeyIn(eq(workspaceId), any()))
             .thenReturn(listOf(existingEntityType))
 
-        val result = service.materializeIntegrationTemplates(workspaceId, integrationSlug)
+        val result = service.materializeIntegrationTemplates(workspaceId, integrationSlug, integrationDefinitionId)
 
         // Only the company type should be created (contact already exists)
         assertEquals(1, result.entityTypesCreated)
@@ -358,7 +382,7 @@ class TemplateMaterializationServiceTest {
         whenever(entityTypeRepository.findSoftDeletedByWorkspaceIdAndKeyIn(eq(workspaceId), any()))
             .thenReturn(listOf(softDeletedEntityType))
 
-        val result = service.materializeIntegrationTemplates(workspaceId, integrationSlug)
+        val result = service.materializeIntegrationTemplates(workspaceId, integrationSlug, integrationDefinitionId)
 
         assertEquals(0, result.entityTypesCreated)
         assertEquals(1, result.entityTypesRestored)
@@ -413,7 +437,7 @@ class TemplateMaterializationServiceTest {
             }
         }
 
-        val result = service.materializeIntegrationTemplates(workspaceId, integrationSlug)
+        val result = service.materializeIntegrationTemplates(workspaceId, integrationSlug, integrationDefinitionId)
 
         assertEquals(1, result.relationshipsCreated)
 
@@ -527,7 +551,7 @@ class TemplateMaterializationServiceTest {
             }
         }
 
-        val result = service.materializeIntegrationTemplates(workspaceId, integrationSlug)
+        val result = service.materializeIntegrationTemplates(workspaceId, integrationSlug, integrationDefinitionId)
 
         assertEquals(1, result.relationshipsCreated)
 
@@ -557,11 +581,150 @@ class TemplateMaterializationServiceTest {
         whenever(catalogRelationshipRepository.findByManifestId(manifestId))
             .thenReturn(emptyList())
 
-        val result = service.materializeIntegrationTemplates(workspaceId, integrationSlug)
+        val result = service.materializeIntegrationTemplates(workspaceId, integrationSlug, integrationDefinitionId)
 
         assertEquals(0, result.entityTypesCreated)
         assertEquals(0, result.entityTypesRestored)
         assertEquals(0, result.relationshipsCreated)
         verify(entityTypeRepository, never()).save(any<EntityTypeEntity>())
+    }
+
+    // ========== Post-Creation Initialization Tests ==========
+
+    @Test
+    fun `materializeIntegrationTemplates - initializes semantic metadata for created entity types`() {
+        whenever(catalogEntityTypeRepository.findByManifestId(manifestId))
+            .thenReturn(listOf(catalogContactType))
+        whenever(catalogRelationshipRepository.findByManifestId(manifestId))
+            .thenReturn(emptyList())
+
+        val contactEntityId = UUID.randomUUID()
+        whenever(entityTypeRepository.save(any<EntityTypeEntity>())).thenAnswer { invocation ->
+            val entity = invocation.getArgument<EntityTypeEntity>(0)
+            entity.copy(id = contactEntityId)
+        }
+
+        service.materializeIntegrationTemplates(workspaceId, integrationSlug, integrationDefinitionId)
+
+        val expectedEmailUuid = UUID.nameUUIDFromBytes("$integrationSlug:hubspot-contact:email".toByteArray())
+        val expectedFirstNameUuid = UUID.nameUUIDFromBytes("$integrationSlug:hubspot-contact:first-name".toByteArray())
+
+        verify(semanticMetadataService).initializeForEntityType(
+            entityTypeId = eq(contactEntityId),
+            workspaceId = eq(workspaceId),
+            attributeIds = argThat { ids ->
+                ids.size == 2 && ids.contains(expectedEmailUuid) && ids.contains(expectedFirstNameUuid)
+            }
+        )
+    }
+
+    @Test
+    fun `materializeIntegrationTemplates - creates fallback relationship definition for each entity type`() {
+        val contactEntityId = UUID.randomUUID()
+        val companyEntityId = UUID.randomUUID()
+
+        whenever(catalogEntityTypeRepository.findByManifestId(manifestId))
+            .thenReturn(listOf(catalogContactType, catalogCompanyType))
+        whenever(catalogRelationshipRepository.findByManifestId(manifestId))
+            .thenReturn(emptyList())
+
+        whenever(entityTypeRepository.save(any<EntityTypeEntity>())).thenAnswer { invocation ->
+            val entity = invocation.getArgument<EntityTypeEntity>(0)
+            when (entity.key) {
+                "hubspot-contact" -> entity.copy(id = contactEntityId)
+                "hubspot-company" -> entity.copy(id = companyEntityId)
+                else -> entity.copy(id = UUID.randomUUID())
+            }
+        }
+
+        service.materializeIntegrationTemplates(workspaceId, integrationSlug, integrationDefinitionId)
+
+        verify(relationshipService).createFallbackDefinition(workspaceId, contactEntityId)
+        verify(relationshipService).createFallbackDefinition(workspaceId, companyEntityId)
+    }
+
+    @Test
+    fun `materializeIntegrationTemplates - initializes sequence for ID-type attributes`() {
+        val catalogWithIdAttr = CatalogEntityTypeEntity(
+            id = UUID.randomUUID(),
+            manifestId = manifestId,
+            key = "hubspot-ticket",
+            displayNameSingular = "HubSpot Ticket",
+            displayNamePlural = "HubSpot Tickets",
+            semanticGroup = SemanticGroup.UNCATEGORIZED,
+            readonly = true,
+            schema = mapOf(
+                "ticket-id" to mapOf(
+                    "label" to "Ticket ID",
+                    "key" to "ID",
+                    "type" to "string",
+                    "required" to true,
+                    "unique" to true,
+                    "protected" to true
+                ),
+                "subject" to mapOf(
+                    "label" to "Subject",
+                    "key" to "TEXT",
+                    "type" to "string",
+                    "required" to false,
+                    "unique" to false,
+                    "protected" to true
+                )
+            )
+        )
+
+        val ticketEntityId = UUID.randomUUID()
+
+        whenever(catalogEntityTypeRepository.findByManifestId(manifestId))
+            .thenReturn(listOf(catalogWithIdAttr))
+        whenever(catalogRelationshipRepository.findByManifestId(manifestId))
+            .thenReturn(emptyList())
+        whenever(entityTypeRepository.save(any<EntityTypeEntity>())).thenAnswer { invocation ->
+            invocation.getArgument<EntityTypeEntity>(0).copy(id = ticketEntityId)
+        }
+
+        service.materializeIntegrationTemplates(workspaceId, integrationSlug, integrationDefinitionId)
+
+        val expectedTicketIdUuid = UUID.nameUUIDFromBytes("$integrationSlug:hubspot-ticket:ticket-id".toByteArray())
+        verify(sequenceService).initializeSequence(ticketEntityId, expectedTicketIdUuid)
+
+        // TEXT attribute should NOT trigger sequence initialization
+        val expectedSubjectUuid = UUID.nameUUIDFromBytes("$integrationSlug:hubspot-ticket:subject".toByteArray())
+        verify(sequenceService, never()).initializeSequence(ticketEntityId, expectedSubjectUuid)
+    }
+
+    @Test
+    fun `materializeIntegrationTemplates - skips semantic metadata but recreates fallback relationship for restored entity types`() {
+        val restoredId = UUID.randomUUID()
+        val softDeletedEntityType = EntityTypeEntity(
+            id = restoredId,
+            key = "hubspot-contact",
+            displayNameSingular = "HubSpot Contact",
+            displayNamePlural = "HubSpot Contacts",
+            identifierKey = UUID.randomUUID(),
+            workspaceId = workspaceId,
+            sourceType = SourceType.INTEGRATION,
+            readonly = true,
+            schema = riven.core.models.common.validation.Schema(
+                key = SchemaType.OBJECT,
+                type = DataType.OBJECT
+            ),
+        )
+
+        whenever(catalogEntityTypeRepository.findByManifestId(manifestId))
+            .thenReturn(listOf(catalogContactType))
+        whenever(catalogRelationshipRepository.findByManifestId(manifestId))
+            .thenReturn(emptyList())
+        whenever(entityTypeRepository.findSoftDeletedByWorkspaceIdAndKeyIn(eq(workspaceId), any()))
+            .thenReturn(listOf(softDeletedEntityType))
+
+        service.materializeIntegrationTemplates(workspaceId, integrationSlug, integrationDefinitionId)
+
+        // Semantic metadata should NOT be re-initialized for restored entity types
+        verify(semanticMetadataService, never()).initializeForEntityType(any(), any(), any())
+        verify(sequenceService, never()).initializeSequence(any(), any())
+
+        // Fallback relationship SHOULD be recreated since the old one was soft-deleted
+        verify(relationshipService).createFallbackDefinition(workspaceId, restoredId)
     }
 }

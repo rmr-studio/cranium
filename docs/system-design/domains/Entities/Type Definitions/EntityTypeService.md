@@ -27,6 +27,8 @@ Primary entry point for entity type lifecycle operations including creation, att
 - Perform impact analysis before breaking changes
 - Delete entity types with relationship cascade handling
 - Retrieve entity types by ID, key, or workspace
+- Batch soft-delete and restore entity types by integration ID for integration lifecycle management
+- Enforce readonly guards on integration-sourced entity types
 - Log activity for audit trail
 
 ---
@@ -41,6 +43,7 @@ Primary entry point for entity type lifecycle operations including creation, att
 - `AuthTokenService` — JWT user extraction
 - `ActivityService` — Audit logging
 - [[EntityTypeSemanticMetadataService]] — Lifecycle hooks for semantic metadata initialization and cascade deletion
+- [[IntegrationEnablementService]] — (via reverse dependency) calls `softDeleteByIntegration` and `restoreByIntegration` for integration lifecycle operations
 
 ## Used By
 
@@ -102,6 +105,19 @@ Methods `getWorkspaceEntityTypesWithIncludes()` and `getEntityTypeByKeyWithInclu
 4. Build `SemanticMetadataBundle` per entity type
 5. Return enriched `EntityType` models with `relationships` and `semantics` fields populated
 
+**Integration lifecycle operations:**
+
+- `softDeleteByIntegration(workspaceId, integrationId)`: Finds all entity types belonging to the integration via `findBySourceIntegrationIdAndWorkspaceId`. Batch-fetches their relationship definitions, soft-deletes the relationships first, then soft-deletes the entity types with activity logging (reason: `integration_disabled`). Returns `IntegrationSoftDeleteResult` with counts of entity types and relationships deleted.
+- `restoreByIntegration(workspaceId, integrationId)`: Finds soft-deleted entity types via native SQL query `findSoftDeletedBySourceIntegrationIdAndWorkspaceId` (bypasses `@SQLRestriction`). Clears `deleted` flag and `deletedAt` timestamp on each. Returns count of restored entity types.
+
+**Readonly guards:**
+
+The following methods check `type.readonly` before proceeding and throw `IllegalArgumentException` for integration-sourced entity types:
+- `updateEntityTypeConfiguration` — readonly types only allow column configuration changes (name, icon, semantic group changes are silently skipped)
+- `saveEntityTypeDefinition` — blocks all attribute and relationship definition modifications
+- `removeEntityTypeDefinition` — blocks all definition removals
+- `deleteEntityType` — blocks deletion of readonly types
+
 **Column reordering:**
 
 - Maintains ordered list of `EntityTypeAttributeColumn` (key + type)
@@ -161,6 +177,14 @@ Retrieves all entity types for workspace, enriched with relationship definitions
 
 Retrieves a single entity type by key, enriched with relationship definitions and semantic metadata bundle.
 
+### `softDeleteByIntegration(workspaceId: UUID, integrationId: UUID): IntegrationSoftDeleteResult`
+
+Soft-deletes all entity types and their relationship definitions for the given integration. Returns counts of deleted entity types and relationships.
+
+### `restoreByIntegration(workspaceId: UUID, integrationId: UUID): Int`
+
+Restores previously soft-deleted entity types for the given integration. Returns count of restored types.
+
 ### `buildSemanticBundle(metadataList): SemanticMetadataBundle`
 
 Groups metadata records by targetType into structured bundle (entity type + attribute map + relationship map).
@@ -204,3 +228,7 @@ Groups metadata records by targetType into structured bundle (entity type + attr
 - Method signatures simplified: `include: List<String>` parameter removed from both enriched query methods
 - Return type changed from `EntityTypeWithSemanticsResponse` back to `EntityType` (semantics embedded in model)
 - Publish flow now creates CONNECTED_ENTITIES fallback definition for each new entity type via `entityTypeRelationshipService.createFallbackDefinition()`.
+
+### 2025-07-17
+
+- Added `softDeleteByIntegration()` and `restoreByIntegration()` for integration lifecycle. Added readonly guards on schema mutation methods.

@@ -17,6 +17,7 @@ import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
 import riven.core.enums.entity.EntityPropertyType
 import riven.core.enums.entity.EntityRelationshipCardinality
+import riven.core.enums.integration.SourceType
 import riven.core.enums.workspace.WorkspaceRoles
 import riven.core.models.common.display.DisplayName
 import riven.core.models.common.Icon
@@ -36,6 +37,10 @@ import riven.core.service.entity.EntityTypeSemanticMetadataService
 import riven.core.service.util.BaseServiceTest
 import riven.core.service.util.WithUserPersona
 import riven.core.service.util.WorkspaceRole
+import riven.core.entity.entity.RelationshipDefinitionEntity
+import riven.core.enums.activity.Activity
+import riven.core.enums.core.ApplicationEntityType
+import riven.core.enums.util.OperationType
 import riven.core.service.util.factory.entity.EntityFactory
 import java.util.*
 
@@ -761,6 +766,325 @@ class EntityTypeServiceTest : BaseServiceTest() {
             }
 
             assertEquals(4, sourceEntityType.version)
+        }
+    }
+
+    // ------ Readonly Guard Tests ------
+
+    @Nested
+    @WithUserPersona(
+        userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
+        email = "test@test.com",
+        displayName = "Test User",
+        roles = [
+            WorkspaceRole(
+                workspaceId = "f8b1c2d3-4e5f-6789-abcd-ef9876543210",
+                role = WorkspaceRoles.OWNER
+            )
+        ]
+    )
+    inner class ReadonlyGuards {
+
+        /**
+         * Verifies that updateEntityTypeConfiguration on a readonly type only updates
+         * columnConfiguration and skips name, icon, and semanticGroup changes.
+         */
+        @Test
+        fun `updateEntityTypeConfiguration - readonly type - only updates column configuration`() {
+            val entityTypeId = UUID.randomUUID()
+            val entityType = EntityFactory.createEntityType(
+                id = entityTypeId,
+                key = "integration_entity",
+                displayNameSingular = "Original Name",
+                displayNamePlural = "Original Names",
+                workspaceId = workspaceId,
+                readonly = true,
+                sourceType = SourceType.INTEGRATION,
+            )
+
+            val newColumnConfig = ColumnConfiguration(order = listOf(UUID.randomUUID()))
+            val request = UpdateEntityTypeConfigurationRequest(
+                id = entityTypeId,
+                name = DisplayName(singular = "Changed Name", plural = "Changed Names"),
+                icon = Icon(IconType.BUILDING, IconColour.BLUE),
+                columnConfiguration = newColumnConfig,
+            )
+
+            whenever(entityTypeRepository.findById(entityTypeId)).thenReturn(Optional.of(entityType))
+            whenever(entityTypeRepository.save(any<EntityTypeEntity>())).thenAnswer { it.arguments[0] }
+
+            val result = service.updateEntityTypeConfiguration(workspaceId, request)
+
+            val saveCaptor = argumentCaptor<EntityTypeEntity>()
+            verify(entityTypeRepository).save(saveCaptor.capture())
+            val saved = saveCaptor.firstValue
+
+            // Column configuration should be updated
+            assertEquals(newColumnConfig, saved.columnConfiguration)
+
+            // Other fields should remain unchanged
+            assertEquals("Original Name", saved.displayNameSingular)
+            assertEquals("Original Names", saved.displayNamePlural)
+            assertEquals(IconType.CIRCLE_DASHED, saved.iconType)
+            assertEquals(IconColour.NEUTRAL, saved.iconColour)
+        }
+
+        /**
+         * Verifies that saveEntityTypeDefinition throws IllegalArgumentException for a readonly entity type.
+         */
+        @Test
+        fun `saveEntityTypeDefinition - readonly entity type - throws IllegalArgumentException`() {
+            val entityType = EntityFactory.createEntityType(
+                key = "integration_entity",
+                workspaceId = workspaceId,
+                readonly = true,
+                sourceType = SourceType.INTEGRATION,
+            )
+
+            val request = SaveTypeDefinitionRequest(
+                index = null,
+                definition = SaveAttributeDefinitionRequest(
+                    key = "integration_entity",
+                    id = UUID.randomUUID(),
+                    schema = Schema(key = SchemaType.TEXT, type = DataType.STRING, label = "Name"),
+                ),
+            )
+
+            whenever(entityTypeRepository.findByworkspaceIdAndKey(workspaceId, "integration_entity"))
+                .thenReturn(Optional.of(entityType))
+
+            val exception = assertThrows(IllegalArgumentException::class.java) {
+                service.saveEntityTypeDefinition(workspaceId, request)
+            }
+
+            assertTrue(exception.message!!.contains("readonly"))
+            verify(entityTypeRepository, never()).save(any<EntityTypeEntity>())
+        }
+
+        /**
+         * Verifies that removeEntityTypeDefinition throws IllegalArgumentException for a readonly entity type.
+         */
+        @Test
+        fun `removeEntityTypeDefinition - readonly entity type - throws IllegalArgumentException`() {
+            val entityType = EntityFactory.createEntityType(
+                key = "integration_entity",
+                workspaceId = workspaceId,
+                readonly = true,
+                sourceType = SourceType.INTEGRATION,
+            )
+
+            val request = DeleteTypeDefinitionRequest(
+                definition = DeleteAttributeDefinitionRequest(
+                    key = "integration_entity",
+                    id = UUID.randomUUID(),
+                ),
+            )
+
+            whenever(entityTypeRepository.findByworkspaceIdAndKey(workspaceId, "integration_entity"))
+                .thenReturn(Optional.of(entityType))
+
+            val exception = assertThrows(IllegalArgumentException::class.java) {
+                service.removeEntityTypeDefinition(workspaceId, request)
+            }
+
+            assertTrue(exception.message!!.contains("readonly"))
+            verify(entityTypeRepository, never()).save(any<EntityTypeEntity>())
+        }
+
+        /**
+         * Verifies that deleteEntityType throws IllegalArgumentException for a readonly entity type.
+         */
+        @Test
+        fun `deleteEntityType - readonly entity type - throws IllegalArgumentException`() {
+            val entityType = EntityFactory.createEntityType(
+                key = "integration_entity",
+                workspaceId = workspaceId,
+                readonly = true,
+                sourceType = SourceType.INTEGRATION,
+            )
+
+            whenever(entityTypeRepository.findByworkspaceIdAndKey(workspaceId, "integration_entity"))
+                .thenReturn(Optional.of(entityType))
+
+            val exception = assertThrows(IllegalArgumentException::class.java) {
+                service.deleteEntityType(workspaceId, "integration_entity")
+            }
+
+            assertTrue(exception.message!!.contains("readonly"))
+            verify(entityTypeRepository, never()).delete(any<EntityTypeEntity>())
+        }
+    }
+
+    // ------ Integration Lifecycle Tests ------
+
+    @Nested
+    @WithUserPersona(
+        userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
+        email = "test@test.com",
+        displayName = "Test User",
+        roles = [
+            WorkspaceRole(
+                workspaceId = "f8b1c2d3-4e5f-6789-abcd-ef9876543210",
+                role = WorkspaceRoles.OWNER
+            )
+        ]
+    )
+    inner class IntegrationLifecycle {
+
+        private val integrationId: UUID = UUID.randomUUID()
+
+        @Test
+        fun `softDeleteByIntegration - soft-deletes all entity types for integration`() {
+            val et1 = EntityFactory.createEntityType(
+                key = "crm_contact",
+                workspaceId = workspaceId,
+                sourceIntegrationId = integrationId,
+            )
+            val et2 = EntityFactory.createEntityType(
+                key = "crm_deal",
+                workspaceId = workspaceId,
+                sourceIntegrationId = integrationId,
+            )
+
+            whenever(entityTypeRepository.findBySourceIntegrationIdAndWorkspaceId(integrationId, workspaceId))
+                .thenReturn(listOf(et1, et2))
+            whenever(definitionRepository.findByWorkspaceIdAndSourceEntityTypeIdIn(eq(workspaceId), any()))
+                .thenReturn(emptyList())
+            whenever(entityTypeRepository.save(any<EntityTypeEntity>())).thenAnswer { it.arguments[0] }
+
+            val result = service.softDeleteByIntegration(workspaceId, integrationId)
+
+            assertEquals(2, result.entityTypesSoftDeleted)
+            assertEquals(0, result.relationshipsSoftDeleted)
+
+            val captor = argumentCaptor<EntityTypeEntity>()
+            verify(entityTypeRepository, times(2)).save(captor.capture())
+            assertTrue(captor.allValues.all { it.deleted })
+            assertTrue(captor.allValues.all { it.deletedAt != null })
+        }
+
+        @Test
+        fun `softDeleteByIntegration - cascades to relationship definitions`() {
+            val et1 = EntityFactory.createEntityType(
+                key = "crm_contact",
+                workspaceId = workspaceId,
+                sourceIntegrationId = integrationId,
+            )
+            val etId = requireNotNull(et1.id)
+
+            val rel1 = EntityFactory.createRelationshipDefinitionEntity(
+                workspaceId = workspaceId,
+                sourceEntityTypeId = etId,
+                name = "Has Deals",
+            )
+            val rel2 = EntityFactory.createRelationshipDefinitionEntity(
+                workspaceId = workspaceId,
+                sourceEntityTypeId = etId,
+                name = "Has Notes",
+            )
+
+            whenever(entityTypeRepository.findBySourceIntegrationIdAndWorkspaceId(integrationId, workspaceId))
+                .thenReturn(listOf(et1))
+            whenever(definitionRepository.findByWorkspaceIdAndSourceEntityTypeIdIn(eq(workspaceId), any()))
+                .thenReturn(listOf(rel1, rel2))
+            whenever(entityTypeRepository.save(any<EntityTypeEntity>())).thenAnswer { it.arguments[0] }
+            whenever(definitionRepository.save(any<RelationshipDefinitionEntity>())).thenAnswer { it.arguments[0] }
+
+            val result = service.softDeleteByIntegration(workspaceId, integrationId)
+
+            assertEquals(1, result.entityTypesSoftDeleted)
+            assertEquals(2, result.relationshipsSoftDeleted)
+
+            val relCaptor = argumentCaptor<RelationshipDefinitionEntity>()
+            verify(definitionRepository, times(2)).save(relCaptor.capture())
+            assertTrue(relCaptor.allValues.all { it.deleted })
+            assertTrue(relCaptor.allValues.all { it.deletedAt != null })
+        }
+
+        @Test
+        fun `softDeleteByIntegration - returns zero counts when nothing matches`() {
+            whenever(entityTypeRepository.findBySourceIntegrationIdAndWorkspaceId(integrationId, workspaceId))
+                .thenReturn(emptyList())
+
+            val result = service.softDeleteByIntegration(workspaceId, integrationId)
+
+            assertEquals(0, result.entityTypesSoftDeleted)
+            assertEquals(0, result.relationshipsSoftDeleted)
+            verify(entityTypeRepository, never()).save(any<EntityTypeEntity>())
+            verify(definitionRepository, never()).save(any<RelationshipDefinitionEntity>())
+        }
+
+        @Test
+        fun `softDeleteByIntegration - logs activity for each entity type`() {
+            val et1 = EntityFactory.createEntityType(
+                key = "crm_contact",
+                workspaceId = workspaceId,
+                sourceIntegrationId = integrationId,
+            )
+            val et2 = EntityFactory.createEntityType(
+                key = "crm_deal",
+                workspaceId = workspaceId,
+                sourceIntegrationId = integrationId,
+            )
+
+            whenever(entityTypeRepository.findBySourceIntegrationIdAndWorkspaceId(integrationId, workspaceId))
+                .thenReturn(listOf(et1, et2))
+            whenever(definitionRepository.findByWorkspaceIdAndSourceEntityTypeIdIn(eq(workspaceId), any()))
+                .thenReturn(emptyList())
+            whenever(entityTypeRepository.save(any<EntityTypeEntity>())).thenAnswer { it.arguments[0] }
+
+            service.softDeleteByIntegration(workspaceId, integrationId)
+
+            verify(activityService, times(2)).logActivity(
+                activity = eq(Activity.ENTITY_TYPE),
+                operation = eq(OperationType.DELETE),
+                userId = eq(userId),
+                workspaceId = eq(workspaceId),
+                entityType = eq(ApplicationEntityType.ENTITY_TYPE),
+                entityId = any(),
+                timestamp = any(),
+                details = any(),
+            )
+        }
+
+        @Test
+        fun `restoreByIntegration - restores soft-deleted entity types`() {
+            val et1 = EntityFactory.createEntityType(
+                key = "crm_contact",
+                workspaceId = workspaceId,
+                sourceIntegrationId = integrationId,
+                deleted = true,
+            )
+            val et2 = EntityFactory.createEntityType(
+                key = "crm_deal",
+                workspaceId = workspaceId,
+                sourceIntegrationId = integrationId,
+                deleted = true,
+            )
+
+            whenever(entityTypeRepository.findSoftDeletedBySourceIntegrationIdAndWorkspaceId(integrationId, workspaceId))
+                .thenReturn(listOf(et1, et2))
+            whenever(entityTypeRepository.save(any<EntityTypeEntity>())).thenAnswer { it.arguments[0] }
+
+            val result = service.restoreByIntegration(workspaceId, integrationId)
+
+            assertEquals(2, result)
+
+            val captor = argumentCaptor<EntityTypeEntity>()
+            verify(entityTypeRepository, times(2)).save(captor.capture())
+            assertTrue(captor.allValues.all { !it.deleted })
+            assertTrue(captor.allValues.all { it.deletedAt == null })
+        }
+
+        @Test
+        fun `restoreByIntegration - returns zero when no soft-deleted types exist`() {
+            whenever(entityTypeRepository.findSoftDeletedBySourceIntegrationIdAndWorkspaceId(integrationId, workspaceId))
+                .thenReturn(emptyList())
+
+            val result = service.restoreByIntegration(workspaceId, integrationId)
+
+            assertEquals(0, result)
+            verify(entityTypeRepository, never()).save(any<EntityTypeEntity>())
         }
     }
 }

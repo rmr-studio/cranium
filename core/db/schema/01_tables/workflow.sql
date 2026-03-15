@@ -83,11 +83,13 @@ CREATE TABLE IF NOT EXISTS "workflow_executions"
     "output"                         JSONB
 );
 
-CREATE TABLE IF NOT EXISTS "workflow_execution_queue"
+CREATE TABLE IF NOT EXISTS "execution_queue"
 (
     "id"                     UUID PRIMARY KEY                                            NOT NULL DEFAULT uuid_generate_v4(),
     "workspace_id"           UUID REFERENCES workspaces (id) ON DELETE CASCADE           NOT NULL,
-    "workflow_definition_id" UUID REFERENCES workflow_definitions (id) ON DELETE CASCADE NOT NULL,
+    "job_type"               VARCHAR(30)                                                 NOT NULL DEFAULT 'WORKFLOW_EXECUTION',
+    "entity_id"              UUID REFERENCES entities (id) ON DELETE CASCADE,
+    "workflow_definition_id" UUID REFERENCES workflow_definitions (id) ON DELETE CASCADE,
     "execution_id"           UUID                                                        REFERENCES workflow_executions (id) ON DELETE SET NULL,
     "status"                 TEXT                                                        NOT NULL DEFAULT 'PENDING',
     "created_at"             TIMESTAMPTZ                                                 NOT NULL DEFAULT CURRENT_TIMESTAMP,

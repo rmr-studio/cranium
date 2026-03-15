@@ -30,8 +30,9 @@ interface ExecutionQueueRepository : JpaRepository<ExecutionQueueEntity, UUID> {
      */
     @Query(
         """
-        SELECT * FROM workflow_execution_queue
+        SELECT * FROM execution_queue
         WHERE status = 'PENDING'
+        AND job_type = 'WORKFLOW_EXECUTION'
         ORDER BY created_at ASC
         LIMIT :batchSize
         FOR UPDATE SKIP LOCKED
@@ -71,8 +72,9 @@ interface ExecutionQueueRepository : JpaRepository<ExecutionQueueEntity, UUID> {
      */
     @Query(
         """
-        SELECT * FROM workflow_execution_queue
+        SELECT * FROM execution_queue
         WHERE status = 'CLAIMED'
+        AND job_type = 'WORKFLOW_EXECUTION'
         AND claimed_at < (CURRENT_TIMESTAMP - INTERVAL '1 minute' * :minutesAgo)
         FOR UPDATE SKIP LOCKED
         """,

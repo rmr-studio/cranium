@@ -10,6 +10,7 @@ Domains:
   - "[[Entities]]"
 Sub-Domain: "[[Entity Integration Sync]]"
 ---
+
 # Feature: Integration Schema Mapping
 
 ---

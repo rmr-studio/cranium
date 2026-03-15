@@ -10,7 +10,7 @@ Updated: 2026-03-12
 ---
 # OnboardingService
 
-Part of [[Onboarding]]
+Part of [[2. Areas/2.1 Startup & Business/Riven/2. System Design/domains/Workspaces & Users/Onboarding/Onboarding]]
 
 ## Purpose
 
@@ -102,7 +102,7 @@ Executes the full onboarding flow. Phase 1 (workspace + profile) is atomic; Phas
 - [[TemplateInstallationService]] -- Catalog template/bundle installation
 - [[WorkspaceInviteService]] -- Invitation creation
 - [[AuthTokenService]] -- JWT user identity
-- [[Onboarding]] -- Parent subdomain
+- [[2. Areas/2.1 Startup & Business/Riven/2. System Design/domains/Workspaces & Users/Onboarding/Onboarding]] -- Parent subdomain
 
 ---
 

@@ -19,6 +19,7 @@ import { type SemanticMetadataBundle } from '../models/SemanticMetadataBundle';
 import { type DeleteDefinitionImpact } from '../models/DeleteDefinitionImpact';
 import { EntityPropertyType } from '../models/EntityPropertyType';
 import { type EntityTypeImpactResponse } from '../models/EntityTypeImpactResponse';
+import { type QueryFilter } from '../models/QueryFilter';
 import { SemanticAttributeClassification } from '../models/SemanticAttributeClassification';
 import { SemanticGroup } from '../models/SemanticGroup';
 import { SemanticMetadataTargetType } from '../models/SemanticMetadataTargetType';
@@ -39,6 +40,7 @@ export type {
   EntityTypeAttributeColumn,
   EntityTypeImpactResponse,
   EntityTypeSemanticMetadata,
+  QueryFilter,
   RelationshipDefinition,
   RelationshipTargetRule,
   SemanticMetadataBundle,

@@ -1,5 +1,17 @@
 # Architecture Suggestions
 
+## [2026-03-14] — WebSocket Infrastructure Documentation Needed
+
+**Trigger:** Added WebSocket real-time notification infrastructure as a new cross-cutting domain.
+**Affected vault notes:** System Patterns (new pattern: event-driven WebSocket notifications), Domain documentation (new websocket domain), Infrastructure (WebSocket broker topology)
+**Suggested update:** Document the WebSocket event flow (service → ApplicationEvent → WebSocketEventListener → STOMP broker → client), the topic namespace structure (/topic/workspace/{id}/{channel}), the authentication model (JWT on CONNECT, workspace auth on SUBSCRIBE), and the broker migration path (SimpleBroker → external broker).
+
+## 2026-03-14 — Integration Enablement: Domain Dependency Update
+
+**Trigger:** Integration Enablement feature adds Integration → Entity domain dependency.
+**Affected vault notes:** System Design/Domain Boundaries, System Design/Dependency Map
+**Suggested update:** The Integration domain now directly depends on EntityTypeService for soft-delete/restore operations during disable/enable. This should be reflected in the domain dependency map. Previously, Entity was only accessed via the Catalog domain's materialization service.
+
 ## 2026-03-12 — Onboarding Domain Documentation Stub Needed
 
 **Trigger:** Introduced new `onboarding` domain with cross-domain orchestration service
@@ -11,6 +23,7 @@
 **Trigger:** The `time-entry` entity in the project-management manifest uses `"identifierKey": "description"` — a freetext field that is neither unique nor stable. Fixing this properly requires two pieces of infrastructure that do not yet exist.
 
 **Affected vault notes:**
+
 - `System Design/Entity Domain/` — entity creation flow, attribute types, schema options
 - `System Design/System Patterns/` — schema validation pipeline, template installation
 
@@ -28,6 +41,7 @@ Add `ID` to the `SchemaType` enum as a first-class attribute type. Behavior:
 - Concurrency handling: retry on unique constraint violation or use a DB sequence
 
 Manifest usage example:
+
 ```json
 "reference-number": {
   "key": "ID",

@@ -1,4 +1,8 @@
 spring:
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 10MB
   application:
     name: core
   datasource:
@@ -28,6 +32,8 @@ riven:
     jwt-issuer: ${SUPABASE_URL}
     allowed-origins:
       - ${ORIGIN_API_URL}
+      - http://localhost:3000
+      - http://localhost:3002
   include-stack-trace: true
   supabase-url: ${SUPABASE_URL}
   supabase-key: ${SUPABASE_KEY}
@@ -60,6 +66,13 @@ riven:
         initial-interval-seconds: 1
         backoff-coefficient: 2.0
         max-interval-seconds: 10
+  websocket:
+    endpoint: /ws
+    server-heartbeat-ms: 10000
+    client-heartbeat-ms: 10000
+    max-message-size-bytes: 65536
+    send-buffer-size-bytes: 524288
+    send-timeout-ms: 15000
   query:
     timeout-seconds: 10
 storage:

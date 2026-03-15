@@ -2,12 +2,12 @@
 
 import { ActionColumnConfig, ColumnResizingConfig, DataTable, DataTableProvider } from '@/components/ui/data-table';
 import { Form } from '@/components/ui/form';
-import type { QueryFilter } from '@/lib/types/models/QueryFilter';
 import {
   Entity,
   EntityAttributeDefinition,
   EntityType,
   EntityTypeDefinition,
+  QueryFilter,
   RelationshipDefinition,
 } from '@/lib/types/entity';
 import { debounce } from '@/lib/util/debounce.util';

@@ -1,6 +1,6 @@
 'use client';
 
-import { useProfile } from '@/components/feature-modules/user/hooks/useProfile';
+import { useProfile } from '@/components/feature-modules/user/hooks/use-profile';
 import { useWorkspaceStore } from '@/components/feature-modules/workspace/provider/workspace-provider';
 import type { Workspace } from '@/lib/types/workspace';
 import { cn } from '@riven/utils';

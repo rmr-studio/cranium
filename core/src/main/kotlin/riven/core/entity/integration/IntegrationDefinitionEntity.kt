@@ -5,6 +5,7 @@ import jakarta.persistence.*
 import org.hibernate.annotations.Type
 import org.hibernate.annotations.UpdateTimestamp
 import riven.core.enums.integration.IntegrationCategory
+import riven.core.models.integration.IntegrationDefinitionModel
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -63,4 +64,17 @@ data class IntegrationDefinitionEntity(
     @UpdateTimestamp
     @Column(name = "updated_at")
     var updatedAt: ZonedDateTime = ZonedDateTime.now()
-)
+) {
+    fun toModel() = IntegrationDefinitionModel(
+        id = requireNotNull(id) { "IntegrationDefinitionEntity.id must not be null when mapping to model" },
+        slug = slug,
+        name = name,
+        iconUrl = iconUrl,
+        description = description,
+        category = category,
+        nangoProviderKey = nangoProviderKey,
+        capabilities = capabilities,
+        createdAt = createdAt,
+        updatedAt = updatedAt
+    )
+}

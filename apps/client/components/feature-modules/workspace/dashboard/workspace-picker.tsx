@@ -1,14 +1,14 @@
 'use client';
 
-import { useProfile } from '@/components/feature-modules/user/hooks/useProfile';
+import { useProfile } from '@/components/feature-modules/user/hooks/use-profile';
 
+import type { WorkspaceMember } from '@/lib/types/workspace';
 import { Button } from '@riven/ui/button';
 import { Input } from '@riven/ui/input';
 import { PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { WorkspaceCard } from '../components/workspace-card';
-import type { WorkspaceMember } from '@/lib/types/workspace';
 
 export const WorkspacePicker = () => {
   const { data: user, isPending } = useProfile();

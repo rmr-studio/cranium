@@ -29,6 +29,10 @@ spring:
 riven:
   posthog:
     enabled: false
+  websocket:
+    endpoint: /ws
+    server-heartbeat-ms: 0
+    client-heartbeat-ms: 0
   workflow:
     engine:
       target: localhost:7233  # Ignored by TestWorkflowEnvironment

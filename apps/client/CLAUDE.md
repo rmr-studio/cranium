@@ -52,15 +52,35 @@ Riven is a unified business tooling SaaS platform that aims to connect all tools
 
 ### Zustand
 
-- **5 stores**, all feature-scoped:
+All new stores **must** follow the factory + context + provider pattern. Do not use global singletons (`create()` at module level).
+
+**Required pattern (3 files):**
+
+1. **Store file** (`stores/{name}.store.ts`):
+   - Separate `State` and `Actions` interfaces, combined as `type XxxStore = XxxState & XxxActions`.
+   - Export a `createXxxStore()` factory function that returns `StoreApi<XxxStore>`.
+   - Use `createStore` (from `zustand`) with `subscribeWithSelector` middleware.
+   - Do not export selector hooks from this file — those belong in the provider.
+
+2. **Provider file** (`context/{name}-provider.tsx`):
+   - `'use client'` directive.
+   - Create a `React.createContext<XxxStoreApi | undefined>(undefined)`.
+   - Provider component creates the store once via `useRef` + factory, passes it through context.
+   - Export a `useXxxStore<T>(selector: (store: XxxStore) => T): T` hook that calls `useStore(context, selector)` with a guard that throws if context is missing.
+   - Export convenience selector hooks here (e.g., `useXxxNodes`, `useXxxActions`) that call `useXxxStore` internally.
+
+3. **Consumers** import hooks from the provider, never from the store file directly.
+
+**Reference implementations:** `workspace-provider.tsx`, `entity-provider.tsx`, `workflow-canvas-provider.tsx`.
+
+**Existing stores:**
   - `workspace.store.ts` — selected workspace ID. Simple `createStore`, no middleware. Persists to localStorage manually.
-  - `entity.store.ts` — entity draft mode (new entity creation). `create` + `subscribeWithSelector`. Holds react-hook-form instance.
-  - `configuration.store.ts` — entity type config editing. `create` + `subscribeWithSelector`. localStorage draft persistence with 7-day staleness.
-  - `workflow-canvas.store.ts` — React Flow nodes/edges/selection. `create` + `subscribeWithSelector`.
-  - `editor-store.ts` — Rich text editor state. Global singleton (`create` not `createStore`). `subscribeWithSelector`. Reducer-based dispatch pattern.
-- Pattern: Separate `State` and `Actions` interfaces. Factory function `createXxxStore()` returns `StoreApi`. Context provider wraps children. Custom hook with selector: `useXxxStore(selector)`.
-- **Exception:** `editor-store.ts` is a global singleton with exported selector hooks (`useBlockNode`, `useIsNodeActive`, etc.) and uses `useShallow` for array/object selectors.
-- Access via selectors — the codebase follows this correctly (e.g., `useWorkspaceStore((s) => s.selectedWorkspaceId)`).
+  - `entity.store.ts` — entity draft mode (new entity creation). `createStore` + `subscribeWithSelector`. Holds react-hook-form instance.
+  - `configuration.store.ts` — entity type config editing. `createStore` + `subscribeWithSelector`. localStorage draft persistence with 7-day staleness.
+  - `workflow-canvas.store.ts` — React Flow nodes/edges/selection. `createStore` + `subscribeWithSelector`.
+  - `editor-store.ts` — Rich text editor state. Legacy global singleton — do not follow this pattern for new stores.
+
+**Do not:** use `create()` for global singletons, export `useShallow` selector hooks from store files, or access stores without going through the provider's context hook.
 
 ## Component Conventions
 

@@ -36,6 +36,8 @@ JPA repository for `EntityTypeEntity` persistence — provides workspace-scoped 
 - [[EntityRelationshipService]] — `findSemanticGroupsByIds` for batch semantic group resolution during relationship validation
 - [[EntityTypeRelationshipService]] — entity type lookups during relationship definition management
 - [[EntityTypeAttributeService]] — entity type lookups during attribute schema operations
+- [[IntegrationEnablementService]] — integration-scoped entity type queries for lifecycle operations
+- [[TemplateMaterializationService]] — entity type lookups during template materialization
 
 ---
 
@@ -44,6 +46,10 @@ JPA repository for `EntityTypeEntity` persistence — provides workspace-scoped 
 **Semantic group projection:**
 
 `findSemanticGroupsByIds` uses a JPQL projection query to return only `(id, semanticGroup)` pairs for a set of entity type IDs. This avoids loading full `EntityTypeEntity` rows (which include JSONB schema, columns, etc.) when only the semantic classification is needed. Used by `EntityRelationshipService.resolveSemanticGroups()` during relationship validation.
+
+**Native SQL for soft-deleted integration types:**
+
+`findSoftDeletedBySourceIntegrationIdAndWorkspaceId` uses native SQL (`nativeQuery = true`) to bypass the `@SQLRestriction("deleted = false")` filter, enabling the integration lifecycle to find and restore previously soft-deleted entity types.
 
 ---
 
@@ -70,6 +76,14 @@ JPQL projection query returning `(id, semanticGroup)` pairs without loading full
 fun findSemanticGroupsByIds(@Param("ids") ids: Collection<UUID>): List<Array<Any>>
 ```
 
+### `findBySourceIntegrationIdAndWorkspaceId(integrationId, workspaceId): List<EntityTypeEntity>`
+
+JPQL query returning all entity types belonging to a specific integration within a workspace. Used by integration lifecycle operations.
+
+### `findSoftDeletedBySourceIntegrationIdAndWorkspaceId(integrationId, workspaceId): List<EntityTypeEntity>`
+
+Native SQL query (`nativeQuery = true`) returning soft-deleted entity types for a specific integration within a workspace. Bypasses `@SQLRestriction("deleted = false")` to find previously disabled integration types for restore operations.
+
 ---
 
 ## Gotchas
@@ -84,3 +98,11 @@ fun findSemanticGroupsByIds(@Param("ids") ids: Collection<UUID>): List<Array<Any
 - [[EntityTypeService]] — primary consumer for type CRUD
 - [[EntityRelationshipService]] — consumes `findSemanticGroupsByIds` for semantic group resolution
 - [[Type Definitions]] — parent subdomain
+
+---
+
+## Changelog
+
+### 2025-07-17
+
+- Added integration-scoped queries: `findBySourceIntegrationIdAndWorkspaceId` (JPQL) and `findSoftDeletedBySourceIntegrationIdAndWorkspaceId` (native SQL, bypasses soft-delete filter).

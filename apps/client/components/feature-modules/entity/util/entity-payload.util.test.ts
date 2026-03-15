@@ -4,7 +4,7 @@ import {
   Entity,
   EntityPropertyType,
 } from '@/lib/types/entity';
-import { buildEntityUpdatePayload, deriveSchemaOptionsUpdate } from './entity-payload.util';
+import { buildEntityUpdatePayload, deriveSchemaOptionsUpdate } from '@/components/feature-modules/entity/util/entity-payload.util';
 
 function createMockEntity(overrides: Partial<Entity> = {}): Entity {
   return {

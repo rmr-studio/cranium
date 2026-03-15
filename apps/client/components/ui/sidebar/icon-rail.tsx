@@ -1,6 +1,6 @@
 'use client';
 
-import { useProfile } from '@/components/feature-modules/user/hooks/useProfile';
+import { useProfile } from '@/components/feature-modules/user/hooks/use-profile';
 import { useWorkspaceStore } from '@/components/feature-modules/workspace/provider/workspace-provider';
 import { Logo } from '@riven/ui/logo';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@riven/ui/tooltip';
@@ -91,7 +91,7 @@ export function IconRail() {
                   className={cn(
                     'flex size-10 items-center justify-center rounded-md text-background/60 transition-colors hover:bg-background/10 hover:text-background dark:text-foreground/50',
                     selectedPanel === item.id &&
-                      'dark:bg-foreground/20 bg-background/15 text-background dark:text-foreground',
+                      'bg-background/15 text-background dark:bg-foreground/20 dark:text-foreground',
                   )}
                 >
                   {item.icon}

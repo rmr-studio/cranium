@@ -1,13 +1,13 @@
 'use client';
 
 import type { DraggableAttributes } from '@dnd-kit/core';
-import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
+import type { DraggableSyntheticListeners } from '@dnd-kit/core';
 import { TableCell } from '@riven/ui/table';
 import { cn } from '@riven/utils';
 import { GripVertical } from 'lucide-react';
-import { Checkbox } from '../../checkbox';
-import { useDataTableStore } from '../data-table-provider';
-import type { ActionColumnConfig, ActionVisibility } from '../data-table.types';
+import { Checkbox } from '@/components/ui/checkbox';
+import { useDataTableStore } from '@/components/ui/data-table/data-table-provider';
+import type { ActionColumnConfig, ActionVisibility } from '@/components/ui/data-table/data-table.types';
 
 interface ActionCellProps<TData> {
   isSelected: boolean;
@@ -17,7 +17,7 @@ interface ActionCellProps<TData> {
   isDragDisabled: boolean;
   isMounted: boolean;
   dragAttributes: DraggableAttributes;
-  dragListeners: SyntheticListenerMap | undefined;
+  dragListeners: DraggableSyntheticListeners | undefined;
   cellSize: number;
   actionColumnConfig?: ActionColumnConfig;
 }
@@ -44,7 +44,8 @@ export function ActionCell<TData>({
   cellSize,
   actionColumnConfig,
 }: ActionCellProps<TData>) {
-  const hasSelections = useDataTableStore<TData, boolean>((state) => state.hasSelections());
+  const rowSelection = useDataTableStore<TData, Record<string, boolean>>((state) => state.rowSelection);
+  const hasSelections = Object.keys(rowSelection).length > 0;
 
   const dragConfig = actionColumnConfig?.dragHandle;
   const checkboxConfig = actionColumnConfig?.checkbox;
@@ -68,6 +69,7 @@ export function ActionCell<TData>({
       <div className="flex items-center gap-2">
         {showDragHandle && isMounted && (
           <button
+            type="button"
             className={cn(
               'cursor-grab text-muted-foreground transition-colors hover:text-foreground active:cursor-grabbing',
               isDragDisabled && 'cursor-not-allowed opacity-30',

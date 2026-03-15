@@ -15,11 +15,12 @@ import {
 } from '@/lib/types/entity';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
-import { useSaveEntityMutation } from './mutation/instance/use-save-entity-mutation';
-import { entityKeys } from './query/entity-query-keys';
-import { buildEntityUpdatePayload, deriveSchemaOptionsUpdate } from '../util/entity-payload.util';
-import { EntityRow, isDraftRow } from '../components/tables/entity-table-utils';
-import { EntityTypeService } from '../service/entity-type.service';
+import { toast } from 'sonner';
+import { useSaveEntityMutation } from '@/components/feature-modules/entity/hooks/mutation/instance/use-save-entity-mutation';
+import { entityKeys } from '@/components/feature-modules/entity/hooks/query/entity-query-keys';
+import { buildEntityUpdatePayload, deriveSchemaOptionsUpdate } from '@/components/feature-modules/entity/util/entity-payload.util';
+import { EntityRow, isDraftRow } from '@/components/feature-modules/entity/components/tables/entity-table-utils';
+import { EntityTypeService } from '@/components/feature-modules/entity/service/entity-type.service';
 
 export function useEntityInlineEdit(
   workspaceId: string,
@@ -28,7 +29,10 @@ export function useEntityInlineEdit(
 ) {
   const { session } = useAuth();
   const queryClient = useQueryClient();
-  const handleConflict = (_request: SaveEntityRequest, _response: SaveEntityResponse) => {};
+  const handleConflict = (_request: SaveEntityRequest, response: SaveEntityResponse) => {
+    const message = response.errors?.join(', ') ?? 'Edit conflict: this record was modified. Please refresh and try again.';
+    toast.error(message);
+  };
 
   const { mutateAsync: saveEntity } = useSaveEntityMutation(
     workspaceId,
@@ -38,7 +42,7 @@ export function useEntityInlineEdit(
   );
 
   const handleCellEdit = useCallback(
-    async (row: EntityRow, columnId: string, newValue: any, _oldValue: any): Promise<boolean> => {
+    async (row: EntityRow, columnId: string, newValue: unknown, _oldValue: unknown): Promise<boolean> => {
       if (isDraftRow(row)) return false;
       const entity = entities.find((e) => e.id === row._entityId);
       if (!entity) return false;
@@ -93,7 +97,7 @@ export function useEntityInlineEdit(
       }
 
       if (relationshipDef) {
-        const relationship: EntityLink[] = newValue;
+        const relationship = newValue as EntityLink[];
         const relationshipEntry: EntityAttributeRelationPayloadReference = {
           type: EntityPropertyType.Relationship,
           relations: relationship.map((rel) => rel.id),

@@ -63,3 +63,4 @@ No controller endpoints in this subdomain — these are cross-cutting infrastruc
 | Date | Change | Feature/ADR |
 | ---- | ------ | ----------- |
 | 2026-02-08 | Subdomain overview created | [[03-01-PLAN]] |
+| 2026-03-14 | SecurityConfig: `/ws/**` added to `permitAll` — WebSocket upgrade handled by STOMP-level [[WebSocketSecurityInterceptor]], not HTTP filter chain | WebSocket Notifications |

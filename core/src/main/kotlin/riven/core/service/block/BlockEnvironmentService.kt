@@ -27,7 +27,9 @@ import riven.core.models.response.block.OverwriteEnvironmentResponse
 import riven.core.models.response.block.SaveEnvironmentResponse
 import riven.core.models.response.block.internal.BlockHydrationResult
 import riven.core.service.activity.ActivityService
+import riven.core.models.websocket.BlockEnvironmentEvent
 import riven.core.service.auth.AuthTokenService
+import org.springframework.context.ApplicationEventPublisher
 import java.util.*
 
 @Service
@@ -39,7 +41,8 @@ class BlockEnvironmentService(
     private val authTokenService: AuthTokenService,
     private val activityService: ActivityService,
     private val defaultEnvironmentService: DefaultBlockEnvironmentService,
-    private val logger: KLogger
+    private val logger: KLogger,
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
 
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#request.workspaceId)")
@@ -102,6 +105,20 @@ class BlockEnvironmentService(
                 }
                 layout
             }
+
+            applicationEventPublisher.publishEvent(
+                BlockEnvironmentEvent(
+                    workspaceId = request.workspaceId,
+                    userId = userId,
+                    operation = OperationType.UPDATE,
+                    entityId = null,
+                    layoutId = request.layoutId,
+                    version = request.version,
+                    summary = mapOf(
+                        "operationCount" to request.operations.size,
+                    ),
+                )
+            )
 
             blockTreeLayoutService.updateLayoutSnapshot(layout, updatedLayout, request.version).run {
                 return SaveEnvironmentResponse(

@@ -7,7 +7,7 @@ import { OptionalTooltip } from '@/components/ui/optional-tooltip';
 import { cn } from '@riven/utils';
 import { Check, CircleAlert, Plus, X } from 'lucide-react';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
-import { FormWidgetProps } from '../form-widget.types';
+import type { FormWidgetProps } from '@/components/feature-modules/blocks/components/forms/form-widget.types';
 
 export const MultiSelectWidget: FC<FormWidgetProps<string[]>> = ({
   value = [],
@@ -133,12 +133,14 @@ export const MultiSelectWidget: FC<FormWidgetProps<string[]>> = ({
 
     if (e.key === 'ArrowDown') {
       e.preventDefault();
+      if (selectableItems.length === 0) return;
       setHighlightedIndex((i) => Math.min(i + 1, selectableItems.length - 1));
       return;
     }
 
     if (e.key === 'ArrowUp') {
       e.preventDefault();
+      if (selectableItems.length === 0) return;
       setHighlightedIndex((i) => Math.max(i - 1, 0));
       return;
     }
@@ -186,6 +188,10 @@ export const MultiSelectWidget: FC<FormWidgetProps<string[]>> = ({
             <PopoverAnchor asChild>
               <div
                 ref={containerRef}
+                role="combobox"
+                aria-expanded={open}
+                aria-haspopup="listbox"
+                tabIndex={0}
                 onClick={() => {
                   if (!disabled) {
                     setOpen(true);
@@ -206,9 +212,8 @@ export const MultiSelectWidget: FC<FormWidgetProps<string[]>> = ({
                   <Badge key={option.value} variant="secondary" className="gap-1 py-0.5 pr-1 pl-2 text-xs">
                     {option.label}
                     {!disabled && (
-                      <span
-                        role="button"
-                        tabIndex={-1}
+                      <button
+                        type="button"
                         onPointerDown={(e) => {
                           e.stopPropagation();
                           e.preventDefault();
@@ -217,7 +222,7 @@ export const MultiSelectWidget: FC<FormWidgetProps<string[]>> = ({
                         className="rounded-full p-0.5 transition-colors hover:bg-foreground/10"
                       >
                         <X className="size-2.5" />
-                      </span>
+                      </button>
                     )}
                   </Badge>
                 ))}

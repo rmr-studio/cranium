@@ -30,8 +30,10 @@ import riven.core.service.entity.type.EntityTypeAttributeService
 import riven.core.service.entity.type.EntityTypeRelationshipService
 import riven.core.service.entity.type.EntityTypeSequenceService
 import riven.core.service.entity.type.EntityTypeService
+import riven.core.models.websocket.EntityEvent
 import riven.core.util.ServiceUtil.findManyResults
 import riven.core.util.ServiceUtil.findOrThrow
+import org.springframework.context.ApplicationEventPublisher
 import java.util.*
 
 /**
@@ -49,6 +51,7 @@ class EntityService(
     private val authTokenService: AuthTokenService,
     private val activityService: ActivityService,
     private val sequenceService: EntityTypeSequenceService,
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
 
 
@@ -263,6 +266,20 @@ class EntityService(
                     "category" to type.displayNameSingular
                 )
 
+                applicationEventPublisher.publishEvent(
+                    EntityEvent(
+                        workspaceId = workspaceId,
+                        userId = userId,
+                        operation = if (prev != null) OperationType.UPDATE else OperationType.CREATE,
+                        entityId = this.id,
+                        entityTypeId = typeId,
+                        entityTypeKey = type.key,
+                        summary = mapOf(
+                            "entityTypeName" to type.displayNameSingular,
+                        ),
+                    )
+                )
+
                 // Reload links after save
                 val links: Map<UUID, List<EntityLink>> = entityRelationshipService.findRelatedEntities(entityId, workspaceId)
 
@@ -409,6 +426,26 @@ class EntityService(
                 )
             }
         )
+
+        deletedEntities
+            .groupBy { it.typeId to it.typeKey }
+            .forEach { (typeInfo, entities) ->
+                val (deletedTypeId, deletedTypeKey) = typeInfo
+                applicationEventPublisher.publishEvent(
+                    EntityEvent(
+                        workspaceId = workspaceId,
+                        userId = userId,
+                        operation = OperationType.DELETE,
+                        entityId = null,
+                        entityTypeId = deletedTypeId,
+                        entityTypeKey = deletedTypeKey,
+                        summary = mapOf(
+                            "deletedIds" to entities.mapNotNull { it.id },
+                            "deletedCount" to entities.size,
+                        ),
+                    )
+                )
+            }
 
         // Fetch impacted entities with their updated relationships
         val updatedEntities: Map<UUID, List<Entity>>? = if (impactedEntityIds.isNotEmpty()) {

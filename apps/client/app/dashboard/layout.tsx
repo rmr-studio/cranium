@@ -1,5 +1,5 @@
 import { AuthGuard } from '@/components/feature-modules/authentication/components/auth-guard';
-import { OnboardWrapper } from '@/components/feature-modules/onboarding/context/onboard.wrapper';
+import { OnboardWrapper } from '@/components/feature-modules/onboarding/context/onboard-handler';
 import { Navbar } from '@/components/ui/nav/navbar';
 import { DashboardContent } from '@/components/ui/sidebar/dashboard-content';
 import { IconRail } from '@/components/ui/sidebar/icon-rail';

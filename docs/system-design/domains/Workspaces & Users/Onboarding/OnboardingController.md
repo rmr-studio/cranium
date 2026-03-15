@@ -10,7 +10,7 @@ Domains:
 ---
 # OnboardingController
 
-Part of [[Onboarding]]
+Part of [[2. Areas/2.1 Startup & Business/Riven/2. System Design/domains/Workspaces & Users/Onboarding/Onboarding]]
 
 ## Purpose
 
@@ -47,7 +47,7 @@ Thin REST controller exposing a single onboarding endpoint under `/api/v1/onboar
 ## Related
 
 - [[OnboardingService]] -- delegated business logic
-- [[Onboarding]] -- parent subdomain
+- [[2. Areas/2.1 Startup & Business/Riven/2. System Design/domains/Workspaces & Users/Onboarding/Onboarding]] -- parent subdomain
 
 ---
 

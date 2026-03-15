@@ -1,20 +1,22 @@
-import { useProfile } from '@/components/feature-modules/user/hooks/useProfile';
-import type { User } from '@/lib/types/user';
+'use client';
+
+import { useProfile } from '@/components/feature-modules/user/hooks/use-profile';
 import { updateUser } from '@/components/feature-modules/user/service/user.service';
 import { useAuth } from '@/components/provider/auth-context';
-import { Button } from '@riven/ui/button';
-import { Input } from '@riven/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { SheetDescription, SheetFooter, SheetTitle } from '@/components/ui/sheet';
 import { Propless } from '@/lib/interfaces/interface';
+import type { User } from '@/lib/types/user';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@riven/ui/button';
+import { Input } from '@riven/ui/input';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { FC, useRef, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 import { isMobilePhone } from 'validator';
 
-import { AvatarUploader } from '@/components/ui/AvatarUploader';
+import { AvatarUploader } from '@/components/ui/avatar-uploader';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { TextSeparator } from '@/components/ui/text-separator';
 import { OTPFormSchema } from '@/lib/util/form/form.util';

@@ -6,11 +6,15 @@ import org.mockito.kotlin.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
+import org.springframework.test.context.event.ApplicationEvents
+import org.springframework.test.context.event.RecordApplicationEvents
 import riven.core.configuration.auth.WorkspaceSecurity
 import riven.core.entity.block.BlockEntity
 import riven.core.enums.common.validation.ValidationScope
+import riven.core.enums.util.OperationType
 import riven.core.models.response.block.internal.CascadeRemovalResult
 import riven.core.models.response.block.internal.MovePreparationResult
+import riven.core.models.websocket.BlockEnvironmentEvent
 import riven.core.service.activity.ActivityService
 import riven.core.service.auth.AuthTokenService
 import riven.core.service.util.BaseServiceTest
@@ -27,6 +31,7 @@ import java.util.*
         BlockEnvironmentService::class
     ]
 )
+@RecordApplicationEvents
 class BlockEnvironmentServiceTest : BaseServiceTest() {
 
     @MockitoBean
@@ -49,6 +54,9 @@ class BlockEnvironmentServiceTest : BaseServiceTest() {
 
     @Autowired
     private lateinit var blockEnvironmentService: BlockEnvironmentService
+
+    @Autowired
+    private lateinit var applicationEvents: ApplicationEvents
 
     private val orgId get() = workspaceId
 
@@ -1427,6 +1435,38 @@ class BlockEnvironmentServiceTest : BaseServiceTest() {
         assertEquals(0, response.idMappings.size)
         verify(blockService, never()).saveAll(any())
         verify(blockService, never()).deleteAllById(any())
+    }
+
+    @Test
+    fun `saveBlockEnvironment publishes BlockEnvironmentEvent on success`() {
+        val layoutId = UUID.randomUUID()
+
+        val layout = BlockFactory.createTreeLayoutEntity(
+            id = layoutId,
+            workspaceId = orgId,
+            version = 1
+        )
+
+        whenever(blockTreeLayoutService.fetchLayoutById(layoutId)).thenReturn(layout)
+
+        val request = BlockFactory.createSaveEnvironmentRequest(
+            layoutId = layoutId,
+            workspaceId = orgId,
+            operations = emptyList(),
+            version = 2
+        )
+
+        blockEnvironmentService.saveBlockEnvironment(request)
+
+        val events = applicationEvents.stream(BlockEnvironmentEvent::class.java).toList()
+        assertEquals(1, events.size)
+
+        val event = events[0]
+        assertEquals(orgId, event.workspaceId)
+        assertEquals(userId, event.userId)
+        assertEquals(OperationType.UPDATE, event.operation)
+        assertEquals(layoutId, event.layoutId)
+        assertEquals(2, event.version)
     }
 
     @Test

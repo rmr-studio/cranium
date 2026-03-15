@@ -53,7 +53,7 @@ export interface DataTableProviderProps<TData> extends CreateDataTableStoreOptio
   /** Callback when selection changes */
   onSelectionChange?: (selectedRows: TData[]) => void;
   /** Callback when a cell is edited (returns true on success) */
-  onCellEdit?: (row: TData, columnId: string, newValue: any, oldValue: any) => Promise<boolean>;
+  onCellEdit?: (row: TData, columnId: string, newValue: unknown, oldValue: unknown) => Promise<boolean>;
 }
 
 export function DataTableProvider<TData>({

@@ -181,7 +181,9 @@ function buildNumberSchema(schema: SchemaUUID, mergedOptions: Partial<SchemaOpti
 function buildArraySchema(schema: SchemaUUID, mergedOptions: Partial<SchemaOptions>): z.ZodArray<any> {
   const options = mergedOptions;
 
-  // For MULTI_SELECT, allow any string (users can create new options beyond the enum)
+  // For MULTI_SELECT, allow any string — users can create new options beyond the
+  // predefined enum. The backend accepts arbitrary string values for multi-select
+  // fields (no server-side enum constraint), so free-text creation is by design.
   if (schema.key === SchemaType.MultiSelect) {
     return z.array(z.string());
   }

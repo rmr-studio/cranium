@@ -64,6 +64,10 @@ Utility service for attribute schema operations including definition save/remove
 
 When an attribute is removed, calls `semanticMetadataService.deleteForTarget(entityTypeId, ATTRIBUTE, attributeId)` to hard-delete the metadata record. Hard-delete (not soft-delete) prevents orphaned metadata for non-existent attributes.
 
+**Readonly guards:**
+
+Both `saveAttributeDefinition` and `removeAttributeDefinition` check `type.readonly` before proceeding. Integration-sourced entity types (readonly = true) cannot have their attributes modified through these methods.
+
 **Unique constraint enforcement:**
 
 - **Extract:** Filters payload for attributes marked `unique=true` in schema
@@ -139,3 +143,7 @@ Deletes all unique values for entity type. Returns count of deleted rows.
 - Added `EntityAttributeService` as a constructor dependency.
 - Breaking change validation now loads attributes from normalized `entity_attributes` table via `entityAttributeService.getAttributesForEntities()` instead of reading from entity payload.
 - Attributes passed to `entityValidationService.validateExistingEntitiesAgainstNewSchema()` via new `attributesByEntityId` parameter.
+
+### 2025-07-17 — Readonly guards for integration-sourced entity types
+
+- Added readonly guards on `saveAttributeDefinition` and `removeAttributeDefinition` to protect integration-sourced entity types.

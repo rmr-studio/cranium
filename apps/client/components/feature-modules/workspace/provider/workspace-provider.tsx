@@ -1,6 +1,6 @@
 'use client';
 
-import { useProfile } from '@/components/feature-modules/user/hooks/useProfile';
+import { useProfile } from '@/components/feature-modules/user/hooks/use-profile';
 import {
   createWorkspaceStore,
   type WorkspaceStore,

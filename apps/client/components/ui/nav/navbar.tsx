@@ -1,15 +1,15 @@
 'use client';
 
 import { UserProfileDropdown } from '@/components/feature-modules/user/components/avatar-dropdown';
-import { useProfile } from '@/components/feature-modules/user/hooks/useProfile';
+import { useProfile } from '@/components/feature-modules/user/hooks/use-profile';
 import { useIconRail } from '@/components/ui/sidebar/icon-rail-context';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@riven/ui/button';
 import { ThemeToggle } from '@riven/ui/theme-toggle';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Menu, PanelLeftOpen } from 'lucide-react';
 import Link from 'next/link';
 import { FC } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
 
 export const Navbar = () => {
   const { setMobileOpen, isMobile, panelOpen, openPanel } = useIconRail();
@@ -19,7 +19,13 @@ export const Navbar = () => {
   return (
     <nav className="sticky top-0 flex h-(--header-height) w-auto flex-grow items-center border-b bg-background/40 px-4">
       {isMobile && (
-        <Button onClick={() => setMobileOpen(true)} variant="ghost" size="icon" className="mr-4" aria-label="Open menu">
+        <Button
+          onClick={() => setMobileOpen(true)}
+          variant="ghost"
+          size="icon"
+          className="mr-4"
+          aria-label="Open menu"
+        >
           <Menu className="size-5" />
         </Button>
       )}

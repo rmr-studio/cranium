@@ -1,28 +1,53 @@
 'use client';
 
+import { useProfile } from '@/components/feature-modules/user/hooks/use-profile';
 import { useAuth } from '@/components/provider/auth-context';
 import { FCWC } from '@/lib/interfaces/interface';
-import { Loader2 } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { AppSplash } from '@/components/feature-modules/authentication/components/app-splash';
 
 export const AuthGuard: FCWC = ({ children }) => {
-  const { session, loading } = useAuth();
+  const { session, loading: authLoading } = useAuth();
+  const { data: user, isLoading: profileLoading, isLoadingAuth, isError } = useProfile();
   const router = useRouter();
+  const [ready, setReady] = useState(false);
+
+  const isLoading = authLoading || isLoadingAuth || profileLoading;
 
   useEffect(() => {
-    if (!loading && !session) {
+    if (!authLoading && !session) {
       router.replace('/auth/login');
     }
-  }, [session, loading, router]);
+  }, [session, authLoading, router]);
 
-  if (loading || !session) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (!isLoading && isError && session) {
+      router.replace('/auth/login');
+    }
+  }, [isLoading, isError, session, router]);
 
-  return <>{children}</>;
+  useEffect(() => {
+    if (!isLoading && session && user) {
+      const timeout = setTimeout(() => setReady(true), 400);
+      return () => clearTimeout(timeout);
+    }
+  }, [isLoading, session, user]);
+
+  return (
+    <>
+      <AnimatePresence>{!ready && <AppSplash />}</AnimatePresence>
+
+      {ready && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+        >
+          {children}
+        </motion.div>
+      )}
+    </>
+  );
 };

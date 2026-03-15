@@ -2,6 +2,7 @@
 
 import { Input } from '@riven/ui/input';
 import { Popover, PopoverContent, PopoverAnchor } from '@riven/ui/popover';
+import { cn } from '@riven/utils';
 import { Separator } from '@/components/ui/separator';
 import { useDataTableActions } from '@/components/ui/data-table';
 import {
@@ -258,11 +259,11 @@ const PopoverMenuItem: FC<PopoverMenuItemProps> = ({
   const button = (
     <button
       type="button"
-      className={`flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors ${
-        destructive
-          ? 'text-destructive hover:bg-destructive/10'
-          : 'hover:bg-accent'
-      } ${disabled ? 'opacity-50' : 'cursor-default'}`}
+      className={cn(
+        'flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors',
+        destructive ? 'text-destructive hover:bg-destructive/10' : 'hover:bg-accent',
+        disabled ? 'opacity-50' : 'cursor-default',
+      )}
       onClick={onClick}
       disabled={disabled}
     >

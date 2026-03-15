@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
+import org.springframework.test.context.event.ApplicationEvents
+import org.springframework.test.context.event.RecordApplicationEvents
 import riven.core.configuration.auth.WorkspaceSecurity
 import riven.core.entity.entity.EntityEntity
 import riven.core.entity.entity.EntityTypeEntity
@@ -28,19 +30,27 @@ import riven.core.service.entity.type.EntityTypeAttributeService
 import riven.core.service.entity.type.EntityTypeRelationshipService
 import riven.core.service.entity.type.EntityTypeSequenceService
 import riven.core.service.entity.type.EntityTypeService
+import riven.core.enums.util.OperationType
+import riven.core.models.websocket.EntityEvent
 import riven.core.service.util.BaseServiceTest
+import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.WithUserPersona
 import riven.core.service.util.WorkspaceRole
+import riven.core.service.util.factory.entity.EntityFactory
+import org.junit.jupiter.api.Nested
+import org.springframework.security.access.AccessDeniedException
 import java.util.*
 
 @SpringBootTest(
     classes = [
         AuthTokenService::class,
         WorkspaceSecurity::class,
+        SecurityTestConfig::class,
         EntityServiceTest.TestConfig::class,
         EntityService::class,
     ]
 )
+@RecordApplicationEvents
 @WithUserPersona(
     userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
     email = "test@test.com",
@@ -70,6 +80,9 @@ class EntityServiceTest : BaseServiceTest() {
 
     @Autowired
     private lateinit var service: EntityService
+
+    @Autowired
+    private lateinit var applicationEvents: ApplicationEvents
 
     private val nameAttrId = UUID.randomUUID()
     private val statusAttrId = UUID.randomUUID()
@@ -258,7 +271,7 @@ class EntityServiceTest : BaseServiceTest() {
             ),
         )
 
-        val existingEntity = EntityEntity(
+        val existingEntity = EntityFactory.createEntityEntity(
             id = entityId,
             workspaceId = workspaceId,
             typeId = entityTypeId,
@@ -294,6 +307,118 @@ class EntityServiceTest : BaseServiceTest() {
     }
 
     @Test
+    fun `saveEntity publishes EntityEvent with CREATE operation for new entity`() {
+        val type = buildEntityType(
+            properties = mapOf(
+                nameAttrId to Schema(key = SchemaType.TEXT, type = DataType.STRING, label = "Name", required = true),
+            ),
+        )
+
+        whenever(entityTypeService.getById(entityTypeId)).thenReturn(type)
+        whenever(entityRepository.save(any<EntityEntity>())).thenAnswer {
+            (it.arguments[0] as EntityEntity).copy(id = entityId)
+        }
+
+        val request = SaveEntityRequest(
+            payload = mapOf(
+                nameAttrId to EntityAttributeRequest(
+                    payload = EntityAttributePrimitivePayload(value = "My Task", schemaType = SchemaType.TEXT)
+                ),
+            ),
+        )
+
+        service.saveEntity(workspaceId, entityTypeId, request)
+
+        val events = applicationEvents.stream(EntityEvent::class.java).toList()
+        assertEquals(1, events.size)
+
+        val event = events[0]
+        assertEquals(workspaceId, event.workspaceId)
+        assertEquals(userId, event.userId)
+        assertEquals(OperationType.CREATE, event.operation)
+        assertEquals(entityId, event.entityId)
+        assertEquals(entityTypeId, event.entityTypeId)
+        assertEquals("task", event.entityTypeKey)
+    }
+
+    @Test
+    fun `saveEntity publishes EntityEvent with UPDATE operation for existing entity`() {
+        val type = buildEntityType(
+            properties = mapOf(
+                nameAttrId to Schema(key = SchemaType.TEXT, type = DataType.STRING, label = "Name", required = true),
+            ),
+        )
+
+        val existingEntity = EntityFactory.createEntityEntity(
+            id = entityId,
+            workspaceId = workspaceId,
+            typeId = entityTypeId,
+            typeKey = "task",
+            identifierKey = nameAttrId,
+        )
+
+        whenever(entityTypeService.getById(entityTypeId)).thenReturn(type)
+        whenever(entityRepository.findById(entityId)).thenReturn(Optional.of(existingEntity))
+        whenever(entityRepository.save(any<EntityEntity>())).thenAnswer { it.arguments[0] }
+        whenever(entityAttributeService.getAttributes(entityId)).thenReturn(
+            mapOf(
+                nameAttrId to EntityAttributePrimitivePayload(value = "Old Task", schemaType = SchemaType.TEXT),
+            )
+        )
+
+        val request = SaveEntityRequest(
+            id = entityId,
+            payload = mapOf(
+                nameAttrId to EntityAttributeRequest(
+                    payload = EntityAttributePrimitivePayload(value = "Updated Task", schemaType = SchemaType.TEXT)
+                ),
+            ),
+        )
+
+        service.saveEntity(workspaceId, entityTypeId, request)
+
+        val events = applicationEvents.stream(EntityEvent::class.java).toList()
+        assertEquals(1, events.size)
+
+        val event = events[0]
+        assertEquals(workspaceId, event.workspaceId)
+        assertEquals(userId, event.userId)
+        assertEquals(OperationType.UPDATE, event.operation)
+        assertEquals(entityId, event.entityId)
+        assertEquals(entityTypeId, event.entityTypeId)
+        assertEquals("task", event.entityTypeKey)
+    }
+
+    @Test
+    fun `deleteEntities publishes EntityEvent with DELETE operation`() {
+        val deletedEntity = EntityFactory.createEntityEntity(
+            id = entityId,
+            workspaceId = workspaceId,
+            typeId = entityTypeId,
+            typeKey = "task",
+            identifierKey = nameAttrId,
+        )
+
+        whenever(entityRepository.deleteByIds(any(), eq(workspaceId))).thenReturn(listOf(deletedEntity))
+        whenever(entityRelationshipService.findByTargetIdIn(any())).thenReturn(emptyMap())
+
+        service.deleteEntities(workspaceId, listOf(entityId))
+
+        val events = applicationEvents.stream(EntityEvent::class.java).toList()
+        assertEquals(1, events.size)
+
+        val event = events[0]
+        assertEquals(workspaceId, event.workspaceId)
+        assertEquals(userId, event.userId)
+        assertEquals(OperationType.DELETE, event.operation)
+        assertNull(event.entityId)
+        assertEquals(entityTypeId, event.entityTypeId)
+        assertEquals("task", event.entityTypeKey)
+        assertEquals(listOf(entityId), event.summary["deletedIds"])
+        assertEquals(1, event.summary["deletedCount"])
+    }
+
+    @Test
     fun `saveEntity preserves existing ID value on update even when not in payload`() {
         val type = buildEntityType(
             properties = mapOf(
@@ -305,7 +430,7 @@ class EntityServiceTest : BaseServiceTest() {
             ),
         )
 
-        val existingEntity = EntityEntity(
+        val existingEntity = EntityFactory.createEntityEntity(
             id = entityId,
             workspaceId = workspaceId,
             typeId = entityTypeId,
@@ -345,4 +470,56 @@ class EntityServiceTest : BaseServiceTest() {
         assertEquals("TSK-1", captor.firstValue[idAttrId]?.value)
         verify(sequenceService, never()).nextValue(any(), any())
     }
+
+    // ------ Access Denied Tests ------
+
+    @Nested
+    @WithUserPersona(
+        userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
+        email = "test@test.com",
+        displayName = "Test User",
+        roles = [
+            WorkspaceRole(
+                workspaceId = "00000000-0000-0000-0000-000000000000",
+                role = WorkspaceRoles.OWNER
+            )
+        ]
+    )
+    inner class UnauthorizedAccessTests {
+
+        /**
+         * Verifies that saveEntity rejects requests when the authenticated user
+         * does not have access to the target workspace. The @PreAuthorize annotation
+         * on the service method should trigger an AccessDeniedException before any
+         * business logic executes.
+         */
+        @Test
+        fun `saveEntity throws AccessDeniedException for unauthorized workspace`() {
+            val request = SaveEntityRequest(
+                payload = mapOf(
+                    nameAttrId to EntityAttributeRequest(
+                        payload = EntityAttributePrimitivePayload(value = "My Task", schemaType = SchemaType.TEXT)
+                    ),
+                ),
+            )
+
+            assertThrows(AccessDeniedException::class.java) {
+                service.saveEntity(workspaceId, entityTypeId, request)
+            }
+        }
+
+        /**
+         * Verifies that deleteEntities rejects requests when the authenticated user
+         * does not have access to the target workspace. The @PreAuthorize annotation
+         * on the service method should trigger an AccessDeniedException before any
+         * business logic executes.
+         */
+        @Test
+        fun `deleteEntities throws AccessDeniedException for unauthorized workspace`() {
+            assertThrows(AccessDeniedException::class.java) {
+                service.deleteEntities(workspaceId, listOf(entityId))
+            }
+        }
+    }
+
 }

@@ -6,7 +6,7 @@ import {
   generateSearchConfigFromEntityType,
   applyColumnOrdering,
   transformEntitiesToRows,
-} from '../components/tables/entity-table-utils';
+} from '@/components/feature-modules/entity/components/tables/entity-table-utils';
 
 export function useEntityTableData(
   entityType: EntityType,
@@ -36,11 +36,11 @@ export function useEntityTableData(
   const columns = useMemo(() => {
     const generatedColumns = generateColumnsFromEntityType(entityType, { enableEditing: true });
     return applyColumnOrdering(generatedColumns, entityType.columnConfiguration);
-  }, [entityType.schema, entityType.relationships, entityType.columnConfiguration]);
+  }, [entityType]);
 
   const searchableColumns = useMemo<string[]>(() => {
     return generateSearchConfigFromEntityType(entityType);
-  }, [entityType.schema]);
+  }, [entityType]);
 
   return { rowData, columns, searchableColumns };
 }

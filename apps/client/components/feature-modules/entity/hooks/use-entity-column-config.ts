@@ -1,9 +1,10 @@
 import { EntityType } from '@/lib/types/entity';
 import { useCallback } from 'react';
 import { UseFormReturn } from 'react-hook-form';
+import { EntityTypeFormValues } from '@/components/feature-modules/entity/context/configuration-provider';
 
 export function useEntityColumnConfig(
-  form: UseFormReturn<any>,
+  form: UseFormReturn<EntityTypeFormValues>,
   entityType: EntityType,
 ) {
   const handleColumnResize = useCallback(
@@ -69,12 +70,15 @@ export function useEntityColumnConfig(
   const handleHideAll = useCallback(() => {
     const current = form.getValues('columnConfiguration');
     const updatedOverrides = { ...current.overrides };
-    Object.keys(updatedOverrides).forEach((key) => {
+    // Iterate over all entity type columns (not just existing overrides)
+    // to ensure columns without prior overrides also get hidden
+    const allColumnKeys = entityType.columns?.map((col) => col.key) ?? Object.keys(updatedOverrides);
+    allColumnKeys.forEach((key) => {
       if (key === entityType.identifierKey) return;
       updatedOverrides[key] = { ...updatedOverrides[key], visible: false };
     });
     form.setValue('columnConfiguration.overrides', updatedOverrides, { shouldDirty: true });
-  }, [form, entityType.identifierKey]);
+  }, [form, entityType.identifierKey, entityType.columns]);
 
   return {
     handleColumnResize,

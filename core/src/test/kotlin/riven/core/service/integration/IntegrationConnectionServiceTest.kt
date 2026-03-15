@@ -1,5 +1,6 @@
 package riven.core.service.integration
 
+import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -23,9 +24,13 @@ import riven.core.repository.integration.IntegrationDefinitionRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.auth.AuthTokenService
 import riven.core.service.integration.materialization.TemplateMaterializationService
+import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.WithUserPersona
 import riven.core.service.util.WorkspaceRole
 import riven.core.enums.workspace.WorkspaceRoles
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.assertThrows
+import org.springframework.security.access.AccessDeniedException
 import java.util.*
 
 /**
@@ -40,6 +45,7 @@ import java.util.*
     classes = [
         AuthTokenService::class,
         WorkspaceSecurity::class,
+        SecurityTestConfig::class,
         IntegrationConnectionServiceTest.TestConfig::class,
         IntegrationConnectionService::class
     ]
@@ -51,7 +57,7 @@ import java.util.*
     roles = [
         WorkspaceRole(
             workspaceId = "f8b1c2d3-4e5f-6789-abcd-ef9876543210",
-            role = WorkspaceRoles.OWNER
+            role = WorkspaceRoles.ADMIN
         )
     ]
 )
@@ -83,6 +89,9 @@ class IntegrationConnectionServiceTest {
 
     @MockitoBean
     private lateinit var transactionTemplate: TransactionTemplate
+
+    @MockitoBean
+    private lateinit var logger: KLogger
 
     @Autowired
     private lateinit var integrationConnectionService: IntegrationConnectionService
@@ -358,5 +367,211 @@ class IntegrationConnectionServiceTest {
         }
 
         verify(nangoClientWrapper, never()).deleteConnection(any(), any())
+    }
+
+    // ========== enableConnection Tests ==========
+
+    @Test
+    fun `enableConnection - creates new connection with CONNECTED status`() {
+        val savedConnection = IntegrationConnectionEntity(
+            id = testConnectionId,
+            workspaceId = workspaceId,
+            integrationId = testIntegrationId,
+            nangoConnectionId = "nango-conn-123",
+            status = ConnectionStatus.CONNECTED
+        )
+
+        whenever(definitionRepository.findById(testIntegrationId))
+            .thenReturn(Optional.of(testDefinition))
+        whenever(connectionRepository.findByWorkspaceIdAndIntegrationId(workspaceId, testIntegrationId))
+            .thenReturn(null)
+        whenever(connectionRepository.save(any<IntegrationConnectionEntity>()))
+            .thenReturn(savedConnection)
+
+        val result = integrationConnectionService.enableConnection(
+            workspaceId = workspaceId,
+            integrationId = testIntegrationId,
+            nangoConnectionId = "nango-conn-123"
+        )
+
+        assertNotNull(result)
+        assertEquals(ConnectionStatus.CONNECTED, result.status)
+        assertEquals("nango-conn-123", result.nangoConnectionId)
+        assertEquals(workspaceId, result.workspaceId)
+        assertEquals(testIntegrationId, result.integrationId)
+
+        verify(connectionRepository).save(argThat { connection ->
+            connection.workspaceId == workspaceId &&
+                connection.integrationId == testIntegrationId &&
+                connection.nangoConnectionId == "nango-conn-123" &&
+                connection.status == ConnectionStatus.CONNECTED
+        })
+        verify(activityService).logActivity(
+            activity = any(),
+            operation = any(),
+            userId = any(),
+            workspaceId = any(),
+            entityType = any(),
+            entityId = anyOrNull(),
+            timestamp = any(),
+            details = any()
+        )
+    }
+
+    @Test
+    fun `enableConnection - reconnects disconnected connection`() {
+        val disconnectedConnection = IntegrationConnectionEntity(
+            id = testConnectionId,
+            workspaceId = workspaceId,
+            integrationId = testIntegrationId,
+            nangoConnectionId = "old-nango-conn",
+            status = ConnectionStatus.DISCONNECTED
+        )
+
+        whenever(definitionRepository.findById(testIntegrationId))
+            .thenReturn(Optional.of(testDefinition))
+        whenever(connectionRepository.findByWorkspaceIdAndIntegrationId(workspaceId, testIntegrationId))
+            .thenReturn(disconnectedConnection)
+        whenever(connectionRepository.save(any<IntegrationConnectionEntity>()))
+            .thenAnswer { invocation -> invocation.getArgument(0) as IntegrationConnectionEntity }
+
+        val result = integrationConnectionService.enableConnection(
+            workspaceId = workspaceId,
+            integrationId = testIntegrationId,
+            nangoConnectionId = "new-nango-conn"
+        )
+
+        assertEquals(ConnectionStatus.CONNECTED, result.status)
+        assertEquals("new-nango-conn", result.nangoConnectionId)
+
+        verify(connectionRepository).save(argThat { connection ->
+            connection.id == testConnectionId &&
+                connection.status == ConnectionStatus.CONNECTED &&
+                connection.nangoConnectionId == "new-nango-conn"
+        })
+    }
+
+    @Test
+    fun `enableConnection - returns existing connection if already connected`() {
+        val connectedConnection = IntegrationConnectionEntity(
+            id = testConnectionId,
+            workspaceId = workspaceId,
+            integrationId = testIntegrationId,
+            nangoConnectionId = "nango-conn-123",
+            status = ConnectionStatus.CONNECTED
+        )
+
+        whenever(definitionRepository.findById(testIntegrationId))
+            .thenReturn(Optional.of(testDefinition))
+        whenever(connectionRepository.findByWorkspaceIdAndIntegrationId(workspaceId, testIntegrationId))
+            .thenReturn(connectedConnection)
+
+        val result = integrationConnectionService.enableConnection(
+            workspaceId = workspaceId,
+            integrationId = testIntegrationId,
+            nangoConnectionId = "nango-conn-123"
+        )
+
+        assertEquals(testConnectionId, result.id)
+        assertEquals(ConnectionStatus.CONNECTED, result.status)
+
+        verify(connectionRepository, never()).save(any<IntegrationConnectionEntity>())
+    }
+
+    @Test
+    fun `enableConnection - throws ConflictException for non-connected non-disconnected connection`() {
+        val syncingConnection = IntegrationConnectionEntity(
+            id = testConnectionId,
+            workspaceId = workspaceId,
+            integrationId = testIntegrationId,
+            nangoConnectionId = "nango-conn-123",
+            status = ConnectionStatus.SYNCING
+        )
+
+        whenever(definitionRepository.findById(testIntegrationId))
+            .thenReturn(Optional.of(testDefinition))
+        whenever(connectionRepository.findByWorkspaceIdAndIntegrationId(workspaceId, testIntegrationId))
+            .thenReturn(syncingConnection)
+
+        assertThrows(ConflictException::class.java) {
+            integrationConnectionService.enableConnection(
+                workspaceId = workspaceId,
+                integrationId = testIntegrationId,
+                nangoConnectionId = "nango-conn-456"
+            )
+        }
+
+        verify(connectionRepository, never()).save(any<IntegrationConnectionEntity>())
+    }
+
+    // ========== Security Tests ==========
+
+    @Nested
+    inner class Security {
+
+        @Test
+        @WithUserPersona(
+            userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
+            email = "test@test.com",
+            displayName = "Test User",
+            roles = [
+                WorkspaceRole(
+                    workspaceId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+                    role = WorkspaceRoles.ADMIN
+                )
+            ]
+        )
+        fun `enableConnection - rejects user without workspace access`() {
+            assertThrows<AccessDeniedException> {
+                integrationConnectionService.enableConnection(
+                    workspaceId = workspaceId,
+                    integrationId = UUID.randomUUID(),
+                    nangoConnectionId = "nango-conn-123"
+                )
+            }
+        }
+
+        @Test
+        @WithUserPersona(
+            userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
+            email = "test@test.com",
+            displayName = "Test User",
+            roles = [
+                WorkspaceRole(
+                    workspaceId = "f8b1c2d3-4e5f-6789-abcd-ef9876543210",
+                    role = WorkspaceRoles.MEMBER
+                )
+            ]
+        )
+        fun `enableConnection - rejects non-admin user`() {
+            assertThrows<AccessDeniedException> {
+                integrationConnectionService.enableConnection(
+                    workspaceId = workspaceId,
+                    integrationId = UUID.randomUUID(),
+                    nangoConnectionId = "nango-conn-123"
+                )
+            }
+        }
+
+        @Test
+        @WithUserPersona(
+            userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
+            email = "test@test.com",
+            displayName = "Test User",
+            roles = [
+                WorkspaceRole(
+                    workspaceId = "f8b1c2d3-4e5f-6789-abcd-ef9876543210",
+                    role = WorkspaceRoles.MEMBER
+                )
+            ]
+        )
+        fun `disconnectConnection - rejects non-admin user`() {
+            assertThrows<AccessDeniedException> {
+                integrationConnectionService.disconnectConnection(
+                    workspaceId = workspaceId,
+                    connectionId = UUID.randomUUID()
+                )
+            }
+        }
     }
 }

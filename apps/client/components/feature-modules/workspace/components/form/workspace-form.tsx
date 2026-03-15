@@ -1,11 +1,7 @@
 'use client';
 
-import { useProfile } from '@/components/feature-modules/user/hooks/useProfile';
-import { WorkspacePlan, type Workspace } from '@/lib/types/workspace';
-import { AvatarUploader } from '@/components/ui/AvatarUploader';
-import { Button } from '@riven/ui/button';
-import { CardContent, CardFooter } from '@riven/ui/card';
-import { Input } from '@riven/ui/input';
+import { useProfile } from '@/components/feature-modules/user/hooks/use-profile';
+import { AvatarUploader } from '@/components/ui/avatar-uploader';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Form,
@@ -16,17 +12,15 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { CurrencySelector } from '@/components/ui/forms/currency/form-currency-picker';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@riven/ui/select';
-import { cn } from '@riven/utils';
-import type { ClassNameProps } from '@riven/utils';
+import { WorkspacePlan, type Workspace } from '@/lib/types/workspace';
 import { isValidCurrency } from '@/lib/util/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@riven/ui/button';
+import { CardContent, CardFooter } from '@riven/ui/card';
+import { Input } from '@riven/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@riven/ui/select';
+import type { ClassNameProps } from '@riven/utils';
+import { cn } from '@riven/utils';
 import { Link, SquareArrowUpRight } from 'lucide-react';
 import { FC } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
@@ -196,7 +190,7 @@ export const WorkspaceForm: FC<Props> = ({
                           <Link
                             href={'/pricing'}
                             target="_blank"
-                            className="text-content mt-2 flex h-fit w-fit items-center text-xs transition-opacity hover:opacity-50"
+                            className="mt-2 flex h-fit w-fit items-center text-xs text-content transition-opacity hover:opacity-50"
                           >
                             Pricing
                             <SquareArrowUpRight className="ml-1 h-3 w-3" />

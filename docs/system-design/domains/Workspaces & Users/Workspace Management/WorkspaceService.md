@@ -59,6 +59,7 @@ Manages workspace lifecycle (CRUD) and workspace membership. On workspace creati
 - Currency validation: uses Java Currency.getInstance, throws IllegalArgumentException for invalid codes
 - Avatar upload: if avatar file provided, `uploadWorkspaceAvatar` calls `storageService.uploadFileInternal(workspaceId, StorageDomain.AVATAR, file)` (uses internal method to bypass @PreAuthorize, since workspace role may not yet be in JWT during onboarding). Sets `entity.avatarUrl = uploadResponse.file.storageKey` and saves again
 - Analytics publishing: `publishWorkspaceAnalytics` publishes `WorkspaceCreatedEvent` or `WorkspaceUpdatedEvent` via ApplicationEventPublisher
+- Real-time event publishing: `saveWorkspaceTransactional` publishes `WorkspaceChangeEvent` via `ApplicationEventPublisher` with CREATE or UPDATE operation and workspace name in summary. This is separate from the analytics events — it targets the WebSocket event listener for real-time client updates.
 
 **deleteWorkspace:**
 - Soft-delete (sets deleted=true, deletedAt=now)
@@ -132,3 +133,13 @@ Updates member's role. Cannot assign or remove OWNER role.
 - [[WorkspaceInviteService]] — Invitation workflow
 - [[StorageService]] — File storage for avatars
 - [[UserService]] — User profile management
+
+---
+
+## Changelog
+
+### 2026-03-14 — WebSocket event publishing
+
+- `saveWorkspaceTransactional` now publishes `WorkspaceChangeEvent` alongside existing analytics events.
+- Event includes workspace ID, user ID, operation type (CREATE/UPDATE), and workspace name in summary.
+- Consumed by [[WebSocketEventListener]] and broadcast to `/topic/workspace/{workspaceId}/workspace` after transaction commit.

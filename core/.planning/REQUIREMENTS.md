@@ -12,9 +12,9 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **INFRA-01**: Generic execution queue with `job_type` discriminator (refactored from `workflow_execution_queue`)
 - [x] **INFRA-02**: Queue deduplication — skip enqueue if PENDING job exists for same entity
 - [x] **INFRA-03**: `IDENTITY_MATCH` added to `SourceType` enum
-- [ ] **INFRA-04**: pg_trgm extension enabled with partial GIN index on `entity_attributes` using `(value->>'value')`
-- [ ] **INFRA-05**: DB schema for `identity_clusters`, `identity_cluster_members`, and `match_suggestions` tables with workspace-scoped indexes
-- [ ] **INFRA-06**: Canonical UUID ordering enforced (source < target) with DB CHECK constraint and unique constraint on `(source_entity_id, target_entity_id, deleted)`
+- [x] **INFRA-04**: pg_trgm extension enabled with partial GIN index on `entity_attributes` using `(value->>'value')`
+- [x] **INFRA-05**: DB schema for `identity_clusters`, `identity_cluster_members`, and `match_suggestions` tables with workspace-scoped indexes
+- [x] **INFRA-06**: Canonical UUID ordering enforced (source < target) with DB CHECK constraint and unique constraint on `(source_entity_id, target_entity_id, deleted)`
 
 ### Matching
 
@@ -92,9 +92,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INFRA-01 | Phase 1 | Complete |
 | INFRA-02 | Phase 1 | Complete |
 | INFRA-03 | Phase 1 | Complete |
-| INFRA-04 | Phase 1 | Pending |
-| INFRA-05 | Phase 1 | Pending |
-| INFRA-06 | Phase 1 | Pending |
+| INFRA-04 | Phase 1 | Complete |
+| INFRA-05 | Phase 1 | Complete |
+| INFRA-06 | Phase 1 | Complete |
 | MATCH-01 | Phase 3 | Pending |
 | MATCH-02 | Phase 2 | Pending |
 | MATCH-03 | Phase 2 | Pending |

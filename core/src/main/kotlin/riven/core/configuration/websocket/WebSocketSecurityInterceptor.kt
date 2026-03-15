@@ -93,7 +93,7 @@ class WebSocketSecurityInterceptor(
         return if (authHeader.startsWith("Bearer ", ignoreCase = true)) {
             authHeader.substring(7)
         } else {
-            authHeader
+            null
         }
     }
 

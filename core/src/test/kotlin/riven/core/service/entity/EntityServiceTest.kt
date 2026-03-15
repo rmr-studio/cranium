@@ -33,14 +33,19 @@ import riven.core.service.entity.type.EntityTypeService
 import riven.core.enums.util.OperationType
 import riven.core.models.websocket.EntityEvent
 import riven.core.service.util.BaseServiceTest
+import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.WithUserPersona
 import riven.core.service.util.WorkspaceRole
+import riven.core.service.util.factory.entity.EntityFactory
+import org.junit.jupiter.api.Nested
+import org.springframework.security.access.AccessDeniedException
 import java.util.*
 
 @SpringBootTest(
     classes = [
         AuthTokenService::class,
         WorkspaceSecurity::class,
+        SecurityTestConfig::class,
         EntityServiceTest.TestConfig::class,
         EntityService::class,
     ]
@@ -266,7 +271,7 @@ class EntityServiceTest : BaseServiceTest() {
             ),
         )
 
-        val existingEntity = EntityEntity(
+        val existingEntity = EntityFactory.createEntityEntity(
             id = entityId,
             workspaceId = workspaceId,
             typeId = entityTypeId,
@@ -338,7 +343,7 @@ class EntityServiceTest : BaseServiceTest() {
 
     @Test
     fun `deleteEntities publishes EntityEvent with DELETE operation`() {
-        val deletedEntity = EntityEntity(
+        val deletedEntity = EntityFactory.createEntityEntity(
             id = entityId,
             workspaceId = workspaceId,
             typeId = entityTypeId,
@@ -377,7 +382,7 @@ class EntityServiceTest : BaseServiceTest() {
             ),
         )
 
-        val existingEntity = EntityEntity(
+        val existingEntity = EntityFactory.createEntityEntity(
             id = entityId,
             workspaceId = workspaceId,
             typeId = entityTypeId,
@@ -416,6 +421,57 @@ class EntityServiceTest : BaseServiceTest() {
 
         assertEquals("TSK-1", captor.firstValue[idAttrId]?.value)
         verify(sequenceService, never()).nextValue(any(), any())
+    }
+
+    // ------ Access Denied Tests ------
+
+    @Nested
+    @WithUserPersona(
+        userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
+        email = "test@test.com",
+        displayName = "Test User",
+        roles = [
+            WorkspaceRole(
+                workspaceId = "00000000-0000-0000-0000-000000000000",
+                role = WorkspaceRoles.OWNER
+            )
+        ]
+    )
+    inner class UnauthorizedAccessTests {
+
+        /**
+         * Verifies that saveEntity rejects requests when the authenticated user
+         * does not have access to the target workspace. The @PreAuthorize annotation
+         * on the service method should trigger an AccessDeniedException before any
+         * business logic executes.
+         */
+        @Test
+        fun `saveEntity throws AccessDeniedException for unauthorized workspace`() {
+            val request = SaveEntityRequest(
+                payload = mapOf(
+                    nameAttrId to EntityAttributeRequest(
+                        payload = EntityAttributePrimitivePayload(value = "My Task", schemaType = SchemaType.TEXT)
+                    ),
+                ),
+            )
+
+            assertThrows(AccessDeniedException::class.java) {
+                service.saveEntity(workspaceId, entityTypeId, request)
+            }
+        }
+
+        /**
+         * Verifies that deleteEntities rejects requests when the authenticated user
+         * does not have access to the target workspace. The @PreAuthorize annotation
+         * on the service method should trigger an AccessDeniedException before any
+         * business logic executes.
+         */
+        @Test
+        fun `deleteEntities throws AccessDeniedException for unauthorized workspace`() {
+            assertThrows(AccessDeniedException::class.java) {
+                service.deleteEntities(workspaceId, listOf(entityId))
+            }
+        }
     }
 
 }

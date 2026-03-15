@@ -12,7 +12,7 @@ Build the identity resolution domain bottom-up: schema and queue infrastructure 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Infrastructure** - Generic queue refactor, schema tables, pg_trgm index, and domain enums
+- [x] **Phase 1: Infrastructure** - Generic queue refactor, schema tables, pg_trgm index, and domain enums (completed 2026-03-15)
 - [ ] **Phase 2: Matching Pipeline** - Scoring, candidate selection, Temporal workflow, and suggestion state machine
 - [ ] **Phase 3: Trigger and Dispatch** - Entity save event listener and queue-to-Temporal dispatcher
 - [ ] **Phase 4: Confirmation and Clusters** - Confirm/reject with Union-Find cluster management and relationship creation
@@ -91,7 +91,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Infrastructure | 1/3 | In Progress|  |
+| 1. Infrastructure | 3/3 | Complete   | 2026-03-15 |
 | 2. Matching Pipeline | 0/TBD | Not started | - |
 | 3. Trigger and Dispatch | 0/TBD | Not started | - |
 | 4. Confirmation and Clusters | 0/TBD | Not started | - |

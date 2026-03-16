@@ -144,7 +144,12 @@ class IdentityMatchSuggestionService(
 
     /**
      * Applies rejection state to the entity: writes rejectionSignals snapshot,
-     * sets status, resolvedBy, and resolvedAt.
+     * sets status, resolvedBy, resolvedAt, and soft-deletes the row.
+     *
+     * Soft-deletion is required here because [MatchSuggestionRepository.findRejectedSuggestion]
+     * looks for rows where `deleted = true AND status = REJECTED`. Callers that want to check
+     * for active suggestions use [MatchSuggestionRepository.findActiveSuggestion] which filters
+     * by `deleted = false`, so soft-deleting on rejection keeps both queries consistent.
      */
     private fun applyRejection(entity: MatchSuggestionEntity, userId: UUID) {
         entity.rejectionSignals = mapOf(
@@ -154,6 +159,8 @@ class IdentityMatchSuggestionService(
         entity.status = MatchSuggestionStatus.REJECTED
         entity.resolvedBy = userId
         entity.resolvedAt = ZonedDateTime.now()
+        entity.deleted = true
+        entity.deletedAt = ZonedDateTime.now()
     }
 
     /**

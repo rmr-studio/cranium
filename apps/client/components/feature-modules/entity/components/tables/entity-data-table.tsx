@@ -1,9 +1,8 @@
 'use client';
 
-import { ActionColumnConfig, ColumnResizingConfig, DataTable, DataTableProvider } from '@/components/ui/data-table';
+import { ActionColumnConfig, ColumnResizingConfig, DataTable, DataTableProvider, InfiniteScrollConfig } from '@/components/ui/data-table';
 import { Form } from '@/components/ui/form';
 import {
-  Entity,
   EntityAttributeDefinition,
   EntityType,
   EntityTypeDefinition,
@@ -15,15 +14,17 @@ import type { ClassNameProps } from '@riven/utils';
 import { cn } from '@riven/utils';
 
 import { Button } from '@riven/ui/button';
-import { Row } from '@tanstack/react-table';
+import { Row, SortingState } from '@tanstack/react-table';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { MoreHorizontal, Plus } from 'lucide-react';
-import { FC, useCallback, useMemo, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useConfigFormState } from '../../context/configuration-provider';
 import { useEntityDraft } from '../../context/entity-provider';
 import { useEntityColumnConfig } from '../../hooks/use-entity-column-config';
 import { useEntityInlineEdit } from '../../hooks/use-entity-inline-edit';
 import { useEntityTableData } from '../../hooks/use-entity-table-data';
+import { useEntityQuery } from '../../hooks/query/use-entity-query';
+import { useEntitySearch } from '../../hooks/use-entity-search';
 import { EntityQueryBuilder } from '../query/entity-query-builder';
 import { EntityTypeHeader } from '../ui/entity-type-header';
 import { AttributeFormModal } from '../ui/modals/type/attribute-form-modal';
@@ -32,28 +33,86 @@ import { ColumnHeaderPopover } from './column-header-popover';
 import { ColumnVisibilityPopover } from './column-visibility-popover';
 import { EntityDraftRow } from './entity-draft-row';
 import EntityActionBar from './entity-table-action-bar';
-import { EntityRow, isDraftRow } from './entity-table-utils';
+import { EntityRow, isDraftRow, generateSearchConfigFromEntityType } from './entity-table-utils';
+import { toast } from 'sonner';
 
 export interface Props extends ClassNameProps {
   entityType: EntityType;
-  entities: Entity[];
-  loadingEntities?: boolean;
   workspaceId: string;
 }
 
 export const EntityDataTable: FC<Props> = ({
   entityType,
-  entities,
-  loadingEntities,
   className,
   workspaceId,
 }) => {
   const { isDraftMode, enterDraftMode } = useEntityDraft();
   const { form } = useConfigFormState();
 
-  // Extracted hooks
-  const { rowData, columns, searchableColumns } = useEntityTableData(entityType, entities, isDraftMode);
-  const { handleCellEdit } = useEntityInlineEdit(workspaceId, entityType, entities);
+  // Search state (debounced)
+  const { searchTerm, setSearchTerm, debouncedSearch, clearSearch } = useEntitySearch();
+
+  // Sorting state (server-side via queryEntities)
+  const [sorting, setSorting] = useState<SortingState>([]);
+
+  // Query filter state (EntityQueryBuilder)
+  const [queryFilter, setQueryFilter] = useState<QueryFilter | undefined>();
+  const handleQueryFilterChange = useCallback((filter: QueryFilter | undefined) => {
+    setQueryFilter(filter);
+  }, []);
+
+  // Searchable attribute IDs for server-side search (derived from entity type schema only)
+  const searchableColumns = useMemo(
+    () => generateSearchConfigFromEntityType(entityType),
+    [entityType],
+  );
+
+  // Infinite query — owns all entity fetching
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isPending,
+    isError,
+    error,
+    isPlaceholderData,
+  } = useEntityQuery({
+    workspaceId,
+    entityTypeId: entityType.id,
+    debouncedSearch: debouncedSearch || undefined,
+    searchableAttributeIds: searchableColumns,
+    queryFilter,
+    sorting,
+  });
+
+  // Surface query errors as toasts
+  useEffect(() => {
+    if (isError && error) {
+      toast.error(`Failed to load entities: ${error.message}`);
+    }
+  }, [isError, error]);
+
+  // Flatten pages into a single entity list
+  const entities = useMemo(
+    () => data?.pages.flatMap((page) => page.entities) ?? [],
+    [data?.pages],
+  );
+
+  // Full table data (rows, columns) from flattened entities
+  const { rowData, columns } = useEntityTableData(entityType, entities, isDraftMode);
+
+  // Entity lookup for inline edit
+  const entityMap = useMemo(
+    () => new Map(entities.map((e) => [e.id, e])),
+    [entities],
+  );
+  const getEntityById = useCallback(
+    (id: string) => entityMap.get(id),
+    [entityMap],
+  );
+
+  const { handleCellEdit } = useEntityInlineEdit(workspaceId, entityType, getEntityById);
   const {
     handleColumnResize,
     handleHideColumn,
@@ -147,20 +206,23 @@ export const EntityDataTable: FC<Props> = ({
     ],
   );
 
-  const emptyMessage = loadingEntities
+  const emptyMessage = isPending
     ? 'Loading entities...'
-    : `No ${entityType.name.plural} found.`;
+    : isError
+      ? 'Failed to load entities. Please try again.'
+      : `No ${entityType.name.plural} found.`;
 
-  // Search configuration — always show when searchable columns exist
+  // Search configuration — server-side via useEntitySearch
   const searchConfig = useMemo(
     () => ({
-      // enabled: searchableColumns.length > 0,
       enabled: true,
       searchableColumns,
       placeholder: `Search ${entityType.name.plural.toLowerCase()}...`,
       disabled: isDraftMode,
+      serverSide: true,
+      onSearchChange: setSearchTerm,
     }),
-    [searchableColumns, isDraftMode, entityType.name.plural],
+    [searchableColumns, isDraftMode, entityType.name.plural, setSearchTerm],
   );
 
   // Custom row renderer for draft mode
@@ -199,26 +261,32 @@ export const EntityDataTable: FC<Props> = ({
     [],
   );
 
-  // Row ID getter for inline editing
+  // Row ID getter
   const getRowId = useCallback((row: EntityRow, _index: number) => row._entityId, []);
 
-  // Query filter state (EntityQueryBuilder)
-  const [_queryFilter, setQueryFilter] = useState<QueryFilter | undefined>();
-  const handleQueryFilterChange = useCallback((filter: QueryFilter | undefined) => {
-    setQueryFilter(filter);
-    // TODO: integrate with server-side entity query when API hook is wired up
-  }, []);
+  // Infinite scroll configuration
+  const infiniteScrollConfig: InfiniteScrollConfig | undefined = useMemo(
+    () =>
+      hasNextPage !== undefined
+        ? {
+            onLoadMore: fetchNextPage,
+            isLoadingMore: isFetchingNextPage,
+            hasMore: hasNextPage ?? false,
+          }
+        : undefined,
+    [fetchNextPage, hasNextPage, isFetchingNextPage],
+  );
 
-  // Custom filter UI for the entity data table
+  // Custom filter UI
   const filterContent = useMemo(
     () => (
       <EntityQueryBuilder
         entityType={entityType}
-        value={_queryFilter}
+        value={queryFilter}
         onChange={handleQueryFilterChange}
       />
     ),
-    [entityType, _queryFilter, handleQueryFilterChange],
+    [entityType, queryFilter, handleQueryFilterChange],
   );
 
   return (
@@ -251,6 +319,12 @@ export const EntityDataTable: FC<Props> = ({
                 />
               ),
             }}
+            enableSorting
+            serverSideSorting={{
+              enabled: true,
+              onSortingChange: setSorting,
+              sorting,
+            }}
             enableDragDrop
             actionColumnConfig={actionColumnConfig}
             columnOrdering={{
@@ -262,18 +336,22 @@ export const EntityDataTable: FC<Props> = ({
             filterContent={filterContent}
             columnResizing={columnResizingConfig}
             emptyMessage={emptyMessage}
-            className={cn(className)}
+            className={cn(className, isPlaceholderData && 'opacity-70 transition-opacity')}
             enableInlineEdit={true}
             customRowRenderer={customRowRenderer}
             addingNewEntry={isDraftMode}
             onHeaderClick={handleHeaderClick}
             endOfHeaderContent={endOfHeaderContent}
             scrollContainerClassName="max-h-[calc(100dvh-18rem)]"
+            infiniteScroll={infiniteScrollConfig}
             footerContent={
               !isDraftMode ? (
                 <button
                   type="button"
-                  onClick={enterDraftMode}
+                  onClick={() => {
+                    clearSearch();
+                    enterDraftMode();
+                  }}
                   className="flex w-full items-center gap-1.5 border-t border-border/40 px-3 py-1.5 text-sm text-muted-foreground/50 transition-colors hover:bg-muted/30 hover:text-muted-foreground"
                 >
                   <Plus className="size-3.5" />
@@ -283,7 +361,7 @@ export const EntityDataTable: FC<Props> = ({
             }
           />
 
-          {/* Column header popover — must be inside DataTableProvider */}
+          {/* Column header popover */}
           <ColumnHeaderPopover
             columnId={activePopoverColumnId}
             entityType={entityType}

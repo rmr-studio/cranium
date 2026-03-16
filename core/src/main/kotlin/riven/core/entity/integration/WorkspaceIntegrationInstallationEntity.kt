@@ -5,6 +5,7 @@ import jakarta.persistence.*
 import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.Type
 import riven.core.entity.util.AuditableEntity
+import riven.core.enums.integration.InstallationStatus
 import riven.core.models.common.SoftDeletable
 import riven.core.models.integration.SyncConfiguration
 import java.time.ZonedDateTime
@@ -55,6 +56,10 @@ data class WorkspaceIntegrationInstallationEntity(
 
     @Column(name = "last_synced_at")
     var lastSyncedAt: ZonedDateTime? = null,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 50)
+    var status: InstallationStatus = InstallationStatus.ACTIVE,
 
     @Column(name = "deleted", nullable = false)
     override var deleted: Boolean = false,

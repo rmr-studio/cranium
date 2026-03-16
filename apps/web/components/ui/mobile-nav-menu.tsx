@@ -2,11 +2,11 @@
 
 import { LinkProps, NavbarProps } from '@/lib/interface';
 import { Logo } from '@riven/ui/logo';
+import { ThemeToggle } from '@riven/ui/theme-toggle';
 import { Github, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import Link from 'next/link';
 import React, { Dispatch, FC, useState } from 'react';
-import { ThemeToggle } from '@riven/ui/theme-toggle';
 import { Button } from './button';
 
 interface MobileNavbarExtendedProps extends NavbarProps {
@@ -110,7 +110,7 @@ const DrawerSheet: FC<NavbarMenuProps> = ({ links, toggle }) => {
               <span className="mt-0.5 font-serif text-lg font-bold text-logo-primary">Riven</span>
             </Link>
             <Link
-              href="https://github.com/rivenmedia/riven"
+              href="https://github.com/rmr-studio/riven"
               target="_blank"
               rel="noopener noreferrer"
               className="ml-1 text-muted-foreground transition-colors hover:text-foreground"

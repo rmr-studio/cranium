@@ -33,9 +33,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-00-PLAN.md — Wave 0 test scaffolds for queue genericization, identity infrastructure, and SourceType enum
-- [ ] 01-01-PLAN.md — Genericize execution queue with job_type discriminator, dedup index, and SourceType enum addition
-- [ ] 01-02-PLAN.md — Identity domain SQL tables, pg_trgm GIN index, JPA entities, domain models, and constraints
+- [x] 01-00-PLAN.md — Wave 0 test scaffolds for queue genericization, identity infrastructure, and SourceType enum
+- [x] 01-01-PLAN.md — Genericize execution queue with job_type discriminator, dedup index, and SourceType enum addition
+- [x] 01-02-PLAN.md — Identity domain SQL tables, pg_trgm GIN index, JPA entities, domain models, and constraints
 
 ### Phase 2: Matching Pipeline
 **Goal**: Given two entities and their IDENTIFIER-classified attributes, the system can find candidates, score them, and persist a match suggestion — testable end-to-end by calling the Temporal workflow directly
@@ -48,7 +48,13 @@ Plans:
   4. Running the workflow for a matching pair creates a PENDING suggestion with signal breakdown stored as JSONB
   5. Submitting the same candidate pair twice creates exactly one suggestion (idempotent — duplicate silently skipped)
   6. Rejecting a suggestion stores the signal snapshot; when a stronger signal appears later the suggestion is re-created
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Domain models, enums, signals type fix, repository queries, and test factory
+- [ ] 02-02-PLAN.md — Candidate search (pg_trgm) and scoring services with unit tests
+- [ ] 02-03-PLAN.md — Suggestion persistence service with idempotency, re-suggestion, and activity logging
+- [ ] 02-04-PLAN.md — Temporal workflow/activities, worker registration, and pipeline integration test
 
 ### Phase 3: Trigger and Dispatch
 **Goal**: Entity saves automatically trigger async identity matching without blocking the save transaction
@@ -92,7 +98,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Infrastructure | 3/3 | Complete   | 2026-03-15 |
-| 2. Matching Pipeline | 0/TBD | Not started | - |
+| 2. Matching Pipeline | 0/4 | Planning complete | - |
 | 3. Trigger and Dispatch | 0/TBD | Not started | - |
 | 4. Confirmation and Clusters | 0/TBD | Not started | - |
 | 5. REST API | 0/TBD | Not started | - |

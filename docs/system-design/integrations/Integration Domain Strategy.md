@@ -44,7 +44,7 @@ Users create their own custom entity types and link them to integration entities
 
 ### Why This Matters for Intelligence
 
-- **Data integrity & provenance** — Read-only types preserve exactly what Stripe said vs what Zendesk said. No data mixing at the storage layer.
+- **Data integrity** — Read-only types preserve exactly what Stripe said vs what Zendesk said. No data mixing at the storage layer.
 - **User mental model** — User-defined types represent how the user thinks about their business, not how SaaS tools organize data.
 - **Cross-domain reasoning** — The knowledge layer operates on the user's model, pulling data through relationships to integration types. Intelligence follows the user's structure, not the provider's.
 - **Semantic grounding** — The knowledge layer reasons over semantic metadata from both layers, enabling queries like "show me customers where revenue is declining and support tickets are increasing."

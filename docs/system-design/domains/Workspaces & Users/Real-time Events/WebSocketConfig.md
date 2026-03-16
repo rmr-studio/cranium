@@ -48,6 +48,7 @@ Spring `WebSocketMessageBrokerConfigurer` that registers the STOMP endpoint, con
 **configureMessageBroker:**
 - Enables simple (in-memory) broker for `/topic` and `/queue` destinations
 - Heartbeat: server sends every `serverHeartbeatMs` (default 10s), expects client every `clientHeartbeatMs` (default 10s)
+- Heartbeat scheduling delegated to a dedicated `ThreadPoolTaskScheduler` (`ws-heartbeat-` thread prefix, pool size 1) — required for the simple broker to actually send heartbeat frames
 - Application prefix `/app` for routed messages
 
 **configureWebSocketTransport:**
@@ -77,6 +78,11 @@ Spring `WebSocketMessageBrokerConfigurer` that registers the STOMP endpoint, con
 ---
 
 ## Changelog
+
+### 2026-03-16 -- Heartbeat scheduler
+
+- Added dedicated `ThreadPoolTaskScheduler` for broker heartbeats via `heartbeatScheduler()` private method
+- Without a task scheduler, the simple broker configures heartbeat values but never sends heartbeat frames — connections drop silently after the client's expected interval
 
 ### 2026-03-14 -- Initial implementation
 

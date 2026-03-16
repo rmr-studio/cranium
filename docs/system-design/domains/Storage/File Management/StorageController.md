@@ -58,4 +58,5 @@ Thin REST controller exposing 11 endpoints under `/api/v1/storage`. Delegates al
 ## Related
 
 - [[StorageService]] -- Delegated business logic
+- [[AvatarController]] -- Sibling controller serving avatar images at `/api/v1/avatars` (unauthenticated)
 - [[File Management]] -- Parent subdomain

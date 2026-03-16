@@ -8,7 +8,7 @@ Definitions are created through `EntityTypeRelationshipService.createRelationshi
 
 ### What metadata is associated with an entity
 
-Each entity instance has a JSONB `payload` containing attribute values validated against the entity type's schema. Entities also carry denormalized fields from their type: `type_key`, `identifier_key`, `icon_type`, `icon_colour`. Provenance metadata (source type, integration ID, external ID, sync timestamps) tracks where the entity data originated.
+Each entity instance has a JSONB `payload` containing attribute values validated against the entity type's schema. Entities also carry denormalized fields from their type: `type_key`, `identifier_key`, `icon_type`, `icon_colour`. Entity-level source fields (`source_type`, `source_integration_id`, `source_external_id`, sync timestamps) track where the entity data originated.
 
 At the type level, semantic metadata (`entity_type_semantic_metadata` table) provides definitions, classifications, and tags for the entity type itself, its attributes, and its relationships. This uses a single-table discriminator pattern with `target_type` distinguishing ENTITY_TYPE, ATTRIBUTE, and RELATIONSHIP metadata.
 
@@ -54,7 +54,7 @@ Each record can have a `definition` (text description), `classification` (enum: 
 
 ### How are [[Integrations]] connected into the entity ecosystem
 
-Entities track their provenance through fields on the `entities` table: `source_type` (USER_CREATED, INTEGRATION, etc.), `source_integration_id` (FK to `integration_definitions`), `source_external_id`, `source_url`, `first_synced_at`, `last_synced_at`, and `sync_version`. Per-attribute provenance is tracked in `entity_attribute_provenance` with override tracking.
+Entities track their source through fields on the `entities` table: `source_type` (USER_CREATED, INTEGRATION, etc.), `source_integration_id` (FK to `integration_definitions`), `source_external_id`, `source_url`, `first_synced_at`, `last_synced_at`, and `sync_version`.
 
 Entity relationships also carry a `link_source` field indicating whether the link was user-created or integration-sourced.
 

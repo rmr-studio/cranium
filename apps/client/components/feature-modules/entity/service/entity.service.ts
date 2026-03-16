@@ -5,10 +5,14 @@ import { ResponseError } from '@/lib/types';
 import {
   DeleteEntityResponse,
   Entity,
+  EntityQueryRequest,
+  EntityQueryResponse,
+  QueryFilter,
+  QueryPagination,
   SaveEntityRequest,
   SaveEntityResponse,
 } from '@/lib/types/entity';
-import { fromError, isSaveEntityResponse } from '@/lib/util/error/error.util';
+import { fromError, isSaveEntityResponse, normalizeApiError } from '@/lib/util/error/error.util';
 import { validateSession, validateUuid } from '@/lib/util/service/service.util';
 
 export class EntityService {
@@ -87,6 +91,39 @@ export class EntityService {
     typeIds.forEach((id) => validateUuid(id));
     const api = createEntityApi(session!);
     return api.getEntityByTypeIdInForWorkspace({ workspaceId, ids: typeIds });
+  }
+
+  /**
+   * Query entities with pagination and optional filtering.
+   */
+  static async queryEntities(
+    session: Session | null,
+    workspaceId: string,
+    entityTypeId: string,
+    pagination: QueryPagination,
+    filter?: QueryFilter,
+  ): Promise<EntityQueryResponse> {
+    validateSession(session);
+    validateUuid(workspaceId);
+    validateUuid(entityTypeId);
+    const api = createEntityApi(session!);
+
+    try {
+      const request: EntityQueryRequest = {
+        pagination,
+        includeCount: false,
+        maxDepth: 1,
+        ...(filter ? { filter } : {}),
+      };
+
+      return await api.queryEntities({
+        workspaceId,
+        entityTypeId,
+        entityQueryRequest: request,
+      });
+    } catch (error) {
+      return await normalizeApiError(error);
+    }
   }
 
   static async deleteEntities(

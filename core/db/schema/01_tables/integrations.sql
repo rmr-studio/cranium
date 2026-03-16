@@ -66,3 +66,30 @@ CREATE TABLE IF NOT EXISTS workspace_integration_installations (
     CONSTRAINT uq_workspace_integration_installation
         UNIQUE (workspace_id, integration_definition_id)
 );
+
+ALTER TABLE workspace_integration_installations
+    ADD COLUMN IF NOT EXISTS status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE';
+
+-- =====================================================
+-- INTEGRATION SYNC STATE TABLE
+-- =====================================================
+-- Tracks per-connection per-entity-type sync progress.
+-- System-managed (not SoftDeletable) — rows are updated in-place
+-- as sync runs complete. Cascades on connection/entity-type removal.
+
+CREATE TABLE IF NOT EXISTS integration_sync_state (
+    id                        UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    integration_connection_id UUID NOT NULL REFERENCES integration_connections(id) ON DELETE CASCADE,
+    entity_type_id            UUID NOT NULL REFERENCES entity_types(id) ON DELETE CASCADE,
+    status                    VARCHAR(50) NOT NULL DEFAULT 'PENDING',
+    last_cursor               TEXT,
+    consecutive_failure_count INTEGER NOT NULL DEFAULT 0,
+    last_error_message        TEXT,
+    last_records_synced       INTEGER,
+    last_records_failed       INTEGER,
+    created_at                TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at                TIMESTAMPTZ NOT NULL DEFAULT now(),
+    created_by                UUID REFERENCES users(id) ON DELETE SET NULL,
+    updated_by                UUID REFERENCES users(id) ON DELETE SET NULL,
+    UNIQUE(integration_connection_id, entity_type_id)
+);

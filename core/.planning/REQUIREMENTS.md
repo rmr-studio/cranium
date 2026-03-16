@@ -21,16 +21,16 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **MATCH-01**: Entity save/update triggers async match job via `@TransactionalEventListener(AFTER_COMMIT)` with `@Transactional(REQUIRES_NEW)`
 - [ ] **MATCH-02**: Two-phase fuzzy candidate query using pg_trgm (`%` operator for GIN blocking, `similarity()` for refinement)
 - [ ] **MATCH-03**: Workspace-scoped candidate filtering (same workspace, different entity, not soft-deleted)
-- [ ] **MATCH-04**: Weighted confidence scoring from multiple signals (EMAIL=0.9, PHONE=0.85, NAME=0.5, COMPANY=0.3, CUSTOM_IDENTIFIER=0.7)
+- [x] **MATCH-04**: Weighted confidence scoring from multiple signals (EMAIL=0.9, PHONE=0.85, NAME=0.5, COMPANY=0.3, CUSTOM_IDENTIFIER=0.7)
 - [ ] **MATCH-05**: Minimum score threshold of 0.5 — below threshold produces no suggestion
-- [ ] **MATCH-06**: Per-signal breakdown stored as JSONB on match_suggestions (type, sourceValue, targetValue, similarity, weight)
+- [x] **MATCH-06**: Per-signal breakdown stored as JSONB on match_suggestions (type, sourceValue, targetValue, similarity, weight)
 
 ### Suggestions
 
-- [ ] **SUGG-01**: Match suggestion CRUD with PENDING → CONFIRMED / REJECTED / EXPIRED state machine
-- [ ] **SUGG-02**: Idempotent suggestion creation — duplicate pair (canonical ordering) silently skipped
-- [ ] **SUGG-03**: Rejection stores signal snapshot in `rejection_signals` JSONB column
-- [ ] **SUGG-04**: Re-suggestion on new/stronger signals — diff current signals against rejection snapshot
+- [x] **SUGG-01**: Match suggestion CRUD with PENDING → CONFIRMED / REJECTED / EXPIRED state machine
+- [x] **SUGG-02**: Idempotent suggestion creation — duplicate pair (canonical ordering) silently skipped
+- [x] **SUGG-03**: Rejection stores signal snapshot in `rejection_signals` JSONB column
+- [x] **SUGG-04**: Re-suggestion on new/stronger signals — diff current signals against rejection snapshot
 - [ ] **SUGG-05**: Activity logging for all match state transitions (create, confirm, reject)
 
 ### Confirmation
@@ -98,13 +98,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MATCH-01 | Phase 3 | Pending |
 | MATCH-02 | Phase 2 | Pending |
 | MATCH-03 | Phase 2 | Pending |
-| MATCH-04 | Phase 2 | Pending |
+| MATCH-04 | Phase 2 | Complete |
 | MATCH-05 | Phase 2 | Pending |
-| MATCH-06 | Phase 2 | Pending |
-| SUGG-01 | Phase 2 | Pending |
-| SUGG-02 | Phase 2 | Pending |
-| SUGG-03 | Phase 2 | Pending |
-| SUGG-04 | Phase 2 | Pending |
+| MATCH-06 | Phase 2 | Complete |
+| SUGG-01 | Phase 2 | Complete |
+| SUGG-02 | Phase 2 | Complete |
+| SUGG-03 | Phase 2 | Complete |
+| SUGG-04 | Phase 2 | Complete |
 | SUGG-05 | Phase 2 | Pending |
 | CONF-01 | Phase 4 | Pending |
 | CONF-02 | Phase 4 | Pending |

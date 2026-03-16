@@ -1,5 +1,29 @@
 # Architecture Changelog
 
+## [2026-03-16] — Integration Sync Persistence Foundation
+
+**Domains affected:** Integration, Entity
+**What changed:**
+
+- Added `integration_sync_state` table for tracking per-connection per-entity-type sync progress
+- Added `status` column (VARCHAR 50, default ACTIVE) to `workspace_integration_installations`
+- Added unique partial index `idx_entities_integration_dedup` on entities for integration dedup
+- Created `SyncStatus` enum (PENDING, SUCCESS, FAILED) with `@JsonProperty` annotations
+- Created `InstallationStatus` enum (PENDING_CONNECTION, ACTIVE, FAILED) with `canTransitionTo()` state machine
+- Created `IntegrationSyncStateEntity` — extends `AuditableEntity`, not `SoftDeletable` (system-managed)
+- Created `IntegrationSyncState` domain model with `toModel()` mapping
+- Added `status: InstallationStatus` field (default ACTIVE) to `WorkspaceIntegrationInstallationEntity`
+- Created `IntegrationSyncStateRepository` with derived queries for connection and connection+entity-type lookups
+- Added `findByWorkspaceIdAndSourceIntegrationIdAndSourceExternalIdIn` batch dedup JPQL query to `EntityRepository`
+
+**New cross-domain dependencies:** no — changes extend existing integration and entity domains
+**New components introduced:**
+- `IntegrationSyncStateEntity` — JPA entity for sync state tracking (system-managed, no soft-delete)
+- `IntegrationSyncStateRepository` — data access for sync state
+- `IntegrationSyncState` — domain model mirroring sync state entity
+- `SyncStatus` enum — sync run outcome (PENDING, SUCCESS, FAILED)
+- `InstallationStatus` enum — installation lifecycle state machine
+
 ## [2026-03-14] — Notification Domain
 
 **Domains affected:** notification (new), websocket, activity

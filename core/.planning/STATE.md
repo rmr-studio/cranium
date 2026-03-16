@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 02-matching-pipeline-02-PLAN.md
-last_updated: "2026-03-16T07:59:39.158Z"
+stopped_at: Completed 02-matching-pipeline-04-PLAN.md
+last_updated: "2026-03-16T08:15:56.364Z"
 last_activity: 2026-03-16 — Roadmap created
 progress:
   total_phases: 5
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 7
-  completed_plans: 6
+  completed_plans: 7
   percent: 20
 ---
 
@@ -55,6 +55,7 @@ Progress: [██░░░░░░░░] 20%
 | Phase 02-matching-pipeline P01 | 3min | 2 tasks | 10 files |
 | Phase 02-matching-pipeline P03 | 12min | 1 tasks | 2 files |
 | Phase 02-matching-pipeline P02 | 10min | 2 tasks | 4 files |
+| Phase 02-matching-pipeline P04 | 13min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,8 @@ Recent decisions affecting current work:
 - [Phase 02-matching-pipeline]: rejectionSignals snapshot stores signals list and confidenceScore map — enables re-suggestion context without joins
 - [Phase 02-matching-pipeline]: EntityManager used over JdbcTemplate for native queries — handles UUID parameters directly without string conversion
 - [Phase 02-matching-pipeline]: MINIMUM_SCORE_THRESHOLD=0.5 exposed as companion const on IdentityMatchScoringService for Plan 02-03 access without magic numbers
+- [Phase 02-matching-pipeline]: IdentityMatchWorkflow.workflowId() companion derives identity-match-{entityId} — callers never hardcode the pattern
+- [Phase 02-matching-pipeline]: rejectSuggestion sets deleted=true — findRejectedSuggestion requires deleted=true AND status=REJECTED to enable re-suggestion
 
 ### Pending Todos
 
@@ -95,6 +98,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-16T07:59:39.155Z
-Stopped at: Completed 02-matching-pipeline-02-PLAN.md
+Last session: 2026-03-16T08:15:48.188Z
+Stopped at: Completed 02-matching-pipeline-04-PLAN.md
 Resume file: None

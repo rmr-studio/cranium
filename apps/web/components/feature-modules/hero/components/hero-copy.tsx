@@ -48,7 +48,7 @@ export const HeroCopy = () => {
           <span className="font-bold">Connect your CRM</span> and{' '}
           <span className="font-semibold italic">you see your customers</span>.{' '}
           <span className="font-bold">Add your payment data</span>,{' '}
-          <span className="font-semibold italic">you see which groups are most valuable</span>.{' '}
+          <span className="font-semibold italic">you see which of them are the most valuable</span>.{' '}
           <span className="font-bold">Add support and usage data</span>,{' '}
           <span className="font-semibold italic">you understand why</span>, and{' '}
           <span className="font-semibold italic">what's about to change</span>. Riven's AI reasons
@@ -76,7 +76,7 @@ export const HeroCopy = () => {
               e.preventDefault();
               scrollToSection('features');
             }}
-            className="flex items-center gap-1.5 rounded-lg border border-border px-5 py-2.5 font-mono text-sm tracking-wide text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground md:gap-2 md:text-sm"
+            className="mt-1 flex items-center gap-1.5 rounded-lg border border-border px-5 py-2.5 font-mono text-sm tracking-wide text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground md:gap-2 md:text-sm"
           >
             Learn More
             <ChevronDown className="h-4 w-4 md:h-5 md:w-5" />

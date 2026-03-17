@@ -81,6 +81,7 @@ class WorkflowExecutionQueueService(
 |[[WorkflowExecutionQueueProcessorService]]|Calls `markClaimed()`, `markDispatched()`, `setExecutionId()`, `markFailed()`, `releaseToPending()`|State transitions during processing|
 |[[WorkflowExecutionDispatcherService]]|Calls `recoverStaleItems()` on scheduled recovery job|Stale claim cleanup|
 |[[WorkflowCompletionActivityImpl]]|May query or update queue status on completion|Temporal activity completion|
+|[[IdentityMatchQueueProcessorService]]|Calls `markClaimed()`, `markDispatched()`, `markFailed()`, `releaseToPending()`|State transitions for IDENTITY_MATCH jobs (via Identity Resolution domain)|
 
 ---
 
@@ -425,3 +426,4 @@ graph TB
 |Date|Change|Reason|
 |---|---|---|
 |2026-02-08|Initial documentation|Phase 1 Plan 3 - Component docs|
+| 2026-03-17 | Now consumed by IdentityMatchQueueProcessorService for IDENTITY_MATCH job state transitions | Identity Resolution |

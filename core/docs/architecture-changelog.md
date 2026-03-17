@@ -163,6 +163,38 @@
 **New cross-domain dependencies:** no
 **New components introduced:** none — this is a pure simplification/removal
 
+## [2026-03-17] — Identity Resolution Domain
+
+**Domains affected:** identity (new), workflow (queue management, execution engine)
+**What changed:**
+
+- Introduced Identity Resolution domain — Temporal-orchestrated pipeline for detecting duplicate entities using pg_trgm trigram similarity, weighted scoring, and human-reviewable match suggestions
+- New matching pipeline: IdentityMatchCandidateService (pg_trgm blocking), IdentityMatchScoringService (weighted average), IdentityMatchSuggestionService (idempotent persistence with re-suggestion logic)
+- New Temporal workflow/activities on dedicated `identity.match` task queue, isolated from default workflow queue
+- Event-driven trigger: EntityService publishes IdentityMatchTriggerEvent → IdentityMatchTriggerListener → queue dispatch → Temporal pipeline
+- Queue management services: IdentityMatchQueueService (dedup enqueue), IdentityMatchDispatcherService (ShedLock polling), IdentityMatchQueueProcessorService (REQUIRES_NEW dispatch)
+- EntityTypeClassificationService caches IDENTIFIER-classified attributes per entity type
+- Scaffolded cluster entities (IdentityClusterEntity, IdentityClusterMemberEntity) for future phase
+- New SQL schema: match_suggestions, identity_clusters, identity_cluster_members with pg_trgm extension, canonical UUID ordering constraints, partial unique indexes
+- TemporalWorkerConfiguration now registers identity match worker on IDENTITY_MATCH_QUEUE
+
+**New cross-domain dependencies:** yes — Identity Resolution → Entities (native SQL on entity_attributes + entity_type_semantic_metadata), Identity Resolution → Workflows (ExecutionQueueEntity for IDENTITY_MATCH jobs), Identity Resolution → Activity (audit logging)
+**New components introduced:**
+- `IdentityMatchCandidateService` — two-phase pg_trgm candidate finding
+- `IdentityMatchScoringService` — weighted average scoring with configurable signal weights
+- `IdentityMatchSuggestionService` — idempotent suggestion persistence with re-suggestion and rejection
+- `EntityTypeClassificationService` — cached IDENTIFIER attribute lookup
+- `IdentityMatchQueueService` — IDENTITY_MATCH job enqueueing with deduplication
+- `IdentityMatchDispatcherService` — scheduled queue polling with ShedLock
+- `IdentityMatchQueueProcessorService` — per-item Temporal dispatch with REQUIRES_NEW transactions
+- `IdentityMatchWorkflow/Impl` — Temporal workflow orchestrating 3-activity pipeline
+- `IdentityMatchActivities/Impl` — Temporal activities delegating to domain services
+- `IdentityMatchTriggerListener` — @TransactionalEventListener bridging entity saves to queue
+- `MatchSuggestionEntity` — candidate pair entity with JSONB signals and canonical UUID ordering
+- `IdentityClusterEntity` / `IdentityClusterMemberEntity` — scaffolded cluster entities
+- `MatchSignalType` — signal type enum with default weights
+- `MatchSuggestionStatus` — suggestion lifecycle enum
+
 ## [2026-03-16] — Generic Execution Queue with Job Type Discriminator (INFRA-01/02/03)
 
 **Domains affected:** workflow (execution queue), integration (SourceType enum)

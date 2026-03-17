@@ -83,7 +83,7 @@ completed: 2026-03-16
 1. **Task 1: Genericize execution queue SQL, entity, repository, and model** - `677e3e0db` (feat)
 2. **Task 2: Add IDENTITY_MATCH to SourceType, enable Wave 0 tests** - `fdd801c95` (feat)
 
-**Plan metadata:** `[final-commit-hash]` (docs: complete plan)
+**Plan metadata:** `02e290e99` (docs: complete plan)
 
 ## Files Created/Modified
 

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 02-01-PLAN.md
-last_updated: "2026-03-17T08:55:27.555Z"
+stopped_at: Completed 02-03-PLAN.md
+last_updated: "2026-03-17T09:05:02.703Z"
 last_activity: 2026-03-16 — Roadmap revised (4-phase restructure)
 progress:
   total_phases: 4
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 5
-  completed_plans: 4
+  completed_plans: 5
   percent: 0
 ---
 
@@ -54,6 +54,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P02 | 3 | 2 tasks | 5 files |
 | Phase 02 P02 | 15 | 3 tasks | 4 files |
 | Phase 02-01 P01 | 25 | 2 tasks | 9 files |
+| Phase 02-connection-model-nango-client-and-auth-webhook P03 | 6 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,9 @@ Recent decisions affecting current work:
 - [Phase 02-01]: ConnectionStatus reduced from 10 to 8 states: PENDING_AUTHORIZATION and AUTHORIZING removed as dead states in webhook-driven model
 - [Phase 02-01]: DISCONNECTED->CONNECTED and FAILED->CONNECTED transitions added for webhook reconnect path
 - [Phase 02-01]: enableIntegration() and enableConnection() removed — frontend-driven enable flow eliminated in favor of webhook-driven connection creation
+- [Phase 02-03]: HMAC filter uses secretKey (not webhookSecret) per established project decision
+- [Phase 02-03]: Webhook controller has no @PreAuthorize — HMAC filter handles all security for the webhook endpoint
+- [Phase 02-03]: Materialization failure uses compensation write pattern: catch block sets installation FAILED and saves without rethrow, preserving CONNECTED connection
 
 ### Pending Todos
 
@@ -91,6 +95,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-17T08:55:27.553Z
-Stopped at: Completed 02-01-PLAN.md
+Last session: 2026-03-17T09:05:02.699Z
+Stopped at: Completed 02-03-PLAN.md
 Resume file: None

@@ -123,15 +123,15 @@ describe('useEntityQuery', () => {
 
     const calledFilter = mockQueryEntities.mock.calls[0][4];
     expect(calledFilter).toMatchObject({
-      type: 'Or',
+      type: 'OR',
       conditions: expect.arrayContaining([
         expect.objectContaining({
-          type: 'Attribute',
+          type: 'ATTRIBUTE',
           attributeId: 'attr-name',
           operator: 'CONTAINS',
         }),
         expect.objectContaining({
-          type: 'Attribute',
+          type: 'ATTRIBUTE',
           attributeId: 'attr-title',
           operator: 'CONTAINS',
         }),
@@ -184,9 +184,9 @@ describe('useEntityQuery', () => {
 
     const calledFilter = mockQueryEntities.mock.calls[0][4];
     expect(calledFilter).toMatchObject({
-      type: 'And',
+      type: 'AND',
       conditions: expect.arrayContaining([
-        expect.objectContaining({ type: 'Attribute' }),
+        expect.objectContaining({ type: 'ATTRIBUTE' }),
         queryFilter,
       ]),
     });

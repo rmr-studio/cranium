@@ -58,7 +58,7 @@ export function buildCompositeFilter(
 
   if (searchFilter && queryFilter) {
     return {
-      type: 'And',
+      type: 'AND',
       conditions: [searchFilter, queryFilter],
     } as QueryFilter;
   }
@@ -75,7 +75,7 @@ function buildSearchFilter(
   }
 
   const conditions: QueryFilter[] = attributeIds.map((attributeId) => ({
-    type: 'Attribute' as const,
+    type: 'ATTRIBUTE' as const,
     attributeId,
     operator: FilterOperator.Contains,
     value: { kind: 'Literal' as const, value: search },
@@ -86,7 +86,7 @@ function buildSearchFilter(
   }
 
   return {
-    type: 'Or',
+    type: 'OR',
     conditions,
   } as QueryFilter;
 }

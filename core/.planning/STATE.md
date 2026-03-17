@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 02-matching-pipeline-04-PLAN.md
-last_updated: "2026-03-16T08:21:15.544Z"
+stopped_at: Completed 03-trigger-and-dispatch/03-01-PLAN.md
+last_updated: "2026-03-17T08:47:46.854Z"
 last_activity: 2026-03-16 — Roadmap created
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 7
-  completed_plans: 7
+  total_plans: 9
+  completed_plans: 8
   percent: 20
 ---
 
@@ -56,6 +56,7 @@ Progress: [██░░░░░░░░] 20%
 | Phase 02-matching-pipeline P03 | 12min | 1 tasks | 2 files |
 | Phase 02-matching-pipeline P02 | 10min | 2 tasks | 4 files |
 | Phase 02-matching-pipeline P04 | 13min | 2 tasks | 7 files |
+| Phase 03-trigger-and-dispatch P01 | 4min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -85,6 +86,9 @@ Recent decisions affecting current work:
 - [Phase 02-matching-pipeline]: MINIMUM_SCORE_THRESHOLD=0.5 exposed as companion const on IdentityMatchScoringService for Plan 02-03 access without magic numbers
 - [Phase 02-matching-pipeline]: IdentityMatchWorkflow.workflowId() companion derives identity-match-{entityId} — callers never hardcode the pattern
 - [Phase 02-matching-pipeline]: rejectSuggestion sets deleted=true — findRejectedSuggestion requires deleted=true AND status=REJECTED to enable re-suggestion
+- [Phase 03-trigger-and-dispatch]: Cache stores Set<UUID> of IDENTIFIER attribute IDs (not Boolean) — enables both hasIdentifierAttributes() and getIdentifierAttributeIds() without a second query
+- [Phase 03-trigger-and-dispatch]: IdentityMatchTriggerListener placed in service.entity package — mirrors WorkspaceAnalyticsListener placement in service.analytics
+- [Phase 03-trigger-and-dispatch]: On create, always enqueue if entity type has IDENTIFIER attributes even if newIdentifierAttributes is empty — entity type config is the signal, not current attribute values
 
 ### Pending Todos
 
@@ -98,6 +102,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-16T08:15:48.188Z
-Stopped at: Completed 02-matching-pipeline-04-PLAN.md
+Last session: 2026-03-17T08:47:46.852Z
+Stopped at: Completed 03-trigger-and-dispatch/03-01-PLAN.md
 Resume file: None

@@ -18,7 +18,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Matching
 
-- [ ] **MATCH-01**: Entity save/update triggers async match job via `@TransactionalEventListener(AFTER_COMMIT)` with `@Transactional(REQUIRES_NEW)`
+- [x] **MATCH-01**: Entity save/update triggers async match job via `@TransactionalEventListener(AFTER_COMMIT)` with `@Transactional(REQUIRES_NEW)`
 - [x] **MATCH-02**: Two-phase fuzzy candidate query using pg_trgm (`%` operator for GIN blocking, `similarity()` for refinement)
 - [x] **MATCH-03**: Workspace-scoped candidate filtering (same workspace, different entity, not soft-deleted)
 - [x] **MATCH-04**: Weighted confidence scoring from multiple signals (EMAIL=0.9, PHONE=0.85, NAME=0.5, COMPANY=0.3, CUSTOM_IDENTIFIER=0.7)
@@ -95,7 +95,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INFRA-04 | Phase 1 | Complete |
 | INFRA-05 | Phase 1 | Complete |
 | INFRA-06 | Phase 1 | Complete |
-| MATCH-01 | Phase 3 | Pending |
+| MATCH-01 | Phase 3 | Complete |
 | MATCH-02 | Phase 2 | Complete |
 | MATCH-03 | Phase 2 | Complete |
 | MATCH-04 | Phase 2 | Complete |

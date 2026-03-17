@@ -64,7 +64,11 @@ Plans:
   1. Saving or updating an entity with IDENTIFIER-classified attributes enqueues a PENDING identity match job after the transaction commits — not during
   2. If a PENDING job already exists for that entity, no duplicate job is enqueued
   3. The queue dispatcher picks up IDENTITY_MATCH jobs and starts a Temporal workflow without interfering with WORKFLOW_EXECUTION job processing
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Event class, IDENTIFIER classification cache, queue enqueue service, trigger listener
+- [ ] 03-02-PLAN.md — Identity match dispatcher/processor, EntityService event publishing, @ConditionalOnProperty removal
 
 ### Phase 4: Confirmation and Clusters
 **Goal**: A workspace member can confirm or reject a match suggestion, and confirmed matches form transitive identity clusters linked by entity relationships
@@ -99,6 +103,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Infrastructure | 3/3 | Complete   | 2026-03-15 |
 | 2. Matching Pipeline | 2/4 | In Progress|  |
-| 3. Trigger and Dispatch | 0/TBD | Not started | - |
+| 3. Trigger and Dispatch | 1/2 | In Progress|  |
 | 4. Confirmation and Clusters | 0/TBD | Not started | - |
 | 5. REST API | 0/TBD | Not started | - |

@@ -31,7 +31,9 @@ import riven.core.service.entity.type.EntityTypeRelationshipService
 import riven.core.service.entity.type.EntityTypeSequenceService
 import riven.core.service.entity.type.EntityTypeService
 import riven.core.enums.util.OperationType
+import riven.core.models.identity.IdentityMatchTriggerEvent
 import riven.core.models.websocket.EntityEvent
+import riven.core.service.identity.EntityTypeClassificationService
 import riven.core.service.util.BaseServiceTest
 import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.WithUserPersona
@@ -67,6 +69,7 @@ class EntityServiceTest : BaseServiceTest() {
     @Configuration
     class TestConfig
 
+    @MockitoBean private lateinit var entityTypeClassificationService: EntityTypeClassificationService
     @MockitoBean private lateinit var entityRepository: EntityRepository
     @MockitoBean private lateinit var entityTypeService: EntityTypeService
     @MockitoBean private lateinit var entityRelationshipService: EntityRelationshipService
@@ -115,11 +118,14 @@ class EntityServiceTest : BaseServiceTest() {
     @BeforeEach
     fun setUp() {
         reset(
+            entityTypeClassificationService,
             entityRepository, entityTypeService, entityRelationshipService,
             entityTypeRelationshipService, entityValidationService,
             entityTypeAttributeService, entityAttributeService,
             authTokenService, activityService, sequenceService,
         )
+
+        whenever(entityTypeClassificationService.getIdentifierAttributeIds(any())).thenReturn(emptySet())
 
         whenever(authTokenService.getUserId()).thenReturn(userId)
         whenever(entityValidationService.validateEntity(any(), any(), any(), any(), any())).thenReturn(emptyList())
@@ -469,6 +475,134 @@ class EntityServiceTest : BaseServiceTest() {
 
         assertEquals("TSK-1", captor.firstValue[idAttrId]?.value)
         verify(sequenceService, never()).nextValue(any(), any())
+    }
+
+    // ------ IdentityMatchTriggerEvent Tests ------
+
+    @Test
+    fun `saveEntity publishes IdentityMatchTriggerEvent with isUpdate=false on create`() {
+        val type = buildEntityType(
+            properties = mapOf(
+                nameAttrId to Schema(key = SchemaType.TEXT, type = DataType.STRING, label = "Name", required = true),
+            ),
+        )
+
+        whenever(entityTypeService.getById(entityTypeId)).thenReturn(type)
+        whenever(entityRepository.save(any<EntityEntity>())).thenAnswer {
+            (it.arguments[0] as EntityEntity).copy(id = entityId)
+        }
+        whenever(entityTypeClassificationService.getIdentifierAttributeIds(entityTypeId))
+            .thenReturn(setOf(nameAttrId))
+
+        val request = SaveEntityRequest(
+            payload = mapOf(
+                nameAttrId to EntityAttributeRequest(
+                    payload = EntityAttributePrimitivePayload(value = "My Task", schemaType = SchemaType.TEXT)
+                ),
+            ),
+        )
+
+        service.saveEntity(workspaceId, entityTypeId, request)
+
+        val events = applicationEvents.stream(IdentityMatchTriggerEvent::class.java).toList()
+        assertEquals(1, events.size)
+
+        val event = events[0]
+        assertEquals(entityId, event.entityId)
+        assertEquals(workspaceId, event.workspaceId)
+        assertEquals(entityTypeId, event.entityTypeId)
+        assertEquals(false, event.isUpdate)
+        assertTrue(event.previousIdentifierAttributes.isEmpty())
+        assertEquals("My Task", event.newIdentifierAttributes[nameAttrId])
+    }
+
+    @Test
+    fun `saveEntity publishes IdentityMatchTriggerEvent with isUpdate=true and old and new values on update`() {
+        val type = buildEntityType(
+            properties = mapOf(
+                nameAttrId to Schema(key = SchemaType.TEXT, type = DataType.STRING, label = "Name", required = true),
+            ),
+        )
+
+        val existingEntity = EntityFactory.createEntityEntity(
+            id = entityId,
+            workspaceId = workspaceId,
+            typeId = entityTypeId,
+            typeKey = "task",
+            identifierKey = nameAttrId,
+        )
+
+        whenever(entityTypeService.getById(entityTypeId)).thenReturn(type)
+        whenever(entityRepository.findById(entityId)).thenReturn(Optional.of(existingEntity))
+        whenever(entityRepository.save(any<EntityEntity>())).thenAnswer { it.arguments[0] }
+        whenever(entityAttributeService.getAttributes(entityId)).thenReturn(
+            mapOf(
+                nameAttrId to EntityAttributePrimitivePayload(value = "Old Task", schemaType = SchemaType.TEXT),
+            )
+        )
+        whenever(entityTypeClassificationService.getIdentifierAttributeIds(entityTypeId))
+            .thenReturn(setOf(nameAttrId))
+
+        val request = SaveEntityRequest(
+            id = entityId,
+            payload = mapOf(
+                nameAttrId to EntityAttributeRequest(
+                    payload = EntityAttributePrimitivePayload(value = "Updated Task", schemaType = SchemaType.TEXT)
+                ),
+            ),
+        )
+
+        service.saveEntity(workspaceId, entityTypeId, request)
+
+        val events = applicationEvents.stream(IdentityMatchTriggerEvent::class.java).toList()
+        assertEquals(1, events.size)
+
+        val event = events[0]
+        assertEquals(entityId, event.entityId)
+        assertEquals(workspaceId, event.workspaceId)
+        assertEquals(entityTypeId, event.entityTypeId)
+        assertEquals(true, event.isUpdate)
+        assertEquals("Old Task", event.previousIdentifierAttributes[nameAttrId])
+        assertEquals("Updated Task", event.newIdentifierAttributes[nameAttrId])
+    }
+
+    @Test
+    fun `saveEntity publishes IdentityMatchTriggerEvent with only IDENTIFIER attributes filtered`() {
+        val nonIdentifierAttrId = UUID.randomUUID()
+        val type = buildEntityType(
+            properties = mapOf(
+                nameAttrId to Schema(key = SchemaType.TEXT, type = DataType.STRING, label = "Name", required = true),
+                nonIdentifierAttrId to Schema(key = SchemaType.TEXT, type = DataType.STRING, label = "Notes"),
+            ),
+        )
+
+        whenever(entityTypeService.getById(entityTypeId)).thenReturn(type)
+        whenever(entityRepository.save(any<EntityEntity>())).thenAnswer {
+            (it.arguments[0] as EntityEntity).copy(id = entityId)
+        }
+        // Only nameAttrId is classified as IDENTIFIER, not nonIdentifierAttrId
+        whenever(entityTypeClassificationService.getIdentifierAttributeIds(entityTypeId))
+            .thenReturn(setOf(nameAttrId))
+
+        val request = SaveEntityRequest(
+            payload = mapOf(
+                nameAttrId to EntityAttributeRequest(
+                    payload = EntityAttributePrimitivePayload(value = "My Task", schemaType = SchemaType.TEXT)
+                ),
+                nonIdentifierAttrId to EntityAttributeRequest(
+                    payload = EntityAttributePrimitivePayload(value = "Some note", schemaType = SchemaType.TEXT)
+                ),
+            ),
+        )
+
+        service.saveEntity(workspaceId, entityTypeId, request)
+
+        val events = applicationEvents.stream(IdentityMatchTriggerEvent::class.java).toList()
+        assertEquals(1, events.size)
+
+        val event = events[0]
+        assertTrue(event.newIdentifierAttributes.containsKey(nameAttrId))
+        assertFalse(event.newIdentifierAttributes.containsKey(nonIdentifierAttrId))
     }
 
     // ------ Access Denied Tests ------

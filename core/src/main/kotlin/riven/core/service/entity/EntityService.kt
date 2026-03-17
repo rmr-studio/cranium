@@ -30,7 +30,9 @@ import riven.core.service.entity.type.EntityTypeAttributeService
 import riven.core.service.entity.type.EntityTypeRelationshipService
 import riven.core.service.entity.type.EntityTypeSequenceService
 import riven.core.service.entity.type.EntityTypeService
+import riven.core.models.identity.IdentityMatchTriggerEvent
 import riven.core.models.websocket.EntityEvent
+import riven.core.service.identity.EntityTypeClassificationService
 import riven.core.util.ServiceUtil.findManyResults
 import riven.core.util.ServiceUtil.findOrThrow
 import org.springframework.context.ApplicationEventPublisher
@@ -52,6 +54,7 @@ class EntityService(
     private val activityService: ActivityService,
     private val sequenceService: EntityTypeSequenceService,
     private val applicationEventPublisher: ApplicationEventPublisher,
+    private val entityTypeClassificationService: EntityTypeClassificationService,
 ) {
 
 
@@ -280,6 +283,15 @@ class EntityService(
                     )
                 )
 
+                publishIdentityMatchTriggerEvent(
+                    entityId = entityId,
+                    workspaceId = workspaceId,
+                    typeId = typeId,
+                    isUpdate = prev != null,
+                    previousAttributes = previousAttributes,
+                    enrichedPayload = enrichedPayload,
+                )
+
                 // Reload links after save
                 val links: Map<UUID, List<EntityLink>> = entityRelationshipService.findRelatedEntities(entityId, workspaceId)
 
@@ -341,6 +353,40 @@ class EntityService(
         }
 
         return enriched
+    }
+
+    /**
+     * Publishes an IdentityMatchTriggerEvent for the saved entity.
+     *
+     * Filters both old and new attribute maps to only include IDENTIFIER-classified attributes.
+     * The event is consumed by IdentityMatchTriggerListener after transaction commit.
+     */
+    private fun publishIdentityMatchTriggerEvent(
+        entityId: UUID,
+        workspaceId: UUID,
+        typeId: UUID,
+        isUpdate: Boolean,
+        previousAttributes: Map<UUID, EntityAttributePrimitivePayload>,
+        enrichedPayload: Map<UUID, EntityAttributePrimitivePayload>,
+    ) {
+        val identifierAttrIds = entityTypeClassificationService.getIdentifierAttributeIds(typeId)
+        val prevIdentifiers = previousAttributes
+            .filterKeys { it in identifierAttrIds }
+            .mapValues { it.value.value }
+        val newIdentifiers = enrichedPayload
+            .filterKeys { it in identifierAttrIds }
+            .mapValues { it.value.value }
+
+        applicationEventPublisher.publishEvent(
+            IdentityMatchTriggerEvent(
+                entityId = entityId,
+                workspaceId = workspaceId,
+                entityTypeId = typeId,
+                isUpdate = isUpdate,
+                previousIdentifierAttributes = prevIdentifiers,
+                newIdentifierAttributes = newIdentifiers,
+            )
+        )
     }
 
     /**

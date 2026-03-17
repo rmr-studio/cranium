@@ -47,7 +47,7 @@ Plans:
   5. A POST to `/api/v1/webhooks/nango` with a valid HMAC-SHA256 signature is accepted and routed to the correct handler; an invalid or missing signature returns 401
   6. An auth webhook event creates an `IntegrationConnectionEntity` in CONNECTED state, triggers template materialization, and updates the installation status to ACTIVE
   7. A webhook with missing tags or an unresolvable installation logs the error and returns 200
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 
 Plans:
 - [ ] 02-01-PLAN.md — ConnectionStatus cleanup (10->8 states), service refactoring, enablement removal, repository query
@@ -89,6 +89,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Schema and Persistence Foundation | 2/2 | Complete   | 2026-03-16 |
-| 2. Connection Model, Nango Client, and Auth Webhook | 0/3 | Not started | - |
+| 2. Connection Model, Nango Client, and Auth Webhook | 1/3 | In Progress|  |
 | 3. Sync Webhook and Temporal Sync Workflow | 0/TBD | Not started | - |
 | 4. Health, Auth Flow Refactor, and Documentation | 0/TBD | Not started | - |

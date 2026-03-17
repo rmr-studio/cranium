@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.*
 import riven.core.models.integration.IntegrationConnectionModel
 import riven.core.models.integration.IntegrationDefinitionModel
 import riven.core.models.request.integration.DisableIntegrationRequest
-import riven.core.models.request.integration.EnableIntegrationRequest
 import riven.core.models.response.integration.IntegrationDisableResponse
-import riven.core.models.response.integration.IntegrationEnablementResponse
 import riven.core.service.integration.IntegrationConnectionService
 import riven.core.service.integration.IntegrationDefinitionService
 import riven.core.service.integration.IntegrationEnablementService
@@ -47,23 +45,6 @@ class IntegrationController(
         @PathVariable workspaceId: UUID
     ): ResponseEntity<List<IntegrationConnectionModel>> {
         return ResponseEntity.ok(connectionService.getConnectionsByWorkspace(workspaceId).map { it.toModel() })
-    }
-
-    @PostMapping("/{workspaceId}/enable")
-    @Operation(summary = "Enable an integration for a workspace")
-    @ApiResponses(
-        ApiResponse(responseCode = "200", description = "Integration enabled successfully"),
-        ApiResponse(responseCode = "400", description = "Invalid request data"),
-        ApiResponse(responseCode = "401", description = "Unauthorized access"),
-        ApiResponse(responseCode = "403", description = "Forbidden — admin role required"),
-        ApiResponse(responseCode = "404", description = "Integration definition not found"),
-        ApiResponse(responseCode = "409", description = "Connection exists in non-terminal state")
-    )
-    fun enableIntegration(
-        @PathVariable workspaceId: UUID,
-        @Valid @RequestBody request: EnableIntegrationRequest
-    ): ResponseEntity<IntegrationEnablementResponse> {
-        return ResponseEntity.ok(enablementService.enableIntegration(workspaceId, request))
     }
 
     @PostMapping("/{workspaceId}/disable")

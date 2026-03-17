@@ -3,7 +3,6 @@ package riven.core.service.workflow.queue
 import io.github.oshai.kotlinlogging.KLogger
 import io.temporal.client.WorkflowClient
 import io.temporal.client.WorkflowOptions
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
@@ -34,7 +33,6 @@ import java.util.*
  * - Long-running dispatches don't block the entire batch
  */
 @Service
-@ConditionalOnProperty(name = ["riven.workflow.engine.enabled"], havingValue = "true", matchIfMissing = true)
 class WorkflowExecutionQueueProcessorService(
     private val workflowExecutionQueueService: WorkflowExecutionQueueService,
     private val workflowExecutionRepository: WorkflowExecutionRepository,

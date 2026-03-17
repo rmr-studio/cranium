@@ -26,7 +26,7 @@ blocked by:
 
 The current relationship system requires every entity-to-entity link to be assigned to a typed `relationship_definition`. This works well for user-defined schemas but breaks down in three scenarios:
 
-1. **Integration-synced entity types are READONLY.** Their schemas cannot be modified to add new relationship definitions. When [[Integration Identity Resolution System]] detects that a Stripe customer and an Intercom user are the same person, there is no relationship definition on either entity type to assign the link to.
+1. **Integration-synced entity types are READONLY.** Their schemas cannot be modified to add new relationship definitions. When [[Identity Resolution System]] detects that a Stripe customer and an Intercom user are the same person, there is no relationship definition on either entity type to assign the link to.
 
 2. **Identity resolution produces links that don't fit existing definitions.** A match between entities may be detected (via email, phone, name + company) but no appropriate typed relationship exists. The system currently has no fallback — the link is either lost or requires the user to manually create a relationship definition first.
 
@@ -87,7 +87,7 @@ In `riven.core.enums.entity`:
 | Value | Meaning |
 |-------|---------|
 | `USER_CREATED` | Manually linked by a user via the API or UI |
-| `IDENTITY_RESOLUTION` | Created by the [[Integration Identity Resolution System]] |
+| `IDENTITY_RESOLUTION` | Created by the [[Identity Resolution System]] |
 | `INTEGRATION_SYNC` | Created during integration data sync |
 | `WORKFLOW` | Created by a [[Workflows]] automation |
 | `SYSTEM` | Created by internal system processes |
@@ -144,7 +144,7 @@ entity_relationships ---(semantic_context)---> entity_type_semantic_metadata [in
 
 - **Responsibility:** Manages CRUD for fallback "Connected Entities" links. Provides a dedicated interface for creating, updating, and removing ad-hoc connections with semantic context. Delegates to [[EntityRelationshipService]] for the actual persistence but handles the fallback-specific concerns: resolving the fallback definition for an entity type, validating semantic context, and setting `link_source`.
 - **Dependencies:** [[EntityRelationshipService]], [[EntityTypeRelationshipService]], `RelationshipDefinitionRepository`
-- **Exposes to:** REST API controllers, [[Integration Identity Resolution System]], integration sync services, [[Workflows]]
+- **Exposes to:** REST API controllers, [[Identity Resolution System]], integration sync services, [[Workflows]]
 
 ### Affected Existing Components
 
@@ -453,7 +453,7 @@ If `ConnectedEntityService` fails, only fallback link management is affected. Ty
 - [ ] Update `AttributeFilterVisitor` to dispatch `IsRelatedTo` to `RelationshipSqlGenerator`
 
 ### Phase 4: Identity Resolution + Integration Sync Integration
-- [ ] Extend [[Integration Identity Resolution System]] to create fallback links with confidence scores and match-reason semantic context
+- [ ] Extend [[Identity Resolution System]] to create fallback links with confidence scores and match-reason semantic context
 - [ ] Extend integration sync pipeline to create fallback links between READONLY entity types
 - [ ] Add workflow action node support for creating fallback links
 
@@ -463,7 +463,7 @@ If `ConnectedEntityService` fails, only fallback link management is affected. Ty
 
 - [[Connected Entities for READONLY Entity Types]] — Original quick design (superseded by this document)
 - [[Entity Type Polymorphic Relationship Support for Semantic Categories]] — Related: semantic category matching for target rules
-- [[Integration Identity Resolution System]] — Primary consumer of fallback links
+- [[Identity Resolution System]] — Primary consumer of fallback links
 - [[Semantic Metadata Foundation]] — Provides definition-level semantic text inherited by relationship instances
 - [[Entity Semantics]] — Subdomain owning semantic metadata
 - [[Enrichment Pipeline]] — Consumes `semantic_context` for embedding construction

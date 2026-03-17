@@ -41,7 +41,6 @@ riven:
   nango:
     secret-key: ${NANGO_SECRET_KEY:}
     base-url: ${NANGO_BASE_URL:https://api.nango.dev}
-    webhook-secret: ${NANGO_WEBHOOK_SECRET:}
   posthog:
     enabled: ${POSTHOG_ENABLED:false}
     api-key: ${POSTHOG_API_KEY:}
@@ -49,23 +48,6 @@ riven:
   workflow:
     engine:
       target: ${TEMPORAL_SERVER_ADDRESS}
-    retry:
-      default:
-        max-attempts: 3
-        initial-interval-seconds: 1
-        backoff-coefficient: 2.0
-        max-interval-seconds: 30
-      http-action:
-        max-attempts: 3
-        initial-interval-seconds: 2
-        backoff-coefficient: 2.0
-        max-interval-seconds: 60
-        non-retryable-status-codes: [ 400, 401, 403, 404, 422 ]
-      crud-action:
-        max-attempts: 2
-        initial-interval-seconds: 1
-        backoff-coefficient: 2.0
-        max-interval-seconds: 10
   websocket:
     endpoint: /ws
     server-heartbeat-ms: 10000

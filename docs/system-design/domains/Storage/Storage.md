@@ -58,6 +58,7 @@ The Storage domain provides provider-agnostic file storage capabilities for the 
 |---|---|---|
 | [[Flow - File Upload]] | User-facing | Multipart upload -> validation -> storage -> metadata persistence |
 | [[Flow - Signed URL Download]] | User-facing | Token-authorized download bypassing JWT authentication |
+| Avatar Serving | User-facing | Entity ID -> storage key lookup -> provider download -> streamed response (unauthenticated) |
 
 ---
 
@@ -102,6 +103,7 @@ The Storage domain provides provider-agnostic file storage capabilities for the 
 | Consumer | What They Consume | Via Component | Related Flow |
 |----------|------------------|---------------|--------------|
 | [[Workspaces & Users]] | File upload for workspace and user avatars | [[StorageService]] (direct injection from UserService, WorkspaceService) | Avatar upload |
+| Self (Storage) | Workspace and user entity lookups for avatar serving | [[AvatarService]] reads from WorkspaceRepository and UserRepository ([[Workspaces & Users]]) | Avatar serving |
 
 ---
 
@@ -111,6 +113,9 @@ The Storage domain provides provider-agnostic file storage capabilities for the 
 |---|---|---|
 | File Management | [[StorageService]] | Orchestrates upload, download, delete, list, batch, and presigned flows |
 | File Management | [[StorageController]] | REST endpoints for all file operations |
+| File Management | [[AvatarService]] | Resolves and serves avatar images for workspaces and users |
+| File Management | [[AvatarController]] | Unauthenticated REST endpoints for avatar image serving |
+| File Management | [[AvatarUrlResolver]] | Converts stored avatar storage keys to API-relative URLs at read time |
 | File Management | [[ContentValidationService]] | Tika-based MIME detection, content type/size validation, SVG sanitization |
 | File Management | [[SignedUrlService]] | HMAC-based signed URL generation and validation for local provider |
 | Provider Adapters | [[StorageProvider]] | Interface defining the storage backend contract |
@@ -147,4 +152,5 @@ The Storage domain provides provider-agnostic file storage capabilities for the 
 
 | Date | Change | Feature/ADR |
 |---|---|---|
+| 2026-03-16 | Added avatar serving: AvatarService, AvatarController, AvatarUrlResolver. API responses now contain usable avatar URLs instead of raw storage keys. New cross-domain read dependency on WorkspaceRepository/UserRepository. | Avatar URL Resolution |
 | 2026-03-07 | Storage domain created | Provider-Agnostic File Storage |

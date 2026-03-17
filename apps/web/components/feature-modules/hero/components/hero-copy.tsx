@@ -26,12 +26,13 @@ export const HeroCopy = () => {
           </span>
         </motion.h2>
         <motion.h2
-          className="mt-4 mb-2 overflow-hidden text-center font-sans text-[clamp(1.5rem,1vw,3rem)] leading-6 font-medium tracking-tighter text-heading/90 italic sm:mt-0 sm:mb-4 sm:text-3xl sm:leading-10 md:flex-row md:gap-4 md:text-left md:text-[4rem] md:leading-17 lg:gap-8"
+          className="lg::leading-17 ml- mt-4 mb-2 overflow-hidden text-center font-sans text-[clamp(1.5rem,1vw,3rem)] leading-6 font-medium tracking-tighter text-heading/90 italic sm:mt-0 sm:mb-4 sm:text-3xl sm:leading-10 md:flex-row md:gap-4 md:text-left md:text-4xl lg:gap-8"
           initial={{ opacity: 0, filter: 'blur(8px)' }}
           animate={{ opacity: 1, filter: 'blur(0px)' }}
           transition={{ duration: 0.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
         >
-          All your tools, <br className="sm:hidden" /> connected in a single workspace.
+          All your tools, together. <br className="xl:hidden" /> Revealing what none of them can see
+          alone.
         </motion.h2>
       </div>
 
@@ -42,20 +43,32 @@ export const HeroCopy = () => {
         className="2xs relative flex h-auto grow flex-col items-center pt-[5%] sm:pt-0 md:items-start"
       >
         {/* Bottom-left: description */}
-        <div className="max-w-sm px-4 text-center font-sans text-[0.85rem] leading-snug font-medium tracking-tighter text-primary/90 italic sm:max-w-[28rem] sm:max-w-md sm:px-0 sm:text-[0.95rem] md:max-w-5xl md:text-left md:text-2xl lg:pb-1">
-          The complete operational intelligence platform for scaling businesses to connect, combine
-          and analyze their data across all tools and departments. Powered by AI to reveal
-          underlying patterns and trends that drive growth, and save you time.
+        <div className="max-w-sm px-4 text-center font-sans text-[0.85rem] leading-snug font-medium tracking-tighter text-primary/75 sm:max-w-[28rem] sm:max-w-md sm:px-0 sm:text-[0.95rem] md:max-w-5xl md:text-left md:text-xl lg:pb-1">
+          The collaborative operational intelligence platform.{' '}
+          <span className="font-bold">Connect your CRM</span> and{' '}
+          <span className="font-semibold italic">you see your customers</span>.{' '}
+          <span className="font-bold">Add your payment data</span>,{' '}
+          <span className="font-semibold italic">you see which of them are the most valuable</span>.{' '}
+          <span className="font-bold">Add support and usage data</span>,{' '}
+          <span className="font-semibold italic">you understand why</span>, and{' '}
+          <span className="font-semibold italic">what's about to change</span>. Riven's AI reasons
+          across every source, comparing historical patterns against what's happening now to surface
+          the risks and opportunities hiding between your tools.
         </div>
-        <div className="mt-4 flex flex-col items-center gap-2 sm:mt-8 sm:flex-row sm:items-center md:mb-0 md:items-start lg:gap-4">
+        <div className="mt-6 flex w-full flex-col items-center gap-3 sm:mt-10 sm:flex-row sm:items-center md:mb-0 md:items-start lg:gap-5">
           <Link
             href="/#waitlist"
+            className="w-auto"
             onClick={(e) => {
               e.preventDefault();
               scrollToSection('waitlist');
             }}
           >
-            <CtaButton className="md:w-80">Join the waitlist</CtaButton>
+            <CtaButton className="mx-auto w-full justify-center" size="xl">
+              <div className="flex flex-col items-center gap-0.5 md:items-start">
+                Join the waitlist
+              </div>
+            </CtaButton>
           </Link>
           <Link
             href="/#features"
@@ -63,7 +76,7 @@ export const HeroCopy = () => {
               e.preventDefault();
               scrollToSection('features');
             }}
-            className="mt-1.5 flex items-center gap-1.5 px-4 py-1 font-mono text-sm tracking-wide text-muted-foreground transition-colors hover:text-foreground md:gap-2 md:px-5 md:text-sm"
+            className="mt-1 flex items-center gap-1.5 rounded-lg border border-border px-5 py-2.5 font-mono text-sm tracking-wide text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground md:gap-2 md:text-sm"
           >
             Learn More
             <ChevronDown className="h-4 w-4 md:h-5 md:w-5" />

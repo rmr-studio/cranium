@@ -5,6 +5,7 @@ import org.hibernate.annotations.SQLRestriction
 import riven.core.entity.util.AuditableSoftDeletableEntity
 import riven.core.enums.workspace.WorkspacePlan
 import riven.core.models.workspace.Workspace
+import riven.core.util.AvatarUrlResolver
 import java.util.*
 
 @Entity
@@ -45,7 +46,7 @@ data class WorkspaceEntity(
             name = this.name,
             plan = this.plan,
             defaultCurrency = this.defaultCurrency,
-            avatarUrl = this.avatarUrl,
+            avatarUrl = AvatarUrlResolver.workspaceAvatarUrl(id, this.avatarUrl),
             memberCount = this.memberCount
         ).also {
             if (audit) {

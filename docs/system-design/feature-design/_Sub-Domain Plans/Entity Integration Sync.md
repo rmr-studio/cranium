@@ -203,7 +203,7 @@ graph LR
 
 | Domain / Sub-Domain | What They Need | Integration Point |
 |---------------------|---------------|-------------------|
-| Frontend UI | Connection status, provenance display, match review interface | REST API (controllers in later phases) |
+| Frontend UI | Connection status, match review interface | REST API (controllers in later phases) |
 | [[Workflows]] | Integration actions — trigger syncs, query integration data | WorkflowActionType.INTEGRATION_REQUEST (existing enum, not yet implemented) |
 
 ### Cross-Cutting Concerns
@@ -231,7 +231,6 @@ graph LR
 >
 > - [ ] Nango webhook payload structure needs verification during Phase 4 implementation — documentation was incomplete during research
 > - [ ] Exact Nango provider keys for each target integration (hubspot vs hubspot-crm) need validation against Nango's current catalog
-> - [ ] Attribute provenance tracking trigger mechanism — application code vs database trigger (recommendation: application code for v1, evaluate trigger if performance issues arise)
 > - [ ] Schema mapping versioning strategy — how to handle external API schema changes over time (field renames, deprecations)
 
 ---
@@ -244,7 +243,6 @@ graph LR
 | 2026-02-13 | Database-stored integration catalog | Enables future admin management without code deployments | Code-defined enum, config files |
 | 2026-02-13 | 10-state connection lifecycle | Precise UX feedback for connection health visibility | 3-state or 5-state simplified models |
 | 2026-02-13 | Five fixed source types (enum) | Clean taxonomy covers all entity creation paths | Extensible string-based types, per-integration types |
-| 2026-02-13 | Attribute-level provenance in separate table | Supports multi-source entities, enables fine-grained conflict resolution | JSONB metadata on entity, entity-level provenance only |
 | 2026-02-28 | Declarative-first storage for integration mappings and entity types | JSON manifest files in repo, loaded into DB on startup. Generic mapping engine interprets declarative definitions — no per-integration code for standard mappings. Lowers community contribution barrier and enables self-hoster extensibility. See [[ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]. | Per-integration Kotlin classes, SQL-only seeds, runtime admin API |
 | 2026-03-16 | Temporal for sync orchestration | Durable execution, built-in retry, deterministic IDs for webhook dedup | Spring @Async, message queue, synchronous |
 | 2026-03-16 | Unique index dedup over mapping table | Entities already have source columns; eliminates separate table | integration_entity_map table |
@@ -258,9 +256,8 @@ graph LR
 ## 10. Related Documents
 
 - [[Integration Access Layer]]
-- [[Entity Provenance Tracking]]
 - [[Integration Schema Mapping]]
-- [[Integration Identity Resolution System]]
+- [[Identity Resolution System]]
 - [[Predefined Integration Entity Types]]
 - [[ADR-001 Nango as Integration Infrastructure]]
 - [[ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]

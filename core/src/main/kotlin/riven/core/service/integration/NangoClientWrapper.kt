@@ -13,6 +13,8 @@ import riven.core.exceptions.TransientNangoException
 import riven.core.models.integration.NangoConnection
 import riven.core.models.integration.NangoConnectionList
 import riven.core.models.integration.NangoErrorResponse
+import riven.core.models.integration.NangoRecordsPage
+import riven.core.models.integration.NangoTriggerSyncRequest
 import java.time.Duration
 
 /**
@@ -82,6 +84,79 @@ class NangoClientWrapper(
         webClient.delete()
             .uri("/connection/{connectionId}?provider_config_key={providerConfigKey}",
                 connectionId, providerConfigKey)
+            .retrieve()
+            .withNangoErrorHandling()
+            .toBodilessEntity()
+            .withNangoRetry()
+            .block()
+    }
+
+    // ------ Sync Operations ------
+
+    /**
+     * Fetch records from Nango for a specific model.
+     *
+     * Returns a single page of records. Caller is responsible for pagination
+     * by passing the returned nextCursor to subsequent calls.
+     *
+     * @param providerConfigKey The provider configuration key (e.g. "hubspot")
+     * @param connectionId The Nango connection ID
+     * @param model The sync model name (e.g. "Contact", "Deal")
+     * @param cursor Pagination cursor from a previous response's nextCursor
+     * @param modifiedAfter ISO timestamp filter for incremental sync
+     * @param limit Maximum number of records per page
+     * @return A page of records with optional nextCursor for pagination
+     */
+    fun fetchRecords(
+        providerConfigKey: String,
+        connectionId: String,
+        model: String,
+        cursor: String? = null,
+        modifiedAfter: String? = null,
+        limit: Int? = null
+    ): NangoRecordsPage {
+        ensureConfigured()
+        return webClient.get()
+            .uri { builder ->
+                builder.path("/records")
+                    .queryParam("model", model)
+                    .apply {
+                        cursor?.let { queryParam("cursor", it) }
+                        modifiedAfter?.let { queryParam("modified_after", it) }
+                        limit?.let { queryParam("limit", it) }
+                    }
+                    .build()
+            }
+            .header("Connection-Id", connectionId)
+            .header("Provider-Config-Key", providerConfigKey)
+            .retrieve()
+            .withNangoErrorHandling()
+            .bodyToMono(NangoRecordsPage::class.java)
+            .withNangoRetry()
+            .block() ?: NangoRecordsPage()
+    }
+
+    /**
+     * Trigger a sync execution for specific sync names on a connection.
+     *
+     * @param providerConfigKey The provider configuration key
+     * @param connectionId The Nango connection ID (optional — triggers for all connections if null)
+     * @param syncs List of sync names to trigger
+     */
+    fun triggerSync(
+        providerConfigKey: String,
+        connectionId: String? = null,
+        syncs: List<String>
+    ) {
+        ensureConfigured()
+        val body = NangoTriggerSyncRequest(
+            providerConfigKey = providerConfigKey,
+            connectionId = connectionId,
+            syncs = syncs
+        )
+        webClient.post()
+            .uri("/sync/trigger")
+            .bodyValue(body)
             .retrieve()
             .withNangoErrorHandling()
             .toBodilessEntity()

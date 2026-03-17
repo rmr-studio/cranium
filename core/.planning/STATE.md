@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 03-trigger-and-dispatch/03-01-PLAN.md
-last_updated: "2026-03-17T08:47:46.854Z"
+stopped_at: Completed 03-trigger-and-dispatch/03-02-PLAN.md
+last_updated: "2026-03-17T09:00:23.765Z"
 last_activity: 2026-03-16 — Roadmap created
 progress:
   total_phases: 5
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 9
-  completed_plans: 8
+  completed_plans: 9
   percent: 20
 ---
 
@@ -57,6 +57,7 @@ Progress: [██░░░░░░░░] 20%
 | Phase 02-matching-pipeline P02 | 10min | 2 tasks | 4 files |
 | Phase 02-matching-pipeline P04 | 13min | 2 tasks | 7 files |
 | Phase 03-trigger-and-dispatch P01 | 4min | 2 tasks | 8 files |
+| Phase 03-trigger-and-dispatch P02 | 7min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -89,6 +90,8 @@ Recent decisions affecting current work:
 - [Phase 03-trigger-and-dispatch]: Cache stores Set<UUID> of IDENTIFIER attribute IDs (not Boolean) — enables both hasIdentifierAttributes() and getIdentifierAttributeIds() without a second query
 - [Phase 03-trigger-and-dispatch]: IdentityMatchTriggerListener placed in service.entity package — mirrors WorkspaceAnalyticsListener placement in service.analytics
 - [Phase 03-trigger-and-dispatch]: On create, always enqueue if entity type has IDENTIFIER attributes even if newIdentifierAttributes is empty — entity type config is the signal, not current attribute values
+- [Phase 03-trigger-and-dispatch]: WorkflowExecutionAlreadyStarted (not AlreadyStartedException) is the correct Temporal SDK class — io.temporal.client.WorkflowExecutionAlreadyStarted extends WorkflowException
+- [Phase 03-trigger-and-dispatch]: publishIdentityMatchTriggerEvent() extracted as private method in EntityService — keeps saveEntity() readable and single-purpose
 
 ### Pending Todos
 
@@ -102,6 +105,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-17T08:47:46.852Z
-Stopped at: Completed 03-trigger-and-dispatch/03-01-PLAN.md
+Last session: 2026-03-17T09:00:23.762Z
+Stopped at: Completed 03-trigger-and-dispatch/03-02-PLAN.md
 Resume file: None

@@ -39,7 +39,14 @@ class NangoWebhookHmacFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        val bodyBytes = request.inputStream.readBytes()
+        val contentLength = request.contentLengthLong
+        if (contentLength > nangoProperties.maxWebhookBodySize) {
+            logger.warn { "Nango webhook body exceeds size limit: $contentLength > ${nangoProperties.maxWebhookBodySize}" }
+            response.sendError(413, "Payload too large")
+            return
+        }
+
+        val bodyBytes = request.inputStream.readNBytes(nangoProperties.maxWebhookBodySize)
         val signatureHeader = request.getHeader(HMAC_HEADER)
 
         if (signatureHeader.isNullOrBlank()) {

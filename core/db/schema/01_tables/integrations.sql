@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS workspace_integration_installations (
     installed_at              TIMESTAMPTZ NOT NULL DEFAULT now(),
     sync_config               JSONB DEFAULT '{}',
     last_synced_at            TIMESTAMPTZ,
+    status                    VARCHAR(50) NOT NULL DEFAULT 'ACTIVE',
     deleted                   BOOLEAN NOT NULL DEFAULT false,
     deleted_at                TIMESTAMPTZ,
     created_at                TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -66,9 +67,6 @@ CREATE TABLE IF NOT EXISTS workspace_integration_installations (
     CONSTRAINT uq_workspace_integration_installation
         UNIQUE (workspace_id, integration_definition_id)
 );
-
-ALTER TABLE workspace_integration_installations
-    ADD COLUMN IF NOT EXISTS status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE';
 
 -- =====================================================
 -- INTEGRATION SYNC STATE TABLE
@@ -89,7 +87,5 @@ CREATE TABLE IF NOT EXISTS integration_sync_state (
     last_records_failed       INTEGER,
     created_at                TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at                TIMESTAMPTZ NOT NULL DEFAULT now(),
-    created_by                UUID REFERENCES users(id) ON DELETE SET NULL,
-    updated_by                UUID REFERENCES users(id) ON DELETE SET NULL,
     UNIQUE(integration_connection_id, entity_type_id)
 );

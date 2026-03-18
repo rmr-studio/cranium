@@ -1,10 +1,12 @@
 package riven.core.service.util.factory.integration
 
 import riven.core.entity.integration.IntegrationConnectionEntity
+import riven.core.entity.integration.IntegrationDefinitionEntity
 import riven.core.entity.integration.IntegrationSyncStateEntity
 import riven.core.entity.integration.WorkspaceIntegrationInstallationEntity
 import riven.core.enums.integration.ConnectionStatus
 import riven.core.enums.integration.InstallationStatus
+import riven.core.enums.integration.IntegrationCategory
 import riven.core.enums.integration.SyncStatus
 import riven.core.models.integration.SyncConfiguration
 import java.time.ZonedDateTime
@@ -67,6 +69,37 @@ object IntegrationFactory {
             status = status,
             deleted = deleted,
             deletedAt = deletedAt,
+        )
+    }
+
+    /**
+     * Creates an IntegrationDefinitionEntity with all fields as parameters and sensible defaults.
+     */
+    fun createIntegrationDefinition(
+        id: UUID? = null,
+        slug: String = "test-integration",
+        name: String = "Test Integration",
+        iconUrl: String? = null,
+        description: String? = null,
+        category: IntegrationCategory = IntegrationCategory.CRM,
+        nangoProviderKey: String = "test-provider",
+        capabilities: Map<String, Any> = emptyMap(),
+        syncConfig: Map<String, Any> = emptyMap(),
+        authConfig: Map<String, Any> = emptyMap(),
+        stale: Boolean = false,
+    ): IntegrationDefinitionEntity {
+        return IntegrationDefinitionEntity(
+            id = id,
+            slug = slug,
+            name = name,
+            iconUrl = iconUrl,
+            description = description,
+            category = category,
+            nangoProviderKey = nangoProviderKey,
+            capabilities = capabilities,
+            syncConfig = syncConfig,
+            authConfig = authConfig,
+            stale = stale,
         )
     }
 

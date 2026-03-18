@@ -11,14 +11,17 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.reset
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
+import org.springframework.transaction.support.TransactionTemplate
 import riven.core.entity.integration.IntegrationDefinitionEntity
 import riven.core.enums.integration.ConnectionStatus
 import riven.core.enums.integration.InstallationStatus
 import riven.core.enums.integration.IntegrationCategory
+import org.springframework.transaction.TransactionStatus
 import riven.core.models.integration.NangoSyncResults
 import riven.core.models.integration.NangoWebhookPayload
 import riven.core.models.integration.NangoWebhookTags
@@ -64,6 +67,9 @@ class NangoWebhookServiceTest {
     private lateinit var activityService: ActivityService
 
     @MockitoBean
+    private lateinit var transactionTemplate: TransactionTemplate
+
+    @MockitoBean
     private lateinit var logger: KLogger
 
     @Autowired
@@ -78,17 +84,21 @@ class NangoWebhookServiceTest {
 
     @BeforeEach
     fun setup() {
-        reset(connectionRepository, definitionRepository, installationRepository, templateMaterializationService, activityService)
+        reset(connectionRepository, definitionRepository, installationRepository, templateMaterializationService, activityService, transactionTemplate)
 
-        testDefinition = IntegrationDefinitionEntity(
+        // TransactionTemplate.execute should immediately invoke the callback
+        whenever(transactionTemplate.execute<Any?>(any())).thenAnswer { invocation ->
+            @Suppress("UNCHECKED_CAST")
+            val callback = invocation.arguments[0] as org.springframework.transaction.support.TransactionCallback<Any?>
+            callback.doInTransaction(mock())
+        }
+
+        testDefinition = IntegrationFactory.createIntegrationDefinition(
             id = integrationDefinitionId,
             slug = "hubspot",
             name = "HubSpot",
             category = IntegrationCategory.CRM,
-            nangoProviderKey = "hubspot",
-            capabilities = emptyMap(),
-            syncConfig = emptyMap(),
-            authConfig = emptyMap()
+            nangoProviderKey = "hubspot"
         )
 
         whenever(definitionRepository.findById(integrationDefinitionId))
@@ -307,6 +317,26 @@ class NangoWebhookServiceTest {
             verify(connectionRepository, never()).save(any())
             verify(installationRepository, never()).save(any())
             verify(templateMaterializationService, never()).materializeIntegrationTemplates(any(), any(), any())
+        }
+    }
+
+    // ------ ErrorHandlingTests ------
+
+    @Nested
+    inner class ErrorHandlingTests {
+
+        /**
+         * Regression: Uncaught exceptions from webhook processing leaked as 5xx, causing
+         * Nango retries. Fix wraps handleWebhook() dispatch in try-catch.
+         * Verifies the catch swallows the exception so the controller returns 200.
+         */
+        @Test
+        fun `unexpected exception during auth processing does not propagate`() {
+            whenever(connectionRepository.save(any())).thenThrow(RuntimeException("DB connection lost"))
+
+            assertDoesNotThrow {
+                webhookService.handleWebhook(buildAuthPayload())
+            }
         }
     }
 

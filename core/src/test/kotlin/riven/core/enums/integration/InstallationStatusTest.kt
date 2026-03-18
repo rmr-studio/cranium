@@ -1,4 +1,4 @@
-package riven.core.service.integration
+package riven.core.enums.integration
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -35,12 +35,24 @@ class InstallationStatusTest {
         assertTrue(InstallationStatus.FAILED.canTransitionTo(InstallationStatus.PENDING_CONNECTION))
     }
 
-    // ------ Invalid transitions ------
+    // ------ Self-transitions (idempotent for webhook retries) ------
 
     @Test
-    fun `PENDING_CONNECTION cannot transition to itself`() {
-        assertFalse(InstallationStatus.PENDING_CONNECTION.canTransitionTo(InstallationStatus.PENDING_CONNECTION))
+    fun `PENDING_CONNECTION self-transition is allowed for idempotent webhook retries`() {
+        assertTrue(InstallationStatus.PENDING_CONNECTION.canTransitionTo(InstallationStatus.PENDING_CONNECTION))
     }
+
+    @Test
+    fun `ACTIVE self-transition is allowed for idempotent webhook retries`() {
+        assertTrue(InstallationStatus.ACTIVE.canTransitionTo(InstallationStatus.ACTIVE))
+    }
+
+    @Test
+    fun `FAILED self-transition is allowed for idempotent webhook retries`() {
+        assertTrue(InstallationStatus.FAILED.canTransitionTo(InstallationStatus.FAILED))
+    }
+
+    // ------ Invalid transitions ------
 
     @Test
     fun `ACTIVE cannot transition to PENDING_CONNECTION`() {
@@ -48,17 +60,7 @@ class InstallationStatusTest {
     }
 
     @Test
-    fun `ACTIVE cannot transition to itself`() {
-        assertFalse(InstallationStatus.ACTIVE.canTransitionTo(InstallationStatus.ACTIVE))
-    }
-
-    @Test
     fun `FAILED cannot transition to ACTIVE`() {
         assertFalse(InstallationStatus.FAILED.canTransitionTo(InstallationStatus.ACTIVE))
-    }
-
-    @Test
-    fun `FAILED cannot transition to itself`() {
-        assertFalse(InstallationStatus.FAILED.canTransitionTo(InstallationStatus.FAILED))
     }
 }

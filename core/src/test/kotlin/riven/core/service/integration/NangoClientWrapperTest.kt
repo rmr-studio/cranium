@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.assertThrows
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.*
 import org.mockito.kotlin.any
@@ -14,8 +15,10 @@ import org.springframework.web.util.DefaultUriBuilderFactory
 import reactor.core.publisher.Mono
 import riven.core.configuration.properties.NangoConfigurationProperties
 import riven.core.models.integration.NangoRecord
+import riven.core.models.integration.NangoRecordAction
 import riven.core.models.integration.NangoRecordMetadata
 import riven.core.models.integration.NangoRecordsPage
+import riven.core.exceptions.NangoApiException
 import riven.core.models.integration.NangoTriggerSyncRequest
 import java.net.URI
 import java.util.function.Function
@@ -184,28 +187,32 @@ class NangoClientWrapperTest {
             assertFalse(uriString.contains("limit"), "Expected no limit in URI: $uriString")
         }
 
+        /**
+         * Regression: empty/null Nango response was silently treated as "no records",
+         * which could drop sync data. Fix throws NangoApiException instead.
+         */
         @Test
-        fun `fetchRecords returns empty NangoRecordsPage when response body is null`() {
+        fun `fetchRecords throws NangoApiException when response body is null`() {
             @Suppress("UNCHECKED_CAST")
             val mono = mock(Mono::class.java) as Mono<NangoRecordsPage>
             whenever(getResponseSpec.bodyToMono(NangoRecordsPage::class.java)).thenReturn(mono)
             whenever(mono.retryWhen(any())).thenReturn(mono)
             whenever(mono.block()).thenReturn(null)
 
-            val result = wrapper.fetchRecords(
-                providerConfigKey = "hubspot",
-                connectionId = "conn-123",
-                model = "Contact"
-            )
+            val exception = assertThrows<NangoApiException> {
+                wrapper.fetchRecords(
+                    providerConfigKey = "hubspot",
+                    connectionId = "conn-123",
+                    model = "Contact"
+                )
+            }
 
-            assertEquals(NangoRecordsPage(), result)
-            assertTrue(result.records.isEmpty())
-            assertNull(result.nextCursor)
+            assertTrue(exception.message!!.contains("Empty response"))
         }
 
         @Test
         fun `fetchRecords deserializes response with records and nextCursor`() {
-            val metadata = NangoRecordMetadata(lastAction = "ADDED", cursor = "cursor-1")
+            val metadata = NangoRecordMetadata(lastAction = NangoRecordAction.ADDED, cursor = "cursor-1")
             val record = NangoRecord(nangoMetadata = metadata)
             val expectedPage = NangoRecordsPage(
                 records = listOf(record),
@@ -220,7 +227,7 @@ class NangoClientWrapperTest {
             )
 
             assertEquals(1, result.records.size)
-            assertEquals("ADDED", result.records[0].nangoMetadata.lastAction)
+            assertEquals(NangoRecordAction.ADDED, result.records[0].nangoMetadata.lastAction)
             assertEquals("next-page-cursor", result.nextCursor)
         }
     }

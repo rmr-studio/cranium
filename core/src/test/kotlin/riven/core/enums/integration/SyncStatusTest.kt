@@ -1,4 +1,4 @@
-package riven.core.service.integration
+package riven.core.enums.integration
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.Assertions.assertEquals

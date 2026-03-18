@@ -1,17 +1,18 @@
 package riven.core.entity.integration
 
 import jakarta.persistence.*
-import riven.core.entity.util.AuditableEntity
+import org.hibernate.annotations.UpdateTimestamp
 import riven.core.enums.integration.SyncStatus
 import riven.core.models.integration.IntegrationSyncState
+import java.time.ZonedDateTime
 import java.util.*
 
 /**
  * JPA entity tracking per-connection per-entity-type sync progress.
  *
- * Extends AuditableEntity for audit fields but does NOT implement SoftDeletable —
- * this is system-managed state that is updated in-place and deleted via CASCADE
- * when the parent connection or entity type is removed.
+ * System-managed state — does NOT extend AuditableEntity or implement SoftDeletable.
+ * Updated in-place and deleted via CASCADE when the parent connection or entity type is removed.
+ * Manages its own createdAt/updatedAt timestamps without user audit fields (createdBy/updatedBy).
  */
 @Entity
 @Table(
@@ -52,8 +53,15 @@ data class IntegrationSyncStateEntity(
     var lastRecordsSynced: Int? = null,
 
     @Column(name = "last_records_failed")
-    var lastRecordsFailed: Int? = null
-) : AuditableEntity() {
+    var lastRecordsFailed: Int? = null,
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    val createdAt: ZonedDateTime = ZonedDateTime.now(),
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    var updatedAt: ZonedDateTime = ZonedDateTime.now()
+) {
 
     fun toModel() = IntegrationSyncState(
         id = requireNotNull(id) { "IntegrationSyncStateEntity.id must not be null when mapping to model" },

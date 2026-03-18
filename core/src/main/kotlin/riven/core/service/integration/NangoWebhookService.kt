@@ -2,7 +2,7 @@ package riven.core.service.integration
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.support.TransactionTemplate
 import riven.core.entity.integration.IntegrationConnectionEntity
 import riven.core.entity.integration.WorkspaceIntegrationInstallationEntity
 import riven.core.enums.activity.Activity
@@ -32,6 +32,7 @@ class NangoWebhookService(
     private val installationRepository: WorkspaceIntegrationInstallationRepository,
     private val templateMaterializationService: TemplateMaterializationService,
     private val activityService: ActivityService,
+    private val transactionTemplate: TransactionTemplate,
     private val logger: KLogger
 ) {
 
@@ -41,10 +42,14 @@ class NangoWebhookService(
      * Routes an inbound Nango webhook payload to the correct handler based on event type.
      */
     fun handleWebhook(payload: NangoWebhookPayload) {
-        when (payload.type) {
-            "auth" -> handleAuthEvent(payload)
-            "sync" -> handleSyncEvent(payload)
-            else -> logger.info { "Ignoring unknown Nango webhook type: ${payload.type}" }
+        try {
+            when (payload.type) {
+                "auth" -> handleAuthEvent(payload)
+                "sync" -> handleSyncEvent(payload)
+                else -> logger.info { "Ignoring unknown Nango webhook type: ${payload.type}" }
+            }
+        } catch (e: Exception) {
+            logger.error(e) { "Unexpected error processing webhook type=${payload.type} — swallowing to return 200 to Nango" }
         }
     }
 
@@ -86,26 +91,30 @@ class NangoWebhookService(
      * Transactional handler that creates or reconnects the connection and installation,
      * then triggers materialization. On materialization failure, sets installation to FAILED
      * and commits — the connection is preserved in CONNECTED state.
+     *
+     * Uses programmatic transaction management via TransactionTemplate because Spring AOP
+     * proxies cannot intercept private method calls within the same bean.
      */
-    @Transactional
     private fun handleAuthWebhookTransaction(
         workspaceId: UUID,
         integrationDefinitionId: UUID,
         userId: UUID,
         nangoConnectionId: String
     ) {
-        val definition = definitionRepository.findById(integrationDefinitionId).orElse(null)
-        if (definition == null) {
-            logger.error { "Auth webhook: integration definition $integrationDefinitionId not found — cannot process connection" }
-            return
+        transactionTemplate.execute { _ ->
+            val definition = definitionRepository.findById(integrationDefinitionId).orElse(null)
+            if (definition == null) {
+                logger.error { "Auth webhook: integration definition $integrationDefinitionId not found — cannot process connection" }
+                return@execute
+            }
+
+            val connection = createOrReconnectConnection(workspaceId, integrationDefinitionId, nangoConnectionId, userId)
+            val installation = findOrCreateInstallation(workspaceId, integrationDefinitionId, definition.slug, userId)
+
+            triggerMaterializationWithFallback(workspaceId, definition.slug, integrationDefinitionId, installation)
+
+            logConnectionActivity(OperationType.CREATE, userId, workspaceId, connection)
         }
-
-        val connection = createOrReconnectConnection(workspaceId, integrationDefinitionId, nangoConnectionId, userId)
-        val installation = findOrCreateInstallation(workspaceId, integrationDefinitionId, definition.slug, userId)
-
-        triggerMaterializationWithFallback(workspaceId, definition.slug, integrationDefinitionId, installation)
-
-        logConnectionActivity(OperationType.CREATE, userId, workspaceId, connection)
     }
 
     /**
@@ -241,7 +250,7 @@ class NangoWebhookService(
         return try {
             UUID.fromString(value)
         } catch (e: IllegalArgumentException) {
-            logger.error { "Auth webhook has invalid UUID in tag field $fieldName: '$value'" }
+            logger.error { "Auth webhook has invalid UUID in tag field $fieldName (value redacted)" }
             null
         }
     }

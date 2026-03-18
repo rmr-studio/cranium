@@ -159,7 +159,8 @@ class IntegrationConnectionService(
     // ------ Private Helpers ------
 
     /**
-     * Reconnects a DISCONNECTED connection by updating its status and Nango connection ID.
+     * Reconnects an existing connection by validating the state transition and updating its
+     * status and Nango connection ID. Logs the actual previous status rather than hardcoding.
      */
     private fun reconnectConnection(
         connection: IntegrationConnectionEntity,
@@ -167,20 +168,37 @@ class IntegrationConnectionService(
         userId: UUID,
         workspaceId: UUID
     ): IntegrationConnectionEntity {
+        val previousStatus = connection.status
+
+        if (!previousStatus.canTransitionTo(ConnectionStatus.CONNECTED)) {
+            logger.warn {
+                "Cannot reconnect connection ${connection.id} from status $previousStatus — " +
+                    "updating nangoConnectionId only"
+            }
+            if (connection.nangoConnectionId != nangoConnectionId) {
+                connection.nangoConnectionId = nangoConnectionId
+                return connectionRepository.save(connection)
+            }
+            return connection
+        }
+
         connection.status = ConnectionStatus.CONNECTED
         connection.nangoConnectionId = nangoConnectionId
         return connectionRepository.save(connection).also {
             logger.info { "Reconnected integration connection ${connection.id} for workspace=$workspaceId" }
             logConnectionActivity(
                 OperationType.UPDATE, userId, workspaceId, it,
-                mapOf("previousStatus" to ConnectionStatus.DISCONNECTED.name, "newStatus" to ConnectionStatus.CONNECTED.name)
+                mapOf("previousStatus" to previousStatus.name, "newStatus" to ConnectionStatus.CONNECTED.name)
             )
         }
     }
 
     /**
-     * Creates a new connection or reconnects a DISCONNECTED one.
+     * Creates a new connection or reconnects an existing one.
      * Called by the webhook handler after Nango confirms successful OAuth.
+     *
+     * If the connection is already CONNECTED, handles idempotently by updating the
+     * nangoConnectionId if changed.
      */
     internal fun createOrReconnect(
         workspaceId: UUID,

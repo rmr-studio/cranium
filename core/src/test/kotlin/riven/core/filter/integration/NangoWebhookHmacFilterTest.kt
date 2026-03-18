@@ -115,6 +115,27 @@ class NangoWebhookHmacFilterTest {
         assertEquals(200, response.status)
     }
 
+    /**
+     * Regression: readBytes() on a permitAll() endpoint is a memory-DoS vector.
+     * Fix rejects bodies exceeding the configured size limit before buffering.
+     */
+    @Test
+    fun `oversized Content-Length header returns 413 without reading body`() {
+        val smallProps = NangoConfigurationProperties(secretKey = secretKey, maxWebhookBodySize = 100)
+        val smallFilter = NangoWebhookHmacFilter(smallProps, logger)
+
+        val request = MockHttpServletRequest()
+        request.setContent(ByteArray(200))
+        request.addHeader("Content-Length", "200")
+
+        val response = MockHttpServletResponse()
+
+        smallFilter.doFilter(request, response, filterChain)
+
+        verify(filterChain, never()).doFilter(any(), any())
+        assertEquals(413, response.status)
+    }
+
     @Test
     fun `request body is re-readable after filter passes through`() {
         val body = """{"type":"auth","connectionId":"test-conn"}""".toByteArray()

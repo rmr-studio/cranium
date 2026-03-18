@@ -1,4 +1,4 @@
-package riven.core.service.integration
+package riven.core.entity.integration
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull

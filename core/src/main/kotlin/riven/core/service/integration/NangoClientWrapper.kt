@@ -133,7 +133,7 @@ class NangoClientWrapper(
             .withNangoErrorHandling()
             .bodyToMono(NangoRecordsPage::class.java)
             .withNangoRetry()
-            .block() ?: NangoRecordsPage()
+            .block() ?: throw NangoApiException("Empty response from Nango records API", 500)
     }
 
     /**

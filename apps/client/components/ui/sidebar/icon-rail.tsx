@@ -1,6 +1,7 @@
 'use client';
 
 import { useProfile } from '@/components/feature-modules/user/hooks/use-profile';
+import { WorkspaceIcon } from '@/components/feature-modules/workspace/components/workspace-icon';
 import { useWorkspaceStore } from '@/components/feature-modules/workspace/provider/workspace-provider';
 import { Logo } from '@riven/ui/logo';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@riven/ui/tooltip';
@@ -23,7 +24,7 @@ const navItems: RailButton[] = [
   { id: 'settings', icon: <CogIcon className="size-5" />, label: 'Settings' },
 ];
 
-function WorkspaceIcon() {
+function SelectedWorkspaceIcon() {
   const { data, isPending, isLoadingAuth } = useProfile();
   const selectedWorkspaceId = useWorkspaceStore((s) => s.selectedWorkspaceId);
 
@@ -35,12 +36,11 @@ function WorkspaceIcon() {
     return <Skeleton className="size-8 rounded-md" />;
   }
 
-  const letter = workspace?.name?.charAt(0)?.toUpperCase() ?? 'W';
-
   return (
-    <div className="flex size-8 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground dark:bg-muted-foreground">
-      {letter}
-    </div>
+    <WorkspaceIcon
+      name={workspace?.name ?? 'Workspace'}
+      avatarUrl={workspace?.avatarUrl}
+    />
   );
 }
 
@@ -69,7 +69,7 @@ export function IconRail() {
                   selectedPanel === 'workspaces' && 'bg-background/15',
                 )}
               >
-                <WorkspaceIcon />
+                <SelectedWorkspaceIcon />
               </button>
             </TooltipTrigger>
             <TooltipContent side="right">Workspaces</TooltipContent>

@@ -2,6 +2,7 @@
 
 import { useProfile } from '@/components/feature-modules/user/hooks/use-profile';
 import { AvatarUploader } from '@/components/ui/avatar-uploader';
+import { AVATAR_VALIDATION } from '@/lib/util/avatar/avatar-validation';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Form,
@@ -123,12 +124,7 @@ export const WorkspaceForm: FC<Props> = ({
                         onUpload={handleAvatarUpload}
                         imageURL={form.getValues('avatarUrl')}
                         onRemove={handleAvatarRemoval}
-                        validation={{
-                          maxSize: 5 * 1024 * 1024, // 5MB
-                          allowedTypes: ['image/jpeg', 'image/png', 'image/webp'],
-                          errorMessage:
-                            'Please upload a valid image file (JPEG, PNG, WebP) under 5MB',
-                        }}
+                        validation={AVATAR_VALIDATION}
                       />
                     </FormItem>
                   )}

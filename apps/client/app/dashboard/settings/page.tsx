@@ -1,5 +1,5 @@
-const Settings = () => {
-  return <div>Settings</div>;
-};
+import { redirect } from 'next/navigation';
 
-export default Settings;
+export default function SettingsPage() {
+  redirect('/dashboard/settings/account');
+}

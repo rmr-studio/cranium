@@ -1,20 +1,20 @@
 'use client';
 
 import { RegistrationConfirmation } from '@/components/feature-modules/authentication/interface/auth.interface';
-import { Button } from '@riven/ui/button';
-import { CardContent, CardHeader } from '@riven/ui/card';
-import { Separator } from '@riven/ui/separator';
 import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { FormOTPInput } from '@/components/ui/forms/form-otp-input';
 import { getAuthErrorMessage, isAuthError } from '@/lib/auth';
 import { FormOTP, OTPFormSchema } from '@/lib/util/form/form.util';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@riven/ui/button';
+import { CardContent, CardHeader } from '@riven/ui/card';
+import { Separator } from '@riven/ui/separator';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { FC, useState } from 'react';
 import { Control, useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
-import { Registration } from './Register';
+import { Registration } from './register';
 
 interface RegisterConfirmationProps {
   confirmEmailSignupWithOTP: (userDetails: RegistrationConfirmation) => Promise<void>;

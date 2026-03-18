@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { isAuthError } from '@/lib/auth';
 import { getAuthErrorMessage } from '@/lib/auth/error-messages';
 import type { User } from '@/lib/types/user';
@@ -55,6 +55,7 @@ export const UserProfileDropdown: FC<Props> = ({ user }) => {
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Avatar className="cursor-pointer rounded-xl">
+          {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt={name} />}
           <AvatarFallback className="rounded-md">{getInitials(name)}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>

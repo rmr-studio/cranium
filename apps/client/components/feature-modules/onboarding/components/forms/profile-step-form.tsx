@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@riven/ui/input';
 import { AvatarUploader } from '@/components/ui/avatar-uploader';
+import { AVATAR_VALIDATION } from '@/lib/util/avatar/avatar-validation';
 import { useAuth } from '@/components/provider/auth-context';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FC, useEffect, useState } from 'react';
@@ -133,11 +134,7 @@ export const ProfileStepForm: FC = () => {
           onRemove={avatarPreviewUrl ? handleAvatarRemove : undefined}
           imageURL={avatarPreviewUrl}
           title="Profile picture"
-          validation={{
-            maxSize: 2 * 1024 * 1024,
-            allowedTypes: ['image/jpeg', 'image/png', 'image/gif'],
-            errorMessage: 'Please upload a JPEG, PNG, or GIF under 2MB.',
-          }}
+          validation={AVATAR_VALIDATION}
         />
 
         <FormField

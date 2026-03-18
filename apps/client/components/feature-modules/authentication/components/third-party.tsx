@@ -29,9 +29,9 @@ const ThirdParty: React.FC<ThirdPartyProps> = ({
   return (
     <>
       <div className={cn('flex h-fit w-full items-center', className)}>
-        <div className="flex h-[2px] flex-grow rounded-lg bg-foreground"></div>
-        <div className="px-4">{'Or continue with'}</div>
-        <div className="flex h-[2px] flex-grow rounded-lg bg-foreground"></div>
+        <div className="h-px flex-grow bg-foreground/15"></div>
+        <div className="px-4 text-sm text-muted-foreground">{'Or continue with'}</div>
+        <div className="h-px flex-grow bg-foreground/15"></div>
       </div>
       <section className="space-y-2">
         <Button

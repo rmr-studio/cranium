@@ -2,6 +2,7 @@
 
 import { fetchSessionUser } from '@/components/feature-modules/user/service/user.service';
 import { useAuth } from '@/components/provider/auth-context';
+import { bustImageCache } from '@/lib/util/avatar/bust-image-cache';
 import { fromError, isResponseError } from '@/lib/util/error/error.util';
 import { useQuery } from '@tanstack/react-query';
 
@@ -10,7 +11,7 @@ export function useProfile() {
 
   const query = useQuery({
     queryKey: ['userProfile', session?.user.id],
-    queryFn: () => {
+    queryFn: async () => {
       if (!session?.user.id) {
         throw fromError({
           message: 'No active session found',
@@ -18,7 +19,26 @@ export function useProfile() {
           error: 'NO_SESSION',
         });
       }
-      return fetchSessionUser(session);
+      const user = await fetchSessionUser(session);
+
+      // Avatar URLs are static paths (e.g. /api/v1/avatars/user/{id}) that
+      // don't change when a new image is uploaded. Append a fetch-time
+      // timestamp so the browser doesn't serve a stale cached image.
+      const v = Date.now();
+      return {
+        ...user,
+        avatarUrl: bustImageCache(user.avatarUrl, v),
+        memberships: user.memberships.map((m) => ({
+          ...m,
+          workspace: {
+            ...m.workspace,
+            avatarUrl: bustImageCache(m.workspace.avatarUrl, v),
+          },
+        })),
+        defaultWorkspace: user.defaultWorkspace
+          ? { ...user.defaultWorkspace, avatarUrl: bustImageCache(user.defaultWorkspace.avatarUrl, v) }
+          : user.defaultWorkspace,
+      };
     },
     enabled: !!session?.user.id, // Only fetch if user is authenticated
     retry: (count, error) => {

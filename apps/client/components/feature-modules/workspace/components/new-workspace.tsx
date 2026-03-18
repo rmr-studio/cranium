@@ -31,6 +31,7 @@ const NewWorkspace = () => {
       plan: values.plan,
       defaultCurrency: values.defaultCurrency,
       isDefault: values.isDefault,
+      removeAvatar: false,
     };
     // Create the workspace
     await saveWorkspace({ workspace: request, avatar: uploadedAvatar });

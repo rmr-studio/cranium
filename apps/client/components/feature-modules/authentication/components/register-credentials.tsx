@@ -1,8 +1,5 @@
 'use client';
 
-import { Button } from '@riven/ui/button';
-import { CardContent, CardHeader } from '@riven/ui/card';
-import { Input } from '@riven/ui/input';
 import {
   Form,
   FormControl,
@@ -12,12 +9,15 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { OAuthProvider } from '@/lib/auth';
+import { Button } from '@riven/ui/button';
+import { CardContent, CardHeader } from '@riven/ui/card';
+import { Input } from '@riven/ui/input';
 import Link from 'next/link';
 import { FC, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { PasswordRequirements } from './PasswordRequirements';
-import { Registration } from './Register';
-import ThirdParty from './ThirdPartyAuth';
+import { PasswordRequirements } from './password-requirements';
+import { Registration } from './register';
+import ThirdParty from './third-party';
 
 interface CredentialRegistrationProps {
   registrationForm: UseFormReturn<Registration>;

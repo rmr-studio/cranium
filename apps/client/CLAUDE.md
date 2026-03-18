@@ -25,6 +25,8 @@ Riven is a unified business tooling SaaS platform that aims to connect all tools
 
 **Feature organization:** Hybrid. Feature code lives in `components/feature-modules/{feature}/` with subdirectories: `components/`, `hooks/query/`, `hooks/mutation/`, `hooks/form/`, `service/`, `store/` (or `stores/`), `context/`. Shared UI lives in `components/ui/`. Shared hooks in `hooks/`. Shared utils in `lib/util/`.
 
+**Utility functions:** All reusable utility/helper functions must live in `lib/util/utils.ts` (or a domain-specific file under `lib/util/`), never inline in component files. If a function is not a React component, hook, or component-specific handler, extract it to the shared util layer.
+
 **Import conventions:** Always use the `@/*` path alias — never use relative imports. This applies to all imports: intra-feature, cross-feature, shared, library, and test files. Direct imports — no barrel exports at feature-module level. Domain type barrels exist at `lib/types/{domain}/index.ts`. Import generated types from domain barrels (`@/lib/types/entity`), not from `@/lib/types/models/` directly.
 
 ## Data Fetching and State
@@ -86,7 +88,7 @@ All new stores **must** follow the factory + context + provider pattern. Do not 
 
 **shadcn usage:** Standard new-york style from `components/ui/`. Mostly unmodified. Button has a custom `xs` size variant. Sonner toaster is themed via CSS variables. Some custom components live alongside shadcn: `attribute-type-dropdown.tsx`, `AuthenticateButton.tsx`, `AvatarUploader.tsx`, `breadcrumb-group.tsx`, `country-select.tsx`, `filter-list.tsx`, `phone-input.tsx`, `status.tsx`, `stepper.tsx`, `truncated-tooltip.tsx`. Sub-directories for complex UI: `data-table/`, `forms/`, `icon/`, `nav/`, `sidebar/`, `rich-editor/`, `background/`.
 
-**Component file structure:** Single file per component. No co-located tests or stories. No index barrel exports at component level.
+**Component file structure:** One component per file — do not create mega files with multiple components. If a feature needs sub-components (e.g., skeleton loaders, sections, previews), split them into separate files in the same directory with a shared prefix (e.g., `account-settings.tsx`, `account-settings-appearance.tsx`, `account-settings-skeleton.tsx`). No co-located tests or stories. No index barrel exports at component level.
 
 **Props pattern:** Inline object types in function signatures for simple components. Named interfaces/types for complex ones. Props destructured in function signature. Shared prop interfaces in `lib/interfaces/interface.ts` (`FCWC<T>`, `Propless`, `ChildNodeProps`, `ClassNameProps`, `FormFieldProps<T>`, `DialogControl`).
 

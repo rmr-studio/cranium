@@ -1,9 +1,6 @@
 'use client';
 
 import { useAuth } from '@/components/provider/auth-context';
-import { Button } from '@riven/ui/button';
-import { CardContent, CardHeader } from '@riven/ui/card';
-import { Input } from '@riven/ui/input';
 import {
   Form,
   FormControl,
@@ -14,13 +11,16 @@ import {
 } from '@/components/ui/form';
 import { getAuthErrorMessage, isAuthError, OAuthProvider } from '@/lib/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@riven/ui/button';
+import { CardContent, CardHeader } from '@riven/ui/card';
+import { Input } from '@riven/ui/input';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FC } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import ThirdParty from './ThirdPartyAuth';
+import ThirdParty from './third-party';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid Email').min(1, 'Email is required'),

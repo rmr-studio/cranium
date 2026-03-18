@@ -1,7 +1,10 @@
-import EditWorkspace from '@/components/feature-modules/workspace/components/edit-workspace';
+import { redirect } from 'next/navigation';
 
-const EditWorkspacePage = () => {
-  return <EditWorkspace />;
-};
-
-export default EditWorkspacePage;
+export default async function EditWorkspacePage({
+  params,
+}: {
+  params: Promise<{ workspaceId: string }>;
+}) {
+  const { workspaceId } = await params;
+  redirect(`/dashboard/workspace/${workspaceId}/settings`);
+}

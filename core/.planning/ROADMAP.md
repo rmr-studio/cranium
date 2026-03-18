@@ -96,11 +96,12 @@ Plans:
   3. `POST /suggestions/{id}/confirm` and `POST /suggestions/{id}/reject` transition suggestion state and return the updated suggestion
   4. `GET /api/v1/identity/{workspaceId}/clusters/{id}` returns the cluster with all member entity IDs listed
   5. `GET /api/v1/identity/{workspaceId}/entities/{id}/matches` returns the count of PENDING suggestions for that entity
-**Plans**: 2 plans
+**Plans**: 3 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Response DTOs, repository query extensions, and IdentityReadService for all read operations
-- [ ] 05-02-PLAN.md — IdentityClusterService (manual add + rename), IdentityController wiring all 9 endpoints
+- [x] 05-01-PLAN.md — Response DTOs, repository query extensions, and IdentityReadService for all read operations
+- [x] 05-02-PLAN.md — IdentityClusterService (manual add + rename), IdentityController wiring all 9 endpoints
+- [ ] 05-03-PLAN.md — Gap closure: mark API-08 (notification stub) as complete (already implemented in Phase 4)
 
 ## Progress
 
@@ -113,4 +114,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Matching Pipeline | 2/4 | In Progress|  |
 | 3. Trigger and Dispatch | 1/2 | In Progress|  |
 | 4. Confirmation and Clusters | 1/2 | In Progress|  |
-| 5. REST API | 2/2 | Complete   | 2026-03-18 |
+| 5. REST API | 3/3 | Complete   | 2026-03-18 |

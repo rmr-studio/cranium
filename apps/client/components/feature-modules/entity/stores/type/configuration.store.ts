@@ -1,4 +1,11 @@
-import { EntityType, UpdateEntityTypeConfigurationRequest } from '@/lib/types/entity';
+import { SchemaType } from '@/lib/types/common';
+import {
+  EntityType,
+  EntityTypeImpactResponse,
+  EntityTypeRequestDefinition,
+  SaveTypeDefinitionRequest,
+  UpdateEntityTypeConfigurationRequest,
+} from '@/lib/types/entity';
 import { UseFormReturn } from 'react-hook-form';
 import { create, StoreApi } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
@@ -42,6 +49,7 @@ export const createEntityTypeConfigStore = (
   entityType: EntityType,
   form: UseFormReturn<EntityTypeFormValues>,
   updateMutation: (request: UpdateEntityTypeConfigurationRequest) => Promise<EntityType>,
+  saveDefinitionMutation: (request: SaveTypeDefinitionRequest) => Promise<EntityTypeImpactResponse>,
 ): StoreApi<EntityTypeConfigStore> => {
   return create<EntityTypeConfigStore>()(
     subscribeWithSelector((set, get) => ({
@@ -105,6 +113,37 @@ export const createEntityTypeConfigStore = (
         // Call the mutation
         await updateMutation(request);
 
+        // Save prefix if entity type has an Id attribute
+        const idEntry = entityType.schema.properties
+          ? Object.entries(entityType.schema.properties).find(
+              ([, attr]) => attr.key === SchemaType.Id,
+            )
+          : undefined;
+
+        if (idEntry && values.idPrefix !== undefined) {
+          const [attrId, attrSchema] = idEntry;
+          const existingPrefix = attrSchema.options?.prefix;
+          if (values.idPrefix !== (existingPrefix ?? '')) {
+            try {
+              const result = await saveDefinitionMutation({
+                definition: {
+                  key: entityType.key,
+                  id: attrId,
+                  type: EntityTypeRequestDefinition.SaveSchema,
+                  schema: {
+                    ...attrSchema,
+                    options: { ...attrSchema.options, prefix: values.idPrefix },
+                  },
+                },
+              });
+              // If there's an impact requiring confirmation, don't reset
+              if (result.impact) return;
+            } catch {
+              // Definition save failed — keep form dirty so the user can retry
+              return;
+            }
+          }
+        }
         // Reset form dirty state
         form.reset(form.getValues());
         set({ isDirty: false });

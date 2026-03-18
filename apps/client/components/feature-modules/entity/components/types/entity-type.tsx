@@ -4,7 +4,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@riven/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@riven/ui/tabs';
 import { Form } from '@/components/ui/form';
-import { DataType } from '@/lib/types/common';
+import { DataType, SchemaType } from '@/lib/types/common';
 import { type EntityType } from '@/lib/types/entity';
 import { AlertCircle } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -81,6 +81,7 @@ export const EntityTypeOverview: FC<EntityTypeOverviewProps> = ({ entityType }) 
         ([, attr]) =>
           attr.unique &&
           attr.required &&
+          attr.key !== SchemaType.Id &&
           (attr.type === DataType.String || attr.type === DataType.Number),
       )
       .map(([id, attr]) => ({

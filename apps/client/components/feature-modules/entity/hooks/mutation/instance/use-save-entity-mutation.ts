@@ -38,7 +38,11 @@ export function useSaveEntityMutation(
 
       // Handle schema validation or impact confirmation errors
       if (response.errors) {
-        onConflict?.(variables, response);
+        if (onConflict) {
+          onConflict(variables, response);
+        } else {
+          toast.error(`Failed to save entity: ${response.errors.join(', ')}`);
+        }
         return;
       }
 

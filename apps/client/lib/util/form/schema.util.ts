@@ -166,4 +166,13 @@ export const attributeTypes: Record<SchemaType, AttributeSchemaType> = {
             colour: IconColour.Neutral,
         },
     },
+    [SchemaType.Id]: {
+        label: "Record ID",
+        key: SchemaType.Id,
+        type: DataType.String,
+        icon: {
+            type: IconType.Hash,
+            colour: IconColour.Neutral,
+        },
+    },
 };

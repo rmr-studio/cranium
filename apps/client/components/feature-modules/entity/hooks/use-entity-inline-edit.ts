@@ -6,14 +6,17 @@ import {
   EntityLink,
   EntityPropertyType,
   EntityType,
+  EntityTypeRequestDefinition,
   RelationshipDefinition,
   SaveEntityRequest,
   SaveEntityResponse,
+  SaveTypeDefinitionRequest,
 } from '@/lib/types/entity';
 import { useCallback } from 'react';
 import { toast } from 'sonner';
 import { useSaveEntityMutation } from '@/components/feature-modules/entity/hooks/mutation/instance/use-save-entity-mutation';
-import { buildEntityUpdatePayload } from '@/components/feature-modules/entity/util/entity-payload.util';
+import { useSaveDefinitionMutation } from '@/components/feature-modules/entity/hooks/mutation/type/use-save-definition-mutation';
+import { buildEntityUpdatePayload, deriveSchemaOptionsUpdate } from '@/components/feature-modules/entity/util/entity-payload.util';
 import { EntityRow, isDraftRow } from '@/components/feature-modules/entity/components/tables/entity-table-utils';
 
 export function useEntityInlineEdit(
@@ -21,6 +24,7 @@ export function useEntityInlineEdit(
   entityType: EntityType,
   entities: Entity[],
 ) {
+  const { mutateAsync: saveDefinition } = useSaveDefinitionMutation(workspaceId);
   const handleConflict = (_request: SaveEntityRequest, response: SaveEntityResponse) => {
     const message = response.errors?.join(', ') ?? 'Edit conflict: this record was modified. Please refresh and try again.';
     toast.error(message);
@@ -53,7 +57,28 @@ export function useEntityInlineEdit(
 
         const request = buildEntityUpdatePayload(entity, columnId, { payload: payloadEntry });
         const response = await saveEntity(request);
-        return !response.errors && !!response.entity;
+        const success = !response.errors && !!response.entity;
+
+        if (success) {
+          const optionsUpdate = deriveSchemaOptionsUpdate(attributeDef, newValue);
+          if (optionsUpdate) {
+            const definitionRequest: SaveTypeDefinitionRequest = {
+              definition: {
+                key: entityType.key,
+                id: columnId,
+                type: EntityTypeRequestDefinition.SaveSchema,
+                schema: {
+                  ...attributeDef,
+                  options: { ...attributeDef.options, ...optionsUpdate },
+                },
+              },
+            };
+
+            saveDefinition(definitionRequest);
+          }
+        }
+
+        return success;
       }
 
       if (relationshipDef) {
@@ -70,7 +95,7 @@ export function useEntityInlineEdit(
 
       return false;
     },
-    [entities, entityType, saveEntity],
+    [entities, entityType, saveEntity, saveDefinition, workspaceId],
   );
 
   return { handleCellEdit };

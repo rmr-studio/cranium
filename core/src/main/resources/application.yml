@@ -48,6 +48,12 @@ riven:
   workflow:
     engine:
       target: ${TEMPORAL_SERVER_ADDRESS}
+    retry:
+      integration-sync:
+        max-attempts: 3
+        initial-interval-seconds: 30
+        backoff-coefficient: 2.0
+        max-interval-seconds: 120
   websocket:
     endpoint: /ws
     server-heartbeat-ms: 10000

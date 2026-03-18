@@ -8,6 +8,9 @@ import jakarta.annotation.PreDestroy
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import riven.core.service.integration.sync.IntegrationSyncActivities
+import riven.core.service.integration.sync.IntegrationSyncWorkflow
+import riven.core.service.integration.sync.IntegrationSyncWorkflowImpl
 import riven.core.service.workflow.engine.WorkflowOrchestration
 import riven.core.service.workflow.engine.WorkflowOrchestrationService
 import riven.core.service.workflow.engine.completion.WorkflowCompletionActivityImpl
@@ -44,7 +47,10 @@ class TemporalWorkerConfiguration(
     private val coordinationActivity: WorkflowCoordinationService,
     private val completionActivity: WorkflowCompletionActivityImpl,
     private val retryProperties: WorkflowRetryConfigurationProperties,
-    private val logger: KLogger
+    private val logger: KLogger,
+    // Nullable until IntegrationSyncActivitiesImpl is created in Plan 02.
+    // Plan 02 will remove the nullable/conditional pattern.
+    private val integrationSyncActivities: IntegrationSyncActivities? = null
 ) {
 
     companion object {
@@ -64,6 +70,15 @@ class TemporalWorkerConfiguration(
          * - Allow independent scaling of API activity workers
          */
         const val ACTIVITIES_EXTERNAL_API_QUEUE = "activities.external-api"
+
+        /**
+         * Queue for integration sync workflows.
+         *
+         * Dedicated queue for Nango sync webhook-triggered workflows.
+         * Isolation ensures that long-running sync activities do not block
+         * the default workflow queue.
+         */
+        const val INTEGRATION_SYNC_QUEUE = "integration.sync"
 
         /**
          * Generate task queue name for a workspace.
@@ -121,6 +136,17 @@ class TemporalWorkerConfiguration(
             completionActivity
         )
         logger.info { "Registered activities: WorkflowCoordination, WorkflowCompletionActivity" }
+
+        // Create worker for integration sync queue
+        val syncWorker = factory.newWorker(INTEGRATION_SYNC_QUEUE)
+        syncWorker.registerWorkflowImplementationFactory(IntegrationSyncWorkflow::class.java) {
+            IntegrationSyncWorkflowImpl(retryProperties.integrationSync)
+        }
+        logger.info { "Registered workflow: IntegrationSyncWorkflowImpl with retry config: ${retryProperties.integrationSync}" }
+        integrationSyncActivities?.let { activities ->
+            syncWorker.registerActivitiesImplementations(activities)
+            logger.info { "Registered activities: IntegrationSyncActivities" }
+        }
 
         // Start workers (non-blocking - workers poll Temporal Service in background)
         factory.start()

@@ -12,6 +12,7 @@ import riven.core.enums.util.OperationType
 import riven.core.exceptions.ConflictException
 import riven.core.models.identity.MatchSuggestion
 import riven.core.models.identity.ScoredCandidate
+import riven.core.repository.identity.IdentityClusterMemberRepository
 import riven.core.repository.identity.MatchSuggestionRepository
 import riven.core.service.activity.ActivityService
 import riven.core.util.ServiceUtil.findOrThrow
@@ -29,6 +30,7 @@ import java.util.UUID
 @Service
 class IdentityMatchSuggestionService(
     private val repository: MatchSuggestionRepository,
+    private val memberRepository: IdentityClusterMemberRepository,
     private val activityService: ActivityService,
     private val logger: KLogger,
 ) {
@@ -86,6 +88,11 @@ class IdentityMatchSuggestionService(
      */
     private fun createOrResuggest(candidate: ScoredCandidate, workspaceId: UUID, userId: UUID?): MatchSuggestion? {
         val (sourceId, targetId) = canonicalOrder(candidate.sourceEntityId, candidate.targetEntityId)
+
+        if (inSameCluster(sourceId, targetId)) {
+            logger.debug { "Skipping suggestion for $sourceId<->$targetId: already in same cluster" }
+            return null
+        }
 
         val active = repository.findActiveSuggestion(workspaceId, sourceId, targetId)
         if (active != null) {
@@ -220,6 +227,20 @@ class IdentityMatchSuggestionService(
         confidenceScore = BigDecimal.valueOf(candidate.compositeScore),
         signals = candidate.signals.map { it.toMap() },
     )
+
+    /**
+     * Returns true if both entities are already members of the same identity cluster.
+     *
+     * Uses [IdentityClusterMemberRepository.findByEntityId] which does not filter by cluster
+     * soft-delete status — members of soft-deleted clusters are still returned. This is safe
+     * because a soft-deleted cluster's members will have different clusterIds from any active
+     * cluster the other entity belongs to, so the guard will not produce false positives.
+     */
+    private fun inSameCluster(sourceId: UUID, targetId: UUID): Boolean {
+        val sourceMember = memberRepository.findByEntityId(sourceId) ?: return false
+        val targetMember = memberRepository.findByEntityId(targetId) ?: return false
+        return sourceMember.clusterId == targetMember.clusterId
+    }
 
     /**
      * Returns the canonical UUID pair (lower, higher) to satisfy the DB CHECK constraint

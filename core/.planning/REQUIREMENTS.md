@@ -50,7 +50,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **API-05**: `GET /api/v1/identity/{workspaceId}/clusters` — list identity clusters
 - [x] **API-06**: `GET /api/v1/identity/{workspaceId}/clusters/{id}` — cluster detail with member entities
 - [x] **API-07**: `GET /api/v1/identity/{workspaceId}/entities/{id}/matches` — pending match count for entity
-- [ ] **API-08**: Notification stub published on match events (no-op until notification domain ships)
+- [x] **API-08**: Notification stub published on match events (no-op until notification domain ships)
 
 ## v2 Requirements
 
@@ -118,7 +118,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | API-05 | Phase 5 | Complete |
 | API-06 | Phase 5 | Complete |
 | API-07 | Phase 5 | Complete |
-| API-08 | Phase 5 | Pending |
+| API-08 | Phase 5 | Complete |
 
 **Coverage:**
 - v1 requirements: 30 total

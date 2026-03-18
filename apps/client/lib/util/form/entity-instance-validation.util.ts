@@ -13,7 +13,7 @@ import { attributeTypes } from './schema.util';
 /**
  * Build a Zod schema from an EntityType definition for validation
  */
-export function buildZodSchemaFromEntityType(entityType: EntityType): z.ZodObject<any> {
+export function buildZodSchemaFromEntityType(entityType: EntityType): z.ZodObject<z.ZodRawShape> {
   const schemaShape: Record<string, z.ZodTypeAny> = {};
 
   // Build schemas for all attributes
@@ -77,44 +77,43 @@ export function buildFieldSchema(schema: SchemaUUID): z.ZodTypeAny {
 /**
  * Build a Zod schema for string-based fields
  */
-function buildStringSchema(schema: SchemaUUID, mergedOptions: Partial<SchemaOptions>): z.ZodString {
-  let stringSchema = z.string();
+function buildStringSchema(schema: SchemaUUID, mergedOptions: Partial<SchemaOptions>): z.ZodTypeAny {
+  let stringSchema: z.ZodTypeAny = z.string();
 
-  const options = mergedOptions;
-  if (schema.required && !schema._protected && !exists(options?.minLength)) {
+  if (schema.required && !schema._protected && !exists(mergedOptions?.minLength)) {
     stringSchema = stringSchema.min(1, `${schema.label || 'Field'} is required`);
   }
 
-  if (options) {
+  if (mergedOptions) {
     // Min/max length constraints
-    if (exists(options.minLength)) {
-      stringSchema = stringSchema.min(
-        options.minLength,
-        `Must be at least ${options.minLength} characters`,
+    if (exists(mergedOptions.minLength)) {
+      stringSchema = (stringSchema as z.ZodString).min(
+        mergedOptions.minLength,
+        `Must be at least ${mergedOptions.minLength} characters`,
       );
     }
-    if (exists(options.maxLength)) {
-      stringSchema = stringSchema.max(
-        options.maxLength,
-        `Must be at most ${options.maxLength} characters`,
+    if (exists(mergedOptions.maxLength)) {
+      stringSchema = (stringSchema as z.ZodString).max(
+        mergedOptions.maxLength,
+        `Must be at most ${mergedOptions.maxLength} characters`,
       );
     }
 
     // Regex pattern validation
-    if (exists(options.regex)) {
+    if (exists(mergedOptions.regex)) {
       try {
-        const pattern = new RegExp(options.regex);
-        stringSchema = stringSchema.regex(pattern, `Must match pattern: ${options.regex}`);
+        const pattern = new RegExp(mergedOptions.regex);
+        stringSchema = (stringSchema as z.ZodString).regex(pattern, `Must match pattern: ${mergedOptions.regex}`);
       } catch (error) {
-        console.error('Invalid regex pattern:', options.regex, error);
+        console.error('Invalid regex pattern:', mergedOptions.regex, error);
       }
     }
 
     // Enum validation for SELECT types
-    if (exists(options._enum) && options._enum.length > 0) {
+    if (exists(mergedOptions._enum) && mergedOptions._enum.length > 0) {
       // Zod enum requires at least 1 value, and values must be tuples
-      const enumValues = options._enum as [string, ...string[]];
-      stringSchema = z.enum(enumValues) as any;
+      const enumValues = mergedOptions._enum as [string, ...string[]];
+      stringSchema = z.enum(enumValues);
     }
   }
 
@@ -161,14 +160,13 @@ function buildNumberSchema(schema: SchemaUUID, mergedOptions: Partial<SchemaOpti
     invalid_type_error: `${schema.label || 'Field'} must be a number`,
   });
 
-  const options = mergedOptions;
-  if (options) {
+  if (mergedOptions) {
     // Min/max value constraints
-    if (options.minimum !== undefined && options.minimum !== null) {
-      numberSchema = numberSchema.min(options.minimum, `Must be at least ${options.minimum}`);
+    if (mergedOptions.minimum !== undefined && mergedOptions.minimum !== null) {
+      numberSchema = numberSchema.min(mergedOptions.minimum, `Must be at least ${mergedOptions.minimum}`);
     }
-    if (options.maximum !== undefined && options.maximum !== null) {
-      numberSchema = numberSchema.max(options.maximum, `Must be at most ${options.maximum}`);
+    if (mergedOptions.maximum !== undefined && mergedOptions.maximum !== null) {
+      numberSchema = numberSchema.max(mergedOptions.maximum, `Must be at most ${mergedOptions.maximum}`);
     }
   }
 
@@ -178,9 +176,9 @@ function buildNumberSchema(schema: SchemaUUID, mergedOptions: Partial<SchemaOpti
 /**
  * Build a Zod schema for array-based fields (MULTI_SELECT, FILE_ATTACHMENT)
  */
-function buildArraySchema(schema: SchemaUUID, mergedOptions: Partial<SchemaOptions>): z.ZodArray<any> {
-  const options = mergedOptions;
-
+// mergedOptions kept for signature consistency — future use for maxItems constraints
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function buildArraySchema(schema: SchemaUUID, mergedOptions: Partial<SchemaOptions>): z.ZodArray<z.ZodTypeAny> {
   // For MULTI_SELECT, allow any string — users can create new options beyond the
   // predefined enum. The backend accepts arbitrary string values for multi-select
   // fields (no server-side enum constraint), so free-text creation is by design.
@@ -218,7 +216,7 @@ export function buildRelationshipFieldSchema(relationship: RelationshipDefinitio
 /**
  * Get default value for a schema field
  */
-export function getDefaultValueForSchema(schema: SchemaUUID): any {
+export function getDefaultValueForSchema(schema: SchemaUUID): unknown {
   // Check for custom default value in options first
   if (schema.options?._default !== undefined && schema.options?._default !== null) {
     return schema.options._default;
@@ -246,8 +244,8 @@ export function getDefaultValueForSchema(schema: SchemaUUID): any {
 /**
  * Build default values for all fields in an entity type
  */
-export function buildDefaultValuesFromEntityType(entityType: EntityType): Record<string, any> {
-  const defaults: Record<string, any> = {};
+export function buildDefaultValuesFromEntityType(entityType: EntityType): Record<string, unknown> {
+  const defaults: Record<string, unknown> = {};
 
   // Set defaults for attributes (uses options.default if available)
   if (entityType.schema.properties) {

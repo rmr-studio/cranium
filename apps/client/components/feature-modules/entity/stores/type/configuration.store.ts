@@ -124,19 +124,24 @@ export const createEntityTypeConfigStore = (
           const [attrId, attrSchema] = idEntry;
           const existingPrefix = attrSchema.options?.prefix;
           if (values.idPrefix !== (existingPrefix ?? '')) {
-            const result = await saveDefinitionMutation({
-              definition: {
-                key: entityType.key,
-                id: attrId,
-                type: EntityTypeRequestDefinition.SaveSchema,
-                schema: {
-                  ...attrSchema,
-                  options: { ...attrSchema.options, prefix: values.idPrefix },
+            try {
+              const result = await saveDefinitionMutation({
+                definition: {
+                  key: entityType.key,
+                  id: attrId,
+                  type: EntityTypeRequestDefinition.SaveSchema,
+                  schema: {
+                    ...attrSchema,
+                    options: { ...attrSchema.options, prefix: values.idPrefix },
+                  },
                 },
-              },
-            });
-            // If there's an impact requiring confirmation, don't reset
-            if (result.impact) return;
+              });
+              // If there's an impact requiring confirmation, don't reset
+              if (result.impact) return;
+            } catch {
+              // Definition save failed — keep form dirty so the user can retry
+              return;
+            }
           }
         }
         // Reset form dirty state

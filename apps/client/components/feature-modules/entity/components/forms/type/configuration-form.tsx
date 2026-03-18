@@ -88,7 +88,7 @@ export const ConfigurationForm: FC<Props> = ({ availableIdentifiers }) => {
       // Identifier not in order array, add it at front
       form.setValue('columnConfiguration.order', [identifierKey, ...order], { shouldDirty: true });
     }
-  }, [identifierKey]);
+  }, [identifierKey, form, columnConfiguration.order]);
 
   return (
     <div className="space-y-0 rounded-lg border bg-card">

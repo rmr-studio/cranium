@@ -8,6 +8,7 @@ import { useForm, useFormState } from 'react-hook-form';
 import { isUUID } from 'validator';
 import { z } from 'zod';
 import { useStore } from 'zustand';
+import { useShallow } from 'zustand/react/shallow';
 import { baseEntityTypeFormSchema } from '@/components/feature-modules/entity/hooks/form/type/use-new-type-form';
 import { useSaveEntityTypeConfiguration } from '@/components/feature-modules/entity/hooks/mutation/type/use-save-configuration-mutation';
 import { useSaveDefinitionMutation } from '@/components/feature-modules/entity/hooks/mutation/type/use-save-definition-mutation';
@@ -134,13 +135,15 @@ const useEntityTypeConfigurationStore = <T,>(selector: (store: EntityTypeConfigS
   return useStore(context, selector);
 };
 
+const configFormStateSelector = (state: EntityTypeConfigStore) => ({
+  form: state.form,
+  isDirty: state.isDirty,
+  handleSubmit: state.handleSubmit,
+  reset: state.reset,
+});
+
 export const useConfigFormState = () => {
-  return useEntityTypeConfigurationStore((state) => ({
-    form: state.form,
-    isDirty: state.isDirty,
-    handleSubmit: state.handleSubmit,
-    reset: state.reset,
-  }));
+  return useEntityTypeConfigurationStore(useShallow(configFormStateSelector));
 };
 
 export const useConfigCurrentType = () => {

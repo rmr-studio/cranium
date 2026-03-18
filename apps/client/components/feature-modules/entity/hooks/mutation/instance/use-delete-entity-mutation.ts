@@ -1,7 +1,6 @@
 import { useAuth } from '@/components/provider/auth-context';
 import { DeleteEntityResponse, Entity } from '@/lib/types/entity';
 import { useMutation, useQueryClient, type UseMutationOptions } from '@tanstack/react-query';
-import { useRef } from 'react';
 import { toast } from 'sonner';
 import { EntityService } from '@/components/feature-modules/entity/service/entity.service';
 import { entityKeys } from '@/components/feature-modules/entity/hooks/query/entity-query-keys';
@@ -16,27 +15,32 @@ export function useDeleteEntityMutation(
 ) {
   const queryClient = useQueryClient();
   const { session } = useAuth();
-  const submissionToastRef = useRef<string | number | undefined>(undefined);
 
   return useMutation({
-    mutationFn: (request: DeleteEntityRequest) => {
+    mutationFn: async (request: DeleteEntityRequest) => {
       const { entityIds } = request;
       const ids = Object.values(entityIds).flat();
 
       if (ids.length === 0) {
-        return Promise.reject(new Error('No entities to delete'));
+        throw new Error('No entities to delete');
       }
 
-      return EntityService.deleteEntities(session, workspaceId, ids);
+      const response = await EntityService.deleteEntities(session, workspaceId, ids);
+
+      if (response.error && response.deletedCount === 0) {
+        throw new Error(response.error);
+      }
+
+      return response;
     },
     onMutate: (data) => {
       options?.onMutate?.(data);
-      submissionToastRef.current = toast.loading('Deleting entities...');
+      return { toastId: toast.loading('Deleting entities...') };
     },
     onError: (error: Error, variables: DeleteEntityRequest, context: unknown) => {
+      const toastId = (context as { toastId?: string | number } | undefined)?.toastId;
+      toast.dismiss(toastId);
       options?.onError?.(error, variables, context);
-      toast.dismiss(submissionToastRef.current);
-      submissionToastRef.current = undefined;
       toast.error(`Failed to delete selected entities: ${error.message}`);
     },
     onSuccess: (
@@ -44,18 +48,13 @@ export function useDeleteEntityMutation(
       variables: DeleteEntityRequest,
       context: unknown,
     ) => {
-      toast.dismiss(submissionToastRef.current);
-      submissionToastRef.current = undefined;
+      const toastId = (context as { toastId?: string | number } | undefined)?.toastId;
+      toast.dismiss(toastId);
 
       const { deletedCount, error, updatedEntities } = response;
 
-      if (error) {
-        if (deletedCount > 0) {
-          toast.warning(`${deletedCount} entities deleted, but some failed: ${error}`);
-        } else {
-          toast.error(`Failed to delete entities: ${error}`);
-          return;
-        }
+      if (error && deletedCount > 0) {
+        toast.warning(`${deletedCount} entities deleted, but some failed: ${error}`);
       } else {
         toast.success(`${deletedCount} entities deleted successfully!`);
       }

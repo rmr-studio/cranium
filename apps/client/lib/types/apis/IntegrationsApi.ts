@@ -16,35 +16,24 @@
 import * as runtime from '../runtime';
 import type {
   DisableIntegrationRequest,
-  EnableIntegrationRequest,
   IntegrationConnectionModel,
   IntegrationDefinitionModel,
   IntegrationDisableResponse,
-  IntegrationEnablementResponse,
 } from '../models/index';
 import {
     DisableIntegrationRequestFromJSON,
     DisableIntegrationRequestToJSON,
-    EnableIntegrationRequestFromJSON,
-    EnableIntegrationRequestToJSON,
     IntegrationConnectionModelFromJSON,
     IntegrationConnectionModelToJSON,
     IntegrationDefinitionModelFromJSON,
     IntegrationDefinitionModelToJSON,
     IntegrationDisableResponseFromJSON,
     IntegrationDisableResponseToJSON,
-    IntegrationEnablementResponseFromJSON,
-    IntegrationEnablementResponseToJSON,
 } from '../models/index';
 
 export interface DisableIntegrationOperationRequest {
     workspaceId: string;
     disableIntegrationRequest: DisableIntegrationRequest;
-}
-
-export interface EnableIntegrationOperationRequest {
-    workspaceId: string;
-    enableIntegrationRequest: EnableIntegrationRequest;
 }
 
 export interface GetWorkspaceIntegrationStatusRequest {
@@ -108,61 +97,6 @@ export class IntegrationsApi extends runtime.BaseAPI {
      */
     async disableIntegration(requestParameters: DisableIntegrationOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<IntegrationDisableResponse> {
         const response = await this.disableIntegrationRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Enable an integration for a workspace
-     */
-    async enableIntegrationRaw(requestParameters: EnableIntegrationOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<IntegrationEnablementResponse>> {
-        if (requestParameters['workspaceId'] == null) {
-            throw new runtime.RequiredError(
-                'workspaceId',
-                'Required parameter "workspaceId" was null or undefined when calling enableIntegration().'
-            );
-        }
-
-        if (requestParameters['enableIntegrationRequest'] == null) {
-            throw new runtime.RequiredError(
-                'enableIntegrationRequest',
-                'Required parameter "enableIntegrationRequest" was null or undefined when calling enableIntegration().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("bearerAuth", []);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-
-        let urlPath = `/api/v1/integrations/{workspaceId}/enable`;
-        urlPath = urlPath.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId'])));
-
-        const response = await this.request({
-            path: urlPath,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: EnableIntegrationRequestToJSON(requestParameters['enableIntegrationRequest']),
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => IntegrationEnablementResponseFromJSON(jsonValue));
-    }
-
-    /**
-     * Enable an integration for a workspace
-     */
-    async enableIntegration(requestParameters: EnableIntegrationOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<IntegrationEnablementResponse> {
-        const response = await this.enableIntegrationRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

@@ -19,6 +19,7 @@
  */
 export enum SchemaType {
     Text = 'TEXT',
+    Note = 'NOTE',
     Object = 'OBJECT',
     Number = 'NUMBER',
     Checkbox = 'CHECKBOX',

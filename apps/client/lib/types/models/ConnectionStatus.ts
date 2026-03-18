@@ -18,8 +18,6 @@
  * @enum {string}
  */
 export enum ConnectionStatus {
-    PendingAuthorization = 'PENDING_AUTHORIZATION',
-    Authorizing = 'AUTHORIZING',
     Connected = 'CONNECTED',
     Syncing = 'SYNCING',
     Healthy = 'HEALTHY',

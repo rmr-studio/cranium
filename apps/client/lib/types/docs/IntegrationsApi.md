@@ -5,7 +5,6 @@ All URIs are relative to *http://localhost:8081*
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
 | [**disableIntegration**](IntegrationsApi.md#disableintegrationoperation) | **POST** /api/v1/integrations/{workspaceId}/disable | Disable an integration for a workspace |
-| [**enableIntegration**](IntegrationsApi.md#enableintegrationoperation) | **POST** /api/v1/integrations/{workspaceId}/enable | Enable an integration for a workspace |
 | [**getWorkspaceIntegrationStatus**](IntegrationsApi.md#getworkspaceintegrationstatus) | **GET** /api/v1/integrations/{workspaceId}/status | Get integration status for workspace |
 | [**listAvailableIntegrations**](IntegrationsApi.md#listavailableintegrations) | **GET** /api/v1/integrations | List all available integrations |
 
@@ -83,83 +82,6 @@ example().catch(console.error);
 | **401** | Unauthorized access |  -  |
 | **403** | Forbidden — admin role required |  -  |
 | **404** | Integration not enabled in this workspace |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
-
-
-## enableIntegration
-
-> IntegrationEnablementResponse enableIntegration(workspaceId, enableIntegrationRequest)
-
-Enable an integration for a workspace
-
-### Example
-
-```ts
-import {
-  Configuration,
-  IntegrationsApi,
-} from '';
-import type { EnableIntegrationOperationRequest } from '';
-
-async function example() {
-  console.log("🚀 Testing  SDK...");
-  const config = new Configuration({ 
-    // Configure HTTP bearer authorization: bearerAuth
-    accessToken: "YOUR BEARER TOKEN",
-  });
-  const api = new IntegrationsApi(config);
-
-  const body = {
-    // string
-    workspaceId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
-    // EnableIntegrationRequest
-    enableIntegrationRequest: ...,
-  } satisfies EnableIntegrationOperationRequest;
-
-  try {
-    const data = await api.enableIntegration(body);
-    console.log(data);
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-// Run the test
-example().catch(console.error);
-```
-
-### Parameters
-
-
-| Name | Type | Description  | Notes |
-|------------- | ------------- | ------------- | -------------|
-| **workspaceId** | `string` |  | [Defaults to `undefined`] |
-| **enableIntegrationRequest** | [EnableIntegrationRequest](EnableIntegrationRequest.md) |  | |
-
-### Return type
-
-[**IntegrationEnablementResponse**](IntegrationEnablementResponse.md)
-
-### Authorization
-
-[bearerAuth](../README.md#bearerAuth)
-
-### HTTP request headers
-
-- **Content-Type**: `application/json`
-- **Accept**: `*/*`
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-| **200** | Integration enabled successfully |  -  |
-| **400** | Invalid request data |  -  |
-| **401** | Unauthorized access |  -  |
-| **403** | Forbidden — admin role required |  -  |
-| **404** | Integration definition not found |  -  |
-| **409** | Connection exists in non-terminal state |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 

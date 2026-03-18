@@ -1,20 +1,26 @@
 
-# SyncScope
+# NangoSyncResults
 
 
 ## Properties
 
 Name | Type
 ------------ | -------------
+`added` | number
+`updated` | number
+`deleted` | number
 
 ## Example
 
 ```typescript
-import type { SyncScope } from ''
+import type { NangoSyncResults } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-} satisfies SyncScope
+  "added": null,
+  "updated": null,
+  "deleted": null,
+} satisfies NangoSyncResults
 
 console.log(example)
 
@@ -23,7 +29,7 @@ const exampleJSON: string = JSON.stringify(example)
 console.log(exampleJSON)
 
 // Parse the JSON string back to an object
-const exampleParsed = JSON.parse(exampleJSON) as SyncScope
+const exampleParsed = JSON.parse(exampleJSON) as NangoSyncResults
 console.log(exampleParsed)
 ```
 

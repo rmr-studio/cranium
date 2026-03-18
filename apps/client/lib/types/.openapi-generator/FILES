@@ -7,6 +7,7 @@ apis/OnboardingApi.ts
 apis/StorageApi.ts
 apis/TemplatesApi.ts
 apis/UserApi.ts
+apis/WebhooksApi.ts
 apis/WorkflowApi.ts
 apis/WorkspaceApi.ts
 apis/index.ts
@@ -92,8 +93,6 @@ docs/DeleteTypeDefinitionRequestDefinition.md
 docs/DisableIntegrationRequest.md
 docs/DisplayName.md
 docs/DraggableOptions.md
-docs/EnableIntegrationRequest.md
-docs/EnabledEntityTypeSummary.md
 docs/Entity.md
 docs/EntityApi.md
 docs/EntityAttribute.md
@@ -140,7 +139,6 @@ docs/IntegrationCategory.md
 docs/IntegrationConnectionModel.md
 docs/IntegrationDefinitionModel.md
 docs/IntegrationDisableResponse.md
-docs/IntegrationEnablementResponse.md
 docs/IntegrationsApi.md
 docs/InviteResult.md
 docs/IsRelatedTo.md
@@ -154,6 +152,9 @@ docs/Literal.md
 docs/ManifestSummary.md
 docs/Metadata.md
 docs/MoveBlockOperation.md
+docs/NangoSyncResults.md
+docs/NangoWebhookPayload.md
+docs/NangoWebhookTags.md
 docs/Node.md
 docs/NodeType.md
 docs/NotExists.md
@@ -247,8 +248,6 @@ docs/StorageApi.md
 docs/StorageDomain.md
 docs/StructuralOperationRequest.md
 docs/StructuralOperationRequestData.md
-docs/SyncConfiguration.md
-docs/SyncScope.md
 docs/System.md
 docs/SystemRelationshipType.md
 docs/SystemSeverity.md
@@ -276,6 +275,7 @@ docs/UserApi.md
 docs/UserDisplay.md
 docs/ValidationScope.md
 docs/Value.md
+docs/WebhooksApi.md
 docs/Widget.md
 docs/WorkflowActionConfig.md
 docs/WorkflowActionType.md
@@ -411,8 +411,6 @@ models/DeleteTypeDefinitionRequestDefinition.ts
 models/DisableIntegrationRequest.ts
 models/DisplayName.ts
 models/DraggableOptions.ts
-models/EnableIntegrationRequest.ts
-models/EnabledEntityTypeSummary.ts
 models/Entity.ts
 models/EntityAttribute.ts
 models/EntityAttributePayload.ts
@@ -458,7 +456,6 @@ models/IntegrationCategory.ts
 models/IntegrationConnectionModel.ts
 models/IntegrationDefinitionModel.ts
 models/IntegrationDisableResponse.ts
-models/IntegrationEnablementResponse.ts
 models/InviteResult.ts
 models/IsRelatedTo.ts
 models/LayoutGrid.ts
@@ -470,6 +467,9 @@ models/Literal.ts
 models/ManifestSummary.ts
 models/Metadata.ts
 models/MoveBlockOperation.ts
+models/NangoSyncResults.ts
+models/NangoWebhookPayload.ts
+models/NangoWebhookTags.ts
 models/Node.ts
 models/NodeType.ts
 models/NotExists.ts
@@ -560,8 +560,6 @@ models/StartWorkflowExecutionRequest.ts
 models/StorageDomain.ts
 models/StructuralOperationRequest.ts
 models/StructuralOperationRequestData.ts
-models/SyncConfiguration.ts
-models/SyncScope.ts
 models/System.ts
 models/SystemRelationshipType.ts
 models/SystemSeverity.ts

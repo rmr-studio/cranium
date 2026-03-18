@@ -1,26 +1,26 @@
 
-# EnableIntegrationRequest
+# NangoWebhookTags
 
 
 ## Properties
 
 Name | Type
 ------------ | -------------
-`integrationDefinitionId` | string
-`nangoConnectionId` | string
-`syncConfig` | [SyncConfiguration](SyncConfiguration.md)
+`endUserId` | string
+`endUserEmail` | string
+`organizationId` | string
 
 ## Example
 
 ```typescript
-import type { EnableIntegrationRequest } from ''
+import type { NangoWebhookTags } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "integrationDefinitionId": null,
-  "nangoConnectionId": null,
-  "syncConfig": null,
-} satisfies EnableIntegrationRequest
+  "endUserId": null,
+  "endUserEmail": null,
+  "organizationId": null,
+} satisfies NangoWebhookTags
 
 console.log(example)
 
@@ -29,7 +29,7 @@ const exampleJSON: string = JSON.stringify(example)
 console.log(exampleJSON)
 
 // Parse the JSON string back to an object
-const exampleParsed = JSON.parse(exampleJSON) as EnableIntegrationRequest
+const exampleParsed = JSON.parse(exampleJSON) as NangoWebhookTags
 console.log(exampleParsed)
 ```
 

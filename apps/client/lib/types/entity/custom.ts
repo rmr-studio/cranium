@@ -73,6 +73,30 @@ export enum QueryFilterType {
 }
 
 /**
+ * Discriminator values for the FilterValue sealed hierarchy.
+ *
+ * Must match the backend's @JsonTypeName annotations exactly (uppercase).
+ */
+export enum FilterValueKind {
+  Literal = 'LITERAL',
+  Template = 'TEMPLATE',
+}
+
+/**
+ * Discriminator values for the RelationshipFilter sealed hierarchy.
+ *
+ * Must match the backend's @JsonTypeName annotations exactly (uppercase).
+ */
+export enum RelationshipFilterType {
+  Exists = 'EXISTS',
+  NotExists = 'NOT_EXISTS',
+  TargetEquals = 'TARGET_EQUALS',
+  TargetMatches = 'TARGET_MATCHES',
+  TargetTypeMatches = 'TARGET_TYPE_MATCHES',
+  CountMatches = 'COUNT_MATCHES',
+}
+
+/**
  * Props interface for relationship picker component
  * Used for selecting related entities in draft rows
  */

@@ -13,24 +13,19 @@ interface DataTableSearchInputProps<TData> {
 export function DataTableSearchInput<TData>({ config }: DataTableSearchInputProps<TData>) {
   const { searchValue, setSearchValue, setGlobalFilter, clearSearch, table } = useDataTableSearch();
 
-  // Debounce search value to global filter
-  useEffect(() => {
-    if (config.serverSide) {
-      // In server-side mode, call onSearchChange immediately (no debounce here —
-      // the parent's useEntitySearch hook handles debouncing before the queryKey)
-      config.onSearchChange?.(searchValue);
-      return;
-    }
+  const { serverSide, debounceMs: configDebounceMs, onSearchChange } = config;
+  const debounceMs = configDebounceMs ?? 300;
 
-    // Client-side mode: debounce before setting globalFilter for in-memory filtering
-    const debounceMs = config.debounceMs ?? 300;
+  useEffect(() => {
     const timer = setTimeout(() => {
-      setGlobalFilter(searchValue);
-      config.onSearchChange?.(searchValue);
+      if (!serverSide) {
+        setGlobalFilter(searchValue);
+      }
+      onSearchChange?.(searchValue);
     }, debounceMs);
 
     return () => clearTimeout(timer);
-  }, [searchValue, config.debounceMs, config.serverSide, setGlobalFilter, config]);
+  }, [searchValue, debounceMs, serverSide, setGlobalFilter, onSearchChange]);
 
   const resultCount = table ? table.getFilteredRowModel().rows.length : 0;
   const showResultCount = searchValue && !config.serverSide;

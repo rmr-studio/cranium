@@ -2,6 +2,7 @@ import { useAuth } from '@/components/provider/auth-context';
 import {
   EntityQueryResponse,
   FilterOperator,
+  FilterValueKind,
   OrderByClause,
   QueryFilter,
   QueryFilterType,
@@ -79,7 +80,7 @@ function buildSearchFilter(
     type: QueryFilterType.Attribute,
     attributeId,
     operator: FilterOperator.Contains,
-    value: { kind: 'Literal' as const, value: search },
+    value: { kind: FilterValueKind.Literal, value: search },
   }));
 
   if (conditions.length === 1) {

@@ -650,8 +650,8 @@ export function generateSearchConfigFromEntityType(
   }
 
   Object.entries(entityType.schema.properties).forEach(([attributeId, schema]) => {
-    // Only include non-protected STRING attributes for search
-    if (schema.type === DataType.String && !schema._protected) {
+    // Include all STRING attributes for search (including protected/identifier fields)
+    if (schema.type === DataType.String) {
       searchableColumns.push(attributeId);
     }
   });

@@ -15,7 +15,6 @@
  */
 
 import { Checkbox } from '@/components/ui/checkbox';
-import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@riven/utils';
 import {
   closestCenter,
@@ -804,26 +803,12 @@ export function DataTable<TData, TValue>({
           />
         </table>
 
-        {/* Infinite scroll sentinel + skeleton loading rows */}
+        {/* Infinite scroll sentinel */}
         {infiniteScroll && (
           <>
             {infiniteScroll.isLoadingMore && (
-              <div className="w-full" aria-label="Loading more rows">
-                {[0, 1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-3 border-b border-border/30 px-3 py-2.5"
-                    style={{
-                      opacity: 1 - i * 0.3,
-                      animationDelay: `${i * 75}ms`,
-                    }}
-                  >
-                    <Skeleton className="h-4 w-8 shrink-0" />
-                    <Skeleton className="h-4 flex-1" />
-                    <Skeleton className="h-4 w-24 shrink-0" />
-                    <Skeleton className="h-4 w-16 shrink-0" />
-                  </div>
-                ))}
+              <div className="flex justify-center py-3 text-sm text-muted-foreground">
+                Loading more...
               </div>
             )}
             {infiniteScroll.hasMore && (

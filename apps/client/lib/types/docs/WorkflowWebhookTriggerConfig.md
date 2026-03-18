@@ -13,8 +13,8 @@ Name | Type
 `signature` | [Signature](Signature.md)
 `payloadSchema` | [SchemaString](SchemaString.md)
 `configSchema` | [Array&lt;WorkflowNodeConfigField&gt;](WorkflowNodeConfigField.md)
-`config` | { [key: string]: object; }
 `subType` | [WorkflowTriggerType](WorkflowTriggerType.md)
+`config` | { [key: string]: object; }
 `type` | [WorkflowNodeType](WorkflowNodeType.md)
 
 ## Example
@@ -30,8 +30,8 @@ const example = {
   "signature": null,
   "payloadSchema": null,
   "configSchema": null,
-  "config": null,
   "subType": null,
+  "config": null,
   "type": null,
 } satisfies WorkflowWebhookTriggerConfig
 

@@ -2,11 +2,14 @@
 // Custom types for user domain (inlined from OpenAPI operations)
 
 import type { User } from "./models";
+import type { SaveUserRequest } from "../models/SaveUserRequest";
 
 // ----- Request Payloads -----
 
-// updateUserProfile uses User type directly as request body
-export type UpdateUserProfileRequest = User;
+export type { SaveUserRequest };
+
+// updateUserProfile uses SaveUserRequest as request body
+export type UpdateUserProfileRequest = SaveUserRequest;
 
 // ----- Response Payloads -----
 

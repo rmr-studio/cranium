@@ -12,8 +12,8 @@ Name | Type
 `interval` | [WorkflowScheduleTriggerConfigInterval](WorkflowScheduleTriggerConfigInterval.md)
 `timeZone` | [WorkflowScheduleTriggerConfigTimeZone](WorkflowScheduleTriggerConfigTimeZone.md)
 `configSchema` | [Array&lt;WorkflowNodeConfigField&gt;](WorkflowNodeConfigField.md)
-`config` | { [key: string]: object; }
 `subType` | [WorkflowTriggerType](WorkflowTriggerType.md)
+`config` | { [key: string]: object; }
 `type` | [WorkflowNodeType](WorkflowNodeType.md)
 
 ## Example
@@ -28,8 +28,8 @@ const example = {
   "interval": null,
   "timeZone": null,
   "configSchema": null,
-  "config": null,
   "subType": null,
+  "config": null,
   "type": null,
 } satisfies WorkflowScheduleTriggerConfig
 

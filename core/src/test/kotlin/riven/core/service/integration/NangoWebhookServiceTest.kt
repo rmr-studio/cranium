@@ -1,11 +1,16 @@
 package riven.core.service.integration
 
 import io.github.oshai.kotlinlogging.KLogger
+import io.temporal.api.common.v1.WorkflowExecution
+import io.temporal.client.WorkflowClient
+import io.temporal.client.WorkflowExecutionAlreadyStarted
+import io.temporal.client.WorkflowOptions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argThat
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.reset
@@ -31,6 +36,7 @@ import riven.core.repository.integration.IntegrationDefinitionRepository
 import riven.core.repository.integration.WorkspaceIntegrationInstallationRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.integration.materialization.TemplateMaterializationService
+import riven.core.service.integration.sync.IntegrationSyncWorkflow
 import riven.core.service.util.factory.integration.IntegrationFactory
 import java.util.*
 
@@ -70,6 +76,9 @@ class NangoWebhookServiceTest {
     private lateinit var transactionTemplate: TransactionTemplate
 
     @MockitoBean
+    private lateinit var workflowClient: WorkflowClient
+
+    @MockitoBean
     private lateinit var logger: KLogger
 
     @Autowired
@@ -84,7 +93,7 @@ class NangoWebhookServiceTest {
 
     @BeforeEach
     fun setup() {
-        reset(connectionRepository, definitionRepository, installationRepository, templateMaterializationService, activityService, transactionTemplate)
+        reset(connectionRepository, definitionRepository, installationRepository, templateMaterializationService, activityService, transactionTemplate, workflowClient)
 
         // TransactionTemplate.execute should immediately invoke the callback
         whenever(transactionTemplate.execute<Any?>(any())).thenAnswer { invocation ->
@@ -298,25 +307,119 @@ class NangoWebhookServiceTest {
         }
     }
 
-    // ------ SyncEventTests ------
+    // ------ SyncDispatchTests ------
 
     @Nested
-    inner class SyncEventTests {
+    inner class SyncDispatchTests {
+
+        private val connectionId: UUID = UUID.fromString("bbbbbbbb-cccc-dddd-eeee-ffffffffffff")
+        private val nangoSyncConnectionId = "nango-conn-1"
+
+        @BeforeEach
+        fun setupSyncMocks() {
+            val connection = IntegrationFactory.createIntegrationConnection(
+                id = connectionId,
+                workspaceId = workspaceId,
+                integrationId = integrationDefinitionId,
+                nangoConnectionId = nangoSyncConnectionId,
+                status = ConnectionStatus.CONNECTED
+            )
+            whenever(connectionRepository.findByNangoConnectionId(nangoSyncConnectionId)).thenReturn(connection)
+        }
 
         @Test
-        fun `sync event logs and returns without creating anything (Phase 3 stub)`() {
-            val syncPayload = NangoWebhookPayload(
+        fun `dispatches workflow with deterministic ID on sync event`() {
+            val mockWorkflow = mock<IntegrationSyncWorkflow>()
+            whenever(workflowClient.newWorkflowStub(eq(IntegrationSyncWorkflow::class.java), any<WorkflowOptions>()))
+                .thenReturn(mockWorkflow)
+
+            val payload = NangoWebhookPayload(
                 type = "sync",
-                syncName = "contacts",
-                model = "Contact",
-                responseResults = NangoSyncResults(added = 5, updated = 2, deleted = 0)
+                connectionId = nangoSyncConnectionId,
+                model = "contacts",
+                providerConfigKey = "hubspot"
             )
 
-            webhookService.handleWebhook(syncPayload)
+            webhookService.handleWebhook(payload)
 
-            verify(connectionRepository, never()).save(any())
-            verify(installationRepository, never()).save(any())
-            verify(templateMaterializationService, never()).materializeIntegrationTemplates(any(), any(), any())
+            verify(workflowClient).newWorkflowStub(
+                eq(IntegrationSyncWorkflow::class.java),
+                argThat<WorkflowOptions> { options ->
+                    options.workflowId == "sync-$connectionId-contacts"
+                }
+            )
+            verify(mockWorkflow).execute(argThat { input ->
+                input.connectionId == connectionId && input.model == "contacts"
+            })
+        }
+
+        @Test
+        fun `ignores duplicate webhook when workflow already running`() {
+            val mockWorkflow = mock<IntegrationSyncWorkflow>()
+            whenever(workflowClient.newWorkflowStub(eq(IntegrationSyncWorkflow::class.java), any<WorkflowOptions>()))
+                .thenReturn(mockWorkflow)
+
+            val alreadyStarted = WorkflowExecutionAlreadyStarted(
+                WorkflowExecution.newBuilder()
+                    .setWorkflowId("sync-$connectionId-contacts")
+                    .setRunId("run-1")
+                    .build(),
+                "IntegrationSyncWorkflow",
+                null
+            )
+            whenever(mockWorkflow.execute(any())).thenThrow(alreadyStarted)
+
+            val payload = NangoWebhookPayload(
+                type = "sync",
+                connectionId = nangoSyncConnectionId,
+                model = "contacts",
+                providerConfigKey = "hubspot"
+            )
+
+            assertDoesNotThrow {
+                webhookService.handleWebhook(payload)
+            }
+        }
+
+        @Test
+        fun `skips dispatch when connectionId is null`() {
+            val payload = NangoWebhookPayload(
+                type = "sync",
+                connectionId = null,
+                model = "contacts"
+            )
+
+            webhookService.handleWebhook(payload)
+
+            verify(workflowClient, never()).newWorkflowStub(any<Class<*>>(), any<WorkflowOptions>())
+        }
+
+        @Test
+        fun `skips dispatch when model is null`() {
+            val payload = NangoWebhookPayload(
+                type = "sync",
+                connectionId = nangoSyncConnectionId,
+                model = null
+            )
+
+            webhookService.handleWebhook(payload)
+
+            verify(workflowClient, never()).newWorkflowStub(any<Class<*>>(), any<WorkflowOptions>())
+        }
+
+        @Test
+        fun `skips dispatch when connection not found`() {
+            whenever(connectionRepository.findByNangoConnectionId("unknown-conn")).thenReturn(null)
+
+            val payload = NangoWebhookPayload(
+                type = "sync",
+                connectionId = "unknown-conn",
+                model = "contacts"
+            )
+
+            webhookService.handleWebhook(payload)
+
+            verify(workflowClient, never()).newWorkflowStub(any<Class<*>>(), any<WorkflowOptions>())
         }
     }
 

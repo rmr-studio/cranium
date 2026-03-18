@@ -23,6 +23,14 @@ interface IdentityClusterMemberRepository : JpaRepository<IdentityClusterMemberE
     fun findByClusterId(clusterId: UUID): List<IdentityClusterMemberEntity>
 
     /**
+     * Returns the membership for a specific entity within a specific cluster, or null if not found.
+     *
+     * Used by [riven.core.service.identity.IdentityClusterService] to verify a target member
+     * is actually in the cluster before creating a relationship with the new entity.
+     */
+    fun findByClusterIdAndEntityId(clusterId: UUID, entityId: UUID): IdentityClusterMemberEntity?
+
+    /**
      * Hard-deletes all members of the given cluster.
      * Used during cluster merge operations where all members of the source cluster
      * are reassigned to the target cluster and the old membership rows are removed.

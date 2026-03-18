@@ -87,16 +87,20 @@ Plans:
 - [ ] 04-02-PLAN.md — IdentityConfirmationService with confirm/reject flows, 5-case cluster management, and full test coverage
 
 ### Phase 5: REST API
-**Goal**: Workspace members can review match suggestions, browse identity clusters, and check pending match counts for any entity via REST endpoints
+**Goal**: Workspace members can review match suggestions, browse identity clusters, check pending match counts, manually add entities to clusters, and rename clusters via REST endpoints
 **Depends on**: Phase 4
 **Requirements**: API-01, API-02, API-03, API-04, API-05, API-06, API-07, API-08
 **Success Criteria** (what must be TRUE):
-  1. `GET /api/v1/identity/{workspaceId}/suggestions` returns paginated suggestions filterable by status — a workspace member sees only their workspace's suggestions
+  1. `GET /api/v1/identity/{workspaceId}/suggestions` returns suggestions for a workspace — a workspace member sees only their workspace's suggestions
   2. `GET /api/v1/identity/{workspaceId}/suggestions/{id}` returns a suggestion with full per-signal breakdown in the response
   3. `POST /suggestions/{id}/confirm` and `POST /suggestions/{id}/reject` transition suggestion state and return the updated suggestion
   4. `GET /api/v1/identity/{workspaceId}/clusters/{id}` returns the cluster with all member entity IDs listed
   5. `GET /api/v1/identity/{workspaceId}/entities/{id}/matches` returns the count of PENDING suggestions for that entity
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Response DTOs, repository query extensions, and IdentityReadService for all read operations
+- [ ] 05-02-PLAN.md — IdentityClusterService (manual add + rename), IdentityController wiring all 9 endpoints
 
 ## Progress
 
@@ -109,4 +113,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Matching Pipeline | 2/4 | In Progress|  |
 | 3. Trigger and Dispatch | 1/2 | In Progress|  |
 | 4. Confirmation and Clusters | 1/2 | In Progress|  |
-| 5. REST API | 0/TBD | Not started | - |
+| 5. REST API | 1/2 | In Progress|  |

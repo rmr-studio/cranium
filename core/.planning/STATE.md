@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 04-confirmation-and-clusters/04-02-PLAN.md
-last_updated: "2026-03-18T05:35:19.289Z"
+stopped_at: Completed 05-rest-api/05-01-PLAN.md
+last_updated: "2026-03-18T08:39:02.999Z"
 last_activity: 2026-03-16 — Roadmap created
 progress:
   total_phases: 5
   completed_phases: 4
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 13
+  completed_plans: 12
   percent: 20
 ---
 
@@ -60,6 +60,7 @@ Progress: [██░░░░░░░░] 20%
 | Phase 03-trigger-and-dispatch P02 | 7min | 2 tasks | 8 files |
 | Phase 04-confirmation-and-clusters P01 | 12min | 2 tasks | 5 files |
 | Phase 04-confirmation-and-clusters P02 | 8min | 1 tasks | 5 files |
+| Phase 05-rest-api P01 | 4min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -98,6 +99,8 @@ Recent decisions affecting current work:
 - [Phase 04-confirmation-and-clusters]: deleteByClusterId uses native hard-delete — identity_cluster_members is system-managed join table with no SoftDeletable, consistent with EntityAttributeRepository.hardDeleteByEntityId pattern
 - [Phase 04-confirmation-and-clusters]: rejectSuggestion removed from IdentityMatchSuggestionService — IdentityConfirmationService is the single state machine owner for both confirm and reject transitions
 - [Phase 04-confirmation-and-clusters]: Cluster merge tie-breaking favors source entity's cluster — source is in canonical (lower UUID) position, consistent with DB ordering constraint
+- [Phase 05-rest-api]: SuggestionResponse excludes rejectionSignals — internal state not part of public API
+- [Phase 05-rest-api]: countPendingForEntity uses native query with explicit deleted=false — @SQLRestriction does not apply to native queries
 
 ### Pending Todos
 
@@ -111,6 +114,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T05:35:19.283Z
-Stopped at: Completed 04-confirmation-and-clusters/04-02-PLAN.md
+Last session: 2026-03-18T08:39:02.996Z
+Stopped at: Completed 05-rest-api/05-01-PLAN.md
 Resume file: None

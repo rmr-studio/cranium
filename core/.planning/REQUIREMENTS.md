@@ -35,21 +35,21 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Confirmation
 
-- [ ] **CONF-01**: Confirm creates CONNECTED_ENTITIES relationship via EntityRelationshipService with source=IDENTITY_MATCH
-- [ ] **CONF-02**: Identity cluster created/assigned at confirmation time (5 cases: neither clustered, one clustered, both in different clusters → merge, both in same cluster → no-op)
-- [ ] **CONF-03**: Cluster merge — move all members of smaller cluster into larger, soft-delete empty cluster
-- [ ] **CONF-04**: Reject transitions PENDING → REJECTED with resolvedBy and resolvedAt
-- [ ] **CONF-05**: Double-confirm and double-reject produce ConflictException
+- [x] **CONF-01**: Confirm creates CONNECTED_ENTITIES relationship via EntityRelationshipService with source=IDENTITY_MATCH
+- [x] **CONF-02**: Identity cluster created/assigned at confirmation time (5 cases: neither clustered, one clustered, both in different clusters → merge, both in same cluster → no-op)
+- [x] **CONF-03**: Cluster merge — move all members of smaller cluster into larger, soft-delete empty cluster
+- [x] **CONF-04**: Reject transitions PENDING → REJECTED with resolvedBy and resolvedAt
+- [x] **CONF-05**: Double-confirm and double-reject produce ConflictException
 
 ### API
 
-- [ ] **API-01**: `GET /api/v1/identity/{workspaceId}/suggestions` — list suggestions filterable by status, paginated
-- [ ] **API-02**: `GET /api/v1/identity/{workspaceId}/suggestions/{id}` — suggestion detail with signal breakdown
+- [x] **API-01**: `GET /api/v1/identity/{workspaceId}/suggestions` — list suggestions filterable by status, paginated
+- [x] **API-02**: `GET /api/v1/identity/{workspaceId}/suggestions/{id}` — suggestion detail with signal breakdown
 - [ ] **API-03**: `POST /api/v1/identity/{workspaceId}/suggestions/{id}/confirm` — confirm match
 - [ ] **API-04**: `POST /api/v1/identity/{workspaceId}/suggestions/{id}/reject` — reject match
-- [ ] **API-05**: `GET /api/v1/identity/{workspaceId}/clusters` — list identity clusters
-- [ ] **API-06**: `GET /api/v1/identity/{workspaceId}/clusters/{id}` — cluster detail with member entities
-- [ ] **API-07**: `GET /api/v1/identity/{workspaceId}/entities/{id}/matches` — pending match count for entity
+- [x] **API-05**: `GET /api/v1/identity/{workspaceId}/clusters` — list identity clusters
+- [x] **API-06**: `GET /api/v1/identity/{workspaceId}/clusters/{id}` — cluster detail with member entities
+- [x] **API-07**: `GET /api/v1/identity/{workspaceId}/entities/{id}/matches` — pending match count for entity
 - [ ] **API-08**: Notification stub published on match events (no-op until notification domain ships)
 
 ## v2 Requirements
@@ -106,18 +106,18 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SUGG-03 | Phase 2 | Complete |
 | SUGG-04 | Phase 2 | Complete |
 | SUGG-05 | Phase 2 | Complete |
-| CONF-01 | Phase 4 | Pending |
-| CONF-02 | Phase 4 | Pending |
-| CONF-03 | Phase 4 | Pending |
-| CONF-04 | Phase 4 | Pending |
-| CONF-05 | Phase 4 | Pending |
-| API-01 | Phase 5 | Pending |
-| API-02 | Phase 5 | Pending |
+| CONF-01 | Phase 4 | Complete |
+| CONF-02 | Phase 4 | Complete |
+| CONF-03 | Phase 4 | Complete |
+| CONF-04 | Phase 4 | Complete |
+| CONF-05 | Phase 4 | Complete |
+| API-01 | Phase 5 | Complete |
+| API-02 | Phase 5 | Complete |
 | API-03 | Phase 5 | Pending |
 | API-04 | Phase 5 | Pending |
-| API-05 | Phase 5 | Pending |
-| API-06 | Phase 5 | Pending |
-| API-07 | Phase 5 | Pending |
+| API-05 | Phase 5 | Complete |
+| API-06 | Phase 5 | Complete |
+| API-07 | Phase 5 | Complete |
 | API-08 | Phase 5 | Pending |
 
 **Coverage:**

@@ -15,9 +15,9 @@ import { Input } from '@riven/ui/input';
 import Link from 'next/link';
 import { FC, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { PasswordRequirements } from './password-requirements';
-import { Registration } from './register';
-import ThirdParty from './third-party';
+import { PasswordRequirements } from '@/components/feature-modules/authentication/components/password-requirements';
+import { Registration } from '@/components/feature-modules/authentication/components/register';
+import ThirdParty from '@/components/feature-modules/authentication/components/third-party';
 
 interface CredentialRegistrationProps {
   registrationForm: UseFormReturn<Registration>;

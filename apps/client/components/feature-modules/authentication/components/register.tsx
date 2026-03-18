@@ -8,8 +8,8 @@ import { FC, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import RegisterConfirmation from './register-confirmation';
-import RegisterCredentials from './register-credentials';
+import RegisterConfirmation from '@/components/feature-modules/authentication/components/register-confirmation';
+import RegisterCredentials from '@/components/feature-modules/authentication/components/register-credentials';
 
 // Authentication Form Schemas
 const registrationSchema = z

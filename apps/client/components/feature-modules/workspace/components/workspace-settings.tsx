@@ -79,8 +79,10 @@ export function WorkspaceSettings() {
   const handleAvatarUpload = useCallback((file: Blob) => {
     setUploadedAvatar(file);
     setAvatarRemoved(false);
-    const url = URL.createObjectURL(file);
-    setAvatarPreviewUrl(url);
+    setAvatarPreviewUrl((prev) => {
+      if (prev?.startsWith('blob:')) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
   }, []);
 
   const handleAvatarRemove = useCallback(() => {

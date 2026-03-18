@@ -3,7 +3,7 @@ import { AnimatePresence } from 'framer-motion';
 import { CheckIcon, Circle } from 'lucide-react';
 import { FC } from 'react';
 import { Control, useWatch } from 'react-hook-form';
-import { Registration } from './register';
+import { Registration } from '@/components/feature-modules/authentication/components/register';
 
 interface Props {
   control: Control<Registration>;

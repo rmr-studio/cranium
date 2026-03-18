@@ -20,7 +20,7 @@ import { FC } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import ThirdParty from './third-party';
+import ThirdParty from '@/components/feature-modules/authentication/components/third-party';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid Email').min(1, 'Email is required'),

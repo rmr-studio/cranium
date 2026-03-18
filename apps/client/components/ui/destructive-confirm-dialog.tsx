@@ -11,7 +11,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Input } from '@riven/ui/input';
-import { FC, useState } from 'react';
+import { FC, useCallback, useState } from 'react';
 
 interface DestructiveConfirmDialogProps {
   open: boolean;
@@ -35,12 +35,23 @@ export const DestructiveConfirmDialog: FC<DestructiveConfirmDialogProps> = ({
   isPending,
 }) => {
   const [inputValue, setInputValue] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const isMatch = inputValue === confirmValue;
+  const isDisabled = !isMatch || isPending || isSubmitting;
 
   const handleOpenChange = (next: boolean) => {
-    if (!next) setInputValue('');
+    if (!next) {
+      setInputValue('');
+      setIsSubmitting(false);
+    }
     onOpenChange(next);
   };
+
+  const handleConfirm = useCallback(() => {
+    if (isDisabled) return;
+    setIsSubmitting(true);
+    onConfirm();
+  }, [isDisabled, onConfirm]);
 
   return (
     <AlertDialog open={open} onOpenChange={handleOpenChange}>
@@ -59,15 +70,16 @@ export const DestructiveConfirmDialog: FC<DestructiveConfirmDialogProps> = ({
             onChange={(e) => setInputValue(e.target.value)}
             placeholder={confirmValue}
             autoComplete="off"
+            aria-label={`Type "${confirmValue}" to confirm`}
           />
         </div>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending || isSubmitting}>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            disabled={!isMatch || isPending}
+            disabled={isDisabled}
             onClick={(e) => {
               e.preventDefault();
-              onConfirm();
+              handleConfirm();
             }}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >

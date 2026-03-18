@@ -1,6 +1,7 @@
 'use client';
 
 import { AvatarCropDialog } from '@/components/ui/avatar-crop-dialog';
+import type { InputValidation } from '@/lib/interfaces/interface';
 import { Button } from '@riven/ui/button';
 import { Label } from '@riven/ui/label';
 import { Pencil, Upload, UserRound } from 'lucide-react';
@@ -8,11 +9,7 @@ import Image from 'next/image';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-export interface InputValidation {
-  maxSize: number;
-  allowedTypes: string[];
-  errorMessage: string;
-}
+export type { InputValidation };
 
 interface AvatarUploaderProps {
   onUpload: (file: Blob) => void;

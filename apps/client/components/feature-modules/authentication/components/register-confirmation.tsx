@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation';
 import { FC, useState } from 'react';
 import { Control, useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
-import { Registration } from './register';
+import { Registration } from '@/components/feature-modules/authentication/components/register';
 
 interface RegisterConfirmationProps {
   confirmEmailSignupWithOTP: (userDetails: RegistrationConfirmation) => Promise<void>;

@@ -1,4 +1,4 @@
-import { accountSettingsSchema } from './account-settings';
+import { accountSettingsSchema } from '@/components/feature-modules/user/components/account-settings';
 
 describe('accountSettingsSchema', () => {
   it('validates valid input', () => {

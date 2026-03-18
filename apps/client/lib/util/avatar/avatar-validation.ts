@@ -1,4 +1,4 @@
-import type { InputValidation } from '@/components/ui/avatar-uploader';
+import type { InputValidation } from '@/lib/interfaces/interface';
 
 export const AVATAR_VALIDATION: InputValidation = {
   maxSize: 10 * 1024 * 1024,

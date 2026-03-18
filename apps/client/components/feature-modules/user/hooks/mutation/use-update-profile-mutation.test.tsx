@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useUpdateProfileMutation } from './use-update-profile-mutation';
+import { useUpdateProfileMutation } from '@/components/feature-modules/user/hooks/mutation/use-update-profile-mutation';
 import { useAuth } from '@/components/provider/auth-context';
 import { updateUser } from '@/components/feature-modules/user/service/user.service';
 import { toast } from 'sonner';

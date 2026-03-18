@@ -1,4 +1,4 @@
-import { workspaceSettingsSchema } from './workspace-settings';
+import { workspaceSettingsSchema } from '@/components/feature-modules/workspace/components/workspace-settings';
 
 describe('workspaceSettingsSchema', () => {
   it('validates valid input', () => {

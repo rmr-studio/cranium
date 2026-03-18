@@ -7,7 +7,7 @@ const STROKE_CLASS = 'text-foreground/25';
 export function AuthFrame() {
   return (
     <div
-      className="absolute inset-0 z-30"
+      className="pointer-events-none absolute inset-0 z-30"
       style={{
         maskImage: 'linear-gradient(to bottom, black 60%, transparent 80%)',
         WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent 80%)',

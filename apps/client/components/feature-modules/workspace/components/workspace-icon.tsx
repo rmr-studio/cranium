@@ -10,7 +10,7 @@ interface WorkspaceIconProps {
 }
 
 export const WorkspaceIcon: FC<WorkspaceIconProps> = ({ name, avatarUrl, className }) => {
-  const letter = name?.charAt(0)?.toUpperCase() ?? 'W';
+  const letter = name?.charAt(0)?.toUpperCase() || 'W';
 
   return (
     <div

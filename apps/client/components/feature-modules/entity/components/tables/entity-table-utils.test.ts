@@ -590,7 +590,7 @@ describe('generateSearchConfigFromEntityType', () => {
     expect(generateSearchConfigFromEntityType(entityType)).toContain('name');
   });
 
-  it('excludes protected string attributes', () => {
+  it('includes protected string attributes (e.g. id) for search', () => {
     const entityType = createMockEntityType({
       schema: createMockSchema({
         properties: {
@@ -600,7 +600,7 @@ describe('generateSearchConfigFromEntityType', () => {
       }),
     });
     const result = generateSearchConfigFromEntityType(entityType);
-    expect(result).not.toContain('id');
+    expect(result).toContain('id');
     expect(result).toContain('name');
   });
 

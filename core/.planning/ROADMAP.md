@@ -80,7 +80,11 @@ Plans:
   3. When two clusters merge, all members of the smaller cluster move to the larger cluster and the empty cluster is soft-deleted
   4. Confirming an already-confirmed suggestion or rejecting an already-rejected suggestion throws ConflictException
   5. All state transitions (create, confirm, reject) are logged as activity entries
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — Repository queries, test factory extensions, and cluster-aware re-suggestion guard
+- [ ] 04-02-PLAN.md — IdentityConfirmationService with confirm/reject flows, 5-case cluster management, and full test coverage
 
 ### Phase 5: REST API
 **Goal**: Workspace members can review match suggestions, browse identity clusters, and check pending match counts for any entity via REST endpoints
@@ -104,5 +108,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Infrastructure | 3/3 | Complete   | 2026-03-15 |
 | 2. Matching Pipeline | 2/4 | In Progress|  |
 | 3. Trigger and Dispatch | 1/2 | In Progress|  |
-| 4. Confirmation and Clusters | 0/TBD | Not started | - |
+| 4. Confirmation and Clusters | 0/2 | Not started | - |
 | 5. REST API | 0/TBD | Not started | - |

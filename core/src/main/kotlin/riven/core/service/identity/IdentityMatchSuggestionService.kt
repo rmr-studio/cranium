@@ -9,7 +9,6 @@ import riven.core.enums.activity.Activity
 import riven.core.enums.core.ApplicationEntityType
 import riven.core.enums.identity.MatchSuggestionStatus
 import riven.core.enums.util.OperationType
-import riven.core.exceptions.ConflictException
 import riven.core.models.identity.MatchSuggestion
 import riven.core.models.identity.ScoredCandidate
 import riven.core.repository.identity.IdentityClusterMemberRepository
@@ -53,30 +52,6 @@ class IdentityMatchSuggestionService(
         scoredCandidates.count { candidate ->
             createOrResuggest(candidate, workspaceId, userId) != null
         }
-
-    /**
-     * Rejects a match suggestion by transitioning its status to REJECTED and writing
-     * a snapshot of the current signals to the [MatchSuggestionEntity.rejectionSignals] field.
-     *
-     * The rejectionSignals snapshot is the prerequisite for re-suggestion (SUGG-04): the
-     * re-suggestion check compares the new score against [MatchSuggestionEntity.confidenceScore]
-     * on the rejected row, so this method ensures that state is correctly persisted.
-     *
-     * @param suggestionId The UUID of the suggestion to reject.
-     * @param userId The user performing the rejection — always required (non-null).
-     * @return The updated [MatchSuggestion] domain model.
-     * @throws riven.core.exceptions.NotFoundException if the suggestion does not exist.
-     * @throws ConflictException if the suggestion is not in PENDING status.
-     */
-    @Transactional
-    fun rejectSuggestion(suggestionId: UUID, userId: UUID): MatchSuggestion {
-        val entity = findOrThrow { repository.findById(suggestionId) }
-        validateRejectable(entity)
-        applyRejection(entity, userId)
-        val saved = repository.save(entity)
-        logRejectionActivity(saved, userId)
-        return saved.toModel()
-    }
 
     // ------ Private helpers ------
 
@@ -141,36 +116,6 @@ class IdentityMatchSuggestionService(
     }
 
     /**
-     * Validates that the suggestion can be rejected (must be PENDING status).
-     */
-    private fun validateRejectable(entity: MatchSuggestionEntity) {
-        if (entity.status != MatchSuggestionStatus.PENDING) {
-            throw ConflictException("Suggestion is already ${entity.status}")
-        }
-    }
-
-    /**
-     * Applies rejection state to the entity: writes rejectionSignals snapshot,
-     * sets status, resolvedBy, resolvedAt, and soft-deletes the row.
-     *
-     * Soft-deletion is required here because [MatchSuggestionRepository.findRejectedSuggestion]
-     * looks for rows where `deleted = true AND status = REJECTED`. Callers that want to check
-     * for active suggestions use [MatchSuggestionRepository.findActiveSuggestion] which filters
-     * by `deleted = false`, so soft-deleting on rejection keeps both queries consistent.
-     */
-    private fun applyRejection(entity: MatchSuggestionEntity, userId: UUID) {
-        entity.rejectionSignals = mapOf(
-            "signals" to entity.signals,
-            "confidenceScore" to entity.confidenceScore.toDouble(),
-        )
-        entity.status = MatchSuggestionStatus.REJECTED
-        entity.resolvedBy = userId
-        entity.resolvedAt = ZonedDateTime.now()
-        entity.deleted = true
-        entity.deletedAt = ZonedDateTime.now()
-    }
-
-    /**
      * Logs an activity entry for a newly created suggestion.
      * Only called when [userId] is non-null (system activities are not logged).
      */
@@ -187,26 +132,6 @@ class IdentityMatchSuggestionService(
                 "targetEntityId" to suggestion.targetEntityId.toString(),
                 "confidenceScore" to suggestion.confidenceScore.toDouble(),
                 "signalCount" to suggestion.signals.size,
-            ),
-        )
-    }
-
-    /**
-     * Logs an activity entry for a rejected suggestion.
-     */
-    private fun logRejectionActivity(entity: MatchSuggestionEntity, userId: UUID) {
-        activityService.logActivity(
-            activity = Activity.MATCH_SUGGESTION,
-            operation = OperationType.UPDATE,
-            userId = userId,
-            workspaceId = entity.workspaceId,
-            entityType = ApplicationEntityType.MATCH_SUGGESTION,
-            entityId = requireNotNull(entity.id) { "Suggestion ID must not be null when logging rejection" },
-            details = mapOf(
-                "action" to "rejected",
-                "sourceEntityId" to entity.sourceEntityId.toString(),
-                "targetEntityId" to entity.targetEntityId.toString(),
-                "confidenceScore" to entity.confidenceScore.toDouble(),
             ),
         )
     }

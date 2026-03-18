@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argThat
 import org.mockito.kotlin.argumentCaptor
@@ -22,8 +21,6 @@ import riven.core.enums.activity.Activity
 import riven.core.enums.core.ApplicationEntityType
 import riven.core.enums.identity.MatchSuggestionStatus
 import riven.core.enums.util.OperationType
-import riven.core.exceptions.ConflictException
-import riven.core.exceptions.NotFoundException
 import riven.core.models.common.json.JsonObject
 import riven.core.repository.identity.IdentityClusterMemberRepository
 import riven.core.repository.identity.MatchSuggestionRepository
@@ -329,113 +326,6 @@ class IdentityMatchSuggestionServiceTest : BaseServiceTest() {
         val count = service.persistSuggestions(workspaceId, listOf(c1, c2), userId)
 
         assertEquals(2, count)
-    }
-
-    // ------ rejectSuggestion ------
-
-    /**
-     * rejectSuggestion on a PENDING suggestion sets status to REJECTED,
-     * populates rejectionSignals with the current signals snapshot,
-     * and sets resolvedBy and resolvedAt.
-     */
-    @Test
-    fun `rejectSuggestion sets REJECTED status and writes rejectionSignals snapshot`() {
-        val suggestionId = UUID.randomUUID()
-        val signals = listOf(IdentityFactory.createMatchSignal().toMap())
-        val entity = IdentityFactory.createMatchSuggestionEntity(
-            workspaceId = workspaceId,
-            status = MatchSuggestionStatus.PENDING,
-            confidenceScore = BigDecimal("0.8500"),
-            signals = signals,
-        )
-        val entityWithId = buildEntityWithId(entity, suggestionId)
-
-        whenever(repository.findById(suggestionId)).thenReturn(Optional.of(entityWithId))
-        whenever(repository.save(any<MatchSuggestionEntity>())).thenAnswer { invocation ->
-            buildSavedEntity(invocation.getArgument(0))
-        }
-        whenever(activityService.logActivity(any(), any(), any(), any(), any(), any(), any(), any()))
-            .thenReturn(buildActivityLog())
-
-        val result = service.rejectSuggestion(suggestionId, userId)
-
-        assertEquals(MatchSuggestionStatus.REJECTED, result.status)
-        assertNotNull(result.rejectionSignals)
-        assertNotNull(result.resolvedBy)
-        assertNotNull(result.resolvedAt)
-        assertEquals(userId, result.resolvedBy)
-    }
-
-    /**
-     * rejectSuggestion logs activity with MATCH_SUGGESTION / UPDATE and details containing "action"="rejected".
-     */
-    @Test
-    fun `rejectSuggestion logs activity with UPDATE operation`() {
-        val suggestionId = UUID.randomUUID()
-        val entity = IdentityFactory.createMatchSuggestionEntity(
-            workspaceId = workspaceId,
-            status = MatchSuggestionStatus.PENDING,
-        )
-        val entityWithId = buildEntityWithId(entity, suggestionId)
-
-        whenever(repository.findById(suggestionId)).thenReturn(Optional.of(entityWithId))
-        whenever(repository.save(any<MatchSuggestionEntity>())).thenAnswer { invocation ->
-            buildSavedEntity(invocation.getArgument(0))
-        }
-        whenever(activityService.logActivity(any(), any(), any(), any(), any(), any(), any(), any()))
-            .thenReturn(buildActivityLog())
-
-        service.rejectSuggestion(suggestionId, userId)
-
-        val detailsCaptor = argumentCaptor<JsonObject>()
-        verify(activityService).logActivity(
-            eq(Activity.MATCH_SUGGESTION),
-            eq(OperationType.UPDATE),
-            eq(userId),
-            eq(workspaceId),
-            eq(ApplicationEntityType.MATCH_SUGGESTION),
-            eq(suggestionId),
-            any(),
-            detailsCaptor.capture(),
-        )
-
-        val details = detailsCaptor.firstValue
-        assertEquals("rejected", details["action"])
-        assertNotNull(details["sourceEntityId"])
-        assertNotNull(details["targetEntityId"])
-        assertNotNull(details["confidenceScore"])
-    }
-
-    /**
-     * rejectSuggestion on an already-REJECTED suggestion throws ConflictException.
-     */
-    @Test
-    fun `rejectSuggestion throws ConflictException when suggestion is already REJECTED`() {
-        val suggestionId = UUID.randomUUID()
-        val entity = IdentityFactory.createMatchSuggestionEntity(
-            workspaceId = workspaceId,
-            status = MatchSuggestionStatus.REJECTED,
-        )
-        val entityWithId = buildEntityWithId(entity, suggestionId)
-
-        whenever(repository.findById(suggestionId)).thenReturn(Optional.of(entityWithId))
-
-        assertThrows<ConflictException> {
-            service.rejectSuggestion(suggestionId, userId)
-        }
-    }
-
-    /**
-     * rejectSuggestion on a non-existent ID throws NotFoundException.
-     */
-    @Test
-    fun `rejectSuggestion throws NotFoundException when suggestion does not exist`() {
-        val suggestionId = UUID.randomUUID()
-        whenever(repository.findById(suggestionId)).thenReturn(Optional.empty())
-
-        assertThrows<NotFoundException> {
-            service.rejectSuggestion(suggestionId, userId)
-        }
     }
 
     // ------ persistSuggestions — cluster awareness ------

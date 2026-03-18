@@ -391,15 +391,24 @@ class IdentityMatchPipelineIntegrationTest {
         val firstCount = suggestionService.persistSuggestions(workspaceId, scored, null)
         assertEquals(1, firstCount, "Expected first run to create 1 suggestion")
 
-        // Step 2: Reject the suggestion
+        // Step 2: Reject the suggestion directly via SQL (rejectSuggestion is now on IdentityConfirmationService
+        // which requires JWT context — this integration test uses a minimal config without security).
         val suggestions = suggestionRepository.findAll()
         assertEquals(1, suggestions.size, "Expected exactly one suggestion before rejection")
         val suggestion = suggestions.first()
         assertNotNull(suggestion.id)
         val rejectionUserId = UUID.fromString("99000000-0000-0000-0000-000000000001")
-        suggestionService.rejectSuggestion(requireNotNull(suggestion.id), rejectionUserId)
+        jdbcTemplate.update(
+            """UPDATE match_suggestions
+               SET status = 'REJECTED', resolved_by = ?, resolved_at = NOW(),
+                   rejection_signals = ?::jsonb, deleted = true, deleted_at = NOW()
+               WHERE id = ?""",
+            rejectionUserId,
+            """{"signals": [], "confidenceScore": 0.0}""",
+            requireNotNull(suggestion.id),
+        )
 
-        // Verify suggestion is in REJECTED status and soft-deleted (deleted = true is applied by rejectSuggestion)
+        // Verify suggestion is in REJECTED status and soft-deleted
         val rejectedCount = jdbcTemplate.queryForObject(
             "SELECT COUNT(*) FROM match_suggestions WHERE workspace_id = ? AND status = 'REJECTED' AND deleted = true",
             Int::class.java,

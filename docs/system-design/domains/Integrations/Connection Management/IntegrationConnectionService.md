@@ -4,6 +4,7 @@ tags:
   - component/active
   - architecture/component
 Created: 2025-07-17
+Updated: 2026-03-18
 Domains:
   - "[[Integrations]]"
 ---
@@ -13,18 +14,17 @@ Part of [[Connection Management]]
 
 ## Purpose
 
-Manages the full lifecycle of integration connections between workspaces and external services. Enforces a 10-state connection state machine with validated transitions, coordinates with [[NangoClientWrapper]] for external OAuth connection management, and triggers [[TemplateMaterializationService]] when connections become active.
+Manages the lifecycle of integration connections between workspaces and external services. Enforces an 8-state connection state machine with validated transitions, coordinates with [[NangoClientWrapper]] for external OAuth connection management, and triggers [[TemplateMaterializationService]] when connections become active. Connections are created exclusively by the webhook handler (via `createOrReconnect`) after successful OAuth completion — there is no public connection creation endpoint.
 
 ---
 
 ## Responsibilities
 
-- Create new integration connections with workspace-scoped uniqueness enforcement
-- Enable connections in a single action (create-and-connect or reconnect from DISCONNECTED)
-- Update connection status with state machine validation
-- Disconnect connections with graceful Nango cleanup
-- Retrieve connections by workspace or by workspace + integration pair
-- Trigger template materialization when connections reach CONNECTED state
+- Provide workspace-scoped connection queries (by workspace, by workspace + integration pair)
+- Update connection status with state machine validation via `canTransitionTo()`
+- Disconnect connections with graceful Nango cleanup using programmatic transaction management
+- Create or reconnect connections via the internal `createOrReconnect` method (called by webhook handler only)
+- Trigger template materialization when connections reach CONNECTED state via `updateConnectionStatus`
 - Log activity for all mutations (create, update, disconnect)
 
 ---
@@ -41,8 +41,9 @@ Manages the full lifecycle of integration connections between workspaces and ext
 
 ## Used By
 
-- [[IntegrationController]] -- REST endpoints for enable/disable and listing
-- Internal services that need to check connection state before performing integration-scoped operations
+- [[NangoWebhookService]] — Calls `createOrReconnect` for connection creation after OAuth
+- [[IntegrationEnablementService]] — Calls `getConnection` and `disconnectConnection` during disable flow
+- [[IntegrationController]] — REST endpoints for status queries
 
 ---
 
@@ -50,42 +51,39 @@ Manages the full lifecycle of integration connections between workspaces and ext
 
 ### Connection state machine
 
-The connection lifecycle is governed by `ConnectionStatus`, an enum with 10 states and explicit transition rules enforced via `canTransitionTo()`. Every call to `updateConnectionStatus` and internal transition helpers validates against this state machine before persisting.
+The connection lifecycle is governed by `ConnectionStatus`, an enum with 8 states and explicit transition rules enforced via `canTransitionTo()`. Every call to `updateConnectionStatus` and internal transition helpers validates against this state machine before persisting.
 
 | State | Valid transitions to |
 |---|---|
-| `PENDING_AUTHORIZATION` | `AUTHORIZING`, `FAILED`, `DISCONNECTED` |
-| `AUTHORIZING` | `CONNECTED`, `FAILED` |
 | `CONNECTED` | `SYNCING`, `HEALTHY`, `DISCONNECTING`, `FAILED` |
 | `SYNCING` | `HEALTHY`, `DEGRADED`, `FAILED` |
 | `HEALTHY` | `SYNCING`, `STALE`, `DEGRADED`, `DISCONNECTING`, `FAILED` |
 | `DEGRADED` | `HEALTHY`, `STALE`, `FAILED`, `DISCONNECTING` |
 | `STALE` | `SYNCING`, `DISCONNECTING`, `FAILED` |
 | `DISCONNECTING` | `DISCONNECTED`, `FAILED` |
-| `DISCONNECTED` | `PENDING_AUTHORIZATION` |
-| `FAILED` | `PENDING_AUTHORIZATION`, `DISCONNECTED` |
+| `DISCONNECTED` | `CONNECTED` |
+| `FAILED` | `CONNECTED`, `DISCONNECTED` |
 
-Terminal-ish states: `DISCONNECTED` can only re-enter the lifecycle via `PENDING_AUTHORIZATION`. `FAILED` can recover to `PENDING_AUTHORIZATION` or be marked `DISCONNECTED`.
+`PENDING_AUTHORIZATION` and `AUTHORIZING` were removed in Phase 2 — connections are created directly in `CONNECTED` state by the webhook handler since OAuth intermediates are handled entirely by Nango.
 
-### enableConnection flow
+Terminal-ish states: `DISCONNECTED` can only re-enter the lifecycle via `CONNECTED` (through the webhook handler). `FAILED` can recover to `CONNECTED` (via webhook) or be marked `DISCONNECTED`.
 
-Provides a single-action enable path used by the frontend after the Nango OAuth flow completes:
+### createOrReconnect (internal)
 
-1. Validate the integration definition exists via `findOrThrow`
-2. Check for an existing connection for this workspace + integration pair
-3. If existing and `CONNECTED` -- return as-is (idempotent)
-4. If existing and `DISCONNECTED` -- reconnect by updating status to `CONNECTED` and replacing the `nangoConnectionId`
-5. If existing in any other state -- throw `ConflictException` (connection is in a non-terminal transitional state)
-6. If no existing connection -- create a new `IntegrationConnectionEntity` with status `CONNECTED` directly (skipping `PENDING_AUTHORIZATION`/`AUTHORIZING` since Nango has already completed OAuth)
-7. Log CREATE activity
+Internal method called by [[NangoWebhookService]] after Nango confirms successful OAuth. Handles 4 scenarios:
 
-Note: `enableConnection` does NOT trigger template materialization. Only `updateConnectionStatus` triggers materialization when transitioning to `CONNECTED`.
+1. No existing connection → create new with `CONNECTED` status, log CREATE activity
+2. Existing with `DISCONNECTED` or `FAILED` status → validate state transition, set to `CONNECTED`, update `nangoConnectionId`, log UPDATE activity
+3. Existing with `CONNECTED` status → idempotent: update `nangoConnectionId` if changed, otherwise no-op
+4. Existing in any other state → update `nangoConnectionId` only (warning logged, status preserved)
+
+This method is `internal` visibility — it is not exposed as a public API. Connection creation is exclusively webhook-driven.
 
 ### State transition enforcement
 
 `canTransitionTo()` is defined on the `ConnectionStatus` enum itself. Each state declares its set of valid target states via a `when` expression. Invalid transitions cause `InvalidStateTransitionException`, which is mapped to an HTTP error by `@ControllerAdvice`.
 
-The service never sets status directly without checking transitions, except in `enableConnection` and `reconnectConnection` where the target state (`CONNECTED`) is hardcoded and the source state is verified by the surrounding conditional logic.
+The service never sets status directly without checking transitions, except in `createOrReconnect` and `reconnectConnection` where the target state (`CONNECTED`) is hardcoded and the source state is verified by the surrounding conditional logic.
 
 ### Nango integration
 
@@ -121,10 +119,6 @@ Returns all connections for a workspace. Requires workspace membership via `@Pre
 
 Returns a specific workspace's connection to an integration, or null if none exists. Requires workspace membership.
 
-### `createConnection(workspaceId: UUID, integrationId: UUID, nangoConnectionId: String): IntegrationConnectionEntity`
-
-Creates a new connection with `PENDING_AUTHORIZATION` status. Requires ADMIN role. Throws `ConflictException` if a connection already exists for the workspace + integration pair. Validates the integration definition exists. Annotated with `@Transactional`.
-
 ### `updateConnectionStatus(workspaceId: UUID, connectionId: UUID, newStatus: ConnectionStatus, metadata: Map<String, Any>?): IntegrationConnectionEntity`
 
 Updates a connection's status after validating the transition via `canTransitionTo()`. Optionally merges metadata into the existing `connectionMetadata` map. Triggers template materialization if the new status is `CONNECTED`. Throws `InvalidStateTransitionException` on invalid transitions. Annotated with `@Transactional`.
@@ -133,21 +127,21 @@ Updates a connection's status after validating the transition via `canTransition
 
 Disconnects a connection using a three-phase flow: transition to `DISCONNECTING`, call Nango to delete the external connection, transition to `DISCONNECTED`. Requires ADMIN role. Uses programmatic transactions via `TransactionTemplate` (NOT `@Transactional`). Nango failures are logged but do not prevent local disconnection.
 
-### `enableConnection(workspaceId: UUID, integrationId: UUID, nangoConnectionId: String): IntegrationConnectionEntity`
+### `createOrReconnect(workspaceId: UUID, integrationId: UUID, nangoConnectionId: String, userId: UUID): IntegrationConnectionEntity` *(internal)*
 
-Single-action enable for the frontend OAuth flow. Creates a new connection with `CONNECTED` status, reconnects a `DISCONNECTED` connection, or returns an existing `CONNECTED` connection idempotently. Throws `ConflictException` if a connection exists in a non-terminal transitional state. Requires ADMIN role. Annotated with `@Transactional`.
+Creates or reconnects a connection after webhook-confirmed OAuth. Called by [[NangoWebhookService]] only. Not exposed as a public API method — `internal` visibility.
 
 ---
 
 ## Gotchas
 
-- **State machine strictness**: All 10 states have explicit transition rules. There is no "force" override -- invalid transitions always throw `InvalidStateTransitionException`. Code that needs to move a connection through multiple states must do so step by step.
+- **State machine strictness**: All 8 states have explicit transition rules. There is no "force" override — invalid transitions always throw `InvalidStateTransitionException`. Code that needs to move a connection through multiple states must do so step by step.
 - **Nango external dependency failure modes**: Nango API calls can throw `NangoApiException`, `RateLimitException`, or `TransientNangoException`. The disconnect flow handles all of these gracefully (log and continue), but other flows that may be added in future must account for these failure modes.
-- **enableConnection bypasses intermediate states**: Unlike `createConnection` (which starts at `PENDING_AUTHORIZATION`), `enableConnection` sets `CONNECTED` directly because Nango has already completed the OAuth flow before this method is called. These two creation paths produce connections at different initial states.
-- **enableConnection does not trigger materialization**: Only `updateConnectionStatus` triggers `triggerMaterialization()` when reaching `CONNECTED`. Connections created via `enableConnection` skip this path. If materialization is needed, it must be triggered separately.
-- **Reconnect overwrites nangoConnectionId**: When `enableConnection` reconnects a `DISCONNECTED` connection, it replaces the stored `nangoConnectionId` with the new value from the frontend flow.
-- **One connection per integration per workspace**: Both `createConnection` and `enableConnection` enforce this uniqueness constraint at the application level (not DB-level unique constraint). A race condition could theoretically create duplicates if two requests arrive simultaneously.
-- **Programmatic transactions in disconnect**: `disconnectConnection` does NOT use `@Transactional` -- it uses `TransactionTemplate` explicitly. Adding `@Transactional` to the caller would wrap the entire Nango call in a transaction, defeating the purpose.
+- **createOrReconnect bypasses state machine for new connections**: New connections start at `CONNECTED` directly since Nango has already completed the OAuth flow before the webhook arrives.
+- **Reconnect overwrites nangoConnectionId**: When reconnecting a `DISCONNECTED` or `FAILED` connection, the stored `nangoConnectionId` is replaced with the new value from the webhook.
+- **One connection per integration per workspace**: Uniqueness is enforced at the application level via `findByWorkspaceIdAndIntegrationId`. A race condition could theoretically create duplicates if two webhook events arrive simultaneously.
+- **Programmatic transactions in disconnect**: `disconnectConnection` does NOT use `@Transactional` — it uses `TransactionTemplate` explicitly. Adding `@Transactional` to the caller would wrap the entire Nango call in a transaction, defeating the purpose.
+- **No public connection creation method**: `createOrReconnect` is `internal` visibility. The only way to create a connection is through the Nango auth webhook.
 
 ---
 
@@ -156,9 +150,9 @@ Single-action enable for the frontend OAuth flow. Creates a new connection with 
 - [[NangoClientWrapper]] -- External API client for Nango connection management
 - [[TemplateMaterializationService]] -- Materializes integration templates on connection
 - [[IntegrationController]] -- REST endpoints consuming this service
-- [[IntegrationEnablementService]] -- Orchestrates enable/disable lifecycle using this service
+- [[NangoWebhookService]] — Creates connections via `createOrReconnect` after webhook-confirmed OAuth
 - [[Connection Management]] -- Parent subdomain
-- `ConnectionStatus` -- Enum defining the 10-state machine
+- `ConnectionStatus` — Enum defining the 8-state machine
 
 ---
 
@@ -171,3 +165,11 @@ Single-action enable for the frontend OAuth flow. Creates a new connection with 
 - Documented `enableConnection` method: single-action enable flow for frontend OAuth integration
 - Documented programmatic transaction management in `disconnectConnection`
 - Documented Nango integration and failure handling patterns
+
+### 2026-03-18
+
+- Simplified to 8-state machine: removed `PENDING_AUTHORIZATION` and `AUTHORIZING`
+- Removed `enableConnection()` and `createConnection()` public methods
+- Added `createOrReconnect()` internal method for webhook-driven connection creation
+- Connection creation is now exclusively webhook-driven — no public API endpoint
+- Updated state machine documentation and transition table

@@ -4,6 +4,7 @@ tags:
   - component/active
   - architecture/component
 Created: 2025-07-17
+Updated: 2026-03-18
 Domains:
   - "[[Integrations]]"
 ---
@@ -51,7 +52,8 @@ Creates workspace-scoped entity types and relationships from global catalog defi
 
 ## Used By
 
-- [[IntegrationEnablementService]] — Calls `materializeIntegrationTemplates()` during the integration enable lifecycle
+- [[NangoWebhookService]] — Calls `materializeIntegrationTemplates()` during auth webhook processing
+- [[IntegrationConnectionService]] — Calls `materializeIntegrationTemplates()` when `updateConnectionStatus` transitions to CONNECTED
 
 ---
 
@@ -141,9 +143,9 @@ Schema attributes with `key = SchemaType.ID` require an auto-incrementing sequen
 
 ## Public Methods
 
-### `materializeIntegrationTemplates(workspaceId: UUID, integrationSlug: String): MaterializationResult`
+### `materializeIntegrationTemplates(workspaceId: UUID, integrationSlug: String, integrationDefinitionId: UUID): MaterializationResult`
 
-Materializes all entity types and relationships for an integration into a workspace. Transactional — all entity types are saved and flushed before relationships are created so that IDs are available for foreign key resolution.
+Materializes all entity types and relationships for an integration into a workspace. The `integrationDefinitionId` parameter (added in Phase 2) is set as `sourceIntegrationId` on created entity types, enabling the dedup index for sync. Transactional — all entity types are saved and flushed before relationships are created so that IDs are available for foreign key resolution.
 
 **Returns:** `MaterializationResult` containing `entityTypesCreated`, `entityTypesRestored`, `relationshipsCreated`, `integrationSlug`, and a list of `EnabledEntityTypeSummary` for each created or restored entity type.
 
@@ -165,7 +167,8 @@ Materializes all entity types and relationships for an integration into a worksp
 
 ## Related
 
-- [[IntegrationEnablementService]] — Orchestrates the enable/disable lifecycle, calls this service during enable
+- [[NangoWebhookService]] — Calls this service during auth webhook processing
+- [[IntegrationConnectionService]] — Calls this service when connections transition to CONNECTED
 - [[EntityTypeService]] — Standard entity type management; materialized types appear alongside user-created types
 - [[EntityTypeSemanticMetadataService]] — Semantic metadata initialization
 - [[EntityTypeRelationshipService]] — Fallback relationship creation
@@ -180,3 +183,8 @@ Materializes all entity types and relationships for an integration into a worksp
 
 - Initial documentation for `TemplateMaterializationService`
 - Covers entity type and relationship materialization, deterministic UUID generation, deduplication on reconnect, semantic metadata initialization, and column configuration building
+
+### 2026-03-18
+
+- Added `integrationDefinitionId` parameter to `materializeIntegrationTemplates()` — sets `sourceIntegrationId` on materialized entity types for the integration dedup index
+- Updated callers: now called by [[NangoWebhookService]] (auth webhook) and [[IntegrationConnectionService]] (status transition) instead of [[IntegrationEnablementService]]

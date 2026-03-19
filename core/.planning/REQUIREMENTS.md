@@ -59,9 +59,9 @@
 
 ### Auth Flow
 
-- [ ] **AUTH-01**: `enableIntegration()` creates installation in PENDING_CONNECTION status without creating a connection
-- [ ] **AUTH-02**: Materialization and initial sync triggered by auth webhook handler, not enablement
-- [ ] **AUTH-03**: Auth webhook handler updates installation to ACTIVE on successful connection
+- [~] **AUTH-01**: `enableIntegration()` creates installation in PENDING_CONNECTION status without creating a connection (Superseded -- implemented via webhook in Phase 2)
+- [~] **AUTH-02**: Materialization and initial sync triggered by auth webhook handler, not enablement (Superseded -- implemented via webhook in Phase 2)
+- [~] **AUTH-03**: Auth webhook handler updates installation to ACTIVE on successful connection (Superseded -- implemented via webhook in Phase 2)
 
 ### Documentation
 
@@ -123,9 +123,9 @@
 | HLTH-01 | Phase 4 | Pending |
 | HLTH-02 | Phase 4 | Pending |
 | HLTH-03 | Phase 4 | Pending |
-| AUTH-01 | Phase 4 | Pending |
-| AUTH-02 | Phase 4 | Pending |
-| AUTH-03 | Phase 4 | Pending |
+| AUTH-01 | Phase 4 (Superseded) | Superseded by Phase 2 auth webhook handler |
+| AUTH-02 | Phase 4 (Superseded) | Superseded by Phase 2 auth webhook handler |
+| AUTH-03 | Phase 4 (Superseded) | Superseded by Phase 2 auth webhook handler |
 | DOCS-01 | Phase 4 | Pending |
 
 **Coverage:**

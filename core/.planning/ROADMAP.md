@@ -83,7 +83,7 @@ Plans:
   3. When all entity types are in FAILED state, the connection health reports FAILED
   4. Calling `enableIntegration()` creates an installation in PENDING_CONNECTION status and does not create any connection entity
   5. The Nango sync script design guidance document exists and covers sync config, checkpointing, batchSave, and relationship ID patterns
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] 04-01-PLAN.md — IntegrationHealthService, ConnectionStatus state machine fix, finalizeSyncState wiring + tests
@@ -99,4 +99,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | 1. Schema and Persistence Foundation | 2/2 | Complete   | 2026-03-16 |
 | 2. Connection Model, Nango Client, and Auth Webhook | 1/3 | In Progress|  |
 | 3. Sync Webhook and Temporal Sync Workflow | 1/2 | In Progress|  |
-| 4. Health, Auth Flow Refactor, and Documentation | 0/2 | Not started | - |
+| 4. Health, Auth Flow Refactor, and Documentation | 1/2 | In Progress|  |

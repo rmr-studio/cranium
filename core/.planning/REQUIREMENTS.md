@@ -65,7 +65,7 @@
 
 ### Documentation
 
-- [ ] **DOCS-01**: Nango sync script design guidance documented (sync config, checkpointing, batchSave, relationship IDs)
+- [x] **DOCS-01**: Nango sync script design guidance documented (sync config, checkpointing, batchSave, relationship IDs)
 
 ## v2 Requirements
 
@@ -126,7 +126,7 @@
 | AUTH-01 | Phase 4 (Superseded) | Superseded by Phase 2 auth webhook handler |
 | AUTH-02 | Phase 4 (Superseded) | Superseded by Phase 2 auth webhook handler |
 | AUTH-03 | Phase 4 (Superseded) | Superseded by Phase 2 auth webhook handler |
-| DOCS-01 | Phase 4 | Pending |
+| DOCS-01 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 35 total

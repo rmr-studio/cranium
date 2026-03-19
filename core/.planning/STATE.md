@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed phase 03 execution (both plans)
-last_updated: "2026-03-18T09:20:13.840Z"
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-03-19T01:43:38.384Z"
 last_activity: 2026-03-18 — Phase 03 execution complete (plans 01 + 02)
 progress:
   total_phases: 4
   completed_phases: 3
-  total_plans: 7
-  completed_plans: 7
+  total_plans: 9
+  completed_plans: 8
   percent: 75
 ---
 
@@ -57,6 +57,7 @@ Progress: [███████░░░] 75%
 | Phase 02-connection-model-nango-client-and-auth-webhook P03 | 6 | 2 tasks | 7 files |
 | Phase 03 P01 | 45 | 3 tasks | 11 files |
 | Phase 03 P02 | 30 | 2 tasks | 3 files |
+| Phase 04 P02 | 15 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -92,6 +93,8 @@ Recent decisions affecting current work:
 - [Phase 03-02]: Open heartbeat method in IntegrationSyncActivitiesImpl — internal open for test subclass to no-op Temporal static context
 - [Phase 03-02]: anyOrNull() required for nullable Mockito matchers — mockito-kotlin any() doesn't match null values for nullable Kotlin params
 - [Phase 03-02]: Lazy sync state creation in finalizeSyncState — creates IntegrationSyncStateEntity if not found, no pre-seeding required
+- [Phase 04]: AUTH-01/02/03 marked superseded (not completed) — Phase 2 webhook flow made original enablement requirements obsolete
+- [Phase 04]: Sync script guide written as full practical reference (not architectural stub) — documents model naming, batchSave, relationship IDs, _nango_metadata semantics
 
 ### Pending Todos
 
@@ -103,6 +106,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T09:40:00.000Z
-Stopped at: Completed phase 03 execution (both plans)
+Last session: 2026-03-19T01:43:38.382Z
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None

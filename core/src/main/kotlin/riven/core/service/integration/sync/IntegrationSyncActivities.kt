@@ -9,10 +9,11 @@ import java.util.UUID
 /**
  * Activity interface for the integration sync workflow.
  *
- * Three activities correspond to the three phases of a sync run:
+ * Four activities correspond to the four phases of a sync run:
  * 1. [transitionToSyncing] — lightweight status write before any work begins
  * 2. [fetchAndProcessRecords] — long-running paginated fetch and entity upsert
  * 3. [finalizeSyncState] — single sync state write after processing completes
+ * 4. [evaluateHealth] — derives ConnectionStatus from sync outcomes (separate transaction)
  *
  * Implementations live in Plan 02 (`IntegrationSyncActivitiesImpl`).
  *
@@ -62,4 +63,18 @@ interface IntegrationSyncActivities {
      */
     @ActivityMethod
     fun finalizeSyncState(connectionId: UUID, entityTypeId: UUID, result: SyncProcessingResult)
+
+    /**
+     * Evaluates connection health by aggregating sync state outcomes and updating ConnectionStatus.
+     *
+     * Runs as a separate 4th activity so that health status writes have an independent
+     * transaction boundary from sync state persistence. A failure here does not roll back
+     * or affect the sync state committed in [finalizeSyncState].
+     *
+     * The workflow wraps this in a try-catch — health evaluation failure is non-fatal.
+     *
+     * @param connectionId Internal UUID of the IntegrationConnectionEntity
+     */
+    @ActivityMethod
+    fun evaluateHealth(connectionId: UUID)
 }

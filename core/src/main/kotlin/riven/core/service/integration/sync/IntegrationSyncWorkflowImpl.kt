@@ -10,20 +10,24 @@ import java.time.Duration
 /**
  * Temporal workflow implementation for integration data sync.
  *
- * Orchestrates three activities in sequence:
+ * Orchestrates four activities in sequence:
  * 1. [IntegrationSyncActivities.transitionToSyncing] — mark connection as SYNCING
  * 2. [IntegrationSyncActivities.fetchAndProcessRecords] — paginated fetch + entity upsert
  * 3. [IntegrationSyncActivities.finalizeSyncState] — write final sync outcome
+ * 4. [IntegrationSyncActivities.evaluateHealth] — derive ConnectionStatus from sync outcomes
  *
  * Activity timeout is set to 4 hours to accommodate initial syncs that may process
  * 50k+ records. Heartbeat timeout is 30 seconds to detect hung workers promptly.
+ *
+ * The evaluateHealth activity is wrapped in a try-catch — health evaluation failure is
+ * non-fatal. Sync state is the source of truth; health status is derived.
  *
  * NOT a Spring bean — Temporal manages lifecycle. Spring configuration is injected
  * via [riven.core.configuration.workflow.TemporalWorkerConfiguration] factory.
  *
  * @param retryConfig Retry configuration injected via workflow factory from application.yml
  */
-class IntegrationSyncWorkflowImpl(
+open class IntegrationSyncWorkflowImpl(
     private val retryConfig: RetryConfig
 ) : IntegrationSyncWorkflow {
 
@@ -45,6 +49,15 @@ class IntegrationSyncWorkflowImpl(
 
         activities.finalizeSyncState(input.connectionId, result.entityTypeId, result)
         logger.info("Finalized sync state for connection=${input.connectionId}, entityType=${result.entityTypeId}")
+
+        try {
+            activities.evaluateHealth(input.connectionId)
+            logger.info("Evaluated health for connection=${input.connectionId}")
+        } catch (e: Exception) {
+            // Health evaluation failure is non-fatal — sync state committed successfully above.
+            // Log is handled inside the activity; workflow proceeds to completion.
+            logger.warn("Health evaluation failed for connection=${input.connectionId} — continuing: ${e.message}")
+        }
     }
 
     /**
@@ -53,8 +66,11 @@ class IntegrationSyncWorkflowImpl(
      * Start-to-close timeout is 4 hours to handle large initial syncs.
      * Heartbeat timeout is 30 seconds to detect worker failures promptly.
      * Retry policy mirrors the integrationSync configuration from application.yml.
+     *
+     * Internal open to allow test subclasses to inject mock activity stubs without
+     * requiring a live Temporal execution context.
      */
-    private fun createActivitiesStub(): IntegrationSyncActivities =
+    internal open fun createActivitiesStub(): IntegrationSyncActivities =
         Workflow.newActivityStub(
             IntegrationSyncActivities::class.java,
             ActivityOptions.newBuilder()

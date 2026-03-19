@@ -57,6 +57,7 @@ import riven.core.repository.integration.IntegrationConnectionRepository
 import riven.core.repository.integration.IntegrationDefinitionRepository
 import riven.core.repository.integration.IntegrationSyncStateRepository
 import riven.core.service.entity.EntityAttributeService
+import riven.core.service.integration.IntegrationHealthService
 import riven.core.service.integration.NangoClientWrapper
 import riven.core.service.integration.mapping.SchemaMappingService
 import riven.core.service.util.factory.entity.EntityFactory
@@ -103,6 +104,7 @@ class IntegrationSyncActivitiesImplTest {
             catalogFieldMappingRepository: CatalogFieldMappingRepository,
             catalogEntityTypeRepository: CatalogEntityTypeRepository,
             entityTypeRepository: EntityTypeRepository,
+            integrationHealthService: IntegrationHealthService,
             logger: KLogger,
         ): IntegrationSyncActivitiesImpl {
             return object : IntegrationSyncActivitiesImpl(
@@ -119,6 +121,7 @@ class IntegrationSyncActivitiesImplTest {
                 catalogFieldMappingRepository = catalogFieldMappingRepository,
                 catalogEntityTypeRepository = catalogEntityTypeRepository,
                 entityTypeRepository = entityTypeRepository,
+                integrationHealthService = integrationHealthService,
                 logger = logger,
             ) {
                 // Override heartbeat to be a no-op in tests (Temporal static context not available)
@@ -167,6 +170,9 @@ class IntegrationSyncActivitiesImplTest {
 
     @MockitoBean
     private lateinit var entityTypeRepository: EntityTypeRepository
+
+    @MockitoBean
+    private lateinit var integrationHealthService: IntegrationHealthService
 
     @MockitoBean
     private lateinit var logger: KLogger
@@ -308,6 +314,7 @@ class IntegrationSyncActivitiesImplTest {
             entityRepository, entityAttributeService, entityRelationshipRepository,
             relationshipDefinitionRepository, definitionRepository, manifestCatalogRepository,
             catalogFieldMappingRepository, catalogEntityTypeRepository, entityTypeRepository,
+            integrationHealthService,
         )
 
         // Default entity save: return entity with ID
@@ -827,6 +834,19 @@ class IntegrationSyncActivitiesImplTest {
             assert(saved.integrationConnectionId == connectionId)
             assert(saved.entityTypeId == entityTypeId)
             assert(saved.id == null) // New entity has no ID before persistence
+        }
+    }
+
+    // ------ EvaluateHealth Tests ------
+
+    @Nested
+    inner class EvaluateHealthTests {
+
+        @Test
+        fun `evaluateHealth delegates to integrationHealthService evaluateConnectionHealth`() {
+            activitiesImpl.evaluateHealth(connectionId)
+
+            verify(integrationHealthService).evaluateConnectionHealth(connectionId)
         }
     }
 }

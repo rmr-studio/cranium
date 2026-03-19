@@ -31,13 +31,14 @@ import riven.core.repository.integration.IntegrationConnectionRepository
 import riven.core.repository.integration.IntegrationDefinitionRepository
 import riven.core.repository.integration.IntegrationSyncStateRepository
 import riven.core.service.entity.EntityAttributeService
+import riven.core.service.integration.IntegrationHealthService
 import riven.core.service.integration.NangoClientWrapper
 import riven.core.service.integration.mapping.SchemaMappingService
 import java.time.ZonedDateTime
 import java.util.*
 
 /**
- * Spring service implementing all three Temporal activity methods for the integration sync workflow.
+ * Spring service implementing all four Temporal activity methods for the integration sync workflow.
  *
  * This is the core data pipeline. Records flow from Nango into workspace entities with:
  * - Deduplication via batch IN-clause query (SYNC-02)
@@ -45,6 +46,7 @@ import java.util.*
  * - Per-record error isolation — single failures do not abort the batch (SYNC-06)
  * - Paginated fetch with heartbeating to prevent activity timeout (SYNC-01)
  * - Two-pass processing: upsert first, then resolve relationships (SYNC-07)
+ * - Connection health evaluation after each sync cycle (HLTH-01, HLTH-02, HLTH-03)
  *
  * @see IntegrationSyncActivities for the activity interface
  * @see IntegrationSyncWorkflowImpl for the workflow that orchestrates these activities
@@ -64,6 +66,7 @@ class IntegrationSyncActivitiesImpl(
     private val catalogFieldMappingRepository: CatalogFieldMappingRepository,
     private val catalogEntityTypeRepository: CatalogEntityTypeRepository,
     private val entityTypeRepository: EntityTypeRepository,
+    private val integrationHealthService: IntegrationHealthService,
     private val logger: KLogger,
 ) : IntegrationSyncActivities {
 
@@ -143,6 +146,16 @@ class IntegrationSyncActivitiesImpl(
 
         syncStateRepository.save(state)
         logger.info { "Finalized sync state for connection=$connectionId entityType=$entityTypeId success=${result.success}" }
+    }
+
+    /**
+     * Evaluates connection health by delegating to [IntegrationHealthService].
+     *
+     * Runs in its own transaction boundary (separate from [finalizeSyncState]), so a failure
+     * here does not roll back the sync state write. All business logic lives in the service.
+     */
+    override fun evaluateHealth(connectionId: UUID) {
+        integrationHealthService.evaluateConnectionHealth(connectionId)
     }
 
     // ------ Model Context Resolution ------
@@ -305,6 +318,7 @@ class IntegrationSyncActivitiesImpl(
                 model = input.model,
                 cursor = cursor,
                 modifiedAfter = input.modifiedAfter,
+                limit = null,
             )
 
             val batchResult = processBatch(

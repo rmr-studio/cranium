@@ -71,6 +71,8 @@ class IdentityConfirmationService(
         val userId = authTokenService.getUserId()
         val entity = findOrThrow { matchSuggestionRepository.findById(suggestionId) }
 
+        require(entity.workspaceId == workspaceId) { "Suggestion does not belong to the specified workspace" }
+
         validateConfirmable(entity)
         createRelationship(entity)
 
@@ -106,6 +108,8 @@ class IdentityConfirmationService(
     fun rejectSuggestion(workspaceId: UUID, suggestionId: UUID): MatchSuggestion {
         val userId = authTokenService.getUserId()
         val entity = findOrThrow { matchSuggestionRepository.findById(suggestionId) }
+
+        require(entity.workspaceId == workspaceId) { "Suggestion does not belong to the specified workspace" }
 
         validateRejectable(entity)
         applyRejection(entity, userId)

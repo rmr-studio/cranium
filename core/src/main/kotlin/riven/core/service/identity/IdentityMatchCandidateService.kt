@@ -132,24 +132,28 @@ class IdentityMatchCandidateService(
         signalType: MatchSignalType,
     ): List<CandidateMatch> {
         val sql = """
-            SELECT DISTINCT ON (ea.entity_id)
-                ea.entity_id AS candidate_entity_id,
-                ea.attribute_id AS candidate_attribute_id,
-                ea.value->>'value' AS candidate_value,
-                similarity(ea.value->>'value', :inputValue) AS sim_score
-            FROM entity_attributes ea
-            JOIN entity_type_semantic_metadata sm
-                ON sm.workspace_id = :workspaceId
-               AND sm.target_type = 'ATTRIBUTE'
-               AND sm.target_id = ea.attribute_id
-               AND sm.classification = 'IDENTIFIER'
-               AND sm.deleted = false
-            WHERE ea.workspace_id = :workspaceId
-              AND ea.entity_id != :triggerEntityId
-              AND ea.deleted = false
-              AND (ea.value->>'value') % :inputValue
-              AND similarity(ea.value->>'value', :inputValue) > 0.3
-            ORDER BY ea.entity_id, sim_score DESC
+            SELECT candidate_entity_id, candidate_attribute_id, candidate_value, sim_score
+            FROM (
+                SELECT DISTINCT ON (ea.entity_id)
+                    ea.entity_id AS candidate_entity_id,
+                    ea.attribute_id AS candidate_attribute_id,
+                    ea.value->>'value' AS candidate_value,
+                    similarity(ea.value->>'value', :inputValue) AS sim_score
+                FROM entity_attributes ea
+                JOIN entity_type_semantic_metadata sm
+                    ON sm.workspace_id = :workspaceId
+                   AND sm.target_type = 'ATTRIBUTE'
+                   AND sm.target_id = ea.attribute_id
+                   AND sm.classification = 'IDENTIFIER'
+                   AND sm.deleted = false
+                WHERE ea.workspace_id = :workspaceId
+                  AND ea.entity_id != :triggerEntityId
+                  AND ea.deleted = false
+                  AND (ea.value->>'value') % :inputValue
+                  AND similarity(ea.value->>'value', :inputValue) > 0.3
+                ORDER BY ea.entity_id, sim_score DESC
+            ) ranked
+            ORDER BY sim_score DESC
             LIMIT $CANDIDATE_LIMIT
         """.trimIndent()
 

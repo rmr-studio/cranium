@@ -132,7 +132,7 @@ class IdentityController(
     fun addEntityToCluster(
         @PathVariable workspaceId: UUID,
         @PathVariable clusterId: UUID,
-        @RequestBody request: AddClusterMemberRequest,
+        @Valid @RequestBody request: AddClusterMemberRequest,
     ): ResponseEntity<ClusterDetailResponse> {
         return ResponseEntity.ok(identityClusterService.addEntityToCluster(workspaceId, clusterId, request))
     }

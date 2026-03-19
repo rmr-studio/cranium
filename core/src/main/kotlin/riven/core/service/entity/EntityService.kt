@@ -377,6 +377,9 @@ class EntityService(
             .filterKeys { it in identifierAttrIds }
             .mapValues { it.value.value }
 
+        if (prevIdentifiers.isEmpty() && newIdentifiers.isEmpty()) return
+        if (prevIdentifiers == newIdentifiers) return
+
         applicationEventPublisher.publishEvent(
             IdentityMatchTriggerEvent(
                 entityId = entityId,

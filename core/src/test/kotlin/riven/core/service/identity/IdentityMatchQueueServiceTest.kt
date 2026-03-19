@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
@@ -62,15 +61,29 @@ class IdentityMatchQueueServiceTest {
     }
 
     @Test
-    fun `enqueueIfNotPending silently returns when DataIntegrityViolationException is thrown (dedup)`() {
+    fun `enqueueIfNotPending silently returns when DataIntegrityViolationException is thrown for dedup constraint`() {
         whenever(executionQueueRepository.save(any()))
-            .thenThrow(DataIntegrityViolationException("duplicate key value violates unique constraint"))
+            .thenThrow(DataIntegrityViolationException(
+                "duplicate key value violates unique constraint \"uq_execution_queue_pending_identity_match\""
+            ))
 
         // Should not throw — dedup exception is caught and swallowed
         service.enqueueIfNotPending(entityId, workspaceId)
 
         // Repository was called (attempt was made)
         verify(executionQueueRepository).save(any())
+    }
+
+    @Test
+    fun `enqueueIfNotPending re-throws DataIntegrityViolationException for unrelated constraint`() {
+        whenever(executionQueueRepository.save(any()))
+            .thenThrow(DataIntegrityViolationException(
+                "duplicate key value violates unique constraint \"some_other_constraint\""
+            ))
+
+        org.junit.jupiter.api.assertThrows<DataIntegrityViolationException> {
+            service.enqueueIfNotPending(entityId, workspaceId)
+        }
     }
 
     @Test

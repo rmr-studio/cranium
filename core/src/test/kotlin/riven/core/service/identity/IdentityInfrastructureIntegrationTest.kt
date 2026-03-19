@@ -27,13 +27,10 @@ import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
-import riven.core.entity.identity.IdentityClusterEntity
-import riven.core.entity.identity.IdentityClusterMemberEntity
-import riven.core.entity.identity.MatchSuggestionEntity
 import riven.core.repository.identity.IdentityClusterMemberRepository
 import riven.core.repository.identity.IdentityClusterRepository
 import riven.core.repository.identity.MatchSuggestionRepository
-import java.math.BigDecimal
+import riven.core.service.util.factory.identity.IdentityFactory
 import java.time.ZonedDateTime
 import java.time.temporal.TemporalAccessor
 import java.util.Optional
@@ -174,26 +171,6 @@ class IdentityInfrastructureIntegrationTest {
         jdbcTemplate.execute("TRUNCATE TABLE identity_clusters CASCADE")
     }
 
-    // ------ Factory helpers ------
-
-    private fun buildSuggestion(
-        source: UUID = sourceId,
-        target: UUID = targetId,
-        workspace: UUID = workspaceId,
-        confidence: BigDecimal = BigDecimal("0.9500"),
-    ) = MatchSuggestionEntity(
-        workspaceId = workspace,
-        sourceEntityId = source,
-        targetEntityId = target,
-        confidenceScore = confidence,
-    )
-
-    private fun buildCluster(workspace: UUID = workspaceId) =
-        IdentityClusterEntity(workspaceId = workspace)
-
-    private fun buildMember(clusterId: UUID, entityId: UUID) =
-        IdentityClusterMemberEntity(clusterId = clusterId, entityId = entityId)
-
     // ------ Tests ------
 
     /**
@@ -210,7 +187,13 @@ class IdentityInfrastructureIntegrationTest {
     @Test
     fun `soft-deleted suggestion does not block new active suggestion for same pair`() {
         // Insert and soft-delete first suggestion via native SQL (bypasses @SQLRestriction)
-        val first = matchSuggestionRepository.saveAndFlush(buildSuggestion())
+        val first = matchSuggestionRepository.saveAndFlush(
+            IdentityFactory.createMatchSuggestionEntity(
+                workspaceId = workspaceId,
+                sourceEntityId = sourceId,
+                targetEntityId = targetId,
+            )
+        )
         assertNotNull(first.id)
 
         jdbcTemplate.update(
@@ -219,7 +202,13 @@ class IdentityInfrastructureIntegrationTest {
         )
 
         // Second suggestion for the same pair should succeed because deleted row is excluded from unique index
-        val second = matchSuggestionRepository.saveAndFlush(buildSuggestion())
+        val second = matchSuggestionRepository.saveAndFlush(
+            IdentityFactory.createMatchSuggestionEntity(
+                workspaceId = workspaceId,
+                sourceEntityId = sourceId,
+                targetEntityId = targetId,
+            )
+        )
         assertNotNull(second.id)
 
         val count = jdbcTemplate.queryForObject(
@@ -256,12 +245,24 @@ class IdentityInfrastructureIntegrationTest {
      */
     @Test
     fun `duplicate active suggestion for same entity pair is rejected`() {
-        matchSuggestionRepository.saveAndFlush(buildSuggestion())
+        matchSuggestionRepository.saveAndFlush(
+            IdentityFactory.createMatchSuggestionEntity(
+                workspaceId = workspaceId,
+                sourceEntityId = sourceId,
+                targetEntityId = targetId,
+            )
+        )
 
         assertThrows<DataIntegrityViolationException>(
             "Expected unique constraint violation for duplicate active suggestion pair"
         ) {
-            matchSuggestionRepository.saveAndFlush(buildSuggestion())
+            matchSuggestionRepository.saveAndFlush(
+                IdentityFactory.createMatchSuggestionEntity(
+                    workspaceId = workspaceId,
+                    sourceEntityId = sourceId,
+                    targetEntityId = targetId,
+                )
+            )
         }
     }
 
@@ -273,12 +274,19 @@ class IdentityInfrastructureIntegrationTest {
      */
     @Test
     fun `CHECK constraint rejects suggestion where source entity id is greater than target`() {
-        // targetId > sourceId, so (targetId, sourceId) reverses the canonical order
+        // targetId > sourceId, so (targetId, sourceId) reverses the canonical order.
+        // Intentionally bypasses IdentityFactory.createMatchSuggestionEntity which auto-sorts
+        // source < target — the whole point of this test is to verify the DB rejects reversed pairs.
         assertThrows<DataIntegrityViolationException>(
             "Expected CHECK constraint violation for non-canonical UUID ordering"
         ) {
             matchSuggestionRepository.saveAndFlush(
-                buildSuggestion(source = targetId, target = sourceId)
+                riven.core.entity.identity.MatchSuggestionEntity(
+                    workspaceId = workspaceId,
+                    sourceEntityId = targetId,
+                    targetEntityId = sourceId,
+                    confidenceScore = java.math.BigDecimal("0.80"),
+                )
             )
         }
     }
@@ -293,15 +301,29 @@ class IdentityInfrastructureIntegrationTest {
     fun `entity can belong to at most one identity cluster`() {
         val entityId = UUID.fromString("30000000-0000-0000-0000-000000000003")
 
-        val clusterA = identityClusterRepository.saveAndFlush(buildCluster())
-        val clusterB = identityClusterRepository.saveAndFlush(buildCluster())
+        val clusterA = identityClusterRepository.saveAndFlush(
+            IdentityFactory.createIdentityClusterEntity(workspaceId = workspaceId)
+        )
+        val clusterB = identityClusterRepository.saveAndFlush(
+            IdentityFactory.createIdentityClusterEntity(workspaceId = workspaceId)
+        )
 
-        identityClusterMemberRepository.saveAndFlush(buildMember(clusterA.id!!, entityId))
+        identityClusterMemberRepository.saveAndFlush(
+            IdentityFactory.createIdentityClusterMemberEntity(
+                clusterId = requireNotNull(clusterA.id) { "Cluster A ID must not be null after save" },
+                entityId = entityId,
+            )
+        )
 
         assertThrows<DataIntegrityViolationException>(
             "Expected unique constraint violation when adding entity to a second cluster"
         ) {
-            identityClusterMemberRepository.saveAndFlush(buildMember(clusterB.id!!, entityId))
+            identityClusterMemberRepository.saveAndFlush(
+                IdentityFactory.createIdentityClusterMemberEntity(
+                    clusterId = requireNotNull(clusterB.id) { "Cluster B ID must not be null after save" },
+                    entityId = entityId,
+                )
+            )
         }
     }
 }

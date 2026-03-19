@@ -67,7 +67,11 @@ class IdentityMatchDispatcherService(
         logger.debug { "Processing ${pending.size} IDENTITY_MATCH queue items" }
 
         for (item in pending) {
-            processorService.processItem(item)
+            try {
+                processorService.processItem(item)
+            } catch (e: Exception) {
+                logger.error(e) { "Failed to process IDENTITY_MATCH queue item ${item.id}" }
+            }
         }
     }
 
@@ -91,7 +95,11 @@ class IdentityMatchDispatcherService(
         }
 
         for (item in staleItems) {
-            workflowExecutionQueueService.releaseToPending(item)
+            try {
+                workflowExecutionQueueService.releaseToPending(item)
+            } catch (e: Exception) {
+                logger.error(e) { "Failed to recover stale IDENTITY_MATCH queue item ${item.id}" }
+            }
         }
 
         logger.info { "Recovered ${staleItems.size} stale IDENTITY_MATCH queue items" }

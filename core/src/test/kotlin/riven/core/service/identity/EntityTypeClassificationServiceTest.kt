@@ -13,10 +13,10 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.entity.entity.EntityTypeSemanticMetadataEntity
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.repository.entity.EntityTypeSemanticMetadataRepository
+import riven.core.service.util.factory.identity.IdentityFactory
 import java.util.UUID
 
 /**
@@ -56,7 +56,12 @@ class EntityTypeClassificationServiceTest {
             val attrId = UUID.randomUUID()
             whenever(
                 semanticMetadataRepository.findByEntityTypeIdAndTargetType(entityTypeId, SemanticMetadataTargetType.ATTRIBUTE)
-            ).thenReturn(listOf(buildMetadata(attrId, SemanticAttributeClassification.IDENTIFIER)))
+            ).thenReturn(listOf(IdentityFactory.createEntityTypeSemanticMetadataEntity(
+                    workspaceId = workspaceId,
+                    entityTypeId = entityTypeId,
+                    targetId = attrId,
+                    classification = SemanticAttributeClassification.IDENTIFIER,
+                )))
 
             val result = service.hasIdentifierAttributes(entityTypeId)
 
@@ -67,7 +72,12 @@ class EntityTypeClassificationServiceTest {
         fun `returns false when entity type has no IDENTIFIER attributes`() {
             whenever(
                 semanticMetadataRepository.findByEntityTypeIdAndTargetType(entityTypeId, SemanticMetadataTargetType.ATTRIBUTE)
-            ).thenReturn(listOf(buildMetadata(UUID.randomUUID(), SemanticAttributeClassification.CATEGORICAL)))
+            ).thenReturn(listOf(IdentityFactory.createEntityTypeSemanticMetadataEntity(
+                    workspaceId = workspaceId,
+                    entityTypeId = entityTypeId,
+                    targetId = UUID.randomUUID(),
+                    classification = SemanticAttributeClassification.CATEGORICAL,
+                )))
 
             val result = service.hasIdentifierAttributes(entityTypeId)
 
@@ -90,7 +100,12 @@ class EntityTypeClassificationServiceTest {
             val attrId = UUID.randomUUID()
             whenever(
                 semanticMetadataRepository.findByEntityTypeIdAndTargetType(entityTypeId, SemanticMetadataTargetType.ATTRIBUTE)
-            ).thenReturn(listOf(buildMetadata(attrId, SemanticAttributeClassification.IDENTIFIER)))
+            ).thenReturn(listOf(IdentityFactory.createEntityTypeSemanticMetadataEntity(
+                    workspaceId = workspaceId,
+                    entityTypeId = entityTypeId,
+                    targetId = attrId,
+                    classification = SemanticAttributeClassification.IDENTIFIER,
+                )))
 
             // First call — populates cache
             service.hasIdentifierAttributes(entityTypeId)
@@ -117,9 +132,24 @@ class EntityTypeClassificationServiceTest {
                 semanticMetadataRepository.findByEntityTypeIdAndTargetType(entityTypeId, SemanticMetadataTargetType.ATTRIBUTE)
             ).thenReturn(
                 listOf(
-                    buildMetadata(attrId1, SemanticAttributeClassification.IDENTIFIER),
-                    buildMetadata(attrId2, SemanticAttributeClassification.IDENTIFIER),
-                    buildMetadata(nonIdentifierAttrId, SemanticAttributeClassification.FREETEXT),
+                    IdentityFactory.createEntityTypeSemanticMetadataEntity(
+                        workspaceId = workspaceId,
+                        entityTypeId = entityTypeId,
+                        targetId = attrId1,
+                        classification = SemanticAttributeClassification.IDENTIFIER,
+                    ),
+                    IdentityFactory.createEntityTypeSemanticMetadataEntity(
+                        workspaceId = workspaceId,
+                        entityTypeId = entityTypeId,
+                        targetId = attrId2,
+                        classification = SemanticAttributeClassification.IDENTIFIER,
+                    ),
+                    IdentityFactory.createEntityTypeSemanticMetadataEntity(
+                        workspaceId = workspaceId,
+                        entityTypeId = entityTypeId,
+                        targetId = nonIdentifierAttrId,
+                        classification = SemanticAttributeClassification.FREETEXT,
+                    ),
                 )
             )
 
@@ -133,7 +163,12 @@ class EntityTypeClassificationServiceTest {
             whenever(
                 semanticMetadataRepository.findByEntityTypeIdAndTargetType(entityTypeId, SemanticMetadataTargetType.ATTRIBUTE)
             ).thenReturn(
-                listOf(buildMetadata(UUID.randomUUID(), SemanticAttributeClassification.QUANTITATIVE))
+                listOf(IdentityFactory.createEntityTypeSemanticMetadataEntity(
+                    workspaceId = workspaceId,
+                    entityTypeId = entityTypeId,
+                    targetId = UUID.randomUUID(),
+                    classification = SemanticAttributeClassification.QUANTITATIVE,
+                ))
             )
 
             val result = service.getIdentifierAttributeIds(entityTypeId)
@@ -152,7 +187,12 @@ class EntityTypeClassificationServiceTest {
             val attrId = UUID.randomUUID()
             whenever(
                 semanticMetadataRepository.findByEntityTypeIdAndTargetType(entityTypeId, SemanticMetadataTargetType.ATTRIBUTE)
-            ).thenReturn(listOf(buildMetadata(attrId, SemanticAttributeClassification.IDENTIFIER)))
+            ).thenReturn(listOf(IdentityFactory.createEntityTypeSemanticMetadataEntity(
+                    workspaceId = workspaceId,
+                    entityTypeId = entityTypeId,
+                    targetId = attrId,
+                    classification = SemanticAttributeClassification.IDENTIFIER,
+                )))
 
             // First call — populates cache
             service.hasIdentifierAttributes(entityTypeId)
@@ -166,15 +206,4 @@ class EntityTypeClassificationServiceTest {
         }
     }
 
-    // ------ helpers ------
-
-    private fun buildMetadata(targetId: UUID, classification: SemanticAttributeClassification): EntityTypeSemanticMetadataEntity =
-        EntityTypeSemanticMetadataEntity(
-            id = UUID.randomUUID(),
-            workspaceId = workspaceId,
-            entityTypeId = entityTypeId,
-            targetType = SemanticMetadataTargetType.ATTRIBUTE,
-            targetId = targetId,
-            classification = classification,
-        )
 }

@@ -1,8 +1,11 @@
 package riven.core.service.util.factory.identity
 
+import riven.core.entity.entity.EntityTypeSemanticMetadataEntity
 import riven.core.entity.identity.IdentityClusterEntity
 import riven.core.entity.identity.IdentityClusterMemberEntity
 import riven.core.entity.identity.MatchSuggestionEntity
+import riven.core.enums.entity.semantics.SemanticAttributeClassification
+import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.enums.identity.MatchSignalType
 import riven.core.enums.identity.MatchSuggestionStatus
 import riven.core.models.identity.CandidateMatch
@@ -93,6 +96,32 @@ object IdentityFactory {
         targetEntityId = targetEntityId,
         compositeScore = compositeScore,
         signals = signals,
+    )
+
+    /**
+     * Creates an [EntityTypeSemanticMetadataEntity] with sensible defaults.
+     *
+     * Useful for testing semantic classification lookups without constructing
+     * the entity inline in each test.
+     */
+    fun createEntityTypeSemanticMetadataEntity(
+        id: UUID? = UUID.randomUUID(),
+        workspaceId: UUID = UUID.randomUUID(),
+        entityTypeId: UUID = UUID.randomUUID(),
+        targetType: SemanticMetadataTargetType = SemanticMetadataTargetType.ATTRIBUTE,
+        targetId: UUID = UUID.randomUUID(),
+        classification: SemanticAttributeClassification? = SemanticAttributeClassification.IDENTIFIER,
+        definition: String? = null,
+        tags: List<String> = emptyList(),
+    ): EntityTypeSemanticMetadataEntity = EntityTypeSemanticMetadataEntity(
+        id = id,
+        workspaceId = workspaceId,
+        entityTypeId = entityTypeId,
+        targetType = targetType,
+        targetId = targetId,
+        classification = classification,
+        definition = definition,
+        tags = tags,
     )
 
     /**

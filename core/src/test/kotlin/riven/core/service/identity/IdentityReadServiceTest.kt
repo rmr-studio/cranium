@@ -14,8 +14,6 @@ import riven.core.entity.entity.EntityEntity
 import riven.core.entity.identity.IdentityClusterEntity
 import riven.core.entity.identity.IdentityClusterMemberEntity
 import riven.core.entity.identity.MatchSuggestionEntity
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
 import riven.core.enums.identity.MatchSuggestionStatus
 import riven.core.enums.integration.SourceType
 import riven.core.exceptions.NotFoundException
@@ -31,6 +29,7 @@ import riven.core.service.entity.EntityService
 import riven.core.service.util.BaseServiceTest
 import riven.core.service.util.WithUserPersona
 import riven.core.service.util.WorkspaceRole
+import riven.core.service.util.factory.entity.EntityFactory
 import riven.core.service.util.factory.identity.IdentityFactory
 import riven.core.enums.workspace.WorkspaceRoles
 import java.math.BigDecimal
@@ -423,21 +422,13 @@ class IdentityReadServiceTest : BaseServiceTest() {
         return entity
     }
 
-    private fun buildEntityEntity(id: UUID): EntityEntity {
-        val identifierKey = UUID.randomUUID()
-        return EntityEntity(
+    private fun buildEntityEntity(id: UUID): EntityEntity =
+        EntityFactory.createEntityEntity(
             id = id,
             workspaceId = workspaceId,
-            typeId = UUID.randomUUID(),
             typeKey = "person",
-            identifierKey = identifierKey,
-            iconColour = IconColour.NEUTRAL,
-            iconType = IconType.FILE,
-            deleted = false,
-            deletedAt = null,
             sourceType = SourceType.INTEGRATION,
         )
-    }
 
     private fun setAuditField(entity: Any, fieldName: String, value: Any?) {
         var clazz: Class<*>? = entity.javaClass

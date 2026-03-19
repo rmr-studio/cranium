@@ -23,6 +23,7 @@ import riven.core.enums.identity.MatchSuggestionStatus
 import riven.core.enums.util.OperationType
 import riven.core.models.common.json.JsonObject
 import riven.core.repository.identity.IdentityClusterMemberRepository
+import riven.core.repository.identity.IdentityClusterRepository
 import riven.core.repository.identity.MatchSuggestionRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.util.BaseServiceTest
@@ -58,6 +59,9 @@ class IdentityMatchSuggestionServiceTest : BaseServiceTest() {
 
     @MockitoBean
     private lateinit var memberRepository: IdentityClusterMemberRepository
+
+    @MockitoBean
+    private lateinit var clusterRepository: IdentityClusterRepository
 
     @MockitoBean
     private lateinit var activityService: ActivityService
@@ -217,7 +221,9 @@ class IdentityMatchSuggestionServiceTest : BaseServiceTest() {
 
         whenever(repository.findActiveSuggestion(any(), any(), any())).thenReturn(null)
         whenever(repository.findRejectedSuggestion(any(), any(), any())).thenReturn(null)
-        whenever(repository.saveAndFlush(any())).thenThrow(DataIntegrityViolationException("duplicate key"))
+        whenever(repository.saveAndFlush(any())).thenThrow(
+            DataIntegrityViolationException("uq_match_suggestions_pair: duplicate key value violates unique constraint")
+        )
 
         val count = service.persistSuggestions(workspaceId, listOf(candidate), userId)
 
@@ -380,6 +386,9 @@ class IdentityMatchSuggestionServiceTest : BaseServiceTest() {
 
             whenever(memberRepository.findByEntityId(sourceId)).thenReturn(sourceMember)
             whenever(memberRepository.findByEntityId(targetId)).thenReturn(targetMember)
+            whenever(clusterRepository.findById(sharedClusterId)).thenReturn(
+                Optional.of(IdentityFactory.createIdentityClusterEntity().copy(id = sharedClusterId))
+            )
 
             val count = service.persistSuggestions(workspaceId, listOf(candidate), userId)
 

@@ -35,10 +35,7 @@ interface IdentityClusterMemberRepository : JpaRepository<IdentityClusterMemberE
      * Used during cluster merge operations where all members of the source cluster
      * are reassigned to the target cluster and the old membership rows are removed.
      */
-    @Modifying
-    @Query(
-        value = "DELETE FROM identity_cluster_members WHERE cluster_id = :clusterId",
-        nativeQuery = true
-    )
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("DELETE FROM IdentityClusterMemberEntity m WHERE m.clusterId = :clusterId")
     fun deleteByClusterId(@Param("clusterId") clusterId: UUID)
 }

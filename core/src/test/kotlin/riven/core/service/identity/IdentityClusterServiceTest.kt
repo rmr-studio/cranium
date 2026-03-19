@@ -13,7 +13,9 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.test.context.bean.override.mockito.MockitoBean
+import riven.core.configuration.auth.WorkspaceSecurity
 import riven.core.entity.identity.IdentityClusterEntity
 import riven.core.entity.identity.IdentityClusterMemberEntity
 import riven.core.enums.activity.Activity
@@ -34,6 +36,7 @@ import riven.core.service.auth.AuthTokenService
 import riven.core.service.entity.EntityRelationshipService
 import riven.core.service.entity.EntityService
 import riven.core.service.util.BaseServiceTest
+import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.WithUserPersona
 import riven.core.service.util.WorkspaceRole
 import riven.core.service.util.factory.entity.EntityFactory
@@ -55,6 +58,9 @@ import java.util.UUID
  */
 @SpringBootTest(
     classes = [
+        AuthTokenService::class,
+        WorkspaceSecurity::class,
+        SecurityTestConfig::class,
         IdentityClusterService::class,
         IdentityClusterServiceTest.TestConfig::class,
     ]
@@ -353,6 +359,53 @@ class IdentityClusterServiceTest : BaseServiceTest() {
 
             assertThrows<NotFoundException> {
                 service.renameCluster(workspaceId, clusterId, request)
+            }
+        }
+    }
+
+    // ------ Access Denied Tests ------
+
+    @Nested
+    @WithUserPersona(
+        userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
+        email = "test@example.com",
+        displayName = "Test User",
+        roles = [
+            WorkspaceRole(
+                workspaceId = "00000000-0000-0000-0000-000000000000",
+                role = WorkspaceRoles.ADMIN
+            )
+        ]
+    )
+    inner class UnauthorizedAccessTests {
+
+        /**
+         * Verifies that addEntityToCluster rejects requests when the authenticated user
+         * does not have access to the target workspace. The @PreAuthorize annotation
+         * on the service method should trigger an AccessDeniedException before any
+         * business logic executes.
+         */
+        @Test
+        fun `addEntityToCluster throws AccessDeniedException for unauthorized workspace`() {
+            val request = AddClusterMemberRequest(entityId = UUID.randomUUID(), targetMemberId = UUID.randomUUID())
+
+            assertThrows<AccessDeniedException> {
+                service.addEntityToCluster(workspaceId, UUID.randomUUID(), request)
+            }
+        }
+
+        /**
+         * Verifies that renameCluster rejects requests when the authenticated user
+         * does not have access to the target workspace. The @PreAuthorize annotation
+         * on the service method should trigger an AccessDeniedException before any
+         * business logic executes.
+         */
+        @Test
+        fun `renameCluster throws AccessDeniedException for unauthorized workspace`() {
+            val request = RenameClusterRequest(name = "New Name")
+
+            assertThrows<AccessDeniedException> {
+                service.renameCluster(workspaceId, UUID.randomUUID(), request)
             }
         }
     }

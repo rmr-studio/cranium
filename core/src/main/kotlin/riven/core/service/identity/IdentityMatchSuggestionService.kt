@@ -12,6 +12,7 @@ import riven.core.enums.util.OperationType
 import riven.core.models.identity.MatchSuggestion
 import riven.core.models.identity.ScoredCandidate
 import riven.core.repository.identity.IdentityClusterMemberRepository
+import riven.core.repository.identity.IdentityClusterRepository
 import riven.core.repository.identity.MatchSuggestionRepository
 import riven.core.service.activity.ActivityService
 import riven.core.util.ServiceUtil.findOrThrow
@@ -30,6 +31,7 @@ import java.util.UUID
 class IdentityMatchSuggestionService(
     private val repository: MatchSuggestionRepository,
     private val memberRepository: IdentityClusterMemberRepository,
+    private val clusterRepository: IdentityClusterRepository,
     private val activityService: ActivityService,
     private val logger: KLogger,
 ) {
@@ -101,8 +103,14 @@ class IdentityMatchSuggestionService(
         try {
             repository.saveAndFlush(entity).toModel()
         } catch (e: DataIntegrityViolationException) {
-            logger.info { "Duplicate suggestion skipped for ${entity.sourceEntityId}<->${entity.targetEntityId}" }
-            null
+            val isDedup = e.message?.contains("uq_match_suggestions_pair") == true
+                    || e.cause?.message?.contains("uq_match_suggestions_pair") == true
+            if (isDedup) {
+                logger.info { "Duplicate suggestion skipped for ${entity.sourceEntityId}<->${entity.targetEntityId}" }
+                null
+            } else {
+                throw e
+            }
         }
 
     /**
@@ -164,7 +172,9 @@ class IdentityMatchSuggestionService(
     private fun inSameCluster(sourceId: UUID, targetId: UUID): Boolean {
         val sourceMember = memberRepository.findByEntityId(sourceId) ?: return false
         val targetMember = memberRepository.findByEntityId(targetId) ?: return false
-        return sourceMember.clusterId == targetMember.clusterId
+        if (sourceMember.clusterId != targetMember.clusterId) return false
+        // Verify the shared cluster is not soft-deleted (@SQLRestriction filters deleted=false)
+        return clusterRepository.findById(sourceMember.clusterId).isPresent
     }
 
     /**

@@ -147,8 +147,9 @@ class WorkflowExecutionQueueProcessorService(
         val nodeIds = workflowVersion.workflow.nodeIds.toList()
 
         // Get or create workflow execution entity
-        val record = getOrCreateExecution(item, workflowDefinitionId, workflowVersion.id!!)
-        val id = requireNotNull(record.id)
+        val workflowVersionId = requireNotNull(workflowVersion.id) { "Persisted workflow version must have an ID" }
+        val record = getOrCreateExecution(item, workflowDefinitionId, workflowVersionId)
+        val id = requireNotNull(record.id) { "Persisted workflow execution must have an ID" }
 
         // Persist execution ID to queue item before starting Temporal workflow.
         // This ensures the execution can be reused on retry if Temporal start fails.

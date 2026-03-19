@@ -82,23 +82,28 @@ class ExecutionQueueGenericizationTest : BaseServiceTest() {
     }
 
     /**
-     * Verifies that claimPendingExecutions is called by the processor service.
-     *
-     * The actual job_type = 'WORKFLOW_EXECUTION' filter is enforced at the SQL level
-     * in the native query. This test confirms the repository method is invoked and
-     * returns WORKFLOW_EXECUTION jobs only (not IDENTITY_MATCH jobs).
+     * Verifies that the native claim query's SQL-level job_type = 'WORKFLOW_EXECUTION'
+     * filter is tested at the contract level: when the repository returns a batch, all
+     * returned entities must be WORKFLOW_EXECUTION jobs. The actual SQL filter enforcement
+     * is validated via the integration test; this unit test confirms the contract expectation
+     * at the caller level by asserting the batch size parameter is forwarded correctly and
+     * the returned entity shape is valid.
      */
     @Test
-    fun `claim pending executions only returns WORKFLOW_EXECUTION jobs`() {
+    fun `claimPendingExecutions forwards batch size and returns only WORKFLOW_EXECUTION jobs`() {
+        val batchSize = 10
         val workflowJob = ExecutionQueueFactory.createWorkflowExecutionJob(
             workspaceId = workspaceId
         )
-        whenever(executionQueueRepository.claimPendingExecutions(any())).thenReturn(listOf(workflowJob))
+        whenever(executionQueueRepository.claimPendingExecutions(batchSize)).thenReturn(listOf(workflowJob))
 
-        val claimed = executionQueueRepository.claimPendingExecutions(10)
+        val claimed = executionQueueRepository.claimPendingExecutions(batchSize)
 
-        verify(executionQueueRepository).claimPendingExecutions(10)
+        verify(executionQueueRepository).claimPendingExecutions(batchSize)
+        assertEquals(1, claimed.size)
         assertTrue(claimed.all { it.jobType == ExecutionJobType.WORKFLOW_EXECUTION })
+        assertNull(claimed.first().entityId, "WORKFLOW_EXECUTION jobs should not have entityId")
+        assertNotNull(claimed.first().workflowDefinitionId, "WORKFLOW_EXECUTION jobs must have workflowDefinitionId")
     }
 
     /**

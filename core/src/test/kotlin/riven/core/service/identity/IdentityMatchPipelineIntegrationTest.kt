@@ -28,7 +28,7 @@ import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
-import org.mockito.Mockito
+import org.mockito.kotlin.mock
 import riven.core.configuration.util.LoggerConfig
 import riven.core.repository.identity.MatchSuggestionRepository
 import riven.core.service.activity.ActivityService
@@ -80,7 +80,7 @@ class IdentityMatchPipelineIntegrationTestConfig {
      * ActivityLogRepository and its entity scan dependencies.
      */
     @Bean
-    fun stubActivityService(): ActivityService = Mockito.mock(ActivityService::class.java)
+    fun stubActivityService(): ActivityService = mock<ActivityService>()
 }
 
 /**
@@ -436,7 +436,10 @@ class IdentityMatchPipelineIntegrationTest {
             Int::class.java,
             workspaceId,
         )
-        assertTrue(totalRows!! >= 1, "Expected at least the rejected row to exist")
+        assertTrue(
+            requireNotNull(totalRows) { "queryForObject returned null for total match_suggestions count" } >= 1,
+            "Expected at least the rejected row to exist",
+        )
 
         // The new PENDING suggestion should exist if the score was above the rejected score
         val pendingRows = jdbcTemplate.queryForObject(
@@ -444,6 +447,9 @@ class IdentityMatchPipelineIntegrationTest {
             Int::class.java,
             workspaceId,
         )
-        assertTrue(pendingRows!! >= 1, "Expected a new PENDING suggestion to be created after rejection and score improvement")
+        assertTrue(
+            requireNotNull(pendingRows) { "queryForObject returned null for pending match_suggestions count" } >= 1,
+            "Expected a new PENDING suggestion to be created after rejection and score improvement",
+        )
     }
 }

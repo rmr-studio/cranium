@@ -71,3 +71,13 @@
 **Effort:** M
 **Priority:** P3
 **Depends on:** Core matching engine + sufficient match data
+
+### TODO-IR-008: Cross-Type Match Score Discounting
+**What:** Introduce a scoring penalty or separate signal category for cross-type attribute matches (e.g., EMAIL value matched against a NAME attribute).
+**Why:** Cross-type matching is valuable for identity resolution (e.g., `john.smith@gmail.com` ↔ `John Smith`), but without discounting, high-frequency tokens like "John" generate a flood of low-value suggestions across every `john@*` email in the workspace. Same-type matches should carry more weight than cross-type ones.
+**Pros:** Reduces false positive suggestions; preserves cross-type matching capability; improves signal-to-noise ratio.
+**Cons:** Requires design work on how to represent cross-type signals in the scoring model; may need tuning per signal type pair.
+**Context:** Current implementation in `IdentityMatchCandidateService.runCandidateQuery()` searches all IDENTIFIER attributes regardless of type and stamps matches with the trigger's signal type. Options include: (1) cross-type weight multiplier (e.g., 0.5x), (2) dedicated `CROSS_TYPE` signal with its own default weight, (3) higher minimum similarity threshold for cross-type pairs. These are not mutually exclusive. Related to TODO-IR-002 (per-workspace weight configuration).
+**Effort:** M
+**Priority:** P2
+**Depends on:** Core matching engine

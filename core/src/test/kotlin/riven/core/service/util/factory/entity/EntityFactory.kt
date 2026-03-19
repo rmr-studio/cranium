@@ -159,6 +159,7 @@ object EntityFactory {
         identifierKey: UUID = UUID.randomUUID(),
         iconColour: IconColour = IconColour.NEUTRAL,
         iconType: IconType = IconType.FILE,
+        sourceType: SourceType = SourceType.USER_CREATED,
     ): EntityEntity {
         return EntityEntity(
             id = id,
@@ -168,6 +169,7 @@ object EntityFactory {
             identifierKey = identifierKey,
             iconColour = iconColour,
             iconType = iconType,
+            sourceType = sourceType,
         )
     }
 }

@@ -16,6 +16,11 @@ interface MatchSuggestionRepository : JpaRepository<MatchSuggestionEntity, UUID>
     /**
      * Finds an active (non-deleted) suggestion for the given canonical entity pair.
      *
+     * Uses native SQL with explicit deleted filter rather than JPQL with @SQLRestriction
+     * because this query runs in the same transaction as [findRejectedSuggestion], which
+     * loads deleted rows into the persistence context. JPQL queries can return stale
+     * L1-cached entities that don't respect @SQLRestriction, causing false positives.
+     *
      * Used by the suggestion service to detect duplicates before inserting a new suggestion.
      */
     @Query(
@@ -70,18 +75,16 @@ interface MatchSuggestionRepository : JpaRepository<MatchSuggestionEntity, UUID>
     /**
      * Counts PENDING suggestions where the given entity is source OR target.
      *
-     * Uses a native query because @SQLRestriction does not apply to native queries —
-     * deleted = false is included explicitly.
+     * @SQLRestriction on [MatchSuggestionEntity] auto-excludes deleted rows,
+     * so no explicit deleted filter is needed.
      */
     @Query(
-        value = """
-            SELECT COUNT(*) FROM match_suggestions
-            WHERE workspace_id = :workspaceId
-              AND (source_entity_id = :entityId OR target_entity_id = :entityId)
-              AND status = 'PENDING'
-              AND deleted = false
-        """,
-        nativeQuery = true,
+        """
+        SELECT COUNT(m) FROM MatchSuggestionEntity m
+        WHERE m.workspaceId = :workspaceId
+          AND (m.sourceEntityId = :entityId OR m.targetEntityId = :entityId)
+          AND m.status = riven.core.enums.identity.MatchSuggestionStatus.PENDING
+        """
     )
     fun countPendingForEntity(
         @Param("workspaceId") workspaceId: UUID,

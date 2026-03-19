@@ -97,7 +97,12 @@ CREATE TABLE IF NOT EXISTS "execution_queue"
     "dispatched_at"          TIMESTAMPTZ,
     "input"                  JSONB,
     "attempts"               INTEGER                                                     NOT NULL DEFAULT 0,
-    "last_error"             TEXT
+    "last_error"             TEXT,
+
+    CONSTRAINT chk_job_type_fields CHECK (
+        (job_type = 'IDENTITY_MATCH' AND entity_id IS NOT NULL AND workflow_definition_id IS NULL) OR
+        (job_type = 'WORKFLOW_EXECUTION' AND workflow_definition_id IS NOT NULL)
+    )
 );
 
 -- Tracks each workflow node execution during a workflow run.

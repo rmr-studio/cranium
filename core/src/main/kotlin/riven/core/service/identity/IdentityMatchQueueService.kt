@@ -49,10 +49,16 @@ class IdentityMatchQueueService(
             executionQueueRepository.save(job)
             logger.debug { "Enqueued IDENTITY_MATCH job for entity $entityId in workspace $workspaceId" }
         } catch (e: DataIntegrityViolationException) {
-            // Dedup: a PENDING IDENTITY_MATCH job for this entity already exists.
-            // The partial unique index (workspace_id, entity_id, job_type) WHERE status='PENDING'
-            // prevents duplicate queue entries — no action needed.
-            logger.debug { "Skipping duplicate IDENTITY_MATCH enqueue for entity $entityId (PENDING job already exists)" }
+            val isDedup = e.message?.contains("uq_execution_queue_pending_identity_match") == true
+                    || e.cause?.message?.contains("uq_execution_queue_pending_identity_match") == true
+            if (isDedup) {
+                // Dedup: a PENDING IDENTITY_MATCH job for this entity already exists.
+                // The partial unique index (workspace_id, entity_id, job_type) WHERE status='PENDING'
+                // prevents duplicate queue entries — no action needed.
+                logger.debug { "Skipping duplicate IDENTITY_MATCH enqueue for entity $entityId (PENDING job already exists)" }
+            } else {
+                throw e
+            }
         }
     }
 }

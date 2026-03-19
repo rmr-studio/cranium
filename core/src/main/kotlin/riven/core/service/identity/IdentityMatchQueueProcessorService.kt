@@ -102,10 +102,10 @@ class IdentityMatchQueueProcessorService(
             workflowExecutionQueueService.markDispatched(item)
             logger.debug { "Dispatched IdentityMatchWorkflow for entity $entityId (queue item ${item.id})" }
         } catch (e: WorkflowExecutionAlreadyStarted) {
-            // A workflow for this entity is already running — this is safe deduplication.
-            // The workflow ID uniqueness (identity-match-{entityId}) ensures only one runs at a time.
-            logger.info { "IdentityMatchWorkflow already running for entity $entityId — marking dispatched (idempotent)" }
-            workflowExecutionQueueService.markDispatched(item)
+            // A workflow for this entity is already running — release back to PENDING so the
+            // event is retried once the current workflow completes, rather than being dropped.
+            logger.info { "IdentityMatchWorkflow already running for entity $entityId — releasing to PENDING for retry" }
+            workflowExecutionQueueService.releaseToPending(item)
         }
     }
 

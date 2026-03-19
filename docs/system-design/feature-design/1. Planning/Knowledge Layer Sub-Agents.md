@@ -58,12 +58,32 @@ AnalyticalBriefWorkflow
 	- A sub-agent could be given certain conditions, where if they are met, a specific automation is triggered, with the relevant data being passed through a function input, for example:
 		- *an agent detects that customers from a specific acquisition channel are churning at an elevated rate*
 			- **it triggers an automation that tags those customers and notifies the relevant team member**
+#### Pre-wired Lifecycle Perspectives
+
+Per CEO Plan: Lifecycle Vertical Scoping (2026-03-18), sub-agents ship with pre-configured lifecycle perspectives out of the box. These activate as data flows into each lifecycle domain — they are not blank agents users must configure.
+
+**Proposed initial perspectives:**
+
+| Perspective | Lifecycle Domain(s) | What It Watches | Trigger |
+|---|---|---|---|
+| Channel Quality Monitor | ACQUISITION → RETENTION | Divergence between channel conversion rate and downstream retention | Weekly schedule + data change |
+| Onboarding Health Tracker | ONBOARDING | First-30-day support load vs. cohort norms, setup completion rates | Daily schedule |
+| Usage Engagement Monitor | USAGE | Feature adoption trends, usage drop-offs, inactive customer detection | Daily schedule + usage event |
+| Support Load Analyzer | SUPPORT → BILLING | Support ticket volume correlation with customer value and churn risk | Data change (new ticket) |
+| Churn Signal Detector | Cross-domain | Correlates usage drops + support spikes + billing patterns into churn risk scores | Daily schedule |
+| Revenue Cohort Analyzer | BILLING → ACQUISITION | Revenue and expansion trends by acquisition cohort | Weekly schedule |
+
+Perspectives are defined as manifest entries alongside the lifecycle spine templates. Users can modify, disable, or create their own.
+
 ### Success Criteria
 
-_How do we know this feature is working correctly?_
-
-- [ ] Criterion 1
-- [ ] Criterion 2
+- [ ] Sub-agent perspectives can be defined, scoped to entity types/relationships, and triggered via schedule or data change
+- [ ] Pre-wired lifecycle perspectives activate automatically as data flows into their scoped lifecycle domains
+- [ ] Perspective output is structured (not free-text) and can be surfaced on the Lifecycle Operations Dashboard
+- [ ] Perspectives degrade gracefully with partial data — explain what's missing rather than failing silently
+- [ ] Users can modify, disable, or create custom perspectives
+- [ ] Perspective execution handles LLM failures (timeout, malformed response, refusal) with distinct rescue strategies
+- [ ] Perspective definitions are manifest-based — community-contributable
 
 ---
 

@@ -32,11 +32,11 @@ The backend does NOT have a `POST /enable` endpoint for connection creation. All
 
 Three tags are required, mapped to Nango's available tag fields:
 
-| Nango Field | JSON Key | Riven Value | Purpose |
-|---|---|---|---|
-| `endUserId` | `end_user_id` | User UUID (string) | Identifies who initiated the OAuth flow for activity logging |
-| `organizationId` | `organization_id` | Workspace UUID (string) | Identifies the workspace to create the connection in |
-| `endUserEmail` | `end_user_email` | Integration Definition UUID (string) | Identifies which integration is being connected |
+| Nango Field      | JSON Key          | Riven Value                          | Purpose                                                      |
+| ---------------- | ----------------- | ------------------------------------ | ------------------------------------------------------------ |
+| `endUserId`      | `end_user_id`     | User UUID (string)                   | Identifies who initiated the OAuth flow for activity logging |
+| `organizationId` | `organization_id` | Workspace UUID (string)              | Identifies the workspace to create the connection in         |
+| `endUserEmail`   | `end_user_email`  | Integration Definition UUID (string) | Identifies which integration is being connected              |
 
 **Why `endUserEmail` for integration definition ID?** Nango only provides three tag fields. Since `endUserEmail` is the only remaining field, it is pragmatically repurposed to carry the integration definition UUID. The webhook handler knows to parse it as a UUID, not as an email address.
 

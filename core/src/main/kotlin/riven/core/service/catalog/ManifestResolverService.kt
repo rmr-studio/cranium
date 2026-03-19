@@ -104,6 +104,7 @@ class ManifestResolverService(
             ManifestType.TEMPLATE -> resolveTemplateEntityTypes(json, modelIndex)
             ManifestType.INTEGRATION -> resolveIntegrationEntityTypes(json)
             ManifestType.BUNDLE -> emptyList<ResolvedEntityType>() to false
+            ManifestType.LIFECYCLE_SPINE -> resolveTemplateEntityTypes(json, modelIndex)
         }
     }
 
@@ -164,6 +165,7 @@ class ManifestResolverService(
         extend.get("description")?.let { merged.set<JsonNode>("description", it) }
         extend.get("icon")?.let { merged.set<JsonNode>("icon", it) }
         extend.get("semanticGroup")?.let { merged.set<JsonNode>("semanticGroup", it) }
+        extend.get("lifecycleDomain")?.let { merged.set<JsonNode>("lifecycleDomain", it) }
         extend.get("identifierKey")?.let { merged.set<JsonNode>("identifierKey", it) }
 
         // Additive attributes (base wins on conflict)
@@ -223,6 +225,7 @@ class ManifestResolverService(
             iconType = icon?.get("type")?.asText() ?: "BOX",
             iconColour = icon?.get("colour")?.asText() ?: "NEUTRAL",
             semanticGroup = json.get("semanticGroup")?.asText() ?: "UNCATEGORIZED",
+            lifecycleDomain = json.get("lifecycleDomain")?.asText(),
             identifierKey = json.get("identifierKey")?.asText(),
             readonly = json.get("readonly")?.asBoolean() ?: readonlyDefault,
             schema = attributesMap,

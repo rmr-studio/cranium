@@ -11,6 +11,7 @@ import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.ApplicationEntityType
 import riven.core.enums.core.DataFormat
 import riven.core.enums.core.DataType
+import riven.core.enums.integration.SourceType
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.enums.util.OperationType
 import riven.core.models.catalog.CatalogEntityTypeModel
@@ -154,6 +155,44 @@ class TemplateInstallationService(
         return buildBundleResponse(bundleKey, bundle, templatesToInstall, templatesToSkip, creationResults, relationshipsCreated)
     }
 
+    /**
+     * Install a lifecycle spine into a workspace. The spine is a protected set of entity types
+     * that form the lifecycle data model foundation. Entity types are marked protected=true
+     * (non-deletable), core attributes are marked Schema.protected=true (immutable), and
+     * sourceType is set to LIFECYCLE_SPINE.
+     *
+     * Called during workspace onboarding — always installs, never optional.
+     */
+    @Transactional
+    internal fun installLifecycleSpine(workspaceId: UUID, spineKey: String): TemplateInstallationResponse {
+        val userId = authTokenService.getUserId()
+
+        val existingInstallation = installationRepository.findByWorkspaceIdAndManifestKey(workspaceId, spineKey)
+        if (existingInstallation != null) {
+            val manifest = catalogService.getManifestByKey(spineKey, ManifestType.LIFECYCLE_SPINE)
+            return TemplateInstallationResponse(
+                templateKey = spineKey,
+                templateName = manifest.name,
+                entityTypesCreated = 0,
+                relationshipsCreated = 0,
+                entityTypes = emptyList(),
+            )
+        }
+
+        val manifest = catalogService.getManifestByKey(spineKey, ManifestType.LIFECYCLE_SPINE)
+
+        val (toCreate, reused) = partitionEntityTypesByExistence(workspaceId, manifest.entityTypes)
+        val newResults = createEntityTypes(workspaceId, toCreate, isLifecycleSpine = true)
+        val mergedResults = newResults + reused
+
+        val relationshipsCreated = createRelationships(workspaceId, manifest.relationships, manifest.entityTypes, mergedResults)
+        applySemanticMetadata(workspaceId, toCreate, newResults)
+        recordTemplateInstallation(workspaceId, spineKey, userId, mergedResults)
+        logTemplateActivity(userId, workspaceId, spineKey, manifest, newResults)
+
+        return buildResponse(spineKey, manifest, newResults, relationshipsCreated)
+    }
+
     // ------ Entity Type Creation ------
 
     /**
@@ -206,11 +245,12 @@ class TemplateInstallationService(
     private fun createEntityTypes(
         workspaceId: UUID,
         catalogEntityTypes: List<CatalogEntityTypeModel>,
+        isLifecycleSpine: Boolean = false,
     ): Map<String, EntityTypeCreationResult> {
         val results = mutableMapOf<String, EntityTypeCreationResult>()
 
         for (catalogType in catalogEntityTypes) {
-            val (entity, attributeKeyMap) = buildEntityType(workspaceId, catalogType)
+            val (entity, attributeKeyMap) = buildEntityType(workspaceId, catalogType, isLifecycleSpine)
             val saved = entityTypeRepository.save(entity)
             val savedId = requireNotNull(saved.id)
 
@@ -252,8 +292,9 @@ class TemplateInstallationService(
     private fun buildEntityType(
         workspaceId: UUID,
         catalogType: CatalogEntityTypeModel,
+        isLifecycleSpine: Boolean = false,
     ): Pair<EntityTypeEntity, Map<String, UUID>> {
-        val (properties, columnOrder, attributeKeyMap) = buildAttributeSchema(catalogType)
+        val (properties, columnOrder, attributeKeyMap) = buildAttributeSchema(catalogType, isLifecycleSpine)
 
         require(catalogType.identifierKey == null || catalogType.identifierKey in attributeKeyMap) {
             "identifierKey '${catalogType.identifierKey}' not found in schema attributes for entity type '${catalogType.key}'"
@@ -269,9 +310,11 @@ class TemplateInstallationService(
             iconType = catalogType.iconType,
             iconColour = catalogType.iconColour,
             semanticGroup = catalogType.semanticGroup,
+            lifecycleDomain = catalogType.lifecycleDomain,
+            sourceType = if (isLifecycleSpine) SourceType.LIFECYCLE_SPINE else SourceType.USER_CREATED,
             identifierKey = identifierKey,
             workspaceId = workspaceId,
-            protected = false,
+            protected = isLifecycleSpine,
             schema = Schema(
                 type = DataType.OBJECT,
                 key = SchemaType.OBJECT,
@@ -290,6 +333,7 @@ class TemplateInstallationService(
      */
     private fun buildAttributeSchema(
         catalogType: CatalogEntityTypeModel,
+        isLifecycleSpine: Boolean = false,
     ): Triple<Map<UUID, Schema<UUID>>, List<UUID>, Map<String, UUID>> {
         val attributeKeyMap = mutableMapOf<String, UUID>()
         val properties = mutableMapOf<UUID, Schema<UUID>>()
@@ -310,7 +354,7 @@ class TemplateInstallationService(
                 format = parseDataFormat(attrDef["format"] as? String),
                 required = attrDef["required"] as? Boolean ?: false,
                 unique = attrDef["unique"] as? Boolean ?: false,
-                protected = isIdentifier || (attrDef["protected"] as? Boolean ?: false),
+                protected = isLifecycleSpine || isIdentifier || (attrDef["protected"] as? Boolean ?: false),
                 options = parseSchemaOptions(attrDef["options"]),
             )
 

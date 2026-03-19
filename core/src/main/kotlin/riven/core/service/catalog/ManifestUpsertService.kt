@@ -203,6 +203,8 @@ class ManifestUpsertService(
                 iconType = IconType.valueOf(et.iconType),
                 iconColour = IconColour.valueOf(et.iconColour),
                 semanticGroup = SemanticGroup.valueOf(et.semanticGroup),
+                lifecycleDomain = et.lifecycleDomain?.let { riven.core.enums.entity.LifecycleDomain.valueOf(it) }
+                    ?: riven.core.enums.entity.LifecycleDomain.UNCATEGORIZED,
                 identifierKey = et.identifierKey,
                 readonly = et.readonly,
                 schema = et.schema,

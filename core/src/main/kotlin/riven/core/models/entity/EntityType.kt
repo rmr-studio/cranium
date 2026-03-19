@@ -1,6 +1,7 @@
 package riven.core.models.entity
 
 import riven.core.entity.util.AuditableModel
+import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.integration.SourceType
 import riven.core.models.common.Icon
@@ -37,6 +38,7 @@ data class EntityType(
      */
     val identifierKey: UUID,
     val semanticGroup: SemanticGroup = SemanticGroup.UNCATEGORIZED,
+    val lifecycleDomain: LifecycleDomain = LifecycleDomain.UNCATEGORIZED,
     val sourceType: SourceType = SourceType.USER_CREATED,
     val sourceIntegrationId: UUID? = null,
     val readonly: Boolean = false,

@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS public.entity_types
     "schema"                JSONB       NOT NULL,
     "column_configuration"  JSONB,
     "semantic_group"        TEXT        NOT NULL     DEFAULT 'UNCATEGORIZED',
+    "lifecycle_domain"      TEXT        NOT NULL     DEFAULT 'UNCATEGORIZED',
     -- Source discriminator fields for integration entity types
     "source_type"           VARCHAR(50) NOT NULL     DEFAULT 'USER_CREATED',
     "source_integration_id" UUID        REFERENCES integration_definitions (id) ON DELETE SET NULL,

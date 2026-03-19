@@ -31,6 +31,7 @@ data class ResolvedEntityType(
     val iconType: String,
     val iconColour: String,
     val semanticGroup: String,
+    val lifecycleDomain: String? = null,
     val identifierKey: String?,
     val readonly: Boolean,
     val schema: Map<String, Any>,

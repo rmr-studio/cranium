@@ -175,4 +175,13 @@ export const attributeTypes: Record<SchemaType, AttributeSchemaType> = {
             colour: IconColour.Neutral,
         },
     },
+    [SchemaType.Note]: {
+        label: "Note",
+        key: SchemaType.Note,
+        type: DataType.Object,
+        icon: {
+            type: IconType.StickyNote,
+            colour: IconColour.Neutral,
+        },
+    },
 };

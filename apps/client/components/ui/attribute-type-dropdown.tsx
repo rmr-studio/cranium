@@ -43,6 +43,7 @@ export const AttributeTypeDropdown: FC<Props> = ({
       attributeTypes.MULTI_SELECT,
       attributeTypes.CHECKBOX,
       attributeTypes.DATETIME,
+      attributeTypes[SchemaType.Note],
     ];
   }, []);
 

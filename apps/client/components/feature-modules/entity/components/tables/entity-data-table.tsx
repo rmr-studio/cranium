@@ -2,12 +2,18 @@
 
 import { ActionColumnConfig, ColumnResizingConfig, DataTable, DataTableProvider, InfiniteScrollConfig } from '@/components/ui/data-table';
 import { Form } from '@/components/ui/form';
+import { TruncatedChipList } from '@/components/ui/truncated-chip-list';
 import {
+  Entity,
   EntityAttributeDefinition,
   EntityType,
   EntityTypeDefinition,
+  NoteEntry,
   QueryFilter,
   RelationshipDefinition,
+  SchemaUUID,
+  createEmptyNoteEntry,
+  formatNoteTimestamp,
 } from '@/lib/types/entity';
 import { debounce } from '@/lib/util/debounce.util';
 import type { ClassNameProps } from '@riven/utils';
@@ -17,6 +23,7 @@ import { Button } from '@riven/ui/button';
 import { Row, SortingState } from '@tanstack/react-table';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { MoreHorizontal, Plus } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useConfigFormState } from '../../context/configuration-provider';
 import { useEntityDraft } from '../../context/entity-provider';
@@ -36,6 +43,11 @@ import EntityActionBar from './entity-table-action-bar';
 import { EntityRow, isDraftRow, generateSearchConfigFromEntityType } from './entity-table-utils';
 import { toast } from 'sonner';
 
+const NoteDrawer = dynamic(
+  () => import('@/components/feature-modules/entity/components/notes/note-drawer').then((m) => m.NoteDrawer),
+  { ssr: false },
+);
+
 export interface Props extends ClassNameProps {
   entityType: EntityType;
   workspaceId: string;
@@ -48,6 +60,15 @@ export const EntityDataTable: FC<Props> = ({
 }) => {
   const { isDraftMode, enterDraftMode } = useEntityDraft();
   const { form } = useConfigFormState();
+
+  // Note drawer state
+  const [noteDrawerState, setNoteDrawerState] = useState<{
+    entity: Entity;
+    attributeId: string;
+    schema: SchemaUUID;
+    noteId: string;
+    allNotes: NoteEntry[];
+  } | null>(null);
 
   // Search state (debounced)
   const { searchTerm, setSearchTerm, debouncedSearch, clearSearch } = useEntitySearch();
@@ -100,7 +121,77 @@ export const EntityDataTable: FC<Props> = ({
   );
 
   // Full table data (rows, columns) from flattened entities
-  const { rowData, columns } = useEntityTableData(entityType, entities, isDraftMode);
+  const { rowData, columns: baseColumns } = useEntityTableData(entityType, entities, isDraftMode);
+
+  // Wrap NOTE columns with TruncatedChipList + drawer click handlers
+  const columns = useMemo(() => {
+    return baseColumns.map((col) => {
+      if (!col.meta?.isNote) return col;
+
+      return {
+        ...col,
+        cell: ({ row }: { row: Row<EntityRow> }) => {
+          const entity = row.original._entity;
+          const value: NoteEntry[] = row.getValue(col.accessorKey as string) ?? [];
+          const colSchema = entityType.schema.properties?.[col.accessorKey as string];
+          if (!entity || !colSchema) return null;
+
+          const chips = value.map((note) => ({
+            id: note.id,
+            label: note.title || 'Untitled',
+            subtitle: formatNoteTimestamp(note.updatedAt),
+            icon: colSchema.icon,
+          }));
+
+          return (
+            <TruncatedChipList
+              items={chips}
+              maxVisible={2}
+              onChipClick={(chip) => {
+                setNoteDrawerState({
+                  entity,
+                  attributeId: col.accessorKey as string,
+                  schema: colSchema,
+                  noteId: chip.id,
+                  allNotes: value,
+                });
+              }}
+              onOverflowClick={() => {
+                if (value.length > 0) {
+                  setNoteDrawerState({
+                    entity,
+                    attributeId: col.accessorKey as string,
+                    schema: colSchema,
+                    noteId: value[0].id,
+                    allNotes: value,
+                  });
+                }
+              }}
+              emptyState={
+                <button
+                  type="button"
+                  className="text-sm text-muted-foreground/50 opacity-0 transition-opacity group-hover/row:opacity-100 hover:text-muted-foreground"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const newNote = createEmptyNoteEntry();
+                    setNoteDrawerState({
+                      entity,
+                      attributeId: col.accessorKey as string,
+                      schema: colSchema,
+                      noteId: newNote.id,
+                      allNotes: [newNote],
+                    });
+                  }}
+                >
+                  Add note...
+                </button>
+              }
+            />
+          );
+        },
+      };
+    });
+  }, [baseColumns, entityType]);
 
   // Entity lookup for inline edit
   const entityMap = useMemo(
@@ -401,6 +492,21 @@ export const EntityDataTable: FC<Props> = ({
             dialog={{ open: deleteDialogOpen, setOpen: setDeleteDialogOpen }}
             type={entityType}
             definition={deletingDefinition}
+          />
+        )}
+
+        {/* Note drawer */}
+        {noteDrawerState && (
+          <NoteDrawer
+            open={!!noteDrawerState}
+            onClose={() => setNoteDrawerState(null)}
+            entity={noteDrawerState.entity}
+            attributeId={noteDrawerState.attributeId}
+            schema={noteDrawerState.schema}
+            workspaceId={workspaceId}
+            entityTypeId={entityType.id}
+            noteId={noteDrawerState.noteId}
+            allNotes={noteDrawerState.allNotes}
           />
         )}
       </div>

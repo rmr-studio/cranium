@@ -56,6 +56,19 @@ export function buildFieldSchema(schema: SchemaUUID): z.ZodTypeAny {
       fieldSchema = buildArraySchema(schema, mergedOptions);
       break;
     case DataType.Object:
+      if (schema.key === SchemaType.Note) {
+        fieldSchema = z.array(
+          z.object({
+            id: z.string(),
+            title: z.string(),
+            content: z.array(z.any()),
+            createdAt: z.string(),
+            updatedAt: z.string(),
+            createdBy: z.string().optional(),
+          })
+        );
+        break;
+      }
       fieldSchema = z.record(z.any());
       break;
     default:
@@ -220,6 +233,11 @@ export function getDefaultValueForSchema(schema: SchemaUUID): unknown {
   // Check for custom default value in options first
   if (schema.options?._default !== undefined && schema.options?._default !== null) {
     return schema.options._default;
+  }
+
+  // NOTE type stores an array of note objects, not a plain object
+  if (schema.key === SchemaType.Note) {
+    return [];
   }
 
   const attributeType = attributeTypes[schema.key];

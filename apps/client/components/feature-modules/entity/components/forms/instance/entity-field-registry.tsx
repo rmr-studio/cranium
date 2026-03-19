@@ -1,6 +1,7 @@
 import { SchemaUUID } from '@/lib/types/common';
 import { SchemaType } from '@/lib/types/common';
 import { FC } from 'react';
+import { StickyNote } from 'lucide-react';
 
 // Import existing widgets from blocks module
 import { FormWidgetProps } from '@/components/feature-modules/blocks/components/forms';
@@ -15,6 +16,16 @@ import { NumberInputWidget } from '@/components/feature-modules/blocks/component
 import { PhoneInputWidget } from '@/components/feature-modules/blocks/components/forms/widgets/phone-input-widget';
 import { SliderWidget } from '@/components/feature-modules/blocks/components/forms/widgets/slider-widget';
 import { TextInputWidget } from '@/components/feature-modules/blocks/components/forms/widgets/text-input-widget';
+
+const NoteFieldPlaceholder: FC<FormWidgetProps> = ({ value }) => {
+  const noteCount = Array.isArray(value) ? value.length : 0;
+  return (
+    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+      <StickyNote className="size-4" />
+      <span>{noteCount > 0 ? `${noteCount} note${noteCount !== 1 ? 's' : ''}` : 'No notes'}</span>
+    </div>
+  );
+};
 
 /**
  * Registry mapping SchemaType to widget components
@@ -37,6 +48,7 @@ export const entityFieldWidgetRegistry: Record<SchemaType, FC<FormWidgetProps>> 
   [SchemaType.Location]: TextInputWidget, // TODO: Create LocationWidget (simple text for now)
   [SchemaType.FileAttachment]: FileUploadWidget,
   [SchemaType.Object]: TextInputWidget,
+  [SchemaType.Note]: NoteFieldPlaceholder,
 };
 
 /**

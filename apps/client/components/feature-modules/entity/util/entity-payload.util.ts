@@ -71,6 +71,8 @@ export function deriveSchemaOptionsUpdate(
       if (existing.includes(trimmed)) return null;
       return { _enum: [...existing, trimmed] };
     }
+    case SchemaType.Note:
+      return null;
     default:
       return null;
   }

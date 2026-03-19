@@ -73,12 +73,3 @@ data class ResolvedFieldMapping(
     val mappings: Map<String, Any>
 )
 
-/** Output of ManifestResolverService for bundles -- template key list, ready for catalog persistence. */
-data class ResolvedBundle(
-    val key: String,
-    val name: String,
-    val description: String?,
-    val manifestVersion: String?,
-    val templateKeys: List<String>,
-    val stale: Boolean = false
-)

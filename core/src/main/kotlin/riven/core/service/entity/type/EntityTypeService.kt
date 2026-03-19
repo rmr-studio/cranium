@@ -269,6 +269,7 @@ class EntityTypeService(
     }
 
 
+    @Transactional
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
     fun deleteEntityType(
         workspaceId: UUID,

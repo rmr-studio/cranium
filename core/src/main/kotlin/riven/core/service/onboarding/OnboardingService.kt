@@ -147,22 +147,13 @@ class OnboardingService(
         workspaceId: UUID,
         request: CompleteOnboardingRequest,
     ): List<TemplateInstallResult> {
-        val results = mutableListOf<TemplateInstallResult>()
-
-        request.templateKeys?.forEach { templateKey ->
-            results.add(installTemplateSafely(workspaceId, templateKey))
-        }
-
-        request.bundleKeys?.forEach { bundleKey ->
-            results.add(installBundleSafely(workspaceId, bundleKey))
-        }
-
-        return results
+        val templateKey = request.businessType.templateKey
+        return listOf(installTemplateSafely(workspaceId, templateKey))
     }
 
     private fun installTemplateSafely(workspaceId: UUID, templateKey: String): TemplateInstallResult {
         return try {
-            val response = templateInstallationService.installTemplateInternal(workspaceId, templateKey)
+            val response = templateInstallationService.installTemplate(workspaceId, templateKey)
             TemplateInstallResult(
                 key = templateKey,
                 success = true,
@@ -172,24 +163,6 @@ class OnboardingService(
             logger.error(e) { "Failed to install template '$templateKey' during onboarding" }
             TemplateInstallResult(
                 key = templateKey,
-                success = false,
-                error = e.message,
-            )
-        }
-    }
-
-    private fun installBundleSafely(workspaceId: UUID, bundleKey: String): TemplateInstallResult {
-        return try {
-            val response = templateInstallationService.installBundleInternal(workspaceId, bundleKey)
-            TemplateInstallResult(
-                key = bundleKey,
-                success = true,
-                entityTypesCreated = response.entityTypesCreated,
-            )
-        } catch (e: Exception) {
-            logger.error(e) { "Failed to install bundle '$bundleKey' during onboarding" }
-            TemplateInstallResult(
-                key = bundleKey,
                 success = false,
                 error = e.message,
             )

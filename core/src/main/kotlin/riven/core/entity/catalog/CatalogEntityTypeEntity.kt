@@ -83,7 +83,7 @@ data class CatalogEntityTypeEntity(
 ) {
 
     fun toModel(semanticMetadata: List<CatalogSemanticMetadataModel>) = CatalogEntityTypeModel(
-        id = id!!,
+        id = requireNotNull(id) { "CatalogEntityTypeEntity.id must not be null when converting to CatalogEntityTypeModel" },
         key = key,
         displayNameSingular = displayNameSingular,
         displayNamePlural = displayNamePlural,

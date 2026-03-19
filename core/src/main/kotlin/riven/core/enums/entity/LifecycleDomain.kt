@@ -1,5 +1,7 @@
 package riven.core.enums.entity
 
+import com.fasterxml.jackson.annotation.JsonProperty
+
 /**
  * Lifecycle domain classification for entity types — WHERE data sits in the customer journey.
  * Orthogonal to SemanticGroup (WHAT the data IS).
@@ -17,11 +19,11 @@ package riven.core.enums.entity
  * - UNCATEGORIZED: Non-lifecycle or entity types that span multiple domains (e.g., Customer, Communication)
  */
 enum class LifecycleDomain {
-    ACQUISITION,
-    ONBOARDING,
-    USAGE,
-    SUPPORT,
-    BILLING,
-    RETENTION,
-    UNCATEGORIZED
+    @JsonProperty("ACQUISITION") ACQUISITION,
+    @JsonProperty("ONBOARDING") ONBOARDING,
+    @JsonProperty("USAGE") USAGE,
+    @JsonProperty("SUPPORT") SUPPORT,
+    @JsonProperty("BILLING") BILLING,
+    @JsonProperty("RETENTION") RETENTION,
+    @JsonProperty("UNCATEGORIZED") UNCATEGORIZED
 }

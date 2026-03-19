@@ -4,6 +4,4 @@ enum class ManifestType {
     MODEL,
     TEMPLATE,
     INTEGRATION,
-    BUNDLE,
-    LIFECYCLE_SPINE
 }

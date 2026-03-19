@@ -6,5 +6,5 @@ enum class SourceType {
     IMPORT,
     API,
     WORKFLOW,
-    LIFECYCLE_SPINE
+    TEMPLATE
 }

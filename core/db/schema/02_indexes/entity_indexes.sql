@@ -15,6 +15,7 @@ CREATE INDEX IF NOT EXISTS idx_entities_workspace_type
     WHERE deleted = FALSE;
 
 -- Lifecycle Domain Index (for Knowledge API filtering by lifecycle domain)
+DROP INDEX IF EXISTS idx_entity_types_lifecycle_domain;
 CREATE INDEX IF NOT EXISTS idx_entity_types_lifecycle_domain
     ON entity_types (workspace_id, lifecycle_domain)
     WHERE deleted = FALSE;

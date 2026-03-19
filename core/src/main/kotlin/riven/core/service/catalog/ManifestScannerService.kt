@@ -39,11 +39,11 @@ class ManifestScannerService(
         }
     }
 
-    /** Scans classpath templates directory for template manifests. Key derived from directory name. */
+    /** Scans classpath lifecycle-spine directory for template manifests. Key derived from directory name. */
     fun scanTemplates(): List<ScannedManifest> {
-        val resources = resourcePatternResolver.getResources("${manifestProperties.basePath}/templates/*/manifest.json")
+        val resources = resourcePatternResolver.getResources("${manifestProperties.basePath}/lifecycle-spine/*/manifest.json")
         return resources.mapNotNull { resource ->
-            val key = extractDirectoryName(resource, "templates")
+            val key = extractDirectoryName(resource, "lifecycle-spine")
             parseAndValidate(resource, key, ManifestType.TEMPLATE, "manifests/schemas/template.schema.json")
         }
     }
@@ -55,15 +55,6 @@ class ManifestScannerService(
         return resources.mapNotNull { resource ->
             val key = extractDirectoryName(resource, "integrations")
             parseAndValidate(resource, key, ManifestType.INTEGRATION, "manifests/schemas/integration.schema.json")
-        }
-    }
-
-    /** Scans classpath bundles directory for bundle manifests. Key derived from directory name. */
-    fun scanBundles(): List<ScannedManifest> {
-        val resources = resourcePatternResolver.getResources("${manifestProperties.basePath}/bundles/*/manifest.json")
-        return resources.mapNotNull { resource ->
-            val key = extractDirectoryName(resource, "bundles")
-            parseAndValidate(resource, key, ManifestType.BUNDLE, "manifests/schemas/bundle.schema.json")
         }
     }
 

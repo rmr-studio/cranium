@@ -789,6 +789,73 @@ class IdentityConfirmationServiceTest : BaseServiceTest() {
         }
     }
 
+    // ------ Foreign Workspace Tests — D1 regression ------
+
+    @Nested
+    @WithUserPersona(
+        userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
+        email = "test@example.com",
+        displayName = "Test User",
+        roles = [
+            WorkspaceRole(
+                workspaceId = "f8b1c2d3-4e5f-6789-abcd-ef9876543210",
+                role = WorkspaceRoles.ADMIN
+            )
+        ]
+    )
+    inner class ForeignWorkspaceSuggestionTests {
+
+        /**
+         * Bug: require() threw IllegalArgumentException (HTTP 400) when a suggestion belongs to
+         * a different workspace, leaking existence info. Fix: replaced with NotFoundException (HTTP 404).
+         *
+         * Verifies that confirmSuggestion throws NotFoundException when the user has workspace access
+         * but the suggestion entity belongs to a different workspace.
+         */
+        @Test
+        fun `confirmSuggestion throws NotFoundException for suggestion in different workspace`() {
+            val suggestionId = UUID.randomUUID()
+            val foreignWorkspaceId = UUID.randomUUID()
+            val entity = IdentityFactory.createMatchSuggestionEntity(
+                workspaceId = foreignWorkspaceId,
+                status = MatchSuggestionStatus.PENDING,
+            )
+            val entityWithId = buildEntityWithId(entity, suggestionId)
+
+            whenever(authTokenService.getUserId()).thenReturn(userId)
+            whenever(matchSuggestionRepository.findById(suggestionId)).thenReturn(Optional.of(entityWithId))
+
+            assertThrows<riven.core.exceptions.NotFoundException> {
+                service.confirmSuggestion(workspaceId, suggestionId)
+            }
+        }
+
+        /**
+         * Bug: require() threw IllegalArgumentException (HTTP 400) when a suggestion belongs to
+         * a different workspace, leaking existence info. Fix: replaced with NotFoundException (HTTP 404).
+         *
+         * Verifies that rejectSuggestion throws NotFoundException when the user has workspace access
+         * but the suggestion entity belongs to a different workspace.
+         */
+        @Test
+        fun `rejectSuggestion throws NotFoundException for suggestion in different workspace`() {
+            val suggestionId = UUID.randomUUID()
+            val foreignWorkspaceId = UUID.randomUUID()
+            val entity = IdentityFactory.createMatchSuggestionEntity(
+                workspaceId = foreignWorkspaceId,
+                status = MatchSuggestionStatus.PENDING,
+            )
+            val entityWithId = buildEntityWithId(entity, suggestionId)
+
+            whenever(authTokenService.getUserId()).thenReturn(userId)
+            whenever(matchSuggestionRepository.findById(suggestionId)).thenReturn(Optional.of(entityWithId))
+
+            assertThrows<riven.core.exceptions.NotFoundException> {
+                service.rejectSuggestion(workspaceId, suggestionId)
+            }
+        }
+    }
+
     // ------ Access Denied Tests ------
 
     @Nested

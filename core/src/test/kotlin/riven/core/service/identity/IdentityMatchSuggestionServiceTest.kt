@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
-import org.mockito.kotlin.argThat
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.never
@@ -191,11 +190,11 @@ class IdentityMatchSuggestionServiceTest : BaseServiceTest() {
     }
 
     /**
-     * When userId is null (system-generated from Temporal), activity is NOT logged
-     * because ActivityService requires a non-null userId.
+     * When userId is null (system-triggered Temporal activity), activity is logged
+     * using the SYSTEM_ACTOR_ID sentinel UUID.
      */
     @Test
-    fun `persistSuggestions skips activity logging when userId is null`() {
+    fun `persistSuggestions logs activity with SYSTEM_ACTOR_ID when userId is null`() {
         val candidate = IdentityFactory.createScoredCandidate(compositeScore = 0.85)
 
         whenever(repository.findActiveSuggestion(any(), any(), any())).thenReturn(null)
@@ -203,10 +202,14 @@ class IdentityMatchSuggestionServiceTest : BaseServiceTest() {
         whenever(repository.saveAndFlush(any())).thenAnswer { invocation ->
             buildSavedEntity(invocation.getArgument(0))
         }
+        whenever(activityService.logActivity(any(), any(), any(), any(), any(), any(), any(), any()))
+            .thenReturn(buildActivityLog())
 
         service.persistSuggestions(workspaceId, listOf(candidate), userId = null)
 
-        verify(activityService, never()).logActivity(any(), any(), any(), any(), any(), any(), any(), any())
+        verify(activityService).logActivity(
+            any(), any(), eq(IdentityMatchSuggestionService.SYSTEM_ACTOR_ID), any(), any(), any(), any(), any()
+        )
     }
 
     // ------ persistSuggestions — idempotency ------
@@ -251,7 +254,8 @@ class IdentityMatchSuggestionServiceTest : BaseServiceTest() {
 
     /**
      * When a REJECTED suggestion exists and the new score is strictly higher,
-     * the old row is soft-deleted and a fresh PENDING suggestion is created.
+     * a fresh PENDING suggestion is created. The rejected row is already soft-deleted
+     * (findRejectedSuggestion queries WHERE deleted = true) so no additional soft-delete is needed.
      */
     @Test
     fun `persistSuggestions re-suggests when new score is higher than rejected`() {
@@ -270,7 +274,6 @@ class IdentityMatchSuggestionServiceTest : BaseServiceTest() {
 
         whenever(repository.findActiveSuggestion(any(), any(), any())).thenReturn(null)
         whenever(repository.findRejectedSuggestion(any(), any(), any())).thenReturn(rejectedEntity)
-        whenever(repository.save(any<MatchSuggestionEntity>())).thenReturn(rejectedEntity)
         whenever(repository.saveAndFlush(any())).thenAnswer { invocation ->
             buildSavedEntity(invocation.getArgument(0))
         }
@@ -280,8 +283,7 @@ class IdentityMatchSuggestionServiceTest : BaseServiceTest() {
         val count = service.persistSuggestions(workspaceId, listOf(candidate), userId)
 
         assertEquals(1, count)
-        // The rejected row must have been soft-deleted
-        verify(repository).save(argThat<MatchSuggestionEntity> { deleted })
+        // New suggestion persisted via saveAndFlush, no save() for softDeleteRejected needed
         verify(repository).saveAndFlush(any())
     }
 

@@ -2,9 +2,7 @@ package riven.core.service.workflow
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -82,28 +80,26 @@ class ExecutionQueueGenericizationTest : BaseServiceTest() {
     }
 
     /**
-     * Verifies that the native claim query's SQL-level job_type = 'WORKFLOW_EXECUTION'
-     * filter is tested at the contract level: when the repository returns a batch, all
-     * returned entities must be WORKFLOW_EXECUTION jobs. The actual SQL filter enforcement
-     * is validated via the integration test; this unit test confirms the contract expectation
-     * at the caller level by asserting the batch size parameter is forwarded correctly and
-     * the returned entity shape is valid.
+     * Verifies that WORKFLOW_EXECUTION queue entities have the correct shape:
+     * jobType = WORKFLOW_EXECUTION, non-null workflowDefinitionId, null entityId.
+     *
+     * The SQL-level job_type filter enforcement is validated via the integration test;
+     * this unit test confirms the entity contract and toModel() pipeline.
      */
     @Test
-    fun `claimPendingExecutions forwards batch size and returns only WORKFLOW_EXECUTION jobs`() {
-        val batchSize = 10
+    fun `WORKFLOW_EXECUTION queue entity has correct shape and converts to model`() {
         val workflowJob = ExecutionQueueFactory.createWorkflowExecutionJob(
             workspaceId = workspaceId
         )
-        whenever(executionQueueRepository.claimPendingExecutions(batchSize)).thenReturn(listOf(workflowJob))
 
-        val claimed = executionQueueRepository.claimPendingExecutions(batchSize)
+        assertEquals(ExecutionJobType.WORKFLOW_EXECUTION, workflowJob.jobType)
+        assertNull(workflowJob.entityId, "WORKFLOW_EXECUTION jobs should not have entityId")
+        assertNotNull(workflowJob.workflowDefinitionId, "WORKFLOW_EXECUTION jobs must have workflowDefinitionId")
 
-        verify(executionQueueRepository).claimPendingExecutions(batchSize)
-        assertEquals(1, claimed.size)
-        assertTrue(claimed.all { it.jobType == ExecutionJobType.WORKFLOW_EXECUTION })
-        assertNull(claimed.first().entityId, "WORKFLOW_EXECUTION jobs should not have entityId")
-        assertNotNull(claimed.first().workflowDefinitionId, "WORKFLOW_EXECUTION jobs must have workflowDefinitionId")
+        val model = workflowJob.toModel()
+        assertEquals(ExecutionJobType.WORKFLOW_EXECUTION, model.jobType)
+        assertNull(model.entityId)
+        assertNotNull(model.workflowDefinitionId)
     }
 
     /**

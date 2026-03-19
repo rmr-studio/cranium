@@ -94,14 +94,16 @@ class IdentityMatchDispatcherService(
             return
         }
 
+        var recoveredCount = 0
         for (item in staleItems) {
             try {
                 workflowExecutionQueueService.releaseToPending(item)
+                recoveredCount++
             } catch (e: Exception) {
                 logger.error(e) { "Failed to recover stale IDENTITY_MATCH queue item ${item.id}" }
             }
         }
 
-        logger.info { "Recovered ${staleItems.size} stale IDENTITY_MATCH queue items" }
+        logger.info { "Recovered $recoveredCount/${staleItems.size} stale IDENTITY_MATCH queue items" }
     }
 }

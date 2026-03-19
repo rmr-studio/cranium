@@ -17,7 +17,6 @@ import riven.core.repository.identity.MatchSuggestionRepository
 import riven.core.service.activity.ActivityService
 import riven.core.util.ServiceUtil.findOrThrow
 import java.math.BigDecimal
-import java.time.ZonedDateTime
 import java.util.UUID
 
 /**
@@ -35,6 +34,11 @@ class IdentityMatchSuggestionService(
     private val activityService: ActivityService,
     private val logger: KLogger,
 ) {
+
+    companion object {
+        /** Sentinel userId for system-triggered Temporal activities that have no JWT context. */
+        val SYSTEM_ACTOR_ID: UUID = UUID.fromString("00000000-0000-0000-0000-000000000000")
+    }
 
     // ------ Public mutations ------
 
@@ -83,15 +87,15 @@ class IdentityMatchSuggestionService(
                 logger.debug { "Skipping re-suggestion for $sourceId<->$targetId: score ${candidate.compositeScore} <= rejected ${rejected.confidenceScore}" }
                 return null
             }
-            softDeleteRejected(rejected)
+            // No softDeleteRejected() call needed: findRejectedSuggestion queries WHERE deleted = true,
+            // so the row is already soft-deleted and excluded from the unique partial index (WHERE deleted = false).
+            // The new PENDING suggestion can be inserted without constraint violation.
         }
 
         val entity = buildSuggestionEntity(workspaceId, sourceId, targetId, candidate)
         val suggestion = createIfNotExists(entity) ?: return null
 
-        if (userId != null) {
-            logSuggestionCreated(suggestion, userId)
-        }
+        logSuggestionCreated(suggestion, userId ?: SYSTEM_ACTOR_ID)
         return suggestion
     }
 
@@ -114,18 +118,8 @@ class IdentityMatchSuggestionService(
         }
 
     /**
-     * Soft-deletes a previously rejected suggestion row so it no longer appears
-     * in active queries and a new PENDING suggestion can be created.
-     */
-    private fun softDeleteRejected(rejected: MatchSuggestionEntity) {
-        rejected.deleted = true
-        rejected.deletedAt = ZonedDateTime.now()
-        repository.save(rejected)
-    }
-
-    /**
      * Logs an activity entry for a newly created suggestion.
-     * Only called when [userId] is non-null (system activities are not logged).
+     * For system-triggered runs (no JWT context), [SYSTEM_ACTOR_ID] is used as the userId.
      */
     private fun logSuggestionCreated(suggestion: MatchSuggestion, userId: UUID) {
         activityService.logActivity(

@@ -26,6 +26,9 @@ class IdentityMatchQueueService(
 ) {
 
     // ------ Public mutations ------
+    // Activity logging is intentionally omitted for internal queue operations.
+    // ExecutionQueueEntity is infrastructure, not user-visible data — enqueue/claim/dispatch
+    // events are traced via debug logging, not the activity audit trail.
 
     /**
      * Enqueues an IDENTITY_MATCH job for [entityId] if one is not already pending.

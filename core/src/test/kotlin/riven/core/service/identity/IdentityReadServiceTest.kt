@@ -9,7 +9,9 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.test.context.bean.override.mockito.MockitoBean
+import riven.core.configuration.auth.WorkspaceSecurity
 import riven.core.entity.entity.EntityEntity
 import riven.core.entity.identity.IdentityClusterEntity
 import riven.core.entity.identity.IdentityClusterMemberEntity
@@ -27,6 +29,7 @@ import riven.core.repository.identity.MatchSuggestionRepository
 import riven.core.service.auth.AuthTokenService
 import riven.core.service.entity.EntityService
 import riven.core.service.util.BaseServiceTest
+import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.WithUserPersona
 import riven.core.service.util.WorkspaceRole
 import riven.core.service.util.factory.entity.EntityFactory
@@ -53,6 +56,9 @@ import java.util.UUID
  */
 @SpringBootTest(
     classes = [
+        AuthTokenService::class,
+        WorkspaceSecurity::class,
+        SecurityTestConfig::class,
         IdentityReadService::class,
         IdentityReadServiceTest.TestConfig::class,
     ]
@@ -390,6 +396,74 @@ class IdentityReadServiceTest : BaseServiceTest() {
             val result = service.getPendingMatchCount(workspaceId, entityId)
 
             assertEquals(0L, result.pendingCount)
+        }
+    }
+
+    // ------ UnauthorizedAccessTests ------
+
+    @Nested
+    @WithUserPersona(
+        userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
+        email = "test@example.com",
+        displayName = "Test User",
+        roles = [
+            WorkspaceRole(
+                workspaceId = "00000000-0000-0000-0000-000000000000",
+                role = WorkspaceRoles.ADMIN
+            )
+        ]
+    )
+    inner class UnauthorizedAccessTests {
+
+        /**
+         * Verifies that @PreAuthorize on listSuggestions rejects requests when the
+         * authenticated user does not have access to the target workspace.
+         */
+        @Test
+        fun `listSuggestions throws AccessDeniedException for unauthorized workspace`() {
+            assertThrows<AccessDeniedException> {
+                service.listSuggestions(workspaceId)
+            }
+        }
+
+        /**
+         * Verifies that @PreAuthorize on getSuggestion rejects unauthorized workspace access.
+         */
+        @Test
+        fun `getSuggestion throws AccessDeniedException for unauthorized workspace`() {
+            assertThrows<AccessDeniedException> {
+                service.getSuggestion(workspaceId, UUID.randomUUID())
+            }
+        }
+
+        /**
+         * Verifies that @PreAuthorize on listClusters rejects unauthorized workspace access.
+         */
+        @Test
+        fun `listClusters throws AccessDeniedException for unauthorized workspace`() {
+            assertThrows<AccessDeniedException> {
+                service.listClusters(workspaceId)
+            }
+        }
+
+        /**
+         * Verifies that @PreAuthorize on getClusterDetail rejects unauthorized workspace access.
+         */
+        @Test
+        fun `getClusterDetail throws AccessDeniedException for unauthorized workspace`() {
+            assertThrows<AccessDeniedException> {
+                service.getClusterDetail(workspaceId, UUID.randomUUID())
+            }
+        }
+
+        /**
+         * Verifies that @PreAuthorize on getPendingMatchCount rejects unauthorized workspace access.
+         */
+        @Test
+        fun `getPendingMatchCount throws AccessDeniedException for unauthorized workspace`() {
+            assertThrows<AccessDeniedException> {
+                service.getPendingMatchCount(workspaceId, UUID.randomUUID())
+            }
         }
     }
 

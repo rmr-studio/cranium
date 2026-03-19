@@ -16,6 +16,7 @@ import riven.core.enums.notification.NotificationType
 import riven.core.enums.notification.ReviewPriority
 import riven.core.enums.util.OperationType
 import riven.core.exceptions.ConflictException
+import riven.core.exceptions.NotFoundException
 import riven.core.models.identity.MatchSuggestion
 import riven.core.models.notification.NotificationContent
 import riven.core.models.request.entity.AddRelationshipRequest
@@ -71,7 +72,9 @@ class IdentityConfirmationService(
         val userId = authTokenService.getUserId()
         val entity = findOrThrow { matchSuggestionRepository.findById(suggestionId) }
 
-        require(entity.workspaceId == workspaceId) { "Suggestion does not belong to the specified workspace" }
+        if (entity.workspaceId != workspaceId) {
+            throw NotFoundException("Suggestion not found")
+        }
 
         validateConfirmable(entity)
         createRelationship(entity)
@@ -109,7 +112,9 @@ class IdentityConfirmationService(
         val userId = authTokenService.getUserId()
         val entity = findOrThrow { matchSuggestionRepository.findById(suggestionId) }
 
-        require(entity.workspaceId == workspaceId) { "Suggestion does not belong to the specified workspace" }
+        if (entity.workspaceId != workspaceId) {
+            throw NotFoundException("Suggestion not found")
+        }
 
         validateRejectable(entity)
         applyRejection(entity, userId)
@@ -139,15 +144,19 @@ class IdentityConfirmationService(
     // ------ Relationship creation ------
 
     private fun createRelationship(entity: MatchSuggestionEntity) {
-        entityRelationshipService.addRelationship(
-            workspaceId = entity.workspaceId,
-            sourceEntityId = entity.sourceEntityId,
-            request = AddRelationshipRequest(
-                targetEntityId = entity.targetEntityId,
-                definitionId = null,
-                linkSource = SourceType.IDENTITY_MATCH,
-            ),
-        )
+        try {
+            entityRelationshipService.addRelationship(
+                workspaceId = entity.workspaceId,
+                sourceEntityId = entity.sourceEntityId,
+                request = AddRelationshipRequest(
+                    targetEntityId = entity.targetEntityId,
+                    definitionId = null,
+                    linkSource = SourceType.IDENTITY_MATCH,
+                ),
+            )
+        } catch (e: ConflictException) {
+            logger.debug { "Relationship already exists for ${entity.sourceEntityId} <-> ${entity.targetEntityId}, continuing confirmation" }
+        }
     }
 
     // ------ Cluster management ------
@@ -175,27 +184,54 @@ class IdentityConfirmationService(
             // Case 4: both in different clusters — merge
             sourceMember != null && targetMember != null -> {
                 logger.debug { "Cluster case 4: merging clusters ${sourceMember.clusterId} and ${targetMember.clusterId}" }
-                mergeClusters(sourceMember.clusterId, targetMember.clusterId, userId)
+                val (surviving, dissolving) = mergeClusters(sourceMember.clusterId, targetMember.clusterId, userId)
+                logClusterActivity(surviving, OperationType.UPDATE, userId, entity.workspaceId, mapOf(
+                    "action" to "merge_surviving",
+                    "dissolvedClusterId" to dissolving.id.toString(),
+                    "newMemberCount" to surviving.memberCount,
+                ))
+                logClusterActivity(dissolving, OperationType.DELETE, userId, entity.workspaceId, mapOf(
+                    "action" to "merge_dissolved",
+                    "survivingClusterId" to surviving.id.toString(),
+                ))
+                surviving
             }
 
             // Case 2: source clustered, target not — add target to source cluster
             sourceMember != null -> {
                 logger.debug { "Cluster case 2: adding target ${entity.targetEntityId} to cluster ${sourceMember.clusterId}" }
                 val cluster = findOrThrow { clusterRepository.findById(sourceMember.clusterId) }
-                addMemberToCluster(cluster, entity.targetEntityId, userId)
+                val updated = addMemberToCluster(cluster, entity.targetEntityId, userId)
+                logClusterActivity(updated, OperationType.UPDATE, userId, entity.workspaceId, mapOf(
+                    "action" to "member_added",
+                    "entityId" to entity.targetEntityId.toString(),
+                    "newMemberCount" to updated.memberCount,
+                ))
+                updated
             }
 
             // Case 3: target clustered, source not — add source to target cluster
             targetMember != null -> {
                 logger.debug { "Cluster case 3: adding source ${entity.sourceEntityId} to cluster ${targetMember.clusterId}" }
                 val cluster = findOrThrow { clusterRepository.findById(targetMember.clusterId) }
-                addMemberToCluster(cluster, entity.sourceEntityId, userId)
+                val updated = addMemberToCluster(cluster, entity.sourceEntityId, userId)
+                logClusterActivity(updated, OperationType.UPDATE, userId, entity.workspaceId, mapOf(
+                    "action" to "member_added",
+                    "entityId" to entity.sourceEntityId.toString(),
+                    "newMemberCount" to updated.memberCount,
+                ))
+                updated
             }
 
             // Case 1: neither clustered — create new cluster
             else -> {
                 logger.debug { "Cluster case 1: creating new cluster for ${entity.sourceEntityId} <-> ${entity.targetEntityId}" }
-                createClusterWithMembers(entity.workspaceId, entity.sourceEntityId, entity.targetEntityId, entity, userId)
+                val cluster = createClusterWithMembers(entity.workspaceId, entity.sourceEntityId, entity.targetEntityId, entity, userId)
+                logClusterActivity(cluster, OperationType.CREATE, userId, entity.workspaceId, mapOf(
+                    "action" to "created",
+                    "memberCount" to 2,
+                ))
+                cluster
             }
         }
     }
@@ -251,8 +287,10 @@ class IdentityConfirmationService(
      * Surviving cluster = higher memberCount. On tie, source entity's cluster survives.
      * Dissolving cluster members are hard-deleted and re-inserted into the surviving cluster,
      * preserving original joinedAt and joinedBy. Dissolving cluster is soft-deleted.
+     *
+     * @return Pair of (surviving cluster, dissolving cluster) for activity logging.
      */
-    private fun mergeClusters(sourceClusterId: UUID, targetClusterId: UUID, userId: UUID): IdentityClusterEntity {
+    private fun mergeClusters(sourceClusterId: UUID, targetClusterId: UUID, userId: UUID): Pair<IdentityClusterEntity, IdentityClusterEntity> {
         val sourceCluster = findOrThrow { clusterRepository.findById(sourceClusterId) }
         val targetCluster = findOrThrow { clusterRepository.findById(targetClusterId) }
 
@@ -294,7 +332,7 @@ class IdentityConfirmationService(
 
         logger.info { "Merged cluster $dissolvingClusterId into $survivingClusterId (${dissolvingMembers.size} members moved)" }
 
-        return survivingCluster
+        return survivingCluster to dissolvingCluster
     }
 
     // ------ Cluster naming ------
@@ -342,6 +380,24 @@ class IdentityConfirmationService(
                 "targetEntityId" to entity.targetEntityId.toString(),
                 "confidenceScore" to entity.confidenceScore.toDouble(),
             ),
+        )
+    }
+
+    private fun logClusterActivity(
+        cluster: IdentityClusterEntity,
+        operation: OperationType,
+        userId: UUID,
+        workspaceId: UUID,
+        details: Map<String, Any?>,
+    ) {
+        activityService.logActivity(
+            activity = Activity.IDENTITY_CLUSTER,
+            operation = operation,
+            userId = userId,
+            workspaceId = workspaceId,
+            entityType = ApplicationEntityType.IDENTITY_CLUSTER,
+            entityId = cluster.id,
+            details = details,
         )
     }
 

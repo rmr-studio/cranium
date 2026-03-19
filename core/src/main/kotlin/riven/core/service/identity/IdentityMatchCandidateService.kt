@@ -157,6 +157,8 @@ class IdentityMatchCandidateService(
             LIMIT $CANDIDATE_LIMIT
         """.trimIndent()
 
+        // NOTE: Candidates are not filtered by schema type — cross-type matches use the trigger's
+        // signal type. See TODO-IR-008 for planned cross-type score discounting.
         val query = entityManager.createNativeQuery(sql)
         query.setParameter("workspaceId", workspaceId)
         query.setParameter("triggerEntityId", triggerEntityId)

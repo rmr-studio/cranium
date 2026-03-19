@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import riven.core.models.identity.IdentityCluster
 import riven.core.models.request.identity.AddClusterMemberRequest
 import riven.core.models.request.identity.RenameClusterRequest
 import riven.core.models.response.identity.ClusterDetailResponse
@@ -148,7 +149,7 @@ class IdentityController(
         @PathVariable workspaceId: UUID,
         @PathVariable clusterId: UUID,
         @Valid @RequestBody request: RenameClusterRequest,
-    ): ResponseEntity<*> {
+    ): ResponseEntity<IdentityCluster> {
         return ResponseEntity.ok(identityClusterService.renameCluster(workspaceId, clusterId, request))
     }
 

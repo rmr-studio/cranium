@@ -6,11 +6,13 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import riven.core.models.entity.Entity
 import riven.core.models.request.entity.AddRelationshipRequest
+import riven.core.models.request.entity.BulkDeleteEntityRequest
 import riven.core.models.request.entity.SaveEntityRequest
 import riven.core.models.request.entity.UpdateRelationshipRequest
 import riven.core.models.response.entity.RelationshipResponse
@@ -138,6 +140,22 @@ class EntityController(
             }
         }
 
+        return ResponseEntity.ok(response)
+    }
+
+    @PostMapping("/workspace/{workspaceId}/bulk-delete")
+    @Operation(summary = "Bulk deletes entities by ID selection or filter-based selection")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Entities deleted successfully"),
+            ApiResponse(responseCode = "400", description = "Invalid request"),
+        ]
+    )
+    fun bulkDeleteEntities(
+        @PathVariable workspaceId: UUID,
+        @Valid @RequestBody request: BulkDeleteEntityRequest,
+    ): ResponseEntity<DeleteEntityResponse> {
+        val response = entityService.bulkDeleteEntities(workspaceId, request)
         return ResponseEntity.ok(response)
     }
 

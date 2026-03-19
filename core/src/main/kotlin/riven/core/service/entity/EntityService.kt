@@ -392,11 +392,10 @@ class EntityService(
         val impactedEntityIds: List<UUID> = entityRelationshipService.findByTargetIdIn(ids).flatMap { it.value }
             .map { it.sourceId }
             .toSet()
-            .filter { !ids.contains(it) } // Exclude entities being deleted
+            .filter { !ids.contains(it) }
 
-
-        // Archive entities, their unique values, and relationships
-        val deletedEntities = entityRepository.deleteByIds(ids.toTypedArray(), workspaceId)
+        // Execute cascade delete
+        val deletedEntities = executeCascadeDelete(ids, workspaceId)
         val deletedRowIds = deletedEntities.mapNotNull { it.id }.toSet()
 
         if (deletedRowIds.isEmpty()) {
@@ -404,10 +403,6 @@ class EntityService(
                 error = "No entities were deleted. Please check the provided IDs."
             )
         }
-
-        entityTypeAttributeService.deleteEntities(workspaceId, deletedRowIds)
-        entityAttributeService.softDeleteByEntityIds(workspaceId, deletedRowIds)
-        entityRelationshipService.archiveEntities(deletedRowIds, workspaceId)
 
         // Log activity for each deleted entity
         activityService.logActivities(
@@ -427,6 +422,39 @@ class EntityService(
             }
         )
 
+        publishDeleteEvents(deletedEntities, workspaceId, userId)
+
+        val updatedEntities = fetchImpactedEntities(impactedEntityIds, workspaceId)
+
+        return DeleteEntityResponse(
+            deletedCount = deletedRowIds.size,
+            updatedEntities = updatedEntities
+        )
+    }
+
+    /**
+     * Executes the core soft-delete cascade for a batch of entity IDs:
+     * soft-deletes entities, their unique constraint values, attributes, and relationships.
+     *
+     * @return the list of EntityEntity rows that were actually soft-deleted by the database
+     */
+    private fun executeCascadeDelete(ids: Collection<UUID>, workspaceId: UUID): List<EntityEntity> {
+        val deletedEntities = entityRepository.deleteByIds(ids.toTypedArray(), workspaceId)
+        val deletedRowIds = deletedEntities.mapNotNull { it.id }.toSet()
+
+        if (deletedRowIds.isNotEmpty()) {
+            entityTypeAttributeService.deleteEntities(workspaceId, deletedRowIds)
+            entityAttributeService.softDeleteByEntityIds(workspaceId, deletedRowIds)
+            entityRelationshipService.archiveEntities(deletedRowIds, workspaceId)
+        }
+
+        return deletedEntities
+    }
+
+    /**
+     * Publishes EntityEvent for each entity type group in the deleted entities.
+     */
+    private fun publishDeleteEvents(deletedEntities: List<EntityEntity>, workspaceId: UUID, userId: UUID) {
         deletedEntities
             .groupBy { it.typeId to it.typeKey }
             .forEach { (typeInfo, entities) ->
@@ -446,33 +474,32 @@ class EntityService(
                     )
                 )
             }
+    }
 
-        // Fetch impacted entities with their updated relationships
-        val updatedEntities: Map<UUID, List<Entity>>? = if (impactedEntityIds.isNotEmpty()) {
-            val impactedEntityEntities = entityRepository.findAllById(impactedEntityIds)
-            val impactedRelationships = entityRelationshipService.findRelatedEntities(
-                entityIds = impactedEntityIds.toSet(),
-                workspaceId = workspaceId
-            )
-            val impactedAttributes = entityAttributeService.getAttributesForEntities(impactedEntityIds.toSet())
-            impactedEntityEntities
-                .map { impactedEntity ->
-                    val impactedId = requireNotNull(impactedEntity.id)
-                    impactedEntity.toModel(
-                        audit = true,
-                        relationships = impactedRelationships[impactedId] ?: emptyMap(),
-                        attributes = impactedAttributes[impactedId] ?: emptyMap(),
-                    )
-                }
-                .groupBy { it.typeId }
-        } else {
-            null
-        }
+    /**
+     * Fetches entities that lost relationships due to deletions, grouped by type ID.
+     * Returns null if no entities were impacted.
+     */
+    private fun fetchImpactedEntities(impactedEntityIds: List<UUID>, workspaceId: UUID): Map<UUID, List<Entity>>? {
+        if (impactedEntityIds.isEmpty()) return null
 
-        return DeleteEntityResponse(
-            deletedCount = deletedRowIds.size,
-            updatedEntities = updatedEntities
+        val impactedEntityEntities = entityRepository.findAllById(impactedEntityIds)
+        val impactedRelationships = entityRelationshipService.findRelatedEntities(
+            entityIds = impactedEntityIds.toSet(),
+            workspaceId = workspaceId
         )
+        val impactedAttributes = entityAttributeService.getAttributesForEntities(impactedEntityIds.toSet())
+
+        return impactedEntityEntities
+            .map { impactedEntity ->
+                val impactedId = requireNotNull(impactedEntity.id) { "Impacted entity ID must not be null" }
+                impactedEntity.toModel(
+                    audit = true,
+                    relationships = impactedRelationships[impactedId] ?: emptyMap(),
+                    attributes = impactedAttributes[impactedId] ?: emptyMap(),
+                )
+            }
+            .groupBy { it.typeId }
     }
 
 

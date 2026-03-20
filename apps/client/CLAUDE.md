@@ -104,6 +104,10 @@ All new stores **must** follow the factory + context + provider pattern. Do not 
 - **Errors:** Displayed inline via react-hook-form's `form.setError()`. Also manual validation in store submit handlers.
 - **Submit flow:** Form hook calls mutation hook. Mutations handle toasts.
 
+## Design System
+
+Always read `DESIGN.md` before making any visual or UI decisions. All font choices, colors, spacing, border radius, shadows, and aesthetic direction are defined there. Do not deviate without explicit user approval. A rendered preview is available at `docs/designs/design-system-preview.html`.
+
 ## Styling Rules
 
 - **Always use Tailwind's built-in utility classes** — never use arbitrary values (e.g., `text-[11px]`, `w-[200px]`) when a standard class exists (`text-xs`, `w-52`). Arbitrary values are a last resort for truly custom one-off values with no Tailwind equivalent.

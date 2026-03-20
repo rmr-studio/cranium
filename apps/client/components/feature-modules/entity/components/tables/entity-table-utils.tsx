@@ -204,18 +204,6 @@ export function formatEntityAttributeValue(value: any, schema: any): ReactNode {
     return <Badge variant="outline">Array</Badge>;
   }
 
-  // NOTE type — show count
-  if (schema.key === SchemaType.Note) {
-    if (!Array.isArray(value) || value.length === 0) {
-      return <span className="text-muted-foreground">-</span>;
-    }
-    return (
-      <span className="text-muted-foreground">
-        {value.length} note{value.length !== 1 ? 's' : ''}
-      </span>
-    );
-  }
-
   // OBJECT type formatting
   if (dataType === DataType.Object) {
     return <Badge variant="outline">Object</Badge>;
@@ -270,11 +258,6 @@ export function createAttributeEqualityFn(
     // One is empty, other is not - changed
     if (normalized1 === null || normalized2 === null) {
       return false;
-    }
-
-    // For notes, deep equality via JSON
-    if (schemaType === SchemaType.Note) {
-      return JSON.stringify(normalized1) === JSON.stringify(normalized2);
     }
 
     // For multi-select, compare arrays (order-independent)
@@ -371,40 +354,6 @@ export function generateColumnsFromEntityType(
 
   // Generate attribute columns
   Object.entries(entityType.schema.properties).forEach(([attributeId, schema]) => {
-    // NOTE columns: no inline editing, not sortable, flagged for custom cell rendering
-    if (schema.key === SchemaType.Note) {
-      columns.push({
-        accessorKey: attributeId,
-        size:
-          entityType.columnConfiguration?.overrides[attributeId]?.width ?? DEFAULT_COLUMN_WIDTH,
-        header: (_) => {
-          const { icon, label } = schema;
-          const { type, colour } = icon;
-          return (
-            <div className="flex items-center">
-              <IconCell readonly type={type} colour={colour} className="mr-2 size-4" />
-              <span>{label}</span>
-            </div>
-          );
-        },
-        cell: ({ row }) => {
-          const value = row.getValue(attributeId);
-          return formatEntityAttributeValue(value, schema);
-        },
-        enableSorting: false,
-        meta: {
-          edit: undefined,
-          displayMeta: {
-            required: schema.required,
-            unique: schema.unique,
-            protected: schema._protected,
-          },
-          isNote: true,
-        },
-      });
-      return;
-    }
-
     // Create edit config if editing is enabled
     const editConfig: ColumnEditConfig<EntityRow, unknown, unknown> | undefined =
       options?.enableEditing && schema.key !== SchemaType.Id

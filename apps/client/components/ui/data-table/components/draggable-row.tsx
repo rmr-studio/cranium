@@ -94,6 +94,7 @@ function DraggableRowComponent<TData>({
               dragListeners={listeners}
               cellSize={cell.column.getSize()}
               actionColumnConfig={actionColumnConfig}
+              extra={actionColumnConfig?.renderExtra?.(row)}
             />
           );
         }

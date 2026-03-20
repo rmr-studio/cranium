@@ -1,6 +1,6 @@
 'use client';
 
-import { BlockNoteSchema, defaultInlineContentSpecs } from '@blocknote/core';
+import { BlockNoteSchema, defaultInlineContentSpecs, PartialBlock } from '@blocknote/core';
 import { useCreateBlockNote } from '@blocknote/react';
 import { BlockNoteView } from '@blocknote/shadcn';
 import '@blocknote/shadcn/style.css';
@@ -15,8 +15,8 @@ const schema = BlockNoteSchema.create({
 });
 
 interface BlockEditorProps {
-  initialContent?: object[];
-  onChange?: (blocks: object[]) => void;
+  initialContent?: PartialBlock[];
+  onChange?: (blocks: PartialBlock[]) => void;
   uploadFile?: (file: File) => Promise<string>;
   editable?: boolean;
 }
@@ -31,7 +31,7 @@ export function BlockEditor({
 
   const editor = useCreateBlockNote({
     schema,
-    initialContent: initialContent as any,
+    initialContent: initialContent,
     uploadFile,
   });
 
@@ -39,7 +39,7 @@ export function BlockEditor({
     <BlockNoteView
       editor={editor}
       editable={editable}
-      onChange={() => onChange?.(editor.document as unknown as object[])}
+      onChange={() => onChange?.(editor.document as PartialBlock[])}
       theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
     />
   );

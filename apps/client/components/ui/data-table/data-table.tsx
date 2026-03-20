@@ -340,6 +340,7 @@ export function DataTable<TData, TValue>({
 
     if (showDragHandle) actionColumnWidth += ACTION_ICON_WIDTH;
     if (showCheckbox) actionColumnWidth += ACTION_ICON_WIDTH;
+    if (actionColumnConfig?.renderExtra) actionColumnWidth += ACTION_ICON_WIDTH;
 
     if (actionColumnWidth === 0) return columns;
 

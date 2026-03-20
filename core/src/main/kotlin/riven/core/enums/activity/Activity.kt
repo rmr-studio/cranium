@@ -35,5 +35,6 @@ enum class Activity {
     @JsonProperty("FILE_UPDATE") FILE_UPDATE,
     @JsonProperty("ONBOARDING") ONBOARDING,
     @JsonProperty("NOTIFICATION") NOTIFICATION,
+    @JsonProperty("NOTE") NOTE,
 }
 

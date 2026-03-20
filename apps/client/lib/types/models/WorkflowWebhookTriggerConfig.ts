@@ -107,16 +107,16 @@ export interface WorkflowWebhookTriggerConfig {
     configSchema?: Array<WorkflowNodeConfigField>;
     /**
      * 
-     * @type {WorkflowTriggerType}
-     * @memberof WorkflowWebhookTriggerConfig
-     */
-    subType?: WorkflowTriggerType;
-    /**
-     * 
      * @type {{ [key: string]: object; }}
      * @memberof WorkflowWebhookTriggerConfig
      */
     config?: { [key: string]: object; };
+    /**
+     * 
+     * @type {WorkflowTriggerType}
+     * @memberof WorkflowWebhookTriggerConfig
+     */
+    subType?: WorkflowTriggerType;
     /**
      * 
      * @type {WorkflowNodeType}
@@ -150,8 +150,8 @@ export function WorkflowWebhookTriggerConfigFromJSONTyped(json: any, ignoreDiscr
         'signature': json['signature'] == null ? undefined : SignatureFromJSON(json['signature']),
         'payloadSchema': json['payloadSchema'] == null ? undefined : SchemaStringFromJSON(json['payloadSchema']),
         'configSchema': json['configSchema'] == null ? undefined : ((json['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldFromJSON)),
-        'subType': json['subType'] == null ? undefined : WorkflowTriggerTypeFromJSON(json['subType']),
         'config': json['config'] == null ? undefined : json['config'],
+        'subType': json['subType'] == null ? undefined : WorkflowTriggerTypeFromJSON(json['subType']),
         'type': json['type'] == null ? undefined : WorkflowNodeTypeFromJSON(json['type']),
     };
 }
@@ -173,8 +173,8 @@ export function WorkflowWebhookTriggerConfigToJSONTyped(value?: WorkflowWebhookT
         'signature': SignatureToJSON(value['signature']),
         'payloadSchema': SchemaStringToJSON(value['payloadSchema']),
         'configSchema': value['configSchema'] == null ? undefined : ((value['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldToJSON)),
-        'subType': WorkflowTriggerTypeToJSON(value['subType']),
         'config': value['config'],
+        'subType': WorkflowTriggerTypeToJSON(value['subType']),
         'type': WorkflowNodeTypeToJSON(value['type']),
     };
 }

@@ -4,6 +4,7 @@ export * from './BlockApi';
 export * from './EntityApi';
 export * from './IntegrationsApi';
 export * from './KnowledgeApi';
+export * from './NoteApi';
 export * from './NotificationApi';
 export * from './OnboardingApi';
 export * from './StorageApi';

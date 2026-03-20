@@ -12,8 +12,8 @@ Name | Type
 `payload` | { [key: string]: string; }
 `timeoutSeconds` | number
 `configSchema` | [Array&lt;WorkflowNodeConfigField&gt;](WorkflowNodeConfigField.md)
-`subType` | [WorkflowActionType](WorkflowActionType.md)
 `config` | { [key: string]: object; }
+`subType` | [WorkflowActionType](WorkflowActionType.md)
 `type` | [WorkflowNodeType](WorkflowNodeType.md)
 
 ## Example
@@ -28,8 +28,8 @@ const example = {
   "payload": null,
   "timeoutSeconds": null,
   "configSchema": null,
-  "subType": null,
   "config": null,
+  "subType": null,
   "type": null,
 } satisfies WorkflowCreateEntityActionConfig
 

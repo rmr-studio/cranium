@@ -151,6 +151,12 @@ export interface Entity {
     syncVersion: number;
     /**
      * 
+     * @type {number}
+     * @memberof Entity
+     */
+    noteCount: number;
+    /**
+     * 
      * @type {string}
      * @memberof Entity
      */
@@ -171,6 +177,7 @@ export function instanceOfEntity(value: object): value is Entity {
     if (!('identifierKey' in value) || value['identifierKey'] === undefined) return false;
     if (!('sourceType' in value) || value['sourceType'] === undefined) return false;
     if (!('syncVersion' in value) || value['syncVersion'] === undefined) return false;
+    if (!('noteCount' in value) || value['noteCount'] === undefined) return false;
     if (!('identifier' in value) || value['identifier'] === undefined) return false;
     return true;
 }
@@ -203,6 +210,7 @@ export function EntityFromJSONTyped(json: any, ignoreDiscriminator: boolean): En
         'firstSyncedAt': json['firstSyncedAt'] == null ? undefined : (new Date(json['firstSyncedAt'])),
         'lastSyncedAt': json['lastSyncedAt'] == null ? undefined : (new Date(json['lastSyncedAt'])),
         'syncVersion': json['syncVersion'],
+        'noteCount': json['noteCount'],
         'identifier': json['identifier'],
     };
 }
@@ -236,6 +244,7 @@ export function EntityToJSONTyped(value?: Entity | null, ignoreDiscriminator: bo
         'firstSyncedAt': value['firstSyncedAt'] == null ? value['firstSyncedAt'] : value['firstSyncedAt'].toISOString(),
         'lastSyncedAt': value['lastSyncedAt'] == null ? value['lastSyncedAt'] : value['lastSyncedAt'].toISOString(),
         'syncVersion': value['syncVersion'],
+        'noteCount': value['noteCount'],
         'identifier': value['identifier'],
     };
 }

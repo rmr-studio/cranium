@@ -67,16 +67,16 @@ export interface WorkflowDeleteEntityActionConfig {
     configSchema?: Array<WorkflowNodeConfigField>;
     /**
      * 
-     * @type {WorkflowActionType}
-     * @memberof WorkflowDeleteEntityActionConfig
-     */
-    subType?: WorkflowActionType;
-    /**
-     * 
      * @type {{ [key: string]: object; }}
      * @memberof WorkflowDeleteEntityActionConfig
      */
     config?: { [key: string]: object; };
+    /**
+     * 
+     * @type {WorkflowActionType}
+     * @memberof WorkflowDeleteEntityActionConfig
+     */
+    subType?: WorkflowActionType;
     /**
      * 
      * @type {WorkflowNodeType}
@@ -108,8 +108,8 @@ export function WorkflowDeleteEntityActionConfigFromJSONTyped(json: any, ignoreD
         'entityId': json['entityId'] == null ? undefined : json['entityId'],
         'timeoutSeconds': json['timeoutSeconds'] == null ? undefined : json['timeoutSeconds'],
         'configSchema': json['configSchema'] == null ? undefined : ((json['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldFromJSON)),
-        'subType': json['subType'] == null ? undefined : WorkflowActionTypeFromJSON(json['subType']),
         'config': json['config'] == null ? undefined : json['config'],
+        'subType': json['subType'] == null ? undefined : WorkflowActionTypeFromJSON(json['subType']),
         'type': json['type'] == null ? undefined : WorkflowNodeTypeFromJSON(json['type']),
     };
 }
@@ -129,8 +129,8 @@ export function WorkflowDeleteEntityActionConfigToJSONTyped(value?: WorkflowDele
         'entityId': value['entityId'],
         'timeoutSeconds': value['timeoutSeconds'],
         'configSchema': value['configSchema'] == null ? undefined : ((value['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldToJSON)),
-        'subType': WorkflowActionTypeToJSON(value['subType']),
         'config': value['config'],
+        'subType': WorkflowActionTypeToJSON(value['subType']),
         'type': WorkflowNodeTypeToJSON(value['type']),
     };
 }

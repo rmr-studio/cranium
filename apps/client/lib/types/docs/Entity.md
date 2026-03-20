@@ -24,6 +24,7 @@ Name | Type
 `firstSyncedAt` | Date
 `lastSyncedAt` | Date
 `syncVersion` | number
+`noteCount` | number
 `identifier` | string
 
 ## Example
@@ -51,6 +52,7 @@ const example = {
   "firstSyncedAt": null,
   "lastSyncedAt": null,
   "syncVersion": null,
+  "noteCount": null,
   "identifier": null,
 } satisfies Entity
 

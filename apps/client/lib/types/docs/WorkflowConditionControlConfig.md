@@ -12,8 +12,8 @@ Name | Type
 `contextEntityId` | string
 `timeoutSeconds` | number
 `configSchema` | [Array&lt;WorkflowNodeConfigField&gt;](WorkflowNodeConfigField.md)
-`subType` | [WorkflowControlType](WorkflowControlType.md)
 `config` | { [key: string]: object; }
+`subType` | [WorkflowControlType](WorkflowControlType.md)
 `type` | [WorkflowNodeType](WorkflowNodeType.md)
 
 ## Example
@@ -28,8 +28,8 @@ const example = {
   "contextEntityId": null,
   "timeoutSeconds": null,
   "configSchema": null,
-  "subType": null,
   "config": null,
+  "subType": null,
   "type": null,
 } satisfies WorkflowConditionControlConfig
 

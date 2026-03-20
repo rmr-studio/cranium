@@ -67,7 +67,10 @@ CREATE TABLE IF NOT EXISTS public.entities
     "source_url"            TEXT,
     "first_synced_at"       TIMESTAMPTZ,
     "last_synced_at"        TIMESTAMPTZ,
-    "sync_version"          BIGINT      NOT NULL     DEFAULT 0
+    "sync_version"          BIGINT      NOT NULL     DEFAULT 0,
+
+    -- Denormalized count of notes for faster access (trigger-maintained)
+    "note_count"            INTEGER     NOT NULL     DEFAULT 0
 );
 
 -- =====================================================

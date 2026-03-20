@@ -2,6 +2,7 @@ apis/BlockApi.ts
 apis/EntityApi.ts
 apis/IntegrationsApi.ts
 apis/KnowledgeApi.ts
+apis/NoteApi.ts
 apis/NotificationApi.ts
 apis/OnboardingApi.ts
 apis/StorageApi.ts
@@ -77,6 +78,7 @@ docs/ContentNode.md
 docs/CountMatches.md
 docs/CreateBlockTypeRequest.md
 docs/CreateEntityTypeRequest.md
+docs/CreateNoteRequest.md
 docs/CreateNotificationRequest.md
 docs/CreateNotificationRequestContent.md
 docs/CreateWorkflowEdgeRequest.md
@@ -158,6 +160,8 @@ docs/NangoWebhookTags.md
 docs/Node.md
 docs/NodeType.md
 docs/NotExists.md
+docs/Note.md
+docs/NoteApi.md
 docs/Notification.md
 docs/NotificationApi.md
 docs/NotificationContent.md
@@ -267,6 +271,7 @@ docs/UpdateBlockOperation.md
 docs/UpdateBlockOperationAllOfUpdatedContent.md
 docs/UpdateEntityTypeConfigurationRequest.md
 docs/UpdateMetadataRequest.md
+docs/UpdateNoteRequest.md
 docs/UpdateRelationshipRequest.md
 docs/UploadFileRequest.md
 docs/UploadFileResponse.md
@@ -395,6 +400,7 @@ models/ContentNode.ts
 models/CountMatches.ts
 models/CreateBlockTypeRequest.ts
 models/CreateEntityTypeRequest.ts
+models/CreateNoteRequest.ts
 models/CreateNotificationRequest.ts
 models/CreateNotificationRequestContent.ts
 models/CreateWorkflowEdgeRequest.ts
@@ -473,6 +479,7 @@ models/NangoWebhookTags.ts
 models/Node.ts
 models/NodeType.ts
 models/NotExists.ts
+models/Note.ts
 models/Notification.ts
 models/NotificationContent.ts
 models/NotificationInboxItem.ts
@@ -578,6 +585,7 @@ models/UpdateBlockOperation.ts
 models/UpdateBlockOperationAllOfUpdatedContent.ts
 models/UpdateEntityTypeConfigurationRequest.ts
 models/UpdateMetadataRequest.ts
+models/UpdateNoteRequest.ts
 models/UpdateRelationshipRequest.ts
 models/UploadFileRequest.ts
 models/UploadFileResponse.ts

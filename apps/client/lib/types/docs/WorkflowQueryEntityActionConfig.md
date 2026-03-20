@@ -13,8 +13,8 @@ Name | Type
 `projection` | [QueryProjection](QueryProjection.md)
 `timeoutSeconds` | number
 `configSchema` | [Array&lt;WorkflowNodeConfigField&gt;](WorkflowNodeConfigField.md)
-`subType` | [WorkflowActionType](WorkflowActionType.md)
 `config` | { [key: string]: object; }
+`subType` | [WorkflowActionType](WorkflowActionType.md)
 `type` | [WorkflowNodeType](WorkflowNodeType.md)
 
 ## Example
@@ -30,8 +30,8 @@ const example = {
   "projection": null,
   "timeoutSeconds": null,
   "configSchema": null,
-  "subType": null,
   "config": null,
+  "subType": null,
   "type": null,
 } satisfies WorkflowQueryEntityActionConfig
 

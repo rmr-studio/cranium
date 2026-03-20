@@ -21,7 +21,7 @@ blocked-by:
 
 Riven's entity model has two populations that must behave as one unified system:
 
-1. **Core lifecycle entities** (Customer, Support Ticket, Order) — installed from lifecycle-spine templates during onboarding, protected schema, user-facing, editable
+1. **Core lifecycle entities** (Customer, Support Ticket, Order) — defined as Kotlin core model objects, installed during onboarding via the catalog pipeline, protected schema, user-facing, editable
 2. **Integration entities** (hubspot_customer, zendesk_ticket, stripe_customer) — materialized from integration manifests, readonly, immutable source-system mirrors
 
 These are currently independent entity types with no automated bridge. When Zendesk syncs a ticket, it creates a `zendesk_ticket` entity. No corresponding core `Support Ticket` entity is auto-created. The identity resolution system (PR #141) only matches entities that *already exist* — it doesn't create new core entities from integration data.
@@ -62,7 +62,7 @@ This feature assumes the following PRs are merged to main:
 
 | PR | Feature | Why It's Required |
 |---|---|---|
-| #143 (lifecycle-spine) | LifecycleDomain enum, shared entity models, lifecycle-spine manifests | Foundation for smart relationship routing — LifecycleDomain determines which relationship an integration entity routes to |
+| #143 (lifecycle-spine) | LifecycleDomain enum, Kotlin core model definitions, three-tier entity model | Foundation for domain-based projection routing — LifecycleDomain + SemanticGroup determine which core model an integration entity projects into |
 | #142 (integration-sync) | Temporal sync workflow (Pass 1 + Pass 2) | Projection pipeline is Pass 3, extending this workflow |
 | #141 (identity-resolution) | pg_trgm matching, identity clusters, match suggestions | Projection uses clusters for dedup; enrichment extends confirmation flow |
 | #140 (notes) | Notes feature | Independent, merge first to clear the queue |
@@ -77,7 +77,7 @@ None of these PRs require rework for Smart Projection. The projection layer is a
 ### Short Comings
 
 - **Aggregation column performance:** COUNT/SUM queries across relationships at query time could be slow for entity types with thousands of related entities. May need materialized counters or query-time caching as a follow-up.
-- **Projection rule conflicts:** If two rules project the same integration entity to different core types, the system needs conflict detection. Not yet designed.
+- **Projection rule conflicts:** Resolved via domain+semanticGroup discriminator (CEO review 2026-03-20). Two core models sharing a LifecycleDomain are disambiguated by SemanticGroup. E.g., Subscription (BILLING, TRANSACTION) vs BillingEvent (BILLING, FINANCIAL).
 - **Identity resolution interaction:** The projection pipeline creates entities → identity resolution suggests matches → risk of redundant suggestions for already-projected pairs. Solved by cluster-aware candidate exclusion (see §3).
 
 ### Success Criteria
@@ -340,13 +340,13 @@ GROUP BY e.id
 
 | Component | Change Required | Impact |
 |-----------|-----------------|--------|
-| `TemplateMaterializationService` | Create projection rules during integration materialization | New method: `materializeProjectionRules()` |
+| `TemplateInstallationService` | Create projection rules and aggregation configs during core model installation | Extended with `installProjectionRules()` and `installAggregationConfigs()` |
 | `IntegrationSyncWorkflowImpl` | Add Pass 3: projection pipeline execution | New activity call after relationship resolution |
 | `EntityTypeService.assembleColumns()` | Skip inverse columns for readonly types; add aggregation column derivation | Two additions to existing method |
 | `IdentityMatchCandidateService` | Add cluster-aware exclusion to candidate query | WHERE clause addition |
 | `IdentityConfirmationService` | Add enrichment step (aggregate identity signals to core entity) | New private method after cluster resolution |
 | Entity listing API / frontend | Filter `sourceIntegrationId != null` entity types from default views | Query parameter / frontend filter |
-| Manifest schema | Add `projections` field to integration manifest entity type definitions | Schema extension |
+| Core model definitions | Kotlin objects declare projection acceptance rules and aggregation columns | New package: `riven.core.lifecycle.models` |
 
 ### Integration with Sync Workflow (PR #142)
 
@@ -386,43 +386,59 @@ Two modifications to the identity resolution system:
 
 2. **Identity enrichment on confirmation:** When identity resolution confirms a match between two entities (e.g., jsmith@gmail.com ≈ john.smith@gmail.com), the core entity's aggregation column "Known Emails" automatically reflects both emails because it aggregates EMAIL-classified IDENTIFIER attributes across all cluster members.
 
-### Manifest Extension
+### Domain-Based Projection Routing (CEO Review 2026-03-20)
 
-Integration manifests gain a `projections` field on each entity type:
+> **Supersedes:** The original design specified per-integration projection declarations in JSON manifests (e.g., `zendesk-ticket` explicitly targeting `support-ticket`). Per the SaaS Decline thesis, this was replaced with domain-based routing that is source-agnostic. See CEO plan: `~/.gstack/projects/rmr-studio-riven/ceo-plans/2026-03-20-core-model-architecture.md`.
 
-```json
-{
-  "key": "zendesk-ticket",
-  "displayName": { "singular": "Zendesk Ticket", "plural": "Zendesk Tickets" },
-  "semanticGroup": "SUPPORT",
-  "lifecycleDomain": "SUPPORT",
-  "projections": [
-    {
-      "targetModelKey": "support-ticket",
-      "identityKey": "requester-email",
-      "relationshipName": "Support Tickets",
-      "autoCreate": true
-    }
-  ],
-  "attributes": { ... }
-}
+Projection routing is **declared on core model definitions**, not on integration manifests. Core models accept projections by `(LifecycleDomain, SemanticGroup)` pair — any entity matching that pair projects automatically, regardless of source (SaaS integration, direct Postgres connection, CSV import, webhook).
+
+**Core model projection declarations (Kotlin):**
+
+```kotlin
+object SupportTicketModel : CoreModelDefinition(
+    key = "support-ticket",
+    lifecycleDomain = LifecycleDomain.SUPPORT,
+    semanticGroup = SemanticGroup.SUPPORT,
+    // ...attributes, relationships...
+    projectionAccepts = ProjectionAcceptRule(
+        domain = LifecycleDomain.SUPPORT,
+        semanticGroup = SemanticGroup.SUPPORT,
+        relationshipName = "Support Tickets",
+        autoCreate = true,
+    ),
+)
 ```
 
-During materialization, `TemplateMaterializationService` reads these declarations and creates `entity_type_projection_rules` rows with the resolved UUIDs (using the same key-to-UUID mapping it already builds for relationship resolution).
+**How routing works at runtime:**
 
-### Smart Relationship Routing via LifecycleDomain
+1. Integration entity syncs with `lifecycleDomain = SUPPORT`, `semanticGroup = SUPPORT`
+2. Projection pipeline queries `entity_type_projection_rules` for a rule matching `(SUPPORT, SUPPORT)`
+3. Finds SupportTicket core model → creates/links skeleton entity
+4. No `zendesk_ticket` or `intercom_ticket` reference anywhere in the routing path
 
-When a projection rule doesn't specify an explicit `relationshipName`, the system derives the relationship from the source entity type's `LifecycleDomain`:
+**Domain + SemanticGroup disambiguation:**
 
-| LifecycleDomain | Default Relationship Name | Target Core Type |
-|---|---|---|
-| SUPPORT | "Support Tickets" | support-ticket |
-| BILLING | "Billing Events" | billing-event / invoice |
-| ACQUISITION | "Acquisition Sources" | acquisition-source |
-| USAGE | "Usage Events" | usage-event |
-| UNCATEGORIZED | "Connected" (CONNECTED_ENTITIES) | fallback |
+| LifecycleDomain | SemanticGroup | Core Model Target | Relationship Name |
+|---|---|---|---|
+| SUPPORT | SUPPORT | Support Ticket | "Support Tickets" |
+| BILLING | FINANCIAL | Billing Event | "Billing Events" |
+| BILLING | TRANSACTION | Subscription / Order | "Subscriptions" / "Orders" |
+| ACQUISITION | OPERATIONAL | Acquisition Source | "Acquisition Sources" |
+| USAGE | OPERATIONAL | Feature Usage Event | "Feature Usage" |
+| RETENTION | FINANCIAL | Churn Event | "Churn Events" |
+| UNCATEGORIZED | * | (no projection) | CONNECTED_ENTITIES fallback |
 
-This is a convenience default — explicit manifest declarations always override.
+**Integration manifests do NOT declare projections.** They only need `lifecycleDomain` and `semanticGroup` on their entity types (which they already have). The projection pipeline matches these against core model acceptance rules automatically.
+
+### Source Agnosticism
+
+This design is critical for the SaaS Decline thesis. Future data sources include:
+- Direct Postgres connections (internal tools)
+- CSV imports with schema inference
+- Webhook receivers from custom systems
+- API polling from undocumented internal services
+
+All of these produce entities with `lifecycleDomain` classification. Domain-based routing handles them without any per-source projection configuration.
 
 ### Component Interaction Diagram
 
@@ -714,6 +730,9 @@ No feature flags needed. The projection pipeline is activated by the presence of
 | 2026-03-20 | Skeleton entities with IDENTIFIER attrs only | Core entities start minimal. Users add their own data. Integration data stays on integration entities, accessed via relationships and aggregation columns. No data duplication, no sync conflicts. | Full attribute projection (rejected: reintroduces per-attribute provenance conflicts from PR #130) |
 | 2026-03-20 | Projection rules table supports both system and user-defined rules | `workspace_id = null` for manifest rules, UUID for user rules. Same table, same pipeline. Future-proofed for dynamic mapping (Phase D) without separate infrastructure. | Separate tables for system vs user rules (rejected: unnecessary duplication) |
 | 2026-03-20 | Cluster-aware candidate exclusion in identity resolution | Projected pairs are added to the same identity cluster. Candidate query excludes cluster members. Prevents redundant match suggestions. | Post-processing filter (rejected: wastes compute on candidates that will be filtered anyway) |
+| 2026-03-20 | Domain-based projection routing (replaces per-integration declarations) | Projection rules use (LifecycleDomain, SemanticGroup) pair to route integration entities to core models. Source-agnostic — works for any data source without per-integration configuration. Per SaaS Decline thesis. | Per-integration manifest projections (rejected: violates system agnosticism, doesn't scale with custom integrations, direct Postgres connections, CSV imports) |
+| 2026-03-20 | Core models as Kotlin objects (replaces JSON manifests for lifecycle types) | Core lifecycle entity types defined as Kotlin objects with compile-time safety, DRY composition, and co-located projection/aggregation declarations. Integration types remain as JSON manifests. | JSON manifests for everything (rejected: no compile-time safety, DRY violations, verbose for growing complexity) |
+| 2026-03-20 | Domain + SemanticGroup as projection discriminator | When multiple core models share a LifecycleDomain, SemanticGroup disambiguates. Both fields already exist on every entity type. No new fields needed. | Single LifecycleDomain match (rejected: ambiguous for BILLING domain shared by Subscription and BillingEvent) |
 
 ---
 
@@ -722,11 +741,11 @@ No feature flags needed. The projection pipeline is activated by the presence of
 Implementation follows a 4-phase sequencing. Each phase is independently deployable and testable.
 
 ### Phase A: Foundation
-**Prerequisite:** PRs #140, #143, #142, #141 merged to main
+**Prerequisite:** PRs #140, #143, #142, #141 merged to main. Core Model Architecture (Kotlin core model definitions) implemented.
 
 - [ ] Add `PROJECTED` to `SourceType` enum
 - [ ] Create `entity_type_projection_rules` table + JPA entity + repository
-- [ ] Add `projections` field to integration manifest schema
+- [ ] Extend `TemplateInstallationService` to install projection rules from core model definitions
 - [ ] Update `assembleColumns()` to skip inverse columns when `readonly = true`
 - [ ] Update entity type listing API to filter by `sourceIntegrationId`
 - [ ] Frontend: filter hidden entity types from workspace sidebar
@@ -738,8 +757,7 @@ Implementation follows a 4-phase sequencing. Each phase is independently deploya
 
 - [ ] `EntityProjectionService` with find-or-create + link + cluster assignment
 - [ ] Add Pass 3 to `IntegrationSyncWorkflowImpl`
-- [ ] `TemplateMaterializationService.materializeProjectionRules()` — create rules from manifest declarations
-- [ ] Smart relationship routing via LifecycleDomain defaults
+- [ ] Domain-based projection routing via `(LifecycleDomain, SemanticGroup)` matching against core model acceptance rules
 - [ ] Cluster-aware candidate exclusion in `IdentityMatchCandidateService`
 - [ ] Unit and integration tests for projection pipeline
 
@@ -787,3 +805,4 @@ Implementation follows a 4-phase sequencing. Each phase is independently deploya
 | Date | Author | Change |
 |------|--------|--------|
 | 2026-03-20 | Claude | Initial design from CEO plan review. Architecture validated by expert panel (Kleppmann, Hickey, Helland, Thompson, Hohpe, Wodtke). Placed in Planning — requires PR prerequisites merged before implementation. |
+| 2026-03-20 | Claude | Updated per Core Model Architecture CEO review: projection routing changed from per-integration manifest declarations to domain-based (LifecycleDomain + SemanticGroup) routing declared on Kotlin core model definitions. Integration manifests no longer declare projections. Core models are Kotlin objects, not JSON manifests. Added domain+semanticGroup disambiguation table. Source agnosticism section added per SaaS Decline thesis. |

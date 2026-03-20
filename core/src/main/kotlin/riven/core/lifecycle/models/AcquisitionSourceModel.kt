@@ -1,0 +1,63 @@
+package riven.core.lifecycle.models
+
+import riven.core.enums.common.icon.IconColour
+import riven.core.enums.common.icon.IconType
+import riven.core.enums.entity.LifecycleDomain
+import riven.core.enums.entity.semantics.SemanticAttributeClassification
+import riven.core.enums.entity.semantics.SemanticGroup
+import riven.core.lifecycle.AttributeOptions
+import riven.core.lifecycle.AttributeSemantics
+import riven.core.lifecycle.CoreModelAttribute
+import riven.core.lifecycle.CoreModelDefinition
+
+/**
+ * Acquisition Source — a marketing channel or campaign that brings users to the product.
+ */
+object AcquisitionSourceModel : CoreModelDefinition(
+    key = "acquisition-source",
+    displayNameSingular = "Acquisition Source",
+    displayNamePlural = "Acquisition Sources",
+    iconType = IconType.MEGAPHONE,
+    iconColour = IconColour.PURPLE,
+    semanticGroup = SemanticGroup.OPERATIONAL,
+    lifecycleDomain = LifecycleDomain.ACQUISITION,
+    identifierKey = "name",
+    semanticDefinition = "A marketing channel or campaign that brings users to the product. Used for attribution and channel quality analysis.",
+    semanticTags = listOf("marketing", "acquisition", "attribution"),
+    attributes = mapOf(
+        "name" to CoreModelAttribute(
+            key = "name", schemaType = "TEXT", label = "Name", dataType = "string",
+            semantics = AttributeSemantics(
+                definition = "Name of the acquisition channel or campaign.",
+                classification = SemanticAttributeClassification.IDENTIFIER,
+                tags = listOf("display-name", "marketing"),
+            ),
+        ),
+        "type" to CoreModelAttribute(
+            key = "type", schemaType = "SELECT", label = "Type", dataType = "string",
+            options = AttributeOptions(enum = listOf("paid-search", "paid-social", "organic", "email", "referral", "affiliate", "direct", "product-hunt", "content")),
+            semantics = AttributeSemantics(
+                definition = "Category of acquisition channel.",
+                classification = SemanticAttributeClassification.CATEGORICAL,
+                tags = listOf("marketing", "channel-type"),
+            ),
+        ),
+        "spend" to CoreModelAttribute(
+            key = "spend", schemaType = "CURRENCY", label = "Spend", dataType = "number",
+            format = "currency",
+            semantics = AttributeSemantics(
+                definition = "Total spend on this channel or campaign.",
+                classification = SemanticAttributeClassification.QUANTITATIVE,
+                tags = listOf("marketing-spend", "budget"),
+            ),
+        ),
+        "active" to CoreModelAttribute(
+            key = "active", schemaType = "CHECKBOX", label = "Active", dataType = "boolean",
+            semantics = AttributeSemantics(
+                definition = "Whether this channel or campaign is currently running.",
+                classification = SemanticAttributeClassification.CATEGORICAL,
+                tags = listOf("status"),
+            ),
+        ),
+    ),
+)

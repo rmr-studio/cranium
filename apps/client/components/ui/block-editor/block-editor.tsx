@@ -5,7 +5,7 @@ import { useCreateBlockNote } from '@blocknote/react';
 import { BlockNoteView } from '@blocknote/shadcn';
 import '@blocknote/shadcn/style.css';
 import { useTheme } from 'next-themes';
-import { EntityMention } from './entity-mention';
+import { EntityMention } from '@/components/ui/block-editor/entity-mention';
 
 const schema = BlockNoteSchema.create({
   inlineContentSpecs: {

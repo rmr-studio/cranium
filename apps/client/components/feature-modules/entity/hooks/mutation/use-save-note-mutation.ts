@@ -2,8 +2,9 @@ import { useAuth } from '@/components/provider/auth-context';
 import { Note, CreateNoteRequest, UpdateNoteRequest } from '@/lib/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { NoteService } from '../../service/note.service';
-import { noteKeys } from '../query/use-notes';
+import { NoteService } from '@/components/feature-modules/entity/service/note.service';
+import { noteKeys } from '@/components/feature-modules/entity/hooks/query/use-notes';
+import { workspaceNoteKeys } from '@/components/feature-modules/entity/hooks/query/use-workspace-notes';
 
 interface SaveNoteArgs {
   noteId?: string;
@@ -37,7 +38,7 @@ export function useSaveNoteMutation(workspaceId: string) {
       }
       // Invalidate workspace notes list
       queryClient.invalidateQueries({
-        queryKey: ['workspace-notes', workspaceId],
+        queryKey: workspaceNoteKeys.all(workspaceId),
       });
     },
   });

@@ -15,8 +15,8 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { Component, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { useEntityTypeByKey } from '../../entity/hooks/query/type/use-entity-types';
-import { useWorkspace } from '../../workspace/hooks/query/use-workspace';
+import { useEntityTypeByKey } from '@/components/feature-modules/entity/hooks/query/type/use-entity-types';
+import { useWorkspace } from '@/components/feature-modules/workspace/hooks/query/use-workspace';
 
 const BlockEditor = dynamic(
   () => import('@/components/ui/block-editor').then((m) => m.BlockEditor),
@@ -113,6 +113,7 @@ export function NoteEditor() {
 
   const handleDelete = useCallback(() => {
     if (!note) return;
+    if (!window.confirm('Delete this note?')) return;
     debouncedSave.cancel();
     deleteNote(
       { noteId: note.id, entityId: note.entityId },

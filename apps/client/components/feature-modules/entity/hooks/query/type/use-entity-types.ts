@@ -25,8 +25,8 @@ export function useEntityTypeByKey(
 ): AuthenticatedQueryResult<EntityType> {
   const { session } = useAuth();
   return useAuthenticatedQuery({
-    queryKey: entityKeys.entityTypes.byKey(key!, workspaceId!, include),
-    queryFn: () => EntityTypeService.getEntityTypeByKey(session, workspaceId!, key!, include),
+    queryKey: entityKeys.entityTypes.byKey(key ?? '', workspaceId ?? '', include),
+    queryFn: () => EntityTypeService.getEntityTypeByKey(session, workspaceId ?? '', key ?? '', include),
     staleTime: 10 * 60 * 1000,
     enabled: !!key && !!workspaceId,
     refetchOnWindowFocus: false,

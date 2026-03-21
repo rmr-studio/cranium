@@ -88,7 +88,7 @@ export const NoteDrawer: FC<NoteDrawerProps> = ({ open, onClose, entityId, works
       saveNote({
         noteId,
         entityId,
-        request: { content: content as any[], title },
+        request: { content: content as Array<Record<string, unknown>>, title },
       });
     }, 2500),
   ).current;
@@ -129,7 +129,7 @@ export const NoteDrawer: FC<NoteDrawerProps> = ({ open, onClose, entityId, works
     saveNote(
       {
         entityId,
-        request: { content: emptyContent as any[] },
+        request: { content: emptyContent as Array<Record<string, unknown>> },
       },
       {
         onSuccess: (note) => {

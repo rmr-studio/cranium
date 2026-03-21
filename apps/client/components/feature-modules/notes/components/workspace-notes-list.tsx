@@ -9,9 +9,8 @@ import { WorkspaceNote } from '@/lib/types';
 import { IconColour, IconType } from '@/lib/types/common';
 import { formatNoteTimestamp } from '@/lib/types/entity';
 import { groupNotesByDate } from '@/lib/util/note/note-grouping.util';
-import { Button } from '@riven/ui/button';
 import { Input } from '@riven/ui/input';
-import { Plus, Search, StickyNote } from 'lucide-react';
+import { Search, StickyNote } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
@@ -79,12 +78,6 @@ export function WorkspaceNotesList() {
             </span>
           )}
         </div>
-        <Button size="sm" asChild>
-          <Link href={`${basePath}/notes`}>
-            <Plus className="mr-1.5 size-3.5" />
-            New Note
-          </Link>
-        </Button>
       </div>
 
       {/* Search */}
@@ -128,16 +121,9 @@ export function WorkspaceNotesList() {
             <div>
               <p className="text-base font-medium">No notes yet</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Create your first note to keep track of important details about
-                your records.
+                Notes can be created from within an entity&apos;s detail page.
               </p>
             </div>
-            <Button size="sm" asChild>
-              <Link href={`${basePath}/notes`}>
-                <Plus className="mr-1.5 size-3.5" />
-                New Note
-              </Link>
-            </Button>
           </div>
         )
       ) : (

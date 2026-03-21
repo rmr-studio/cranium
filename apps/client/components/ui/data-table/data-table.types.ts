@@ -229,7 +229,7 @@ export interface ActionColumnConfig {
   /** Selection checkbox configuration. Only applies when rowSelection is enabled */
   checkbox?: ActionElementConfig;
   /** Custom content rendered after checkbox in the action cell. Receives the row for per-row rendering. */
-  renderExtra?: (row: Row<any>) => ReactNode;
+  renderExtra?: (row: Row<unknown>) => ReactNode;
 }
 
 // ============================================================================

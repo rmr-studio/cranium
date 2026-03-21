@@ -37,6 +37,10 @@ export function useDeleteNoteMutation(workspaceId: string) {
       queryClient.invalidateQueries({
         queryKey: ['entities', workspaceId],
       });
+      // Invalidate workspace notes list
+      queryClient.invalidateQueries({
+        queryKey: ['workspace-notes', workspaceId],
+      });
     },
   });
 }

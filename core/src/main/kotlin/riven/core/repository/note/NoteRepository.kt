@@ -78,7 +78,7 @@ interface NoteRepository : JpaRepository<NoteEntity, UUID> {
     @Query(
         value = """
             SELECT e.id AS entity_id,
-                   (SELECT ea.value->>'value'
+                   (SELECT ea.value #>> '{}'
                     FROM entity_attributes ea
                     WHERE ea.entity_id = e.id
                       AND ea.attribute_id = e.identifier_key

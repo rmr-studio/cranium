@@ -35,6 +35,10 @@ export function useSaveNoteMutation(workspaceId: string) {
           queryKey: ['entities', workspaceId],
         });
       }
+      // Invalidate workspace notes list
+      queryClient.invalidateQueries({
+        queryKey: ['workspace-notes', workspaceId],
+      });
     },
   });
 }

@@ -83,6 +83,7 @@ docs/CreateNotificationRequest.md
 docs/CreateNotificationRequestContent.md
 docs/CreateWorkflowEdgeRequest.md
 docs/CreatedEntityTypeSummary.md
+docs/CursorPageWorkspaceNote.md
 docs/DataFormat.md
 docs/DataPath.md
 docs/DataType.md
@@ -332,6 +333,7 @@ docs/WorkspaceDisplay.md
 docs/WorkspaceInvite.md
 docs/WorkspaceInviteStatus.md
 docs/WorkspaceMember.md
+docs/WorkspaceNote.md
 docs/WorkspacePlan.md
 docs/WorkspaceRoles.md
 index.ts
@@ -405,6 +407,7 @@ models/CreateNotificationRequest.ts
 models/CreateNotificationRequestContent.ts
 models/CreateWorkflowEdgeRequest.ts
 models/CreatedEntityTypeSummary.ts
+models/CursorPageWorkspaceNote.ts
 models/DataFormat.ts
 models/DataPath.ts
 models/DataType.ts
@@ -642,6 +645,7 @@ models/WorkspaceDisplay.ts
 models/WorkspaceInvite.ts
 models/WorkspaceInviteStatus.ts
 models/WorkspaceMember.ts
+models/WorkspaceNote.ts
 models/WorkspacePlan.ts
 models/WorkspaceRoles.ts
 models/index.ts

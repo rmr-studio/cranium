@@ -1,6 +1,12 @@
 import { createNoteApi } from '@/lib/api/note-api';
 import { Session } from '@/lib/auth';
-import { Note, CreateNoteRequest, UpdateNoteRequest } from '@/lib/types';
+import {
+  Note,
+  CreateNoteRequest,
+  UpdateNoteRequest,
+  WorkspaceNote,
+  CursorPageWorkspaceNote,
+} from '@/lib/types';
 import { normalizeApiError } from '@/lib/util/error/error.util';
 import { validateSession, validateUuid } from '@/lib/util/service/service.util';
 
@@ -54,6 +60,41 @@ export class NoteService {
 
     try {
       return await api.updateNote({ workspaceId, noteId, updateNoteRequest: request });
+    } catch (error) {
+      return await normalizeApiError(error);
+    }
+  }
+
+  static async getWorkspaceNotes(
+    session: Session | null,
+    workspaceId: string,
+    search?: string,
+    cursor?: string,
+    limit?: number,
+  ): Promise<CursorPageWorkspaceNote> {
+    validateSession(session);
+    validateUuid(workspaceId);
+    const api = createNoteApi(session);
+
+    try {
+      return await api.getWorkspaceNotes({ workspaceId, search, cursor, limit });
+    } catch (error) {
+      return await normalizeApiError(error);
+    }
+  }
+
+  static async getWorkspaceNote(
+    session: Session | null,
+    workspaceId: string,
+    noteId: string,
+  ): Promise<WorkspaceNote> {
+    validateSession(session);
+    validateUuid(workspaceId);
+    validateUuid(noteId);
+    const api = createNoteApi(session);
+
+    try {
+      return await api.getWorkspaceNote({ workspaceId, noteId });
     } catch (error) {
       return await normalizeApiError(error);
     }

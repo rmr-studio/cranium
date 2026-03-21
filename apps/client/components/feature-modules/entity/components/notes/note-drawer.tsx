@@ -1,5 +1,8 @@
 'use client';
 
+import { useDeleteNoteMutation } from '@/components/feature-modules/entity/hooks/mutation/use-delete-note-mutation';
+import { useSaveNoteMutation } from '@/components/feature-modules/entity/hooks/mutation/use-save-note-mutation';
+import { useNotes } from '@/components/feature-modules/entity/hooks/query/use-notes';
 import {
   Sheet,
   SheetContent,
@@ -10,15 +13,12 @@ import {
 import { Note } from '@/lib/types';
 import { extractNoteTitle, formatNoteTimestamp } from '@/lib/types/entity';
 import { debounce } from '@/lib/util/debounce.util';
-import { useNotes } from '@/components/feature-modules/entity/hooks/query/use-notes';
-import { useSaveNoteMutation } from '@/components/feature-modules/entity/hooks/mutation/use-save-note-mutation';
-import { useDeleteNoteMutation } from '@/components/feature-modules/entity/hooks/mutation/use-delete-note-mutation';
-import { Button } from '@riven/ui/button';
-import { ChevronLeft, Plus, StickyNote, Trash2 } from 'lucide-react';
-import { Component, FC, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { PartialBlock } from '@blocknote/core';
-import dynamic from 'next/dynamic';
+import { Button } from '@riven/ui/button';
 import { cn } from '@riven/utils';
+import { ChevronLeft, Plus, StickyNote, Trash2 } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import { Component, FC, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const BlockEditor = dynamic(
   () => import('@/components/ui/block-editor').then((m) => m.BlockEditor),
@@ -71,12 +71,7 @@ export interface NoteDrawerProps {
   workspaceId: string;
 }
 
-export const NoteDrawer: FC<NoteDrawerProps> = ({
-  open,
-  onClose,
-  entityId,
-  workspaceId,
-}) => {
+export const NoteDrawer: FC<NoteDrawerProps> = ({ open, onClose, entityId, workspaceId }) => {
   const { data: notes = [], isLoading } = useNotes(workspaceId, entityId);
   const { mutate: saveNote } = useSaveNoteMutation(workspaceId);
   const { mutate: deleteNote } = useDeleteNoteMutation(workspaceId);
@@ -168,25 +163,18 @@ export const NoteDrawer: FC<NoteDrawerProps> = ({
   }, [debouncedSave]);
 
   return (
-    <Sheet open={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
-      <SheetContent side="right" className="flex w-full flex-col sm:max-w-2xl">
+    <Sheet open={open} onOpenChange={(isOpen: boolean) => !isOpen && handleClose()}>
+      <SheetContent side="right" className="flex w-full flex-col bg-background sm:max-w-2xl">
         {activeNote ? (
           // ============ Active note editor view ============
           <>
-            <SheetHeader className="flex-row items-center gap-2 pr-8">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-8"
-                onClick={handleBack}
-              >
+            <SheetHeader className="flex-row items-center gap-2 border-b border-b-border/50 pr-8">
+              <Button variant="ghost" size="icon" className="size-8" onClick={handleBack}>
                 <ChevronLeft className="size-4" />
                 <span className="sr-only">Back to notes</span>
               </Button>
               <div className="min-w-0 flex-1">
-                <SheetTitle className="truncate">
-                  {activeNote.title || 'Untitled'}
-                </SheetTitle>
+                <SheetTitle className="truncate">{activeNote.title || 'Untitled'}</SheetTitle>
                 <SheetDescription className="text-xs">
                   Created {formatNoteTimestamp(activeNote.createdAt)}
                   {activeNote.updatedAt &&
@@ -206,7 +194,7 @@ export const NoteDrawer: FC<NoteDrawerProps> = ({
               </Button>
             </SheetHeader>
 
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto px-2">
               <EditorErrorBoundary
                 fallback={
                   <div className="rounded-md border border-destructive/20 bg-destructive/5 p-4">
@@ -275,12 +263,7 @@ export const NoteDrawer: FC<NoteDrawerProps> = ({
 
             {notes.length > 0 && (
               <div className="border-t pt-3">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={handleCreateNote}
-                >
+                <Button variant="outline" size="sm" className="w-full" onClick={handleCreateNote}>
                   <Plus className="mr-1.5 size-3.5" />
                   New note
                 </Button>
@@ -313,13 +296,13 @@ const NoteCard: FC<NoteCardProps> = ({ note, onClick, onDelete }) => {
         'hover:bg-muted/50',
       )}
       onClick={onClick}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') onClick();
+      }}
     >
       <StickyNote className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium">
-          {note.title || 'Untitled'}
-        </p>
+        <p className="truncate text-sm font-medium">{note.title || 'Untitled'}</p>
         <p className="text-xs text-muted-foreground">
           {formatNoteTimestamp(note.updatedAt ?? note.createdAt)}
         </p>
@@ -327,7 +310,7 @@ const NoteCard: FC<NoteCardProps> = ({ note, onClick, onDelete }) => {
       <Button
         variant="ghost"
         size="icon"
-        className="size-7 shrink-0 text-destructive opacity-0 transition-opacity hover:bg-destructive/10 group-hover:opacity-100"
+        className="size-7 shrink-0 text-destructive opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive/10"
         onClick={(e) => {
           e.stopPropagation();
           onDelete();

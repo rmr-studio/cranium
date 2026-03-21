@@ -16,16 +16,22 @@
 import * as runtime from '../runtime';
 import type {
   CreateNoteRequest,
+  CursorPageWorkspaceNote,
   Note,
   UpdateNoteRequest,
+  WorkspaceNote,
 } from '../models/index';
 import {
     CreateNoteRequestFromJSON,
     CreateNoteRequestToJSON,
+    CursorPageWorkspaceNoteFromJSON,
+    CursorPageWorkspaceNoteToJSON,
     NoteFromJSON,
     NoteToJSON,
     UpdateNoteRequestFromJSON,
     UpdateNoteRequestToJSON,
+    WorkspaceNoteFromJSON,
+    WorkspaceNoteToJSON,
 } from '../models/index';
 
 export interface CreateNoteOperationRequest {
@@ -43,6 +49,18 @@ export interface GetNotesForEntityRequest {
     workspaceId: string;
     entityId: string;
     search?: string;
+}
+
+export interface GetWorkspaceNoteRequest {
+    workspaceId: string;
+    noteId: string;
+}
+
+export interface GetWorkspaceNotesRequest {
+    workspaceId: string;
+    search?: string;
+    cursor?: string;
+    limit?: number;
 }
 
 export interface UpdateNoteOperationRequest {
@@ -225,6 +243,116 @@ export class NoteApi extends runtime.BaseAPI {
      */
     async getNotesForEntity(requestParameters: GetNotesForEntityRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<Note>> {
         const response = await this.getNotesForEntityRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Get a single note by ID within a workspace
+     */
+    async getWorkspaceNoteRaw(requestParameters: GetWorkspaceNoteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<WorkspaceNote>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling getWorkspaceNote().'
+            );
+        }
+
+        if (requestParameters['noteId'] == null) {
+            throw new runtime.RequiredError(
+                'noteId',
+                'Required parameter "noteId" was null or undefined when calling getWorkspaceNote().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/v1/notes/workspace/{workspaceId}/{noteId}`;
+        urlPath = urlPath.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId'])));
+        urlPath = urlPath.replace(`{${"noteId"}}`, encodeURIComponent(String(requestParameters['noteId'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => WorkspaceNoteFromJSON(jsonValue));
+    }
+
+    /**
+     * Get a single note by ID within a workspace
+     */
+    async getWorkspaceNote(requestParameters: GetWorkspaceNoteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<WorkspaceNote> {
+        const response = await this.getWorkspaceNoteRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * List all notes in a workspace with cursor pagination
+     */
+    async getWorkspaceNotesRaw(requestParameters: GetWorkspaceNotesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CursorPageWorkspaceNote>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling getWorkspaceNotes().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['search'] != null) {
+            queryParameters['search'] = requestParameters['search'];
+        }
+
+        if (requestParameters['cursor'] != null) {
+            queryParameters['cursor'] = requestParameters['cursor'];
+        }
+
+        if (requestParameters['limit'] != null) {
+            queryParameters['limit'] = requestParameters['limit'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/v1/notes/workspace/{workspaceId}`;
+        urlPath = urlPath.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => CursorPageWorkspaceNoteFromJSON(jsonValue));
+    }
+
+    /**
+     * List all notes in a workspace with cursor pagination
+     */
+    async getWorkspaceNotes(requestParameters: GetWorkspaceNotesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CursorPageWorkspaceNote> {
+        const response = await this.getWorkspaceNotesRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

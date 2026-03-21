@@ -37,10 +37,9 @@ import EntityActionBar from './entity-table-action-bar';
 import { EntityRow, isDraftRow, generateSearchConfigFromEntityType, isEntityRow } from './entity-table-utils';
 import { toast } from 'sonner';
 
-const NoteDrawer = dynamic(
-  () => import('@/components/feature-modules/entity/components/notes/note-drawer').then((m) => m.NoteDrawer),
-  { ssr: false },
-);
+const noteDrawerImport = () =>
+  import('@/components/feature-modules/entity/components/notes/note-drawer').then((m) => m.NoteDrawer);
+const NoteDrawer = dynamic(noteDrawerImport, { ssr: false });
 
 export interface Props extends ClassNameProps {
   entityType: EntityType;
@@ -279,11 +278,12 @@ export const EntityDataTable: FC<Props> = ({
           <button
             type="button"
             className={cn(
-              'relative text-muted-foreground transition-all hover:text-foreground',
+              'relative cursor-pointer text-muted-foreground transition-all hover:text-foreground',
               hasNotes
                 ? 'opacity-100'
                 : 'opacity-0 group-hover/row:opacity-100',
             )}
+            onMouseEnter={() => noteDrawerImport()}
             onClick={(e) => {
               e.stopPropagation();
               setNoteDrawerState({ entityId: entity.id, workspaceId });

@@ -120,7 +120,7 @@ export function ShaderContainer({
           softness={softness}
           intensity={intensity}
           noise={noise}
-          shape={shape}
+          shape={shape as "dots" | "wave" | "truchet" | "corners" | "ripple" | "blob" | "sphere" | undefined}
           speed={speed}
           className="absolute inset-0"
           rotation={rotation}

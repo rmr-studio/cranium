@@ -35,7 +35,7 @@ const ACCENT: Orb = {
   position: { top: '55%', left: '50%' },
 };
 
-const presets = {
+const presets: Record<string, Orb[]> = {
   /** Blue-dominant — default outer atmosphere */
   outer: [BLUE, ROSE, ACCENT],
   /** Rose-dominant — inner card atmosphere (colors swapped) */
@@ -44,11 +44,11 @@ const presets = {
     { ...BLUE, size: 500, opacity: 25, blur: 130, position: { bottom: '15%', right: '10%' }, translate: '50%, 50%' },
     { color: 'oklch(0.2 0.07 200)', size: 350, opacity: 15, blur: 100, position: { top: '55%', left: '50%' } },
   ],
-} satisfies Record<string, Orb[]>;
+};
 
 interface AtmosphericOrbsProps {
   /** Preset orb arrangement, or pass custom orbs */
-  variant?: keyof typeof presets;
+  variant?: string;
   orbs?: Orb[];
   /** Wrapper opacity (e.g. 60 for the inner card variant) */
   opacity?: number;

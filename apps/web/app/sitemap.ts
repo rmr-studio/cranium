@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next";
+import { getAllPosts, getCategories } from "@/lib/blog";
 
 const BASE_URL = "https://getriven.io";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: BASE_URL,
@@ -16,16 +17,29 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly",
       priority: 0.3,
     },
+    {
+      url: `${BASE_URL}/blog`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
   ];
 
-  // TODO: Add dynamic blog post routes here
-  // const posts = await getBlogPosts();
-  // const blogRoutes = posts.map((post) => ({
-  //   url: `${BASE_URL}/blog/${post.slug}`,
-  //   lastModified: post.updatedAt,
-  //   changeFrequency: "weekly" as const,
-  //   priority: 0.7,
-  // }));
+  const posts = await getAllPosts();
+  const blogRoutes: MetadataRoute.Sitemap = posts.map((post) => ({
+    url: `${BASE_URL}/blog/${post.slug}`,
+    lastModified: new Date(post.updated ?? post.date),
+    changeFrequency: "weekly",
+    priority: 0.7,
+  }));
 
-  return [...staticRoutes];
+  const categories = await getCategories();
+  const categoryRoutes: MetadataRoute.Sitemap = categories.map((cat) => ({
+    url: `${BASE_URL}/blog/category/${cat.slug}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly",
+    priority: 0.6,
+  }));
+
+  return [...staticRoutes, ...blogRoutes, ...categoryRoutes];
 }

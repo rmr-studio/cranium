@@ -1,26 +1,125 @@
-// Stub — will be replaced by Task 2's full implementation
-// Provides minimal types and functions so sitemap.ts compiles
+import fs from 'fs';
+import path from 'path';
+import matter from 'gray-matter';
+import readingTime from 'reading-time';
+import type { BlogPost, BlogPostMeta, BlogCategory, Heading } from './blog-types';
 
-export interface BlogPost {
-  slug: string;
-  title: string;
-  date: string;
-  updated?: string;
-  description: string;
-  category: string;
-  content: string;
+const CONTENT_DIR = path.join(process.cwd(), 'content', 'blog');
+
+export function calculateReadTime(content: string): number {
+  const { minutes } = readingTime(content);
+  return Math.max(1, Math.ceil(minutes));
 }
 
-export interface Category {
-  name: string;
-  slug: string;
-  count: number;
+function extractHeadings(content: string): Heading[] {
+  const headingRegex = /^#{2,3}\s+(.+)$/gm;
+  const headings: Heading[] = [];
+  let match;
+
+  while ((match = headingRegex.exec(content)) !== null) {
+    const level = match[0].startsWith('###') ? 3 : 2;
+    const text = match[1].trim();
+    const slug = text
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+    headings.push({ text, slug, level: level as 2 | 3 });
+  }
+
+  return headings;
 }
 
-export async function getAllPosts(): Promise<BlogPost[]> {
-  return [];
+function parseFrontmatter(filePath: string): { meta: BlogPostMeta; content: string } | null {
+  try {
+    const raw = fs.readFileSync(filePath, 'utf-8');
+    const { data, content } = matter(raw);
+
+    const slug = path.basename(filePath, '.mdx');
+
+    const meta: BlogPostMeta = {
+      slug,
+      title: data.title,
+      description: data.description,
+      date: data.date,
+      updated: data.updated,
+      author: data.author,
+      category: data.category as BlogCategory,
+      tags: data.tags ?? [],
+      coverImage: data.coverImage,
+      featured: data.featured ?? false,
+      readTime: calculateReadTime(content),
+    };
+
+    return { meta, content };
+  } catch {
+    return null;
+  }
 }
 
-export async function getCategories(): Promise<Category[]> {
-  return [];
+export async function getAllPosts(): Promise<BlogPostMeta[]> {
+  if (!fs.existsSync(CONTENT_DIR)) return [];
+
+  const files = fs.readdirSync(CONTENT_DIR).filter((f) => f.endsWith('.mdx'));
+
+  const posts = files
+    .map((file) => parseFrontmatter(path.join(CONTENT_DIR, file)))
+    .filter((p): p is NonNullable<typeof p> => p !== null)
+    .map((p) => p.meta)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  return posts;
+}
+
+export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+  const filePath = path.join(CONTENT_DIR, `${slug}.mdx`);
+  const parsed = parseFrontmatter(filePath);
+  if (!parsed) return null;
+
+  return {
+    ...parsed.meta,
+    content: parsed.content,
+    headings: extractHeadings(parsed.content),
+  };
+}
+
+export async function getCategories(): Promise<{ slug: BlogCategory; count: number }[]> {
+  const posts = await getAllPosts();
+  const counts = new Map<BlogCategory, number>();
+
+  for (const post of posts) {
+    counts.set(post.category, (counts.get(post.category) ?? 0) + 1);
+  }
+
+  return Array.from(counts.entries())
+    .map(([slug, count]) => ({ slug, count }))
+    .sort((a, b) => b.count - a.count);
+}
+
+export async function getRelatedPosts(
+  currentSlug: string,
+  currentTags: string[],
+  limit = 3,
+): Promise<BlogPostMeta[]> {
+  const posts = await getAllPosts();
+  const currentTagSet = new Set(currentTags);
+
+  const scored = posts
+    .filter((p) => p.slug !== currentSlug)
+    .map((post) => {
+      const overlap = post.tags.filter((t) => currentTagSet.has(t)).length;
+      return { post, overlap };
+    })
+    .sort((a, b) => b.overlap - a.overlap || new Date(b.post.date).getTime() - new Date(a.post.date).getTime());
+
+  return scored.slice(0, limit).map((s) => s.post);
+}
+
+export async function getFeaturedPost(): Promise<BlogPostMeta | null> {
+  const posts = await getAllPosts();
+  return posts.find((p) => p.featured) ?? posts[0] ?? null;
+}
+
+export async function getPostsByCategory(category: BlogCategory): Promise<BlogPostMeta[]> {
+  const posts = await getAllPosts();
+  return posts.filter((p) => p.category === category);
 }

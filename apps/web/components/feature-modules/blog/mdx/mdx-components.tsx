@@ -6,7 +6,7 @@ import { CodeBlock } from './code-block';
 import { ComparisonTable } from './comparison-table';
 
 function HeadingLink({ id, level, children }: { id?: string; level: number; children: React.ReactNode }) {
-  const Tag = `h${level}` as keyof JSX.IntrinsicElements;
+  const Tag = `h${level}` as keyof React.JSX.IntrinsicElements;
   const sizes: Record<number, string> = {
     2: 'text-2xl font-semibold tracking-tight mt-12 mb-4',
     3: 'text-lg font-semibold tracking-tight mt-8 mb-3',

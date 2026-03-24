@@ -7,7 +7,7 @@ export function CodeBlock({ children, ...props }: React.HTMLAttributes<HTMLPreEl
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    const code = (children as React.ReactElement)?.props?.children ?? '';
+    const code = (children as React.ReactElement<{ children?: string }>)?.props?.children ?? '';
     navigator.clipboard.writeText(typeof code === 'string' ? code : '');
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

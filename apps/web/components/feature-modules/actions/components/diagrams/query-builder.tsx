@@ -15,7 +15,7 @@ import {
   UserPen,
 } from 'lucide-react';
 import { motion } from 'motion/react';
-import { inViewProps, useAnimateOnMount } from './animate-context';
+import { inViewProps, useAnimateOnMount } from '../animate-context';
 
 const planStyles = {
   Pro: 'bg-[#F9B7B7]/15 text-[#F9B7B7]',

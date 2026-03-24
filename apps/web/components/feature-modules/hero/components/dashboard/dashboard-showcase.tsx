@@ -78,7 +78,6 @@ export function DashboardShowcase() {
           <div className="grid grid-cols-1 gap-px sm:grid-cols-3 lg:max-w-xl">
             {FEATURES.map((feature) => (
               <div key={feature.title} className="border-l border-primary-foreground/10 px-5 py-1">
-                <div className="mb-3 text-primary-foreground/40">{feature.icon}</div>
                 <p className="text-sm font-semibold text-primary-foreground">{feature.title}</p>
                 <p className="mt-1 text-xs leading-relaxed text-primary-foreground/50">
                   {feature.description}

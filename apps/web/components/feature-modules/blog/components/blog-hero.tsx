@@ -1,3 +1,5 @@
+'use client';
+
 import { CATEGORY_LABELS, type BlogPostMeta } from '@/lib/blog-types';
 import { cdnImageLoader } from '@/lib/cdn-image-loader';
 import Image from 'next/image';

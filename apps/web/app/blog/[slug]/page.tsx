@@ -1,8 +1,8 @@
-import { Breadcrumbs } from '@/components/feature-modules/blog/components/breadcrumbs';
-import { ReadingProgress } from '@/components/feature-modules/blog/components/reading-progress';
-import { RelatedPosts } from '@/components/feature-modules/blog/components/related-posts';
-import { TableOfContents } from '@/components/feature-modules/blog/components/table-of-contents';
-import { mdxComponents } from '@/components/feature-modules/blog/mdx/mdx-components';
+import { Breadcrumbs } from '@/components/feature-modules/blogs/components/breadcrumbs';
+import { ReadingProgress } from '@/components/feature-modules/blogs/components/reading-progress';
+import { RelatedPosts } from '@/components/feature-modules/blogs/components/related-posts';
+import { TableOfContents } from '@/components/feature-modules/blogs/components/table-of-contents';
+import { mdxComponents } from '@/components/feature-modules/blogs/mdx/mdx-components';
 import { CATEGORY_LABELS } from '@/lib/blog-types';
 import { getAllPosts, getPostBySlug, getRelatedPosts } from '@/lib/blog';
 import type { Metadata } from 'next';

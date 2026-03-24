@@ -1,6 +1,6 @@
-import { BlogHero } from '@/components/feature-modules/blog/components/blog-hero';
-import { BlogSearch } from '@/components/feature-modules/blog/components/blog-search';
-import { CategoryPills } from '@/components/feature-modules/blog/components/category-pills';
+import { BlogHero } from '@/components/feature-modules/blogs/components/blog-hero';
+import { BlogSearch } from '@/components/feature-modules/blogs/components/blog-search';
+import { CategoryPills } from '@/components/feature-modules/blogs/components/category-pills';
 import { getAllPosts, getCategories, getFeaturedPost } from '@/lib/blog';
 import type { Metadata } from 'next';
 

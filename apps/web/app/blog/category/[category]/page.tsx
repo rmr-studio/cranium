@@ -1,5 +1,5 @@
-import { BlogFeed } from '@/components/feature-modules/blog/components/blog-feed';
-import { CategoryPills } from '@/components/feature-modules/blog/components/category-pills';
+import { BlogFeed } from '@/components/feature-modules/blogs/components/blog-feed';
+import { CategoryPills } from '@/components/feature-modules/blogs/components/category-pills';
 import { CATEGORY_LABELS, type BlogCategory } from '@/lib/blog-types';
 import { getCategories, getPostsByCategory } from '@/lib/blog';
 import type { Metadata } from 'next';

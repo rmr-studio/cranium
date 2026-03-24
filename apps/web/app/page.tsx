@@ -1,5 +1,5 @@
 import { DailyActions } from '@/components/feature-modules/actions/components/daily-actions';
-import { FeaturedPosts } from '@/components/feature-modules/blog/components/featured-posts';
+import { FeaturedPosts } from '@/components/feature-modules/blogs/components/featured-posts';
 import { ChurnRetrospective } from '@/components/feature-modules/churn-retrospective/churn-retro';
 import { DashboardShowcase } from '@/components/feature-modules/hero/components/dashboard/dashboard-showcase';
 import { Hero } from '@/components/feature-modules/hero/components/hero';

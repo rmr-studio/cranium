@@ -28,7 +28,7 @@ object SupportTicketModel : CoreModelDefinition(
     semanticTags = listOf("support", "service", "customer-success", "operations"),
     attributes = mapOf(
         "subject" to CoreModelAttribute(
-            key = "subject", schemaType = SchemaType.TEXT, label = "Subject", dataType = DataType.STRING,
+            schemaType = SchemaType.TEXT, label = "Subject", dataType = DataType.STRING,
             required = true,
             semantics = AttributeSemantics(
                 definition = "A brief summary of the support request, serving as the primary human-readable identifier for the ticket.",
@@ -37,7 +37,7 @@ object SupportTicketModel : CoreModelDefinition(
             ),
         ),
         "description" to CoreModelAttribute(
-            key = "description", schemaType = SchemaType.TEXT, label = "Description", dataType = DataType.STRING,
+            schemaType = SchemaType.TEXT, label = "Description", dataType = DataType.STRING,
             semantics = AttributeSemantics(
                 definition = "A detailed account of the issue, question, or feedback provided by the customer or support agent.",
                 classification = SemanticAttributeClassification.FREETEXT,
@@ -45,7 +45,7 @@ object SupportTicketModel : CoreModelDefinition(
             ),
         ),
         "priority" to CoreModelAttribute(
-            key = "priority", schemaType = SchemaType.SELECT, label = "Priority", dataType = DataType.STRING,
+            schemaType = SchemaType.SELECT, label = "Priority", dataType = DataType.STRING,
             required = true,
             options = AttributeOptions(enum = listOf("low", "medium", "high", "critical"), default = "medium"),
             semantics = AttributeSemantics(
@@ -55,7 +55,7 @@ object SupportTicketModel : CoreModelDefinition(
             ),
         ),
         "status" to CoreModelAttribute(
-            key = "status", schemaType = SchemaType.SELECT, label = "Status", dataType = DataType.STRING,
+            schemaType = SchemaType.SELECT, label = "Status", dataType = DataType.STRING,
             required = true,
             options = AttributeOptions(enum = listOf("open", "in-progress", "resolved", "closed"), default = "open"),
             semantics = AttributeSemantics(
@@ -65,7 +65,7 @@ object SupportTicketModel : CoreModelDefinition(
             ),
         ),
         "channel" to CoreModelAttribute(
-            key = "channel", schemaType = SchemaType.SELECT, label = "Channel", dataType = DataType.STRING,
+            schemaType = SchemaType.SELECT, label = "Channel", dataType = DataType.STRING,
             options = AttributeOptions(enum = listOf("email", "chat", "phone", "web")),
             semantics = AttributeSemantics(
                 definition = "The communication channel through which the support request was initially received.",
@@ -74,7 +74,7 @@ object SupportTicketModel : CoreModelDefinition(
             ),
         ),
         "created-date" to CoreModelAttribute(
-            key = "created-date", schemaType = SchemaType.DATE, label = "Created Date", dataType = DataType.STRING,
+            schemaType = SchemaType.DATE, label = "Created Date", dataType = DataType.STRING,
             format = "date",
             semantics = AttributeSemantics(
                 definition = "The date the support ticket was created, marking the start of the SLA clock.",
@@ -83,7 +83,7 @@ object SupportTicketModel : CoreModelDefinition(
             ),
         ),
         "resolved-date" to CoreModelAttribute(
-            key = "resolved-date", schemaType = SchemaType.DATE, label = "Resolved Date", dataType = DataType.STRING,
+            schemaType = SchemaType.DATE, label = "Resolved Date", dataType = DataType.STRING,
             format = "date",
             semantics = AttributeSemantics(
                 definition = "The date the support ticket was resolved, used to calculate resolution time and SLA compliance.",
@@ -92,7 +92,7 @@ object SupportTicketModel : CoreModelDefinition(
             ),
         ),
         "category" to CoreModelAttribute(
-            key = "category", schemaType = SchemaType.SELECT, label = "Category", dataType = DataType.STRING,
+            schemaType = SchemaType.SELECT, label = "Category", dataType = DataType.STRING,
             options = AttributeOptions(enum = listOf("billing", "technical", "general", "feature-request")),
             semantics = AttributeSemantics(
                 definition = "The type of issue or request, used for routing, trend analysis, and workload distribution.",

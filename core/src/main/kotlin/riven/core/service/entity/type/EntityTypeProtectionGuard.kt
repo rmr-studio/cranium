@@ -81,10 +81,13 @@ class EntityTypeProtectionGuard {
 
     /**
      * Assert entity type configuration can be updated (name, icon, semantic group, lifecycle domain).
-     * READONLY types only allow column configuration changes.
+     * READONLY types block all configuration changes (caller must handle column-only path).
      * PROTECTED types allow cosmetic changes but block semanticGroup and lifecycleDomain changes.
      */
     fun assertCanUpdateConfiguration(type: EntityTypeEntity, changingSemanticGroup: Boolean, changingLifecycleDomain: Boolean) {
+        require(!type.readonly) {
+            "Cannot update configuration on a readonly entity type '${type.key}'"
+        }
         if (type.protected) {
             require(!changingSemanticGroup) {
                 "Cannot change semantic group on a protected entity type '${type.key}'"

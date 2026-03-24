@@ -5,9 +5,7 @@ import riven.core.enums.common.icon.IconType
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.models.catalog.NormalizedRelationship
-import riven.core.models.catalog.NormalizedTargetRule
 import riven.core.models.catalog.ResolvedEntityType
-import riven.core.models.catalog.ResolvedRelationshipSemantics
 import riven.core.models.catalog.ResolvedSemantics
 
 /**
@@ -68,25 +66,7 @@ abstract class CoreModelDefinition(
 
     /** Converts this model's relationships to NormalizedRelationship format. */
     fun toNormalizedRelationships(): List<NormalizedRelationship> {
-        return relationships.map { rel ->
-            NormalizedRelationship(
-                key = rel.key,
-                sourceEntityTypeKey = rel.sourceModelKey,
-                name = rel.name,
-                cardinalityDefault = rel.cardinality,
-                `protected` = true,
-                targetRules = listOf(
-                    NormalizedTargetRule(
-                        targetEntityTypeKey = rel.targetModelKey,
-                        cardinalityOverride = rel.cardinality,
-                        inverseName = rel.inverseName,
-                    )
-                ),
-                semantics = rel.semantics?.let { s ->
-                    ResolvedRelationshipSemantics(definition = s.definition, tags = s.tags)
-                },
-            )
-        }
+        return relationships.map { it.toNormalized() }
     }
 
     private fun buildAttributeMap(attr: CoreModelAttribute): Map<String, Any> {

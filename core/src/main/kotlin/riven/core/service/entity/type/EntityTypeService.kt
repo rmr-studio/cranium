@@ -154,15 +154,13 @@ class EntityTypeService(
                 changingSemanticGroup = request.semanticGroup != null && request.semanticGroup != existing.semanticGroup,
                 changingLifecycleDomain = request.lifecycleDomain != null && request.lifecycleDomain != existing.lifecycleDomain,
             )
-            existing.apply {
-                displayNameSingular = request.name.singular
-                displayNamePlural = request.name.plural
-                request.semanticGroup?.let { semanticGroup = it }
-                request.lifecycleDomain?.let { lifecycleDomain = it }
-                iconType = request.icon.type
-                iconColour = request.icon.colour
-                request.columnConfiguration?.let { columnConfiguration = it }
-            }
+            existing.displayNameSingular = request.name.singular
+            existing.displayNamePlural = request.name.plural
+            request.semanticGroup?.let { existing.semanticGroup = it }
+            request.lifecycleDomain?.let { existing.lifecycleDomain = it }
+            existing.iconType = request.icon.type
+            existing.iconColour = request.icon.colour
+            request.columnConfiguration?.let { existing.columnConfiguration = it }
         }
 
         val saved = entityTypeRepository.save(existing)

@@ -28,7 +28,7 @@ object ProductModel : CoreModelDefinition(
     semanticTags = listOf("catalogue", "inventory", "ecommerce"),
     attributes = mapOf(
         "name" to CoreModelAttribute(
-            key = "name", schemaType = SchemaType.TEXT, label = "Name", dataType = DataType.STRING,
+            schemaType = SchemaType.TEXT, label = "Name", dataType = DataType.STRING,
             semantics = AttributeSemantics(
                 definition = "Product name as displayed to customers.",
                 classification = SemanticAttributeClassification.IDENTIFIER,
@@ -36,7 +36,7 @@ object ProductModel : CoreModelDefinition(
             ),
         ),
         "sku" to CoreModelAttribute(
-            key = "sku", schemaType = SchemaType.TEXT, label = "SKU", dataType = DataType.STRING,
+            schemaType = SchemaType.TEXT, label = "SKU", dataType = DataType.STRING,
             unique = true,
             semantics = AttributeSemantics(
                 definition = "Stock keeping unit for inventory tracking.",
@@ -45,7 +45,7 @@ object ProductModel : CoreModelDefinition(
             ),
         ),
         "price" to CoreModelAttribute(
-            key = "price", schemaType = SchemaType.CURRENCY, label = "Price", dataType = DataType.NUMBER,
+            schemaType = SchemaType.CURRENCY, label = "Price", dataType = DataType.NUMBER,
             format = "currency",
             semantics = AttributeSemantics(
                 definition = "Retail selling price.",
@@ -54,7 +54,7 @@ object ProductModel : CoreModelDefinition(
             ),
         ),
         "category" to CoreModelAttribute(
-            key = "category", schemaType = SchemaType.SELECT, label = "Category", dataType = DataType.STRING,
+            schemaType = SchemaType.SELECT, label = "Category", dataType = DataType.STRING,
             options = AttributeOptions(enum = listOf("apparel", "electronics", "home", "beauty", "food", "accessories", "other")),
             semantics = AttributeSemantics(
                 definition = "Product category for organisation and reporting.",

@@ -2,9 +2,7 @@ package riven.core.lifecycle
 
 import riven.core.enums.catalog.ManifestType
 import riven.core.models.catalog.NormalizedRelationship
-import riven.core.models.catalog.NormalizedTargetRule
 import riven.core.models.catalog.ResolvedManifest
-import riven.core.models.catalog.ResolvedRelationshipSemantics
 
 /**
  * Central registry of all core lifecycle model definitions.
@@ -14,6 +12,10 @@ import riven.core.models.catalog.ResolvedRelationshipSemantics
  * - Validates cross-references at boot time (fail fast)
  * - Converts model sets to ResolvedManifest for catalog population
  * - Provides lookup by key for downstream services
+ *
+ * Models with the same key may appear across different model sets (e.g., SaasBillingEventModel
+ * and DtcBillingEventModel both use key "billing-event"). This is expected — each business type
+ * gets a tailored variant of the same conceptual entity type.
  */
 object CoreModelRegistry {
 
@@ -22,9 +24,10 @@ object CoreModelRegistry {
         DTC_ECOMMERCE_MODELS,
     )
 
-    /** All unique core model definitions across all model sets. */
+    /** All unique core model object instances across all model sets. Validates on first access. */
     val allModels: List<CoreModelDefinition> by lazy {
-        allModelSets.flatMap { it.models }.distinctBy { it.key }
+        validate()
+        allModelSets.flatMap { it.models }.distinctBy { System.identityHashCode(it) }
     }
 
     /** Find a model set by its manifest key. */
@@ -32,40 +35,29 @@ object CoreModelRegistry {
         return allModelSets.find { it.manifestKey == manifestKey }
     }
 
-    /** Find a model definition by entity type key. */
-    fun findModel(key: String): CoreModelDefinition? {
-        return allModels.find { it.key == key }
+    /** Find a model definition by entity type key within a specific model set. */
+    fun findModel(manifestKey: String, modelKey: String): CoreModelDefinition? {
+        return findModelSet(manifestKey)?.models?.find { it.key == modelKey }
     }
 
-    // ------ Validation ------
+    // ------ Validation (runs automatically on first access to allModels) ------
 
-    /**
-     * Validates all core model definitions for consistency.
-     * Called at boot time — throws IllegalStateException on structural errors.
-     *
-     * Checks:
-     * - No duplicate model keys across all model sets
-     * - All relationship targets reference existing model keys
-     * - All additional relationship sources reference existing model keys within the set
-     */
-    fun validate() {
-        validateNoDuplicateKeys()
+    private fun validate() {
+        validateNoDuplicateKeysWithinSets()
+        allModelSets.forEach { validateModelSetRelationships(it) }
+    }
+
+    private fun validateNoDuplicateKeysWithinSets() {
+        // Validate no duplicate keys within a single model set
         for (modelSet in allModelSets) {
-            validateModelSetRelationships(modelSet)
-        }
-    }
-
-    private fun validateNoDuplicateKeys() {
-        // Shared models (same object) appear in multiple sets — that's allowed.
-        // Only flag different model objects that collide on the same key.
-        val modelsByKey = allModelSets.flatMap { it.models }.groupBy { it.key }
-        val conflicts = modelsByKey.filter { (_, models) ->
-            models.map { System.identityHashCode(it) }.distinct().size > 1
-        }.keys
-        check(conflicts.isEmpty()) {
-            "Conflicting core model keys found (different objects, same key): $conflicts"
+            val keys = modelSet.models.map { it.key }
+            val duplicates = keys.groupBy { it }.filter { it.value.size > 1 }.keys
+            check(duplicates.isEmpty()) {
+                "Duplicate model keys within set '${modelSet.manifestKey}': $duplicates"
+            }
         }
 
+        // Validate no duplicate model set keys
         val setKeys = allModelSets.map { it.manifestKey }
         val dupSets = setKeys.groupBy { it }.filter { it.value.size > 1 }.keys
         check(dupSets.isEmpty()) {
@@ -128,30 +120,8 @@ object CoreModelRegistry {
     }
 
     private fun collectRelationships(modelSet: CoreModelSet): List<NormalizedRelationship> {
-        // Relationships from individual models
         val modelRelationships = modelSet.models.flatMap { it.toNormalizedRelationships() }
-
-        // Additional relationships from the model set (vertical-specific)
-        val additionalRelationships = modelSet.additionalRelationships.map { rel ->
-            NormalizedRelationship(
-                key = rel.key,
-                sourceEntityTypeKey = rel.sourceModelKey,
-                name = rel.name,
-                cardinalityDefault = rel.cardinality,
-                `protected` = true,
-                targetRules = listOf(
-                    NormalizedTargetRule(
-                        targetEntityTypeKey = rel.targetModelKey,
-                        cardinalityOverride = rel.cardinality,
-                        inverseName = rel.inverseName,
-                    )
-                ),
-                semantics = rel.semantics?.let { s ->
-                    ResolvedRelationshipSemantics(definition = s.definition, tags = s.tags)
-                },
-            )
-        }
-
+        val additionalRelationships = modelSet.additionalRelationships.map { it.toNormalized() }
         return modelRelationships + additionalRelationships
     }
 }

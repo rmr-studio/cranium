@@ -1,13 +1,21 @@
 package riven.core.lifecycle
 
 import riven.core.enums.entity.EntityRelationshipCardinality
+import riven.core.lifecycle.models.saas.SaasBillingEventModel
+import riven.core.lifecycle.models.saas.SaasChurnEventModel
+import riven.core.lifecycle.models.saas.SaasCommunicationModel
+import riven.core.lifecycle.models.saas.SaasCustomerModel
+import riven.core.lifecycle.models.dtc.DtcBillingEventModel
+import riven.core.lifecycle.models.dtc.DtcChurnEventModel
+import riven.core.lifecycle.models.dtc.DtcCommunicationModel
+import riven.core.lifecycle.models.dtc.DtcCustomerModel
 
 /**
  * A set of core models that form a complete lifecycle data model for a business type.
  * Each business type (B2C SaaS, DTC E-commerce) has one model set.
  *
  * The model set owns:
- * - Which core models are included
+ * - Which core models are included (business-type variants for tailored models, shared singletons for universal models)
  * - Cross-model relationships that are vertical-specific (e.g., customer-subscriptions is B2C only)
  * - The manifest key used for catalog registration and template installation
  */
@@ -26,14 +34,14 @@ val B2C_SAAS_MODELS = CoreModelSet(
     name = "B2C SaaS",
     description = "Lifecycle template for B2C and prosumer SaaS businesses. Traces the full customer journey from acquisition through subscription, feature usage, support, and billing to retention or churn.",
     models = listOf(
-        riven.core.lifecycle.models.CustomerModel,
-        riven.core.lifecycle.models.CommunicationModel,
+        SaasCustomerModel,
+        SaasCommunicationModel,
         riven.core.lifecycle.models.SupportTicketModel,
         riven.core.lifecycle.models.SubscriptionModel,
         riven.core.lifecycle.models.FeatureUsageEventModel,
         riven.core.lifecycle.models.AcquisitionSourceModel,
-        riven.core.lifecycle.models.BillingEventModel,
-        riven.core.lifecycle.models.ChurnEventModel,
+        SaasBillingEventModel,
+        SaasChurnEventModel,
     ),
     additionalRelationships = listOf(
         CoreModelRelationship(
@@ -80,14 +88,14 @@ val DTC_ECOMMERCE_MODELS = CoreModelSet(
     name = "DTC E-commerce",
     description = "Lifecycle template for direct-to-consumer e-commerce businesses. Traces the full customer journey from acquisition channel through orders, support, and billing to retention or churn.",
     models = listOf(
-        riven.core.lifecycle.models.CustomerModel,
-        riven.core.lifecycle.models.CommunicationModel,
+        DtcCustomerModel,
+        DtcCommunicationModel,
         riven.core.lifecycle.models.SupportTicketModel,
         riven.core.lifecycle.models.OrderModel,
         riven.core.lifecycle.models.ProductModel,
         riven.core.lifecycle.models.AcquisitionSourceModel,
-        riven.core.lifecycle.models.BillingEventModel,
-        riven.core.lifecycle.models.ChurnEventModel,
+        DtcBillingEventModel,
+        DtcChurnEventModel,
     ),
     additionalRelationships = listOf(
         CoreModelRelationship(

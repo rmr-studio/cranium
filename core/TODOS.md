@@ -22,7 +22,7 @@ clean. Positions Riven as "operational data layer" not "SaaS connector."
 **Cons:** Large scope. Requires UI for connection setup, schema inference, field mapping.
 Each ingestion type has unique edge cases (Postgres connection pooling, CSV encoding, webhook auth).
 
-**Context:** See `/home/jared/docs/Documents/2. Areas/2.1 Startup & Business/Riven/1. Philosophy/SaaS Decline & Strategic Positioning.md`
+**Context:** See the "SaaS Decline & Strategic Positioning" document in the philosophy vault
 for the strategic thesis. The expanded ingestion model is defined there. Core model architecture
 (CEO plan 2026-03-20) provides the foundation — domain-based routing means new ingestion types
 work without touching core model code.

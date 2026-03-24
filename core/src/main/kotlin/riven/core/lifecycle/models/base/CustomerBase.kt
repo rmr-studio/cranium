@@ -1,33 +1,24 @@
-package riven.core.lifecycle.models
+package riven.core.lifecycle.models.base
 
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
 import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
-import riven.core.lifecycle.*
+import riven.core.lifecycle.AttributeOptions
+import riven.core.lifecycle.AttributeSemantics
+import riven.core.lifecycle.CoreModelAttribute
+import riven.core.lifecycle.CoreModelRelationship
+import riven.core.lifecycle.RelationshipSemantics
 
 /**
- * Customer — the central entity in the customer lifecycle.
- * Spans all lifecycle domains (UNCATEGORIZED). Hub entity that other core models relate to.
+ * Shared attributes and relationships for the Customer model across all business types.
+ * Business-type variants compose these with type-specific additions.
  */
-object CustomerModel : CoreModelDefinition(
-    key = "customer",
-    displayNameSingular = "Customer",
-    displayNamePlural = "Customers",
-    iconType = IconType.USERS,
-    iconColour = IconColour.BLUE,
-    semanticGroup = SemanticGroup.CUSTOMER,
-    lifecycleDomain = LifecycleDomain.UNCATEGORIZED,
-    identifierKey = "email",
-    semanticDefinition = "A customer represents a person or organisation that has a commercial relationship with the business. Customers are the central entity around which revenue, support, and engagement activities are organised.",
-    semanticTags = listOf("crm", "contact", "revenue", "lifecycle"),
-    attributes = mapOf(
+object CustomerBase {
+
+    val attributes = mapOf(
         "name" to CoreModelAttribute(
-            key = "name", schemaType = SchemaType.TEXT, label = "Name", dataType = DataType.STRING,
+            schemaType = SchemaType.TEXT, label = "Name", dataType = DataType.STRING,
             required = true,
             semantics = AttributeSemantics(
                 definition = "The full name of the customer, used as the primary human-readable identifier in listings and communications.",
@@ -36,7 +27,7 @@ object CustomerModel : CoreModelDefinition(
             ),
         ),
         "email" to CoreModelAttribute(
-            key = "email", schemaType = SchemaType.EMAIL, label = "Email", dataType = DataType.STRING,
+            schemaType = SchemaType.EMAIL, label = "Email", dataType = DataType.STRING,
             format = "email", required = true, unique = true,
             semantics = AttributeSemantics(
                 definition = "The primary email address for the customer, used for communication, login identification, and deduplication.",
@@ -45,7 +36,7 @@ object CustomerModel : CoreModelDefinition(
             ),
         ),
         "phone" to CoreModelAttribute(
-            key = "phone", schemaType = SchemaType.PHONE, label = "Phone", dataType = DataType.STRING,
+            schemaType = SchemaType.PHONE, label = "Phone", dataType = DataType.STRING,
             format = "phone-number",
             semantics = AttributeSemantics(
                 definition = "The customer's phone number for direct contact, support escalation, or SMS communication.",
@@ -53,16 +44,8 @@ object CustomerModel : CoreModelDefinition(
                 tags = listOf("contact", "communication"),
             ),
         ),
-        "company" to CoreModelAttribute(
-            key = "company", schemaType = SchemaType.TEXT, label = "Company", dataType = DataType.STRING,
-            semantics = AttributeSemantics(
-                definition = "The name of the organisation or business the customer is associated with, used for B2B segmentation and account grouping.",
-                classification = SemanticAttributeClassification.CATEGORICAL,
-                tags = listOf("organisation", "segmentation"),
-            ),
-        ),
         "status" to CoreModelAttribute(
-            key = "status", schemaType = SchemaType.SELECT, label = "Status", dataType = DataType.STRING,
+            schemaType = SchemaType.SELECT, label = "Status", dataType = DataType.STRING,
             required = true,
             options = AttributeOptions(enum = listOf("active", "inactive", "churned"), default = "active"),
             semantics = AttributeSemantics(
@@ -72,7 +55,7 @@ object CustomerModel : CoreModelDefinition(
             ),
         ),
         "source" to CoreModelAttribute(
-            key = "source", schemaType = SchemaType.SELECT, label = "Source", dataType = DataType.STRING,
+            schemaType = SchemaType.SELECT, label = "Source", dataType = DataType.STRING,
             options = AttributeOptions(enum = listOf("organic", "referral", "paid", "partner")),
             semantics = AttributeSemantics(
                 definition = "The acquisition channel through which the customer was first obtained, used for attribution and marketing analysis.",
@@ -81,7 +64,7 @@ object CustomerModel : CoreModelDefinition(
             ),
         ),
         "created-date" to CoreModelAttribute(
-            key = "created-date", schemaType = SchemaType.DATE, label = "Created Date", dataType = DataType.STRING,
+            schemaType = SchemaType.DATE, label = "Created Date", dataType = DataType.STRING,
             format = "date",
             semantics = AttributeSemantics(
                 definition = "The date the customer record was first created, marking the start of the business relationship.",
@@ -90,15 +73,16 @@ object CustomerModel : CoreModelDefinition(
             ),
         ),
         "notes" to CoreModelAttribute(
-            key = "notes", schemaType = SchemaType.TEXT, label = "Notes", dataType = DataType.STRING,
+            schemaType = SchemaType.TEXT, label = "Notes", dataType = DataType.STRING,
             semantics = AttributeSemantics(
                 definition = "Free-form notes about the customer, capturing context, preferences, or history that does not fit structured fields.",
                 classification = SemanticAttributeClassification.FREETEXT,
                 tags = listOf("context", "internal"),
             ),
         ),
-    ),
-    relationships = listOf(
+    )
+
+    val relationships = listOf(
         CoreModelRelationship(
             key = "customer-support-tickets",
             name = "Support Tickets",
@@ -159,5 +143,5 @@ object CustomerModel : CoreModelDefinition(
                 tags = listOf("communication", "interaction"),
             ),
         ),
-    ),
-)
+    )
+}

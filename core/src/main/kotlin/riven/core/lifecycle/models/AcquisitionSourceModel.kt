@@ -28,7 +28,7 @@ object AcquisitionSourceModel : CoreModelDefinition(
     semanticTags = listOf("marketing", "acquisition", "attribution"),
     attributes = mapOf(
         "name" to CoreModelAttribute(
-            key = "name", schemaType = SchemaType.TEXT, label = "Name", dataType = DataType.STRING,
+            schemaType = SchemaType.TEXT, label = "Name", dataType = DataType.STRING,
             semantics = AttributeSemantics(
                 definition = "Name of the acquisition channel or campaign.",
                 classification = SemanticAttributeClassification.IDENTIFIER,
@@ -36,7 +36,7 @@ object AcquisitionSourceModel : CoreModelDefinition(
             ),
         ),
         "type" to CoreModelAttribute(
-            key = "type", schemaType = SchemaType.SELECT, label = "Type", dataType = DataType.STRING,
+            schemaType = SchemaType.SELECT, label = "Type", dataType = DataType.STRING,
             options = AttributeOptions(enum = listOf("paid-search", "paid-social", "organic", "email", "referral", "affiliate", "direct", "product-hunt", "content")),
             semantics = AttributeSemantics(
                 definition = "Category of acquisition channel.",
@@ -45,7 +45,7 @@ object AcquisitionSourceModel : CoreModelDefinition(
             ),
         ),
         "spend" to CoreModelAttribute(
-            key = "spend", schemaType = SchemaType.CURRENCY, label = "Spend", dataType = DataType.NUMBER,
+            schemaType = SchemaType.CURRENCY, label = "Spend", dataType = DataType.NUMBER,
             format = "currency",
             semantics = AttributeSemantics(
                 definition = "Total spend on this channel or campaign.",
@@ -54,7 +54,7 @@ object AcquisitionSourceModel : CoreModelDefinition(
             ),
         ),
         "active" to CoreModelAttribute(
-            key = "active", schemaType = SchemaType.CHECKBOX, label = "Active", dataType = DataType.BOOLEAN,
+            schemaType = SchemaType.CHECKBOX, label = "Active", dataType = DataType.BOOLEAN,
             semantics = AttributeSemantics(
                 definition = "Whether this channel or campaign is currently running.",
                 classification = SemanticAttributeClassification.CATEGORICAL,

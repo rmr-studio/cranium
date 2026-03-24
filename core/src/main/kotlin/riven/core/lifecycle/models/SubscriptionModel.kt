@@ -28,7 +28,7 @@ object SubscriptionModel : CoreModelDefinition(
     semanticTags = listOf("subscription", "recurring-revenue", "saas", "billing"),
     attributes = mapOf(
         "plan-name" to CoreModelAttribute(
-            key = "plan-name", schemaType = SchemaType.TEXT, label = "Plan", dataType = DataType.STRING,
+            schemaType = SchemaType.TEXT, label = "Plan", dataType = DataType.STRING,
             semantics = AttributeSemantics(
                 definition = "Name of the subscription plan.",
                 classification = SemanticAttributeClassification.IDENTIFIER,
@@ -36,7 +36,7 @@ object SubscriptionModel : CoreModelDefinition(
             ),
         ),
         "status" to CoreModelAttribute(
-            key = "status", schemaType = SchemaType.SELECT, label = "Status", dataType = DataType.STRING,
+            schemaType = SchemaType.SELECT, label = "Status", dataType = DataType.STRING,
             options = AttributeOptions(enum = listOf("trialing", "active", "past-due", "cancelled", "paused"), default = "trialing"),
             semantics = AttributeSemantics(
                 definition = "Current subscription status.",
@@ -45,7 +45,7 @@ object SubscriptionModel : CoreModelDefinition(
             ),
         ),
         "mrr" to CoreModelAttribute(
-            key = "mrr", schemaType = SchemaType.CURRENCY, label = "MRR", dataType = DataType.NUMBER,
+            schemaType = SchemaType.CURRENCY, label = "MRR", dataType = DataType.NUMBER,
             format = "currency",
             semantics = AttributeSemantics(
                 definition = "Monthly recurring revenue from this subscription.",
@@ -54,7 +54,7 @@ object SubscriptionModel : CoreModelDefinition(
             ),
         ),
         "billing-interval" to CoreModelAttribute(
-            key = "billing-interval", schemaType = SchemaType.SELECT, label = "Billing Interval", dataType = DataType.STRING,
+            schemaType = SchemaType.SELECT, label = "Billing Interval", dataType = DataType.STRING,
             options = AttributeOptions(enum = listOf("monthly", "quarterly", "annual")),
             semantics = AttributeSemantics(
                 definition = "How frequently the subscription is billed.",
@@ -63,7 +63,7 @@ object SubscriptionModel : CoreModelDefinition(
             ),
         ),
         "start-date" to CoreModelAttribute(
-            key = "start-date", schemaType = SchemaType.DATE, label = "Start Date", dataType = DataType.STRING,
+            schemaType = SchemaType.DATE, label = "Start Date", dataType = DataType.STRING,
             format = "date",
             semantics = AttributeSemantics(
                 definition = "Date the subscription started.",
@@ -72,7 +72,7 @@ object SubscriptionModel : CoreModelDefinition(
             ),
         ),
         "cancel-date" to CoreModelAttribute(
-            key = "cancel-date", schemaType = SchemaType.DATE, label = "Cancel Date", dataType = DataType.STRING,
+            schemaType = SchemaType.DATE, label = "Cancel Date", dataType = DataType.STRING,
             format = "date",
             semantics = AttributeSemantics(
                 definition = "Date the subscription was cancelled, if applicable.",

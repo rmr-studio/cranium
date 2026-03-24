@@ -86,30 +86,10 @@
               "$ref": "#/$defs/icon"
             },
             "semanticGroup": {
-              "type": "string",
-              "enum": [
-                "CUSTOMER",
-                "PRODUCT",
-                "TRANSACTION",
-                "COMMUNICATION",
-                "SUPPORT",
-                "FINANCIAL",
-                "OPERATIONAL",
-                "CUSTOM",
-                "UNCATEGORIZED"
-              ]
+              "$ref": "#/$defs/semanticGroup"
             },
             "lifecycleDomain": {
-              "type": "string",
-              "enum": [
-                "ACQUISITION",
-                "ONBOARDING",
-                "USAGE",
-                "SUPPORT",
-                "BILLING",
-                "RETENTION",
-                "UNCATEGORIZED"
-              ]
+              "$ref": "#/$defs/lifecycleDomain"
             },
             "identifierKey": {
               "type": "string"
@@ -140,30 +120,10 @@
           "$ref": "#/$defs/icon"
         },
         "semanticGroup": {
-          "type": "string",
-          "enum": [
-            "CUSTOMER",
-            "PRODUCT",
-            "TRANSACTION",
-            "COMMUNICATION",
-            "SUPPORT",
-            "FINANCIAL",
-            "OPERATIONAL",
-            "CUSTOM",
-            "UNCATEGORIZED"
-          ]
+          "$ref": "#/$defs/semanticGroup"
         },
         "lifecycleDomain": {
-          "type": "string",
-          "enum": [
-            "ACQUISITION",
-            "ONBOARDING",
-            "USAGE",
-            "SUPPORT",
-            "BILLING",
-            "RETENTION",
-            "UNCATEGORIZED"
-          ]
+          "$ref": "#/$defs/lifecycleDomain"
         },
         "identifierKey": {
           "type": "string"
@@ -323,6 +283,32 @@
         "options": { "$ref": "#/$defs/attributeOptions" },
         "semantics": { "$ref": "#/$defs/attributeSemantics" }
       }
+    },
+    "semanticGroup": {
+      "type": "string",
+      "enum": [
+        "CUSTOMER",
+        "PRODUCT",
+        "TRANSACTION",
+        "COMMUNICATION",
+        "SUPPORT",
+        "FINANCIAL",
+        "OPERATIONAL",
+        "CUSTOM",
+        "UNCATEGORIZED"
+      ]
+    },
+    "lifecycleDomain": {
+      "type": "string",
+      "enum": [
+        "ACQUISITION",
+        "ONBOARDING",
+        "USAGE",
+        "SUPPORT",
+        "BILLING",
+        "RETENTION",
+        "UNCATEGORIZED"
+      ]
     },
     "icon": {
       "type": "object",

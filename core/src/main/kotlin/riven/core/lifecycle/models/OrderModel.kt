@@ -28,7 +28,7 @@ object OrderModel : CoreModelDefinition(
     semanticTags = listOf("purchase", "transaction", "ecommerce", "revenue"),
     attributes = mapOf(
         "order-number" to CoreModelAttribute(
-            key = "order-number", schemaType = SchemaType.TEXT, label = "Order Number", dataType = DataType.STRING,
+            schemaType = SchemaType.TEXT, label = "Order Number", dataType = DataType.STRING,
             unique = true,
             semantics = AttributeSemantics(
                 definition = "Unique order identifier from the e-commerce platform.",
@@ -37,7 +37,7 @@ object OrderModel : CoreModelDefinition(
             ),
         ),
         "total" to CoreModelAttribute(
-            key = "total", schemaType = SchemaType.CURRENCY, label = "Total", dataType = DataType.NUMBER,
+            schemaType = SchemaType.CURRENCY, label = "Total", dataType = DataType.NUMBER,
             format = "currency",
             semantics = AttributeSemantics(
                 definition = "Total order amount including tax and shipping.",
@@ -46,7 +46,7 @@ object OrderModel : CoreModelDefinition(
             ),
         ),
         "status" to CoreModelAttribute(
-            key = "status", schemaType = SchemaType.SELECT, label = "Status", dataType = DataType.STRING,
+            schemaType = SchemaType.SELECT, label = "Status", dataType = DataType.STRING,
             options = AttributeOptions(enum = listOf("pending", "confirmed", "shipped", "delivered", "cancelled", "returned"), default = "pending"),
             semantics = AttributeSemantics(
                 definition = "Current fulfilment status of the order.",
@@ -55,7 +55,7 @@ object OrderModel : CoreModelDefinition(
             ),
         ),
         "order-date" to CoreModelAttribute(
-            key = "order-date", schemaType = SchemaType.DATE, label = "Order Date", dataType = DataType.STRING,
+            schemaType = SchemaType.DATE, label = "Order Date", dataType = DataType.STRING,
             format = "date",
             semantics = AttributeSemantics(
                 definition = "Date the order was placed.",
@@ -64,7 +64,7 @@ object OrderModel : CoreModelDefinition(
             ),
         ),
         "payment-status" to CoreModelAttribute(
-            key = "payment-status", schemaType = SchemaType.SELECT, label = "Payment Status", dataType = DataType.STRING,
+            schemaType = SchemaType.SELECT, label = "Payment Status", dataType = DataType.STRING,
             options = AttributeOptions(enum = listOf("pending", "paid", "refunded", "failed"), default = "pending"),
             semantics = AttributeSemantics(
                 definition = "Current payment state for this order.",

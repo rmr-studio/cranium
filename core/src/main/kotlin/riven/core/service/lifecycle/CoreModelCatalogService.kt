@@ -10,12 +10,13 @@ import riven.core.service.catalog.ManifestUpsertService
 /**
  * Populates the manifest catalog with core lifecycle model definitions at boot time.
  *
- * Runs on ApplicationReadyEvent. ManifestLoaderService also runs on this event (in a
- * separate thread). Both paths converge at ManifestUpsertService which is idempotent —
- * content hash matching prevents duplicate work regardless of execution order.
+ * Runs on ApplicationReadyEvent alongside ManifestLoaderService (both synchronous on the
+ * event thread, order depends on Spring bean ordering). Both paths converge at
+ * ManifestUpsertService which is idempotent — content hash matching prevents duplicate
+ * work regardless of execution order.
  *
  * Flow:
- *   1. CoreModelRegistry.validate() — fail fast on broken definitions
+ *   1. CoreModelRegistry self-validates on first access (fail fast on broken definitions)
  *   2. For each model set: convert to ResolvedManifest → upsert to catalog
  *   3. Log summary
  *
@@ -30,14 +31,13 @@ class CoreModelCatalogService(
 
     @EventListener(ApplicationReadyEvent::class)
     fun onApplicationReady() {
-        CoreModelRegistry.validate()
-
         val manifests = CoreModelRegistry.allResolvedManifests()
         for (manifest in manifests) {
             upsertService.upsertManifest(manifest)
             logger.info { "Core model set '${manifest.key}' loaded: ${manifest.entityTypes.size} entity types, ${manifest.relationships.size} relationships" }
         }
 
-        logger.info { "Core model catalog populated: ${manifests.size} model sets, ${CoreModelRegistry.allModels.size} unique entity types" }
+        val totalEntityTypes = manifests.sumOf { it.entityTypes.size }
+        logger.info { "Core model catalog populated: ${manifests.size} model sets, $totalEntityTypes total entity types" }
     }
 }

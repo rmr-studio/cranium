@@ -11,7 +11,6 @@ import riven.core.enums.entity.semantics.SemanticAttributeClassification
  * All core model attributes are protected=true (immutable after installation).
  */
 data class CoreModelAttribute(
-    val key: String,
     val schemaType: SchemaType,
     val label: String,
     val dataType: DataType,

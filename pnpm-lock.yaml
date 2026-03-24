@@ -339,6 +339,9 @@ importers:
       fuse.js:
         specifier: ^7.1.0
         version: 7.1.0
+      github-slugger:
+        specifier: ^2.0.0
+        version: 2.0.0
       gray-matter:
         specifier: ^4.0.3
         version: 4.0.3

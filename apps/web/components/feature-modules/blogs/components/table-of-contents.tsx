@@ -66,6 +66,7 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
       <div className="mb-8 lg:hidden">
         <button
           onClick={() => setIsOpen(!isOpen)}
+          aria-expanded={isOpen}
           className="flex w-full items-center justify-between rounded-sm border border-border px-4 py-2.5 text-sm"
         >
           <span className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">

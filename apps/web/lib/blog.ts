@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import GithubSlugger from 'github-slugger';
 import matter from 'gray-matter';
 import readingTime from 'reading-time';
 import type { BlogPost, BlogPostMeta, BlogCategory, Heading } from './blog-types';
@@ -13,17 +14,14 @@ export function calculateReadTime(content: string): number {
 
 function extractHeadings(content: string): Heading[] {
   const headingRegex = /^#{2,3}\s+(.+)$/gm;
+  const slugger = new GithubSlugger();
   const headings: Heading[] = [];
   let match;
 
   while ((match = headingRegex.exec(content)) !== null) {
     const level = match[0].startsWith('###') ? 3 : 2;
     const text = match[1].trim();
-    const slug = text
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
-    headings.push({ text, slug, level: level as 2 | 3 });
+    headings.push({ text, slug: slugger.slug(text), level: level as 2 | 3 });
   }
 
   return headings;

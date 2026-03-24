@@ -18,11 +18,10 @@ export function CategoryPills({ categories }: CategoryPillsProps) {
       <h2 className="mb-4 font-[family-name:var(--font-instrument-serif)] text-2xl italic text-muted-foreground">
         Browse by category:
       </h2>
-      <div className="flex flex-wrap gap-2" role="tablist">
+      <nav className="flex flex-wrap gap-2" aria-label="Blog categories">
         <Link
           href="/blog"
-          role="tab"
-          aria-selected={isAll}
+          aria-current={isAll ? 'page' : undefined}
           className={cn(
             'rounded-sm border px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-widest transition-colors',
             isAll
@@ -38,8 +37,7 @@ export function CategoryPills({ categories }: CategoryPillsProps) {
             <Link
               key={cat.slug}
               href={`/blog/category/${cat.slug}`}
-              role="tab"
-              aria-selected={isActive}
+              aria-current={isActive ? 'page' : undefined}
               className={cn(
                 'rounded-sm border px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-widest transition-colors',
                 isActive
@@ -51,7 +49,7 @@ export function CategoryPills({ categories }: CategoryPillsProps) {
             </Link>
           );
         })}
-      </div>
+      </nav>
     </div>
   );
 }

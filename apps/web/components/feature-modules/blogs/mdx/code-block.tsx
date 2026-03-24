@@ -1,17 +1,25 @@
 'use client';
 
 import { Check, Copy } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export function CodeBlock({ children, ...props }: React.HTMLAttributes<HTMLPreElement>) {
   const [copied, setCopied] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(null);
 
-  const handleCopy = () => {
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
+  const handleCopy = useCallback(() => {
     const code = (children as React.ReactElement<{ children?: string }>)?.props?.children ?? '';
     navigator.clipboard.writeText(typeof code === 'string' ? code : '');
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setCopied(false), 2000);
+  }, [children]);
 
   return (
     <div className="group relative">

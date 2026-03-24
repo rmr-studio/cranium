@@ -14,13 +14,13 @@ export function Breadcrumbs({ category, postTitle }: BreadcrumbsProps) {
         <li>
           <Link href="/" className="transition-colors hover:text-foreground">Home</Link>
         </li>
-        <li><ChevronRight className="size-3" /></li>
+        <li aria-hidden="true"><ChevronRight className="size-3" /></li>
         <li>
           <Link href="/blog" className="transition-colors hover:text-foreground">Blog</Link>
         </li>
         {category && (
           <>
-            <li><ChevronRight className="size-3" /></li>
+            <li aria-hidden="true"><ChevronRight className="size-3" /></li>
             <li>
               <Link href={`/blog/category/${category}`} className="transition-colors hover:text-foreground">
                 {CATEGORY_LABELS[category]}
@@ -30,7 +30,7 @@ export function Breadcrumbs({ category, postTitle }: BreadcrumbsProps) {
         )}
         {postTitle && (
           <>
-            <li><ChevronRight className="size-3" /></li>
+            <li aria-hidden="true"><ChevronRight className="size-3" /></li>
             <li className="truncate max-w-48 text-foreground">{postTitle}</li>
           </>
         )}

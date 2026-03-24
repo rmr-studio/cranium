@@ -60,7 +60,7 @@ function ArticleJsonLd({ post }: { post: NonNullable<Awaited<ReturnType<typeof g
     author: { '@type': 'Person', name: post.author },
     publisher: { '@type': 'Organization', name: 'Riven', url: 'https://getriven.io' },
   };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />;
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replaceAll('</', '<\\u002f') }} />;
 }
 
 function BreadcrumbJsonLd({ post }: { post: NonNullable<Awaited<ReturnType<typeof getPostBySlug>>> }) {
@@ -79,7 +79,7 @@ function BreadcrumbJsonLd({ post }: { post: NonNullable<Awaited<ReturnType<typeo
       { '@type': 'ListItem', position: 4, name: post.title },
     ],
   };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />;
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replaceAll('</', '<\\u002f') }} />;
 }
 
 export default async function BlogPostPage({ params }: Props) {

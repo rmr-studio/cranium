@@ -6,14 +6,16 @@ export async function GET() {
   const posts = await getAllPosts();
   const recent = posts.slice(0, 20);
 
+  const escapeCdata = (s: string) => s.replaceAll(']]>', ']]]]><![CDATA[>');
+
   const items = recent
     .map(
       (post) => `
     <item>
-      <title><![CDATA[${post.title}]]></title>
+      <title><![CDATA[${escapeCdata(post.title)}]]></title>
       <link>${BASE_URL}/blog/${post.slug}</link>
       <guid isPermaLink="true">${BASE_URL}/blog/${post.slug}</guid>
-      <description><![CDATA[${post.description}]]></description>
+      <description><![CDATA[${escapeCdata(post.description)}]]></description>
       <pubDate>${new Date(post.date).toUTCString()}</pubDate>
       <author>jared@riven.software (${post.author})</author>
     </item>`,

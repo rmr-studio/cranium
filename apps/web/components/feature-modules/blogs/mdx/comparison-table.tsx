@@ -62,6 +62,7 @@ export function ComparisonTable({ columns, rows, highlightColumn }: ComparisonTa
             {columns.map((col) => (
               <th
                 key={col.key}
+                scope="col"
                 className={cn(
                   'cursor-pointer px-4 py-3 text-left font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground',
                   highlightColumn === col.key && 'bg-primary/5 text-foreground',

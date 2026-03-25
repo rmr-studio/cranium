@@ -16,13 +16,15 @@ export type BlogCategory =
   | 'tool-comparison'
   | 'operational-intelligence'
   | 'category-definition'
-  | 'changelog';
+  | 'changelog'
+  | 'journey';
 
 export const CATEGORY_LABELS: Record<BlogCategory, string> = {
   'tool-comparison': 'Tool Comparisons',
   'operational-intelligence': 'Operational Intelligence',
   'category-definition': 'Category Definitions',
   changelog: 'Changelog',
+  journey: 'Founders Journey',
 };
 
 export interface BlogPost extends BlogPostMeta {

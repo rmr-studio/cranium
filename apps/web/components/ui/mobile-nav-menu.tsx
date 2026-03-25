@@ -106,7 +106,7 @@ const DrawerSheet: FC<NavbarMenuProps> = ({ links, toggle }) => {
         <div className="paper-lite flex items-center justify-between px-6 pt-5 pb-3">
           <div className="flex items-center gap-3">
             <Link href="/" onClick={() => toggle(false)} className="flex items-center gap-1.5">
-              <Logo size={22} />
+              <Logo size={22} className="fill-logo-primary" />
               <span className="mt-0.5 font-serif text-lg font-bold text-logo-primary">Riven</span>
             </Link>
             <Link

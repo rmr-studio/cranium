@@ -1,20 +1,23 @@
 ---
-title: "How to Track Churn When Your Data Lives in 6 Different Tools"
-description: "Most DTC operators can tell you their churn rate. Almost none can tell you why customers leave — because the signals are scattered across Stripe, Gorgias, Shopify, and 3 other tools."
-date: "2026-03-20"
-updated: "2026-03-20"
-author: "Jared Tucker"
-category: "operational-intelligence"
-tags: ["churn", "analytics", "DTC", "cross-domain"]
+title: 'How to Track Churn When Your Data Lives in 6 Different Tools'
+description: 'Most DTC operators can tell you their churn rate. Almost none can tell you why customers leave — because the signals are scattered across Stripe, Gorgias, Shopify, and 3 other tools.'
+date: '2026-03-20'
+updated: '2026-03-20'
+author: 'Jared Tucker'
+category: 'operational-intelligence'
+coverImage: 'images/blog/25-3-26-blog-churn-tracking.webp'
+tags: ['churn', 'analytics', 'DTC', 'cross-domain']
+featured: true
 ---
 
-Most DTC operators can tell you their churn rate. Almost none can tell you *why* customers leave. The signals are there — a support ticket here, a failed payment there, a product return two weeks ago — but they're scattered across 6 different tools that don't talk to each other.
+Most DTC operators can tell you their churn rate. Almost none can tell you _why_ customers leave. The signals are there — a support ticket here, a failed payment there, a product return two weeks ago — but they're scattered across 6 different tools that don't talk to each other.
 
 ## The 15-Minute Customer View Problem
 
 Try to answer this question: "Why did Sarah Chen cancel her subscription last week?"
 
 To find out, you'd need to check:
+
 - **Stripe** — payment history, failed charges, refunds
 - **Gorgias** — support tickets, satisfaction scores
 - **Shopify** — order history, returns
@@ -55,10 +58,13 @@ This takes 4-8 hours per week for a team managing 1,000+ customers. And by the t
 ## Frequently Asked Questions
 
 ### How do you calculate churn rate across multiple tools?
-Start with billing data (Stripe/Chargebee) as your source of truth for active vs. churned. Then enrich each churned customer with signals from support, product, and marketing tools to understand the *why* behind the number.
+
+Start with billing data (Stripe/Chargebee) as your source of truth for active vs. churned. Then enrich each churned customer with signals from support, product, and marketing tools to understand the _why_ behind the number.
 
 ### What's a good churn rate for DTC e-commerce?
+
 Monthly churn rates for subscription DTC brands typically range from 5-10%. But the aggregate number hides everything — churn by acquisition channel, by product, by season. The operators who reduce churn are the ones who can segment it.
 
 ### Can you predict churn before it happens?
+
 With connected data, yes. The pattern of "support ticket + low email engagement + failed payment" is visible days or weeks before cancellation. But only if your tools talk to each other.

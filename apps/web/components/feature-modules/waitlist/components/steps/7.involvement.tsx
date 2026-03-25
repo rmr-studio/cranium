@@ -1,4 +1,4 @@
-import { OptionSelectionStep } from './option-selection-step';
+import { OptionSelectionStep } from '@/components/feature-modules/waitlist/components/steps/option-selection-step';
 
 export const INVOLVEMENT_STEP_CONFIG = {
   title: 'Want to help shape what we build?',

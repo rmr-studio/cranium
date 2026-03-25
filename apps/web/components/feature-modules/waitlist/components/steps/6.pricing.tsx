@@ -1,4 +1,4 @@
-import { OptionSelectionStep } from './option-selection-step';
+import { OptionSelectionStep } from '@/components/feature-modules/waitlist/components/steps/option-selection-step';
 
 export const PRICING_STEP_CONFIG = {
   title: 'What would you expect to pay monthly for a platform like this?',

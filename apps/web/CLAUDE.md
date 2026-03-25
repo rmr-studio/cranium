@@ -1,5 +1,9 @@
 # CLAUDE.md — Riven Landing Page + Marketing
 
+## Importing
+
+Always import components and files using the @/alias rather than relative path imports
+
 ## Design System
 
 Always read `DESIGN.md` before making any visual or UI decisions. All font choices, colors, spacing, border radius, shadows, and aesthetic direction are defined there. Do not deviate without explicit user approval. A rendered preview is available at `./design-system-preview.html`.

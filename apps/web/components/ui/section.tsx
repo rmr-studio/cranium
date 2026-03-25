@@ -12,6 +12,8 @@ interface Props extends React.SelectHTMLAttributes<HTMLDivElement> {
   gridClassName?: string;
   children?: React.ReactNode;
   navbarInverse?: boolean;
+  /** Enable content-visibility: auto for below-fold render skipping */
+  lazyRender?: boolean;
 }
 
 export const Section = React.forwardRef<HTMLDivElement, Props>(
@@ -26,6 +28,7 @@ export const Section = React.forwardRef<HTMLDivElement, Props>(
       size = 8,
       fill = 'color-mix(in srgb, var(--primary) 7.5%, transparent)',
       navbarInverse,
+      lazyRender,
       ...rest
     },
     ref,
@@ -38,6 +41,7 @@ export const Section = React.forwardRef<HTMLDivElement, Props>(
           'relative z-20 mb-12 overflow-hidden pt-16 md:pt-24 lg:mb-20 lg:px-12 lg:pt-20',
           className,
         )}
+        style={lazyRender ? { contentVisibility: 'auto', containIntrinsicSize: 'auto 800px' } : undefined}
         {...(navbarInverse ? { 'data-navbar-inverse': '' } : {})}
         {...rest}
       >

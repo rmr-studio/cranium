@@ -17,7 +17,7 @@ export function BlogFeed({ posts }: { posts: BlogPostMeta[] }) {
     <div className="divide-y divide-border">
       {posts.map((post) => (
         <article key={post.slug} className="py-6 first:pt-0">
-          <Link href={`/blog/${post.slug}`} className="group block">
+          <Link href={`/resources/blog/${post.slug}`} className="group block">
             <div className="mb-2 flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-muted-foreground">
               <time dateTime={post.date}>
                 {new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}

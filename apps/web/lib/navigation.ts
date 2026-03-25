@@ -1,4 +1,19 @@
-export const NAV_LINKS = [
-  { label: 'Features', href: '/#features' },
-  { label: 'FAQs', href: '/#faqs' },
-] as const;
+export interface NavLink {
+  label: string;
+  href: string;
+  external?: boolean;
+  shouldCloseOnClick?: boolean;
+}
+
+/** Flat list for mobile nav */
+export const NAV_LINKS_FLAT: NavLink[] = [
+  // { label: 'Solutions', href: '/solutions' },
+  { label: 'Story', href: '/story' },
+  { label: 'Blog', href: '/resources/blog' },
+  { label: 'Changelog', href: '/changelog' },
+  { label: 'Contact', href: '/contact' },
+  { label: 'FAQ', href: '/faq' },
+];
+
+/** Alias used by Footer and MobileNavbar */
+export const NAV_LINKS = NAV_LINKS_FLAT;

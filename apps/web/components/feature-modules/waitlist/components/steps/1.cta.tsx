@@ -4,10 +4,8 @@ import { ArrowRight } from 'lucide-react';
 export function CtaStep({ onStart }: { onStart: () => void }) {
   return (
     <div className="py-16 text-center md:py-24">
-      <h2 className="text-4xl leading-[1.1] -tracking-[0.02em] text-heading md:text-5xl">
-        <span className="font-sans font-bold">Know more,</span>{' '}
-        <span className="font-serif font-normal italic">Do More,</span>{' '}
-        <span className="font-sans font-bold">Earn more</span>{' '}
+      <h2 className="gap-x-3 text-4xl leading-none tracking-tighter text-heading md:text-5xl">
+        Know more, <span className="font-serif font-normal italic">Do More,</span> Earn more{' '}
       </h2>
       <div className="mx-auto mt-5 flex max-w-3xl flex-col space-y-6 leading-tight tracking-tight text-muted-foreground sm:text-lg">
         <p>

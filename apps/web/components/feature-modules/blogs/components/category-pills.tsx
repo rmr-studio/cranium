@@ -11,7 +11,7 @@ interface CategoryPillsProps {
 
 export function CategoryPills({ categories }: CategoryPillsProps) {
   const pathname = usePathname();
-  const isAll = pathname === '/blog';
+  const isAll = pathname === '/resources/blog';
 
   return (
     <div className="mb-12">
@@ -20,7 +20,7 @@ export function CategoryPills({ categories }: CategoryPillsProps) {
       </h2>
       <nav className="flex flex-wrap gap-2" aria-label="Blog categories">
         <Link
-          href="/blog"
+          href="/resources/blog"
           aria-current={isAll ? 'page' : undefined}
           className={cn(
             'rounded-sm border px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-widest transition-colors',
@@ -32,11 +32,11 @@ export function CategoryPills({ categories }: CategoryPillsProps) {
           All
         </Link>
         {categories.map((cat) => {
-          const isActive = pathname === `/blog/category/${cat.slug}`;
+          const isActive = pathname === `/resources/blog/category/${cat.slug}`;
           return (
             <Link
               key={cat.slug}
-              href={`/blog/category/${cat.slug}`}
+              href={`/resources/blog/category/${cat.slug}`}
               aria-current={isActive ? 'page' : undefined}
               className={cn(
                 'rounded-sm border px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-widest transition-colors',

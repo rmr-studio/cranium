@@ -18,7 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.3,
     },
     {
-      url: `${BASE_URL}/blog`,
+      url: `${BASE_URL}/resources/blog`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.8,
@@ -27,7 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const posts = await getAllPosts();
   const blogRoutes: MetadataRoute.Sitemap = posts.map((post) => ({
-    url: `${BASE_URL}/blog/${post.slug}`,
+    url: `${BASE_URL}/resources/blog/${post.slug}`,
     lastModified: new Date(post.updated ?? post.date),
     changeFrequency: "weekly",
     priority: 0.7,
@@ -35,7 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const categories = await getCategories();
   const categoryRoutes: MetadataRoute.Sitemap = categories.map((cat) => ({
-    url: `${BASE_URL}/blog/category/${cat.slug}`,
+    url: `${BASE_URL}/resources/blog/category/${cat.slug}`,
     lastModified: new Date(),
     changeFrequency: "weekly",
     priority: 0.6,

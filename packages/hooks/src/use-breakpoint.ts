@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 
 export type Breakpoint = "sm" | "md" | "lg" | "xl";
 
-export function useBreakpoint(): Breakpoint {
-  const [breakpoint, setBreakpoint] = useState<Breakpoint>("xl");
+export function useBreakpoint(): Breakpoint | undefined {
+  const [breakpoint, setBreakpoint] = useState<Breakpoint | undefined>(undefined);
 
   useEffect(() => {
     const mdQuery = window.matchMedia("(min-width: 768px)");

@@ -17,22 +17,23 @@
 
 All fonts are loaded via `next/font/google` in `app/layout.tsx`.
 
-- **Display/Hero:** Geist 700, 40-56px, `letter-spacing: -0.03em`, `line-height: 1` — tight, confident, engineered. Used for hero numbers, page-level data displays (revenue totals, counts).
-- **H1:** Geist 700, 32px, `letter-spacing: -0.02em`, `line-height: 1.1` — page titles.
-- **H2:** Geist 600, 24px, `letter-spacing: -0.02em`, `line-height: 1.2` — section headings.
-- **H3:** Geist 600, 18px, `letter-spacing: -0.01em`, `line-height: 1.3` — sub-sections.
-- **Body:** Geist 400, 14px, `line-height: 1.6`, `letter-spacing: -0.01em` — default text. Comfortable reading density.
-- **UI/Labels:** Geist 500, 13px — sidebar items, table headers, form labels. Slightly heavier than body for scannability.
-- **Data/Tables:** Geist 400, 13-14px, `font-variant-numeric: tabular-nums` — numbers align in columns. Dates, counts, currency.
-- **Code:** Geist Mono 400 — code blocks, technical values.
-- **Accent display:** Instrument Serif 400, 32-48px — editorial moments on marketing/landing pages. Italic variant available.
-- **System labels:** Space Mono 700, 11-14px, `text-transform: uppercase`, `letter-spacing: 0.05em` — section headers in sidebar panels ("Records", "Resources", "Workspace").
+- **Display/Hero:** Geist 700, 40-56px, `tracking-tighter` (`-0.05em`), `leading-none` — tight, confident, engineered. Used for hero numbers, page-level data displays (revenue totals, counts).
+- **H1:** Geist 700, 32px, `tracking-tighter` (`-0.05em`), `leading-none` — page titles.
+- **H2:** Geist 600, 24px, `tracking-tight` (`-0.025em`), `leading-none` — section headings.
+- **H3:** Geist 600, 18px, `tracking-tight` (`-0.025em`), `leading-none` — sub-sections.
+- **Body:** Geist 400, 14px, `tracking-tight` (`-0.025em`), `leading-none` — default text. Compact, dense reading.
+- **UI/Labels:** Geist 500, 13px, `tracking-tight`, `leading-none` — sidebar items, table headers, form labels. Slightly heavier than body for scannability.
+- **Data/Tables:** Geist 400, 13-14px, `tracking-tight`, `leading-none`, `font-variant-numeric: tabular-nums` — numbers align in columns. Dates, counts, currency.
+- **Code:** Geist Mono 400, `tracking-tight`, `leading-none` — code blocks, technical values.
+- **Accent display:** Instrument Serif 400, 32-48px, `tracking-tight`, `leading-none` — editorial moments on marketing/landing pages. Italic variant available.
+- **System labels:** Space Mono 700, 11-14px, `text-transform: uppercase`, `tracking-wide` (`0.05em`), `leading-none` — section headers in sidebar panels ("Records", "Resources", "Workspace"). Exception: keeps wide tracking for uppercase legibility.
 - **Loading:** Google Fonts via `next/font` (Geist, Geist Mono, Instrument Serif, Space Mono). CSS variables: `--font-geist-sans`, `--font-geist-mono`, `--font-instrument-serif`, `--font-space-mono`.
 - **Scale:** Display(56) → H1(32) → H2(24) → H3(18) → Body(14) → UI(13) → Small(12) → Micro(11)
 
 ### Typography Rules
-- Headings use tight tracking (`-0.02em` to `-0.03em`). Body uses subtle negative tracking (`-0.01em`).
-- `leading-[0.9]` is for headings only. Body text uses `leading-relaxed` (1.6) in content areas.
+- All text uses `leading-none` (line-height: 1) by default. This creates the compact, dense feel across the entire application.
+- Display and H1 use `tracking-tighter` (`-0.05em`). All other text uses `tracking-tight` (`-0.025em`). Exception: uppercase system labels keep `tracking-wide` for legibility.
+- Never use `leading-relaxed`, `leading-normal`, or any loose line-height. The tight, compact density is intentional.
 - Numbers should always use `tabular-nums` in data contexts (tables, stats, timestamps).
 - Never use Geist above weight 700. The font loses clarity at 800-900.
 

@@ -11,7 +11,7 @@ export function RelatedPosts({ posts }: { posts: BlogPostMeta[] }) {
       </h2>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {posts.map((post) => (
-          <Link key={post.slug} href={`/blog/${post.slug}`} className="group block">
+          <Link key={post.slug} href={`/resources/blog/${post.slug}`} className="group block">
             <article>
               <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
                 {new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}

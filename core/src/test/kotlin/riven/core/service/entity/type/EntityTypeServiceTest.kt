@@ -50,6 +50,7 @@ import java.util.*
         WorkspaceSecurity::class,
         EntityTypeServiceTest.TestConfig::class,
         EntityTypeService::class,
+        EntityTypeProtectionGuard::class,
     ]
 )
 @WithUserPersona(

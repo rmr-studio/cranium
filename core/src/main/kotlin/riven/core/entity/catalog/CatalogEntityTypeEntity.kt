@@ -6,6 +6,7 @@ import org.hibernate.annotations.Type
 import org.hibernate.annotations.UpdateTimestamp
 import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
+import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.models.catalog.CatalogEntityTypeModel
 import riven.core.models.catalog.CatalogSemanticMetadataModel
@@ -55,6 +56,10 @@ data class CatalogEntityTypeEntity(
     @Column(name = "semantic_group", nullable = false)
     val semanticGroup: SemanticGroup = SemanticGroup.UNCATEGORIZED,
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "lifecycle_domain", nullable = false)
+    val lifecycleDomain: LifecycleDomain = LifecycleDomain.UNCATEGORIZED,
+
     @Column(name = "identifier_key")
     val identifierKey: String? = null,
 
@@ -78,13 +83,14 @@ data class CatalogEntityTypeEntity(
 ) {
 
     fun toModel(semanticMetadata: List<CatalogSemanticMetadataModel>) = CatalogEntityTypeModel(
-        id = id!!,
+        id = requireNotNull(id) { "CatalogEntityTypeEntity.id must not be null when converting to CatalogEntityTypeModel" },
         key = key,
         displayNameSingular = displayNameSingular,
         displayNamePlural = displayNamePlural,
         iconType = iconType,
         iconColour = iconColour,
         semanticGroup = semanticGroup,
+        lifecycleDomain = lifecycleDomain,
         identifierKey = identifierKey,
         readonly = readonly,
         schema = schema,

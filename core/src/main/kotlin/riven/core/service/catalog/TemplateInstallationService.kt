@@ -11,6 +11,7 @@ import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.ApplicationEntityType
 import riven.core.enums.core.DataFormat
 import riven.core.enums.core.DataType
+import riven.core.enums.integration.SourceType
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.enums.util.OperationType
 import riven.core.models.catalog.CatalogEntityTypeModel
@@ -22,8 +23,6 @@ import riven.core.models.entity.configuration.ColumnConfiguration
 import riven.core.models.request.entity.type.SaveRelationshipDefinitionRequest
 import riven.core.models.request.entity.type.SaveSemanticMetadataRequest
 import riven.core.models.request.entity.type.SaveTargetRuleRequest
-import riven.core.models.catalog.BundleDetail
-import riven.core.models.response.catalog.BundleInstallationResponse
 import riven.core.models.response.catalog.CreatedEntityTypeSummary
 import riven.core.models.response.catalog.TemplateInstallationResponse
 import riven.core.entity.catalog.WorkspaceTemplateInstallationEntity
@@ -61,34 +60,24 @@ class TemplateInstallationService(
 ) {
 
     /**
-     * Install a template into a workspace, creating all entity types, relationships,
-     * and semantic metadata defined in the template manifest.
+     * Install a template into a workspace. Templates are protected sets of entity types
+     * that form the lifecycle data model foundation. Entity types are marked protected=true
+     * (non-deletable), core attributes are marked Schema.protected=true (immutable), and
+     * sourceType is set to TEMPLATE.
      *
-     * The installation is atomic: if any step fails, the entire transaction rolls back
-     * and nothing is created. Entity types are immediately published and usable.
-     *
-     * @param workspaceId the workspace to install the template into
-     * @param templateKey the manifest key identifying the template
-     * @return summary of created entity types and relationships
+     * Called during workspace onboarding, or via the recovery endpoint if onboarding
+     * installation failed. Idempotent — returns early if already installed.
      */
     @Transactional
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
-    fun installTemplate(workspaceId: UUID, templateKey: String): TemplateInstallationResponse =
-        installTemplateInternal(workspaceId, templateKey)
-
-    /**
-     * Install a template without workspace access check. Used during onboarding when the
-     * workspace role is not yet in the JWT.
-     */
-    @Transactional
-    internal fun installTemplateInternal(workspaceId: UUID, templateKey: String): TemplateInstallationResponse {
+    fun installTemplate(workspaceId: UUID, spineKey: String): TemplateInstallationResponse {
         val userId = authTokenService.getUserId()
 
-        val existingInstallation = installationRepository.findByWorkspaceIdAndManifestKey(workspaceId, templateKey)
+        val existingInstallation = installationRepository.findByWorkspaceIdAndManifestKey(workspaceId, spineKey)
         if (existingInstallation != null) {
-            val manifest = catalogService.getManifestByKey(templateKey, ManifestType.TEMPLATE)
+            val manifest = catalogService.getManifestByKey(spineKey, ManifestType.TEMPLATE)
             return TemplateInstallationResponse(
-                templateKey = templateKey,
+                templateKey = spineKey,
                 templateName = manifest.name,
                 entityTypesCreated = 0,
                 relationshipsCreated = 0,
@@ -96,62 +85,48 @@ class TemplateInstallationService(
             )
         }
 
-        val manifest = catalogService.getManifestByKey(templateKey, ManifestType.TEMPLATE)
+        val manifest = catalogService.getManifestByKey(spineKey, ManifestType.TEMPLATE)
 
         val (toCreate, reused) = partitionEntityTypesByExistence(workspaceId, manifest.entityTypes)
         val newResults = createEntityTypes(workspaceId, toCreate)
+        promoteReusedToTemplate(workspaceId, reused, manifest.entityTypes)
         val mergedResults = newResults + reused
 
         val relationshipsCreated = createRelationships(workspaceId, manifest.relationships, manifest.entityTypes, mergedResults)
         applySemanticMetadata(workspaceId, toCreate, newResults)
-        recordTemplateInstallation(workspaceId, templateKey, userId, mergedResults)
-        logTemplateActivity(userId, workspaceId, templateKey, manifest, newResults)
+        recordTemplateInstallation(workspaceId, spineKey, userId, mergedResults)
+        logTemplateActivity(userId, workspaceId, spineKey, manifest, newResults)
 
-        return buildResponse(templateKey, manifest, newResults, relationshipsCreated)
+        return buildResponse(spineKey, manifest, newResults, relationshipsCreated)
     }
 
-    /**
-     * Install a bundle into a workspace, resolving all referenced templates and creating
-     * entity types, relationships, and semantic metadata atomically.
-     *
-     * Templates already installed in this workspace are skipped, but their entity type IDs
-     * are resolved so that cross-template relationships can reference them.
-     *
-     * @param workspaceId the workspace to install into
-     * @param bundleKey the bundle key identifying the collection of templates
-     * @return summary of installed/skipped templates and created entities
-     */
-    @Transactional
-    @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
-    fun installBundle(workspaceId: UUID, bundleKey: String): BundleInstallationResponse =
-        installBundleInternal(workspaceId, bundleKey)
+    // ------ Template Promotion ------
 
     /**
-     * Install a bundle without workspace access check. Used during onboarding when the
-     * workspace role is not yet in the JWT.
+     * Promotes reused entity types to template status. When the template installation
+     * encounters entity types that already exist in the workspace (e.g. from a previously
+     * installed template), those types must be upgraded to protected=true with
+     * sourceType=TEMPLATE and the correct lifecycle domain.
      */
-    @Transactional
-    internal fun installBundleInternal(workspaceId: UUID, bundleKey: String): BundleInstallationResponse {
-        val userId = authTokenService.getUserId()
-        val bundle = catalogService.getBundleByKey(bundleKey)
+    private fun promoteReusedToTemplate(
+        workspaceId: UUID,
+        reused: Map<String, EntityTypeCreationResult>,
+        catalogEntityTypes: List<CatalogEntityTypeModel>,
+    ) {
+        if (reused.isEmpty()) return
 
-        val (templatesToInstall, templatesToSkip) = partitionTemplatesByInstallationStatus(
-            workspaceId, bundle.templateKeys
-        )
+        val catalogByKey = catalogEntityTypes.associateBy { it.key }
+        for ((key, result) in reused) {
+            val catalogType = catalogByKey[key] ?: continue
+            val lifecycleDomain = catalogType.lifecycleDomain.name
 
-        val skippedEntityIdMap = resolveExistingEntityTypeIds(workspaceId, templatesToSkip)
-        val (manifests, allCandidateEntityTypes) = loadManifestsAndMergeEntityTypes(templatesToInstall, skippedEntityIdMap)
-
-        val (toCreate, reusedFromWorkspace) = partitionEntityTypesByExistence(workspaceId, allCandidateEntityTypes)
-        val creationResults = createEntityTypes(workspaceId, toCreate)
-        val mergedIdMap = creationResults + reusedFromWorkspace + skippedEntityIdMap
-
-        val relationshipsCreated = prepareAndCreateRelationships(workspaceId, manifests, mergedIdMap)
-        applySemanticMetadata(workspaceId, toCreate, creationResults)
-        recordBundleTemplateInstallations(workspaceId, manifests, templatesToInstall, mergedIdMap, userId)
-        logBundleActivity(userId, workspaceId, bundleKey, bundle, creationResults, templatesToInstall, templatesToSkip)
-
-        return buildBundleResponse(bundleKey, bundle, templatesToInstall, templatesToSkip, creationResults, relationshipsCreated)
+            entityTypeRepository.promoteToTemplate(
+                entityTypeId = result.entityTypeId,
+                workspaceId = workspaceId,
+                lifecycleDomain = lifecycleDomain,
+            )
+            logger.info { "Promoted reused entity type '$key' (${result.entityTypeId}) to template" }
+        }
     }
 
     // ------ Entity Type Creation ------
@@ -269,9 +244,11 @@ class TemplateInstallationService(
             iconType = catalogType.iconType,
             iconColour = catalogType.iconColour,
             semanticGroup = catalogType.semanticGroup,
+            lifecycleDomain = catalogType.lifecycleDomain,
+            sourceType = SourceType.TEMPLATE,
             identifierKey = identifierKey,
             workspaceId = workspaceId,
-            protected = false,
+            protected = true,
             schema = Schema(
                 type = DataType.OBJECT,
                 key = SchemaType.OBJECT,
@@ -310,7 +287,7 @@ class TemplateInstallationService(
                 format = parseDataFormat(attrDef["format"] as? String),
                 required = attrDef["required"] as? Boolean ?: false,
                 unique = attrDef["unique"] as? Boolean ?: false,
-                protected = isIdentifier || (attrDef["protected"] as? Boolean ?: false),
+                protected = true,
                 options = parseSchemaOptions(attrDef["options"]),
             )
 
@@ -528,189 +505,6 @@ class TemplateInstallationService(
         )
     }
 
-    // ------ Bundle Installation Helpers ------
-
-    /**
-     * Loads manifests for the given template keys and merges their entity types,
-     * filtering out entity types that already exist from skipped templates.
-     *
-     * @return the loaded manifests and the deduplicated entity types to create
-     */
-    private fun loadManifestsAndMergeEntityTypes(
-        templatesToInstall: List<String>,
-        skippedEntityIdMap: Map<String, EntityTypeCreationResult>,
-    ): Pair<List<ManifestDetail>, List<CatalogEntityTypeModel>> {
-        val manifests = templatesToInstall.map { key ->
-            catalogService.getManifestByKey(key, ManifestType.TEMPLATE)
-        }
-        val allEntityTypes = mergeAndDeduplicateEntityTypes(manifests)
-            .filter { it.key !in skippedEntityIdMap }
-        return manifests to allEntityTypes
-    }
-
-    /** Gathers relationships and entity types from all manifests and creates them. */
-    private fun prepareAndCreateRelationships(
-        workspaceId: UUID,
-        manifests: List<ManifestDetail>,
-        mergedIdMap: Map<String, EntityTypeCreationResult>,
-    ): Int {
-        val allRelationships = manifests.flatMap { it.relationships }
-        val allCatalogEntityTypes = manifests.flatMap { it.entityTypes }
-        return createRelationships(workspaceId, allRelationships, allCatalogEntityTypes, mergedIdMap)
-    }
-
-    /** Records a template installation entry for each template in the bundle. */
-    private fun recordBundleTemplateInstallations(
-        workspaceId: UUID,
-        manifests: List<ManifestDetail>,
-        templatesToInstall: List<String>,
-        mergedIdMap: Map<String, EntityTypeCreationResult>,
-        userId: UUID,
-    ) {
-        val manifestsByKey = manifests.associateBy { it.key }
-        for (templateKey in templatesToInstall) {
-            val templateEntityKeys = manifestsByKey[templateKey]?.entityTypes?.map { it.key }?.toSet() ?: emptySet()
-            val templateScopedMappings = mergedIdMap.filterKeys { it in templateEntityKeys }
-            recordTemplateInstallation(workspaceId, templateKey, userId, templateScopedMappings)
-        }
-    }
-
-    private fun buildBundleResponse(
-        bundleKey: String,
-        bundle: BundleDetail,
-        templatesToInstall: List<String>,
-        templatesToSkip: List<String>,
-        creationResults: Map<String, EntityTypeCreationResult>,
-        relationshipsCreated: Int,
-    ): BundleInstallationResponse {
-        return BundleInstallationResponse(
-            bundleKey = bundleKey,
-            bundleName = bundle.name,
-            templatesInstalled = templatesToInstall,
-            templatesSkipped = templatesToSkip,
-            entityTypesCreated = creationResults.size,
-            relationshipsCreated = relationshipsCreated,
-            entityTypes = creationResults.values.map { result ->
-                CreatedEntityTypeSummary(
-                    id = result.entityTypeId,
-                    key = result.key,
-                    displayName = result.displayName,
-                    attributeCount = result.attributeCount,
-                )
-            },
-        )
-    }
-
-    /**
-     * Partitions template keys into install vs skip sets based on workspace_template_installations.
-     */
-    private fun partitionTemplatesByInstallationStatus(
-        workspaceId: UUID,
-        templateKeys: List<String>,
-    ): Pair<List<String>, List<String>> {
-        val existing = installationRepository.findByWorkspaceIdAndManifestKeyIn(workspaceId, templateKeys)
-        val installedKeys = existing.map { it.manifestKey }.toSet()
-        val toInstall = templateKeys.filter { it !in installedKeys }
-        val toSkip = templateKeys.filter { it in installedKeys }
-        return toInstall to toSkip
-    }
-
-    /**
-     * For skipped templates, resolves their entity type IDs from the workspace so that
-     * cross-template relationships can reference already-created entity types.
-     */
-    private fun resolveExistingEntityTypeIds(
-        workspaceId: UUID,
-        skippedTemplateKeys: List<String>,
-    ): Map<String, EntityTypeCreationResult> {
-        if (skippedTemplateKeys.isEmpty()) return emptyMap()
-
-        val skippedManifests = skippedTemplateKeys.map { key ->
-            catalogService.getManifestByKey(key, ManifestType.TEMPLATE)
-        }
-        val allEntityTypeKeys = skippedManifests.flatMap { m -> m.entityTypes.map { it.key } }
-
-        val existingEntities = entityTypeRepository.findByworkspaceIdAndKeyIn(workspaceId, allEntityTypeKeys)
-        val entityByKey = existingEntities.associateBy { it.key }
-
-        val results = mutableMapOf<String, EntityTypeCreationResult>()
-        for (key in allEntityTypeKeys) {
-            val entity = requireNotNull(entityByKey[key]) {
-                "Entity type '$key' is declared in a previously installed template but does not exist in workspace $workspaceId"
-            }
-            val entityId = requireNotNull(entity.id) {
-                "Entity type '$key' exists in workspace $workspaceId but has a null ID"
-            }
-
-            results[key] = EntityTypeCreationResult(
-                entityTypeId = entityId,
-                attributeKeyMap = emptyMap(),
-                attributeCount = entity.schema.properties?.size ?: 0,
-                displayName = entity.displayNameSingular,
-                key = key,
-            )
-        }
-        return results
-    }
-
-    /**
-     * Merges entity types from all manifests, deduplicating by key.
-     * When the same entity type key appears in multiple templates, schemas are merged
-     * additively — attributes from later templates are added to the first occurrence.
-     * Conflicting attribute definitions (same key, different definition) use first-wins
-     * with a WARN log.
-     */
-    private fun mergeAndDeduplicateEntityTypes(
-        manifests: List<ManifestDetail>,
-    ): List<CatalogEntityTypeModel> {
-        val mergedByKey = mutableMapOf<String, CatalogEntityTypeModel>()
-        for (manifest in manifests) {
-            for (entityType in manifest.entityTypes) {
-                val existing = mergedByKey[entityType.key]
-                if (existing == null) {
-                    mergedByKey[entityType.key] = entityType
-                } else {
-                    mergedByKey[entityType.key] = mergeEntityTypeSchemas(existing, entityType)
-                }
-            }
-        }
-        return mergedByKey.values.toList()
-    }
-
-    /**
-     * Merges two catalog entity types with the same key by consolidating their schemas
-     * and semantic metadata. Attributes from the incoming type are added to the base if
-     * not already present. Conflicting definitions (same attribute key, different definition)
-     * keep the base version (first wins) and log a warning.
-     */
-    private fun mergeEntityTypeSchemas(
-        base: CatalogEntityTypeModel,
-        incoming: CatalogEntityTypeModel,
-    ): CatalogEntityTypeModel {
-        val mergedSchema = base.schema.toMutableMap()
-        for ((attrKey, attrDef) in incoming.schema) {
-            val existingDef = mergedSchema[attrKey]
-            if (existingDef == null) {
-                mergedSchema[attrKey] = attrDef
-            } else if (existingDef != attrDef) {
-                logger.warn { "Attribute conflict on entity type '${base.key}', attribute '$attrKey': keeping first definition, ignoring incoming" }
-            }
-        }
-
-        val existingMetadataKeys = base.semanticMetadata
-            .map { it.targetType to it.targetId }
-            .toSet()
-        val additionalMetadata = incoming.semanticMetadata.filter { meta ->
-            (meta.targetType to meta.targetId) !in existingMetadataKeys
-        }
-        val mergedMetadata = base.semanticMetadata + additionalMetadata
-
-        return base.copy(
-            schema = mergedSchema,
-            semanticMetadata = mergedMetadata,
-        )
-    }
-
     /**
      * Records a template installation for idempotency tracking.
      * Stores attribute key mappings for idempotent re-installation and key traceability.
@@ -737,30 +531,6 @@ class TemplateInstallationService(
         } catch (e: DataIntegrityViolationException) {
             throw ConflictException("Template '$templateKey' is already installed in workspace $workspaceId")
         }
-    }
-
-    private fun logBundleActivity(
-        userId: UUID,
-        workspaceId: UUID,
-        bundleKey: String,
-        bundle: BundleDetail,
-        creationResults: Map<String, EntityTypeCreationResult>,
-        templatesInstalled: List<String>,
-        templatesSkipped: List<String>,
-    ) {
-        activityService.log(
-            activity = Activity.TEMPLATE,
-            operation = OperationType.CREATE,
-            userId = userId,
-            workspaceId = workspaceId,
-            entityType = ApplicationEntityType.ENTITY_TYPE,
-            entityId = null,
-            "bundleKey" to bundleKey,
-            "bundleName" to bundle.name,
-            "templatesInstalled" to templatesInstalled,
-            "templatesSkipped" to templatesSkipped,
-            "entityTypesCreated" to creationResults.size,
-        )
     }
 
     // ------ Schema Parsing Helpers ------

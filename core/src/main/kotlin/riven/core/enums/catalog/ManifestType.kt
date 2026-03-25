@@ -4,5 +4,4 @@ enum class ManifestType {
     MODEL,
     TEMPLATE,
     INTEGRATION,
-    BUNDLE
 }

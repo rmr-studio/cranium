@@ -60,7 +60,8 @@ export function AtmosphericOrbs({ variant = 'outer', orbs, opacity, className }:
 
   return (
     <div
-      className={cn('pointer-events-none absolute inset-0 hidden overflow-hidden lg:block', opacity && `opacity-${opacity}`, className)}
+      className={cn('pointer-events-none absolute inset-0 hidden overflow-hidden lg:block', className)}
+      style={opacity ? { opacity: opacity / 100 } : undefined}
       aria-hidden="true"
     >
       {items.map((orb, i) => (

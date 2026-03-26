@@ -12,18 +12,12 @@ create table if not exists public.waitlist_submissions (
   created_at  timestamptz not null default now()
 );
 
--- RLS: anon users can insert (signup) and update their own row (survey step)
+-- RLS: anon users can insert (signup uses upsert to handle survey updates)
 alter table public.waitlist_submissions enable row level security;
 
 create policy "Anyone can join the waitlist"
   on public.waitlist_submissions for insert
   to anon
-  with check (true);
-
-create policy "Users can update their own submission by email"
-  on public.waitlist_submissions for update
-  to anon
-  using (true)
   with check (true);
 
 -- Index for email lookups (unique constraint already creates one, but explicit for clarity)

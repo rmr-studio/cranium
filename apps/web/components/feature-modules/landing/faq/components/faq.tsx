@@ -16,7 +16,7 @@ interface Question {
 const FAQ: Question[] = [
   {
     question: 'What is a customer lifecycle intelligence platform?',
-    answer: `From marketing, to sales, to product usage, to support, and to the moment your customer picks ups their stuff and leaves. Each of these tools sees will only even see it's own slice. Stripe sees payments, Intercom sees tickets, Google Ads sees clicks. Nobody sees the whole customer.
+    answer: `From marketing, to sales, to product usage, to support, and to the moment your customer picks up their stuff and leaves. Each of these tools will only ever see its own slice. Stripe sees payments, Intercom sees tickets, Google Ads sees clicks. Nobody sees the whole customer.
     A customer lifecycle intelligence platform connects all of them so you can follow someone from the ad they clicked
     to the subscription they cancelled. Riven does that, and gives your team a workspace to do something about what it finds.`,
   },

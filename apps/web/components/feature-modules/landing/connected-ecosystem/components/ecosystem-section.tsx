@@ -13,7 +13,7 @@ export function ConnectedEcosystem() {
             </div>
           </SectionDivider>
 
-          <div className="mx-w-4xl mx-auto text-center xl:max-w-6xl">
+          <div className="max-w-4xl mx-auto text-center xl:max-w-6xl">
             <h2 className="text-3xl leading-[1.2] -tracking-[0.02em] text-primary md:text-4xl lg:text-5xl">
               <span className="font-sans font-semibold">Your tools know more than </span>{' '}
               <span className="font-serif font-normal italic">what they are telling you.</span>

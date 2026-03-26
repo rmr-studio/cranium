@@ -1,3 +1,5 @@
+'use client';
+
 import { Sparkles } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 
@@ -20,7 +22,7 @@ export const MockKnowledgePanel: FC<Props> = ({ scenario, className }) => {
       )}
     >
       {/* Breadcrumb */}
-      <div className="border-b border-border px-5 pt-4 pb-1.5 pb-3 text-muted-foreground/60">
+      <div className="border-b border-border px-5 pt-4 pb-3 text-muted-foreground/60">
         <MockBreadcrumb items={['Workspace', 'Knowledge Base']} />
       </div>
 

@@ -37,7 +37,7 @@ const spaceMono = Space_Mono({
 
 const SITE_TITLE = 'Riven — Customer Lifecycle Intelligence for Growing Teams';
 const SITE_DESCRIPTION =
-  'One workspace that your customer lifecycle stack. From marketing to CRMs to payments, analytics and support. Cross-domain intelligence surfaces churn risks, hidden patterns, and growth opportunities no single tool can see. Query across every platform in plain English, tag and track accounts, and act on insights without leaving the tab.';
+  'One workspace for your customer lifecycle stack. From marketing to CRMs to payments, analytics and support. Cross-domain intelligence surfaces churn risks, hidden patterns, and growth opportunities no single tool can see. Query across every platform in plain English, tag and track accounts, and act on insights without leaving the tab.';
 
 const ogImage = process.env.NEXT_PUBLIC_CDN_URL
   ? `${process.env.NEXT_PUBLIC_CDN_URL}/images/og-image.png`

@@ -9,7 +9,7 @@ import { Layers, Rocket, Target, TrendingUp, Users, Zap } from 'lucide-react';
 const BUSINESS_TYPE_ITEMS = [
   {
     label: 'B2C SaaS',
-    description: 'Eleviate churn rates, boost retention, and grow your recurring revenue.',
+    description: 'Elevate churn rates, boost retention, and grow your recurring revenue.',
     href: '/solutions/agencies',
     icon: Users,
   },

@@ -49,7 +49,8 @@ function parseFrontmatter(filePath: string): { meta: BlogPostMeta; content: stri
     };
 
     return { meta, content };
-  } catch {
+  } catch (error) {
+    console.error(`Failed to parse frontmatter for ${filePath}:`, error);
     return null;
   }
 }
@@ -69,6 +70,7 @@ export async function getAllPosts(): Promise<BlogPostMeta[]> {
 }
 
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+  if (!/^[a-zA-Z0-9_-]+$/.test(slug)) return null;
   const filePath = path.join(CONTENT_DIR, `${slug}.mdx`);
   const parsed = parseFrontmatter(filePath);
   if (!parsed) return null;

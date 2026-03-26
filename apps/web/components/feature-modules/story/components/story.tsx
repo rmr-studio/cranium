@@ -38,7 +38,7 @@ export const Story = () => {
         >
           <Link
             href={'/resources/blog/why-i-am-building-riven'}
-            className="w- z-20 flex items-center gap-3 rounded-sm px-2.5 py-1.5 transition-colors"
+            className="z-20 flex items-center gap-3 rounded-sm px-2.5 py-1.5 transition-colors"
           >
             <BookOpen className="size-6 text-white" />
 

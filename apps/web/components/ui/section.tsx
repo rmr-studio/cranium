@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils';
 import React from 'react';
 import { BGPattern, BGPatternProps } from './background/grids';
 
-interface Props extends React.SelectHTMLAttributes<HTMLDivElement> {
+interface Props extends React.HTMLAttributes<HTMLDivElement> {
   id?: string;
   className?: string;
   variant?: BGPatternProps['variant'];

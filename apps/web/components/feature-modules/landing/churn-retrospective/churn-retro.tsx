@@ -31,7 +31,7 @@ export const ChurnRetrospective = () => {
         <div className="space-y-10 md:space-y-14">
           <SectionDivider>Churn Retrospectives</SectionDivider>
 
-          <div className="mx-w-4xl px-4 sm:px-8 xl:max-w-6xl">
+          <div className="max-w-4xl px-4 sm:px-8 xl:max-w-6xl">
             <h2 className="font-sans text-3xl tracking-tighter text-primary md:text-4xl lg:text-5xl">
               Every problem leaves a trace.{' '}
               <span className="font-serif font-normal italic">Find the trail.</span>

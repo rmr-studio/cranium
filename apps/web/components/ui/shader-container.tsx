@@ -43,7 +43,14 @@ const defaultShaders: Record<string, ShaderColors> = {
 
 /** Builds a CSS gradient fallback from a ShaderColors config. */
 function buildFallbackGradient(colors: ShaderColors, rotation = 304): string {
-  return `linear-gradient(${rotation}deg, ${colors.colors[0]} 0%, ${colors.colors[1]} 40%, ${colors.colors[2]} 100%)`;
+  const c = colors.colors;
+  if (c.length >= 3) {
+    return `linear-gradient(${rotation}deg, ${c[0]} 0%, ${c[1]} 40%, ${c[2]} 100%)`;
+  }
+  if (c.length === 2) {
+    return `linear-gradient(${rotation}deg, ${c[0]} 0%, ${c[1]} 100%)`;
+  }
+  return `linear-gradient(${rotation}deg, ${c[0] || colors.base} 0%, ${colors.base} 100%)`;
 }
 
 interface ShaderContainerProps {

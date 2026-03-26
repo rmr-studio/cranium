@@ -43,7 +43,7 @@ Orchestrates template and bundle installation into workspaces — reads fully-re
 
 ## Used By
 
-- [[TemplateController]] — delegates template and bundle installation requests
+- `WorkspaceController` ([[Workspaces & Users]] domain) — delegates template installation via `POST /api/v1/workspace/{workspaceId}/install-template`
 - [[OnboardingService]] — installs templates and bundles during onboarding via `installTemplateInternal` and `installBundleInternal`
 
 ---
@@ -145,6 +145,16 @@ Internal method without `@PreAuthorize` — used by [[OnboardingService]] when t
 ## Related
 
 - [[ManifestCatalogService]] — provides the fully-hydrated template/bundle definitions
-- [[TemplateController]] — REST endpoint delegation
+- `WorkspaceController` ([[Workspaces & Users]]) — REST endpoint delegation
 - [[WorkspaceTemplateInstallationEntity]] — installation tracking entity
+---
+
+## Recent Changes
+
+| Date | Change | Feature/ADR |
+| ---- | ------ | ----------- |
+| 2026-03-26 | TemplateController removed — service now called from WorkspaceController. BUNDLE manifest type removed from catalog; bundle installation methods may be deprecated. | Lifecycle Spine |
+
+---
+
 - [[Template Installation]] — parent subdomain

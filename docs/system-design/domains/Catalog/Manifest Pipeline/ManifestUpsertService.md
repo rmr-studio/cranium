@@ -43,6 +43,7 @@ Idempotent persistence layer for resolved manifests. Upserts the catalog entry k
 
 - [[ManifestLoaderService]] — calls `upsertManifest()` for each resolved manifest during the loading pipeline
 - [[ManifestLoaderService]] — calls `upsertBundle()` for each resolved bundle during the loading pipeline
+- [[CoreModelCatalogService]] — calls `upsertManifest()` for each Kotlin-defined core model set during boot-time catalog population
 
 ---
 
@@ -125,6 +126,14 @@ Persists a resolved bundle to the catalog. Bundles have no child rows — only t
 - **Stale manifests skip children entirely:** A stale manifest only updates the catalog row (`stale = true`, touched `lastLoadedAt`). No child rows are created or deleted. This means a previously non-stale manifest that becomes stale retains its last-known child rows until it becomes non-stale again.
 - **Content hash is null for stale manifests:** `computeContentHash()` is only called when `resolved.stale == false`. Stale catalog entries store `contentHash = null`, so the next non-stale load will always trigger a full reconciliation.
 - **Bundles have no children:** Unlike template/model/integration manifests, bundles only persist a catalog row with a `templateKeys` JSONB array. There is no cascading delete or child reconciliation for bundles.
+
+---
+
+## Recent Changes
+
+| Date | Change | Feature/ADR |
+| ---- | ------ | ----------- |
+| 2026-03-26 | Added as shared persistence target for both JSON manifest pipeline and Kotlin core model pipeline | Lifecycle Spine |
 
 ---
 

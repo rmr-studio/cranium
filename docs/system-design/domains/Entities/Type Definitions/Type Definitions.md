@@ -37,3 +37,4 @@ Manages entity type schemas — creating types, defining attributes (with proper
 | 2026-02-21 | EntityTypeService updated — removed DiffService and ImpactAnalysisService dependencies, added direct repository access for relationship definition management | Entity Relationships |
 | 2026-03-01 | EntityTypeService and EntityTypeController updated — `description` replaced with `semanticGroup`, `?include=semantics` removed (always loaded), EntityTypeRepository documented with semantic group projection query | Semantic Entity Groups |
 | 2025-07-17 | Integration enablement: readonly guards on schema mutations, batch soft-delete/restore by integration ID, integration-scoped repository queries | Integration Enablement |
+| 2026-03-26 | lifecycle_domain (LifecycleDomain enum) added to EntityTypeEntity — lifecycle stage classification for entity types | Lifecycle Spine |

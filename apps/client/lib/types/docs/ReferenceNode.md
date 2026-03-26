@@ -8,8 +8,8 @@ Reference node containing a block with entity or block tree references
 Name | Type
 ------------ | -------------
 `block` | [Block](Block.md)
-`type` | [NodeType](NodeType.md)
 `warnings` | Array&lt;string&gt;
+`type` | [NodeType](NodeType.md)
 `reference` | [ReferenceNodeAllOfReference1](ReferenceNodeAllOfReference1.md)
 
 ## Example
@@ -20,8 +20,8 @@ import type { ReferenceNode } from ''
 // TODO: Update the object below with actual values
 const example = {
   "block": null,
-  "type": null,
   "warnings": null,
+  "type": null,
   "reference": null,
 } satisfies ReferenceNode
 

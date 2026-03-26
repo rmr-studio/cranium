@@ -4,6 +4,7 @@ import riven.core.enums.workspace.WorkspaceDisplay
 import riven.core.enums.workspace.WorkspaceRoles
 import riven.core.models.user.UserDisplay
 import riven.core.models.workspace.WorkspaceMember
+import riven.core.util.AvatarUrlResolver
 import java.time.Instant
 import java.time.ZoneId
 import java.util.*
@@ -37,13 +38,13 @@ fun UserWorkspaceMembershipProjection.toWorkspaceMember(): WorkspaceMember {
         workspace = WorkspaceDisplay(
             id = getWorkspaceId(),
             name = getWorkspaceName(),
-            avatarUrl = getWorkspaceAvatarUrl()
+            avatarUrl = AvatarUrlResolver.workspaceAvatarUrl(getWorkspaceId(), getWorkspaceAvatarUrl())
         ),
         user = UserDisplay(
             id = getUserId(),
             email = getUserEmail(),
             name = getUserName(),
-            avatarUrl = getUserAvatarUrl()
+            avatarUrl = AvatarUrlResolver.userAvatarUrl(getUserId(), getUserAvatarUrl())
         ),
         role = WorkspaceRoles.valueOf(getRole()),
         memberSince = getMemberSince().atZone(ZoneId.systemDefault())

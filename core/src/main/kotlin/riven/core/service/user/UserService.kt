@@ -1,13 +1,13 @@
 package riven.core.service.user
 
 import io.github.oshai.kotlinlogging.KLogger
-import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import riven.core.entity.user.UserEntity
 import riven.core.enums.storage.StorageDomain
 import riven.core.exceptions.NotFoundException
+import riven.core.models.request.user.SaveUserRequest
 import riven.core.models.user.User
 import riven.core.projection.user.toWorkspaceMember
 import riven.core.repository.user.UserRepository
@@ -101,39 +101,40 @@ class UserService(
     }
 
     /**
-     * Update the current session user's profile with the provided user details.
+     * Update the current session user's profile with the provided request fields.
      *
-     * Validates that the session user ID matches `user.id`, applies the updatable fields to the persisted entity,
-     * saves the entity, and returns the updated model.
-     *
-     * @param user The user model containing updated fields; `user.id` must match the authenticated session user ID.
-     * @return The updated `User` model reflecting persisted changes.
-     * @throws NotFoundException if no persisted user exists with `user.id`.
-     * @throws AccessDeniedException if the session user ID does not match `user.id`.
-     * @throws IllegalArgumentException for invalid arguments propagated from repository operations.
+     * @param request The request containing updated profile fields.
+     * @param avatar Optional new avatar file to upload.
+     * @return The updated User model.
      */
     @Throws(NotFoundException::class, IllegalArgumentException::class)
-    fun updateUserDetails(user: User, avatar: MultipartFile? = null): User {
+    fun updateUserDetails(request: SaveUserRequest, avatar: MultipartFile? = null): User {
         val sessionUserId = authTokenService.getUserId()
-        if (sessionUserId != user.id) {
-            throw AccessDeniedException("Session user ID does not match provided user ID")
-        }
+        val entity = findOrThrow { repository.findById(sessionUserId) }
+        val previousAvatarKey = entity.avatarUrl
 
-        val entity = findOrThrow { repository.findById(user.id) }.apply {
-            name = user.name
-            email = user.email
-            phone = user.phone
-            avatarUrl = user.avatarUrl
-            onboardingCompletedAt = user.onboardingCompletedAt ?: onboardingCompletedAt
+        entity.apply {
+            name = request.name
+            email = request.email
+            phone = request.phone
+            onboardingCompletedAt = request.onboardingCompletedAt ?: onboardingCompletedAt
 
-            // Update default workspace if provided
-            defaultWorkspace = user.defaultWorkspace?.id?.let { workspaceId ->
+            defaultWorkspace = request.defaultWorkspaceId?.let { workspaceId ->
                 findOrThrow { workspaceRepository.findById(workspaceId) }
             }
         }
 
+        if (request.removeAvatar) {
+            entity.avatarUrl = null
+        }
+
         avatar?.let { file ->
             entity.avatarUrl = storageService.uploadUserFile(sessionUserId, StorageDomain.AVATAR, file)
+        }
+
+        // Delete old avatar from storage if it was removed or replaced
+        if (previousAvatarKey != null && previousAvatarKey != entity.avatarUrl) {
+            storageService.deleteByStorageKey(previousAvatarKey)
         }
 
         repository.save(entity)

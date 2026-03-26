@@ -250,7 +250,7 @@ async function example() {
   const api = new UserApi(config);
 
   const body = {
-    // User
+    // SaveUserRequest
     user: ...,
     // Blob (optional)
     avatar: BINARY_DATA_HERE,
@@ -273,7 +273,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **user** | [User](User.md) |  | [Defaults to `undefined`] |
+| **user** | [SaveUserRequest](SaveUserRequest.md) |  | [Defaults to `undefined`] |
 | **avatar** | `Blob` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
@@ -295,7 +295,6 @@ example().catch(console.error);
 |-------------|-------------|------------------|
 | **200** | User profile updated successfully |  -  |
 | **401** | Unauthorized access |  -  |
-| **403** | User ID in request does not match session user |  -  |
 | **404** | User not found |  -  |
 | **400** | Invalid request data |  -  |
 

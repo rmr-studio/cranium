@@ -1,62 +1,67 @@
-import { Icon, IconColour, IconType, SchemaOptions, SchemaType, OptionSortingType } from "@/lib/types/common";
 import {
-    EntityAttributeDefinition,
-    EntityType,
-    EntityTypeRequestDefinition,
-    EntityTypeSemanticMetadata,
-    SaveAttributeDefinitionRequest,
-    SaveTypeDefinitionRequest,
-    SemanticAttributeClassification,
-} from "@/lib/types/entity";
-import { attributeTypes } from "@/lib/util/form/schema.util";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback, useEffect } from "react";
-import { useForm, UseFormReturn } from "react-hook-form";
-import { z } from "zod";
-import { useSaveDefinitionMutation } from "../../mutation/type/use-save-definition-mutation";
-import { uuid } from "@/lib/util/utils";
+  IconColour,
+  IconType,
+  OptionSortingType,
+  SchemaOptions,
+  SchemaType,
+} from '@/lib/types/common';
+import {
+  EntityAttributeDefinition,
+  EntityType,
+  EntityTypeRequestDefinition,
+  EntityTypeSemanticMetadata,
+  SaveAttributeDefinitionRequest,
+  SaveTypeDefinitionRequest,
+  SemanticAttributeClassification,
+} from '@/lib/types/entity';
+import { attributeTypes } from '@/lib/util/form/schema.util';
+import { uuid } from '@/lib/util/utils';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useCallback, useEffect } from 'react';
+import { useForm, UseFormReturn } from 'react-hook-form';
+import { z } from 'zod';
+import { useSaveDefinitionMutation } from '../../mutation/type/use-save-definition-mutation';
 
 // Zod schema
 const iconSchema = z.object({
-    type: z.nativeEnum(IconType),
-    colour: z.nativeEnum(IconColour),
+  type: z.nativeEnum(IconType),
+  colour: z.nativeEnum(IconColour),
 });
 
 export const attributeFormSchema = z
-    .object({
-        selectedType: z.nativeEnum(SchemaType),
-        name: z.string().min(1, "Name is required"),
-        icon: iconSchema,
-        required: z.boolean(),
-        unique: z.boolean(),
-        // Attribute Schema options
-        enumValues: z.array(z.string()).optional().nullable(),
-        enumSorting: z.nativeEnum(OptionSortingType).optional().nullable(),
-        minimum: z.coerce.number().optional().nullable(),
-        maximum: z.coerce.number().optional().nullable(),
-        minLength: z.coerce.number().min(0).optional().nullable(),
-        maxLength: z.coerce.number().min(0).optional().nullable(),
-        regex: z.string().optional().nullable(),
-        // Semantic context fields
-        classification: z.nativeEnum(SemanticAttributeClassification).optional().nullable(),
-        definition: z.string().optional().nullable(),
-    })
-    .refine(
-        (data) => {
-            // If selectedType is select or multi-select, at least 2 enum values must be provided
-            if (
-                data.selectedType === SchemaType.Select ||
-                data.selectedType === SchemaType.MultiSelect
-            ) {
-                return data.enumValues && data.enumValues.length >= 2;
-            }
-            return true;
-        },
-        {
-            message: "At least 2 options are required for select and multi-select types",
-            path: ["enumValues"], // Attach error to the enumValues field
-        }
-    );
+  .object({
+    selectedType: z.nativeEnum(SchemaType),
+    name: z.string().min(1, 'Name is required'),
+    icon: iconSchema,
+    required: z.boolean(),
+    unique: z.boolean(),
+    // Attribute Schema options
+    enumValues: z.array(z.string()).optional().nullable(),
+    enumSorting: z.nativeEnum(OptionSortingType).optional().nullable(),
+    minimum: z.coerce.number().optional().nullable(),
+    maximum: z.coerce.number().optional().nullable(),
+    minLength: z.coerce.number().min(0).optional().nullable(),
+    maxLength: z.coerce.number().min(0).optional().nullable(),
+    regex: z.string().optional().nullable(),
+    // Default value for backfilling when toggling required on existing attributes
+    defaultValue: z.any().optional().nullable(),
+    // Semantic context fields
+    classification: z.nativeEnum(SemanticAttributeClassification).optional().nullable(),
+    definition: z.string().optional().nullable(),
+  })
+  .refine(
+    (data) => {
+      // If selectedType is select or multi-select, at least 2 enum values must be provided
+      if (data.selectedType === SchemaType.Select || data.selectedType === SchemaType.MultiSelect) {
+        return data.enumValues && data.enumValues.length >= 2;
+      }
+      return true;
+    },
+    {
+      message: 'At least 2 options are required for select and multi-select types',
+      path: ['enumValues'], // Attach error to the enumValues field
+    },
+  );
 
 export interface useEntityTypeAttributeSchemaFormReturn {
   form: UseFormReturn<AttributeFormValues>;
@@ -77,27 +82,28 @@ export function useEntityTypeAttributeSchemaForm(
   attribute?: EntityAttributeDefinition,
   semanticMetadata?: EntityTypeSemanticMetadata,
 ): useEntityTypeAttributeSchemaFormReturn {
-    // Always start form as blank, this is because we would want it to reset to blank when a dialogue is re-opened.
-    // Regardless of selected attribute, or previous changes.
-    const form = useForm<AttributeFormValues>({
-        resolver: zodResolver(attributeFormSchema),
-        defaultValues: {
-            selectedType: SchemaType.Text,
-            name: "",
-            icon: attributeTypes[SchemaType.Text].icon,
-            required: false,
-            unique: false,
-            enumValues: [],
-            enumSorting: OptionSortingType.Manual,
-            minimum: undefined,
-            maximum: undefined,
-            minLength: undefined,
-            maxLength: undefined,
-            regex: undefined,
-            classification: undefined,
-            definition: undefined,
-        },
-    });
+  // Always start form as blank, this is because we would want it to reset to blank when a dialogue is re-opened.
+  // Regardless of selected attribute, or previous changes.
+  const form = useForm<AttributeFormValues>({
+    resolver: zodResolver(attributeFormSchema),
+    defaultValues: {
+      selectedType: SchemaType.Text,
+      name: '',
+      icon: attributeTypes[SchemaType.Text].icon,
+      required: false,
+      unique: false,
+      enumValues: [],
+      enumSorting: OptionSortingType.Manual,
+      minimum: undefined,
+      maximum: undefined,
+      minLength: undefined,
+      maxLength: undefined,
+      regex: undefined,
+      defaultValue: undefined,
+      classification: null,
+      definition: null,
+    },
+  });
 
   // Determines if we are currently editing an existing attribute
   const isEditMode = Boolean(attribute);
@@ -130,13 +136,17 @@ export function useEntityTypeAttributeSchemaForm(
     }
   }, [currentType, isEditMode]);
 
-  // When the dialogue is opened for editing, populate the form with existing attribute data, or blank for new attribute
+  // Populate form when opened for editing, or reset when closed
   useEffect(() => {
-    if (!open || !attribute) return;
+    if (!open) {
+      form.reset();
+      return;
+    }
+
+    if (!attribute) return;
 
     const { schema } = attribute;
 
-    // Parse Attribute Payload
     const attributeType = attributeTypes[schema.key];
     if (!attributeType) return;
 
@@ -153,16 +163,11 @@ export function useEntityTypeAttributeSchemaForm(
       minLength: schema.options?.minLength,
       maxLength: schema.options?.maxLength,
       regex: schema.options?.regex,
-      classification: semanticMetadata?.classification ?? undefined,
-      definition: semanticMetadata?.definition ?? undefined,
+      defaultValue: schema.options?._default ?? undefined,
+      classification: semanticMetadata?.classification ?? null,
+      definition: semanticMetadata?.definition ?? null,
     });
   }, [open, attribute, semanticMetadata]);
-
-  useEffect(() => {
-    if (!open) {
-      form.reset();
-    }
-  }, [open]);
 
   const { mutateAsync: saveDefinition } = useSaveDefinitionMutation(workspaceId, undefined, {
     onSuccess: () => {
@@ -185,6 +190,7 @@ export function useEntityTypeAttributeSchemaForm(
         minLength: values.minLength ?? undefined,
         maxLength: values.maxLength ?? undefined,
         regex: values.regex ?? undefined,
+        _default: values.defaultValue != null ? values.defaultValue : undefined,
       };
 
       const hasSemantics = values.classification || values.definition;

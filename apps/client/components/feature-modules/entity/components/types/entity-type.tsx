@@ -1,11 +1,11 @@
 'use client';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Form } from '@/components/ui/form';
+import { DataType, SchemaType } from '@/lib/types/common';
+import { SystemRelationshipType, type EntityType } from '@/lib/types/entity';
 import { Badge } from '@riven/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@riven/ui/tabs';
-import { Form } from '@/components/ui/form';
-import { DataType } from '@/lib/types/common';
-import { type EntityType } from '@/lib/types/entity';
 import { AlertCircle } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { FC, useEffect, useMemo, useState } from 'react';
@@ -81,6 +81,7 @@ export const EntityTypeOverview: FC<EntityTypeOverviewProps> = ({ entityType }) 
         ([, attr]) =>
           attr.unique &&
           attr.required &&
+          attr.key !== SchemaType.Id &&
           (attr.type === DataType.String || attr.type === DataType.Number),
       )
       .map(([id, attr]) => ({
@@ -88,6 +89,18 @@ export const EntityTypeOverview: FC<EntityTypeOverviewProps> = ({ entityType }) 
         schema: attr,
       }));
   }, [entityType.schema.properties]);
+
+  const attributeCount = useMemo(() => {
+    const propertyCount = entityType.schema.properties
+      ? Object.keys(entityType.schema.properties).length
+      : 0;
+    const relationshipCount = entityType.relationships
+      ? entityType.relationships.filter(
+          (rel) => rel.systemType != SystemRelationshipType.ConnectedEntities,
+        ).length
+      : 0;
+    return propertyCount + relationshipCount;
+  }, [entityType.schema.properties, entityType.relationships]);
 
   return (
     <>
@@ -125,10 +138,7 @@ export const EntityTypeOverview: FC<EntityTypeOverviewProps> = ({ entityType }) 
               <TabsTrigger value="attributes">
                 <div className="flex items-center gap-2">
                   Attributes
-                  <Badge className="h-4 w-5 border border-border">
-                    {entityType.relationships.length +
-                      Object.keys(entityType.schema.items || {}).length}
-                  </Badge>
+                  <Badge className="h-4 w-5 border border-border">{attributeCount}</Badge>
                 </div>
               </TabsTrigger>
             </TabsList>

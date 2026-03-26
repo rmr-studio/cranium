@@ -91,11 +91,4 @@ data class ManifestCatalogEntity(
         fieldMappings = fieldMappings
     )
 
-    fun toBundleDetail() = BundleDetail(
-        id = id!!,
-        key = key,
-        name = name,
-        description = description,
-        templateKeys = templateKeys ?: emptyList()
-    )
 }

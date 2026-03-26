@@ -75,6 +75,18 @@ export class WorkspaceService {
     }
   }
 
+  static async deleteWorkspace(session: Session | null, workspaceId: string): Promise<void> {
+    try {
+      validateSession(session);
+      validateUuid(workspaceId);
+
+      const workspaceApi = createWorkspaceApi(session);
+      await workspaceApi.deleteWorkspace({ workspaceId });
+    } catch (error) {
+      throw await normalizeApiError(error);
+    }
+  }
+
   static async getWorkspace(session: Session | null, workspaceId: string): Promise<Workspace> {
     try {
       validateSession(session);

@@ -2,6 +2,8 @@ package riven.core.models.common
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver
+import riven.core.configuration.util.CaseInsensitiveTypeIdResolver
 
 /** Simple boolean predicate */
 data class Condition(
@@ -12,7 +14,8 @@ data class Condition(
 
 enum class Op { EXISTS, EQUALS, NOT_EQUALS, GT, GTE, LT, LTE, IN, NOT_IN, EMPTY, NOT_EMPTY }
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "kind")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.PROPERTY, property = "kind")
+@JsonTypeIdResolver(CaseInsensitiveTypeIdResolver::class)
 @JsonSubTypes(
     JsonSubTypes.Type(Operand.Path::class, name = "Path"),
     JsonSubTypes.Type(Operand.Value::class, name = "Value")

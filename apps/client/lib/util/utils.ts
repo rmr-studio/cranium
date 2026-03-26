@@ -174,6 +174,18 @@ export function set(obj: any, path: string | Array<string | number>, value: any)
     return obj;
 }
 
+export function splitName(name: string): { firstName: string; lastName: string } {
+    const parts = name.trim().split(/\s+/);
+    return {
+        firstName: parts[0] ?? "",
+        lastName: parts.slice(1).join(" "),
+    };
+}
+
+export function joinName(firstName: string, lastName?: string): string {
+    return [firstName, lastName].filter(Boolean).join(" ");
+}
+
 /**
  * Deep equality check a given object payload
  * Returns true if the objects are deeply equal

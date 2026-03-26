@@ -42,7 +42,7 @@ data class IntegrationConnectionEntity(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
-    var status: ConnectionStatus = ConnectionStatus.PENDING_AUTHORIZATION,
+    var status: ConnectionStatus = ConnectionStatus.CONNECTED,
 
     @Type(JsonBinaryType::class)
     @Column(name = "connection_metadata", columnDefinition = "jsonb")

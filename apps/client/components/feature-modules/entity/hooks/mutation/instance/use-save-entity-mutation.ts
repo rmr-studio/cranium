@@ -1,10 +1,11 @@
 import { useAuth } from '@/components/provider/auth-context';
-import { Entity, SaveEntityRequest, SaveEntityResponse } from '@/lib/types/entity';
-import { useMutation, useQueryClient, type UseMutationOptions } from '@tanstack/react-query';
+import { Entity, EntityQueryResponse, SaveEntityRequest, SaveEntityResponse } from '@/lib/types/entity';
+import { InfiniteData, useMutation, useQueryClient, type UseMutationOptions } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { toast } from 'sonner';
 import { EntityService } from '../../../service/entity.service';
 import { entityKeys } from '@/components/feature-modules/entity/hooks/query/entity-query-keys';
+import { updateEntityInPages, replaceEntitiesInPages } from './entity-cache.utils';
 
 export function useSaveEntityMutation(
   workspaceId: string,
@@ -38,7 +39,11 @@ export function useSaveEntityMutation(
 
       // Handle schema validation or impact confirmation errors
       if (response.errors) {
-        onConflict?.(variables, response);
+        if (onConflict) {
+          onConflict(variables, response);
+        } else {
+          toast.error(`Failed to save entity: ${response.errors.join(', ')}`);
+        }
         return;
       }
 
@@ -46,49 +51,58 @@ export function useSaveEntityMutation(
         const savedEntity = response.entity;
         const isUpdate = !!variables.id;
 
-        // Update the entity in the cache for its entity type
+        // Update infinite query cache (paginated data table)
+        if (isUpdate) {
+          queryClient.setQueriesData<InfiniteData<EntityQueryResponse>>(
+            { queryKey: ['entities', workspaceId, entityTypeId, 'query'] },
+            (oldData) => updateEntityInPages(oldData, savedEntity.id, savedEntity),
+          );
+        }
+
+        // Also update the legacy list cache (used by relationship picker)
         queryClient.setQueryData<Entity[]>(
           entityKeys.entities.list(workspaceId, entityTypeId),
           (currentEntities) => {
             if (!currentEntities) return [savedEntity];
-
             const existingIndex = currentEntities.findIndex((e) => e.id === savedEntity.id);
-
             if (existingIndex >= 0) {
-              // Replace existing entity
               const updated = [...currentEntities];
               updated[existingIndex] = savedEntity;
               return updated;
-            } else {
-              // Append new entity
-              return [...currentEntities, savedEntity];
             }
+            return [...currentEntities, savedEntity];
           },
         );
 
-        // Update any impacted entities in their respective type caches
+        // For new entities, invalidate to refetch from server (server determines sort position)
+        if (!isUpdate) {
+          queryClient.invalidateQueries({
+            queryKey: ['entities', workspaceId, entityTypeId, 'query'],
+          });
+        }
+
+        // Update impacted entities across both cache types
         if (response.impactedEntities) {
           Object.entries(response.impactedEntities).forEach(
             ([impactedTypeId, impactedEntities]) => {
+              // Infinite query cache
+              const replacements = new Map(impactedEntities.map((e) => [e.id, e]));
+              queryClient.setQueriesData<InfiniteData<EntityQueryResponse>>(
+                { queryKey: ['entities', workspaceId, impactedTypeId, 'query'] },
+                (oldData) => replaceEntitiesInPages(oldData, replacements),
+              );
+
+              // Legacy list cache
               queryClient.setQueryData<Entity[]>(
                 entityKeys.entities.list(workspaceId, impactedTypeId),
                 (currentEntities) => {
                   if (!currentEntities) return impactedEntities;
-
                   const updatedEntities = [...currentEntities];
-
                   impactedEntities.forEach((impactedEntity) => {
-                    const existingIndex = updatedEntities.findIndex(
-                      (e) => e.id === impactedEntity.id,
-                    );
-
-                    if (existingIndex >= 0) {
-                      updatedEntities[existingIndex] = impactedEntity;
-                    } else {
-                      updatedEntities.push(impactedEntity);
-                    }
+                    const idx = updatedEntities.findIndex((e) => e.id === impactedEntity.id);
+                    if (idx >= 0) updatedEntities[idx] = impactedEntity;
+                    else updatedEntities.push(impactedEntity);
                   });
-
                   return updatedEntities;
                 },
               );

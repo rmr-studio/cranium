@@ -11,6 +11,7 @@ Name | Type
 `plan` | [WorkspacePlan](WorkspacePlan.md)
 `defaultCurrency` | string
 `isDefault` | boolean
+`removeAvatar` | boolean
 
 ## Example
 
@@ -24,6 +25,7 @@ const example = {
   "plan": null,
   "defaultCurrency": null,
   "isDefault": null,
+  "removeAvatar": null,
 } satisfies SaveWorkspaceRequest
 
 console.log(example)

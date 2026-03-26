@@ -52,9 +52,11 @@ import type {
   ActionColumnConfig,
   ColumnOrderingConfig,
   ColumnResizingConfig,
+  InfiniteScrollConfig,
   RowActionsConfig,
   RowSelectionConfig,
   SearchConfig,
+  ServerSideSortingConfig,
 } from './data-table.types';
 
 // ============================================================================
@@ -102,6 +104,10 @@ export interface DataTableProps<TData, TValue> {
   scrollContainerClassName?: string;
   /** Content rendered inside the scroll container below the table (e.g. "New" row action) */
   footerContent?: ReactNode;
+  /** Infinite scroll configuration — sentinel element triggers loading more data */
+  infiniteScroll?: InfiniteScrollConfig;
+  /** Server-side sorting configuration — disables client-side sort model */
+  serverSideSorting?: ServerSideSortingConfig;
 }
 
 export const DEFAULT_COLUMN_WIDTH = 250;
@@ -232,6 +238,8 @@ export function DataTable<TData, TValue>({
   endOfHeaderContent,
   scrollContainerClassName,
   footerContent,
+  infiniteScroll,
+  serverSideSorting,
 }: DataTableProps<TData, TValue>) {
   // ========================================================================
   // Store State & Actions
@@ -285,6 +293,34 @@ export function DataTable<TData, TValue>({
   // Ref for table container to detect outside clicks
   const tableContainerRef = useRef<HTMLDivElement>(null);
 
+  // Infinite scroll sentinel
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const onLoadMoreRef = useRef(infiniteScroll?.onLoadMore);
+  useEffect(() => {
+    onLoadMoreRef.current = infiniteScroll?.onLoadMore;
+  }, [infiniteScroll?.onLoadMore]);
+
+  useEffect(() => {
+    if (!infiniteScroll?.hasMore || infiniteScroll.isLoadingMore) return;
+
+    const sentinel = sentinelRef.current;
+    const scrollContainer = scrollContainerRef.current;
+    if (!sentinel || !scrollContainer) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          onLoadMoreRef.current?.();
+        }
+      },
+      { root: scrollContainer, rootMargin: '200px' },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [infiniteScroll?.hasMore, infiniteScroll?.isLoadingMore]);
+
   // Derived state
   const { isDragDropEnabled, isSelectionEnabled } = useDerivedState<TData>(
     enableDragDrop,
@@ -304,6 +340,7 @@ export function DataTable<TData, TValue>({
 
     if (showDragHandle) actionColumnWidth += ACTION_ICON_WIDTH;
     if (showCheckbox) actionColumnWidth += ACTION_ICON_WIDTH;
+    if (actionColumnConfig?.renderExtra) actionColumnWidth += ACTION_ICON_WIDTH;
 
     if (actionColumnWidth === 0) return columns;
 
@@ -352,12 +389,28 @@ export function DataTable<TData, TValue>({
     columns: finalColumns,
     getCoreRowModel: getCoreRowModel(),
     ...(enableSorting && {
-      getSortedRowModel: getSortedRowModel(),
-      onSortingChange: setSorting,
+      ...(serverSideSorting?.enabled
+        ? {
+            // Server-side: let parent control sorting, skip client-side sort model
+            manualSorting: true,
+            onSortingChange: (updater: any) => {
+              const newSorting = typeof updater === 'function'
+                ? updater(serverSideSorting.sorting)
+                : updater;
+              serverSideSorting.onSortingChange(newSorting);
+            },
+          }
+        : {
+            // Client-side: use built-in sort model
+            getSortedRowModel: getSortedRowModel(),
+            onSortingChange: setSorting,
+          }),
     }),
     ...((enableFiltering || search?.enabled) && {
       getFilteredRowModel: getFilteredRowModel(),
-      globalFilterFn: stableGlobalFilterFn,
+      ...(search?.serverSide
+        ? {} // server-side search — skip client-side globalFilterFn
+        : { globalFilterFn: stableGlobalFilterFn }),
       filterFns: {
         multiSelect: (row: Row<TData>, columnId: string, filterValue: any[]) => {
           if (!filterValue || filterValue.length === 0) return true;
@@ -397,7 +450,11 @@ export function DataTable<TData, TValue>({
     }),
     getRowId: getRowId,
     state: {
-      ...(enableSorting && { sorting }),
+      ...(enableSorting && {
+        sorting: serverSideSorting?.enabled
+          ? serverSideSorting.sorting
+          : sorting,
+      }),
       ...((enableFiltering || search?.enabled) && { columnFilters }),
       ...(search?.enabled && { globalFilter }),
       ...(columnResizing?.enabled && { columnSizing }),
@@ -717,6 +774,7 @@ export function DataTable<TData, TValue>({
     <div ref={tableContainerRef} className={cn('flex flex-col rounded-t-md', scrollContainerClassName)}>
       {/* Single scroll container for both header and body */}
       <div
+        ref={scrollContainerRef}
         className="min-h-0 flex-1 overflow-auto"
         style={{ scrollbarGutter: 'stable' }}
       >
@@ -749,6 +807,20 @@ export function DataTable<TData, TValue>({
             hasRowActions={hasRowActions}
           />
         </table>
+
+        {/* Infinite scroll sentinel */}
+        {infiniteScroll && (
+          <>
+            {infiniteScroll.isLoadingMore && (
+              <div className="flex justify-center py-3 text-sm text-muted-foreground">
+                Loading more...
+              </div>
+            )}
+            {infiniteScroll.hasMore && (
+              <div ref={sentinelRef} className="h-px" aria-hidden="true" />
+            )}
+          </>
+        )}
       </div>
 
       {/* Fixed footer */}

@@ -51,9 +51,10 @@ class EntityValidationService(
             }
         }
 
-        // Existing schema validation
         val payloadForValidation: Map<String, Any?> =
-            attributes.map { (key, value) -> key.toString() to value.value }.toMap()
+            attributes
+                .filterKeys { key -> entityType.schema.properties?.containsKey(key) != false }
+                .map { (key, value) -> key.toString() to value.value }.toMap()
 
         errors += schemaService.validate(
             schema = entityType.schema,
@@ -217,7 +218,9 @@ class EntityValidationService(
             val entityId = requireNotNull(entity.id)
             val attrs = attributesByEntityId[entityId] ?: emptyMap()
             val payloadForValidation: Map<String, Any?> =
-                attrs.map { (key, value) -> key.toString() to value.value }.toMap()
+                attrs
+                    .filterKeys { key -> newSchema.properties?.containsKey(key) != false }
+                    .map { (key, value) -> key.toString() to value.value }.toMap()
 
             val errors = schemaService.validate(
                 schema = newSchema,

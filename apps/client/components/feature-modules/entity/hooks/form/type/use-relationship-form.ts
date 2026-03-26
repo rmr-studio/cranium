@@ -166,7 +166,6 @@ export function useRelationshipForm(
       semanticDefinition: '',
       sourceLimit,
       targetLimit,
-      allowPolymorphic: relationship.allowPolymorphic,
       targetRules,
     });
   }, [open, relationship, availableTypes]);

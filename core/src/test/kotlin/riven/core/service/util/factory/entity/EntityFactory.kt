@@ -160,6 +160,8 @@ object EntityFactory {
         iconColour: IconColour = IconColour.NEUTRAL,
         iconType: IconType = IconType.FILE,
         sourceType: SourceType = SourceType.USER_CREATED,
+        sourceIntegrationId: UUID? = null,
+        sourceExternalId: String? = null,
     ): EntityEntity {
         return EntityEntity(
             id = id,
@@ -170,6 +172,8 @@ object EntityFactory {
             iconColour = iconColour,
             iconType = iconType,
             sourceType = sourceType,
+            sourceIntegrationId = sourceIntegrationId,
+            sourceExternalId = sourceExternalId,
         )
     }
 }

@@ -212,7 +212,7 @@ sequenceDiagram
 - **Action:** Connection moves to SYNCING while the sync pipeline executes. On completion, transitions to HEALTHY (success) or DEGRADED/FAILED (errors).
 - **Input:** Sync event from webhook or manual trigger
 - **Output:** Updated connection status reflecting sync outcome
-- **Side Effects:** Entity creation/updates via the sync pipeline (schema mapping, identity resolution, provenance tracking)
+- **Side Effects:** Entity creation/updates via the sync pipeline (schema mapping, identity resolution, entity persistence)
 
 ---
 
@@ -266,7 +266,7 @@ sequenceDiagram
 
 - **ADMIN role required.** Only workspace administrators can disconnect integrations. This prevents accidental disconnection by regular members.
 - **Graceful Nango failure handling.** If the Nango API call to delete the connection fails (timeout, 500, network error), the connection is still marked DISCONNECTED locally. The error is logged but does not block the disconnect operation. Rationale: the user's intent is clear (disconnect), and a Nango-side orphaned connection is harmless -- it will not send webhooks to an endpoint that no longer processes them.
-- **Synced entities persist.** Disconnecting an integration does not delete entities that were synced from that integration. Those entities retain their provenance metadata (`source_type`, `source_integration_id`, `source_external_id`) and are marked as stale. This preserves data integrity and prevents accidental data loss.
+- **Synced entities persist.** Disconnecting an integration does not delete entities that were synced from that integration. Those entities retain their source fields (`source_type`, `source_integration_id`, `source_external_id`) and are marked as stale. This preserves data integrity and prevents accidental data loss.
 
 ---
 
@@ -278,7 +278,7 @@ A DISCONNECTED or FAILED connection can be reconnected by transitioning back to 
 2. `ConnectionStatus.canTransitionTo(PENDING_AUTHORIZATION)` validates the transition (valid from both DISCONNECTED and FAILED states).
 3. Connection status updates to PENDING_AUTHORIZATION.
 4. OAuth flow re-initiates through Nango, following the same happy path as initial connection.
-5. On successful reconnection, stale entities from the previous connection period get refreshed as new sync data arrives. Identity resolution re-runs on incoming data, matching to existing entities by provenance (`source_external_id`) or identity signals (email, phone).
+5. On successful reconnection, stale entities from the previous connection period get refreshed as new sync data arrives. Identity resolution re-runs on incoming data, matching to existing entities by unique external identifier (`source_external_id`) or identity signals (email, phone).
 
 ---
 

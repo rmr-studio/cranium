@@ -4,6 +4,7 @@ tags:
   - component/active
   - architecture/component
 Created: 2025-07-17
+Updated: 2026-03-18
 Domains:
   - "[[Integrations]]"
 ---
@@ -13,7 +14,7 @@ Part of [[Enablement]]
 
 ## Purpose
 
-REST controller providing the Integrations domain's HTTP API surface — four endpoints for listing available integrations, checking workspace integration status, and enabling/disabling integrations.
+REST controller providing the Integrations domain's HTTP API surface — three endpoints for listing available integrations, checking workspace integration status, and disabling integrations. The `POST /enable` endpoint was removed in Phase 2 — integration enablement is now webhook-driven via [[NangoWebhookController]].
 
 ---
 
@@ -21,15 +22,14 @@ REST controller providing the Integrations domain's HTTP API surface — four en
 
 - Expose `GET /api/v1/integrations` for listing available integration definitions
 - Expose `GET /api/v1/integrations/{workspaceId}/status` for workspace integration connection status
-- Expose `POST /api/v1/integrations/{workspaceId}/enable` for enabling an integration
 - Expose `POST /api/v1/integrations/{workspaceId}/disable` for disabling an integration
-- Delegate all business logic to [[IntegrationEnablementService]] (enable/disable), [[IntegrationDefinitionService]] (listing), and [[IntegrationConnectionService]] (status)
+- Delegate all business logic to [[IntegrationEnablementService]] (disable), [[IntegrationDefinitionService]] (listing), and [[IntegrationConnectionService]] (status)
 
 ---
 
 ## Dependencies
 
-- [[IntegrationEnablementService]] — Enable/disable orchestration
+- [[IntegrationEnablementService]] — Disable orchestration
 - [[IntegrationDefinitionService]] — Active integration definition listing
 - [[IntegrationConnectionService]] — Workspace connection status queries
 
@@ -37,7 +37,7 @@ REST controller providing the Integrations domain's HTTP API surface — four en
 
 ## Key Logic
 
-Thin controller — delegates entirely to services. No business logic. Uses `@Valid` on enable and disable request bodies.
+Thin controller — delegates entirely to services. No business logic. Uses `@Valid` on the disable request body.
 
 ---
 
@@ -47,14 +47,13 @@ Thin controller — delegates entirely to services. No business logic. Uses `@Va
 |--------|------|-------------|------|
 | GET | `/api/v1/integrations` | List all available integration definitions | Authenticated |
 | GET | `/api/v1/integrations/{workspaceId}/status` | Get integration connection status for workspace | Workspace access |
-| POST | `/api/v1/integrations/{workspaceId}/enable` | Enable an integration for a workspace | Admin role |
 | POST | `/api/v1/integrations/{workspaceId}/disable` | Disable an integration for a workspace | Admin role |
 
 ---
 
 ## Related
 
-- [[IntegrationEnablementService]] — enable/disable business logic
+- [[IntegrationEnablementService]] — disable business logic
 - [[IntegrationDefinitionService]] — integration catalog queries
 - [[IntegrationConnectionService]] — connection status queries
 - [[Enablement]] — parent subdomain
@@ -66,3 +65,8 @@ Thin controller — delegates entirely to services. No business logic. Uses `@Va
 ### 2025-07-17
 
 - Initial implementation — four endpoints for integration listing, status, enable, and disable.
+
+### 2026-03-18
+
+- Removed `POST /enable` endpoint — integration enablement is now webhook-driven via [[NangoWebhookController]]
+- Controller now has three endpoints: list, status, disable

@@ -10,7 +10,6 @@ import riven.core.enums.activity.Activity
 import riven.core.enums.core.ApplicationEntityType
 import riven.core.enums.integration.ConnectionStatus
 import riven.core.enums.util.OperationType
-import riven.core.exceptions.ConflictException
 import riven.core.exceptions.InvalidStateTransitionException
 import riven.core.exceptions.NangoApiException
 import riven.core.exceptions.RateLimitException
@@ -26,9 +25,12 @@ import java.util.*
 /**
  * Service for managing integration connection lifecycle.
  *
- * Enforces the 10-state connection state machine with validation on all
+ * Enforces the 8-state connection state machine with validation on all
  * status transitions. Provides CRUD operations with workspace security
  * and role-based access control.
+ *
+ * Connections are created exclusively by the Nango webhook handler
+ * (via createOrReconnect) after successful OAuth completion.
  */
 @Service
 class IntegrationConnectionService(
@@ -68,44 +70,6 @@ class IntegrationConnectionService(
     }
 
     // ------ Public Mutations ------
-
-    /**
-     * Create a new integration connection.
-     *
-     * Requires ADMIN role. Only one connection per integration per workspace is allowed.
-     *
-     * @param workspaceId The workspace ID
-     * @param integrationId The integration definition ID
-     * @param nangoConnectionId The Nango connection ID
-     * @return The created connection
-     * @throws ConflictException if a connection already exists
-     */
-    @Transactional
-    @PreAuthorize("@workspaceSecurity.hasWorkspaceRole(#workspaceId, T(riven.core.enums.workspace.WorkspaceRoles).ADMIN)")
-    fun createConnection(
-        workspaceId: UUID,
-        integrationId: UUID,
-        nangoConnectionId: String
-    ): IntegrationConnectionEntity {
-        val userId = authTokenService.getUserId()
-
-        findOrThrow { definitionRepository.findById(integrationId) }
-
-        connectionRepository.findByWorkspaceIdAndIntegrationId(workspaceId, integrationId)
-            ?.let { throw ConflictException("Connection already exists for this integration in this workspace") }
-
-        val connection = IntegrationConnectionEntity(
-            workspaceId = workspaceId,
-            integrationId = integrationId,
-            nangoConnectionId = nangoConnectionId,
-            status = ConnectionStatus.PENDING_AUTHORIZATION
-        )
-
-        return connectionRepository.save(connection).also {
-            logger.info { "Created integration connection for workspace=$workspaceId, integration=$integrationId" }
-            logConnectionActivity(OperationType.CREATE, userId, workspaceId, it)
-        }
-    }
 
     /**
      * Update a connection's status.
@@ -192,38 +156,60 @@ class IntegrationConnectionService(
         return transitionToDisconnected(workspaceId, connectionId, userId)
     }
 
+    // ------ Private Helpers ------
+
     /**
-     * Enable an integration connection in a single action.
-     *
-     * Creates a new connection with CONNECTED status (Nango has already handled OAuth),
-     * or reconnects a DISCONNECTED connection. Returns existing connection if already CONNECTED.
-     *
-     * @param workspaceId the workspace ID
-     * @param integrationId the integration definition ID
-     * @param nangoConnectionId the Nango connection ID from the frontend OAuth flow
-     * @return the connection entity
-     * @throws ConflictException if a connection exists in a non-terminal state
+     * Reconnects an existing connection by validating the state transition and updating its
+     * status and Nango connection ID. Logs the actual previous status rather than hardcoding.
      */
-    @Transactional
-    @PreAuthorize("@workspaceSecurity.hasWorkspaceRole(#workspaceId, T(riven.core.enums.workspace.WorkspaceRoles).ADMIN)")
-    fun enableConnection(
+    private fun reconnectConnection(
+        connection: IntegrationConnectionEntity,
+        nangoConnectionId: String,
+        userId: UUID,
+        workspaceId: UUID
+    ): IntegrationConnectionEntity {
+        val previousStatus = connection.status
+
+        if (!previousStatus.canTransitionTo(ConnectionStatus.CONNECTED)) {
+            logger.warn {
+                "Cannot reconnect connection ${connection.id} from status $previousStatus — " +
+                    "updating nangoConnectionId only"
+            }
+            if (connection.nangoConnectionId != nangoConnectionId) {
+                connection.nangoConnectionId = nangoConnectionId
+                return connectionRepository.save(connection)
+            }
+            return connection
+        }
+
+        connection.status = ConnectionStatus.CONNECTED
+        connection.nangoConnectionId = nangoConnectionId
+        return connectionRepository.save(connection).also {
+            logger.info { "Reconnected integration connection ${connection.id} for workspace=$workspaceId" }
+            logConnectionActivity(
+                OperationType.UPDATE, userId, workspaceId, it,
+                mapOf("previousStatus" to previousStatus.name, "newStatus" to ConnectionStatus.CONNECTED.name)
+            )
+        }
+    }
+
+    /**
+     * Creates a new connection or reconnects an existing one.
+     * Called by the webhook handler after Nango confirms successful OAuth.
+     *
+     * If the connection is already CONNECTED, handles idempotently by updating the
+     * nangoConnectionId if changed.
+     */
+    internal fun createOrReconnect(
         workspaceId: UUID,
         integrationId: UUID,
-        nangoConnectionId: String
+        nangoConnectionId: String,
+        userId: UUID
     ): IntegrationConnectionEntity {
-        val userId = authTokenService.getUserId()
-        findOrThrow { definitionRepository.findById(integrationId) }
-
         val existing = connectionRepository.findByWorkspaceIdAndIntegrationId(workspaceId, integrationId)
 
         if (existing != null) {
-            return when (existing.status) {
-                ConnectionStatus.CONNECTED -> existing
-                ConnectionStatus.DISCONNECTED -> reconnectConnection(existing, nangoConnectionId, userId, workspaceId)
-                else -> throw ConflictException(
-                    "Connection exists with status ${existing.status} — cannot enable"
-                )
-            }
+            return reconnectConnection(existing, nangoConnectionId, userId, workspaceId)
         }
 
         val connection = IntegrationConnectionEntity(
@@ -236,28 +222,6 @@ class IntegrationConnectionService(
         return connectionRepository.save(connection).also {
             logger.info { "Created integration connection for workspace=$workspaceId, integration=$integrationId" }
             logConnectionActivity(OperationType.CREATE, userId, workspaceId, it)
-        }
-    }
-
-    // ------ Private Helpers ------
-
-    /**
-     * Reconnects a DISCONNECTED connection by updating its status and Nango connection ID.
-     */
-    private fun reconnectConnection(
-        connection: IntegrationConnectionEntity,
-        nangoConnectionId: String,
-        userId: UUID,
-        workspaceId: UUID
-    ): IntegrationConnectionEntity {
-        connection.status = ConnectionStatus.CONNECTED
-        connection.nangoConnectionId = nangoConnectionId
-        return connectionRepository.save(connection).also {
-            logger.info { "Reconnected integration connection ${connection.id} for workspace=$workspaceId" }
-            logConnectionActivity(
-                OperationType.UPDATE, userId, workspaceId, it,
-                mapOf("previousStatus" to ConnectionStatus.DISCONNECTED.name, "newStatus" to ConnectionStatus.CONNECTED.name)
-            )
         }
     }
 

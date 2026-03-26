@@ -59,6 +59,8 @@ export type {
   ActionColumnConfig,
   ActionElementConfig,
   ActionVisibility,
+  InfiniteScrollConfig,
+  ServerSideSortingConfig,
 } from './data-table.types';
 
 // ============================================================================

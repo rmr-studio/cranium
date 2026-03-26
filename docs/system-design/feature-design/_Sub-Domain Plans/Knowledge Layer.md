@@ -6,7 +6,7 @@ Updated: 2026-02-18
 Domains:
   - "[[Entities]]"
 ---
-# Sub-Domain Plan: Knowledge Layer Ingestion
+an# Sub-Domain Plan: Knowledge Layer Ingestion
 
 ---
 

@@ -14,6 +14,7 @@ import riven.core.models.request.workspace.SaveWorkspaceRequest
 import riven.core.models.response.onboarding.CompleteOnboardingResponse
 import riven.core.models.response.onboarding.InviteResult
 import riven.core.models.response.onboarding.TemplateInstallResult
+import riven.core.models.request.user.SaveUserRequest
 import riven.core.models.user.User
 import riven.core.models.workspace.Workspace
 import riven.core.service.activity.ActivityService
@@ -115,14 +116,15 @@ class OnboardingService(
         profileAvatar: MultipartFile?,
     ): User {
         val currentUser = userService.getUserWithWorkspacesById(userId)
-        val updatedUser = currentUser.copy(
+        val saveRequest = SaveUserRequest(
             name = request.profile.name,
+            email = currentUser.email,
             phone = request.profile.phone,
-            defaultWorkspace = workspace,
+            defaultWorkspaceId = workspace.id,
             onboardingCompletedAt = ZonedDateTime.now(),
         )
 
-        val user = userService.updateUserDetails(updatedUser, profileAvatar)
+        val user = userService.updateUserDetails(saveRequest, profileAvatar)
 
         activityService.log(
             activity = Activity.ONBOARDING,
@@ -145,22 +147,13 @@ class OnboardingService(
         workspaceId: UUID,
         request: CompleteOnboardingRequest,
     ): List<TemplateInstallResult> {
-        val results = mutableListOf<TemplateInstallResult>()
-
-        request.templateKeys?.forEach { templateKey ->
-            results.add(installTemplateSafely(workspaceId, templateKey))
-        }
-
-        request.bundleKeys?.forEach { bundleKey ->
-            results.add(installBundleSafely(workspaceId, bundleKey))
-        }
-
-        return results
+        val templateKey = request.businessType.templateKey
+        return listOf(installTemplateSafely(workspaceId, templateKey))
     }
 
     private fun installTemplateSafely(workspaceId: UUID, templateKey: String): TemplateInstallResult {
         return try {
-            val response = templateInstallationService.installTemplateInternal(workspaceId, templateKey)
+            val response = templateInstallationService.installTemplate(workspaceId, templateKey)
             TemplateInstallResult(
                 key = templateKey,
                 success = true,
@@ -170,24 +163,6 @@ class OnboardingService(
             logger.error(e) { "Failed to install template '$templateKey' during onboarding" }
             TemplateInstallResult(
                 key = templateKey,
-                success = false,
-                error = e.message,
-            )
-        }
-    }
-
-    private fun installBundleSafely(workspaceId: UUID, bundleKey: String): TemplateInstallResult {
-        return try {
-            val response = templateInstallationService.installBundleInternal(workspaceId, bundleKey)
-            TemplateInstallResult(
-                key = bundleKey,
-                success = true,
-                entityTypesCreated = response.entityTypesCreated,
-            )
-        } catch (e: Exception) {
-            logger.error(e) { "Failed to install bundle '$bundleKey' during onboarding" }
-            TemplateInstallResult(
-                key = bundleKey,
                 success = false,
                 error = e.message,
             )

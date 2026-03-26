@@ -24,4 +24,5 @@ enum class ApplicationEntityType {
     @JsonProperty("INTEGRATION_INSTALLATION") INTEGRATION_INSTALLATION,
     @JsonProperty("MATCH_SUGGESTION") MATCH_SUGGESTION,
     @JsonProperty("IDENTITY_CLUSTER") IDENTITY_CLUSTER,
+    @JsonProperty("NOTE") NOTE,
 }

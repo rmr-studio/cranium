@@ -1,4 +1,4 @@
-import type { User } from '@/lib/types/user';
+import type { User, SaveUserRequest } from '@/lib/types/user';
 import { Session } from '@/lib/auth';
 import { createUserApi } from '@/lib/api/user-api';
 import { normalizeApiError, fromError } from '@/lib/util/error/error.util';
@@ -36,7 +36,7 @@ export const fetchSessionUser = async (session: Session | null): Promise<User> =
  */
 export const updateUser = async (
   session: Session | null,
-  request: User,
+  request: SaveUserRequest,
   updatedAvatar?: Blob | null,
 ): Promise<User> => {
   try {
@@ -50,7 +50,10 @@ export const updateUser = async (
     }
 
     const api = createUserApi(session);
-    return await api.updateUserProfile({ user: request });
+    return await api.updateUserProfile({
+      user: request,
+      avatar: updatedAvatar ?? undefined,
+    });
   } catch (error) {
     throw await normalizeApiError(error);
   }

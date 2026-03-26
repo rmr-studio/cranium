@@ -32,7 +32,9 @@ reviews:
     # Exclude generated OpenAPI types — these are machine-generated, not hand-written
     - "!apps/client/lib/types/apis/**"
     - "!apps/client/lib/types/models/**"
+    - "!apps/client/lib/types/docs/**"
     - "!apps/client/lib/types/runtime.ts"
+    - "!apps/client/lib/types/.openapi-generator"
 
   # ---------------------------------------------------------------------------
   # Next.js — apps/client (primary frontend)

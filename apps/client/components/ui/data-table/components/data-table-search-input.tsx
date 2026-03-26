@@ -13,18 +13,22 @@ interface DataTableSearchInputProps<TData> {
 export function DataTableSearchInput<TData>({ config }: DataTableSearchInputProps<TData>) {
   const { searchValue, setSearchValue, setGlobalFilter, clearSearch, table } = useDataTableSearch();
 
-  // Debounce search value to global filter
+  const { serverSide, debounceMs: configDebounceMs, onSearchChange } = config;
+  const debounceMs = configDebounceMs ?? 300;
+
   useEffect(() => {
-    const debounceMs = config.debounceMs ?? 300;
     const timer = setTimeout(() => {
-      setGlobalFilter(searchValue);
-      config.onSearchChange?.(searchValue);
+      if (!serverSide) {
+        setGlobalFilter(searchValue);
+      }
+      onSearchChange?.(searchValue);
     }, debounceMs);
 
     return () => clearTimeout(timer);
-  }, [searchValue, config.debounceMs, setGlobalFilter, config]);
+  }, [searchValue, debounceMs, serverSide, setGlobalFilter, onSearchChange]);
 
   const resultCount = table ? table.getFilteredRowModel().rows.length : 0;
+  const showResultCount = searchValue && !config.serverSide;
 
   return (
     <div className="flex min-w-[200px] flex-1 items-center gap-2">
@@ -46,7 +50,7 @@ export function DataTableSearchInput<TData>({ config }: DataTableSearchInputProp
           </button>
         )}
       </div>
-      {searchValue && (
+      {showResultCount && (
         <p className="text-sm whitespace-nowrap text-muted-foreground">
           {resultCount} result{resultCount !== 1 ? 's' : ''}
         </p>

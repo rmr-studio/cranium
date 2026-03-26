@@ -1,7 +1,0 @@
-{
-  "manifestVersion": "1.0",
-  "key": "saas-startup",
-  "name": "SaaS Startup",
-  "description": "Complete SaaS business setup with CRM, billing, support, and subscription management.",
-  "templates": ["crm", "billing", "support", "saas"]
-}

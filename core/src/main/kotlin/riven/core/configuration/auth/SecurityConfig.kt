@@ -39,7 +39,9 @@ class SecurityConfig(
                     .requestMatchers("/actuator/**").permitAll() // Allow actuator endpoints
                     .requestMatchers("/docs/**").permitAll() // Allow OpenAPI documentation
                     .requestMatchers("/public/**").permitAll() // Allow public endpoints
+                    .requestMatchers("/api/v1/webhooks/nango").permitAll() // HMAC filter handles auth
                     .requestMatchers("/api/v1/storage/download/{token}").permitAll() // Allow signed URL downloads (token is the auth)
+                    .requestMatchers("/api/v1/avatars/**").permitAll() // Allow avatar access (entity ID is the lookup key)
                     .requestMatchers("${wsProperties.endpoint}/**").permitAll() // WebSocket upgrade handled by STOMP interceptor
                     .anyRequest().authenticated() // Require authentication for all other endpoints
             }

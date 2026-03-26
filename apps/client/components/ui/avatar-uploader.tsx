@@ -1,6 +1,7 @@
 'use client';
 
 import { AvatarCropDialog } from '@/components/ui/avatar-crop-dialog';
+import type { InputValidation } from '@/lib/interfaces/interface';
 import { Button } from '@riven/ui/button';
 import { Label } from '@riven/ui/label';
 import { Pencil, Upload, UserRound } from 'lucide-react';
@@ -8,11 +9,7 @@ import Image from 'next/image';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-interface InputValidation {
-  maxSize: number;
-  allowedTypes: string[];
-  errorMessage: string;
-}
+export type { InputValidation };
 
 interface AvatarUploaderProps {
   onUpload: (file: Blob) => void;
@@ -43,6 +40,19 @@ export const AvatarUploader: FC<AvatarUploaderProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const [cropDialogOpen, setCropDialogOpen] = useState(false);
   const [rawImageSrc, setRawImageSrc] = useState<string | null>(null);
+
+  // Treat empty or whitespace-only URLs as no image
+  const resolvedImageURL = imageURL?.trim() ? imageURL : undefined;
+
+  // When imageURL changes to a server URL (not a blob), clear stale internal state
+  useEffect(() => {
+    if (resolvedImageURL && !resolvedImageURL.startsWith('blob:')) {
+      if (rawImageSrc) {
+        URL.revokeObjectURL(rawImageSrc);
+        setRawImageSrc(null);
+      }
+    }
+  }, [resolvedImageURL]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Revoke the stored original URL on unmount to prevent memory leaks
   useEffect(() => {
@@ -127,15 +137,16 @@ export const AvatarUploader: FC<AvatarUploaderProps> = ({
           <button
             type="button"
             onClick={rawImageSrc ? openCropEditor : openFilePicker}
-            aria-label={imageURL ? 'Edit avatar' : 'Upload avatar'}
+            aria-label={resolvedImageURL ? 'Edit avatar' : 'Upload avatar'}
             className="relative h-18 w-18 cursor-pointer overflow-hidden rounded-full border-2 border-dashed border-border transition-colors hover:border-muted-foreground"
           >
-            {imageURL ? (
+            {resolvedImageURL ? (
               <Image
                 alt={title || 'Avatar'}
-                src={imageURL}
+                src={resolvedImageURL}
                 fill
                 className="object-cover"
+                unoptimized
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center">
@@ -144,7 +155,7 @@ export const AvatarUploader: FC<AvatarUploaderProps> = ({
             )}
           </button>
           {/* Edit badge — always visible when uploaded, positioned outside overflow */}
-          {imageURL && (
+          {resolvedImageURL && (
             <div className="absolute right-0 bottom-0 flex h-6 w-6 items-center justify-center rounded-full border-2 border-background bg-foreground">
               <Pencil className="h-3 w-3 text-background" />
             </div>
@@ -155,7 +166,7 @@ export const AvatarUploader: FC<AvatarUploaderProps> = ({
         <div className="flex flex-col gap-1.5">
           {title && <Label className="font-semibold">{title}</Label>}
 
-          {imageURL ? (
+          {resolvedImageURL ? (
             // Uploaded state — just Remove link
             <div className="flex items-center gap-2">
               {onRemove && (

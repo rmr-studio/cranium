@@ -14,6 +14,12 @@ CREATE INDEX IF NOT EXISTS idx_entities_workspace_type
     ON entities (workspace_id, type_id)
     WHERE deleted = FALSE;
 
+-- Lifecycle Domain Index (for Knowledge API filtering by lifecycle domain)
+DROP INDEX IF EXISTS idx_entity_types_lifecycle_domain;
+CREATE INDEX IF NOT EXISTS idx_entity_types_lifecycle_domain
+    ON entity_types (workspace_id, lifecycle_domain)
+    WHERE deleted = FALSE;
+
 -- Relationship Definitions Indexes
 DROP INDEX IF EXISTS idx_rel_def_workspace_source;
 CREATE INDEX IF NOT EXISTS idx_rel_def_workspace_source
@@ -53,6 +59,14 @@ CREATE INDEX IF NOT EXISTS idx_entities_source_integration
 CREATE INDEX IF NOT EXISTS idx_entities_source_external_id
     ON entities (source_external_id)
     WHERE source_external_id IS NOT NULL;
+
+-- Integration Dedup Index
+-- Unique partial index for integration entity deduplication.
+-- Enforces one entity per (workspace, integration, external-id) tuple
+-- across non-deleted rows only.
+CREATE UNIQUE INDEX IF NOT EXISTS idx_entities_integration_dedup
+    ON entities (workspace_id, source_integration_id, source_external_id)
+    WHERE deleted = false AND source_external_id IS NOT NULL;
 
 -- =====================================================
 -- ENTITY ATTRIBUTE INDEXES

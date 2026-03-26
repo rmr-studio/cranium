@@ -7,7 +7,7 @@ declare namespace NodeJS {
     /** Supabase anonymous/public key */
     NEXT_PUBLIC_SUPABASE_ANON_KEY: string;
 
-    /** Backend API base URL (e.g. http://localhost:8081/api) */
+    /** Backend API base URL (e.g. http://localhost:8081) */
     NEXT_PUBLIC_API_URL: string;
     /** Frontend URL for OAuth redirects (e.g. http://localhost:3001) */
     NEXT_PUBLIC_HOSTED_URL: string;

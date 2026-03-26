@@ -74,9 +74,6 @@ function getFilterTypeFromSchema(schema: Schema): ColumnFilter<any>['type'] | nu
  * Determines if a field should be searchable based on schema
  */
 function isSearchableField(schema: Schema): boolean {
-  // Protected fields shouldn't be searchable
-  if (schema._protected) return false;
-
   // Only search text-based fields
   switch (schema.type) {
     case DataType.String:

@@ -33,4 +33,10 @@ interface IntegrationConnectionRepository : JpaRepository<IntegrationConnectionE
         workspaceId: UUID,
         status: ConnectionStatus
     ): List<IntegrationConnectionEntity>
+
+    /**
+     * Find a connection by its Nango connection ID.
+     * Used by the webhook handler to look up connections from Nango event payloads.
+     */
+    fun findByNangoConnectionId(nangoConnectionId: String): IntegrationConnectionEntity?
 }

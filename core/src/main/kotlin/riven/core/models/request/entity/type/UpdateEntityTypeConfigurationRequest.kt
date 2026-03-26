@@ -1,5 +1,6 @@
 package riven.core.models.request.entity.type
 
+import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.models.common.Icon
 import riven.core.models.common.display.DisplayName
@@ -11,6 +12,7 @@ data class UpdateEntityTypeConfigurationRequest(
     val name: DisplayName,
     val icon: Icon,
     val semanticGroup: SemanticGroup? = null,
+    val lifecycleDomain: LifecycleDomain? = null,
     val columnConfiguration: ColumnConfiguration? = null,
     val semantics: SaveSemanticMetadataRequest? = null,
 )

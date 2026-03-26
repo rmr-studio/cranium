@@ -15,9 +15,12 @@
 
 import * as runtime from '../runtime';
 import type {
+  SaveUserRequest,
   User,
 } from '../models/index';
 import {
+    SaveUserRequestFromJSON,
+    SaveUserRequestToJSON,
     UserFromJSON,
     UserToJSON,
 } from '../models/index';
@@ -31,7 +34,7 @@ export interface GetUserByIdRequest {
 }
 
 export interface UpdateUserProfileRequest {
-    user: User;
+    user: SaveUserRequest;
     avatar?: Blob;
 }
 
@@ -213,7 +216,7 @@ export class UserApi extends runtime.BaseAPI {
         }
 
         if (requestParameters['user'] != null) {
-            formParams.append('user', new Blob([JSON.stringify(UserToJSON(requestParameters['user']))], { type: "application/json", }));
+            formParams.append('user', new Blob([JSON.stringify(SaveUserRequestToJSON(requestParameters['user']))], { type: "application/json", }));
                     }
 
         if (requestParameters['avatar'] != null) {

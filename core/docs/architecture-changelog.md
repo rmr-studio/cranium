@@ -1,5 +1,63 @@
 # Architecture Changelog
 
+## [2026-03-17] — Nango Webhook Endpoint with HMAC Security
+
+**Domains affected:** Integration
+**What changed:**
+
+- Created `NangoWebhookHmacFilter`: OncePerRequestFilter that reads raw request body, computes HMAC-SHA256 using `nangoProperties.secretKey`, and performs constant-time comparison via `MessageDigest.isEqual`. Requests without valid `X-Nango-Hmac-Sha256` header receive 401 without entering the servlet chain. Uses `CachedBodyHttpServletRequest` inner class so downstream handlers can re-read the body.
+- Created `NangoWebhookFilterConfiguration`: registers the HMAC filter as a `FilterRegistrationBean` scoped to `/api/v1/webhooks/nango` at order 1.
+- Updated `SecurityConfig`: added `permitAll()` for `/api/v1/webhooks/nango` — JWT auth is bypassed because the webhook path uses HMAC verification instead.
+- Created `NangoWebhookController`: thin POST `/api/v1/webhooks/nango` endpoint with no `@PreAuthorize`; always returns 200 to Nango. Routes to `NangoWebhookService`.
+- Created `NangoWebhookService`: routes `auth` and `sync` events. Auth handler: parses userId/workspaceId/integrationDefinitionId from Nango tags, creates or reconnects `IntegrationConnectionEntity` (CONNECTED), finds or creates/restores `WorkspaceIntegrationInstallationEntity` (ACTIVE), triggers `TemplateMaterializationService.materializeIntegrationTemplates()`; materialization failure sets installation to FAILED without rolling back the connection. Sync event is a Phase 3 stub that logs and returns.
+
+**New cross-domain dependencies:** no — NangoWebhookService calls TemplateMaterializationService which is already in the Integration domain.
+**New components introduced:**
+- `NangoWebhookHmacFilter` — HMAC-SHA256 request signature verification filter
+- `NangoWebhookFilterConfiguration` — filter registration configuration
+- `NangoWebhookController` — webhook entry point
+- `NangoWebhookService` — webhook event routing and auth event handler
+
+## [2026-03-16] — Integration Data Sync Pipeline Documentation
+
+**Domains affected:** Integration, Entity
+**What changed:**
+
+- Created full feature design for Integration Data Sync Pipeline covering webhook ingestion, Temporal sync workflow, batch dedup, two-pass processing, and connection health aggregation
+- Created ADR-008: Temporal for Integration Sync Orchestration — chooses durable workflow over Spring @Async or message queues
+- Created ADR-009: Unique Index Deduplication over Mapping Table — uses existing entity columns with partial unique index instead of separate mapping table
+- Created ADR-010: Webhook-Driven Connection Creation — removes PENDING_AUTHORIZATION/AUTHORIZING states, connections created from auth webhook
+- Created Integration Data Sync Pipeline flow document covering auth webhook, sync webhook dispatch, and 3-pass sync workflow execution paths
+- Updated Entity Integration Sync sub-domain plan: revised vision (source_external_id dedup replaces tiered IR), updated component table (10 components), simplified data flow, corrected design constraints (raw SQL not Flyway), added 6 new decision entries
+
+**New cross-domain dependencies:** no — all changes within existing integration and entity domain boundaries
+**New components introduced:**
+- Documentation only — no new code components. Documents the planned architecture for: NangoWebhookController, NangoWebhookService, IntegrationSyncWorkflow, IntegrationSyncActivities, IntegrationConnectionHealthService, IntegrationSyncTemporalConfiguration
+
+## [2026-03-16] — Integration Sync Persistence Foundation
+
+**Domains affected:** Integration, Entity
+**What changed:**
+
+- Added `integration_sync_state` table for tracking per-connection per-entity-type sync progress
+- Added `status` column (VARCHAR 50, default ACTIVE) to `workspace_integration_installations`
+- Added unique partial index `idx_entities_integration_dedup` on entities for integration dedup
+- Created `SyncStatus` enum (PENDING, SUCCESS, FAILED) with `@JsonProperty` annotations
+- Created `InstallationStatus` enum (PENDING_CONNECTION, ACTIVE, FAILED) with `canTransitionTo()` state machine
+- Created `IntegrationSyncStateEntity` — extends `AuditableEntity`, not `SoftDeletable` (system-managed)
+- Created `IntegrationSyncState` domain model with `toModel()` mapping
+- Added `status: InstallationStatus` field (default ACTIVE) to `WorkspaceIntegrationInstallationEntity`
+- Created `IntegrationSyncStateRepository` with derived queries for connection and connection+entity-type lookups
+- Added `findByWorkspaceIdAndSourceIntegrationIdAndSourceExternalIdIn` batch dedup JPQL query to `EntityRepository`
+
+**New cross-domain dependencies:** no — changes extend existing integration and entity domains
+**New components introduced:**
+- `IntegrationSyncStateEntity` — JPA entity for sync state tracking (system-managed, no soft-delete)
+- `IntegrationSyncStateRepository` — data access for sync state
+- `IntegrationSyncState` — domain model mirroring sync state entity
+- `SyncStatus` enum — sync run outcome (PENDING, SUCCESS, FAILED)
+- `InstallationStatus` enum — installation lifecycle state machine
+
 ## [2026-03-14] — Notification Domain
 
 **Domains affected:** notification (new), websocket, activity

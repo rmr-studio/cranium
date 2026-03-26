@@ -232,8 +232,9 @@ function normalizeEmpty<T>(val: T): T | null {
  */
 function arraysEqual(arr1: unknown[], arr2: unknown[]): boolean {
   if (arr1.length !== arr2.length) return false;
-  const sorted1 = [...arr1].sort();
-  const sorted2 = [...arr2].sort();
+  const toKey = (item: unknown) => JSON.stringify(item);
+  const sorted1 = [...arr1].sort((a, b) => toKey(a).localeCompare(toKey(b)));
+  const sorted2 = [...arr2].sort((a, b) => toKey(a).localeCompare(toKey(b)));
   return JSON.stringify(sorted1) === JSON.stringify(sorted2);
 }
 
@@ -354,10 +355,11 @@ export function generateColumnsFromEntityType(
   // Generate attribute columns
   Object.entries(entityType.schema.properties).forEach(([attributeId, schema]) => {
     // Create edit config if editing is enabled
-    const editConfig: ColumnEditConfig<EntityRow, any, any> | undefined = options?.enableEditing
-      ? {
+    const editConfig: ColumnEditConfig<EntityRow, unknown, unknown> | undefined =
+      options?.enableEditing && schema.key !== SchemaType.Id
+        ? {
           enabled: true,
-          createFormInstance: (cell: Cell<EntityRow, any>) => {
+          createFormInstance: (cell: Cell<EntityRow, unknown>) => {
             const value = cell.getValue();
 
             // Build Zod schema for this attribute based on its type
@@ -366,16 +368,16 @@ export function generateColumnsFromEntityType(
               value: fieldSchema,
             });
 
-            return useForm({
-              resolver: zodResolver(formSchema) as any,
+            return useForm<{ value: unknown }>({
+              resolver: zodResolver(formSchema),
               defaultValues: {
                 value: value ?? null,
               },
             });
           },
           render: createAttributeRenderer<EntityRow>(schema),
-          parseValue: (val: any) => val,
-          formatValue: (val: any) => val,
+          parseValue: (val: unknown) => val,
+          formatValue: (val: unknown) => val,
           isEqual: createAttributeEqualityFn(schema),
         }
       : undefined;
@@ -553,9 +555,12 @@ export function extractUniqueAttributeValues(
   const uniqueValues = new Set<string>();
 
   entities.forEach((entity) => {
-    const value = entity.payload?.[attributeId];
-    if (value !== null && value !== undefined) {
-      uniqueValues.add(String(value));
+    const attribute = entity.payload?.[attributeId];
+    if (attribute !== null && attribute !== undefined) {
+      const innerValue = attribute.payload?.value;
+      if (innerValue !== null && innerValue !== undefined) {
+        uniqueValues.add(String(innerValue));
+      }
     }
   });
 
@@ -650,8 +655,8 @@ export function generateSearchConfigFromEntityType(
   }
 
   Object.entries(entityType.schema.properties).forEach(([attributeId, schema]) => {
-    // Only include non-protected STRING attributes for search
-    if (schema.type === DataType.String && !schema._protected) {
+    // Include all STRING attributes for search (including protected/identifier fields)
+    if (schema.type === DataType.String) {
       searchableColumns.push(attributeId);
     }
   });

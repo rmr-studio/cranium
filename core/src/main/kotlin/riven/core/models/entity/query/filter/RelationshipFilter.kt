@@ -3,7 +3,9 @@ package riven.core.models.entity.query.filter
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
+import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver
 import io.swagger.v3.oas.annotations.media.Schema
+import riven.core.configuration.util.CaseInsensitiveTypeIdResolver
 import riven.core.enums.entity.query.FilterOperator
 
 
@@ -23,7 +25,8 @@ import riven.core.enums.entity.query.FilterOperator
         RelationshipFilter.CountMatches::class
     ]
 )
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonTypeIdResolver(CaseInsensitiveTypeIdResolver::class)
 @JsonSubTypes(
     JsonSubTypes.Type(RelationshipFilter.Exists::class, name = "EXISTS"),
     JsonSubTypes.Type(RelationshipFilter.NotExists::class, name = "NOT_EXISTS"),

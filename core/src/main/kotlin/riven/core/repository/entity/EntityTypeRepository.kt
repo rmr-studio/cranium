@@ -1,6 +1,7 @@
 package riven.core.repository.entity
 
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import riven.core.entity.entity.EntityTypeEntity
@@ -60,5 +61,30 @@ interface EntityTypeRepository : JpaRepository<EntityTypeEntity, UUID> {
         @Param("integrationId") integrationId: UUID,
         @Param("workspaceId") workspaceId: UUID
     ): List<EntityTypeEntity>
+
+    /**
+     * Promotes existing entity types to template status by setting protected=true,
+     * sourceType=TEMPLATE, and the specified lifecycle domain.
+     * Used when the template installation encounters entity types that already exist
+     * in the workspace (e.g. from a previously installed template).
+     */
+    @Modifying
+    @Query(
+        value = """
+            UPDATE entity_types
+            SET protected = true,
+                source_type = 'TEMPLATE',
+                lifecycle_domain = :lifecycleDomain,
+                updated_at = now()
+            WHERE id = :entityTypeId
+              AND workspace_id = :workspaceId
+        """,
+        nativeQuery = true
+    )
+    fun promoteToTemplate(
+        @Param("entityTypeId") entityTypeId: UUID,
+        @Param("workspaceId") workspaceId: UUID,
+        @Param("lifecycleDomain") lifecycleDomain: String,
+    ): Int
 
 }

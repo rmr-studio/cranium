@@ -1,3 +1,5 @@
+import { type OrderByClause, type QueryFilter } from '@/lib/types/entity';
+
 /**
  * Centralized query key factory for all entity-related TanStack Query keys.
  *
@@ -14,6 +16,19 @@ export const entityKeys = {
     /** Key for batch entity queries across multiple types */
     batch: (workspaceId: string, typeIds: string[]) =>
       ['entities', workspaceId, 'batch', typeIds] as const,
+    /** Key for paginated entity query with optional search/filter/sorting */
+    query: (workspaceId: string, typeId: string, search?: string, filter?: QueryFilter, orderBy?: OrderByClause[]) =>
+      [
+        'entities',
+        workspaceId,
+        typeId,
+        'query',
+        {
+          ...(search ? { search } : {}),
+          ...(filter ? { filter } : {}),
+          ...(orderBy ? { orderBy } : {}),
+        },
+      ] as const,
   },
   entityTypes: {
     /** Key for the full entity types list in a workspace */

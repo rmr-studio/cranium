@@ -1,7 +1,0 @@
-{
-  "manifestVersion": "1.0",
-  "key": "service-business",
-  "name": "Service Business",
-  "description": "Professional services setup with CRM, billing, and project management.",
-  "templates": ["crm", "billing", "project-management"]
-}

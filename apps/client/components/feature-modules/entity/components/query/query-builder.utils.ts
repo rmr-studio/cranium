@@ -4,7 +4,13 @@ import { FilterOperator } from '@/lib/types/models/FilterOperator';
 import { SchemaType } from '@/lib/types/models/SchemaType';
 import type { QueryFilter } from '@/lib/types/models/QueryFilter';
 import type { RelationshipFilter } from '@/lib/types/models/RelationshipFilter';
-import type { EntityType, RelationshipDefinition } from '@/lib/types/entity';
+import {
+  type EntityType,
+  type RelationshipDefinition,
+  FilterValueKind,
+  QueryFilterType,
+  RelationshipFilterType,
+} from '@/lib/types/entity';
 import type { SchemaUUID } from '@/lib/types/models/SchemaUUID';
 import { v4 as uuid } from 'uuid';
 
@@ -158,7 +164,6 @@ export function getAttributesFromEntityType(entityType: EntityType): AttributeIn
   if (!properties) return [];
 
   return Object.entries(properties)
-    .filter(([, schema]) => !schema._protected)
     .map(([id, schema]) => ({
       id,
       label: schema.label ?? id,
@@ -277,9 +282,9 @@ export function filterGroupStateToQueryFilter(
   if (filters.length === 1) return filters[0];
 
   if (group.logicalOperator === 'and') {
-    return { type: 'And', conditions: filters } as QueryFilter;
+    return { type: QueryFilterType.And, conditions: filters } as QueryFilter;
   }
-  return { type: 'Or', conditions: filters } as QueryFilter;
+  return { type: QueryFilterType.Or, conditions: filters } as QueryFilter;
 }
 
 function conditionToQueryFilter(condition: FilterConditionState): QueryFilter | undefined {
@@ -290,12 +295,12 @@ function conditionToQueryFilter(condition: FilterConditionState): QueryFilter | 
   }
 
   return {
-    type: 'Attribute',
+    type: QueryFilterType.Attribute,
     attributeId: condition.attributeId,
     operator: condition.operator,
     value: isNullaryOperator(condition.operator!)
       ? undefined
-      : { kind: 'Literal', value: condition.value },
+      : { kind: FilterValueKind.Literal, value: condition.value },
   } as QueryFilter;
 }
 
@@ -304,14 +309,14 @@ function buildRelationshipFilter(condition: FilterConditionState): QueryFilter |
 
   switch (condition.relationshipConditionType) {
     case 'exists':
-      relCondition = { type: 'Exists' } as RelationshipFilter;
+      relCondition = { type: RelationshipFilterType.Exists } as RelationshipFilter;
       break;
     case 'notExists':
-      relCondition = { type: 'NotExists' } as RelationshipFilter;
+      relCondition = { type: RelationshipFilterType.NotExists } as RelationshipFilter;
       break;
     case 'countMatches':
       relCondition = {
-        type: 'CountMatches',
+        type: RelationshipFilterType.CountMatches,
         operator: condition.countOperator,
         count: condition.countValue,
       } as RelationshipFilter;
@@ -321,7 +326,7 @@ function buildRelationshipFilter(condition: FilterConditionState): QueryFilter |
         ? filterGroupStateToQueryFilter(condition.targetFilter)
         : undefined;
       if (!nested) return undefined;
-      relCondition = { type: 'TargetMatches', filter: nested } as RelationshipFilter;
+      relCondition = { type: RelationshipFilterType.TargetMatches, filter: nested } as RelationshipFilter;
       break;
     }
     default:
@@ -329,7 +334,7 @@ function buildRelationshipFilter(condition: FilterConditionState): QueryFilter |
   }
 
   return {
-    type: 'Relationship',
+    type: QueryFilterType.Relationship,
     relationshipId: condition.relationshipId,
     condition: relCondition,
   } as QueryFilter;

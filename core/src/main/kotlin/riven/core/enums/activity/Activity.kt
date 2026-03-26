@@ -37,5 +37,5 @@ enum class Activity {
     @JsonProperty("NOTIFICATION") NOTIFICATION,
     @JsonProperty("MATCH_SUGGESTION") MATCH_SUGGESTION,
     @JsonProperty("IDENTITY_CLUSTER") IDENTITY_CLUSTER,
+    @JsonProperty("NOTE") NOTE,
 }
-

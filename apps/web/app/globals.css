@@ -109,6 +109,12 @@
   --nav-inv-muted: oklch(0.269 0 0);
   --nav-inv-primary: oklch(0.922 0 0);
   --nav-inv-logo-primary: oklch(0.85 0 0);
+
+  /* CTA gradient stops — sky → violet → rose */
+  --cta-g1: #38bdf8;
+  --cta-g2: #8b5cf6;
+  --cta-g3: #f43f5e;
+  --cta-muted: oklch(0.556 0 0 / 0.2);
 }
 
 .dark {
@@ -149,6 +155,12 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  /* CTA gradient stops — muted blue → soft violet → dusty mauve */
+  --cta-g1: oklch(0.60 0.10 240);
+  --cta-g2: oklch(0.55 0.14 285);
+  --cta-g3: oklch(0.58 0.10 330);
+  --cta-muted: oklch(0.3 0 0 / 0.3);
 
   /* Navbar inverse values (light-on-dark → dark-on-light) */
   --nav-inv-background: oklch(1 0 0);
@@ -199,6 +211,12 @@
   --sidebar-border: oklch(0.25 0.02 60 / 15%);
   --sidebar-ring: oklch(0.55 0.06 70);
 
+  /* CTA gradient stops — warm gold → copper → terracotta */
+  --cta-g1: oklch(0.75 0.13 80);
+  --cta-g2: oklch(0.62 0.15 50);
+  --cta-g3: oklch(0.65 0.12 25);
+  --cta-muted: oklch(0.45 0.03 65 / 0.2);
+
   /* Navbar inverse values (amber bg/fg swapped) */
   --nav-inv-background: oklch(0.25 0.02 60);
   --nav-inv-foreground: oklch(0.93 0.032 80);
@@ -212,6 +230,24 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 5rem;
+}
+
+@property --border-angle {
+  inherits: false;
+  initial-value: 0deg;
+  syntax: '<angle>';
+}
+
+@property --arc-start {
+  inherits: false;
+  initial-value: 7%;
+  syntax: '<percentage>';
+}
+
+@keyframes border-rotate {
+  to {
+    --border-angle: 360deg;
+  }
 }
 
 @layer base {

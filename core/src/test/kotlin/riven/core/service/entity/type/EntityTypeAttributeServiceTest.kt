@@ -35,6 +35,7 @@ import java.util.*
         WorkspaceSecurity::class,
         EntityTypeAttributeServiceTest.TestConfig::class,
         EntityTypeAttributeService::class,
+        EntityTypeProtectionGuard::class,
     ]
 )
 @WithUserPersona(

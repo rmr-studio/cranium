@@ -3,7 +3,7 @@
 import { TableBody, TableCell, TableRow } from '@riven/ui/table';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Row, Table as TanStackTable } from '@tanstack/react-table';
-import { ReactNode, useMemo } from 'react';
+import React, { ReactNode, useMemo } from 'react';
 import { useDataTableStore } from '../data-table-provider';
 import type { ActionColumnConfig, ColumnResizingConfig, RowActionsConfig } from '../data-table.types';
 import { DraggableRow } from './draggable-row';
@@ -29,7 +29,7 @@ interface DataTableBodyProps<TData> {
   hasRowActions?: boolean;
 }
 
-export function DataTableBody<TData>({
+function DataTableBodyComponent<TData>({
   table,
   enableDragDrop,
   isSelectionEnabled,
@@ -123,3 +123,5 @@ export function DataTableBody<TData>({
 
   return content;
 }
+
+export const DataTableBody = React.memo(DataTableBodyComponent) as typeof DataTableBodyComponent;

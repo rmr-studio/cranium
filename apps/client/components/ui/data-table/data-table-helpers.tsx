@@ -1,9 +1,9 @@
 'use client';
 
+import { Button } from '@riven/ui/button';
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 import { Badge } from '../badge';
-import { Button } from '../button';
 
 // Helper to create a sortable column header
 export function createSortableHeader<TData>(title: string, accessorKey: string) {

@@ -2,6 +2,8 @@ package riven.core.models.block.display
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver
+import riven.core.configuration.util.CaseInsensitiveTypeIdResolver
 import java.io.Serializable
 
 /** Map a data source to a component prop */
@@ -11,7 +13,8 @@ data class BlockBinding(
 ) : Serializable
 
 /** Data sources: raw block data, references by slot, or computed expr (reserved) */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonTypeIdResolver(CaseInsensitiveTypeIdResolver::class)
 @JsonSubTypes(
     JsonSubTypes.Type(BindingSource.DataPath::class, name = "DataPath"),
     JsonSubTypes.Type(BindingSource.Computed::class, name = "Computed")

@@ -19,7 +19,8 @@
  */
 
 import { Table } from '@tanstack/react-table';
-import { createContext, useContext, useEffect, useRef, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, type ReactNode } from 'react';
+import { shallow } from 'zustand/shallow';
 import { useStoreWithEqualityFn } from 'zustand/traditional';
 import {
   createDataTableStore,
@@ -254,13 +255,16 @@ export function useDataTableSearch<TData>() {
       setSearchValue: (value: string) => void;
       clearSearch: () => void;
     }
-  >((state) => ({
-    setGlobalFilter: state.setGlobalFilter,
-    searchValue: state.searchValue,
-    setSearchValue: state.setSearchValue,
-    table: state.tableInstance,
-    clearSearch: state.clearSearch,
-  }));
+  >(
+    (state) => ({
+      setGlobalFilter: state.setGlobalFilter,
+      searchValue: state.searchValue,
+      setSearchValue: state.setSearchValue,
+      table: state.tableInstance,
+      clearSearch: state.clearSearch,
+    }),
+    shallow,
+  );
 }
 
 // ============================================================================
@@ -288,13 +292,16 @@ export function useFiltering<TData>() {
       activeFilters: Record<string, any>;
       enabledFilters: Set<string>;
     }
-  >((state) => ({
-    columnFilters: state.columnFilters,
-    globalFilter: state.globalFilter,
-    searchValue: state.searchValue,
-    activeFilters: state.activeFilters,
-    enabledFilters: state.enabledFilters,
-  }));
+  >(
+    (state) => ({
+      columnFilters: state.columnFilters,
+      globalFilter: state.globalFilter,
+      searchValue: state.searchValue,
+      activeFilters: state.activeFilters,
+      enabledFilters: state.enabledFilters,
+    }),
+    shallow,
+  );
 }
 
 /** Get selection state */
@@ -306,11 +313,14 @@ export function useSelection<TData>() {
       selectedCount: number;
       hasSelections: boolean;
     }
-  >((state) => ({
-    rowSelection: state.rowSelection,
-    selectedCount: state.getSelectedCount(),
-    hasSelections: state.hasSelections(),
-  }));
+  >(
+    (state) => ({
+      rowSelection: state.rowSelection,
+      selectedCount: state.getSelectedCount(),
+      hasSelections: state.hasSelections(),
+    }),
+    shallow,
+  );
 }
 
 /** Get column state */
@@ -321,10 +331,13 @@ export function useColumns<TData>() {
       columnSizing: Record<string, number>;
       columnOrder: string[];
     }
-  >((state) => ({
-    columnSizing: state.columnSizing,
-    columnOrder: state.columnOrder,
-  }));
+  >(
+    (state) => ({
+      columnSizing: state.columnSizing,
+      columnOrder: state.columnOrder,
+    }),
+    shallow,
+  );
 }
 
 /** Get UI state */
@@ -335,10 +348,13 @@ export function useUIState<TData>() {
       isMounted: boolean;
       filterPopoverOpen: boolean;
     }
-  >((state) => ({
-    isMounted: state.isMounted,
-    filterPopoverOpen: state.filterPopoverOpen,
-  }));
+  >(
+    (state) => ({
+      isMounted: state.isMounted,
+      filterPopoverOpen: state.filterPopoverOpen,
+    }),
+    shallow,
+  );
 }
 
 export function useCellInteraction<TData>() {
@@ -353,15 +369,18 @@ export function useCellInteraction<TData>() {
       exitToFocused: () => void;
       updatePendingValue: (value: any) => void;
     }
-  >((state) => ({
-    editingCell: state.editingCell,
-    focusedCell: state.focusedCell,
-    startEditing: state.startEditing,
-    cancelEditing: state.cancelEditing,
-    commitEdit: state.commitEdit,
-    exitToFocused: state.exitToFocused,
-    updatePendingValue: state.updatePendingValue,
-  }));
+  >(
+    (state) => ({
+      editingCell: state.editingCell,
+      focusedCell: state.focusedCell,
+      startEditing: state.startEditing,
+      cancelEditing: state.cancelEditing,
+      commitEdit: state.commitEdit,
+      exitToFocused: state.exitToFocused,
+      updatePendingValue: state.updatePendingValue,
+    }),
+    shallow,
+  );
 }
 
 /** Get derived state flags */
@@ -373,26 +392,32 @@ export function useDerivedState<TData>(enableDragDrop: boolean, enableSelection:
       isSelectionEnabled: boolean;
       activeFilterCount: number;
     }
-  >((state) => ({
-    isDragDropEnabled: state.isDragDropEnabled(enableDragDrop),
-    isSelectionEnabled: enableSelection,
-    activeFilterCount: state.getActiveFilterCount(),
-  }));
+  >(
+    (state) => ({
+      isDragDropEnabled: state.isDragDropEnabled(enableDragDrop),
+      isSelectionEnabled: enableSelection,
+      activeFilterCount: state.getActiveFilterCount(),
+    }),
+    shallow,
+  );
 }
 
 export function useCellSelectionOverview<TData>() {
-  return useDataTableStore<
-    TData,
-    {
-      selectedCount: number;
-      hasSelections: boolean;
-      selectedRows: TData[];
-      clearSelection: () => void;
-    }
-  >((state) => ({
-    selectedCount: state.getSelectedCount(),
-    hasSelections: state.hasSelections(),
-    selectedRows: state.getSelectedRows(),
-    clearSelection: state.clearSelection,
-  }));
+  const selectedCount = useDataTableStore<TData, number>(
+    (state) => state.getSelectedCount(),
+  );
+  const clearSelection = useDataTableStore<TData, () => void>(
+    (state) => state.clearSelection,
+    () => true,
+  );
+  const getSelectedRows = useDataTableStore<TData, () => TData[]>(
+    (state) => state.getSelectedRows,
+    () => true,
+  );
+  const hasSelections = selectedCount > 0;
+
+  // Only recompute selectedRows when the count changes — not on every store update
+  const selectedRows = useMemo(() => getSelectedRows(), [selectedCount, getSelectedRows]);
+
+  return { selectedCount, hasSelections, selectedRows, clearSelection };
 }

@@ -337,6 +337,16 @@ class StorageService(
         logDeleteActivity(userId, workspaceId, entity)
     }
 
+    /**
+     * Delete a file by its storage key, cleaning up both the physical file and any associated metadata.
+     *
+     * Used for avatar cleanup where the caller only has the storage key, not a file ID or workspace scope.
+     */
+    fun deleteByStorageKey(storageKey: String) {
+        fileMetadataRepository.findByStorageKey(storageKey).ifPresent { softDeleteMetadata(it) }
+        deletePhysicalFile(storageKey)
+    }
+
     // ------ List ------
 
     /**

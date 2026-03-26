@@ -12,7 +12,7 @@ Created: 2026-02-13
 
 The Entity Integration Sync sub-domain requires connecting to multiple third-party SaaS tools (HubSpot, Salesforce, Stripe, Zendesk, Intercom, Gmail) for OAuth-based authentication, token management, webhook handling, and data syncing. Building this infrastructure from scratch is a massive undertaking -- each provider has unique OAuth flows (OAuth 1.0a, 2.0, API keys), token refresh and expiry patterns, rate limits, webhook payload formats, and error handling quirks. The existing Kotlin/Spring Boot 3.5.3 application needs a way to manage these integrations without building bespoke connector logic for each provider.
 
-The v1 roadmap targets six integrations across four categories (CRM, payments, support, email), with the integration catalog designed to scale to additional providers. The core engineering value of the system lies in identity resolution, provenance tracking, and schema mapping -- not in OAuth plumbing. Every hour spent building OAuth infrastructure is an hour not spent on the differentiating features.
+The v1 roadmap targets six integrations across four categories (CRM, payments, support, email), with the integration catalog designed to scale to additional providers. The core engineering value of the system lies in identity resolution, source tracking, and schema mapping -- not in OAuth plumbing. Every hour spent building OAuth infrastructure is an hour not spent on the differentiating features.
 
 ---
 
@@ -31,8 +31,8 @@ No official Java/Kotlin SDK exists for Nango -- integration is via direct REST A
 - **Built-in rate limit handling and retry logic at the infrastructure level.** Provider-specific rate limit patterns (sliding window, token bucket, concurrent request limits) are handled by Nango rather than implemented per-provider in application code.
 - **Supports 600+ integrations with maintained provider configurations.** Provider API changes, new OAuth scopes, and breaking changes are handled by Nango's maintained configuration library. The application only needs to add a row to `integration_definitions` to support a new provider.
 - **Webhook management with signature verification built in.** Nango standardizes webhook delivery across providers and handles per-provider signature verification formats.
-- **Reduces integration time from weeks per provider to days.** The primary engineering effort shifts from integration plumbing (OAuth, tokens, webhooks) to domain-specific logic (schema mapping, identity resolution, provenance tracking).
-- **Allows the team to focus on domain-specific value.** Identity resolution, provenance tracking, conflict resolution, and schema mapping are the differentiating capabilities of the system. These are where engineering effort should concentrate.
+- **Reduces integration time from weeks per provider to days.** The primary engineering effort shifts from integration plumbing (OAuth, tokens, webhooks) to domain-specific logic (schema mapping, identity resolution, source tracking).
+- **Allows the team to focus on domain-specific value.** Identity resolution, conflict resolution, and schema mapping are the differentiating capabilities of the system. These are where engineering effort should concentrate.
 
 ---
 
@@ -42,13 +42,13 @@ No official Java/Kotlin SDK exists for Nango -- integration is via direct REST A
 
 - **Pros:** Full control over OAuth flows. No external service dependency. No vendor lock-in. Can optimize token refresh timing for each provider.
 - **Cons:** Massive engineering effort (months of work). Must implement OAuth for each provider individually -- each with unique quirks (Salesforce's instance URLs, HubSpot's granular scopes, Stripe's API key rotation). Must build token refresh/rotation with provider-specific expiry handling. Must build webhook registration and signature verification per provider. Must implement rate limit detection and backoff per provider's specific rate limit scheme.
-- **Why rejected:** The integration plumbing is not a differentiator. Identity resolution, provenance tracking, and schema mapping are where the system creates value. Building OAuth from scratch diverts months of engineering effort from core capabilities. With six v1 target integrations, the effort multiplies.
+- **Why rejected:** The integration plumbing is not a differentiator. Identity resolution and schema mapping are where the system creates value. Building OAuth from scratch diverts months of engineering effort from core capabilities. With six v1 target integrations, the effort multiplies.
 
 ### Option 2: Use Merge.dev Unified API
 
 - **Pros:** Provides unified API abstraction across CRM, ATS, and HRIS categories. Pre-built data models for common SaaS categories. Handles OAuth and sync infrastructure.
 - **Cons:** Higher cost at scale. More opinionated data model -- Merge.dev defines a "Common Model" that may not map cleanly to our entity types and attribute schema. Less control over sync frequency and webhook handling. Vendor lock-in extends to their data model, not just their infrastructure. Limited control over which fields are synced and how raw data is exposed.
-- **Why rejected:** Merge.dev's unified data model abstracts too much. The system needs raw provider data to apply its own schema mapping (via `IntegrationSchemaMappingEntity` with JSONPath extraction) and identity resolution (via signal extraction from raw fields). Their Common Model removes the control needed for attribute-level provenance tracking and custom field mapping. The system's value proposition depends on transforming raw integration data through its own pipeline -- a pre-normalized unified API undermines that.
+- **Why rejected:** Merge.dev's unified data model abstracts too much. The system needs raw provider data to apply its own schema mapping (via `IntegrationSchemaMappingEntity` with JSONPath extraction) and identity resolution (via signal extraction from raw fields). Their Common Model removes the control needed for custom field mapping and entity-level source tracking. The system's value proposition depends on transforming raw integration data through its own pipeline -- a pre-normalized unified API undermines that.
 
 ### Option 3: Use Paragon (Embedded Integration Platform)
 
@@ -66,7 +66,7 @@ No official Java/Kotlin SDK exists for Nango -- integration is via direct REST A
 - OAuth, token refresh, and rate limiting handled out of the box. No application-level token storage or refresh logic.
 - Credentials never stored in the application database. Only Nango connection IDs are persisted in `integration_connections.nango_connection_id`. This reduces the security surface and eliminates the need for credential encryption at the application layer.
 - 600+ pre-built provider configurations with maintained updates. When providers change their OAuth flows or API versions, Nango's maintained configuration library handles the update.
-- Team can focus on domain-specific value: schema mapping (transforming provider payloads to entity attributes), identity resolution (matching incoming records to existing entities), and provenance tracking (attribute-level source tracking and conflict resolution).
+- Team can focus on domain-specific value: schema mapping (transforming provider payloads to entity attributes), identity resolution (matching incoming records to existing entities), and conflict resolution (handling competing updates from multiple sources).
 
 ### Negative
 

@@ -1,11 +1,12 @@
 'use client';
 
 import { useProfile } from '@/components/feature-modules/user/hooks/use-profile';
+import { WorkspaceIcon } from '@/components/feature-modules/workspace/components/workspace-icon';
 import { useWorkspaceStore } from '@/components/feature-modules/workspace/provider/workspace-provider';
 import { Logo } from '@riven/ui/logo';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@riven/ui/tooltip';
 import { cn } from '@riven/utils';
-import { Building2, CogIcon, SquareDashedMousePointer, TrendingUpDown } from 'lucide-react';
+import { Building2, CogIcon, SquareDashedMousePointer, StickyNote, TrendingUpDown } from 'lucide-react';
 import { Kbd, KbdGroup } from '../kbd';
 import { Skeleton } from '../skeleton';
 import { type PanelId, useIconRail } from './icon-rail-context';
@@ -19,11 +20,12 @@ interface RailButton {
 const navItems: RailButton[] = [
   { id: 'overview', icon: <Building2 className="size-5" />, label: 'Overview' },
   { id: 'entities', icon: <SquareDashedMousePointer className="size-5" />, label: 'Entities' },
+  { id: 'notes', icon: <StickyNote className="size-5" />, label: 'Notes' },
   { id: 'billing', icon: <TrendingUpDown className="size-5" />, label: 'Billing' },
   { id: 'settings', icon: <CogIcon className="size-5" />, label: 'Settings' },
 ];
 
-function WorkspaceIcon() {
+function SelectedWorkspaceIcon() {
   const { data, isPending, isLoadingAuth } = useProfile();
   const selectedWorkspaceId = useWorkspaceStore((s) => s.selectedWorkspaceId);
 
@@ -35,12 +37,11 @@ function WorkspaceIcon() {
     return <Skeleton className="size-8 rounded-md" />;
   }
 
-  const letter = workspace?.name?.charAt(0)?.toUpperCase() ?? 'W';
-
   return (
-    <div className="flex size-8 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground dark:bg-muted-foreground">
-      {letter}
-    </div>
+    <WorkspaceIcon
+      name={workspace?.name ?? 'Workspace'}
+      avatarUrl={workspace?.avatarUrl}
+    />
   );
 }
 
@@ -69,7 +70,7 @@ export function IconRail() {
                   selectedPanel === 'workspaces' && 'bg-background/15',
                 )}
               >
-                <WorkspaceIcon />
+                <SelectedWorkspaceIcon />
               </button>
             </TooltipTrigger>
             <TooltipContent side="right">Workspaces</TooltipContent>

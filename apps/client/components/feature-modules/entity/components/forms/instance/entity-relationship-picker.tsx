@@ -13,11 +13,10 @@ import {
 import { uuid } from '@/lib/util/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@riven/ui/tooltip';
 import { Button } from '@riven/ui/button';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@riven/ui/command';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@riven/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
-import { ScrollArea } from '@riven/ui/scroll-area';
 import { cn } from '@riven/utils';
-import { Check, ChevronDown, Minus, X } from 'lucide-react';
+import { Check, ChevronDown, EyeOff, Minus, X } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { FC, useEffect, useMemo, useState } from 'react';
 import { useEntityTypes } from '@/components/feature-modules/entity/hooks/query/type/use-entity-types';
@@ -49,6 +48,7 @@ export const EntityRelationshipPicker: FC<EntityRelationshipPickerProps> = ({
 }) => {
   const [selectedType, setSelectedType] = useState<string>('ALL');
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const [hideConstrained, setHideConstrained] = useState(false);
 
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const { data: entityTypes } = useEntityTypes(workspaceId);
@@ -113,9 +113,12 @@ export const EntityRelationshipPicker: FC<EntityRelationshipPickerProps> = ({
 
   const filteredEntities = useMemo(() => {
     const base = selectedType === 'ALL' ? entities : entities.filter((e) => e.typeId === selectedType);
-    // Exclude already-selected entities — they appear in the "selected" section
-    return base.filter((e) => !selectedIds.has(e.id));
-  }, [entities, selectedType, selectedIds]);
+    return base.filter((e) => {
+      if (selectedIds.has(e.id)) return false;
+      if (hideConstrained && constrainedEntities.has(e.id)) return false;
+      return true;
+    });
+  }, [entities, selectedType, selectedIds, hideConstrained, constrainedEntities]);
 
   const onSelectEntity = (entity: Entity) => {
     if (value.some((link) => link.id === entity.id)) {
@@ -239,8 +242,35 @@ export const EntityRelationshipPicker: FC<EntityRelationshipPickerProps> = ({
             {/* Search with type filter indicator */}
             <div className="relative flex items-center">
               <CommandInput placeholder="Search..." />
-              {types.length > 1 && (
-                <div className="absolute right-2 top-1/2 -translate-y-1/2">
+              <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1">
+                {constrainedEntities.size > 0 && (
+                  <TooltipProvider delayDuration={300}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          type="button"
+                          onClick={() => setHideConstrained((prev) => !prev)}
+                          aria-label={hideConstrained ? 'Show all entities' : 'Hide unavailable entities'}
+                          aria-pressed={hideConstrained}
+                          className={cn(
+                            'flex shrink-0 items-center justify-center rounded-md p-1 text-xs transition-colors',
+                            hideConstrained
+                              ? 'bg-secondary text-secondary-foreground'
+                              : 'text-muted-foreground hover:text-foreground',
+                          )}
+                        >
+                          <EyeOff className="size-3.5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom">
+                        <p className="text-xs">
+                          {hideConstrained ? 'Show all entities' : 'Hide unavailable entities'}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+                {types.length > 1 && (
                   <TypeFilterDropdown
                     types={types}
                     selectedType={selectedType}
@@ -248,8 +278,8 @@ export const EntityRelationshipPicker: FC<EntityRelationshipPickerProps> = ({
                     entityTypeKeyIdMap={entityTypeKeyIdMap}
                     onSelect={setSelectedType}
                   />
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             {/* Selected items section */}
@@ -318,7 +348,7 @@ export const EntityRelationshipPicker: FC<EntityRelationshipPickerProps> = ({
                 Failed to load entities
               </div>
             ) : (
-              <ScrollArea className="max-h-56">
+              <CommandList>
                 <CommandEmpty className="py-4 text-center text-xs text-muted-foreground">
                   No entities found.
                 </CommandEmpty>
@@ -382,7 +412,7 @@ export const EntityRelationshipPicker: FC<EntityRelationshipPickerProps> = ({
                     return item;
                   })}
                 </CommandGroup>
-              </ScrollArea>
+              </CommandList>
             )}
           </Command>
         </PopoverContent>

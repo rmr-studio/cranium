@@ -3,6 +3,8 @@ package riven.core.models.integration.mapping
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
+import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver
+import riven.core.configuration.util.CaseInsensitiveTypeIdResolver
 import riven.core.enums.integration.CoercionType
 
 /**
@@ -10,7 +12,8 @@ import riven.core.enums.integration.CoercionType
  *
  * Deserialized from JSONB using Jackson discriminated union via the "type" property.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, property = "type")
+@JsonTypeIdResolver(CaseInsensitiveTypeIdResolver::class)
 @JsonSubTypes(
     JsonSubTypes.Type(value = FieldTransform.Direct::class, name = "direct"),
     JsonSubTypes.Type(value = FieldTransform.TypeCoercion::class, name = "type_coercion"),

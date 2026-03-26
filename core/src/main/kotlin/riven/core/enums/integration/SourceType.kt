@@ -6,5 +6,6 @@ enum class SourceType {
     IMPORT,
     API,
     WORKFLOW,
-    IDENTITY_MATCH
+    IDENTITY_MATCH,
+    TEMPLATE
 }

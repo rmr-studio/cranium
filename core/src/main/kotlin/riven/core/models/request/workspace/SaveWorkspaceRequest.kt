@@ -9,4 +9,5 @@ data class SaveWorkspaceRequest(
     val plan: WorkspacePlan,
     val defaultCurrency: String, // Default currency for the workspace, can be a string representation of the currency code
     val isDefault: Boolean = false,
+    val removeAvatar: Boolean = false,
 )

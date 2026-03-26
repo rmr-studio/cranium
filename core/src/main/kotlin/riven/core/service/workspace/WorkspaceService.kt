@@ -11,18 +11,19 @@ import riven.core.entity.workspace.WorkspaceEntity
 import riven.core.entity.workspace.WorkspaceMemberEntity
 import riven.core.enums.core.ApplicationEntityType
 import riven.core.enums.storage.StorageDomain
+import riven.core.enums.util.OperationType
 import riven.core.enums.workspace.WorkspaceRoles
 import riven.core.exceptions.NotFoundException
 import riven.core.models.analytics.WorkspaceCreatedEvent
 import riven.core.models.analytics.WorkspaceUpdatedEvent
 import riven.core.models.common.markDeleted
 import riven.core.models.request.workspace.SaveWorkspaceRequest
+import riven.core.models.websocket.WorkspaceChangeEvent
+import riven.core.models.request.user.SaveUserRequest
 import riven.core.models.workspace.Workspace
 import riven.core.models.workspace.WorkspaceMember
 import riven.core.repository.workspace.WorkspaceMemberRepository
 import riven.core.repository.workspace.WorkspaceRepository
-import riven.core.enums.util.OperationType
-import riven.core.models.websocket.WorkspaceChangeEvent
 import riven.core.service.activity.ActivityService
 import riven.core.service.activity.log
 import riven.core.service.auth.AuthTokenService
@@ -72,19 +73,9 @@ class WorkspaceService(
      * Creates or updates a workspace, then uploads avatar outside the transaction boundary
      * to prevent orphaned files on rollback.
      */
+    @Transactional
     @Throws(AccessDeniedException::class, IllegalArgumentException::class)
     fun saveWorkspace(request: SaveWorkspaceRequest, avatar: MultipartFile? = null): Workspace {
-        val (workspace, entity) = saveWorkspaceTransactional(request)
-
-        avatar?.let { file ->
-            uploadWorkspaceAvatar(workspace.id, entity, file)
-        }
-
-        return workspace
-    }
-
-    @Transactional
-    fun saveWorkspaceTransactional(request: SaveWorkspaceRequest): Pair<Workspace, WorkspaceEntity> {
         val userId = authTokenService.getUserId()
         val currency = getCurrency(request.defaultCurrency)
         val isUpdate = request.id != null
@@ -94,6 +85,13 @@ class WorkspaceService(
         }
 
         val entity = createOrUpdateWorkspaceEntity(request, currency)
+        val previousAvatarKey = if (isUpdate) entity.avatarUrl else null
+
+        // Handle explicit avatar removal
+        if (request.removeAvatar && entity.avatarUrl != null) {
+            entity.avatarUrl = null
+        }
+
         val saved = workspaceRepository.save(entity)
         val workspaceId = requireNotNull(saved.id) { "WorkspaceEntity must have a non-null id after save" }
 
@@ -109,8 +107,23 @@ class WorkspaceService(
             setDefaultWorkspaceIfNeeded(workspace, request, userId)
         }
 
-        return workspace to saved
+        avatar?.let { file ->
+            uploadWorkspaceAvatar(workspace.id, saved, file)
+            // Delete old avatar from storage if it was replaced
+            if (previousAvatarKey != null && previousAvatarKey != saved.avatarUrl) {
+                storageService.deleteByStorageKey(previousAvatarKey)
+            }
+            return workspace.copy(avatarUrl = saved.toModel().avatarUrl)
+        }
+
+        // Delete old avatar from storage if it was removed
+        if (previousAvatarKey != null && previousAvatarKey != saved.avatarUrl) {
+            storageService.deleteByStorageKey(previousAvatarKey)
+        }
+
+        return workspace
     }
+
 
     private fun createOrUpdateWorkspaceEntity(request: SaveWorkspaceRequest, currency: Currency): WorkspaceEntity {
         return if (request.id == null) {
@@ -147,7 +160,7 @@ class WorkspaceService(
     private fun logWorkspaceActivity(userId: UUID, workspaceId: UUID, name: String, isUpdate: Boolean = false) {
         activityService.log(
             activity = riven.core.enums.activity.Activity.WORKSPACE,
-            operation = if (isUpdate) riven.core.enums.util.OperationType.UPDATE else riven.core.enums.util.OperationType.CREATE,
+            operation = if (isUpdate) OperationType.UPDATE else OperationType.CREATE,
             userId = userId,
             workspaceId = workspaceId,
             entityType = ApplicationEntityType.WORKSPACE,
@@ -192,8 +205,14 @@ class WorkspaceService(
     private fun setDefaultWorkspaceIfNeeded(workspace: Workspace, request: SaveWorkspaceRequest, userId: UUID) {
         val user = userService.getUserWithWorkspacesFromSession()
         if (user.memberships.isEmpty() || request.isDefault) {
-            user.defaultWorkspace = workspace
-            userService.updateUserDetails(user)
+            val saveRequest = SaveUserRequest(
+                name = user.name,
+                email = user.email,
+                phone = user.phone,
+                defaultWorkspaceId = workspace.id,
+                onboardingCompletedAt = user.onboardingCompletedAt,
+            )
+            userService.updateUserDetails(saveRequest)
         }
     }
 
@@ -228,7 +247,7 @@ class WorkspaceService(
                 // Log the activity of deleting an workspace
                 activityService.log(
                     activity = riven.core.enums.activity.Activity.WORKSPACE,
-                    operation = riven.core.enums.util.OperationType.DELETE,
+                    operation = OperationType.DELETE,
                     userId = userId,
                     workspaceId = workspaceId,
                     entityType = ApplicationEntityType.WORKSPACE,
@@ -276,7 +295,7 @@ class WorkspaceService(
             workspaceMemberRepository.deleteById(id).also {
                 activityService.log(
                     activity = riven.core.enums.activity.Activity.WORKSPACE_MEMBER,
-                    operation = riven.core.enums.util.OperationType.DELETE,
+                    operation = OperationType.DELETE,
                     userId = userId,
                     workspaceId = workspaceId,
                     entityType = ApplicationEntityType.USER,
@@ -314,7 +333,7 @@ class WorkspaceService(
             }.also {
                 activityService.log(
                     activity = riven.core.enums.activity.Activity.WORKSPACE_MEMBER,
-                    operation = riven.core.enums.util.OperationType.UPDATE,
+                    operation = OperationType.UPDATE,
                     userId = userId,
                     workspaceId = workspaceId,
                     entityType = ApplicationEntityType.USER,

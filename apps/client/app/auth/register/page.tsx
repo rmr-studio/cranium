@@ -1,5 +1,5 @@
-import { AuthFormWrapper } from '@/components/feature-modules/authentication/components/AuthFormWrapper';
-import RegisterForm from '@/components/feature-modules/authentication/components/Register';
+import { AuthFormWrapper } from '@/components/feature-modules/authentication/components/auth-wrapper';
+import RegisterForm from '@/components/feature-modules/authentication/components/register';
 
 const Register = () => {
   return (

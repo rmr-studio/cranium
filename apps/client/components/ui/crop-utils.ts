@@ -1,7 +1,6 @@
 import type { Area } from 'react-easy-crop';
 
 const MAX_OUTPUT_SIZE = 256;
-const JPEG_QUALITY = 0.85;
 
 export function getCroppedImage(imageSrc: string, cropArea: Area): Promise<Blob> {
   if (cropArea.width <= 0 || cropArea.height <= 0) {
@@ -48,8 +47,7 @@ export function getCroppedImage(imageSrc: string, cropArea: Area): Promise<Blob>
           }
           resolve(blob);
         },
-        'image/jpeg',
-        JPEG_QUALITY,
+        'image/png',
       );
     };
 

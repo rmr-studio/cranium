@@ -4,15 +4,6 @@
 
 Riven is a unified business tooling SaaS platform that aims to connect all tools that a business uses together through integrations and flexible data modelling to provide contextual knowledge and cross domain intelligence. This is the Next.js 15 frontend (App Router, React 19, TypeScript strict) backed by a Spring Boot API at `localhost:8081`. Auth aims to be agnostic, through implementable interfaces. But is currently using supabase as its primary source. The API contract is defined by an OpenAPI spec served by the backend, with types generated via `openapi-generator-cli` (typescript-fetch) into `lib/types/`. UI is built with shadcn/ui (new-york style) + Tailwind 4 + Framer Motion.
 
-**Route groups:**
-
-- `/` — Auth-aware redirect (authenticated → last workspace or `/dashboard/workspace`, unauthenticated → `/auth/login`)
-- `/auth/login`, `/auth/register` — Supabase auth flows
-- `/dashboard` — Authenticated app shell (sidebar, navbar, onboarding wrapper), protected by `AuthGuard`
-- `/dashboard/workspace/[workspaceId]/entity/**` — Entity type management, data tables, schema config
-- `/dashboard/workspace/[workspaceId]/workflow/**` — Visual workflow builder (React Flow)
-- `/dashboard/settings`, `/dashboard/templates` — User settings, templates
-
 **API contract:** OpenAPI spec fetched at generation time from `http://localhost:8081/docs/v3/api-docs`. Generated output in `lib/types/`. Regenerate with `npm run types`.
 
 ## Architecture Rules
@@ -24,6 +15,8 @@ Riven is a unified business tooling SaaS platform that aims to connect all tools
 **Layout hierarchy:** Root layout → providers (Theme → Auth → QueryClient → Store) → `<main>`. Dashboard layout adds `AuthGuard`, `OnboardWrapper`, `SidebarProvider`, `DashboardSidebar`, `AppNavbar`. Auth layout is a simple passthrough.
 
 **Feature organization:** Hybrid. Feature code lives in `components/feature-modules/{feature}/` with subdirectories: `components/`, `hooks/query/`, `hooks/mutation/`, `hooks/form/`, `service/`, `store/` (or `stores/`), `context/`. Shared UI lives in `components/ui/`. Shared hooks in `hooks/`. Shared utils in `lib/util/`.
+
+**Utility functions:** All reusable utility/helper functions must live in `lib/util/utils.ts` (or a domain-specific file under `lib/util/`), never inline in component files. If a function is not a React component, hook, or component-specific handler, extract it to the shared util layer.
 
 **Import conventions:** Always use the `@/*` path alias — never use relative imports. This applies to all imports: intra-feature, cross-feature, shared, library, and test files. Direct imports — no barrel exports at feature-module level. Domain type barrels exist at `lib/types/{domain}/index.ts`. Import generated types from domain barrels (`@/lib/types/entity`), not from `@/lib/types/models/` directly.
 
@@ -74,11 +67,12 @@ All new stores **must** follow the factory + context + provider pattern. Do not 
 **Reference implementations:** `workspace-provider.tsx`, `entity-provider.tsx`, `workflow-canvas-provider.tsx`.
 
 **Existing stores:**
-  - `workspace.store.ts` — selected workspace ID. Simple `createStore`, no middleware. Persists to localStorage manually.
-  - `entity.store.ts` — entity draft mode (new entity creation). `createStore` + `subscribeWithSelector`. Holds react-hook-form instance.
-  - `configuration.store.ts` — entity type config editing. `createStore` + `subscribeWithSelector`. localStorage draft persistence with 7-day staleness.
-  - `workflow-canvas.store.ts` — React Flow nodes/edges/selection. `createStore` + `subscribeWithSelector`.
-  - `editor-store.ts` — Rich text editor state. Legacy global singleton — do not follow this pattern for new stores.
+
+- `workspace.store.ts` — selected workspace ID. Simple `createStore`, no middleware. Persists to localStorage manually.
+- `entity.store.ts` — entity draft mode (new entity creation). `createStore` + `subscribeWithSelector`. Holds react-hook-form instance.
+- `configuration.store.ts` — entity type config editing. `createStore` + `subscribeWithSelector`. localStorage draft persistence with 7-day staleness.
+- `workflow-canvas.store.ts` — React Flow nodes/edges/selection. `createStore` + `subscribeWithSelector`.
+- `editor-store.ts` — Rich text editor state. Legacy global singleton — do not follow this pattern for new stores.
 
 **Do not:** use `create()` for global singletons, export `useShallow` selector hooks from store files, or access stores without going through the provider's context hook.
 
@@ -86,7 +80,7 @@ All new stores **must** follow the factory + context + provider pattern. Do not 
 
 **shadcn usage:** Standard new-york style from `components/ui/`. Mostly unmodified. Button has a custom `xs` size variant. Sonner toaster is themed via CSS variables. Some custom components live alongside shadcn: `attribute-type-dropdown.tsx`, `AuthenticateButton.tsx`, `AvatarUploader.tsx`, `breadcrumb-group.tsx`, `country-select.tsx`, `filter-list.tsx`, `phone-input.tsx`, `status.tsx`, `stepper.tsx`, `truncated-tooltip.tsx`. Sub-directories for complex UI: `data-table/`, `forms/`, `icon/`, `nav/`, `sidebar/`, `rich-editor/`, `background/`.
 
-**Component file structure:** Single file per component. No co-located tests or stories. No index barrel exports at component level.
+**Component file structure:** One component per file — do not create mega files with multiple components. If a feature needs sub-components (e.g., skeleton loaders, sections, previews), split them into separate files in the same directory with a shared prefix (e.g., `account-settings.tsx`, `account-settings-appearance.tsx`, `account-settings-skeleton.tsx`). No co-located component render tests or stories (store, schema, and service tests are co-located per the Testing Strategy section below). No index barrel exports at component level.
 
 **Props pattern:** Inline object types in function signatures for simple components. Named interfaces/types for complex ones. Props destructured in function signature. Shared prop interfaces in `lib/interfaces/interface.ts` (`FCWC<T>`, `Propless`, `ChildNodeProps`, `ClassNameProps`, `FormFieldProps<T>`, `DialogControl`).
 
@@ -101,6 +95,10 @@ All new stores **must** follow the factory + context + provider pattern. Do not 
 - **Pattern:** Custom hook returns `{ form, handleSubmit, ...extras }`. Schema defined with `z.object()`, resolved via `zodResolver()`.
 - **Errors:** Displayed inline via react-hook-form's `form.setError()`. Also manual validation in store submit handlers.
 - **Submit flow:** Form hook calls mutation hook. Mutations handle toasts.
+
+## Design System
+
+Always read `DESIGN.md` before making any visual or UI decisions. All font choices, colors, spacing, border radius, shadows, and aesthetic direction are defined there. Do not deviate without explicit user approval. A rendered preview is available at `docs/designs/design-system-preview.html`.
 
 ## Styling Rules
 
@@ -202,8 +200,6 @@ Testing is being built progressively. Follow this priority order when adding tes
 - Use `describe` blocks named after the function/store under test.
 - Keep test setup minimal — if a test needs 30 lines of setup, the code under test probably needs refactoring. If this is the case. Showcase the code to me and explain the current problem about its complexity.
 
-```
-
 ## Workflow Preferences
 
 - Plan before building on any task involving 3+ files or new feature areas.
@@ -212,4 +208,3 @@ Testing is being built progressively. Follow this priority order when adding tes
 - When adding a new API integration: regenerate types first (`npm run types`), then create the service, then the query/mutation hook, then the UI. Never go UI-first.
 - Match existing patterns. Check how similar features are implemented before creating new ones.
 - When uncertain, check the entity feature module — it is the most complete reference implementation.
-```

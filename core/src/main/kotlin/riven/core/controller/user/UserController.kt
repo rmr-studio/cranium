@@ -9,6 +9,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
+import riven.core.models.request.user.SaveUserRequest
 import riven.core.models.user.User
 import riven.core.service.user.UserService
 import java.util.*
@@ -66,20 +67,15 @@ class UserController(
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "User profile updated successfully"),
         ApiResponse(responseCode = "401", description = "Unauthorized access"),
-        ApiResponse(responseCode = "403", description = "User ID in request does not match session user"),
         ApiResponse(responseCode = "404", description = "User not found"),
         ApiResponse(responseCode = "400", description = "Invalid request data")
     )
     @SecurityRequirement(name = "bearerAuth")
     fun updateUserProfile(
-        @RequestPart("user") user: User,
+        @RequestPart("user") request: SaveUserRequest,
         @RequestPart("avatar", required = false) avatar: MultipartFile? = null
     ): ResponseEntity<User> {
-        val currentUserId = profileService.getUserFromSession().id
-        if (user.id != currentUserId) {
-            return ResponseEntity.status(403).build()
-        }
-        val updatedUserProfile = profileService.updateUserDetails(user, avatar)
+        val updatedUserProfile = profileService.updateUserDetails(request, avatar)
         return ResponseEntity.ok(updatedUserProfile)
     }
 

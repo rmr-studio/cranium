@@ -47,4 +47,16 @@ interface EntityRepository : JpaRepository<EntityEntity, UUID> {
     )
     fun deleteByIds(ids: Array<UUID>, workspaceId: UUID): List<EntityEntity>
 
+    @Query("""
+        SELECT e FROM EntityEntity e
+        WHERE e.workspaceId = :workspaceId
+          AND e.sourceIntegrationId = :sourceIntegrationId
+          AND e.sourceExternalId IN :sourceExternalIds
+    """)
+    fun findByWorkspaceIdAndSourceIntegrationIdAndSourceExternalIdIn(
+        workspaceId: UUID,
+        sourceIntegrationId: UUID,
+        sourceExternalIds: Collection<String>
+    ): List<EntityEntity>
+
 }

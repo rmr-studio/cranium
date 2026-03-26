@@ -19,14 +19,14 @@ export function useEntityTypes(workspaceId?: string): AuthenticatedQueryResult<E
 }
 
 export function useEntityTypeByKey(
-  key: string,
+  key?: string,
   workspaceId?: string,
   include?: string[],
 ): AuthenticatedQueryResult<EntityType> {
   const { session } = useAuth();
   return useAuthenticatedQuery({
     queryKey: entityKeys.entityTypes.byKey(key!, workspaceId!, include),
-    queryFn: () => EntityTypeService.getEntityTypeByKey(session, workspaceId!, key, include),
+    queryFn: () => EntityTypeService.getEntityTypeByKey(session, workspaceId!, key!, include),
     staleTime: 10 * 60 * 1000,
     enabled: !!key && !!workspaceId,
     refetchOnWindowFocus: false,

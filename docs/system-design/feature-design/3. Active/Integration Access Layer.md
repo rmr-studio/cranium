@@ -52,7 +52,7 @@ This layer deliberately excludes REST controllers -- the Phase 1 implementation 
 
 ### Entity Modifications
 
-No modifications to existing JPA entities. Foreign key constraints from `entities.source_integration_id` and `entity_attribute_provenance.source_integration_id` to `integration_definitions.id` are added in V004, but these are database-level constraints only -- the JPA entity classes for provenance are created in [[Entity Provenance Tracking]] without requiring changes here.
+No modifications to existing JPA entities. A foreign key constraint from `entities.source_integration_id` to `integration_definitions.id` is added in V004, but this is a database-level constraint only -- no JPA entity changes are required here.
 
 ### Data Ownership
 
@@ -102,21 +102,9 @@ erDiagram
         BIGINT sync_version
     }
 
-    entity_attribute_provenance {
-        UUID id PK
-        UUID entity_id FK
-        UUID attribute_id
-        VARCHAR source_type
-        UUID source_integration_id FK
-        VARCHAR source_external_field
-        BOOLEAN override_by_user
-    }
-
     integration_definitions ||--o{ integration_connections : "defines"
     integration_definitions ||--o{ entities : "source_integration_id"
-    integration_definitions ||--o{ entity_attribute_provenance : "source_integration_id"
     integration_connections }o--|| integration_definitions : "references"
-    entities ||--o{ entity_attribute_provenance : "entity_id"
 ```
 
 ### Data Lifecycle
@@ -204,7 +192,6 @@ erDiagram
 | Component | Change Required | Impact |
 |-----------|----------------|--------|
 | `entities` table | FK constraint added from `source_integration_id` to `integration_definitions.id` | Database-level only, no JPA entity changes |
-| `entity_attribute_provenance` table | FK constraint added from `source_integration_id` to `integration_definitions.id` | Database-level only, no JPA entity changes |
 
 ### Component Interaction Diagram
 
@@ -476,7 +463,7 @@ Tests the service layer with mocked repositories and `NangoClientWrapper`:
 | Migration | Description | Key Details |
 |-----------|-------------|-------------|
 | **V003** | Create `integration_definitions` table | Global catalog, no RLS. UUID PK, `slug` UNIQUE, JSONB columns for `capabilities`, `sync_config`, `auth_config`. `active` boolean, timestamps. |
-| **V004** | Create `integration_connections` table + FK constraints | Workspace-scoped with RLS. UUID PK, FK to `integration_definitions`, FK to workspace. `UNIQUE(workspace_id, integration_id)`. RLS policies using `workspace_members` subquery. Also adds FK from `entities.source_integration_id` and `entity_attribute_provenance.source_integration_id` to `integration_definitions.id`. |
+| **V004** | Create `integration_connections` table + FK constraints | Workspace-scoped with RLS. UUID PK, FK to `integration_definitions`, FK to workspace. `UNIQUE(workspace_id, integration_id)`. RLS policies using `workspace_members` subquery. Also adds FK from `entities.source_integration_id` to `integration_definitions.id`. |
 | **V005** | Seed initial integration definitions | 6 integrations: HubSpot (CRM), Salesforce (CRM), Stripe (PAYMENTS), Zendesk (SUPPORT), Intercom (SUPPORT), Gmail (EMAIL). Each entry includes `nango_provider_key`, category, and placeholder `capabilities`/`sync_config` JSONB. |
 
 ### Data Backfill
@@ -491,7 +478,7 @@ No existing data is affected. These are entirely new tables. The V005 seed migra
 | 2 | Service layer deployment | `IntegrationDefinitionService` and `IntegrationConnectionService` operational, `NangoClientWrapper` can authenticate with Nango API | Service startup failure or Nango API connectivity issue |
 | 3 | (Future) REST controllers + webhook handlers | User-facing integration management | N/A -- separate feature design |
 
-Flyway manages execution order automatically. Migrations V001 and V002 ([[Entity Provenance Tracking]]) run before V003 and V004, ensuring the `entities` and `entity_attribute_provenance` tables exist before FK constraints are added in V004.
+Flyway manages execution order automatically. Migration V001 runs before V003 and V004, ensuring the `entities` table source fields exist before FK constraints are added in V004.
 
 ---
 
@@ -522,7 +509,7 @@ Flyway manages execution order automatically. Migrations V001 and V002 ([[Entity
 ## 13. Implementation Tasks
 
 - [ ] **V003 Migration: Integration Definitions Table** -- Create `integration_definitions` table with UUID PK, `slug` (UNIQUE), `name`, `icon_url`, `description`, `category`, `nango_provider_key`, `capabilities` (JSONB), `sync_config` (JSONB), `auth_config` (JSONB), `active` (BOOLEAN), and timestamps.
-- [ ] **V004 Migration: Integration Connections Table + FK Constraints** -- Create `integration_connections` table with UUID PK, `workspace_id` FK, `integration_id` FK to `integration_definitions`, `nango_connection_id`, `status` (DEFAULT `'PENDING_AUTHORIZATION'`), `connection_metadata` (JSONB), audit columns. Add `UNIQUE(workspace_id, integration_id)`. Create RLS policy matching entity pattern. Add FK constraints from `entities.source_integration_id` and `entity_attribute_provenance.source_integration_id` to `integration_definitions.id`.
+- [ ] **V004 Migration: Integration Connections Table + FK Constraints** -- Create `integration_connections` table with UUID PK, `workspace_id` FK, `integration_id` FK to `integration_definitions`, `nango_connection_id`, `status` (DEFAULT `'PENDING_AUTHORIZATION'`), `connection_metadata` (JSONB), audit columns. Add `UNIQUE(workspace_id, integration_id)`. Create RLS policy matching entity pattern. Add FK constraint from `entities.source_integration_id` to `integration_definitions.id`.
 - [ ] **Enums: ConnectionStatus, IntegrationCategory, SyncDirection** -- Create `ConnectionStatus` enum with 10 states and `canTransitionTo()` method. Create `IntegrationCategory` and `SyncDirection` enums.
 - [ ] **JPA Entities and Repositories** -- Create `IntegrationDefinitionEntity` (no `AuditableEntity`, global scope) and `IntegrationConnectionEntity` (extends `AuditableEntity`). Create `IntegrationDefinitionRepository` and `IntegrationConnectionRepository` extending `JpaRepository<Entity, UUID>`.
 - [ ] **Nango Client Infrastructure** -- Create `NangoConfigurationProperties` (`@ConfigurationProperties(prefix = "riven.nango")`). Create `NangoClientConfiguration` with qualified `WebClient` bean. Create `NangoModels` data classes. Create `NangoClientWrapper` with retry logic, rate limit handling, and runtime secret key validation.
@@ -541,9 +528,8 @@ Flyway manages execution order automatically. Migrations V001 and V002 ([[Entity
 - [[ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]
 - [[Flow Integration Connection Lifecycle]]
 - [[Entity Integration Sync]]
-- [[Entity Provenance Tracking]]
 - [[Integration Schema Mapping]]
-- [[Integration Identity Resolution System]]
+- [[Identity Resolution System]]
 - [[Predefined Integration Entity Types]]
 - [[Entities]]
 - [[Workspaces & Users]]

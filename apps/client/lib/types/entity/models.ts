@@ -17,10 +17,16 @@ import { type RelationshipTargetRule } from '../models/RelationshipTargetRule';
 import { type SemanticMetadataBundle } from '../models/SemanticMetadataBundle';
 
 import { type DeleteDefinitionImpact } from '../models/DeleteDefinitionImpact';
+import { type EntityQueryRequest } from '../models/EntityQueryRequest';
+import { type EntityQueryResponse } from '../models/EntityQueryResponse';
 import { EntityPropertyType } from '../models/EntityPropertyType';
 import { type EntityTypeImpactResponse } from '../models/EntityTypeImpactResponse';
+import { FilterOperator } from '../models/FilterOperator';
+import { type OrderByClause } from '../models/OrderByClause';
 import { type QueryFilter } from '../models/QueryFilter';
+import { type QueryPagination } from '../models/QueryPagination';
 import { SemanticAttributeClassification } from '../models/SemanticAttributeClassification';
+import { SortDirection } from '../models/SortDirection';
 import { SemanticGroup } from '../models/SemanticGroup';
 import { SemanticMetadataTargetType } from '../models/SemanticMetadataTargetType';
 import { SystemRelationshipType } from '../models/SystemRelationshipType';
@@ -38,9 +44,13 @@ export type {
   EntityLink,
   EntityType,
   EntityTypeAttributeColumn,
+  EntityQueryRequest,
+  EntityQueryResponse,
   EntityTypeImpactResponse,
   EntityTypeSemanticMetadata,
+  OrderByClause,
   QueryFilter,
+  QueryPagination,
   RelationshipDefinition,
   RelationshipTargetRule,
   SemanticMetadataBundle,
@@ -49,8 +59,10 @@ export type {
 export {
   EntityPropertyType,
   EntityRelationshipCardinality,
+  FilterOperator,
   SemanticAttributeClassification,
   SemanticGroup,
   SemanticMetadataTargetType,
+  SortDirection,
   SystemRelationshipType,
 };

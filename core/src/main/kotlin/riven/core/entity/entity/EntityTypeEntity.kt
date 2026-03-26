@@ -7,6 +7,7 @@ import org.hibernate.annotations.Type
 import riven.core.entity.util.AuditableSoftDeletableEntity
 import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
+import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.integration.SourceType
 import riven.core.models.common.Icon
@@ -61,6 +62,10 @@ data class EntityTypeEntity(
     var semanticGroup: SemanticGroup = SemanticGroup.UNCATEGORIZED,
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "lifecycle_domain", nullable = false)
+    var lifecycleDomain: LifecycleDomain = LifecycleDomain.UNCATEGORIZED,
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "source_type", nullable = false)
     val sourceType: SourceType = SourceType.USER_CREATED,
 
@@ -108,6 +113,7 @@ data class EntityTypeEntity(
             icon = Icon(this.iconType, this.iconColour),
             identifierKey = this.identifierKey,
             semanticGroup = this.semanticGroup,
+            lifecycleDomain = this.lifecycleDomain,
             sourceType = this.sourceType,
             sourceIntegrationId = this.sourceIntegrationId,
             readonly = this.readonly,

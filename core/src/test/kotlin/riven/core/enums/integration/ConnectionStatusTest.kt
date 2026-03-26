@@ -8,61 +8,19 @@ import org.junit.jupiter.api.Test
  *
  * Verifies all valid transitions succeed and key invalid transitions
  * are rejected by the canTransitionTo() method.
+ *
+ * The 8-state FSM: CONNECTED, SYNCING, HEALTHY, DEGRADED, STALE,
+ * DISCONNECTING, DISCONNECTED, FAILED.
+ * PENDING_AUTHORIZATION and AUTHORIZING were removed in Phase 2 — connections
+ * are created directly as CONNECTED after successful Nango OAuth webhook delivery.
  */
 class ConnectionStatusTest {
 
-    // ========== PENDING_AUTHORIZATION Transitions ==========
+    // ========== Enum Count ==========
 
     @Test
-    fun `PENDING_AUTHORIZATION can transition to AUTHORIZING`() {
-        assertTrue(ConnectionStatus.PENDING_AUTHORIZATION.canTransitionTo(ConnectionStatus.AUTHORIZING))
-    }
-
-    @Test
-    fun `PENDING_AUTHORIZATION can transition to FAILED`() {
-        assertTrue(ConnectionStatus.PENDING_AUTHORIZATION.canTransitionTo(ConnectionStatus.FAILED))
-    }
-
-    @Test
-    fun `PENDING_AUTHORIZATION can transition to DISCONNECTED`() {
-        assertTrue(ConnectionStatus.PENDING_AUTHORIZATION.canTransitionTo(ConnectionStatus.DISCONNECTED))
-    }
-
-    @Test
-    fun `PENDING_AUTHORIZATION cannot transition to SYNCING`() {
-        assertFalse(ConnectionStatus.PENDING_AUTHORIZATION.canTransitionTo(ConnectionStatus.SYNCING))
-    }
-
-    @Test
-    fun `PENDING_AUTHORIZATION cannot transition to CONNECTED`() {
-        assertFalse(ConnectionStatus.PENDING_AUTHORIZATION.canTransitionTo(ConnectionStatus.CONNECTED))
-    }
-
-    @Test
-    fun `PENDING_AUTHORIZATION cannot transition to HEALTHY`() {
-        assertFalse(ConnectionStatus.PENDING_AUTHORIZATION.canTransitionTo(ConnectionStatus.HEALTHY))
-    }
-
-    // ========== AUTHORIZING Transitions ==========
-
-    @Test
-    fun `AUTHORIZING can transition to CONNECTED`() {
-        assertTrue(ConnectionStatus.AUTHORIZING.canTransitionTo(ConnectionStatus.CONNECTED))
-    }
-
-    @Test
-    fun `AUTHORIZING can transition to FAILED`() {
-        assertTrue(ConnectionStatus.AUTHORIZING.canTransitionTo(ConnectionStatus.FAILED))
-    }
-
-    @Test
-    fun `AUTHORIZING cannot transition to HEALTHY`() {
-        assertFalse(ConnectionStatus.AUTHORIZING.canTransitionTo(ConnectionStatus.HEALTHY))
-    }
-
-    @Test
-    fun `AUTHORIZING cannot transition to SYNCING`() {
-        assertFalse(ConnectionStatus.AUTHORIZING.canTransitionTo(ConnectionStatus.SYNCING))
+    fun `ConnectionStatus has exactly 8 states`() {
+        assertEquals(8, ConnectionStatus.entries.size)
     }
 
     // ========== CONNECTED Transitions ==========
@@ -134,6 +92,11 @@ class ConnectionStatusTest {
     @Test
     fun `HEALTHY can transition to DISCONNECTING`() {
         assertTrue(ConnectionStatus.HEALTHY.canTransitionTo(ConnectionStatus.DISCONNECTING))
+    }
+
+    @Test
+    fun `HEALTHY can transition to FAILED`() {
+        assertTrue(ConnectionStatus.HEALTHY.canTransitionTo(ConnectionStatus.FAILED))
     }
 
     @Test
@@ -210,8 +173,10 @@ class ConnectionStatusTest {
     // ========== DISCONNECTED Transitions ==========
 
     @Test
-    fun `DISCONNECTED can transition to PENDING_AUTHORIZATION`() {
-        assertTrue(ConnectionStatus.DISCONNECTED.canTransitionTo(ConnectionStatus.PENDING_AUTHORIZATION))
+    fun `DISCONNECTED can transition to CONNECTED`() {
+        // In the webhook-driven model, re-connecting a DISCONNECTED integration
+        // comes directly from DISCONNECTED -> CONNECTED (Nango webhook confirms OAuth success).
+        assertTrue(ConnectionStatus.DISCONNECTED.canTransitionTo(ConnectionStatus.CONNECTED))
     }
 
     @Test
@@ -220,20 +185,21 @@ class ConnectionStatusTest {
     }
 
     @Test
-    fun `DISCONNECTED cannot transition to CONNECTED`() {
-        assertFalse(ConnectionStatus.DISCONNECTED.canTransitionTo(ConnectionStatus.CONNECTED))
+    fun `DISCONNECTED cannot transition to HEALTHY`() {
+        assertFalse(ConnectionStatus.DISCONNECTED.canTransitionTo(ConnectionStatus.HEALTHY))
     }
 
     @Test
-    fun `DISCONNECTED cannot transition to HEALTHY`() {
-        assertFalse(ConnectionStatus.DISCONNECTED.canTransitionTo(ConnectionStatus.HEALTHY))
+    fun `DISCONNECTED cannot transition to FAILED`() {
+        assertFalse(ConnectionStatus.DISCONNECTED.canTransitionTo(ConnectionStatus.FAILED))
     }
 
     // ========== FAILED Transitions ==========
 
     @Test
-    fun `FAILED can transition to PENDING_AUTHORIZATION`() {
-        assertTrue(ConnectionStatus.FAILED.canTransitionTo(ConnectionStatus.PENDING_AUTHORIZATION))
+    fun `FAILED can transition to CONNECTED`() {
+        // Recovery from FAILED goes directly to CONNECTED via webhook-driven reconnect.
+        assertTrue(ConnectionStatus.FAILED.canTransitionTo(ConnectionStatus.CONNECTED))
     }
 
     @Test
@@ -247,7 +213,7 @@ class ConnectionStatusTest {
     }
 
     @Test
-    fun `FAILED cannot transition to CONNECTED`() {
-        assertFalse(ConnectionStatus.FAILED.canTransitionTo(ConnectionStatus.CONNECTED))
+    fun `FAILED cannot transition to HEALTHY`() {
+        assertFalse(ConnectionStatus.FAILED.canTransitionTo(ConnectionStatus.HEALTHY))
     }
 }

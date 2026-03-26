@@ -57,6 +57,12 @@ export interface SaveWorkspaceRequest {
      * @memberof SaveWorkspaceRequest
      */
     isDefault: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof SaveWorkspaceRequest
+     */
+    removeAvatar: boolean;
 }
 
 
@@ -69,6 +75,7 @@ export function instanceOfSaveWorkspaceRequest(value: object): value is SaveWork
     if (!('plan' in value) || value['plan'] === undefined) return false;
     if (!('defaultCurrency' in value) || value['defaultCurrency'] === undefined) return false;
     if (!('isDefault' in value) || value['isDefault'] === undefined) return false;
+    if (!('removeAvatar' in value) || value['removeAvatar'] === undefined) return false;
     return true;
 }
 
@@ -87,6 +94,7 @@ export function SaveWorkspaceRequestFromJSONTyped(json: any, ignoreDiscriminator
         'plan': WorkspacePlanFromJSON(json['plan']),
         'defaultCurrency': json['defaultCurrency'],
         'isDefault': json['isDefault'],
+        'removeAvatar': json['removeAvatar'],
     };
 }
 
@@ -106,6 +114,7 @@ export function SaveWorkspaceRequestToJSONTyped(value?: SaveWorkspaceRequest | n
         'plan': WorkspacePlanToJSON(value['plan']),
         'defaultCurrency': value['defaultCurrency'],
         'isDefault': value['isDefault'],
+        'removeAvatar': value['removeAvatar'],
     };
 }
 

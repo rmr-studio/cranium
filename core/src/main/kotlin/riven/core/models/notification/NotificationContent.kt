@@ -2,10 +2,13 @@ package riven.core.models.notification
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver
+import riven.core.configuration.util.CaseInsensitiveTypeIdResolver
 import riven.core.enums.notification.ReviewPriority
 import riven.core.enums.notification.SystemSeverity
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, property = "type")
+@JsonTypeIdResolver(CaseInsensitiveTypeIdResolver::class)
 @JsonSubTypes(
     JsonSubTypes.Type(NotificationContent.Information::class, name = "INFORMATION"),
     JsonSubTypes.Type(NotificationContent.ReviewRequest::class, name = "REVIEW_REQUEST"),

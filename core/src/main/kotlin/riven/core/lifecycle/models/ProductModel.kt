@@ -1,0 +1,67 @@
+package riven.core.lifecycle.models
+
+import riven.core.enums.common.icon.IconColour
+import riven.core.enums.common.icon.IconType
+import riven.core.enums.entity.LifecycleDomain
+import riven.core.enums.entity.semantics.SemanticAttributeClassification
+import riven.core.enums.entity.semantics.SemanticGroup
+import riven.core.enums.common.validation.SchemaType
+import riven.core.enums.core.DataType
+import riven.core.lifecycle.AttributeOptions
+import riven.core.lifecycle.AttributeSemantics
+import riven.core.lifecycle.CoreModelAttribute
+import riven.core.lifecycle.CoreModelDefinition
+
+/**
+ * Product — a sellable item in the store catalogue. DTC E-commerce specific.
+ */
+object ProductModel : CoreModelDefinition(
+    key = "product",
+    displayNameSingular = "Product",
+    displayNamePlural = "Products",
+    iconType = IconType.PACKAGE,
+    iconColour = IconColour.YELLOW,
+    semanticGroup = SemanticGroup.PRODUCT,
+    lifecycleDomain = LifecycleDomain.USAGE,
+    identifierKey = "name",
+    semanticDefinition = "A sellable item in the store catalogue. Products are what customers purchase via orders.",
+    semanticTags = listOf("catalogue", "inventory", "ecommerce"),
+    attributes = mapOf(
+        "name" to CoreModelAttribute(
+            schemaType = SchemaType.TEXT, label = "Name", dataType = DataType.STRING,
+            required = true,
+            semantics = AttributeSemantics(
+                definition = "Product name as displayed to customers.",
+                classification = SemanticAttributeClassification.IDENTIFIER,
+                tags = listOf("display-name", "catalogue"),
+            ),
+        ),
+        "sku" to CoreModelAttribute(
+            schemaType = SchemaType.TEXT, label = "SKU", dataType = DataType.STRING,
+            unique = true,
+            semantics = AttributeSemantics(
+                definition = "Stock keeping unit for inventory tracking.",
+                classification = SemanticAttributeClassification.IDENTIFIER,
+                tags = listOf("inventory", "unique-key"),
+            ),
+        ),
+        "price" to CoreModelAttribute(
+            schemaType = SchemaType.CURRENCY, label = "Price", dataType = DataType.NUMBER,
+            format = "currency",
+            semantics = AttributeSemantics(
+                definition = "Retail selling price.",
+                classification = SemanticAttributeClassification.QUANTITATIVE,
+                tags = listOf("pricing", "revenue"),
+            ),
+        ),
+        "category" to CoreModelAttribute(
+            schemaType = SchemaType.SELECT, label = "Category", dataType = DataType.STRING,
+            options = AttributeOptions(enum = listOf("apparel", "electronics", "home", "beauty", "food", "accessories", "other")),
+            semantics = AttributeSemantics(
+                definition = "Product category for organisation and reporting.",
+                classification = SemanticAttributeClassification.CATEGORICAL,
+                tags = listOf("catalogue", "classification"),
+            ),
+        ),
+    ),
+)

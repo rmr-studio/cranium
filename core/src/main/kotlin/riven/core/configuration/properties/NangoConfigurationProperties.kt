@@ -6,5 +6,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 data class NangoConfigurationProperties(
     val secretKey: String = "",
     val baseUrl: String = "https://api.nango.dev",
-    val webhookSecret: String = ""
+    val maxWebhookBodySize: Int = 1_048_576,
 )

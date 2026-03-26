@@ -31,8 +31,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
 
 import { Button } from '@riven/ui/button';
 import { Input } from '@riven/ui/input';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Settings2 } from 'lucide-react';
 import { FC, useEffect, useMemo } from 'react';
+import { DefaultValueInput, TYPES_WITHOUT_DEFAULT } from './default-value-input';
 import { EnumOptionsEditor } from '../../enum-options-editor';
 
 const classificationOptions = [
@@ -113,7 +115,7 @@ export const SchemaForm: FC<Props> = ({
     setOpen(false);
   };
 
-  const { form, handleSubmit, handleReset } = useEntityTypeAttributeSchemaForm(
+  const { form, handleSubmit, handleReset, mode } = useEntityTypeAttributeSchemaForm(
     workspaceId,
     type,
     open,
@@ -122,6 +124,20 @@ export const SchemaForm: FC<Props> = ({
     attribute,
     semanticMetadata,
   );
+
+  const isRequired = form.watch('required');
+  const watchedEnumValues = form.watch('enumValues');
+
+  const showDefaultValue =
+    mode === 'edit' && isRequired && !TYPES_WITHOUT_DEFAULT.has(currentType);
+  const disableRequiredInEdit = mode === 'edit' && TYPES_WITHOUT_DEFAULT.has(currentType);
+
+  // Clear default value when required is toggled off
+  useEffect(() => {
+    if (!isRequired) {
+      form.setValue('defaultValue', undefined);
+    }
+  }, [isRequired]);
 
   // Determine what schema options to show based on the selected type
   const requireEnumOptions = [SchemaType.Select, SchemaType.MultiSelect].includes(currentType);
@@ -209,19 +225,41 @@ export const SchemaForm: FC<Props> = ({
                   <FormDescription className="text-xs">
                     {isIdentifierAttribute
                       ? 'This attribute is the identifier key and must be required'
-                      : 'Required attributes must have a value for each record'}
+                      : disableRequiredInEdit
+                        ? 'This type does not support default values, so required can only be set when creating the attribute'
+                        : 'Required attributes must have a value for each record'}
                   </FormDescription>
                 </div>
                 <FormControl>
                   <Switch
                     checked={field.value}
                     onCheckedChange={field.onChange}
-                    disabled={isIdentifierAttribute}
+                    disabled={isIdentifierAttribute || disableRequiredInEdit}
                   />
                 </FormControl>
               </FormItem>
             )}
           />
+
+          <AnimatePresence>
+            {showDefaultValue && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden"
+              >
+                <div className="mt-2 rounded-md border border-dashed bg-muted/30 p-4">
+                  <DefaultValueInput
+                    currentType={currentType}
+                    form={form}
+                    enumValues={watchedEnumValues?.filter(Boolean) as string[] | undefined}
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
           {allowUniqueness && (
             <FormField
               control={form.control}
@@ -402,40 +440,59 @@ export const SchemaForm: FC<Props> = ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Classification</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value ?? undefined}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select classification...">
-                        {field.value
-                          ? classificationOptions.find((o) => o.value === field.value)?.label
-                          : 'Select classification...'}
-                      </SelectValue>
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {classificationOptions.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value} textValue={opt.label}>
-                        <div className="flex flex-col gap-0.5">
-                          <span>{opt.label}</span>
-
-                          <span className="text-xs text-muted-foreground">{opt.description}</span>
-                          <span className="text-xs text-muted-foreground/70 italic">
-                            {opt.example}
+                {attribute && field.value ? (
+                  (() => {
+                    const option = classificationOptions.find((o) => o.value === field.value);
+                    return (
+                      <div className="flex w-fit flex-col gap-0.5 rounded-md border bg-muted/50 px-3 py-2">
+                        <span className="text-sm">{option?.label ?? field.value}</span>
+                        {option?.description && (
+                          <span className="text-xs text-muted-foreground">
+                            {option.description}
                           </span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {!attribute && classificationSuggestions[currentType] && !field.value && (
-                  <p className="text-xs text-muted-foreground">
-                    Suggested:{' '}
-                    {
-                      classificationOptions.find(
-                        (o) => o.value === classificationSuggestions[currentType],
-                      )?.label
-                    }
-                  </p>
+                        )}
+                      </div>
+                    );
+                  })()
+                ) : (
+                  <>
+                    <Select onValueChange={field.onChange} value={field.value ?? ''}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select classification...">
+                            {field.value
+                              ? classificationOptions.find((o) => o.value === field.value)?.label
+                              : 'Select classification...'}
+                          </SelectValue>
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {classificationOptions.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value} textValue={opt.label}>
+                            <div className="flex flex-col gap-0.5">
+                              <span>{opt.label}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {opt.description}
+                              </span>
+                              <span className="text-xs text-muted-foreground/70 italic">
+                                {opt.example}
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {classificationSuggestions[currentType] && !field.value && (
+                      <p className="text-xs text-muted-foreground">
+                        Suggested:{' '}
+                        {
+                          classificationOptions.find(
+                            (o) => o.value === classificationSuggestions[currentType],
+                          )?.label
+                        }
+                      </p>
+                    )}
+                  </>
                 )}
                 <FormMessage />
               </FormItem>

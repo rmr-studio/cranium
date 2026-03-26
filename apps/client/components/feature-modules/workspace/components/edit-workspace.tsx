@@ -38,6 +38,7 @@ const EditWorkspace = () => {
     const request: SaveWorkspaceRequest = {
       ...workspace,
       ...values,
+      removeAvatar: false,
     };
 
     // Create the workspace

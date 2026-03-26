@@ -7,9 +7,9 @@ export const processCardinalityToLimits = (
     case EntityRelationshipCardinality.OneToOne:
       return { source: RelationshipLimit.SINGULAR, target: RelationshipLimit.SINGULAR };
     case EntityRelationshipCardinality.OneToMany:
-      return { source: RelationshipLimit.MANY, target: RelationshipLimit.SINGULAR };
-    case EntityRelationshipCardinality.ManyToOne:
       return { source: RelationshipLimit.SINGULAR, target: RelationshipLimit.MANY };
+    case EntityRelationshipCardinality.ManyToOne:
+      return { source: RelationshipLimit.MANY, target: RelationshipLimit.SINGULAR };
     case EntityRelationshipCardinality.ManyToMany:
       return { source: RelationshipLimit.MANY, target: RelationshipLimit.MANY };
     default:
@@ -24,9 +24,9 @@ export const calculateCardinalityFromLimits = (
   if (source === RelationshipLimit.SINGULAR && target === RelationshipLimit.SINGULAR) {
     return EntityRelationshipCardinality.OneToOne;
   } else if (source === RelationshipLimit.SINGULAR && target === RelationshipLimit.MANY) {
-    return EntityRelationshipCardinality.ManyToOne;
-  } else if (source === RelationshipLimit.MANY && target === RelationshipLimit.SINGULAR) {
     return EntityRelationshipCardinality.OneToMany;
+  } else if (source === RelationshipLimit.MANY && target === RelationshipLimit.SINGULAR) {
+    return EntityRelationshipCardinality.ManyToOne;
   } else {
     return EntityRelationshipCardinality.ManyToMany;
   }

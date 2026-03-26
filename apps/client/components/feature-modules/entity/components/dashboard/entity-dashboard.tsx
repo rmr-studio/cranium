@@ -9,7 +9,6 @@ import { useEffect } from 'react';
 import { EntityTypeConfigurationProvider } from '../../context/configuration-provider';
 import { EntityDraftProvider } from '../../context/entity-provider';
 import { useEntityTypeByKey } from '../../hooks/query/type/use-entity-types';
-import { useEntities } from '../../hooks/query/use-entities';
 import { EntityDataTable } from '../tables/entity-data-table';
 
 export const EntityDashboard = () => {
@@ -22,11 +21,6 @@ export const EntityDashboard = () => {
     error: entityTypeError,
     isLoadingAuth,
   } = useEntityTypeByKey(typeKey, workspaceId);
-  const {
-    data: entities,
-    isPending: isPendingEntities,
-    error: entitiesError,
-  } = useEntities(workspaceId, entityType?.id);
 
   useEffect(() => {
     // Query has finished, workspace has not been found. Redirect back to workspace view with associated error
@@ -73,8 +67,6 @@ export const EntityDashboard = () => {
             <EntityDraftProvider workspaceId={workspaceId} entityType={entityType}>
               <EntityDataTable
                 entityType={entityType}
-                entities={entities || []}
-                loadingEntities={isPendingEntities || isLoadingAuth}
                 workspaceId={workspaceId}
               />
             </EntityDraftProvider>

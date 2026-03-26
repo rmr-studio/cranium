@@ -19,15 +19,15 @@ Domains:
 
 ### What This Sub-Domain Covers
 
-The Entity Integration Sync sub-domain connects third-party SaaS tools via Nango and syncs their data into the Riven entity ecosystem. It provides platform-defined schema mappings to convert external data into entity types, a confidence-based identity resolution system to link incoming records to existing entities, and full provenance tracking at both entity and attribute level — enabling cross-domain intelligence across a team's entire tooling environment.
+The Entity Integration Sync sub-domain connects third-party SaaS tools via Nango and syncs their data into the Riven entity ecosystem. It provides platform-defined schema mappings to convert external data into entity types, simple `source_external_id` deduplication with a full-replace update strategy (integration entities are readonly — the external system is the source of truth), and entity-level provenance tracking to distinguish integration-synced entities from user-created ones.
 
 ### Why It Exists as a Distinct Area
 
-Integration sync is a cohesive sub-domain because all its components share a common concern: bringing external data into the entity ecosystem reliably and intelligently. The pipeline stages (connection management → schema mapping → identity resolution → conflict resolution → provenance-tracked persistence) are tightly coupled and must evolve together. Schema mapping changes affect identity resolution signal extraction; provenance tracking enables conflict resolution; connection status drives sync orchestration. No individual stage delivers value alone — they form a coherent data pipeline.
+Integration sync is a cohesive sub-domain because all its components form a single data pipeline: webhook ingestion (HMAC-verified Nango events) triggers Temporal workflow orchestration, which performs paginated record fetching, schema mapping to entity payloads, batch deduplication via `source_external_id` partial unique indexes, two-pass processing (entity upserts then relationship resolution), and health aggregation that surfaces connection status to users. Schema mapping changes affect entity creation; connection health drives user-visible status; webhook handling gates all sync activity. These stages must evolve together.
 
 ### Boundaries
 
-- **Owns:** Integration connection management, Nango API communication, schema mapping definitions and transformation, identity resolution (all tiers), entity-level and attribute-level provenance tracking, sync pipeline orchestration, conflict resolution rules, webhook ingestion
+- **Owns:** Integration connection management, Nango API communication, schema mapping definitions and transformation, webhook ingestion with HMAC verification, Temporal sync workflow orchestration, batch deduplication, connection health aggregation, installation status lifecycle
 - **Does NOT own:** Entity type definitions and schema ([[Entities]] domain), entity CRUD operations (EntityService), workflow execution engine ([[Workflows]] domain), user authentication (Workspaces & Users domain), file storage, UI components
 
 ---
@@ -41,19 +41,20 @@ graph TD
     subgraph "Entity Integration Sync"
         IAL[Integration Access Layer]
         SM[Schema Mapping Engine]
-        IR[Identity Resolution]
-        EP[Entity Provenance]
-        SO[Sync Orchestrator]
+        WH[Webhook Ingestion]
+        SW[Sync Workflow]
+        HS[Health Aggregation]
     end
 
-    Nango[Nango Cloud] --> IAL
-    IAL --> SO
-    SO --> SM
-    SM --> IR
-    IR --> EP
-    EP --> ES[Entity Service]
+    Nango[Nango Cloud] --> WH
+    WH --> SW
+    IAL --> SW
+    SW --> SM
+    SM --> ES[Entity Service]
     ES --> DB[(PostgreSQL)]
-    Temporal[Temporal Server] --> SO
+    SW --> HS
+    HS --> IAL
+    Temporal[Temporal Server] --> SW
     UI[Frontend] --> IAL
 ```
 
@@ -61,14 +62,16 @@ graph TD
 
 | Component | Responsibility | Status |
 |-----------|---------------|--------|
-| NangoClientWrapper | REST API client for Nango (OAuth, connections, webhooks) | Planned (Phase 1) |
-| IntegrationDefinitionService | Integration catalog queries (by slug, category, active) | Planned (Phase 1) |
-| IntegrationConnectionService | Connection lifecycle management with 10-state machine | Planned (Phase 1) |
-| SchemaMappingService | Transform external JSON payloads to entity attribute payloads | Planned (Phase 2) |
-| IdentityResolutionService | Tiered matching: explicit → deterministic → probabilistic | Planned (Phase 3/5) |
-| EntityProvenanceService | Conflict resolution, attribute-level source tracking | Planned (Phase 4) |
-| IntegrationSyncOrchestrator | End-to-end pipeline coordination via Temporal | Planned (Phase 4) |
-| IntegrationWebhookController | Nango webhook ingestion, signature verification | Planned (Phase 4) |
+| NangoClientWrapper | REST API client for Nango (OAuth, connections, record fetching, sync triggering) | Built (Phase 1), Extended (Phase 2) |
+| IntegrationDefinitionService | Integration catalog queries (by slug, category, active) | Built (Phase 1) |
+| IntegrationConnectionService | Connection lifecycle management with simplified state machine | Built (Phase 1), Refactored (Phase 2) |
+| SchemaMappingService | Transform external JSON payloads to entity attribute payloads | Built (Phase 2) |
+| NangoWebhookController | Nango webhook ingestion with HMAC-SHA256 signature verification | Planned (Phase 2) |
+| NangoWebhookService | Auth webhook dispatch (connection creation) and sync webhook dispatch (Temporal workflow start) | Planned (Phase 2) |
+| IntegrationSyncWorkflow | Temporal workflow: paginated fetch, two-pass processing (upsert + relationships), health update | Planned (Phase 3) |
+| IntegrationSyncActivities | Temporal activities: fetchRecords, processRecordBatch, resolveRelationships, updateSyncState | Planned (Phase 3) |
+| IntegrationConnectionHealthService | Aggregates per-entity-type sync state into connection health status | Planned (Phase 4) |
+| TemplateMaterializationService | Catalog-to-workspace entity type materialization | Built (Phase 2) |
 
 ### Key Design Decisions
 
@@ -76,10 +79,12 @@ graph TD
 |----------|-----------|----------------------|
 | Nango as integration infrastructure | Handles OAuth, token refresh, rate limits for 600+ providers — avoids building integration plumbing. See [[ADR-001 Nango as Integration Infrastructure]]. | Custom OAuth, Merge.dev unified API, Paragon |
 | Declarative-first storage for mappings and entity types | Integration entity type schemas and field mappings are defined in JSON manifest files, loaded into DB on startup, interpreted by a generic mapping engine. No per-integration Kotlin classes for standard mappings. See [[ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]. | Per-integration code (class per integration), database-only with SQL seeds, runtime admin API |
-| Tiered identity resolution | Balances automation (high-confidence auto-links) with accuracy (uncertain matches surfaced for review) | Binary match/no-match, ML-only resolution |
-| User overrides always win | Respects user intent — manual edits are never silently overwritten by integration syncs | Most-recent-wins for all sources, source priority only |
-| Attribute-level provenance in separate table | Supports multi-source entities without bloating entity payload, enables fine-grained conflict resolution | JSONB metadata column on entities, entity-level only |
-| 10-state connection lifecycle | Provides precise UX feedback — users see exactly what's happening with each connection | 3-state (connected/disconnected/error), 5-state simplified |
+| Unique index dedup over mapping table | Entities already have `source_external_id` + `source_integration_id` — partial unique index replaces separate mapping table. See [[ADR-009 Unique Index Deduplication over Mapping Table]]. | Separate integration_entity_map table |
+| Full-replace update strategy | Integration entity types are readonly — external system is source of truth, no user attributes to protect | Attribute-level merge, conflict resolution |
+| Webhook-driven connection creation | PENDING_AUTHORIZATION and AUTHORIZING removed — connections created in CONNECTED state from auth webhook. See [[ADR-010 Webhook-Driven Connection Creation]]. | Pre-creation in PENDING_AUTHORIZATION state |
+| Temporal for sync orchestration | Durable execution, built-in retry, deterministic workflow IDs for webhook dedup, activity heartbeating. See [[ADR-008 Temporal for Integration Sync Orchestration]]. | Spring @Async, message queue |
+| Two-pass in-workflow relationship resolution | Integrations only relate their own entity types — all targets in same sync batch. No persistent queue needed. | Persistent relationship queue table |
+| Per-record error isolation | One bad record must not fail thousands of valid records; matches SchemaMappingService's resilient pattern | Batch-level fail-all |
 
 ---
 
@@ -89,22 +94,25 @@ graph TD
 
 ```mermaid
 flowchart LR
-    A[External Tool] -->|webhook event| B[Nango Cloud]
-    B -->|webhook payload| C[Webhook Controller]
-    C -->|async dispatch| D[Temporal Workflow]
-    D --> E[Schema Mapping]
-    E -->|entity payload| F[Identity Resolution]
-    F -->|match/create| G[Conflict Resolution]
-    G -->|merged payload| H[Entity Service]
-    H -->|persist| I[(PostgreSQL)]
-    G -->|provenance| J[Provenance Table]
+    A[Nango Cloud] -->|webhook| B[Webhook Controller]
+    B -->|HMAC verify| C[Webhook Service]
+    C -->|auth event| D[Connection Service]
+    C -->|sync event| E[Temporal Workflow]
+    E -->|Pass 1| F[Schema Mapping]
+    F -->|entity payload| G[Batch Dedup + Upsert]
+    G --> H[Entity Service]
+    H --> I[(PostgreSQL)]
+    E -->|Pass 2| J[Relationship Resolution]
+    J --> H
+    E -->|Pass 3| K[Health Aggregation]
+    K --> L[Connection Status Update]
 ```
 
 ### Secondary Flows
 
-- **Error/retry flow:** Failed sync events are retried via Temporal retry policies with exponential backoff. After max retries, connection status transitions to DEGRADED or FAILED.
-- **User override flow:** When a user manually edits an integration-synced attribute, override_by_user is set on the attribute provenance. Future sync attempts for that attribute check this flag and preserve the user's value, logging a conflict for review.
-- **Reconnection flow:** When a DISCONNECTED or FAILED connection is reconnected (PENDING_AUTHORIZATION → AUTHORIZING → CONNECTED), stale entities get refreshed and identity resolution re-runs on new data.
+- **Error/retry flow:** Failed record processing is caught per-record with error aggregation. Temporal retries failed activities with backoff (3 attempts, 30s initial, 2x). After max failures, connection health transitions to DEGRADED (some types failing) or FAILED (all types failing).
+- **Auth webhook flow:** Nango auth event creates connection in CONNECTED state, triggers template materialization, and updates installation to ACTIVE. Missing tags or missing installation log error and return 200.
+- **Reconnection flow:** When a DISCONNECTED or FAILED connection is reconnected (CONNECTED via auth webhook), stale entities get refreshed as new sync data arrives. The `modifiedAfter` parameter ensures only changed records are fetched.
 
 ---
 
@@ -161,28 +169,23 @@ if (pages.length > 0) {
 
 ```mermaid
 graph LR
-    EPT[Entity Provenance Tracking] --> IAL[Integration Access Layer]
-    IAL --> ISM[Integration Schema Mapping]
-    ISM --> IIR[Identity Resolution]
-    EPT --> IIR
-    IIR --> WSO[Webhook Sync Orchestration]
-    ISM --> WSO
-    IAL --> WSO
-    WSO --> PIR[Probabilistic Identity Resolution]
-    PIR --> UFPC[User-Facing Provenance & Conflict UI]
-    WSO --> UFPC
+    IAL[Integration Access Layer] --> ISM[Integration Schema Mapping]
+    ISM --> IDSP[Integration Data Sync Pipeline]
+    IAL --> IDSP
+    IDSP --> IIR[Identity Resolution]
+    IDSP --> UFPC[User-Facing Provenance & Conflict UI]
+    EPT[Entity Provenance Tracking] --> IAL
 ```
 
 ### Implementation Sequence
 
 | Phase | Features | Rationale |
 |-------|----------|-----------|
-| 1 | [[Entity Provenance Tracking]], [[Integration Access Layer]] | Foundation — provenance schema and integration infrastructure unblock everything else |
+| 1 | [[Entity Provenance Tracking]], [[Integration Access Layer]] | Foundation — provenance columns and integration infrastructure unblock everything |
 | 2 | [[Integration Schema Mapping]] | Core capability — transform external data into entity payloads |
-| 3 | [[Integration Identity Resolution System]] (deterministic only) | Match incoming records to existing entities with high confidence |
-| 4 | Webhook Integration + Sync Orchestration | End-to-end pipeline connecting all prior components |
-| 5 | Probabilistic Identity Resolution | Enhanced matching with fuzzy signals and confidence scoring |
-| 6 | User-Facing Provenance + Conflict Management | UI for match review, conflict resolution, provenance transparency |
+| 3 | [[Integration Data Sync Pipeline]] | End-to-end pipeline: webhook ingestion, Temporal sync, batch dedup, health aggregation |
+| 4 | [[Integration Identity Resolution System]] | Enhanced matching beyond source_external_id (deterministic + probabilistic) |
+| 5 | User-Facing Provenance + Conflict Management | UI for match review, provenance transparency |
 
 ---
 
@@ -200,7 +203,7 @@ graph LR
 
 | Domain / Sub-Domain | What They Need | Integration Point |
 |---------------------|---------------|-------------------|
-| Frontend UI | Connection status, provenance display, match review interface | REST API (controllers in later phases) |
+| Frontend UI | Connection status, match review interface | REST API (controllers in later phases) |
 | [[Workflows]] | Integration actions — trigger syncs, query integration data | WorkflowActionType.INTEGRATION_REQUEST (existing enum, not yet implemented) |
 
 ### Cross-Cutting Concerns
@@ -218,7 +221,7 @@ graph LR
 - **Integration Infrastructure:** Nango is the chosen integration layer — no alternative integration platforms
 - **Multi-tenancy:** All integration data must be workspace-scoped and respect existing RLS policies
 - **Schema Compatibility:** Entity provenance fields must not break existing entity creation/update flows — user-created entities work exactly as before with sensible defaults
-- **Database:** PostgreSQL with Flyway migrations; new tables follow established conventions (soft delete, audit fields, workspace FK)
+- **Database:** PostgreSQL with raw SQL schema files in `db/schema/` — no Flyway or Liquibase. Schema files are declarative (current desired state), not incremental migrations.
 
 ---
 
@@ -228,7 +231,6 @@ graph LR
 >
 > - [ ] Nango webhook payload structure needs verification during Phase 4 implementation — documentation was incomplete during research
 > - [ ] Exact Nango provider keys for each target integration (hubspot vs hubspot-crm) need validation against Nango's current catalog
-> - [ ] Attribute provenance tracking trigger mechanism — application code vs database trigger (recommendation: application code for v1, evaluate trigger if performance issues arise)
 > - [ ] Schema mapping versioning strategy — how to handle external API schema changes over time (field renames, deprecations)
 
 ---
@@ -241,21 +243,29 @@ graph LR
 | 2026-02-13 | Database-stored integration catalog | Enables future admin management without code deployments | Code-defined enum, config files |
 | 2026-02-13 | 10-state connection lifecycle | Precise UX feedback for connection health visibility | 3-state or 5-state simplified models |
 | 2026-02-13 | Five fixed source types (enum) | Clean taxonomy covers all entity creation paths | Extensible string-based types, per-integration types |
-| 2026-02-13 | Attribute-level provenance in separate table | Supports multi-source entities, enables fine-grained conflict resolution | JSONB metadata on entity, entity-level provenance only |
 | 2026-02-28 | Declarative-first storage for integration mappings and entity types | JSON manifest files in repo, loaded into DB on startup. Generic mapping engine interprets declarative definitions — no per-integration code for standard mappings. Lowers community contribution barrier and enables self-hoster extensibility. See [[ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]. | Per-integration Kotlin classes, SQL-only seeds, runtime admin API |
+| 2026-03-16 | Temporal for sync orchestration | Durable execution, built-in retry, deterministic IDs for webhook dedup | Spring @Async, message queue, synchronous |
+| 2026-03-16 | Unique index dedup over mapping table | Entities already have source columns; eliminates separate table | integration_entity_map table |
+| 2026-03-16 | Webhook-driven connection creation | Simplifies state machine, connections only exist after successful auth | Pre-creation in PENDING_AUTHORIZATION |
+| 2026-03-16 | Per-record error isolation | One bad record must not fail the batch | Batch-level fail-all |
+| 2026-03-16 | Two-pass in-workflow relationship resolution | All targets in same sync batch; no persistent queue needed | Persistent relationship queue |
+| 2026-03-16 | Simplified ConnectionStatus (8 states) | PENDING_AUTHORIZATION and AUTHORIZING were dead code | Keep 10-state model |
 
 ---
 
 ## 10. Related Documents
 
 - [[Integration Access Layer]]
-- [[Entity Provenance Tracking]]
 - [[Integration Schema Mapping]]
-- [[Integration Identity Resolution System]]
+- [[Identity Resolution System]]
 - [[Predefined Integration Entity Types]]
 - [[ADR-001 Nango as Integration Infrastructure]]
 - [[ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]
 - [[Flow Integration Connection Lifecycle]]
+- [[Integration Data Sync Pipeline]]
+- [[ADR-008 Temporal for Integration Sync Orchestration]]
+- [[ADR-009 Unique Index Deduplication over Mapping Table]]
+- [[ADR-010 Webhook-Driven Connection Creation]]
 - [[Entities]]
 - [[Workflows]]
 
@@ -266,3 +276,4 @@ graph LR
 | Date | Author | Change |
 |------|--------|--------|
 | 2026-02-13 | Claude | Populated from GSD Phase 1 planning documents |
+| 2026-03-16 | Claude | Updated for Integration Data Sync Pipeline — revised vision, components, data flow, dependencies, and decisions to reflect actual sync pipeline design (webhook-driven, Temporal orchestration, batch dedup, two-pass processing) |

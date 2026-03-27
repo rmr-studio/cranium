@@ -850,6 +850,34 @@ class IntegrationSyncActivitiesImplTest {
 
     // ------ EvaluateHealth Tests ------
 
+    // ------ ExecuteProjections Tests ------
+
+    @Nested
+    inner class ExecuteProjectionsTests {
+
+        /**
+         * Verifies the no-op stub does not throw when called with valid arguments.
+         * The implementation simply logs — this confirms the activity is safe to invoke.
+         */
+        @Test
+        fun `executeProjections no-op does not throw`() {
+            val syncedEntityIds = listOf(UUID.randomUUID(), UUID.randomUUID())
+
+            assertDoesNotThrow {
+                activitiesImpl.executeProjections(connectionId, workspaceId, entityTypeId, syncedEntityIds)
+            }
+        }
+
+        @Test
+        fun `executeProjections no-op handles empty entity list`() {
+            assertDoesNotThrow {
+                activitiesImpl.executeProjections(connectionId, workspaceId, entityTypeId, emptyList())
+            }
+        }
+    }
+
+    // ------ EvaluateHealth Tests ------
+
     @Nested
     inner class EvaluateHealthTests {
 

@@ -15,6 +15,7 @@ import java.util.UUID
  * @property recordsFailed Number of records that failed to upsert
  * @property lastErrorMessage Last error message encountered (null if all records succeeded)
  * @property success Whether the sync completed without fatal errors
+ * @property syncedEntityIds UUIDs of entities successfully upserted during Pass 1, for downstream projection
  */
 data class SyncProcessingResult(
     val entityTypeId: UUID?,
@@ -22,5 +23,6 @@ data class SyncProcessingResult(
     val recordsSynced: Int,
     val recordsFailed: Int,
     val lastErrorMessage: String? = null,
-    val success: Boolean
+    val success: Boolean,
+    val syncedEntityIds: List<UUID> = emptyList(),
 )

@@ -10,11 +10,12 @@ import java.time.Duration
 /**
  * Temporal workflow implementation for integration data sync.
  *
- * Orchestrates four activities in sequence:
+ * Orchestrates five activities in sequence:
  * 1. [IntegrationSyncActivities.transitionToSyncing] — mark connection as SYNCING
  * 2. [IntegrationSyncActivities.fetchAndProcessRecords] — paginated fetch + entity upsert
  * 3. [IntegrationSyncActivities.finalizeSyncState] — write final sync outcome
- * 4. [IntegrationSyncActivities.evaluateHealth] — derive ConnectionStatus from sync outcomes
+ * 4. [IntegrationSyncActivities.executeProjections] — projection pipeline (no-op stub)
+ * 5. [IntegrationSyncActivities.evaluateHealth] — derive ConnectionStatus from sync outcomes
  *
  * Activity timeout is set to 4 hours to accommodate initial syncs that may process
  * 50k+ records. Heartbeat timeout is 30 seconds to detect hung workers promptly.
@@ -53,6 +54,15 @@ open class IntegrationSyncWorkflowImpl(
         } else {
             activities.finalizeSyncState(input.connectionId, entityTypeId, result)
             logger.info("Finalized sync state for connection=${input.connectionId}, entityType=$entityTypeId")
+        }
+
+        // Pass 3: Projection pipeline (no-op stub until ingestion-pipeline branch)
+        if (result.success && result.recordsSynced > 0) {
+            val projectionEntityTypeId = requireNotNull(result.entityTypeId) {
+                "entityTypeId must not be null when result.success is true and recordsSynced > 0"
+            }
+            activities.executeProjections(input.connectionId, input.workspaceId, projectionEntityTypeId, result.syncedEntityIds)
+            logger.info("Executed projections for connection=${input.connectionId}, entityType=$projectionEntityTypeId, entities=${result.syncedEntityIds.size}")
         }
 
         try {

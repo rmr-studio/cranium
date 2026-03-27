@@ -155,6 +155,16 @@ class IntegrationSyncActivitiesImpl(
     }
 
     /**
+     * No-op stub for the projection pipeline (Pass 3).
+     *
+     * Will be implemented by the ingestion-pipeline branch to run domain-based projection
+     * routing for each synced entity. Currently logs and returns.
+     */
+    override fun executeProjections(connectionId: UUID, workspaceId: UUID, entityTypeId: UUID, syncedEntityIds: List<UUID>) {
+        logger.info { "Pass 3 (projections): No-op — ingestion pipeline not yet implemented. ${syncedEntityIds.size} entities available for projection." }
+    }
+
+    /**
      * Evaluates connection health by delegating to [IntegrationHealthService].
      *
      * Runs in its own transaction boundary (separate from [finalizeSyncState]), so a failure
@@ -317,6 +327,7 @@ class IntegrationSyncActivitiesImpl(
         var recordsSynced = 0
         var recordsFailed = 0
         var lastErrorMessage: String? = null
+        val allSyncedEntityIds = mutableListOf<UUID>()
 
         do {
             val page = nangoClientWrapper.fetchRecords(
@@ -339,6 +350,7 @@ class IntegrationSyncActivitiesImpl(
             recordsSynced += batchResult.synced
             recordsFailed += batchResult.failed
             if (batchResult.lastError != null) lastErrorMessage = batchResult.lastError
+            allSyncedEntityIds.addAll(batchResult.syncedEntityIds)
 
             lastSuccessfulCursor = cursor
             cursor = page.nextCursor
@@ -356,6 +368,7 @@ class IntegrationSyncActivitiesImpl(
             recordsFailed = recordsFailed,
             lastErrorMessage = lastErrorMessage,
             success = success,
+            syncedEntityIds = allSyncedEntityIds,
         )
     }
 
@@ -405,6 +418,7 @@ class IntegrationSyncActivitiesImpl(
         var synced = 0
         var failed = 0
         var lastError: String? = null
+        val syncedEntityIds = mutableListOf<UUID>()
 
         for (record in records) {
             try {
@@ -417,7 +431,8 @@ class IntegrationSyncActivitiesImpl(
                 }
 
                 val existing = existingByExternalId[externalId]
-                val recordProcessed = transactionTemplate.execute {
+                val isDelete = record.nangoMetadata.lastAction == NangoRecordAction.DELETED
+                val upsertedEntityId = transactionTemplate.execute {
                     processRecord(
                         record = record,
                         externalId = externalId,
@@ -427,9 +442,16 @@ class IntegrationSyncActivitiesImpl(
                         context = context,
                         relationshipPending = relationshipPending,
                     )
-                } ?: false
+                }
 
-                if (recordProcessed) synced++ else failed++
+                if (upsertedEntityId != null) {
+                    synced++
+                    syncedEntityIds.add(upsertedEntityId)
+                } else if (isDelete) {
+                    synced++ // Deletes are successful processing but produce no entity for projection
+                } else {
+                    failed++
+                }
             } catch (e: Exception) {
                 val externalId = record.payload[context.externalIdField] as? String ?: "unknown"
                 logger.error(e) { "Error processing record externalId=$externalId — skipping" }
@@ -438,13 +460,13 @@ class IntegrationSyncActivitiesImpl(
             }
         }
 
-        return BatchResult(synced, failed, lastError)
+        return BatchResult(synced, failed, lastError, syncedEntityIds)
     }
 
     /**
      * Processes a single record based on its action: ADDED, UPDATED, or DELETED.
      *
-     * Returns true if the record was successfully processed (synced), false if it failed.
+     * Returns the entity UUID on successful upsert, null on delete or failure.
      */
     private fun processRecord(
         record: NangoRecord,
@@ -454,11 +476,11 @@ class IntegrationSyncActivitiesImpl(
         integrationId: UUID,
         context: ModelContext,
         relationshipPending: MutableList<RelationshipPending>,
-    ): Boolean {
+    ): UUID? {
         return when (record.nangoMetadata.lastAction) {
             NangoRecordAction.DELETED -> {
                 handleDelete(existing)
-                true
+                null
             }
             NangoRecordAction.ADDED, NangoRecordAction.UPDATED -> {
                 handleUpsert(
@@ -487,7 +509,7 @@ class IntegrationSyncActivitiesImpl(
     /**
      * Upserts a record: maps payload to attributes, then creates or updates the entity.
      *
-     * Returns true if successful, false if mapping errors prevent the record from being processed.
+     * Returns the entity UUID if successful, null if mapping errors prevent the record from being processed.
      */
     private fun handleUpsert(
         record: NangoRecord,
@@ -497,7 +519,7 @@ class IntegrationSyncActivitiesImpl(
         integrationId: UUID,
         context: ModelContext,
         relationshipPending: MutableList<RelationshipPending>,
-    ): Boolean {
+    ): UUID? {
         val mappingResult = schemaMappingService.mapPayload(
             externalPayload = record.payload,
             fieldMappings = context.fieldMappings,
@@ -506,7 +528,7 @@ class IntegrationSyncActivitiesImpl(
 
         if (mappingResult.errors.isNotEmpty()) {
             logger.warn { "Mapping errors for record $externalId: ${mappingResult.errors.map { it.message }}" }
-            return false
+            return null
         }
 
         if (mappingResult.warnings.isNotEmpty()) {
@@ -540,7 +562,7 @@ class IntegrationSyncActivitiesImpl(
 
         collectRelationshipPending(record.payload, entityId, context.entityTypeId, workspaceId, relationshipPending)
 
-        return true
+        return entityId
     }
 
     /**
@@ -720,6 +742,7 @@ class IntegrationSyncActivitiesImpl(
         val synced: Int,
         val failed: Int,
         val lastError: String?,
+        val syncedEntityIds: List<UUID> = emptyList(),
     )
 
     /** Resolved relationship definition metadata for Pass 2. */

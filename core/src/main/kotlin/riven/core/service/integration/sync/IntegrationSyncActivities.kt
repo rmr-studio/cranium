@@ -65,9 +65,23 @@ interface IntegrationSyncActivities {
     fun finalizeSyncState(connectionId: UUID, entityTypeId: UUID, result: SyncProcessingResult)
 
     /**
+     * Executes projection pipeline for synced entities (Pass 3).
+     *
+     * Currently a no-op stub. Will be implemented by the ingestion-pipeline branch to
+     * run domain-based projection routing for each synced entity.
+     *
+     * @param connectionId Internal UUID of the IntegrationConnectionEntity
+     * @param workspaceId Workspace that owns this connection
+     * @param entityTypeId UUID of the EntityType that was synced into
+     * @param syncedEntityIds UUIDs of entities successfully upserted during Pass 1
+     */
+    @ActivityMethod
+    fun executeProjections(connectionId: UUID, workspaceId: UUID, entityTypeId: UUID, syncedEntityIds: List<UUID>)
+
+    /**
      * Evaluates connection health by aggregating sync state outcomes and updating ConnectionStatus.
      *
-     * Runs as a separate 4th activity so that health status writes have an independent
+     * Runs as a separate 5th activity so that health status writes have an independent
      * transaction boundary from sync state persistence. A failure here does not roll back
      * or affect the sync state committed in [finalizeSyncState].
      *

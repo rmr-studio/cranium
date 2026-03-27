@@ -101,12 +101,18 @@ class IntegrationSyncWorkflowImplTest {
             modifiedAfter = null,
         )
 
+        private val syncedEntityIds = listOf(
+            UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+        )
+
         private val successResult = SyncProcessingResult(
             entityTypeId = entityTypeId,
             cursor = "cursor-final",
             recordsSynced = 5,
             recordsFailed = 0,
             success = true,
+            syncedEntityIds = syncedEntityIds,
         )
 
         /**
@@ -121,7 +127,7 @@ class IntegrationSyncWorkflowImplTest {
         }
 
         @Test
-        fun `workflow calls evaluateHealth after finalizeSyncState`() {
+        fun `workflow calls executeProjections after finalizeSyncState and before evaluateHealth`() {
             val activities = mock<IntegrationSyncActivities>()
             whenever(activities.fetchAndProcessRecords(any())).thenReturn(successResult)
 
@@ -132,6 +138,7 @@ class IntegrationSyncWorkflowImplTest {
             order.verify(activities).transitionToSyncing(connectionId, input.workspaceId)
             order.verify(activities).fetchAndProcessRecords(input)
             order.verify(activities).finalizeSyncState(connectionId, entityTypeId, successResult)
+            order.verify(activities).executeProjections(connectionId, input.workspaceId, entityTypeId, syncedEntityIds)
             order.verify(activities).evaluateHealth(connectionId)
         }
 
@@ -168,8 +175,46 @@ class IntegrationSyncWorkflowImplTest {
             // Workflow must not propagate the exception from evaluateHealth
             assertDoesNotThrow { workflow.execute(input) }
 
-            // Verify sync state was still persisted
+            // Verify sync state and projections were still executed before health
             verify(activities).finalizeSyncState(connectionId, entityTypeId, successResult)
+            verify(activities).executeProjections(connectionId, input.workspaceId, entityTypeId, syncedEntityIds)
+        }
+
+        @Test
+        fun `workflow skips executeProjections when recordsSynced is zero`() {
+            val activities = mock<IntegrationSyncActivities>()
+            val zeroRecordsResult = SyncProcessingResult(
+                entityTypeId = entityTypeId,
+                cursor = null,
+                recordsSynced = 0,
+                recordsFailed = 0,
+                success = true,
+            )
+            whenever(activities.fetchAndProcessRecords(any())).thenReturn(zeroRecordsResult)
+
+            val workflow = createTestableWorkflow(activities)
+            workflow.execute(input)
+
+            verify(activities, org.mockito.kotlin.never()).executeProjections(any(), any(), any(), any())
+        }
+
+        @Test
+        fun `workflow skips executeProjections when result is not successful`() {
+            val activities = mock<IntegrationSyncActivities>()
+            val failedResult = SyncProcessingResult(
+                entityTypeId = entityTypeId,
+                cursor = null,
+                recordsSynced = 3,
+                recordsFailed = 2,
+                success = false,
+                lastErrorMessage = "Some error",
+            )
+            whenever(activities.fetchAndProcessRecords(any())).thenReturn(failedResult)
+
+            val workflow = createTestableWorkflow(activities)
+            workflow.execute(input)
+
+            verify(activities, org.mockito.kotlin.never()).executeProjections(any(), any(), any(), any())
         }
     }
 }

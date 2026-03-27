@@ -59,4 +59,20 @@ interface EntityRepository : JpaRepository<EntityEntity, UUID> {
         sourceExternalIds: Collection<String>
     ): List<EntityEntity>
 
+    /**
+     * Find a single entity by its source external ID within a workspace.
+     *
+     * Used by [riven.core.service.identity.IdentityLookupService] to resolve entities
+     * by their integration-sourced external identifier.
+     */
+    @Query("""
+        SELECT e FROM EntityEntity e
+        WHERE e.workspaceId = :workspaceId
+          AND e.sourceExternalId = :sourceExternalId
+    """)
+    fun findByWorkspaceIdAndSourceExternalId(
+        workspaceId: UUID,
+        sourceExternalId: String,
+    ): List<EntityEntity>
+
 }

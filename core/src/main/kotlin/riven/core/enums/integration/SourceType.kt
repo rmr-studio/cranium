@@ -7,5 +7,6 @@ enum class SourceType {
     API,
     WORKFLOW,
     IDENTITY_MATCH,
-    TEMPLATE
+    TEMPLATE,
+    PROJECTED
 }

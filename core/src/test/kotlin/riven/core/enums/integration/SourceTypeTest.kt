@@ -30,4 +30,19 @@ class SourceTypeTest {
             "SourceType.entries must contain IDENTITY_MATCH"
         )
     }
+
+    /**
+     * Verifies PROJECTED is a valid SourceType enum value.
+     *
+     * PROJECTED marks entities and attributes that are produced by smart projection
+     * (aggregation columns, domain-based routing) rather than direct user or integration input.
+     */
+    @Test
+    fun `PROJECTED is a valid SourceType value`() {
+        assertDoesNotThrow { SourceType.valueOf("PROJECTED") }
+        assertTrue(
+            SourceType.entries.map { it.name }.contains("PROJECTED"),
+            "SourceType.entries must contain PROJECTED"
+        )
+    }
 }

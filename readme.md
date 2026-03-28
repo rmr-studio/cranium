@@ -4,7 +4,8 @@
 <h1 align="center">Riven</h1>
 
 <p align="center">
-  Connect your SaaS tools into one workspace. Ask questions across all of them.
+  Riven is an all-in-one operational intelligence platform, designed to help B2C SaaS and DTC Ecommerce Businesses manage and gain complete oversight of their customer lifecycle in order to gain immediate cross domain actionable insights from marketing and acquisition groups, product usage, support load all the way through to churn, and the underlying reasons behind it. Riven connects all of a businesses external SaaS tools and data sources to surface the patterns and insights that no singular tool could pick up alone, combined inside a unified, collaborative flexible entiy ecosystem and workspace. 
+
 </p>
 
 <p align="center">

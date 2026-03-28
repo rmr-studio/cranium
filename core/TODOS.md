@@ -30,11 +30,59 @@
 
 ## Strategic
 
+### Entity Ingestion Pipeline — Classify, Route, Map, Resolve
+
+**Priority:** P1
+**Effort:** L (human: ~3 weeks) / L (CC: ~2 hours)
+**Depends on:** Lifecycle Spine (merged), Integration Sync State (merged), Identity Resolution (PR)
+
+**What:** Build the 4-step ingestion pipeline that bridges integration data → core entity hub. This is the critical path to the "single source of truth" vision.
+
+**Why:** Without this pipeline, integration entities and core entities are disconnected populations. Users can't see Zendesk tickets in their Support Ticket table, can't see a unified Customer view, and can't get aggregation columns like "Open Tickets: 3." This pipeline is the missing piece between "integrations connect" and "data is useful."
+
+**Pipeline steps:**
+1. **Classify**: Determine `(LifecycleDomain, SemanticGroup)` from integration manifest metadata
+2. **Route**: Match `ProjectionAcceptRule` to target core entity type
+3. **Map Fields**: Transform source fields → core schema via `CatalogFieldMappingEntity`
+4. **Identity Resolution**: Match incoming data to existing entities (sourceExternalId, then identifier key like email)
+
+**New components:** `FieldMappingService`, `IdentityResolutionService`, `EntityProjectionService`, `IntegrationSyncWorkflow` (Temporal), `IntegrationSyncActivities`
+
+**Key architectural decisions (eng review 2026-03-27):**
+- Hub Model: core entity types are user-facing hub, integration entities are hidden infrastructure
+- Source wins: mapped fields owned by integration, overwritten on sync. Unmapped fields are user-owned.
+- Most recent sync wins: timestamp-based multi-source conflict resolution
+- Field-level audit trail on sync overwrites via activityService
+- Temporal execution with activity-level retry and cursor pagination
+- `SourceType.PROJECTED` + `ProjectionAcceptRule` as `List<ProjectionAcceptRule>`
+
+**Context:** See eng review plan at `.claude/plans/sleepy-doodling-spark.md` and feature design at `docs/system-design/feature-design/1. Planning/Entity Ingestion Pipeline.md`.
+
+---
+
+### Backfill Projection for Unmatched Integration Entities
+
+**Priority:** P2
+**Effort:** M (human: ~1 week) / S (CC: ~30 min)
+**Depends on:** Entity Ingestion Pipeline (P1 above)
+
+**What:** When a user installs a new core model that matches existing (previously unmatched) integration entities, retroactively project those entities through the ingestion pipeline.
+
+**Why:** If a workspace connects Zendesk before installing the Support Ticket core model, Zendesk tickets are created as integration entities with no projection. When the user later installs Support Ticket, those existing integration entities should be retroactively projected into the core type.
+
+**Pros:** Completes the "opt-in" model for core entity types — users can connect integrations first, install models later, and everything connects automatically. Prevents data being silently "stuck" as hidden integration entities.
+
+**Cons:** Needs a one-time Temporal workflow per core model installation. For large volumes (50k+ integration entities), this could be resource-intensive and needs pagination.
+
+**Context:** Identified by outside voice during eng review 2026-03-27. The ingestion pipeline's classify → route → map → resolve steps apply equally to backfill — just triggered by core model installation rather than sync events.
+
+---
+
 ### Custom Integration Builder - Direct Postgres, CSV, and Webhook Ingestion
 
 **Priority:** P2
 **Effort:** XL (human: ~6 weeks) / L (CC: ~4 hours)
-**Depends on:** Smart Projection (domain-based projection routing must work first)
+**Depends on:** Entity Ingestion Pipeline (the 4-step classify → route → map → resolve pipeline must work first)
 
 Per the SaaS Decline thesis, data sources will diversify beyond SaaS integrations. Users need to:
 - Connect internal Postgres tables directly

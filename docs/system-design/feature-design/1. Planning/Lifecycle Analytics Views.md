@@ -10,7 +10,7 @@ Updated:
 Domains:
   - "[[Entities]]"
 blocked by:
-  - "[[Three-Tier Entity Model and Lifecycle Spine]]"
+  - "[[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]]"
   - "[[Identity Resolution System]]"
 ---
 # Feature: Lifecycle Analytics Views
@@ -148,7 +148,7 @@ Views populate automatically once integrations sync and identity resolution comp
 
 ## Related Documents
 
-- [[Three-Tier Entity Model and Lifecycle Spine]] — entity types these views aggregate over
+- [[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]] — entity types these views aggregate over
 - [[Identity Resolution System]] — linking records across tools for cross-domain aggregation
 - [[Churn Retrospective Timeline]] — drill-in from churn rate cells
 - [[Lifecycle Operations Dashboard]] — Phase 2 evolution of these views with AI signals

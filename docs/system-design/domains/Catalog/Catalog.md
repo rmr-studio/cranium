@@ -3,6 +3,7 @@ tags:
   - architecture/domain
   - domain/catalog
 Created: 2026-03-06
+Updated: 2026-03-27
 ---
 # Domain: Catalog
 
@@ -126,3 +127,16 @@ The Catalog domain provides a startup-time pipeline that scans classpath manifes
 | 2026-03-06 | Initial catalog domain implementation | Template Manifestation |
 | 2026-03-09 | Added Template Installation subdomain with REST API, bundle manifest support across pipeline | Entity Semantics |
 | 2026-03-26 | Lifecycle spine: core model definitions (Kotlin objects), CoreModelCatalogService for boot-time catalog population, BUNDLE manifest type removed, TemplateController removed (install moved to WorkspaceController), lifecycle_domain column added to catalog_entity_types | Lifecycle Spine |
+| 2026-03-27 | Field mapping consumed by ingestion pipeline via FieldMappingService | Entity Ingestion Pipeline |
+
+---
+
+## Field Mapping for Ingestion
+
+`CatalogFieldMappingEntity` is consumed by the new `FieldMappingService` during data ingestion. Field mappings transform integration source fields into the core entity type schema, bridging the gap between external data models and workspace-scoped entity types.
+
+The generic mapping engine (documented under [[Catalog Query]]) handles type coercion, value mapping, and JSONPath extraction. The `FieldMappingService` applies these mappings at runtime as Step 3 (Map) of the ingestion pipeline.
+
+### References
+
+- [[Entity Ingestion Pipeline]]

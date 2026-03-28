@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# @riven/web
 
-## Getting Started
+Marketing website and landing page for Riven.
 
-First, run the development server:
+## Tech Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Framework:** Next.js 16 (App Router)
+- **Styling:** Tailwind CSS 4 + Framer Motion
+- **Fonts:** Geist, Instrument Serif, Space Mono, Geist Mono
+- **Media:** Cloudflare CDN via `getCdnUrl()` helper
+- **Email:** React Email templates
+
+## Development
+
+```sh
+# From the monorepo root
+pnpm --filter @riven/web dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Runs on [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create `apps/web/.env.local`:
 
-## Learn More
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_CDN_URL=https://cdn.riven.software
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Project Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+app/              # App Router pages and layouts
+components/
+  feature-modules/
+    hero/         # Hero section
+    landing/      # Landing page sections
+    blogs/        # Blog components
+    story/        # Story/about section
+  navbar/         # Navigation
+  ui/             # Shared UI components
+emails/           # React Email templates
+lib/              # Utilities and helpers
+public/           # Static assets
+```

@@ -3,6 +3,7 @@ tags:
   - architecture/domain
   - domain/identity-resolution
 Created: 2026-03-17
+Updated: 2026-03-27
 ---
 
 # Identity Resolution
@@ -107,3 +108,28 @@ Nothing currently — no REST API, no external consumers. Triggered internally v
 | Date | Change | Domains |
 |---|---|---|
 | 2026-03-17 | Initial identity resolution domain | Identity Resolution |
+| 2026-03-27 | Integration with entity ingestion pipeline — ingestion-time identity resolution, cross-source matching, cluster auto-creation | Entity Ingestion Pipeline |
+
+---
+
+## Integration with Entity Ingestion Pipeline
+
+Identity resolution is **Step 4** of the entity ingestion pipeline: Classify → Route → Map → **Resolve**. After a new entity is mapped from integration data and projected into a core entity type, the resolution step determines whether this data represents an already-known identity.
+
+### Ingestion-Time Resolution
+
+When the projection pipeline creates a new core entity from integration data, both the integration entity and the projected core entity are immediately added to the same identity cluster. This prevents the background matching pipeline from re-suggesting them as duplicates.
+
+> [!info] Two resolution paths
+> The new `IdentityResolutionService` (in `service.ingestion`) handles **synchronous ingestion-time matching** as part of the pipeline workflow. The existing `IdentityMatchCandidateService` continues to handle **background async matching** via Temporal for user-created entities and periodic re-evaluation.
+
+### Cross-Source Identity Matching
+
+When two integrations (e.g., Zendesk + HubSpot) sync contacts with the same email, identity resolution matches them to the same core Customer entity. This collapses N integration sources into a single user-facing hub entity.
+
+Identity clusters are relationship graphs: one core entity linked to N integration entities. Each cluster represents a single real-world identity across all connected sources.
+
+### References
+
+- [[Entity Ingestion Pipeline]]
+- [[Smart Projection Architecture]]

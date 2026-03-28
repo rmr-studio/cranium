@@ -12,7 +12,7 @@ Domains:
   - "[[Knowledge]]"
   - "[[Entities]]"
 blocked by:
-  - "[[Three-Tier Entity Model and Lifecycle Spine]]"
+  - "[[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]]"
   - "[[Lifecycle Domain Model]]"
   - "[[Identity Resolution System]]"
 ---
@@ -63,7 +63,7 @@ CHURN EVENT (2026-03-15)
 
 ## Related Documents
 
-- [[Three-Tier Entity Model and Lifecycle Spine]] — entity types forming the timeline
+- [[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]] — entity types forming the timeline
 - [[Lifecycle Domain Model]] — cross-domain traversal logic
 - [[Identity Resolution System]] — linking customer across integration types to spine types
 - [[Knowledge Layer Sub-Agents]] — churn signals trigger retrospective generation

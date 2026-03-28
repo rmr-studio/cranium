@@ -4,7 +4,7 @@ tags:
   - priority/high
   - architecture/feature
 Created: 2026-03-20
-Updated: 2026-03-20
+Updated: 2026-03-27
 Domains:
   - "[[Integrations]]"
   - "[[Entities]]"
@@ -55,6 +55,52 @@ Attio solves this by not having separate integration entity types — integratio
 - **Debugging and audit:** Readonly integration entities are a complete, immutable mirror of what the source system sent. When a sync goes wrong, you compare the integration entity to the source record — no detective work needed.
 
 Expert consensus (Kleppmann, Hickey, Helland, Thompson, Hohpe) converged on this approach. See CEO plan at `~/.gstack/projects/rmr-studio-riven/ceo-plans/2026-03-20-smart-projection-architecture.md` for the full expert panel analysis.
+
+### Field Ownership: Source Wins for Mapped Fields
+
+> **Decision (eng review 2026-03-27):** Integration sources own mapped fields. Users own unmapped fields.
+
+When a core entity is created or updated via projection, its attributes fall into two categories:
+
+1. **Mapped fields** — attributes whose values originate from integration data via field mapping (e.g., `email`, `name`, `company`). These are **owned by the integration source**. If a user manually edits a mapped field, that edit will be **overwritten on the next sync** when the integration source provides a new value.
+2. **Unmapped fields** — attributes added by the user to the core entity type that have no corresponding mapping from any integration source (e.g., custom notes, internal tags, manual classifications). These are **owned by the user** and are never touched by the sync pipeline.
+
+**Audit trail requirement:** When a sync overwrites a user-edited value on a mapped field, the change must be logged at field level via `activityService.logActivity()`. The activity details include:
+
+```json
+{
+  "event": "FIELD_OVERWRITE",
+  "entityId": "<core_entity_id>",
+  "attributeId": "<attribute_id>",
+  "field": "email",
+  "previousValue": "jane@old.com",
+  "newValue": "jane@new.com",
+  "source": "hubspot",
+  "syncId": "<sync_run_id>"
+}
+```
+
+This ensures users can see exactly when and why a field changed, and which integration source caused the overwrite.
+
+### Most Recent Sync Wins for Multi-Source Conflicts
+
+> **Decision (eng review 2026-03-27):** When multiple integrations project to the same core entity, the most recently synced values for mapped fields win. Timestamp-based, no configuration needed.
+
+When two integrations project to the same core entity (e.g., same Customer matched from Zendesk + HubSpot via identity resolution), both sources may provide values for the same mapped fields. The conflict resolution rule is simple: **most recent sync wins**.
+
+- Each sync run has a timestamp. When a mapped field is updated, the new value overwrites the previous value regardless of which integration source provided the earlier value.
+- No user configuration is needed — this is the default behaviour.
+- The field-level audit trail (see above) records all changes from all sources, preserving full history even though only the latest value is stored.
+
+**Example timeline:**
+
+| Time | Source | Field | Value | Stored? |
+|------|--------|-------|-------|---------|
+| T1 | HubSpot sync | email | jane@hubspot.com | Yes |
+| T2 | Zendesk sync | email | jane@zendesk.com | Yes (overwrites T1) |
+| T3 | HubSpot sync | email | jane@hubspot-updated.com | Yes (overwrites T2) |
+
+All three changes are logged in the activity trail. The core entity always reflects the most recent value.
 
 ### Prerequisites
 
@@ -294,6 +340,9 @@ Key behaviours:
 - **Skeleton entities** get only IDENTIFIER-classified attributes (email, name) copied from the integration entity. All other attributes are empty — the user fills them in, or they're derived via aggregation columns.
 - **Identity cluster assignment:** When a projection creates a new core entity, both the core entity and the integration entity are added to the same identity cluster. This prevents identity resolution from re-suggesting them as a match (cluster-aware dedup).
 - **Idempotent:** If a relationship already exists between the core and integration entities, skip. If a core entity already exists with the matching identity, link rather than create.
+- **Field ownership (source wins):** Mapped fields on projected entities are updated from integration data on every sync. User edits to mapped fields are overwritten. Unmapped fields are preserved. See §1 "Field Ownership: Source Wins for Mapped Fields".
+- **Multi-source conflict (most recent sync wins):** When multiple integrations project to the same core entity, the most recently synced values win for mapped fields. See §1 "Most Recent Sync Wins".
+- **Field-level audit trail:** All mapped field overwrites are logged via `activityService.logActivity()` with old/new values and source attribution.
 
 #### assembleColumns() Extension
 
@@ -400,11 +449,14 @@ object SupportTicketModel : CoreModelDefinition(
     lifecycleDomain = LifecycleDomain.SUPPORT,
     semanticGroup = SemanticGroup.SUPPORT,
     // ...attributes, relationships...
-    projectionAccepts = ProjectionAcceptRule(
-        domain = LifecycleDomain.SUPPORT,
-        semanticGroup = SemanticGroup.SUPPORT,
-        relationshipName = "Support Tickets",
-        autoCreate = true,
+    projectionAccepts = listOf(
+        ProjectionAcceptRule(
+            domain = LifecycleDomain.SUPPORT,
+            semanticGroup = SemanticGroup.SUPPORT,
+            relationshipName = "Support Tickets",
+            autoCreate = true,
+        ),
+        // Additional rules can accept projections from other domain/group pairs
     ),
 )
 ```
@@ -440,15 +492,20 @@ This design is critical for the SaaS Decline thesis. Future data sources include
 
 All of these produce entities with `lifecycleDomain` classification. Domain-based routing handles them without any per-source projection configuration.
 
+### Ingestion Pipeline Reference
+
+> **Note (eng review 2026-03-27):** The sync workflow passes (1, 2, 3) are part of a broader 4-step **Entity Ingestion Pipeline**: **Classify -> Route -> Map -> Resolve**. The projection pipeline (Pass 3) corresponds to the **Route + Resolve** steps. Field mapping (the **Map** step) happens BEFORE projection, transforming integration schema values into the core entity schema. See [[Entity Ingestion Pipeline]] for the full pipeline design.
+
 ### Component Interaction Diagram
 
 ```mermaid
 sequenceDiagram
     participant NW as Nango Webhook
     participant SW as SyncWorkflow (Temporal)
-    participant P1 as Pass 1: Upsert
+    participant P1 as Pass 1: Upsert (Classify)
     participant P2 as Pass 2: Relationships
-    participant P3 as Pass 3: Projections
+    participant FM as Field Mapping (Map)
+    participant P3 as Pass 3: Projections (Route + Resolve)
     participant EPS as EntityProjectionService
     participant ES as EntityService
     participant ERS as EntityRelationshipService
@@ -459,8 +516,10 @@ sequenceDiagram
     P1-->>SW: Upserted entity IDs
     SW->>P2: Resolve integration relationships
     P2-->>SW: Done
+    SW->>FM: Transform integration fields → core schema
+    FM-->>SW: Mapped field values
     SW->>P3: Execute projections
-    P3->>EPS: processProjections(entities, workspaceId)
+    P3->>EPS: processProjections(entities, mappedFields, workspaceId)
 
     loop For each integration entity
         EPS->>EPS: Load projection rules
@@ -468,6 +527,7 @@ sequenceDiagram
 
         alt Core entity exists
             EPS->>ERS: Create relationship link
+            EPS->>EPS: Apply mapped field values (source wins)
         else Core entity not found + autoCreate
             EPS->>ES: Create skeleton entity (PROJECTED)
             EPS->>ERS: Create relationship link
@@ -535,6 +595,8 @@ No breaking changes to existing API contracts. Entity type listing gains an opti
 | Aggregation query | Target entity soft-deleted | Yes | Excluded from count | No | `@SQLRestriction` handles automatically |
 | Materialization | Projection rule references non-existent relationship | Yes | Materialization fails | ERROR | Fail fast during materialization — manifest error |
 | Manifest parsing | Missing `projections` field | Yes | None (optional) | No | Field is optional — entity type has no projections |
+| Field overwrite | Sync overwrites user-edited mapped field | Yes | Field value changes | Yes (activity trail) | Field-level audit trail logs old → new with source attribution. User can see change history. See §1 "Source Wins". |
+| Multi-source conflict | Two integrations write different values to same mapped field | Yes | Most recent value shown | Yes (activity trail) | Most recent sync wins. Full history preserved in activity trail. See §1 "Most Recent Sync Wins". |
 
 0 critical gaps. All failure modes are per-entity isolated — one failed projection does not block the sync batch.
 
@@ -694,7 +756,13 @@ Projected entity creation logs activity via `ActivityService`:
 
 ### Data Backfill
 
-No backfill needed for existing workspaces. Projection rules are created during integration materialization. For workspaces with already-synced integration data, a manual re-sync will trigger Pass 3 projections.
+> **Updated (eng review 2026-03-27):** Backfill IS needed in certain scenarios. The original "no backfill needed" assessment was incorrect.
+
+**Scenario requiring backfill:** When a user installs a new core model (e.g., "Support Ticket") and the workspace already contains integration entities that match the new model's projection acceptance rules (e.g., existing `zendesk_ticket` entities with `lifecycleDomain = SUPPORT`), those integration entities need to be retroactively projected into the newly installed core model.
+
+Without backfill, previously synced integration entities would remain unlinked until their next sync — which may never happen if the integration source hasn't changed.
+
+**Status:** Deferred as TODO. The backfill mechanism design is captured as open question BACKFILL-01 (see §11). For MVP, a manual re-sync of the affected integration connection serves as the workaround.
 
 ### Feature Flags
 
@@ -713,8 +781,9 @@ No feature flags needed. The projection pipeline is activated by the presence of
 ## 11. Open Questions
 
 - **PERF-01:** At what related-entity count does aggregation query latency become unacceptable? Need benchmarking with realistic data volumes. Threshold for switching to materialized counters.
-- **CONFLICT-01:** If two projection rules target the same core entity type from different integration entity types, should they create one core entity (matched by identity) or two? Current design: one, matched by identity attribute — same as Attio's assert/upsert. Confirm this is correct.
+- ~~**CONFLICT-01:** If two projection rules target the same core entity type from different integration entity types, should they create one core entity (matched by identity) or two?~~ **RESOLVED (eng review 2026-03-27):** One core entity, matched by identity attribute. When multiple integrations project to the same core entity, the most recent sync wins for mapped fields. Timestamp-based, no configuration needed. Field-level audit trail preserves full change history from all sources.
 - **ENRICH-01:** Should identity enrichment (accumulating emails from cluster members) be a real-time aggregation column or a background sync that updates the core entity's attributes? Current design: aggregation column (no attribute mutation). Confirm.
+- **BACKFILL-01 (new, eng review 2026-03-27):** When a user installs a new core model that matches existing (previously unmatched) integration entities, what is the backfill mechanism? Options: (a) background job that scans all integration entities and runs projection rules, (b) triggered on core model installation only, (c) user-initiated "re-project" action. Must handle potentially large volumes of existing integration entities without blocking the workspace. See §10 "Data Backfill" for context.
 
 ---
 
@@ -733,6 +802,11 @@ No feature flags needed. The projection pipeline is activated by the presence of
 | 2026-03-20 | Domain-based projection routing (replaces per-integration declarations) | Projection rules use (LifecycleDomain, SemanticGroup) pair to route integration entities to core models. Source-agnostic — works for any data source without per-integration configuration. Per SaaS Decline thesis. | Per-integration manifest projections (rejected: violates system agnosticism, doesn't scale with custom integrations, direct Postgres connections, CSV imports) |
 | 2026-03-20 | Core models as Kotlin objects (replaces JSON manifests for lifecycle types) | Core lifecycle entity types defined as Kotlin objects with compile-time safety, DRY composition, and co-located projection/aggregation declarations. Integration types remain as JSON manifests. | JSON manifests for everything (rejected: no compile-time safety, DRY violations, verbose for growing complexity) |
 | 2026-03-20 | Domain + SemanticGroup as projection discriminator | When multiple core models share a LifecycleDomain, SemanticGroup disambiguates. Both fields already exist on every entity type. No new fields needed. | Single LifecycleDomain match (rejected: ambiguous for BILLING domain shared by Subscription and BillingEvent) |
+| 2026-03-27 | Source wins for mapped fields | Mapped fields on projected entities are owned by the integration source. User edits to mapped fields are overwritten on next sync. Unmapped fields (user-added) are preserved. Clear ownership model avoids per-field provenance complexity. (eng review) | Per-field source priority configuration (rejected: too complex for MVP, unclear user mental model) |
+| 2026-03-27 | Most recent sync wins for multi-source conflict | When multiple integrations project to the same core entity, the most recently synced values for mapped fields win. Timestamp-based, no configuration. Field-level audit trail preserves full history. (eng review) | Configurable source priority per field (rejected: premature complexity), CRDT-style merge (rejected: overkill for this use case) |
+| 2026-03-27 | ProjectionAcceptRule as List | Changed `projectionAccepts` from single `ProjectionAcceptRule` to `listOf(ProjectionAcceptRule(...))`. Supports multiple projection sources per core type. (eng review) | Single accept rule (rejected: limits core models to one domain/group pair) |
+| 2026-03-27 | Field-level audit trail on sync overwrites | When sync overwrites user-edited values on mapped fields, log field-level changes (old value, new value, source) via `activityService.logActivity()`. Critical for user trust and debugging. (outside voice finding) | No audit trail (rejected: users lose visibility into why values changed) |
+| 2026-03-27 | Backfill projection deferred as TODO | When a new core model is installed matching existing integration entities, those entities need retroactive projection. Mechanism deferred — manual re-sync is the MVP workaround. (outside voice finding) | Immediate backfill on install (rejected: needs design for large-volume handling) |
 
 ---
 
@@ -793,10 +867,11 @@ Implementation follows a 4-phase sequencing. Each phase is independently deploya
 - [[Identity Resolution System]] — Matching engine that prevents duplicate suggestions for projected pairs
 - [[Integrations]] — Parent domain for integration data flow and sync pipeline
 - [[Entities]] — Entity domain providing entity types, attributes, relationships
-- [[Three-Tier Entity Model and Lifecycle Spine]] — LifecycleDomain classification used for smart routing
+- [[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]] — LifecycleDomain classification used for smart routing
 - [[Integration Data Sync Pipeline]] — Temporal sync workflow extended with Pass 3
 - [[Integration Schema Mapping]] — SchemaMappingService used for attribute transformation
 - [[SaaS Decline & Strategic Positioning]] — Strategic thesis driving system-agnostic design
+- [[Entity Ingestion Pipeline]] — Full 4-step ingestion pipeline (Classify -> Route -> Map -> Resolve) that the projection pipeline is part of
 
 ---
 
@@ -806,3 +881,4 @@ Implementation follows a 4-phase sequencing. Each phase is independently deploya
 |------|--------|--------|
 | 2026-03-20 | Claude | Initial design from CEO plan review. Architecture validated by expert panel (Kleppmann, Hickey, Helland, Thompson, Hohpe, Wodtke). Placed in Planning — requires PR prerequisites merged before implementation. |
 | 2026-03-20 | Claude | Updated per Core Model Architecture CEO review: projection routing changed from per-integration manifest declarations to domain-based (LifecycleDomain + SemanticGroup) routing declared on Kotlin core model definitions. Integration manifests no longer declare projections. Core models are Kotlin objects, not JSON manifests. Added domain+semanticGroup disambiguation table. Source agnosticism section added per SaaS Decline thesis. |
+| 2026-03-27 | Claude | Updated per engineering review: added Source Wins field ownership rules, Most Recent Sync Wins for multi-source conflicts, ProjectionAcceptRule as List, field-level audit trail requirement, backfill projection note. Updated Component Interaction Diagram with field mapping step. Resolved CONFLICT-01, added BACKFILL-01. Referenced new [[Entity Ingestion Pipeline]] feature design. |

@@ -1,5 +1,19 @@
 # Architecture Suggestions
 
+## [2026-03-27] — Entity Ingestion Pipeline Documentation Updates
+
+**Trigger:** Engineering review defined the Entity Ingestion Pipeline architecture with 6 confirmed architectural decisions, 3 new services, and cross-domain dependencies.
+**Affected vault notes:**
+- `feature-design/1. Planning/Smart Projection Architecture.md` — updated with source wins, multi-source conflict resolution, ProjectionAcceptRule as List, backfill projection, audit trail
+- `feature-design/1. Planning/Entity Ingestion Pipeline.md` — new feature design document
+- `domains/Identity Resolution/Identity Resolution.md` — integration with ingestion pipeline
+- `domains/Integrations/Integrations.md` — ingestion pipeline section
+- `domains/Entities/Entities.md` — projected entities and hub model section
+- `domains/Catalog/Catalog.md` — field mapping for ingestion section
+**Suggested update:** Review all updated documents for accuracy against current codebase state. The ingestion pipeline feature design is comprehensive but describes future architecture — verify implementation matches when built. The Smart Projection doc now references the Ingestion Pipeline doc — ensure both stay in sync.
+
+---
+
 ## [2026-03-14] — Notification Domain: Future Extension Considerations
 
 **Trigger:** Built notification domain with inbox, read-state, resolution lifecycle, and WebSocket delivery.

@@ -30,7 +30,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Text with diacritics ("Jose Garcia") normalizes to plain ASCII before comparison
   4. Title/suffix stopwords (Dr., PhD, Inc.) are stripped before matching
   5. An entity with two matching attributes produces two candidate rows (not one collapsed by DISTINCT ON), and the requireNotNull replacement compiles cleanly
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
 - [ ] 01-01-PLAN.md — Create IdentityNormalizationService with signal-type-aware dispatch and unit tests
 - [ ] 01-02-PLAN.md — Wire normalization into CandidateService, remove DISTINCT ON, add phone exact-digits query, fix requireNotNull
@@ -88,7 +88,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Signal-Type-Aware Normalization + Candidate Query Fixes | 0/2 | Planned | - |
+| 1. Signal-Type-Aware Normalization + Candidate Query Fixes | 1/2 | In Progress|  |
 | 2. Scoring Improvements + Signal Classification | 0/TBD | Not started | - |
 | 3. Nickname Lookup + Token-Set Similarity | 0/TBD | Not started | - |
 | 4. Email Decomposition Strategy | 0/TBD | Not started | - |

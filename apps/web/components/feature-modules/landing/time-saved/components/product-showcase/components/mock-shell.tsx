@@ -16,9 +16,8 @@ import {
 } from 'lucide-react';
 
 import { ShowcaseIconRail, ShowcaseSubPanel } from '@/components/ui/diagrams/brand-ui-primitives';
-
-// Map of entity names that have scenarios (clickable in sidebar)
-const SCENARIO_ENTITIES = new Set(['Customers', 'Support Tickets', 'Subscriptions']);
+import { ClassNameProps } from '@riven/utils';
+import { FC } from 'react';
 
 const ENTITY_NAV_ICONS = [
   { icon: <Building2 className="size-5" />, active: false },
@@ -28,16 +27,14 @@ const ENTITY_NAV_ICONS = [
 ];
 
 export function MockIconRail() {
-  return <ShowcaseIconRail icons={ENTITY_NAV_ICONS} showWorkspace />;
+  return <ShowcaseIconRail  icons={ENTITY_NAV_ICONS} showWorkspace />;
 }
 
-export function MockSubPanel({
-  activeEntity,
-  onEntityClick,
-}: {
+interface SubpanelProps extends ClassNameProps {
   activeEntity: string;
-  onEntityClick?: (name: string) => void;
-}) {
+}
+
+export const MockSubPanel: FC<SubpanelProps> = ({ activeEntity, className }) => {
   const entities = [
     { icon: <Users className="size-4 text-blue-500" />, name: 'Customers' },
     { icon: <MessageSquare className="size-4 text-teal-500" />, name: 'Communications' },
@@ -50,7 +47,7 @@ export function MockSubPanel({
   ];
 
   return (
-    <ShowcaseSubPanel>
+    <ShowcaseSubPanel className={className}>
       {/* Header */}
       <div className="flex h-12 shrink-0 items-center border-b border-border px-4">
         <span className="text-sm font-semibold text-foreground">Entities</span>
@@ -68,41 +65,23 @@ export function MockSubPanel({
       <div className="flex flex-col gap-0.5 px-2.5">
         {entities.map((entity) => {
           const isActive = entity.name === activeEntity;
-          const isClickable = SCENARIO_ENTITIES.has(entity.name) && !isActive;
 
           return (
-            <div key={entity.name} className="relative">
-              {/* Shimmer border on clickable (non-active) scenario items */}
-              {isClickable && (
-                <div
-                  className="absolute -inset-px animate-[border-rotate_4s_linear_infinite] rounded-lg opacity-50"
-                  style={{
-                    background: `conic-gradient(from var(--border-angle), var(--cta-g1), var(--cta-g2) 15%, transparent 25%, transparent 85%, var(--cta-g3) 95%, var(--cta-g1))`,
-                    mask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
-                    maskComposite: 'exclude',
-                    padding: '1px',
-                  }}
-                />
+            <div
+              key={entity.name}
+              className={cn(
+                'flex items-center gap-2 rounded-md px-3 py-2 text-sm',
+                isActive
+                  ? 'bg-accent font-medium text-foreground'
+                  : 'text-muted-foreground/40',
               )}
-              <button
-                type="button"
-                onClick={isClickable ? () => onEntityClick?.(entity.name) : undefined}
-                className={cn(
-                  'relative flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors',
-                  isActive
-                    ? 'bg-accent font-medium text-foreground'
-                    : isClickable
-                      ? 'cursor-pointer bg-background/80 text-muted-foreground/80 hover:text-foreground'
-                      : 'cursor-default text-muted-foreground/40',
-                )}
-              >
-                {entity.icon}
-                <span>{entity.name}</span>
-              </button>
+            >
+              {entity.icon}
+              <span>{entity.name}</span>
             </div>
           );
         })}
       </div>
     </ShowcaseSubPanel>
   );
-}
+};

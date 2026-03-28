@@ -1,14 +1,9 @@
 'use client';
 
+import { BrandGorgias, BrandIntercom, BrandShopify } from '@/components/ui/diagrams/brand-icons';
 import { WindowControls } from '@/components/ui/window-controls';
 import { useContainerScale } from '@/hooks/use-container-scale';
 import { cn } from '@/lib/utils';
-import { motion } from 'motion/react';
-import {
-  BrandGorgias,
-  BrandIntercom,
-  BrandShopify,
-} from '@/components/ui/diagrams/brand-icons';
 
 // ── Source Chip ──────────────────────────────────────────────────────────
 
@@ -85,31 +80,17 @@ export const KnowledgeChatGraphic = ({ className }: { className?: string }) => {
             <WindowControls size={6} />
 
             {/* ── User Message 1 ── */}
-            <motion.div
-              initial={{ opacity: 0, y: 4 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-              className="flex justify-end"
-            >
+            <div delay={0.1} className="flex justify-end">
               <div className="rounded-sm bg-foreground/[0.05] px-2 py-1">
                 <p className="text-[9px] leading-[1.5] -tracking-[0.03em] text-foreground">
                   What&apos;s driving the increase in support tickets this month?
                 </p>
               </div>
-            </motion.div>
+            </div>
 
             {/* ── AI Response 1 ── */}
-            <motion.div
-              initial={{ opacity: 0, y: 6 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.15 }}
-              className="space-y-2"
-            >
-              <h3 className="text-[10px] font-semibold text-foreground">
-                Support Ticket Analysis
-              </h3>
+            <div delay={0.15} className="space-y-2">
+              <h3 className="text-[10px] font-semibold text-foreground">Support Ticket Analysis</h3>
               <p className="text-[8px] leading-[1.5] -tracking-[0.03em] text-muted-foreground">
                 Support volume is up 34% month-over-month, driven by:
               </p>
@@ -125,9 +106,7 @@ export const KnowledgeChatGraphic = ({ className }: { className?: string }) => {
                       className={cn('h-3 rounded-sm', bar.bg)}
                       style={{ width: `${bar.pct}%` }}
                     />
-                    <span className="ml-1 text-[7px] text-muted-foreground">
-                      {bar.pct}%
-                    </span>
+                    <span className="ml-1 text-[7px] text-muted-foreground">{bar.pct}%</span>
                   </div>
                 ))}
               </div>
@@ -138,31 +117,19 @@ export const KnowledgeChatGraphic = ({ className }: { className?: string }) => {
                 <SourceChip icon={<BrandIntercom size={8} />} label="Intercom" />
                 <SourceChip icon={<BrandShopify size={8} />} label="Shopify" />
               </div>
-            </motion.div>
+            </div>
 
             {/* ── User Message 2 ── */}
-            <motion.div
-              initial={{ opacity: 0, y: 4 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.25 }}
-              className="flex justify-end"
-            >
+            <div delay={0.25} className="flex justify-end">
               <div className="rounded-sm bg-foreground/[0.05] px-2 py-1">
                 <p className="text-[9px] leading-[1.5] -tracking-[0.03em] text-foreground">
                   Which customers affected by shipping delays have the highest LTV?
                 </p>
               </div>
-            </motion.div>
+            </div>
 
             {/* ── AI Response 2 ── */}
-            <motion.div
-              initial={{ opacity: 0, y: 6 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.3 }}
-              className="space-y-2"
-            >
+            <div delay={0.3} className="space-y-2">
               <h3 className="text-[10px] font-semibold text-foreground">
                 Affected High-LTV Customers
               </h3>
@@ -171,26 +138,23 @@ export const KnowledgeChatGraphic = ({ className }: { className?: string }) => {
               <div>
                 {/* Header */}
                 <div className="flex border-b border-border/60 pb-1">
-                  <span className="flex-1 text-[7px] font-medium uppercase tracking-wide text-muted-foreground/70">
+                  <span className="flex-1 text-[7px] font-medium tracking-wide text-muted-foreground/70 uppercase">
                     Name
                   </span>
-                  <span className="w-16 text-[7px] font-medium uppercase tracking-wide text-muted-foreground/70">
+                  <span className="w-16 text-[7px] font-medium tracking-wide text-muted-foreground/70 uppercase">
                     LTV
                   </span>
-                  <span className="w-14 text-[7px] font-medium uppercase tracking-wide text-muted-foreground/70">
+                  <span className="w-14 text-[7px] font-medium tracking-wide text-muted-foreground/70 uppercase">
                     Tickets
                   </span>
-                  <span className="w-20 text-[7px] font-medium uppercase tracking-wide text-muted-foreground/70">
+                  <span className="w-20 text-[7px] font-medium tracking-wide text-muted-foreground/70 uppercase">
                     Source
                   </span>
                 </div>
 
                 {/* Rows */}
                 {tableRows.map((row) => (
-                  <div
-                    key={row.name}
-                    className="flex items-center border-b border-border/40 py-1"
-                  >
+                  <div key={row.name} className="flex items-center border-b border-border/40 py-1">
                     <span className="flex-1 text-[8px] -tracking-[0.03em] text-foreground">
                       {row.name}
                     </span>
@@ -206,10 +170,10 @@ export const KnowledgeChatGraphic = ({ className }: { className?: string }) => {
               </div>
 
               <p className="mt-2 text-[8px] leading-[1.5] -tracking-[0.03em] text-muted-foreground">
-                These 4 customers represent $31,500 in lifetime value. Two have
-                tickets open longer than 7 days.
+                These 4 customers represent $31,500 in lifetime value. Two have tickets open longer
+                than 7 days.
               </p>
-            </motion.div>
+            </div>
           </div>
 
           {/* ── Chat Input Bar ── */}

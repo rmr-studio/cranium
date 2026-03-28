@@ -2,8 +2,6 @@
 
 import { useContainerScale } from '@/hooks/use-container-scale';
 import { useIsMobile } from '@riven/hooks';
-import { cn } from '@/lib/utils';
-import { motion } from 'motion/react';
 import type { ReactNode } from 'react';
 
 const MOBILE_WIDTH = 800;
@@ -15,7 +13,7 @@ interface ScaledShowcaseProps {
   mobileHeight?: number;
   children: ReactNode;
   className?: string;
-  /** Whether to wrap children in a motion.div with fade-in animation. Defaults to true. */
+  /** Whether to wrap children in a fade-in animation. Defaults to true. */
   animate?: boolean;
 }
 
@@ -35,7 +33,7 @@ export function ScaledShowcase({
   const { containerRef, scale } = useContainerScale(width);
 
   return (
-    <div ref={containerRef} className={cn('relative w-full', className)}>
+    <div ref={containerRef} className={`relative w-full ${className ?? ''}`}>
       <div
         className="origin-top-left"
         style={{
@@ -45,19 +43,7 @@ export function ScaledShowcase({
         }}
       >
         <div className="relative" style={{ height }}>
-          {animate ? (
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="absolute inset-x-0 top-0"
-            >
-              {children}
-            </motion.div>
-          ) : (
-            children
-          )}
+          {animate ? <div className="absolute inset-x-0 top-0">{children}</div> : children}
         </div>
       </div>
     </div>

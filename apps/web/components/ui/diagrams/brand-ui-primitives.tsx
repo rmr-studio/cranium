@@ -9,7 +9,7 @@ export function ShowcaseIconRail({
   showWorkspace?: boolean;
 }) {
   return (
-    <div className="flex h-full w-14 shrink-0 flex-col items-center bg-foreground dark:bg-secondary">
+    <div className="flex h-full w-14 shrink-0 flex-col items-center rounded-tl-lg bg-foreground dark:bg-secondary">
       {/* Logo */}
       <div className="flex h-12 w-full items-center justify-center border-b border-background/15">
         <Logo size={20} className="fill-background dark:fill-foreground" />
@@ -121,7 +121,7 @@ export function ShowcaseSubPanel({
   return (
     <div
       className={cn(
-        'flex h-full w-56 shrink-0 flex-col border-r border-border bg-background',
+        'glass-panel flex h-full w-56 shrink-0 flex-col border-r border-border',
         className,
       )}
     >
@@ -133,7 +133,7 @@ export function ShowcaseSubPanel({
 export function FeatureTag({ children }: { children: React.ReactNode }) {
   return (
     <span
-      className="inline-block rounded-lg border-2 border-transparent bg-background/90 px-4 py-1.5 font-display text-xs tracking-[0.08em] text-muted-foreground/70 uppercase shadow-md backdrop-blur-sm"
+      className="inline-block rounded-lg border-2 border-transparent bg-background/90 px-4 py-1.5 font-display text-xs tracking-[0.08em] text-muted-foreground/70 uppercase shadow-md"
       style={{
         background: `linear-gradient(var(--background), var(--background)) padding-box, conic-gradient(from 120deg, var(--cta-g1), var(--cta-g2) 15%, transparent 25%, transparent 85%, var(--cta-g3) 95%, var(--cta-g1)) border-box`,
       }}

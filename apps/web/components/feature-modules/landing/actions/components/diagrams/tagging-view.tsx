@@ -195,13 +195,13 @@ function OutcomeText({
 export function MockTaggingView() {
   return (
     <div
-      className="flex overflow-hidden rounded-xl border border-primary/50 bg-card shadow-lg"
+      className="flex overflow-hidden rounded-xl border border-primary/50 shadow-lg"
       style={{ height: 950 }}
     >
       <ShowcaseIconRail icons={TAGGING_NAV_ICONS} />
 
       {/* Main content */}
-      <div className="paper-lite relative flex flex-1 flex-col overflow-hidden bg-background">
+      <div className="paper-lite glass-panel relative flex flex-1 flex-col overflow-hidden backdrop-blur-xl">
         {/* Breadcrumb bar */}
         <div className="flex h-12 shrink-0 items-center border-b border-border px-6">
           <MockBreadcrumb items={['Workspace', 'Segments', 'At-Risk Q1']} />

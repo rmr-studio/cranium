@@ -1,9 +1,7 @@
 'use client';
 
 import { ShaderContainer, ThemeStaticImages } from '@/components/ui/shader-container';
-import { ShowcaseCard, ShowcaseSection, type FeatureCard } from '@/components/ui/showcase-section';
-import { useContainerScale } from '@/hooks/use-container-scale';
-import { useIsMobile } from '@riven/hooks';
+import { ShowcaseSection, type FeatureCard } from '@/components/ui/showcase-section';
 import { MockDashboard } from './mock-dashboard';
 
 const dashboardShaders = {
@@ -36,33 +34,6 @@ const FEATURES: FeatureCard[] = [
   },
 ];
 
-const DESKTOP_WIDTH = 1920;
-const DESKTOP_HEIGHT = 1260;
-const MOBILE_WIDTH = 800;
-const MOBILE_HEIGHT = Math.round(DESKTOP_HEIGHT * (MOBILE_WIDTH / DESKTOP_WIDTH));
-
-function DashboardOverlay() {
-  const isMobile = useIsMobile();
-  const width = isMobile ? MOBILE_WIDTH : DESKTOP_WIDTH;
-  const height = isMobile ? MOBILE_HEIGHT : DESKTOP_HEIGHT;
-  const { containerRef, scale } = useContainerScale(width);
-
-  return (
-    <div className="relative z-30" ref={containerRef}>
-      <div
-        className="origin-top-left"
-        style={{
-          width,
-          transform: `scale(${scale})`,
-          height: height * scale,
-        }}
-      >
-        <MockDashboard />
-      </div>
-    </div>
-  );
-}
-
 export function DashboardShowcase() {
   const gradients: ThemeStaticImages = {
     light: 'images/texture/static-gradient-3.webp',
@@ -74,7 +45,7 @@ export function DashboardShowcase() {
     <ShowcaseSection
       id="features"
       heading={
-        <h2 className="mt-4 text-3xl text-primary-foreground md:text-4xl lg:text-5xl">
+        <h2 className="mt-4 text-3xl md:text-4xl lg:text-5xl">
           What channels produce{' '}
           <span className="font-serif font-normal italic">customers who stay?</span>
         </h2>
@@ -82,29 +53,27 @@ export function DashboardShowcase() {
       features={FEATURES}
       featureCols={3}
     >
-      <ShowcaseCard>
-        <ShaderContainer
-          staticImages={gradients}
-          shaders={dashboardShaders}
-          className="w-full p-4 lg:m-6 lg:w-3/5"
-        >
-          <div className="relative z-30 translate-x-24 scale-150 p-4 pt-8 sm:scale-120 sm:p-8 sm:pt-12 md:translate-x-0 md:scale-100">
-            <DashboardOverlay />
-          </div>
-        </ShaderContainer>
-
-        <section className="z-20 flex flex-col px-8 py-6 lg:w-2/5">
-          <h3 className="mt-8 font-sans text-2xl text-background sm:text-4xl dark:text-foreground/80">
+      <div className="flex flex-col-reverse md:flex-col">
+        <section className="mx-auto mt-10 flex w-full flex-col items-center">
+          <h3 className="mt-8 font-sans text-2xl sm:text-4xl">
             Keep powerful insights <span className="font-serif font-normal italic">in sight.</span>
           </h3>
 
-          <p className="mt-4 max-w-lg text-base leading-tight text-primary-foreground/50 md:max-w-md md:text-lg dark:text-content">
+          <p className="mx-4 mt-4 max-w-3xl text-center text-base leading-tight text-content">
             Riven explores and surfaces patterns, trends and insights hidden deep in your data. From
             channel performance to cohort health to churn risks, it has never been easier to
             understand your customers from a singular glance
           </p>
         </section>
-      </ShowcaseCard>
+
+        <ShaderContainer
+          staticImages={gradients}
+          shaders={dashboardShaders}
+          className="relative z-30 w-full"
+        >
+          <MockDashboard />
+        </ShaderContainer>
+      </div>
     </ShowcaseSection>
   );
 }

@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 
 import { cn } from '@/lib/utils';
-import { motion } from 'motion/react';
 
 type Direction = 'TOP' | 'LEFT' | 'BOTTOM' | 'RIGHT';
 
@@ -53,6 +52,9 @@ export function HoverBorderGradient({
       return () => clearInterval(interval);
     }
   }, [hovered]);
+
+  const background = hovered ? highlight : movingMap[direction];
+
   return (
     <Tag
       onMouseEnter={(event: React.MouseEvent<HTMLDivElement>) => {
@@ -68,19 +70,17 @@ export function HoverBorderGradient({
       <div className={cn('z-10 w-auto rounded-[inherit] bg-black px-4 py-2 text-white', className)}>
         {children}
       </div>
-      <motion.div
-        className={cn('absolute inset-0 z-0 flex-none overflow-hidden rounded-[inherit]')}
+      <div
+        className={cn('absolute inset-0 z-0 flex-none overflow-hidden rounded-[inherit] transition-all')}
         style={{
           filter: 'blur(2px)',
           position: 'absolute',
           width: '100%',
           height: '100%',
+          background,
+          transitionDuration: `${duration}s`,
+          transitionTimingFunction: 'linear',
         }}
-        initial={{ background: movingMap[direction] }}
-        animate={{
-          background: hovered ? [movingMap[direction], highlight] : movingMap[direction],
-        }}
-        transition={{ ease: 'linear', duration: duration ?? 1 }}
       />
       <div className="absolute inset-[2px] z-1 flex-none rounded-[100px]" />
     </Tag>

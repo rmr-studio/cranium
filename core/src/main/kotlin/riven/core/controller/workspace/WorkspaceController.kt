@@ -1,15 +1,21 @@
 package riven.core.controller.workspace
 
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
+import riven.core.enums.workspace.BusinessType
 import riven.core.enums.workspace.WorkspaceRoles
 import riven.core.models.request.workspace.SaveWorkspaceRequest
+import riven.core.models.response.catalog.TemplateInstallationResponse
 import riven.core.models.workspace.Workspace
 import riven.core.models.workspace.WorkspaceMember
+import riven.core.service.catalog.TemplateInstallationService
 import riven.core.service.workspace.WorkspaceService
 import java.util.*
 
@@ -17,7 +23,8 @@ import java.util.*
 @RequestMapping("/api/v1/workspace")
 @Tag(name = "workspace")
 class WorkspaceController(
-    private val workspaceService: WorkspaceService
+    private val workspaceService: WorkspaceService,
+    private val templateInstallationService: TemplateInstallationService,
 ) {
 
 
@@ -83,5 +90,19 @@ class WorkspaceController(
             role = role
         )
         return ResponseEntity.ok(updatedMember)
+    }
+
+    @Operation(summary = "Install or reinstall the lifecycle template for a workspace. Idempotent — returns early if already installed.")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Template installed or already present"),
+        ApiResponse(responseCode = "404", description = "Template not found in catalog"),
+    )
+    @PostMapping("/{workspaceId}/install-template")
+    fun installTemplate(
+        @PathVariable workspaceId: UUID,
+        @RequestParam businessType: BusinessType,
+    ): ResponseEntity<TemplateInstallationResponse> {
+        val response = templateInstallationService.installTemplate(workspaceId, businessType.templateKey)
+        return ResponseEntity.ok(response)
     }
 }

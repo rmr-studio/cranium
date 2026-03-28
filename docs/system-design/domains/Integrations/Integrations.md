@@ -4,7 +4,7 @@ tags:
   - domain/integration
   - tools/nango
 Created: 2025-05-01
-Updated: 2026-03-18
+Updated: 2026-03-27
 ---
 # Domain: Integrations
 
@@ -137,3 +137,40 @@ The Integrations domain manages the full lifecycle of third-party integrations w
 | 2025-07-17 | Integration enablement lifecycle: enable/disable endpoints, template materialization, connection management, workspace installations | Integration Enablement |
 | 2026-03-17 | Sync persistence foundation: IntegrationSyncStateEntity + repository, InstallationStatus enum on installations, SyncStatus enum, new Data Sync subdomain | Integration Sync Persistence Foundation |
 | 2026-03-18 | Connection model simplification (10→8 states), Nango client extensions (fetchRecords, triggerSync), webhook endpoint with HMAC verification, auth webhook handler that creates connections and triggers materialization, schema mapping engine | Integration Sync Phase 2 |
+| 2026-03-27 | Entity ingestion pipeline — Temporal-orchestrated sync workflows, field mapping, identity resolution, entity projection | Entity Ingestion Pipeline |
+
+---
+
+## Entity Ingestion Pipeline
+
+NangoWebhookService is being extended to dispatch Temporal workflows on sync events (currently a stub). When a sync completes, the webhook handler triggers the ingestion pipeline as a Temporal workflow.
+
+### Pipeline Steps
+
+The ingestion pipeline is a 4-step process:
+
+1. **Classify** — Determine the integration entity type from the incoming records
+2. **Route** — Match the integration entity type to the target core entity type via catalog definitions
+3. **Map** — Transform integration fields to core schema using `FieldMappingService` and `CatalogFieldMappingEntity`
+4. **Resolve** — Run identity resolution to match or create core entities via `IdentityResolutionService`
+
+> [!info] Temporal orchestration
+> The pipeline runs as Temporal workflows (`IntegrationSyncWorkflow`) with activity-level retry and cursor pagination. `IntegrationSyncStateEntity` tracks sync state (cursors, failure counts) per connection per entity type.
+
+### New Components
+
+| Component | Purpose |
+|---|---|
+| `FieldMappingService` | Applies catalog field mappings to transform integration schema → core schema |
+| `IdentityResolutionService` | Ingestion-time identity matching — resolves incoming data against existing entities |
+| `EntityProjectionService` | Creates projected core entity rows from mapped integration data |
+| `IntegrationSyncWorkflow` | Temporal workflow orchestrating the 4-step pipeline |
+
+### Data Flow
+
+Integration entity rows are created (hidden, readonly) alongside projected core entity rows (visible, hub). Field mapping uses `CatalogFieldMappingEntity` to transform integration source fields into the core entity type schema, handling type coercion, value mapping, and JSONPath extraction.
+
+### References
+
+- [[Entity Ingestion Pipeline]]
+- [[Smart Projection Architecture]]

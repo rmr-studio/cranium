@@ -7,6 +7,7 @@ import { cn } from '@riven/utils';
 import { GripVertical } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { ActionColumnConfig, ActionVisibility } from '@/components/ui/data-table/data-table.types';
+import type { ReactNode } from 'react';
 
 interface ActionCellProps<TData> {
   isSelected: boolean;
@@ -19,6 +20,7 @@ interface ActionCellProps<TData> {
   dragListeners: DraggableSyntheticListeners | undefined;
   cellSize: number;
   actionColumnConfig?: ActionColumnConfig;
+  extra?: ReactNode;
 }
 
 function getVisibilityClass(visibility: ActionVisibility, isSelected: boolean) {
@@ -38,6 +40,7 @@ export function ActionCell<TData>({
   dragListeners,
   cellSize,
   actionColumnConfig,
+  extra,
 }: ActionCellProps<TData>) {
   const dragConfig = actionColumnConfig?.dragHandle;
   const checkboxConfig = actionColumnConfig?.checkbox;
@@ -84,6 +87,7 @@ export function ActionCell<TData>({
             />
           </span>
         )}
+        {extra}
       </div>
     </TableCell>
   );

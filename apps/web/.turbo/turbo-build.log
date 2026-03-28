@@ -1,28 +1,10 @@
 
+
 > @riven/web@0.1.0 build /home/jared/dev/worktrees/landing/apps/web
 > dotenv -e ../../.env -- next build
 
-⚠ turbopack.root should be absolute, using: /home/jared/dev/worktrees/landing
-▲ Next.js 16.1.1 (Turbopack)
+[33m[1m⚠[22m[39m turbopack.root should be absolute, using: /home/jared/dev/worktrees/landing
+[1m[38;2;173;127;168m▲ Next.js 16.1.1[39m[22m (Turbopack)
 
-  Creating an optimized production build ...
-✓ Compiled successfully in 4.3s
-  Running TypeScript ...
-  Collecting page data using 27 workers ...
-  Generating static pages using 27 workers (0/7) ...
-  Generating static pages using 27 workers (1/7) 
-  Generating static pages using 27 workers (3/7) 
-  Generating static pages using 27 workers (5/7) 
-✓ Generating static pages using 27 workers (7/7) in 357.3ms
-  Finalizing page optimization ...
-
-Route (app)
-┌ ○ /
-├ ○ /_not-found
-├ ○ /privacy
-├ ○ /robots.txt
-└ ○ /sitemap.xml
-
-
-○  (Static)  prerendered as static content
-
+[37m[1m [22m[39m Creating an optimized production build ...
+[41m[30m ELIFECYCLE [39m[49m [31mCommand failed with exit code 130.[39m

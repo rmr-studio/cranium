@@ -1,0 +1,95 @@
+---
+title: 'Which Channels Produce Customers Who Stay?'
+description: 'Your best-performing channel by CAC might be your worst by 90-day retention. A framework for measuring true channel quality.'
+date: '2026-03-26'
+author: 'Jared Tucker'
+category: 'operational-intelligence'
+tags: ['channel-quality', 'retention', 'CAC', 'DTC', 'attribution', 'analytics']
+coverImage: 'images/blog/26-3-26-blog-customer-retention.webp'
+featured: false
+---
+
+Your cheapest acquisition channel is probably producing your most expensive customers. Most DTC operators measure channel performance by cost per acquisition or ROAS. Almost nobody measures what happens 90 days later: which channels produce customers who renew, reorder, and stick around, and which produce customers who churn before their second purchase. The distinction matters more than any metric on your ad dashboard.
+
+I've looked at this across a dozen DTC brands and the pattern repeats. The channel that wins on CAC loses on retention. The channel that looks expensive upfront produces the customers who are still paying you a year from now. If you're allocating budget based on acquisition cost alone, you're optimizing for the wrong number.
+
+## Why CAC is a terrible measure of channel quality
+
+CAC measures the cost of getting someone through the door. It says nothing about what they do after they walk in. A $15 CAC from TikTok that produces customers who churn at 20% within 60 days is more expensive than a $45 CAC from Google Search that retains at 85%. But on every ad dashboard, in every weekly report, the TikTok channel looks three times more efficient. It's not. You just haven't measured the full cost yet.
+
+The problem is that acquisition and retention data live in different tools. Your ad platform knows what you paid per customer. Your billing system knows who stayed. Nobody is connecting those two numbers by channel, so nobody knows the true ROI of each acquisition source.
+
+Polar Analytics does incrementality testing for DTC brands and provides good marketing analytics. But their data stops at the marketing layer. They can tell you which channels drove purchases. They can't tell you which channels drove purchases from customers who also filed zero support tickets and renewed three times. That downstream behavior, the part that determines whether the acquisition was actually profitable, lives in Stripe, Gorgias, and Shopify. Not in your ad platform.
+
+## The channel quality framework
+
+Here is a simple framework for measuring what your channels actually produce. It tracks five numbers per channel across the customer lifecycle.
+
+For each acquisition channel, measure: cohort size (how many customers came in), 30-day retention rate, 90-day retention rate, average support tickets per customer in the first 90 days, and average lifetime value.
+
+The lifecycle looks like this:
+
+**Channel → First Purchase → 30-day retention → 90-day retention → LTV**
+
+The reason I include support tickets per customer is that support load is a hidden cost of acquisition. A channel that produces customers who file 2x more tickets than average is more expensive than the CAC suggests, even if those customers retain at a decent rate. Support costs eat into margin.
+
+True channel ROI is LTV minus CAC. Not first-purchase revenue minus CAC, which is what most ROAS calculations show you. A channel with $80 average first-purchase revenue and a $20 CAC looks like a 4:1 return. But if LTV is only $95 because 60% of those customers churn before their third purchase, the real return is $75 per customer. A different channel with $60 first-purchase revenue, $40 CAC, and $210 LTV returns $170 per customer. The "worse" channel by ROAS is 2.3x more profitable.
+
+The 30-day and 90-day retention checkpoints tell you how fast the channel's customers fall off. A channel with 80% 30-day retention but 35% 90-day retention has a cliff somewhere between months one and three. That cliff is worth investigating, because it usually points to a specific failure: an onboarding gap, a product-market mismatch, or an expectation set by the ad that the product doesn't deliver on.
+
+## What this looks like in practice
+
+Here's a hypothetical example using numbers that are representative of patterns I've seen across DTC subscription brands.
+
+| Channel       | CAC | 30-day retention | 90-day retention | Support tickets/customer | LTV  |
+| ------------- | --- | ---------------- | ---------------- | ------------------------ | ---- |
+| Instagram Ads | $18 | 62%              | 38%              | 1.8                      | $85  |
+| Google Search | $42 | 78%              | 64%              | 0.6                      | $195 |
+| Referral      | $12 | 85%              | 72%              | 0.3                      | $240 |
+| TikTok        | $11 | 55%              | 29%              | 2.1                      | $62  |
+
+Read the CAC column and TikTok looks like the winner. Eleven dollars per customer. Read the LTV column and referral is producing customers worth nearly 4x what TikTok produces. The "expensive" Google Search channel generates 2.3x the lifetime value of the "cheap" Instagram channel and 3.1x the lifetime value of TikTok.
+
+Now look at the support tickets column. TikTok and Instagram customers file 3-7x more support tickets than referral customers. That's a cost that never shows up in your ad platform's reporting but absolutely shows up in your Gorgias queue and your team's bandwidth.
+
+The net profit calculation makes this stark. TikTok: $62 LTV minus $11 CAC = $51 per customer. Google Search: $195 minus $42 = $153 per customer. Referral: $240 minus $12 = $228 per customer. If you're pouring budget into TikTok because the CAC is low, you're choosing $51 per customer over $228. And you're also choosing higher support load, faster churn, and lower engagement.
+
+## Why no tool shows you this view
+
+The reason most operators don't measure channel quality this way is that no single tool contains all the data.
+
+Shopify uses last-click attribution and tracks browser sessions, not people. If a customer found you through a TikTok ad, then came back a week later through Google, Shopify attributes the purchase to Google. The acquisition channel data is unreliable from the start.
+
+Google Analytics 4 is session-based and cookie-dependent. Between 85% and 95% of site visitors are anonymous, and GA4's attribution model breaks down for any customer journey longer than a single session. It wasn't designed to track people across months of a subscription lifecycle.
+
+Polar Analytics aggregates marketing metrics across ad platforms, which is genuinely useful. But their data stops at the marketing layer. They can tell you cost per acquisition and attributed revenue. They cannot tell you what happened 90 days later because that data lives in Stripe and Gorgias, not in ad platforms.
+
+Klaviyo sees email campaign attribution. It can tell you which email drove a purchase. It cannot tell you which acquisition channel the customer originally came from, or whether they're still a paying subscriber six months later.
+
+Building this view requires connecting acquisition data (where the customer came from) to billing retention data (how long they stayed) to support data (how much friction they experienced). Those three data sources live in three different tools, and none of them know each other exist.
+
+## How to measure channel quality without a data team
+
+Riven links acquisition source to retention and support data automatically. When a customer enters your system through any channel, their full lifecycle is tracked: the ad that brought them in, their purchase history in Shopify, their billing status in Stripe, their support interactions in Gorgias, their email engagement in Klaviyo. Channel quality measurement that would take a data analyst a week to assemble from CSV exports is available as a connected view without manual work.
+
+> Your best channel by CAC might be your worst by 90-day retention. Stop measuring how cheaply you can acquire a customer and start measuring how long they stay after you do.
+
+## Frequently asked questions
+
+### How do I start tracking channel quality if I don't have a data team?
+
+Start with a spreadsheet and do it monthly for your top three channels. Export your last 90 days of customers from Stripe, tag them by acquisition channel (use UTM parameters or ask customers during signup), and check how many are still active. You don't need perfect attribution for every customer. A directional answer for your top channels is enough to spot the worst offenders. If one channel has 2x the churn rate of another, that signal is strong enough to act on even with imperfect data.
+
+### What's a normal 90-day retention rate by channel?
+
+It varies by product category and price point, but patterns are consistent. Referral and organic search customers typically retain at 60-80% over 90 days. Paid social (Instagram, TikTok, Facebook) typically retains at 25-45%. Google Search paid sits somewhere in between at 50-70%. These ranges come from aggregated DTC subscription data. If your paid social retention is below 30% at 90 days, the channel is likely unprofitable regardless of CAC.
+
+### Should I stop spending on channels with low retention?
+
+Not necessarily. Low retention channels can still be profitable if the CAC is low enough and the first-purchase margin is high enough to cover acquisition cost even without renewal. But you should know the math. If a channel produces customers with $62 LTV and costs $11 to acquire, the margin is thin and it floods your support queue. Compare that to a channel with $240 LTV and $12 CAC. The question isn't "should I stop spending" but "where should I spend the next dollar?" That answer almost always points toward the higher-retention channel, even if it means paying more per acquisition.
+
+### How often should I review channel quality metrics?
+
+Monthly is sufficient for most brands under $5M in revenue. The cohorts need time to mature before the retention numbers stabilize. Checking weekly will just show you noisy, incomplete data. Monthly gives you enough signal to spot trends. Once you have three months of cohort data per channel, patterns become clear and budget decisions become straightforward. The brands I've talked to that review this quarterly are always surprised by what they find, which tells me they should have been looking sooner.
+
+_Last updated: March 26, 2026_

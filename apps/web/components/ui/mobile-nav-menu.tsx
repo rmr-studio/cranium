@@ -4,9 +4,8 @@ import { LinkProps, NavbarProps } from '@/lib/interface';
 import { Logo } from '@riven/ui/logo';
 import { ThemeToggle } from '@riven/ui/theme-toggle';
 import { Github, X } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
 import Link from 'next/link';
-import React, { Dispatch, FC, useState } from 'react';
+import React, { Dispatch, FC, useEffect, useState } from 'react';
 import { Button } from './button';
 
 interface MobileNavbarExtendedProps extends NavbarProps {
@@ -22,91 +21,52 @@ export const MobileNavbar: FC<MobileNavbarExtendedProps> = ({
   setOpen: externalSetOpen,
 }) => {
   const [internalOpen, setInternalOpen] = useState<boolean>(false);
-
-  // Use external state if provided, otherwise use internal state
   const isOpen = externalOpen !== undefined ? externalOpen : internalOpen;
   const setIsOpen = externalSetOpen !== undefined ? externalSetOpen : setInternalOpen;
 
+  // Track mounted state for CSS transition (mount → animate in, unmount after animate out)
+  const [mounted, setMounted] = useState(false);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setMounted(true);
+      // Request animation frame to ensure the mount renders before adding visible class
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setVisible(true));
+      });
+    } else {
+      setVisible(false);
+      const timer = setTimeout(() => setMounted(false), 400);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
+  if (!mounted) return null;
+
   return (
-    <AnimatePresence>
-      {isOpen ? <DrawerSheet links={links} toggle={setIsOpen} className={className} /> : null}
-    </AnimatePresence>
-  );
-};
-
-/* ─── animation variants ─── */
-
-const backdropVars = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] as const } },
-  exit: { opacity: 0, transition: { delay: 0.3, duration: 0.25 } },
-};
-
-const drawerVars = {
-  initial: { y: '100%' },
-  animate: {
-    y: '0%',
-    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const },
-  },
-  exit: {
-    y: '100%',
-    transition: { delay: 0.15, duration: 0.35, ease: [0.55, 0, 1, 0.45] as const },
-  },
-};
-
-const staggerContainer = {
-  initial: { transition: { staggerChildren: 0.04, staggerDirection: -1 } },
-  animate: { transition: { staggerChildren: 0.07 } },
-  exit: { transition: { staggerChildren: 0.03, staggerDirection: -1 } },
-};
-
-const linkBlockVars = {
-  initial: {
-    opacity: 0,
-    y: 8,
-  },
-  animate: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] as const },
-  },
-  exit: {
-    opacity: 0,
-    y: 8,
-    transition: { duration: 0.15 },
-  },
-};
-
-/* ─── drawer ─── */
-
-interface NavbarMenuProps extends NavbarProps {
-  toggle: Dispatch<React.SetStateAction<boolean>>;
-}
-
-const DrawerSheet: FC<NavbarMenuProps> = ({ links, toggle }) => {
-  return (
-    <motion.div
-      onClick={() => toggle(false)}
-      variants={backdropVars}
-      initial="initial"
-      animate="animate"
-      exit="exit"
+    <div
+      onClick={() => setIsOpen(false)}
       data-mobile-nav
-      className="fixed inset-0 z-[100] bg-neutral-950/50 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] transition-opacity duration-300 ease-out"
+      style={{
+        backgroundColor: visible ? 'rgba(10, 10, 10, 0.5)' : 'transparent',
+        backdropFilter: visible ? 'blur(4px)' : 'none',
+      }}
     >
-      <motion.div
+      <div
         onClick={(e) => e.stopPropagation()}
-        variants={drawerVars}
-        initial="initial"
-        animate="animate"
-        exit="exit"
-        className="absolute right-0 bottom-0 left-2 z-[101] rounded-tl-md border-t border-border/20 bg-background"
+        className="absolute right-0 bottom-0 left-2 z-[101] rounded-tl-md border-t border-border/20 bg-background transition-transform duration-[450ms]"
+        style={{
+          transform: visible ? 'translateY(0%)' : 'translateY(100%)',
+          transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
+        }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-5 pb-3">
+        <div className="paper-lite flex items-center justify-between px-6 pt-5 pb-3">
           <div className="flex items-center gap-3">
-            <Link href="/" onClick={() => toggle(false)} className="flex items-center gap-1.5">
-              <Logo size={22} />
+            <Link href="/" onClick={() => setIsOpen(false)} className="flex items-center gap-1.5">
+              <Logo size={22} className="fill-logo-primary" />
               <span className="mt-0.5 font-serif text-lg font-bold text-logo-primary">Riven</span>
             </Link>
             <Link
@@ -122,7 +82,7 @@ const DrawerSheet: FC<NavbarMenuProps> = ({ links, toggle }) => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => toggle(false)}
+            onClick={() => setIsOpen(false)}
             className="size-9 text-muted-foreground hover:text-foreground"
           >
             <X className="size-5" />
@@ -130,36 +90,40 @@ const DrawerSheet: FC<NavbarMenuProps> = ({ links, toggle }) => {
         </div>
 
         {/* Links + CTA */}
-        <motion.nav
-          variants={staggerContainer}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          className="px-6 pt-4 pb-10"
-        >
+        <nav className="px-6 pt-4 pb-10">
           <div className="ml-2">
             {links.map((link, index) => (
               <MobileNavLink
                 key={`mobile-link-${index}`}
-                toggle={toggle}
+                toggle={setIsOpen}
                 label={link.label}
                 href={link.href}
                 external={link.external}
                 shouldCloseOnClick={link.shouldCloseOnClick}
+                style={{
+                  opacity: visible ? 1 : 0,
+                  transform: visible ? 'translateY(0)' : 'translateY(8px)',
+                  transition: `opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1) ${0.07 * index}s, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1) ${0.07 * index}s`,
+                }}
               />
             ))}
             <MobileNavLink
               key={`mobile-link-cta`}
-              toggle={toggle}
+              toggle={setIsOpen}
               label={'Join the waitlist'}
               href="/#waitlist"
               external={false}
               shouldCloseOnClick={true}
+              style={{
+                opacity: visible ? 1 : 0,
+                transform: visible ? 'translateY(0)' : 'translateY(8px)',
+                transition: `opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1) ${0.07 * links.length}s, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1) ${0.07 * links.length}s`,
+              }}
             />
           </div>
-        </motion.nav>
-      </motion.div>
-    </motion.div>
+        </nav>
+      </div>
+    </div>
   );
 };
 
@@ -167,6 +131,7 @@ const DrawerSheet: FC<NavbarMenuProps> = ({ links, toggle }) => {
 
 interface NavbarItemProps extends LinkProps {
   toggle: Dispatch<React.SetStateAction<boolean>>;
+  style?: React.CSSProperties;
 }
 
 const MobileNavLink: FC<NavbarItemProps> = ({
@@ -175,6 +140,7 @@ const MobileNavLink: FC<NavbarItemProps> = ({
   toggle,
   shouldCloseOnClick = true,
   external = false,
+  style,
 }) => {
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     const hash = href.includes('#') ? href.split('#')[1] : null;
@@ -192,7 +158,7 @@ const MobileNavLink: FC<NavbarItemProps> = ({
   };
 
   return (
-    <motion.div variants={linkBlockVars}>
+    <div style={style}>
       <Link
         href={href}
         onClick={handleClick}
@@ -203,6 +169,6 @@ const MobileNavLink: FC<NavbarItemProps> = ({
           {label}
         </span>
       </Link>
-    </motion.div>
+    </div>
   );
 };

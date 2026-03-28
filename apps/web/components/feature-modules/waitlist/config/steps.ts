@@ -4,9 +4,9 @@ export enum Step {
   CTA = 0,
   CONTACT = 1,
   BRIDGE = 2,
-  OPERATIONAL_HEADACHE = 3,
-  INTEGRATIONS = 4,
-  PRICE = 5,
+  BUSINESS_OVERVIEW = 3,
+  PAIN_POINTS = 4,
+  INTEGRATIONS = 5,
   INVOLVEMENT = 6,
   SUCCESS = 7,
 }
@@ -17,18 +17,18 @@ export const STEP_NAMES: Record<number, string> = {
   [Step.CTA]: 'cta',
   [Step.CONTACT]: 'contact',
   [Step.BRIDGE]: 'bridge',
-  [Step.OPERATIONAL_HEADACHE]: 'operational_headache',
+  [Step.BUSINESS_OVERVIEW]: 'business_overview',
+  [Step.PAIN_POINTS]: 'pain_points',
   [Step.INTEGRATIONS]: 'integrations',
-  [Step.PRICE]: 'pricing',
   [Step.INVOLVEMENT]: 'involvement',
   [Step.SUCCESS]: 'success',
 };
 
 export const STEP_FIELDS: Partial<Record<Step, (keyof WaitlistMultiStepFormData)[]>> = {
   [Step.CONTACT]: ['name', 'email'],
-  [Step.OPERATIONAL_HEADACHE]: ['operationalHeadache'],
+  [Step.BUSINESS_OVERVIEW]: ['businessOverview'],
+  [Step.PAIN_POINTS]: ['painPoints'],
   [Step.INTEGRATIONS]: ['integrations'],
-  [Step.PRICE]: ['monthlyPrice'],
   [Step.INVOLVEMENT]: ['involvement'],
 };
 

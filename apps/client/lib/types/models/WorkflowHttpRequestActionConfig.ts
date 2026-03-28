@@ -85,16 +85,16 @@ export interface WorkflowHttpRequestActionConfig {
     configSchema?: Array<WorkflowNodeConfigField>;
     /**
      * 
-     * @type {WorkflowActionType}
-     * @memberof WorkflowHttpRequestActionConfig
-     */
-    subType?: WorkflowActionType;
-    /**
-     * 
      * @type {{ [key: string]: object; }}
      * @memberof WorkflowHttpRequestActionConfig
      */
     config?: { [key: string]: object; };
+    /**
+     * 
+     * @type {WorkflowActionType}
+     * @memberof WorkflowHttpRequestActionConfig
+     */
+    subType?: WorkflowActionType;
     /**
      * 
      * @type {WorkflowNodeType}
@@ -129,8 +129,8 @@ export function WorkflowHttpRequestActionConfigFromJSONTyped(json: any, ignoreDi
         'body': json['body'] == null ? undefined : json['body'],
         'timeoutSeconds': json['timeoutSeconds'] == null ? undefined : json['timeoutSeconds'],
         'configSchema': json['configSchema'] == null ? undefined : ((json['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldFromJSON)),
-        'subType': json['subType'] == null ? undefined : WorkflowActionTypeFromJSON(json['subType']),
         'config': json['config'] == null ? undefined : json['config'],
+        'subType': json['subType'] == null ? undefined : WorkflowActionTypeFromJSON(json['subType']),
         'type': json['type'] == null ? undefined : WorkflowNodeTypeFromJSON(json['type']),
     };
 }
@@ -153,8 +153,8 @@ export function WorkflowHttpRequestActionConfigToJSONTyped(value?: WorkflowHttpR
         'body': value['body'],
         'timeoutSeconds': value['timeoutSeconds'],
         'configSchema': value['configSchema'] == null ? undefined : ((value['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldToJSON)),
-        'subType': WorkflowActionTypeToJSON(value['subType']),
         'config': value['config'],
+        'subType': WorkflowActionTypeToJSON(value['subType']),
         'type': WorkflowNodeTypeToJSON(value['type']),
     };
 }

@@ -51,17 +51,13 @@ class EntityValidationService(
             }
         }
 
-        // Filter out NOTE attributes — notes are freeform content and bypass schema validation
-        val filteredSchema = entityType.schema.copy(
-            properties = entityType.schema.properties?.filterValues { it.key != SchemaType.NOTE }
-        )
         val payloadForValidation: Map<String, Any?> =
             attributes
-                .filterKeys { key -> filteredSchema.properties?.containsKey(key) != false }
+                .filterKeys { key -> entityType.schema.properties?.containsKey(key) != false }
                 .map { (key, value) -> key.toString() to value.value }.toMap()
 
         errors += schemaService.validate(
-            schema = filteredSchema,
+            schema = entityType.schema,
             payload = payloadForValidation,
             scope = ValidationScope.STRICT
         )
@@ -218,21 +214,16 @@ class EntityValidationService(
         var invalidCount = 0
         val sampleErrors = mutableListOf<EntityValidationError>()
 
-        // Filter out NOTE attributes — notes are freeform content and bypass schema validation
-        val filteredNewSchema = newSchema.copy(
-            properties = newSchema.properties?.filterValues { it.key != SchemaType.NOTE }
-        )
-
         entities.forEach { entity ->
             val entityId = requireNotNull(entity.id)
             val attrs = attributesByEntityId[entityId] ?: emptyMap()
             val payloadForValidation: Map<String, Any?> =
                 attrs
-                    .filterKeys { key -> filteredNewSchema.properties?.containsKey(key) != false }
+                    .filterKeys { key -> newSchema.properties?.containsKey(key) != false }
                     .map { (key, value) -> key.toString() to value.value }.toMap()
 
             val errors = schemaService.validate(
-                schema = filteredNewSchema,
+                schema = newSchema,
                 payload = payloadForValidation,
                 scope = ValidationScope.STRICT
             )

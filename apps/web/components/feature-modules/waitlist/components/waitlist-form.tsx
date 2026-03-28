@@ -3,15 +3,12 @@
 import { CtaStep } from '@/components/feature-modules/waitlist/components/steps/1.cta';
 import { ContactStep } from '@/components/feature-modules/waitlist/components/steps/2.contact';
 import { BridgeStep } from '@/components/feature-modules/waitlist/components/steps/2b.bridge';
-import { OperationalHeadacheStep } from '@/components/feature-modules/waitlist/components/steps/3.operational-headache';
+import { BusinessOverviewStep } from '@/components/feature-modules/waitlist/components/steps/3.business-overview';
+import { PainPointsStep } from '@/components/feature-modules/waitlist/components/steps/4.pain-points';
 import {
   IntegrationsStep,
   INTEGRATIONS_STEP_CONFIG,
 } from '@/components/feature-modules/waitlist/components/steps/5.integrations';
-import {
-  PricingStep,
-  PRICING_STEP_CONFIG,
-} from '@/components/feature-modules/waitlist/components/steps/6.pricing';
 import {
   InvolvementStep,
   INVOLVEMENT_STEP_CONFIG,
@@ -47,6 +44,7 @@ export function WaitlistForm({ className }: { className?: string }) {
   const [direction, setDirection] = useState(1);
   const [showOtherInput, setShowOtherInput] = useState(false);
   const [completedSurvey, setCompletedSurvey] = useState(false);
+  const [painPointsOther, setPainPointsOther] = useState('');
 
   const joinMutation = useWaitlistJoinMutation();
   const updateMutation = useWaitlistUpdateMutation();
@@ -56,17 +54,18 @@ export function WaitlistForm({ className }: { className?: string }) {
     defaultValues: {
       name: '',
       email: '',
-      operationalHeadache: '',
+      businessOverview: '',
+      painPoints: [],
+      painPointsOther: '',
       integrations: [],
-      monthlyPrice: '',
       involvement: undefined as unknown as 'WAITLIST' | 'EARLY_TESTING' | 'CALL_EARLY_TESTING',
     },
     mode: 'onTouched',
   });
 
   const { trigger, setValue, watch, formState } = form;
+  const selectedPainPoints = watch('painPoints');
   const selectedIntegrations = watch('integrations');
-  const selectedPrice = watch('monthlyPrice');
   const selectedInvolvement = watch('involvement');
 
   // ── Navigation ──
@@ -81,7 +80,7 @@ export function WaitlistForm({ className }: { className?: string }) {
   }, [currentStep]);
 
   const goBack = useCallback(() => {
-    if (currentStep <= Step.OPERATIONAL_HEADACHE) return;
+    if (currentStep <= Step.BUSINESS_OVERVIEW) return;
     posthog.capture('waitlist_step_back', {
       from_step: STEP_NAMES[currentStep],
       to_step: STEP_NAMES[currentStep - 1],
@@ -135,16 +134,22 @@ export function WaitlistForm({ className }: { className?: string }) {
     const valid = await trigger(['involvement']);
     if (!valid) return;
 
-    const { email, operationalHeadache, integrations, monthlyPrice, involvement } =
-      form.getValues();
+    const { email, businessOverview, painPoints, integrations, involvement } = form.getValues();
 
     updateMutation.mutate(
-      { email, operationalHeadache, integrations, monthlyPrice, involvement },
+      {
+        email,
+        businessOverview,
+        painPoints,
+        painPointsOther: painPointsOther || undefined,
+        integrations,
+        involvement,
+      },
       {
         onSuccess: () => {
           posthog.capture('waitlist_survey_submitted', {
+            pain_points: painPoints,
             integrations,
-            monthly_price: monthlyPrice,
             involvement,
           });
           setCompletedSurvey(true);
@@ -153,7 +158,7 @@ export function WaitlistForm({ className }: { className?: string }) {
         },
       },
     );
-  }, [trigger, form, updateMutation]);
+  }, [trigger, form, updateMutation, painPointsOther]);
 
   const handleBridgeSkip = useCallback(() => {
     posthog.capture('waitlist_survey_skipped');
@@ -185,13 +190,6 @@ export function WaitlistForm({ className }: { className?: string }) {
 
   // ── Selections ──
 
-  const selectPrice = useCallback(
-    (label: string) => {
-      setValue('monthlyPrice', label, { shouldValidate: true });
-    },
-    [setValue],
-  );
-
   const selectInvolvement = useCallback(
     (value: string) => {
       setValue('involvement', value as 'WAITLIST' | 'EARLY_TESTING' | 'CALL_EARLY_TESTING', {
@@ -199,6 +197,22 @@ export function WaitlistForm({ className }: { className?: string }) {
       });
     },
     [setValue],
+  );
+
+  const togglePainPoint = useCallback(
+    (label: string) => {
+      const current = form.getValues('painPoints');
+      if (current.includes(label)) {
+        setValue(
+          'painPoints',
+          current.filter((p) => p !== label),
+          { shouldValidate: true },
+        );
+      } else if (current.length < 3) {
+        setValue('painPoints', [...current, label], { shouldValidate: true });
+      }
+    },
+    [form, setValue],
   );
 
   const toggleIntegration = useCallback(
@@ -274,10 +288,6 @@ export function WaitlistForm({ className }: { className?: string }) {
       if (isInput) return;
 
       const key = e.key.toUpperCase();
-      if (currentStep === Step.PRICE) {
-        const option = PRICING_STEP_CONFIG.options.find((o) => o.key === key);
-        if (option) selectPrice(option.label);
-      }
       if (currentStep === Step.INVOLVEMENT) {
         const option = INVOLVEMENT_STEP_CONFIG.options.find((o) => o.key === key);
         if (option) selectInvolvement(option.value);
@@ -286,12 +296,12 @@ export function WaitlistForm({ className }: { className?: string }) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentStep, isPending, handleOk, selectPrice, selectInvolvement]);
+  }, [currentStep, isPending, handleOk, selectInvolvement]);
 
   // ── Progress ──
 
-  const surveyStepIndex = currentStep - Step.OPERATIONAL_HEADACHE;
-  const showProgress = currentStep >= Step.OPERATIONAL_HEADACHE && currentStep <= Step.INVOLVEMENT;
+  const surveyStepIndex = currentStep - Step.BUSINESS_OVERVIEW;
+  const showProgress = currentStep >= Step.BUSINESS_OVERVIEW && currentStep <= Step.INVOLVEMENT;
   const progress = showProgress ? ((surveyStepIndex + 1) / TOTAL_FORM_STEPS) * 100 : 0;
 
   // ── Render steps ──
@@ -310,8 +320,19 @@ export function WaitlistForm({ className }: { className?: string }) {
         );
       case Step.BRIDGE:
         return <BridgeStep onContinue={goForward} onSkip={handleBridgeSkip} />;
-      case Step.OPERATIONAL_HEADACHE:
-        return <OperationalHeadacheStep form={form} onNext={handleOk} />;
+      case Step.BUSINESS_OVERVIEW:
+        return <BusinessOverviewStep form={form} onNext={handleOk} />;
+      case Step.PAIN_POINTS:
+        return (
+          <PainPointsStep
+            selectedPainPoints={selectedPainPoints}
+            onToggle={togglePainPoint}
+            otherText={painPointsOther}
+            onOtherChange={setPainPointsOther}
+            onNext={handleOk}
+            error={formState.errors.painPoints?.message}
+          />
+        );
       case Step.INTEGRATIONS:
         return (
           <IntegrationsStep
@@ -323,15 +344,6 @@ export function WaitlistForm({ className }: { className?: string }) {
             onToggleOther={toggleOtherInput}
             onNext={handleOk}
             error={formState.errors.integrations?.message}
-          />
-        );
-      case Step.PRICE:
-        return (
-          <PricingStep
-            selectedPrice={selectedPrice}
-            onSelect={selectPrice}
-            onNext={handleOk}
-            error={formState.errors.monthlyPrice?.message}
           />
         );
       case Step.INVOLVEMENT:
@@ -352,7 +364,7 @@ export function WaitlistForm({ className }: { className?: string }) {
   };
 
   const showBackButton =
-    currentStep >= Step.OPERATIONAL_HEADACHE && currentStep <= Step.INVOLVEMENT;
+    currentStep >= Step.BUSINESS_OVERVIEW && currentStep <= Step.INVOLVEMENT;
 
   return (
     <div className={cn('mx-auto w-full max-w-5xl', className)}>
@@ -384,10 +396,10 @@ export function WaitlistForm({ className }: { className?: string }) {
             exit={{ opacity: 0 }}
             type="button"
             onClick={goBack}
-            disabled={currentStep === Step.OPERATIONAL_HEADACHE}
+            disabled={currentStep === Step.BUSINESS_OVERVIEW}
             className={cn(
               'mb-4 inline-flex items-center gap-1 text-sm transition-colors',
-              currentStep === Step.OPERATIONAL_HEADACHE
+              currentStep === Step.BUSINESS_OVERVIEW
                 ? 'cursor-not-allowed text-muted-foreground/40'
                 : 'cursor-pointer text-muted-foreground hover:text-foreground',
             )}

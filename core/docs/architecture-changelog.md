@@ -1,5 +1,32 @@
 # Architecture Changelog
 
+## [2026-03-27] — Entity Ingestion Pipeline Architecture (Engineering Review)
+
+**Domains affected:** Entity, Integration, Identity Resolution, Catalog
+**What changed:**
+
+- Defined the 4-step Entity Ingestion Pipeline: Classify → Route → Map → Resolve. This is the missing bridge between integration entity sync and core entity hub population.
+- Confirmed Hub Model architecture: core entity types (Customer, Support Ticket) are the user-facing hub where all interaction happens. Integration entity types + rows are hidden readonly infrastructure for sync fidelity, identity resolution, and audit.
+- Established field ownership rules: "Source wins" — mapped fields on projected entities are owned by the integration source and overwritten on next sync. Unmapped fields are user-owned and preserved.
+- Established multi-source conflict resolution: "Most recent sync wins" — timestamp-based, no configuration needed. When two integrations project to the same core entity, the most recently synced values for mapped fields win.
+- Added field-level audit trail requirement: when sync overwrites user-edited values, log old → new via `activityService.logActivity()`.
+- Changed `ProjectionAcceptRule` from nullable single value to `List<ProjectionAcceptRule>` on `CoreModelDefinition` to support multiple projection sources per core type.
+- Added `SourceType.PROJECTED` to discriminate auto-created core entities from user-created ones.
+- Defined new service layer: `FieldMappingService`, `IdentityResolutionService`, `EntityProjectionService` in `service.ingestion` package. `IntegrationSyncWorkflow` + `IntegrationSyncActivities` in `workflow.integration` package.
+- Identified backfill projection need: when a new core model is installed that matches existing unmatched integration entities, retroactive projection required (deferred as P2 TODO).
+
+**New cross-domain dependencies:** yes
+- Integration → Entity: ingestion pipeline creates entities in core entity types from integration sync data
+- Integration → Identity Resolution: ingestion pipeline's Step 4 (Resolve) uses identity resolution for entity matching
+- Catalog → Integration: `CatalogFieldMappingEntity` consumed by `FieldMappingService` during ingestion
+
+**New components introduced:**
+- `FieldMappingService` — transforms integration source fields → core entity type schema using catalog field mappings
+- `IdentityResolutionService` — matches incoming integration data to existing entities (sourceExternalId + identifier key)
+- `EntityProjectionService` — creates/updates core entities from integration data, manages identity clusters via relationships
+- `IntegrationSyncWorkflow` — Temporal workflow orchestrating the 4-step ingestion pipeline with activity-level retry and cursor pagination
+- `IntegrationSyncActivities` — Temporal activities for each pipeline step
+
 ## [2026-03-17] — Nango Webhook Endpoint with HMAC Security
 
 **Domains affected:** Integration

@@ -1,21 +1,14 @@
-import { Body, Head, Html, Link, Preview, Text } from '@react-email/components';
+import { Body, Head, Hr, Html, Link, Preview, Text } from '@react-email/components';
 
-// Amber theme palette — matches app globals.css
+// Monochrome palette — matches DESIGN.md typography-forward direction
 const colors = {
-  background: '#e6dac8', // oklch(0.93 0.032 80)
-  card: '#F5EDE0', // oklch(0.91 0.035 78)
-  foreground: '#3D2F1F', // oklch(0.25 0.02 60)
-  primary: '#5C3D1F', // oklch(0.35 0.04 65)
-  content: '#7A5433', // oklch(0.45 0.04 65)
-  accent: '#C8985F', // oklch(0.75 0.1 70)
-  muted: '#EDE2D3', // oklch(0.88 0.04 75)
-  mutedForeground: '#7A5433', // oklch(0.45 0.03 65)
-  logoPrimary: '#57493D', // oklch(0.35 0 0)
-  // Nav-inverse (amber) — used for contrasting footer
-  navInvBackground: '#3D2F1F', // oklch(0.25 0.02 60)
-  navInvForeground: '#F5EDE0', // oklch(0.93 0.032 80)
-  navInvMuted: '#C8985F', // oklch(0.75 0.06 70)
-  navInvLogoPrimary: '#D9CFC5', // oklch(0.85 0 0)
+  background: '#f7f7f7', // page background, light neutral
+  card: '#ffffff', // content surface
+  foreground: '#1a1a1a', // primary text, headings
+  content: '#525252', // body text
+  muted: '#a3a3a3', // secondary text, footer links
+  border: '#e5e5e5', // dividers
+  accent: '#3D2F1F', // Riven brand — subtle, earned
 };
 
 const font = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
@@ -27,211 +20,210 @@ interface WaitlistConfirmationProps {
 
 export function WaitlistConfirmation({ name }: WaitlistConfirmationProps) {
   return (
-    <Html lang="en" dir="ltr" style={{ height: '100%', margin: 0, padding: 0 }}>
+    <Html lang="en" dir="ltr">
       <Head />
-      <Preview>We cannot wait to show you what we are building!</Preview>
+      <Preview>I cannot wait to show you what I am building!</Preview>
       <Body
         style={{
           margin: 0,
           padding: 0,
           backgroundColor: colors.background,
-          height: '100%',
-          width: '100%',
+          fontFamily: font,
+          WebkitFontSmoothing: 'antialiased',
         }}
       >
-        {/* Full-height outer wrapper — background visible on sides */}
+        {/* Outer wrapper — subtle background visible on sides */}
         <table
           width="100%"
           cellPadding={0}
           cellSpacing={0}
           role="presentation"
-          style={{ height: '100%', minHeight: '100%', backgroundColor: colors.background }}
+          style={{ backgroundColor: colors.background }}
         >
           <tr>
-            <td align="center" valign="top">
-              {/* Centered 600px column — stretches top to bottom */}
+            <td align="center" style={{ padding: '48px 24px' }}>
+              {/* Content card — white, generous padding */}
               <table
-                width={600}
+                width={560}
                 cellPadding={0}
                 cellSpacing={0}
                 role="presentation"
-                style={{ height: '100%', minHeight: '100%' }}
+                style={{
+                  backgroundColor: colors.card,
+                  borderRadius: '8px',
+                  border: `1px solid ${colors.border}`,
+                }}
               >
-                {/* ── Content card row ── */}
+                {/* ── Header — Riven wordmark ── */}
                 <tr>
-                  <td>
-                    <table width="100%" cellPadding={0} cellSpacing={0} role="presentation">
-                      <tr>
-                        {/* Left accent strip */}
-                        <td
-                          width={4}
-                          style={{ backgroundColor: colors.primary, fontSize: 0, lineHeight: 0 }}
-                        >
-                          &nbsp;
-                        </td>
-                        {/* Content */}
-                        <td style={{ backgroundColor: colors.card, padding: '0 36px' }}>
-                          {/* Greeting */}
-                          <Text
-                            style={{
-                              margin: '28px 0 16px',
-                              fontSize: '24px',
-                              fontWeight: 600,
-                              fontFamily: serifFont,
-                              color: colors.foreground,
-                            }}
-                          >
-                            Hey {name},
-                          </Text>
-                          <Text
-                            style={{
-                              margin: '0 0 16px',
-                              fontSize: '15px',
-                              lineHeight: '24px',
-                              color: colors.content,
-                              fontFamily: font,
-                            }}
-                          >
-                            Thank you for joining the waitlist. We are hard at work building the
-                            best platform Imaginable for operational intelligence, and it is our
-                            goal to ensure you have an incredible experience once you get your hands
-                            on it.
-                          </Text>
-
-                          <Text
-                            style={{
-                              margin: '0 0 16px',
-                              fontSize: '15px',
-                              lineHeight: '24px',
-                              color: colors.content,
-                              fontFamily: font,
-                            }}
-                          >
-                            This is an open thread, so if you have any questions, suggestions, or
-                            just want to say hi, feel free to reply to this email (please it gets so
-                            lonely here).
-                          </Text>
-                          <Text
-                            style={{
-                              margin: '0 0 16px',
-                              fontSize: '15px',
-                              lineHeight: '24px',
-                              color: colors.content,
-                              fontFamily: font,
-                            }}
-                          >
-                            We read and respond to every email we receive, and we would love to hear
-                            from you.
-                          </Text>
-                          <Text
-                            style={{
-                              margin: '0 0 24px',
-                              fontSize: '15px',
-                              lineHeight: '24px',
-                              color: colors.content,
-                              fontFamily: font,
-                            }}
-                          >
-                            If you want to follow along with the build, you can find me online
-                            posting updates and sneak peeks as we go!
-                          </Text>
-
-                          {/* CTA button */}
-                          <table
-                            cellPadding={0}
-                            cellSpacing={0}
-                            role="presentation"
-                            style={{ marginBottom: '36px' }}
-                          >
-                            <tr>
-                              <td
-                                style={{
-                                  backgroundColor: colors.primary,
-                                  borderRadius: '8px',
-                                }}
-                              >
-                                <a
-                                  href="https://x.com/dawadt"
-                                  style={{
-                                    display: 'inline-block',
-                                    padding: '12px 24px',
-                                    fontSize: '14px',
-                                    fontWeight: 500,
-                                    fontFamily: font,
-                                    color: colors.background,
-                                    textDecoration: 'none',
-                                  }}
-                                >
-                                  Follow the socials
-                                </a>
-                              </td>
-                            </tr>
-                          </table>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-
-                {/* ── Footer — dark inverse, fills remaining height ── */}
-                <tr>
-                  <td
-                    valign="top"
-                    style={{
-                      height: '100%',
-                      backgroundColor: colors.navInvBackground,
-                      padding: '28px 36px 32px',
-                    }}
-                  >
-                    {/* Brand name + website */}
+                  <td style={{ padding: '48px 48px 0' }}>
                     <Text
                       style={{
-                        margin: '20px 0 0',
-                        fontSize: '14px',
+                        margin: 0,
+                        fontSize: '18px',
                         fontWeight: 600,
                         fontFamily: serifFont,
-                        color: colors.navInvForeground,
+                        color: colors.accent,
+                        letterSpacing: '0.02em',
                       }}
                     >
                       Riven
                     </Text>
-                    <Link
-                      href="https://getriven.io"
-                      style={{
-                        display: 'block',
-                        margin: '2px 0 0',
-                        fontSize: '13px',
-                        fontFamily: font,
-                        color: colors.navInvMuted,
-                        textDecoration: 'none',
-                      }}
-                    >
-                      getriven.io
-                    </Link>
+                  </td>
+                </tr>
 
-                    {/* Contact email */}
-                    <Link
-                      href="mailto:jared@riven.software"
+                {/* ── Divider ── */}
+                <tr>
+                  <td style={{ padding: '24px 48px 0' }}>
+                    <Hr
                       style={{
-                        display: 'block',
-                        margin: '4px 0 0',
-                        fontSize: '13px',
-                        fontFamily: font,
-                        color: colors.navInvMuted,
-                        textDecoration: 'none',
+                        margin: 0,
+                        borderTop: `1px solid ${colors.border}`,
+                        borderBottom: 'none',
+                        borderLeft: 'none',
+                        borderRight: 'none',
                       }}
-                    >
-                      jared@riven.software
-                    </Link>
+                    />
+                  </td>
+                </tr>
 
-                    {/* Copyright */}
+                {/* ── Body content ── */}
+                <tr>
+                  <td style={{ padding: '40px 48px 0' }}>
+                    {/* Greeting */}
                     <Text
                       style={{
-                        margin: '20px 0 0',
-                        fontSize: '11px',
+                        margin: '0 0 32px',
+                        fontSize: '26px',
+                        fontWeight: 600,
+                        fontFamily: serifFont,
+                        color: colors.foreground,
+                        lineHeight: '1.2',
+                      }}
+                    >
+                      Hey {name},
+                    </Text>
+
+                    <Text
+                      style={{
+                        margin: '0 0 24px',
+                        fontSize: '15px',
+                        lineHeight: '26px',
+                        color: colors.content,
+                      }}
+                    >
+                      Thank you for joining the waitlist. We are working hard to build the best
+                      customer lifecycle intelligence platform imaginable, and it is my goal to
+                      ensure you both have an incredible experience once you get your hands on it
+                      and that you feel like it was worth the wait.
+                    </Text>
+
+                    <Text
+                      style={{
+                        margin: '0 0 24px',
+                        fontSize: '15px',
+                        lineHeight: '26px',
+                        color: colors.content,
+                      }}
+                    >
+                      This is an open thread, so if you have any questions, suggestions, or just
+                      want to say hi, feel free to reply to this email (please it gets so lonely
+                      here).
+                    </Text>
+
+                    <Text
+                      style={{
+                        margin: '0 0 24px',
+                        fontSize: '15px',
+                        lineHeight: '26px',
+                        color: colors.content,
+                      }}
+                    >
+                      I read and respond to every email received, and I would love to hear from you.
+                    </Text>
+
+                    <Text
+                      style={{
+                        margin: '0 0 32px',
+                        fontSize: '15px',
+                        lineHeight: '26px',
+                        color: colors.content,
+                      }}
+                    >
+                      If you want to follow along with the build, you can find me online posting
+                      updates and sneak peeks as we go!
+                    </Text>
+                  </td>
+                </tr>
+
+                {/* ── Sign-off ── */}
+                <tr>
+                  <td style={{ padding: '40px 48px 0' }}>
+                    <Text
+                      style={{
+                        margin: 0,
+                        fontSize: '15px',
+                        lineHeight: '26px',
+                        color: colors.content,
+                      }}
+                    >
+                      Thanks :D,
+                    </Text>
+                    <Text
+                      style={{
+                        margin: '4px 0 0',
+                        fontSize: '15px',
+                        fontWeight: 600,
+                        lineHeight: '26px',
+                        color: colors.foreground,
+                      }}
+                    >
+                      Jared
+                    </Text>
+                  </td>
+                </tr>
+
+                {/* ── Bottom padding ── */}
+                <tr>
+                  <td style={{ padding: '48px 0 0' }} />
+                </tr>
+              </table>
+
+              {/* ── Footer — outside the card, minimal ── */}
+              <table width={560} cellPadding={0} cellSpacing={0} role="presentation">
+                <tr>
+                  <td align="center" style={{ padding: '32px 48px' }}>
+                    <Text
+                      style={{
+                        margin: 0,
+                        fontSize: '12px',
+                        lineHeight: '20px',
+                        color: colors.muted,
                         fontFamily: font,
-                        color: colors.navInvMuted,
-                        opacity: 0.6,
+                      }}
+                    >
+                      <Link
+                        href="https://getriven.io"
+                        style={{ color: colors.muted, textDecoration: 'none' }}
+                      >
+                        getriven.io
+                      </Link>
+                      {' \u00B7 '}
+                      <Link
+                        href="mailto:jared@riven.software"
+                        style={{ color: colors.muted, textDecoration: 'none' }}
+                      >
+                        jared@riven.software
+                      </Link>
+                    </Text>
+                    <Text
+                      style={{
+                        margin: '8px 0 0',
+                        fontSize: '12px',
+                        lineHeight: '20px',
+                        color: colors.muted,
+                        fontFamily: font,
+                        opacity: 0.7,
                       }}
                     >
                       &copy; {new Date().getFullYear()} Riven. All rights reserved.

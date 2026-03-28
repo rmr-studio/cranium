@@ -22,4 +22,5 @@ enum class ApplicationEntityType {
     @JsonProperty("FILE") FILE,
     @JsonProperty("NOTIFICATION") NOTIFICATION,
     @JsonProperty("INTEGRATION_INSTALLATION") INTEGRATION_INSTALLATION,
+    @JsonProperty("NOTE") NOTE,
 }

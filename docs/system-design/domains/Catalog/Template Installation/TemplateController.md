@@ -1,13 +1,16 @@
 ---
 tags:
   - layer/controller
-  - component/active
+  - component/deprecated
   - architecture/component
 Created: 2026-03-09
 Domains:
   - "[[Catalog]]"
 ---
 # TemplateController
+
+> [!warning] Removed in Lifecycle Spine (2026-03-26)
+> This controller was deleted. Template installation is now handled by `WorkspaceController` in the [[Workspaces & Users]] domain via `POST /api/v1/workspace/{workspaceId}/install-template`. Bundle endpoints were removed entirely.
 
 Part of [[Template Installation]]
 

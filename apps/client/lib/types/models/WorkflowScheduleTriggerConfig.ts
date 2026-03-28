@@ -87,16 +87,16 @@ export interface WorkflowScheduleTriggerConfig {
     configSchema?: Array<WorkflowNodeConfigField>;
     /**
      * 
-     * @type {WorkflowTriggerType}
-     * @memberof WorkflowScheduleTriggerConfig
-     */
-    subType?: WorkflowTriggerType;
-    /**
-     * 
      * @type {{ [key: string]: object; }}
      * @memberof WorkflowScheduleTriggerConfig
      */
     config?: { [key: string]: object; };
+    /**
+     * 
+     * @type {WorkflowTriggerType}
+     * @memberof WorkflowScheduleTriggerConfig
+     */
+    subType?: WorkflowTriggerType;
     /**
      * 
      * @type {WorkflowNodeType}
@@ -129,8 +129,8 @@ export function WorkflowScheduleTriggerConfigFromJSONTyped(json: any, ignoreDisc
         'interval': json['interval'] == null ? undefined : WorkflowScheduleTriggerConfigIntervalFromJSON(json['interval']),
         'timeZone': json['timeZone'] == null ? undefined : WorkflowScheduleTriggerConfigTimeZoneFromJSON(json['timeZone']),
         'configSchema': json['configSchema'] == null ? undefined : ((json['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldFromJSON)),
-        'subType': json['subType'] == null ? undefined : WorkflowTriggerTypeFromJSON(json['subType']),
         'config': json['config'] == null ? undefined : json['config'],
+        'subType': json['subType'] == null ? undefined : WorkflowTriggerTypeFromJSON(json['subType']),
         'type': json['type'] == null ? undefined : WorkflowNodeTypeFromJSON(json['type']),
     };
 }
@@ -151,8 +151,8 @@ export function WorkflowScheduleTriggerConfigToJSONTyped(value?: WorkflowSchedul
         'interval': WorkflowScheduleTriggerConfigIntervalToJSON(value['interval']),
         'timeZone': WorkflowScheduleTriggerConfigTimeZoneToJSON(value['timeZone']),
         'configSchema': value['configSchema'] == null ? undefined : ((value['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldToJSON)),
-        'subType': WorkflowTriggerTypeToJSON(value['subType']),
         'config': value['config'],
+        'subType': WorkflowTriggerTypeToJSON(value['subType']),
         'type': WorkflowNodeTypeToJSON(value['type']),
     };
 }

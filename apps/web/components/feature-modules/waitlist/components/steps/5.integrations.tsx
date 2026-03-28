@@ -19,109 +19,47 @@ export const INTEGRATIONS_STEP_CONFIG = {
   maxSelections: 5,
   categories: [
     {
-      label: 'CRM',
+      label: 'Commerce & Payments',
       options: [
-        { key: 'hubspot', label: 'HubSpot' },
-        { key: 'salesforce', label: 'Salesforce' },
-        { key: 'attio', label: 'Attio' },
-      ],
-    },
-    {
-      label: 'Support',
-      options: [
-        { key: 'intercom', label: 'Intercom' },
-        { key: 'zendesk', label: 'Zendesk' },
-      ],
-    },
-    {
-      label: 'Payments',
-      options: [
+        { key: 'shopify', label: 'Shopify' },
         { key: 'stripe', label: 'Stripe' },
-        { key: 'shopify-payments', label: 'Shopify' },
-      ],
-    },
-    {
-      label: 'Communication',
-      options: [
-        { key: 'gmail', label: 'Gmail' },
-        { key: 'slack', label: 'Slack' },
-        { key: 'whatsapp', label: 'WhatsApp' },
-      ],
-    },
-    {
-      label: 'Analytics & Product',
-      options: [
-        { key: 'mixpanel', label: 'Mixpanel' },
-        { key: 'segment', label: 'Segment' },
-      ],
-    },
-    {
-      label: 'Accounting & Finance',
-      options: [
-        { key: 'quickbooks', label: 'QuickBooks' },
-        { key: 'xero', label: 'Xero' },
-        { key: 'freshbooks', label: 'FreshBooks' },
-      ],
-    },
-    {
-      label: 'Marketing & Advertising',
-      options: [
-        { key: 'google-ads', label: 'Google Ads' },
-        { key: 'meta-ads', label: 'Meta Ads' },
-        { key: 'linkedin-ads', label: 'LinkedIn Ads' },
-        { key: 'mailchimp', label: 'Mailchimp' },
-        { key: 'klaviyo', label: 'Klaviyo' },
-      ],
-    },
-    {
-      label: 'Project & Task Management',
-      options: [
-        { key: 'linear', label: 'Linear' },
-        { key: 'asana', label: 'Asana' },
-        { key: 'jira', label: 'Jira' },
-        { key: 'notion', label: 'Notion' },
-      ],
-    },
-    {
-      label: 'Scheduling & Calendar',
-      options: [
-        { key: 'google-calendar', label: 'Google Calendar' },
-        { key: 'calendly', label: 'Calendly' },
-        { key: 'cal-com', label: 'Cal.com' },
-      ],
-    },
-    {
-      label: 'E-commerce & Storefront',
-      options: [
-        { key: 'shopify-storefront', label: 'Shopify' },
+        { key: 'recharge', label: 'Recharge' },
         { key: 'woocommerce', label: 'WooCommerce' },
         { key: 'bigcommerce', label: 'BigCommerce' },
       ],
     },
     {
-      label: 'Forms & Surveys',
+      label: 'Support & CRM',
       options: [
-        { key: 'typeform', label: 'Typeform' },
-        { key: 'jotform', label: 'Jotform' },
-        { key: 'tally', label: 'Tally' },
-        { key: 'google-forms', label: 'Google Forms' },
+        { key: 'gorgias', label: 'Gorgias' },
+        { key: 'zendesk', label: 'Zendesk' },
+        { key: 'hubspot', label: 'HubSpot' },
+        { key: 'intercom', label: 'Intercom' },
+        { key: 'salesforce', label: 'Salesforce' },
+        { key: 'attio', label: 'Attio' },
       ],
     },
     {
-      label: 'Document & File Storage',
+      label: 'Marketing & Email',
       options: [
-        { key: 'google-drive', label: 'Google Drive' },
-        { key: 'dropbox', label: 'Dropbox' },
-        { key: 'sharepoint', label: 'SharePoint' },
+        { key: 'klaviyo', label: 'Klaviyo' },
+        { key: 'google-ads', label: 'Google Ads' },
+        { key: 'meta-ads', label: 'Meta Ads' },
+        { key: 'tiktok-ads', label: 'TikTok Ads' },
+        { key: 'mailchimp', label: 'Mailchimp' },
+        { key: 'postscript', label: 'Postscript' },
+        { key: 'attentive', label: 'Attentive' },
       ],
     },
     {
-      label: 'Social & Community',
+      label: 'Analytics & Data',
       options: [
-        { key: 'instagram', label: 'Instagram' },
-        { key: 'twitter', label: 'Twitter / X' },
-        { key: 'linkedin-organic', label: 'LinkedIn' },
-        { key: 'discord', label: 'Discord' },
+        { key: 'google-analytics', label: 'Google Analytics (GA4)' },
+        { key: 'posthog', label: 'PostHog' },
+        { key: 'triple-whale', label: 'Triple Whale' },
+        { key: 'lifetimely', label: 'Lifetimely' },
+        { key: 'mixpanel', label: 'Mixpanel' },
+        { key: 'segment', label: 'Segment' },
       ],
     },
   ] satisfies CategoryConfig[],

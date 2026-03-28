@@ -5,5 +5,6 @@ enum class SourceType {
     INTEGRATION,
     IMPORT,
     API,
-    WORKFLOW
+    WORKFLOW,
+    TEMPLATE
 }

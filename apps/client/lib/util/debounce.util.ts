@@ -2,7 +2,7 @@
  * Debounced function with cancel capability
  */
 export type DebouncedFunction<T extends (...args: any[]) => any> =
-    ((...args: Parameters<T>) => void) & { cancel: () => void };
+    ((...args: Parameters<T>) => void) & { cancel: () => void; flush: () => void };
 
 /**
  * Creates a debounced function that delays invoking func until after wait milliseconds
@@ -29,15 +29,19 @@ export function debounce<T extends (...args: any[]) => any>(
     wait: number
 ): DebouncedFunction<T> {
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let pendingArgs: Parameters<T> | null = null;
 
     const debounced = function (...args: Parameters<T>) {
         if (timeoutId !== null) {
             clearTimeout(timeoutId);
         }
 
+        pendingArgs = args;
+
         timeoutId = setTimeout(() => {
             func(...args);
             timeoutId = null;
+            pendingArgs = null;
         }, wait);
     };
 
@@ -46,9 +50,22 @@ export function debounce<T extends (...args: any[]) => any>(
             clearTimeout(timeoutId);
             timeoutId = null;
         }
+        pendingArgs = null;
     };
 
-    return Object.assign(debounced, { cancel });
+    const flush = () => {
+        if (pendingArgs !== null) {
+            if (timeoutId !== null) {
+                clearTimeout(timeoutId);
+                timeoutId = null;
+            }
+            const args = pendingArgs;
+            pendingArgs = null;
+            func(...args);
+        }
+    };
+
+    return Object.assign(debounced, { cancel, flush });
 }
 
 /**
@@ -79,6 +96,7 @@ export function debounceLeading<T extends (...args: any[]) => any>(
 ): DebouncedFunction<T> {
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
     let lastCallTime: number = 0;
+    let pendingArgs: Parameters<T> | null = null;
 
     const debounced = function (...args: Parameters<T>) {
         const now = Date.now();
@@ -92,12 +110,15 @@ export function debounceLeading<T extends (...args: any[]) => any>(
         if (timeSinceLastCall >= wait) {
             func(...args);
             lastCallTime = now;
+            pendingArgs = null;
         } else {
             // Otherwise, debounce
+            pendingArgs = args;
             timeoutId = setTimeout(() => {
                 func(...args);
                 lastCallTime = Date.now();
                 timeoutId = null;
+                pendingArgs = null;
             }, wait);
         }
     };
@@ -107,7 +128,21 @@ export function debounceLeading<T extends (...args: any[]) => any>(
             clearTimeout(timeoutId);
             timeoutId = null;
         }
+        pendingArgs = null;
     };
 
-    return Object.assign(debounced, { cancel });
+    const flush = () => {
+        if (pendingArgs !== null) {
+            if (timeoutId !== null) {
+                clearTimeout(timeoutId);
+                timeoutId = null;
+            }
+            const args = pendingArgs;
+            pendingArgs = null;
+            func(...args);
+            lastCallTime = Date.now();
+        }
+    };
+
+    return Object.assign(debounced, { cancel, flush });
 }

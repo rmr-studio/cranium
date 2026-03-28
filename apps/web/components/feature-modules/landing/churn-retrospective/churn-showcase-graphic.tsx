@@ -1,0 +1,38 @@
+'use client';
+
+import { useContainerScale } from '@/hooks/use-container-scale';
+import { useIsMobile } from '@riven/hooks';
+
+import { MockChurnRetrospective } from '@/components/feature-modules/landing/churn-retrospective/mock-churn-retrospective';
+
+const DESKTOP_WIDTH = 1920;
+const DESKTOP_HEIGHT = 1050;
+const MOBILE_WIDTH = 1000;
+const MOBILE_HEIGHT = Math.round(DESKTOP_HEIGHT * (MOBILE_WIDTH / DESKTOP_WIDTH));
+
+export const ChurnShowcase = () => {
+  const isMobile = useIsMobile();
+  const width = isMobile ? MOBILE_WIDTH : DESKTOP_WIDTH;
+  const height = isMobile ? MOBILE_HEIGHT : DESKTOP_HEIGHT;
+  const { containerRef, scale } = useContainerScale(width);
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative w-full translate-x-12 translate-y-8 scale-130 md:px-12 lg:translate-x-0 lg:translate-y-0 lg:scale-100"
+    >
+      <div
+        className="origin-top-left"
+        style={{
+          width,
+          transform: `scale(${scale})`,
+          height: height * scale,
+        }}
+      >
+        <div className="relative" style={{ height }}>
+          <MockChurnRetrospective />
+        </div>
+      </div>
+    </div>
+  );
+};

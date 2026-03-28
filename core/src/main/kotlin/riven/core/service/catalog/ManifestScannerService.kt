@@ -31,7 +31,7 @@ class ManifestScannerService(
 
     /** Scans classpath models directory for model manifests. Key derived from filename. */
     fun scanModels(): List<ScannedManifest> {
-        val resources = resourcePatternResolver.getResources("${manifestProperties.basePath}/models/*.json")
+        val resources = safeGetResources("${manifestProperties.basePath}/models/*.json")
         return resources.mapNotNull { resource ->
             val filename = resource.filename ?: return@mapNotNull null
             val key = filename.removeSuffix(".json")
@@ -39,31 +39,21 @@ class ManifestScannerService(
         }
     }
 
-    /** Scans classpath templates directory for template manifests. Key derived from directory name. */
+    /** Scans classpath lifecycle-spine directory for template manifests. Key derived from directory name. */
     fun scanTemplates(): List<ScannedManifest> {
-        val resources = resourcePatternResolver.getResources("${manifestProperties.basePath}/templates/*/manifest.json")
+        val resources = safeGetResources("${manifestProperties.basePath}/lifecycle-spine/*/manifest.json")
         return resources.mapNotNull { resource ->
-            val key = extractDirectoryName(resource, "templates")
+            val key = extractDirectoryName(resource, "lifecycle-spine")
             parseAndValidate(resource, key, ManifestType.TEMPLATE, "manifests/schemas/template.schema.json")
         }
     }
 
     /** Scans classpath integrations directory for integration manifests. Key derived from directory name. */
     fun scanIntegrations(): List<ScannedManifest> {
-        val resources =
-            resourcePatternResolver.getResources("${manifestProperties.basePath}/integrations/*/manifest.json")
+        val resources = safeGetResources("${manifestProperties.basePath}/integrations/*/manifest.json")
         return resources.mapNotNull { resource ->
             val key = extractDirectoryName(resource, "integrations")
             parseAndValidate(resource, key, ManifestType.INTEGRATION, "manifests/schemas/integration.schema.json")
-        }
-    }
-
-    /** Scans classpath bundles directory for bundle manifests. Key derived from directory name. */
-    fun scanBundles(): List<ScannedManifest> {
-        val resources = resourcePatternResolver.getResources("${manifestProperties.basePath}/bundles/*/manifest.json")
-        return resources.mapNotNull { resource ->
-            val key = extractDirectoryName(resource, "bundles")
-            parseAndValidate(resource, key, ManifestType.BUNDLE, "manifests/schemas/bundle.schema.json")
         }
     }
 
@@ -105,6 +95,16 @@ class ManifestScannerService(
             schemaNode.remove("\$schema")
         }
         return schemaFactory.getSchema(schemaNode)
+    }
+
+    /** Returns resources matching the pattern, or empty array if the parent directory doesn't exist on classpath. */
+    private fun safeGetResources(pattern: String): Array<Resource> {
+        return try {
+            resourcePatternResolver.getResources(pattern) ?: emptyArray()
+        } catch (e: java.io.FileNotFoundException) {
+            logger.warn(e) { "Manifest directory not found for pattern: $pattern" }
+            emptyArray()
+        }
     }
 
     /**

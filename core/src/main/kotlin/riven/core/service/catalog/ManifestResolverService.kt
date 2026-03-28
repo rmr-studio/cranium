@@ -8,6 +8,7 @@ import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
 import riven.core.enums.catalog.ManifestType
 import riven.core.enums.entity.EntityRelationshipCardinality
+import riven.core.enums.entity.LifecycleDomain
 import riven.core.models.catalog.*
 
 /**
@@ -67,24 +68,6 @@ class ManifestResolverService(
         )
     }
 
-    /**
-     * Resolves a bundle manifest into a ResolvedBundle.
-     * Bundles are lightweight — they only store a list of template keys.
-     * No entity type resolution needed; that happens at installation time.
-     */
-    fun resolveBundle(scanned: ScannedManifest): ResolvedBundle {
-        require(scanned.type == ManifestType.BUNDLE) { "Expected BUNDLE manifest, got ${scanned.type}" }
-        val json = scanned.json
-
-        return ResolvedBundle(
-            key = json.get("key").asText(),
-            name = json.get("name").asText(),
-            description = json.get("description")?.asText(),
-            manifestVersion = json.get("manifestVersion")?.asText(),
-            templateKeys = json.get("templates").map { it.asText() },
-        )
-    }
-
     // ------ Entity Type Resolution ------
 
     /**
@@ -103,7 +86,6 @@ class ManifestResolverService(
             }
             ManifestType.TEMPLATE -> resolveTemplateEntityTypes(json, modelIndex)
             ManifestType.INTEGRATION -> resolveIntegrationEntityTypes(json)
-            ManifestType.BUNDLE -> emptyList<ResolvedEntityType>() to false
         }
     }
 
@@ -164,6 +146,7 @@ class ManifestResolverService(
         extend.get("description")?.let { merged.set<JsonNode>("description", it) }
         extend.get("icon")?.let { merged.set<JsonNode>("icon", it) }
         extend.get("semanticGroup")?.let { merged.set<JsonNode>("semanticGroup", it) }
+        extend.get("lifecycleDomain")?.let { merged.set<JsonNode>("lifecycleDomain", it) }
         extend.get("identifierKey")?.let { merged.set<JsonNode>("identifierKey", it) }
 
         // Additive attributes (base wins on conflict)
@@ -223,6 +206,9 @@ class ManifestResolverService(
             iconType = icon?.get("type")?.asText() ?: "BOX",
             iconColour = icon?.get("colour")?.asText() ?: "NEUTRAL",
             semanticGroup = json.get("semanticGroup")?.asText() ?: "UNCATEGORIZED",
+            lifecycleDomain = json.get("lifecycleDomain")?.asText()?.let { value ->
+                enumValues<LifecycleDomain>().firstOrNull { it.name == value }
+            },
             identifierKey = json.get("identifierKey")?.asText(),
             readonly = json.get("readonly")?.asBoolean() ?: readonlyDefault,
             schema = attributesMap,

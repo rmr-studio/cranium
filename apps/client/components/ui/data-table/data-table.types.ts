@@ -5,7 +5,7 @@
  * and provide a single source of truth for all table-related interfaces.
  */
 
-import { Cell } from '@tanstack/react-table';
+import { Cell, Row } from '@tanstack/react-table';
 import type { ReactNode } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 
@@ -228,6 +228,8 @@ export interface ActionColumnConfig {
   dragHandle?: ActionElementConfig;
   /** Selection checkbox configuration. Only applies when rowSelection is enabled */
   checkbox?: ActionElementConfig;
+  /** Custom content rendered after checkbox in the action cell. Receives the row for per-row rendering. */
+  renderExtra?: (row: Row<unknown>) => ReactNode;
 }
 
 // ============================================================================

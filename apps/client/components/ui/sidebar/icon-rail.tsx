@@ -6,7 +6,7 @@ import { useWorkspaceStore } from '@/components/feature-modules/workspace/provid
 import { Logo } from '@riven/ui/logo';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@riven/ui/tooltip';
 import { cn } from '@riven/utils';
-import { Building2, CogIcon, SquareDashedMousePointer, TrendingUpDown } from 'lucide-react';
+import { Building2, CogIcon, SquareDashedMousePointer, StickyNote, TrendingUpDown } from 'lucide-react';
 import { Kbd, KbdGroup } from '../kbd';
 import { Skeleton } from '../skeleton';
 import { type PanelId, useIconRail } from './icon-rail-context';
@@ -20,6 +20,7 @@ interface RailButton {
 const navItems: RailButton[] = [
   { id: 'overview', icon: <Building2 className="size-5" />, label: 'Overview' },
   { id: 'entities', icon: <SquareDashedMousePointer className="size-5" />, label: 'Entities' },
+  { id: 'notes', icon: <StickyNote className="size-5" />, label: 'Notes' },
   { id: 'billing', icon: <TrendingUpDown className="size-5" />, label: 'Billing' },
   { id: 'settings', icon: <CogIcon className="size-5" />, label: 'Settings' },
 ];

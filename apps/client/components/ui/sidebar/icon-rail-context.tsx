@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 
-export type PanelId = 'workspaces' | 'overview' | 'entities' | 'billing' | 'settings';
+export type PanelId = 'workspaces' | 'overview' | 'entities' | 'notes' | 'billing' | 'settings';
 
 interface IconRailContextValue {
   /** Which panel icon is selected (stays set even when panel is collapsed) */
@@ -29,7 +29,7 @@ const IconRailContext = createContext<IconRailContextValue | null>(null);
 
 export function IconRailProvider({ children }: { children: ReactNode }) {
   const DEFAULT_PANEL: PanelId = 'overview';
-  const validPanels: PanelId[] = ['workspaces', 'overview', 'entities', 'billing', 'settings'];
+  const validPanels: PanelId[] = ['workspaces', 'overview', 'entities', 'notes', 'billing', 'settings'];
 
   const [selectedPanel, setSelectedPanel] = useState<PanelId>(DEFAULT_PANEL);
   const [panelOpen, setPanelOpen] = useState(true);

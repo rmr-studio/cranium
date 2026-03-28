@@ -2,7 +2,6 @@ package riven.core.enums.common.validation
 
 enum class SchemaType {
     TEXT,
-    NOTE,
     OBJECT,
     NUMBER,
     CHECKBOX,

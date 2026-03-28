@@ -5,6 +5,7 @@ import { PanelLeftClose } from 'lucide-react';
 import { type PanelId, useIconRail } from './icon-rail-context';
 import { BillingPanel } from './panels/billing-panel';
 import { EntitiesPanel } from './panels/entities-panel';
+import { NotesPanel } from './panels/notes-panel';
 import { OverviewPanel } from './panels/overview-panel';
 import { SettingsPanel } from './panels/settings-panel';
 import { WorkspacesPanel } from './panels/workspaces-panel';
@@ -13,6 +14,7 @@ const panelTitles: Record<PanelId, string> = {
   workspaces: 'Workspaces',
   overview: 'Overview',
   entities: 'Entities',
+  notes: 'Notes',
   billing: 'Billing',
   settings: 'Settings',
 };
@@ -21,6 +23,7 @@ const panelComponents: Record<PanelId, React.ComponentType> = {
   workspaces: WorkspacesPanel,
   overview: OverviewPanel,
   entities: EntitiesPanel,
+  notes: NotesPanel,
   billing: BillingPanel,
   settings: SettingsPanel,
 };

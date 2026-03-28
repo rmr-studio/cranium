@@ -35,7 +35,8 @@ data class Entity(
     val sourceUrl: String? = null,
     val firstSyncedAt: ZonedDateTime? = null,
     val lastSyncedAt: ZonedDateTime? = null,
-    val syncVersion: Long = 0
+    val syncVersion: Long = 0,
+    val noteCount: Int = 0,
 ) : AuditableModel {
     val identifier: String
         get() = this.payload[identifierKey].toString()

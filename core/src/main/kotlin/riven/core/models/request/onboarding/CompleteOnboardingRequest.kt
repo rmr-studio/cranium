@@ -3,7 +3,9 @@ package riven.core.models.request.onboarding
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
+import riven.core.enums.workspace.BusinessType
 import riven.core.enums.workspace.WorkspacePlan
 import riven.core.enums.workspace.WorkspaceRoles
 
@@ -12,8 +14,8 @@ data class CompleteOnboardingRequest(
     val workspace: OnboardingWorkspace,
     @field:Valid
     val profile: OnboardingProfile,
-    val templateKeys: List<@NotBlank String>? = null,
-    val bundleKeys: List<@NotBlank String>? = null,
+    @field:NotNull
+    val businessType: BusinessType,
     @field:Valid
     val invites: List<OnboardingInvite>? = null,
 )

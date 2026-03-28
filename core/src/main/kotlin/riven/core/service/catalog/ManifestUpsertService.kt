@@ -8,6 +8,7 @@ import riven.core.entity.catalog.*
 import riven.core.enums.catalog.ManifestType
 import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
+import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.models.catalog.*
@@ -66,48 +67,6 @@ class ManifestUpsertService(
         insertFieldMappings(manifestId, resolved.fieldMappings)
     }
 
-    /**
-     * Persists a resolved bundle to the catalog. Bundles have no child rows
-     * (no entity types or relationships) — only the catalog entry with templateKeys JSONB.
-     */
-    @Transactional
-    fun upsertBundle(resolved: ResolvedBundle) {
-        val contentHash = computeBundleContentHash(resolved)
-        val existing = manifestCatalogRepository.findByKeyAndManifestType(resolved.key, ManifestType.BUNDLE)
-
-        if (existing != null && contentHash == existing.contentHash && existing.stale == resolved.stale) {
-            existing.lastLoadedAt = ZonedDateTime.now()
-            manifestCatalogRepository.save(existing)
-            return
-        }
-
-        val entity = if (existing != null) {
-            existing.copy(
-                name = resolved.name,
-                description = resolved.description,
-                manifestVersion = resolved.manifestVersion,
-                lastLoadedAt = ZonedDateTime.now(),
-                stale = resolved.stale,
-                contentHash = contentHash,
-                templateKeys = resolved.templateKeys,
-            )
-        } else {
-            ManifestCatalogEntity(
-                key = resolved.key,
-                name = resolved.name,
-                description = resolved.description,
-                manifestType = ManifestType.BUNDLE,
-                manifestVersion = resolved.manifestVersion,
-                lastLoadedAt = ZonedDateTime.now(),
-                stale = resolved.stale,
-                contentHash = contentHash,
-                templateKeys = resolved.templateKeys,
-            )
-        }
-
-        manifestCatalogRepository.save(entity)
-    }
-
     // ------ Private Helpers ------
 
     private fun persistCatalogEntry(
@@ -156,20 +115,6 @@ class ManifestUpsertService(
             .joinToString("") { "%02x".format(it) }
     }
 
-    private fun computeBundleContentHash(resolved: ResolvedBundle): String {
-        val content = objectMapper.writeValueAsString(
-            mapOf(
-                "name" to resolved.name,
-                "description" to resolved.description,
-                "manifestVersion" to resolved.manifestVersion,
-                "templateKeys" to resolved.templateKeys,
-            )
-        )
-        return MessageDigest.getInstance("SHA-256")
-            .digest(content.toByteArray())
-            .joinToString("") { "%02x".format(it) }
-    }
-
     private fun deleteChildren(manifestId: UUID) {
         // Delete in cascading order to avoid FK violations
         val existingRelationshipIds = catalogRelationshipRepository.findByManifestId(manifestId)
@@ -200,9 +145,10 @@ class ManifestUpsertService(
                 key = et.key,
                 displayNameSingular = et.displayNameSingular,
                 displayNamePlural = et.displayNamePlural,
-                iconType = IconType.valueOf(et.iconType),
-                iconColour = IconColour.valueOf(et.iconColour),
-                semanticGroup = SemanticGroup.valueOf(et.semanticGroup),
+                iconType = safeValueOf(et.iconType, IconType.CIRCLE_DASHED),
+                iconColour = safeValueOf(et.iconColour, IconColour.NEUTRAL),
+                semanticGroup = safeValueOf(et.semanticGroup, SemanticGroup.UNCATEGORIZED),
+                lifecycleDomain = et.lifecycleDomain ?: LifecycleDomain.UNCATEGORIZED,
                 identifierKey = et.identifierKey,
                 readonly = et.readonly,
                 schema = et.schema,
@@ -238,8 +184,8 @@ class ManifestUpsertService(
                     key = rel.key,
                     sourceEntityTypeKey = rel.sourceEntityTypeKey,
                     name = rel.name,
-                    iconType = IconType.valueOf(rel.iconType),
-                    iconColour = IconColour.valueOf(rel.iconColour),
+                    iconType = safeValueOf(rel.iconType, IconType.LINK),
+                    iconColour = safeValueOf(rel.iconColour, IconColour.NEUTRAL),
                     cardinalityDefault = rel.cardinalityDefault,
                     `protected` = rel.`protected`
                 )
@@ -258,6 +204,18 @@ class ManifestUpsertService(
                 catalogRelationshipTargetRuleRepository.saveAll(targetRuleEntities)
             }
         }
+    }
+
+    /**
+     * Safely converts a string to an enum value, returning the fallback if the string
+     * doesn't match any enum constant. Logs a warning on fallback to aid manifest debugging.
+     */
+    private inline fun <reified T : Enum<T>> safeValueOf(value: String, fallback: T): T {
+        return enumValues<T>().firstOrNull { it.name == value }
+            ?: run {
+                logger.warn { "Unknown ${T::class.simpleName} value '$value', falling back to $fallback" }
+                fallback
+            }
     }
 
     private fun insertFieldMappings(manifestId: UUID, fieldMappings: List<ResolvedFieldMapping>) {

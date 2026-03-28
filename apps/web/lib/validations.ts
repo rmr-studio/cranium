@@ -12,12 +12,16 @@ export type WaitlistJoinData = z.infer<typeof waitlistJoinSchema>;
 
 // Phase 2: survey
 export const waitlistSurveySchema = z.object({
-  operationalHeadache: z.string().optional(),
+  businessOverview: z.string().optional(),
+  painPoints: z
+    .array(z.string())
+    .min(1, "Please select at least one pain point")
+    .max(3, "Please select at most 3"),
+  painPointsOther: z.string().optional(),
   integrations: z
     .array(z.string())
     .min(1, "Please select at least one integration")
     .max(5, "Please select at most 5 integrations"),
-  monthlyPrice: z.string().min(1, "Please enter a price"),
   involvement: z.enum(["WAITLIST", "EARLY_TESTING", "CALL_EARLY_TESTING"], {
     required_error: "Please select an option",
   }),

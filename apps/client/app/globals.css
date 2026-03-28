@@ -2,6 +2,7 @@
 @import 'tw-animate-css';
 
 @source '../../../packages/ui/src';
+@source '../node_modules/@blocknote/shadcn';
 
 @custom-variant dark (&:is(.dark *));
 @custom-variant amber (&:is(.amber *));
@@ -59,7 +60,7 @@
 :root {
   --header-height: 3.5rem;
   --icon-rail-width: 3.5rem;
-  --sub-panel-width: 25rem;
+  --sub-panel-width: 30rem;
   --logo-primary: oklch(0.35 0 0);
   --radius: 0.625rem;
   --background: oklch(0.985 0 0);
@@ -185,6 +186,16 @@
   body {
     @apply bg-background font-sans leading-[0.9] tracking-tight text-foreground;
   }
+}
+
+/* BlockNote editor — inherit colors from theme */
+.bn-container[data-color-scheme] {
+  --bn-colors-editor-background: var(--background);
+  --bn-colors-editor-text: var(--foreground);
+  --bn-colors-hovered-background: var(--muted);
+  --bn-colors-hovered-text: var(--foreground);
+  --bn-colors-border: var(--border);
+  --bn-colors-side-menu: var(--muted-foreground);
 }
 
 .h-screen-without-header {

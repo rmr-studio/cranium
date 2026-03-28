@@ -1,6 +1,6 @@
 import { Breakpoint, useBreakpoint } from './use-breakpoint';
 
-export function useIsMobile(override: Breakpoint = 'sm'): boolean {
+export function useIsMobile(override: Breakpoint = 'sm'): boolean | undefined {
   const rank: Record<Breakpoint, number> = {
     sm: 1,
     md: 2,
@@ -9,5 +9,6 @@ export function useIsMobile(override: Breakpoint = 'sm'): boolean {
   };
 
   const breakpoint = useBreakpoint();
+  if (!breakpoint) return undefined;
   return rank[breakpoint] <= rank[override];
 }

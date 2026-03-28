@@ -14,8 +14,8 @@ Name | Type
 `pagination` | [QueryPagination](QueryPagination.md)
 `timeoutSeconds` | number
 `configSchema` | [Array&lt;WorkflowNodeConfigField&gt;](WorkflowNodeConfigField.md)
-`subType` | [WorkflowActionType](WorkflowActionType.md)
 `config` | { [key: string]: object; }
+`subType` | [WorkflowActionType](WorkflowActionType.md)
 `type` | [WorkflowNodeType](WorkflowNodeType.md)
 
 ## Example
@@ -32,8 +32,8 @@ const example = {
   "pagination": null,
   "timeoutSeconds": null,
   "configSchema": null,
-  "subType": null,
   "config": null,
+  "subType": null,
   "type": null,
 } satisfies WorkflowBulkUpdateEntityActionConfig
 

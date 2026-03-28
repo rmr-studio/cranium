@@ -56,13 +56,18 @@ export function useWaitlistUpdateMutation() {
     ): Promise<void> => {
       const { error } = await createClient()
         .from("waitlist_submissions")
-        .update({
-          operational_headache: data.operationalHeadache || null,
-          integrations: data.integrations,
-          monthly_price: data.monthlyPrice,
-          involvement: data.involvement,
-        })
-        .eq("email", data.email);
+        .upsert(
+          {
+            email: data.email,
+            name: data.email,
+            business_overview: data.businessOverview || null,
+            pain_points: data.painPoints,
+            pain_points_other: data.painPointsOther || null,
+            integrations: data.integrations,
+            involvement: data.involvement,
+          },
+          { onConflict: "email" },
+        );
 
       if (error) {
         throw new Error(error.message);

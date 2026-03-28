@@ -96,11 +96,6 @@ class SchemaService(
             return listOf("ID attributes cannot have default values — they are auto-generated")
         }
 
-        // NOTE attributes store freeform content — default values are not meaningful
-        if (schema.key == SchemaType.NOTE) {
-            return listOf("NOTE attributes cannot have default values — they store freeform content")
-        }
-
         val errors = mutableListOf<String>()
         val path = "default"
 

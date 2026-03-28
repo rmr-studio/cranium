@@ -10,7 +10,7 @@ interface Props {
 
 const sizeStyles = {
   sm: 'h-7 gap-1 px-2.5 py-0.5 text-xs md:h-8 md:gap-1.5 md:px-3 md:text-xs',
-  xl: 'px-6 py-2.5 h-auto gap-2 text-sm md:gap-3  md:text-base',
+  xl: 'px-8 py-4 h-auto gap-2 text-sm md:gap-3  md:text-lg font-semibold ',
   default: 'h-9 gap-1.5 px-4 py-1 text-sm md:h-10 md:gap-2 md:px-5 md:text-sm',
 };
 

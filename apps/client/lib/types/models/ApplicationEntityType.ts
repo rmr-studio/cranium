@@ -30,7 +30,8 @@ export enum ApplicationEntityType {
     IntegrationConnection = 'INTEGRATION_CONNECTION',
     File = 'FILE',
     Notification = 'NOTIFICATION',
-    IntegrationInstallation = 'INTEGRATION_INSTALLATION'
+    IntegrationInstallation = 'INTEGRATION_INSTALLATION',
+    Note = 'NOTE'
 }
 
 

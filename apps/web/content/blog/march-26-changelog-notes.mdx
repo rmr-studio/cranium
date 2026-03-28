@@ -1,0 +1,39 @@
+---
+title: 'Changelog Notes: What We Shipped in March 2026'
+description: 'WRITE THAT DOWN WRITE THAT DOWN.'
+date: '2026-03-20'
+updated: '2026-03-20'
+author: 'Jared Tucker'
+category: 'changelog'
+coverImage: 'images/blog/25-3-26-changelog-entry.webp'
+tags: ['changelog', 'product-updates', 'new-features']
+featured: false
+---
+
+This month has been an absolute month of all time. We shipped a ton of new features, made some big improvements to the core infrastructure, and laid the groundwork for some really exciting things coming down the pipeline. Here's a quick rundown of what we launched in March 2026, with each of them deserving of a deep dive in their own right...eventually.
+
+## Identity Resolution
+
+Who is who in the zoo?
+Riven now automatically detects when entities across different tools represent the same person, company, or resource — and gives you a workflow to confirm, reject, or manually cluster those matches.
+The whole point of Riven is connecting data across tools into a singular ecosystem. Without identity resolution, every integration is a silo. Entities from Linear, Notion, Slack, and GitHub sit next to each other but don't know they're related. Identity resolution is what turns a collection of imported records into an interconnected data layer.
+This is the feature that makes Riven actually Riven. Everything else — the entity model, the schema system, the integrations — is infrastructure for this moment. The thesis has always been: your data lives across dozens of tools, and nobody connects it for you. You end up being the human join table, manually tracking that "John Smith in Linear" is the same "J. Smith" who shows up in your CRM.
+
+To avoid the classic pitfalls of identity resolution, we took a conservative approach. We start with a high-precision matching algorithm that looks for strong signals — like email addresses, unique usernames, or external IDs. When we find a potential match, we surface it in the UI with all the relevant context (e.g. "John Smith in Linear has the same email as J. Smith in your CRM") and let you decide whether to confirm or reject the match. We also allow manual clustering for cases where the algorithm can't make a confident guess but you know the records are related. This way, we avoid the risk of false positives that can come with more aggressive matching, while still saving you from having to manually link every single record across your tools. It's about finding the right balance
+
+## Embedded Notes
+
+Never lose context again.
+Riven now supports embedded notes that can be attached to any entity or relationship in the system. These notes are fully searchable, can include rich text and media, and are designed to capture the implicit knowledge that often lives in people's heads or in scattered documents.
+The idea is simple: as you work with your data in Riven, you can jot down insights, hypotheses, or action items directly within the context of the relevant entities.
+Record meeting notes attached to a specific customer record, write down your thoughts on a particular support ticket, or keep track of your analysis process as you explore patterns in the data. These notes are not just annotations; they become part of the data ecosystem. They can be linked to other entities, included in search results, and even surfaced in relevant contexts (e.g. "You have a note about this customer that might be relevant to their recent support ticket"). This feature is all about capturing the tacit knowledge that often gets lost in the shuffle but is crucial for making informed decisions.
+
+## Integration Sync
+
+Riven's core thesis is that your operational data shouldn't live in thirty different tools. But connecting to external systems is only half the problem. The other half is keeping that data current, handling failures gracefully, and making sure your workspace always reflects reality. This is the pipeline that makes integrations actually useful — not just connected, but continuously synchronized.
+
+Every configurable data platform eventually faces the same question: where does the data come from? You can build the most flexible entity system in the world, the most powerful query builder, the most elegant block layouts — but if users have to manually recreate data that already lives in their CRM, their project tracker, their support desk, then you've just built another silo. A prettier one, maybe, but still a silo.
+
+The architecture went through several iterations. The core insight was separating the sync pipeline into four independent activities within a Temporal workflow: fetch, transform, persist, and evaluate health. Each activity runs in its own transaction scope. A failure in health evaluation doesn't roll back a successful data sync. A transform error on one record doesn't block the rest of the batch. This granularity matters when you're dealing with external systems that are unreliable by nature — APIs that timeout, OAuth tokens that expire mid-sync, rate limits that kick in at unpredictable thresholds.
+
+This is foundational infrastructure. The kind of thing that doesn't demo well but makes everything else possible, and will continue to evolve as we flesh out the entity ecosystem, and add more integrations.

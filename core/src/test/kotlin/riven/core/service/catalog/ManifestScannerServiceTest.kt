@@ -44,6 +44,8 @@ class ManifestScannerServiceTest {
           "key": "deal",
           "name": "Deal",
           "displayName": { "singular": "Deal", "plural": "Deals" },
+          "semanticGroup": "TRANSACTION",
+          "lifecycleDomain": "BILLING",
           "attributes": {
             "title": { "key": "TEXT", "type": "string" }
           }
@@ -142,10 +144,10 @@ class ManifestScannerServiceTest {
     @Test
     fun `scanTemplates extracts key from directory name`() {
         val resource = createResourceWithUrl(
-            "file:/app/manifests/templates/saas-starter/manifest.json",
+            "file:/app/manifests/lifecycle-spine/saas-starter/manifest.json",
             validTemplateJson
         )
-        whenever(resourcePatternResolver.getResources("classpath:manifests/templates/*/manifest.json"))
+        whenever(resourcePatternResolver.getResources("classpath:manifests/lifecycle-spine/*/manifest.json"))
             .thenReturn(arrayOf(resource))
         mockSchemaResource("manifests/schemas/template.schema.json")
 

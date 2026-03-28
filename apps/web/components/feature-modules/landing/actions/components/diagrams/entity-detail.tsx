@@ -127,14 +127,11 @@ const TIMELINE_EVENTS: EntityTimelineEvent[] = [
 
 export function MockEntityDetail() {
   return (
-    <div
-      className="flex overflow-hidden rounded-xl border border-primary/50 bg-card shadow-lg"
-      style={{ height: 950 }}
-    >
+    <div className="flex overflow-hidden rounded-xl shadow-lg" style={{ height: 950 }}>
       <ShowcaseIconRail icons={ENTITY_NAV_ICONS} />
 
       {/* Main content */}
-      <div className="paper-lite relative flex flex-1 flex-col overflow-hidden bg-background">
+      <div className="glass-panel relative flex flex-1 flex-col overflow-hidden backdrop-blur-lg">
         {/* Breadcrumb bar */}
         <div className="flex h-12 shrink-0 items-center border-b border-border px-6">
           <MockBreadcrumb items={['Workspace', 'Entities', 'Customers', 'Sarah Chen']} />
@@ -184,7 +181,7 @@ export function MockEntityDetail() {
               {CONNECTED_RECORDS.map((record) => (
                 <div
                   key={record.platform}
-                  className="rounded-lg border border-border bg-card p-4"
+                  className="rounded-lg border border-border bg-card/80 p-4"
                   style={{ minHeight: 120 }}
                 >
                   {record.icon}

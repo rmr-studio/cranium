@@ -1,6 +1,10 @@
 'use client';
 
 import {
+  INSIGHT_CARDS,
+  type InsightCard,
+} from '@/components/feature-modules/landing/cross-domain-intelligence/card-data';
+import {
   Carousel,
   CarouselContent,
   CarouselItem,
@@ -10,7 +14,6 @@ import { WindowControls } from '@/components/ui/window-controls';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { INSIGHT_CARDS, type InsightCard } from '@/components/feature-modules/landing/cross-domain-intelligence/card-data';
 
 const VISIBLE_ENTITIES = 3;
 
@@ -23,7 +26,7 @@ function EntityChips({ entities }: { entities: InsightCard['entities'] }) {
       {visible.map((entity) => (
         <div
           key={entity.label}
-          className="flex shrink-0 items-center gap-1.5 rounded-md border border-border/60 bg-muted/40 px-2.5 py-1"
+          className="flex shrink-0 items-center gap-1.5 rounded-md border bg-card/30 px-2.5 py-1"
         >
           {entity.icon}
           <span className="text-xs font-medium -tracking-[0.02em] whitespace-nowrap text-muted-foreground">
@@ -44,12 +47,12 @@ function InsightCardComponent({ card }: { card: InsightCard }) {
   return (
     <div className="flex h-full flex-col">
       {/* Card title */}
-      <h3 className="mb-4 font-serif text-2xl leading-[1.3] font-normal -tracking-[0.01em] text-heading italic md:text-3xl">
+      <h3 className="mb-4 font-serif text-2xl leading-[1.3] font-normal -tracking-[0.01em] text-white italic md:text-3xl">
         {card.title}
       </h3>
 
       {/* Mock browser window */}
-      <div className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-border bg-card/70 shadow-lg">
+      <div className="flex flex-1 flex-col overflow-hidden rounded-2xl border bg-card/60 backdrop-blur-lg">
         <div className="flex flex-col gap-4 p-5 md:p-7">
           {/* Browser chrome row */}
           <div className="flex items-center justify-between gap-4">
@@ -58,7 +61,7 @@ function InsightCardComponent({ card }: { card: InsightCard }) {
           </div>
 
           {/* Insight text */}
-          <p className="text-sm leading-[1.7] -tracking-[0.01em] text-foreground md:text-base">
+          <p className="text-sm leading-tight tracking-tighter text-foreground md:text-base">
             {card.body}
           </p>
         </div>
@@ -117,14 +120,7 @@ export function CrossDomainCarousel() {
   );
 
   return (
-    <div
-      className="relative w-full"
-      style={{
-        maskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)',
-        WebkitMaskImage:
-          'linear-gradient(to right, transparent, black 15%, black 85%, transparent)',
-      }}
-    >
+    <div className="dark relative w-full">
       <Carousel
         setApi={setApi}
         opts={{
@@ -134,11 +130,11 @@ export function CrossDomainCarousel() {
         }}
         className="w-full"
       >
-        <CarouselContent className="-ml-4 pb-4 md:-ml-6">
+        <CarouselContent className="mx-0!">
           {INSIGHT_CARDS.map((card) => (
             <CarouselItem
               key={card.title}
-              className="basis-[85%] pl-4 md:basis-[45%] md:pl-6 lg:basis-[36%]"
+              className="basis-[95%] bg-transparent md:basis-[45%] md:pl-6 lg:basis-[36%]"
             >
               <InsightCardComponent card={card} />
             </CarouselItem>

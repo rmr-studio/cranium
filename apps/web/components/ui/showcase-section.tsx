@@ -29,19 +29,15 @@ export const ShowcaseSection = forwardRef<HTMLDivElement, ShowcaseSectionProps>(
         {...props}
         ref={ref}
         className={cn(
-          'relative w-full overflow-hidden bg-foreground py-12! md:py-16! lg:px-12! lg:py-20!',
+          'relative w-full overflow-hidden py-12! md:py-16!  lg:py-20!',
           className,
         )}
-        navbarInverse
         lazyRender={lazyRender}
-        fill="color-mix(in srgb, var(--background) 15%, transparent)"
-        variant="dots"
-        size={12}
-        mask="none"
-        gridClassName="bg-foreground"
+        size={24}
+        mask="fade-edges"
       >
-        <AtmosphericOrbs variant="outer" />
-        <div className="clamp relative">
+
+        <div className="clamp relative z-40">
           {/* ── Top: Heading + Feature Cards ─────────────── */}
           <div className="flex flex-col gap-10 px-4 sm:px-8 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">{heading}</div>
@@ -53,11 +49,9 @@ export const ShowcaseSection = forwardRef<HTMLDivElement, ShowcaseSectionProps>(
               )}
             >
               {features.map((f) => (
-                <div key={f.title} className="border-l border-primary-foreground/10 px-5 py-1">
-                  <p className="font-semibold text-primary-foreground">{f.title}</p>
-                  <p className="mt-1 text-sm leading-snug text-primary-foreground/50">
-                    {f.description}
-                  </p>
+                <div key={f.title} className="border-l px-5 py-1">
+                  <p className="font-semibold">{f.title}</p>
+                  <p className="mt-1 text-sm leading-snug text-content/70">{f.description}</p>
                 </div>
               ))}
             </div>
@@ -113,7 +107,7 @@ export function ShowcaseCard({ children, className }: ShowcaseCardProps) {
         }}
       />
 
-      <div className="relative z-10 flex flex-col lg:flex-row">{children}</div>
+      <div className="relative z-10 flex h-full flex-col lg:flex-row">{children}</div>
     </div>
   );
 }

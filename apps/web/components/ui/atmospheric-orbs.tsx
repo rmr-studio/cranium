@@ -14,7 +14,7 @@ const BLUE: Orb = {
   size: 600,
   opacity: 60,
   blur: 150,
-  position: { top: '10%', left: '15%' },
+  position: { top: '45%', left: '15%' },
   translate: '-50%, -50%',
 };
 
@@ -23,7 +23,7 @@ const ROSE: Orb = {
   size: 500,
   opacity: 25,
   blur: 130,
-  position: { bottom: '15%', right: '10%' },
+  position: { bottom: '30%', right: '10%' },
   translate: '50%, 50%',
 };
 
@@ -40,9 +40,21 @@ const presets: Record<string, Orb[]> = {
   outer: [BLUE, ROSE, ACCENT],
   /** Rose-dominant — inner card atmosphere (colors swapped) */
   inner: [
-    { ...ROSE, size: 600, opacity: 40, blur: 150, position: { top: '10%', left: '15%' }, translate: '-50%, -50%' },
-    { ...BLUE, size: 500, opacity: 25, blur: 130, position: { bottom: '15%', right: '10%' }, translate: '50%, 50%' },
-    { color: 'oklch(0.2 0.07 200)', size: 350, opacity: 15, blur: 100, position: { top: '55%', left: '50%' } },
+    {
+      ...BLUE,
+      size: 500,
+      opacity: 25,
+      blur: 130,
+      position: { bottom: '55%', right: '10%' },
+      translate: '50%, 50%',
+    },
+    {
+      color: 'oklch(0.2 0.07 200)',
+      size: 350,
+      opacity: 15,
+      blur: 100,
+      position: { top: '55%', left: '50%' },
+    },
   ],
 };
 
@@ -55,12 +67,20 @@ interface AtmosphericOrbsProps {
   className?: string;
 }
 
-export function AtmosphericOrbs({ variant = 'outer', orbs, opacity, className }: AtmosphericOrbsProps) {
+export function AtmosphericOrbs({
+  variant = 'outer',
+  orbs,
+  opacity,
+  className,
+}: AtmosphericOrbsProps) {
   const items = orbs || presets[variant];
 
   return (
     <div
-      className={cn('pointer-events-none absolute inset-0 hidden overflow-hidden lg:block', className)}
+      className={cn(
+        'pointer-events-none absolute inset-0 hidden overflow-hidden lg:block',
+        className,
+      )}
       style={opacity ? { opacity: opacity / 100 } : undefined}
       aria-hidden="true"
     >

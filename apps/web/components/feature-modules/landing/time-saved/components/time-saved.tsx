@@ -3,7 +3,6 @@
 import { AtmosphericOrbs } from '@/components/ui/atmospheric-orbs';
 import { Section } from '@/components/ui/section';
 import { cn } from '@/lib/utils';
-import { motion } from 'motion/react';
 
 const items = [
   {
@@ -34,46 +33,24 @@ const items = [
 
 export function TimeSaved() {
   return (
-    <Section
-      id="time-saved"
-      navbarInverse
-      lazyRender
-      fill="color-mix(in srgb, var(--background) 15%, transparent)"
-      variant="dots"
-      size={12}
-      mask="none"
-      gridClassName="bg-foreground"
-      className="pb-20"
-    >
+    <Section id="time-saved" navbarInverse lazyRender size={24} mask="none" className="pb-20">
       <AtmosphericOrbs variant="inner" />
 
       <div className="clamp relative z-10 px-4 sm:px-8">
         {/* Heading */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-14 md:mb-20"
-        >
-          <h2 className="text-4xl leading-none text-secondary md:text-5xl">
+        <div className="mb-14 md:mb-20">
+          <h2 className="text-4xl leading-none md:text-5xl">
             <span className="font-sans tracking-tighter">Less stitching.</span>{' '}
             <span className="font-serif font-normal italic">More signal.</span>
           </h2>
-          <p className="mt-4 max-w-2xl text-base leading-none tracking-tighter text-secondary/80 md:text-lg">
+          <p className="mt-4 max-w-2xl text-base leading-none tracking-tighter text-content/90">
             Riven eliminates the manual work caused by disconnected tools. Allowing you to focus on
             what matters most, growing your business.
           </p>
-        </motion.div>
+        </div>
 
         {/* Desktop grid */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-          className="hidden md:block"
-        >
+        <div className="hidden md:block">
           <div className="overflow-hidden rounded-xl border border-content/50">
             <div className="grid grid-cols-3">
               {/* Row 1: first 3 items */}
@@ -85,11 +62,11 @@ export function TimeSaved() {
                     i > 0 && 'border-l border-content/50',
                   )}
                 >
-                  <p className="mb-2 text-xs tracking-wide text-secondary/70">{item.label}</p>
-                  <p className="mb-3 text-lg font-medium tracking-tight text-secondary lg:text-xl">
+                  <p className="mb-2 text-xs tracking-wide">{item.label}</p>
+                  <p className="mb-3 text-lg font-medium tracking-tight lg:text-xl">
                     {item.metric}
                   </p>
-                  <p className="text-sm leading-relaxed tracking-normal text-secondary/50">
+                  <p className="text-sm leading-relaxed tracking-normal text-content/70">
                     {item.description}
                   </p>
                 </div>
@@ -97,11 +74,11 @@ export function TimeSaved() {
 
               {/* Row 2: last item + summary (col-span-2) */}
               <div className="flex flex-col justify-end p-7 lg:p-8">
-                <p className="mb-2 text-xs tracking-wide text-secondary/70">{items[3].label}</p>
-                <p className="mb-3 text-lg font-medium tracking-tight text-secondary lg:text-xl">
+                <p className="mb-2 text-xs tracking-wide">{items[3].label}</p>
+                <p className="mb-3 text-lg font-medium tracking-tight lg:text-xl">
                   {items[3].metric}
                 </p>
-                <p className="text-sm leading-relaxed tracking-normal text-secondary/50">
+                <p className="text-sm leading-relaxed tracking-normal text-content/90">
                   {items[3].description}
                 </p>
               </div>
@@ -109,60 +86,52 @@ export function TimeSaved() {
               {/* Summary + compound stats (spans 2 columns) */}
               <div className="col-span-2 flex flex-col justify-between border-l border-content/50 p-7 lg:flex-row lg:items-end lg:p-8">
                 <div>
-                  <p className="mb-2 text-xs tracking-wide text-secondary/70">Take back control</p>
-                  <p className="mb-3 text-lg font-medium tracking-tight text-secondary lg:text-xl">
+                  <p className="mb-2 text-xs tracking-wide">Take back control</p>
+                  <p className="mb-3 text-lg font-medium tracking-tight lg:text-xl">
                     What you save
                   </p>
-                  <p className="text-sm leading-relaxed tracking-normal text-secondary/50">
+                  <p className="text-sm leading-relaxed tracking-normal text-content/90">
                     Hours of manual work every week. The mental overhead of stitching together data,
                     the anxiety of making decisions based on incomplete information.
                   </p>
                 </div>
                 <div className="mt-6 shrink-0 space-y-0.5 font-serif font-light tracking-tight lg:mt-0 lg:pl-8 lg:text-right">
-                  <p className="text-3xl text-secondary/75 lg:text-4xl xl:text-5xl">8–12 hours</p>
-                  <p className="text-3xl text-secondary/75 lg:text-4xl xl:text-5xl">16 tabs</p>
-                  <p className="text-3xl text-secondary/75 lg:text-4xl xl:text-5xl">
-                    3 spreadsheets
-                  </p>
-                  <p className="text-3xl font-semibold text-secondary italic lg:text-4xl xl:text-5xl">
+                  <p className="text-3xl lg:text-4xl xl:text-5xl">8–12 hours</p>
+                  <p className="text-3xl lg:text-4xl xl:text-5xl">16 tabs</p>
+                  <p className="text-3xl lg:text-4xl xl:text-5xl">3 spreadsheets</p>
+                  <p className="text-3xl font-semibold italic lg:text-4xl xl:text-5xl">
                     1 massive headache
                   </p>
                 </div>
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Mobile layout */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col gap-4 md:hidden"
-        >
+        <div className="flex flex-col gap-4 md:hidden">
           {items.map((item) => (
             <div key={item.label} className="border-l-2 border-content/50 py-4 pr-3 pl-5">
-              <p className="text-base font-medium tracking-tight text-secondary">{item.metric}</p>
-              <p className="mt-1.5 text-sm leading-relaxed tracking-normal text-secondary/50">
+              <p className="text-base font-medium tracking-tight">{item.metric}</p>
+              <p className="mt-1.5 text-sm leading-relaxed tracking-normal text-content/90">
                 {item.description}
               </p>
             </div>
           ))}
           <div className="border-l-2 border-content/50 py-4 pr-3 pl-5">
-            <p className="text-base font-medium tracking-tight text-secondary">What you save</p>
-            <p className="mt-1.5 text-sm leading-relaxed tracking-normal text-secondary/50">
+            <p className="text-base font-medium tracking-tight">What you save</p>
+            <p className="mt-1.5 text-sm leading-relaxed tracking-normal text-content/90">
               Hours of manual work every week. The mental overhead of stitching together data, the
               anxiety of making decisions based on incomplete information.
             </p>
             <div className="mt-4 space-y-0.5 font-serif font-light tracking-tight">
-              <p className="text-2xl text-secondary/75">8–12 hours</p>
-              <p className="text-2xl text-secondary/75">16 tabs</p>
-              <p className="text-2xl text-secondary/75">3 spreadsheets</p>
-              <p className="text-2xl font-semibold text-secondary italic">1 massive headache</p>
+              <p className="text-2xl">8–12 hours</p>
+              <p className="text-2xl">16 tabs</p>
+              <p className="text-2xl">3 spreadsheets</p>
+              <p className="text-2xl font-semibold italic">1 massive headache</p>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </Section>
   );

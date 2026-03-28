@@ -1,5 +1,6 @@
 import { DailyActionAccordion } from '@/components/feature-modules/landing/actions/components/action-accordion';
-import { ShowcaseCard, ShowcaseSection, type FeatureCard } from '@/components/ui/showcase-section';
+import { AtmosphericOrbs } from '@/components/ui/atmospheric-orbs';
+import { ShowcaseSection, type FeatureCard } from '@/components/ui/showcase-section';
 
 const FEATURES: FeatureCard[] = [
   {
@@ -17,17 +18,17 @@ const FEATURES: FeatureCard[] = [
 export const DailyActions = () => {
   return (
     <ShowcaseSection
+      className="px-0!"
       lazyRender
       heading={
-        <h2 className="mt-4 font-sans text-3xl text-primary-foreground md:text-4xl lg:text-5xl">
+        <h2 className="mt-4 font-sans text-3xl md:text-4xl lg:px-12 lg:text-5xl">
           More Results. <span className="font-serif font-normal italic">Fewer Tabs</span>
         </h2>
       }
       features={FEATURES}
     >
-      <ShowcaseCard>
-        <DailyActionAccordion />
-      </ShowcaseCard>
+      <AtmosphericOrbs variant="inner" />
+      <DailyActionAccordion />
     </ShowcaseSection>
   );
 };

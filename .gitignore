@@ -27,3 +27,5 @@ build/
 .next/
 .pr-review/
 .gstack/
+
+**/**/lighthouse-*.json

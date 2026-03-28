@@ -76,7 +76,7 @@
     opacity: 0;
   }
   to {
-    opacity: calc(var(--paper-texture-opacity) / 1.25);
+    opacity: calc(var(--paper-texture-opacity) / 1.8);
   }
 }
 
@@ -363,6 +363,17 @@ html {
   }
 }
 
+/* Frosted glass panel — faked glassmorphism that works inside CSS transforms
+   (where backdrop-filter breaks). Uses semi-transparent bg + noise + inner highlight. */
+.glass-panel {
+  position: relative;
+  background: oklch(0.15 0 0 / 0.8);
+  box-shadow:
+    inset 0 1px 0 0 oklch(1 0 0 / 0.06),
+    inset 0 0 24px 0 oklch(1 0 0 / 0.02),
+    0 0 0 1px oklch(1 0 0 / 0.08);
+}
+
 .logo-fill {
   fill: var(--logo-primary);
 }
@@ -409,6 +420,50 @@ nav[data-inverted] {
   body[data-scroll-locked] {
     margin-right: 0 !important;
   }
+}
+
+/* ── Scroll-triggered animations ─────────────────────────── */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes stars-scroll {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-2000px);
+  }
+}
+
+.animate-stars {
+  animation: stars-scroll linear infinite;
+}
+
+@keyframes blur-in {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0px);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-blur-in {
+  animation: blur-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 /* ── Reduced-motion override ────────────────────────────── */

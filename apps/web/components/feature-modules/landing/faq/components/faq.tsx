@@ -106,7 +106,7 @@ export const Faq = ({ preview = false }: FaqProps) => {
   const items = preview ? FAQ.slice(0, PREVIEW_COUNT) : FAQ;
 
   return (
-    <Section id="faqs" size={24} lazyRender>
+    <Section id="faqs" size={24}>
       <div className="clamp relative z-10 flex flex-col">
         <h2 className="text-center text-4xl leading-none tracking-tighter text-heading md:text-5xl">
           Frequently Asked <span className="font-serif font-normal italic">Questions</span>

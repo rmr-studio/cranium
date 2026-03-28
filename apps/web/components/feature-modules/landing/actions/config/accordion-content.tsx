@@ -7,7 +7,7 @@ import { TaggingViewShowcase } from '@/components/feature-modules/landing/action
 import { GlowBorder } from '@/components/ui/glow-border';
 import { DashboardPromptInput } from '../../hero/components/dashboard/mock-dashboard';
 import { MockKnowledgePanel } from '../../time-saved/components/product-showcase/components/mock-knowledge-panel';
-import { subscriptionScenario } from '../../time-saved/components/product-showcase/scenario-data';
+import { customerScenario } from '../../time-saved/components/product-showcase/scenario-data';
 
 export interface KnowledgeLayerSectionContent {
   title: React.ReactNode;
@@ -30,16 +30,14 @@ export const ACTION_CONTENT: KnowledgeLayerSectionContent[] = [
   Tags follow the record everywhere and are pushed to the relevant tools, so you won't lose the thread. Tracked something last tuesday? Riven tracks what happened and when. Four re-engaged. Two churned anyway.
   Seventeen still at risk. No spreadsheet required.`,
     content: (
-      <TaggingViewShowcase className="mx-auto translate-x-8 translate-y-12 sm:translate-x-24 sm:scale-120 xl:translate-x-48 xl:scale-130" />
+      <TaggingViewShowcase className="dark translate-x-8 translate-y-0 translate-y-4 scale-90 sm:translate-x-0 sm:scale-80 md:m-6 md:scale-60 lg:scale-100" />
     ),
   },
   {
     title: <div>Set Rules. Get Morning updates.</div>,
     description: `Tell Riven what to watch. "Alert me when Instagram churn crosses 10%." "Flag when the at-risk segment grows
   by more than 10 in a week." Rules run overnight and results land in your morning queue.`,
-    content: (
-      <RulesEngineGraphic/>
-    ),
+    content: <RulesEngineGraphic />,
   },
   {
     title: <div>Understand your data. Ask anything.</div>,
@@ -47,12 +45,12 @@ export const ACTION_CONTENT: KnowledgeLayerSectionContent[] = [
       'Ask a question in plain English that touches customers, revenue, support, and product usage at the same time. No exports, no cross-referencing. You get an actual answer back in seconds. The kind of thing that used to eat a whole morning.',
     content: (
       <>
-        <GlowBorder className="absolute bottom-8 left-8 z-30 w-full max-w-xl">
-          <DashboardPromptInput className="paper-lite mt-0" />
+        <GlowBorder className="dark absolute bottom-8 left-8 z-30 w-full max-w-xl rounded-lg">
+          <DashboardPromptInput className="glass-panel mt-0 rounded-lg backdrop-blur-lg" />
         </GlowBorder>
         <MockKnowledgePanel
-          scenario={subscriptionScenario}
-          className="relative hidden translate-x-32 translate-y-12 scale-80 sm:block md:translate-x-80 lg:scale-100"
+          scenario={customerScenario}
+          className="dark relative hidden scale-80 md:translate-x-80 lg:block"
         />
       </>
     ),
@@ -60,9 +58,9 @@ export const ACTION_CONTENT: KnowledgeLayerSectionContent[] = [
   {
     title: <div>New data finds its home automatically</div>,
     description:
-      'When new data syncs, Riven figures out where it belongs. A new Stripe charge gets matched to the right company, linked to their support tickets, ad spend, and everything else. You don\'t have to map it yourself.',
+      "When new data syncs, Riven figures out where it belongs. A new Stripe charge gets matched to the right company, linked to their support tickets, ad spend, and everything else. You don't have to map it yourself.",
     content: (
-      <EntityDetailShowcase className="absolute -right-12 scale-130 sm:-right-48 sm:-bottom-16 md:bottom-8" />
+      <EntityDetailShowcase className="dark absolute -right-12 -bottom-16 sm:-right-48 sm:scale-130 md:bottom-8" />
     ),
   },
 ];

@@ -197,7 +197,7 @@ const TIMELINE_EVENTS: ChurnTimelineEvent[] = [
 
 function ChurnContent() {
   return (
-    <div className="paper-lite relative flex flex-1 flex-col overflow-hidden bg-background">
+    <div className="glass-panel relative flex flex-1 flex-col overflow-hidden backdrop-blur-xl">
       {/* Breadcrumb bar */}
       <div className="flex h-12 shrink-0 items-center border-b border-border px-6">
         <MockBreadcrumb items={['Workspace', 'Churned', 'Marcus Aurelius']} />
@@ -271,7 +271,7 @@ function ChurnContent() {
       </div>
 
       {/* Pattern Detected — sticky toast at bottom */}
-      <div className="shrink-0 border-t border-border bg-card px-5 py-4">
+      <div className="hidden shrink-0 border-t border-border bg-card px-5 py-4 md:block">
         <div className="flex items-center gap-4">
           <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
             <Sparkles className="size-5 text-muted-foreground" />
@@ -297,7 +297,7 @@ function ChurnContent() {
 export function MockChurnRetrospective() {
   return (
     <div
-      className="flex overflow-hidden rounded-xl border border-primary/50 bg-card shadow-lg"
+      className="dark flex overflow-hidden rounded-xl border border-primary/50"
       style={{ height: 950 }}
     >
       <ShowcaseIconRail icons={CHURN_NAV_ICONS} />

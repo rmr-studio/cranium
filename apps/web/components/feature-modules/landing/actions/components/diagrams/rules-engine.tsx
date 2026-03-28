@@ -1,15 +1,10 @@
 'use client';
 
-import {
-  inViewProps,
-  useAnimateOnMount,
-} from '@/components/feature-modules/landing/actions/components/animate-context';
 import { BrandInstagram } from '@/components/ui/diagrams/brand-icons';
 import { ShowcaseIconRail, ShowcaseSubPanel } from '@/components/ui/diagrams/brand-ui-primitives';
 import { GlowBorder } from '@/components/ui/glow-border';
 import { WindowControls } from '@/components/ui/window-controls';
 import { Bell, CogIcon, LayoutGrid, Search } from 'lucide-react';
-import { motion } from 'motion/react';
 import { DashboardContent } from '../../../hero/components/dashboard/mock-dashboard';
 
 // ── Filter Chip (same style as query-builder) ───────────────────────
@@ -89,18 +84,11 @@ const INBOX_NAV_ICONS = [
 // ── Main Component ──────────────────────────────────────────────────
 
 export const RulesEngineGraphic = () => {
-  const onMount = useAnimateOnMount();
-
   return (
     <>
       {/* Rule Definition — front, left */}
-      <GlowBorder className="absolute bottom-0 left-0 z-10 hidden w-[520px] sm:block md:scale-110 lg:bottom-16 lg:left-16 lg:scale-120">
-        <motion.div
-          className="paper-lite w-full rounded-md border border-border bg-card p-5 shadow-lg"
-          initial={{ opacity: 0, y: 12 }}
-          {...inViewProps(onMount, { opacity: 1, y: 0 })}
-          transition={{ duration: 0.4 }}
-        >
+      <GlowBorder className="dark absolute bottom-10 left-10 z-10 w-[430px] sm:top-1/2 sm:left-1/2 sm:w-[520px] sm:-translate-x-1/2 sm:-translate-y-2/3 sm:scale-110 lg:bottom-40 lg:left-24 lg:translate-x-0 lg:translate-y-0 lg:scale-130">
+        <div className="glass-panel w-full rounded-md border border-border bg-card p-5 shadow-lg backdrop-blur-xl">
           {/* Window Controls */}
           <WindowControls size={6} />
 
@@ -118,7 +106,7 @@ export const RulesEngineGraphic = () => {
           </div>
 
           {/* Condition Block */}
-          <div className="mt-3 space-y-2 rounded-lg bg-muted p-3">
+          <div className="bg-card//80 mt-3 space-y-2 rounded-lg border p-3">
             {/* WHEN */}
             <div className="flex items-center gap-1">
               <ConditionLabel>WHEN</ConditionLabel>
@@ -161,51 +149,44 @@ export const RulesEngineGraphic = () => {
 
           {/* Footer */}
           <p className="mt-3 text-[8px] text-muted-foreground/50">Runs every night at 2:00 AM</p>
-        </motion.div>
+        </div>
       </GlowBorder>
 
       {/* Notification Inbox — behind, right, overlapping */}
 
-      <motion.div
-        className="absolute translate-y-32 scale-90 overflow-hidden rounded-sm bg-card shadow-lg sm:translate-y-24 md:translate-x-64 md:scale-80 lg:translate-y-12 lg:scale-100"
-        initial={{ opacity: 0, y: 12 }}
-        {...inViewProps(onMount, { opacity: 1, y: 0 })}
-        transition={{ duration: 0.4, delay: 0.15 }}
+      <div
+        className="dark absolute hidden w-[1920px] translate-x-64 overflow-hidden rounded-lg lg:flex"
+        style={{ height: 800 }}
       >
-        <div className="flex lg:w-[1920px]" style={{ height: 800 }}>
-          <ShowcaseIconRail icons={INBOX_NAV_ICONS} />
-          <ShowcaseSubPanel>
-            {/* Header */}
-            <div className="paper-lite flex h-12 shrink-0 items-center border-b border-border px-4">
-              <span className="text-sm font-semibold text-foreground">Notifications</span>
-            </div>
+        <ShowcaseIconRail icons={INBOX_NAV_ICONS} />
+        <ShowcaseSubPanel>
+          {/* Header */}
+          <div className="paper-lite flex h-12 shrink-0 items-center border-b border-border px-4">
+            <span className="text-sm font-semibold text-foreground">Notifications</span>
+          </div>
 
-            {/* Notification List */}
-            <div className="flex-1 overflow-hidden">
-              {NOTIFICATIONS.map((item, i) => (
+          {/* Notification List */}
+          <div className="flex-1 overflow-hidden">
+            {NOTIFICATIONS.map((item, i) => (
+              <div key={i} className="flex items-start gap-2 border-b border-border/40 px-3 py-2.5">
+                {/* Severity Dot */}
                 <div
-                  key={i}
-                  className="flex items-start gap-2 border-b border-border/40 px-3 py-2.5"
-                >
-                  {/* Severity Dot */}
-                  <div
-                    className="mt-1 size-2 shrink-0 rounded-full"
-                    style={{ backgroundColor: item.dotColor }}
-                  />
-                  {/* Content */}
-                  <div className="min-w-0">
-                    <p className="text-xs font-semibold text-foreground">{item.title}</p>
-                    <p className="text-xs text-muted-foreground/60">{item.detail}</p>
-                    <p className="mt-0.5 text-[10px] text-muted-foreground/40">{item.timestamp}</p>
-                  </div>
+                  className="mt-1 size-2 shrink-0 rounded-full"
+                  style={{ backgroundColor: item.dotColor }}
+                />
+                {/* Content */}
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-foreground">{item.title}</p>
+                  <p className="text-xs text-muted-foreground/60">{item.detail}</p>
+                  <p className="mt-0.5 text-[10px] text-muted-foreground/40">{item.timestamp}</p>
                 </div>
-              ))}
-            </div>
-          </ShowcaseSubPanel>
-          <div className="w-32 lg:hidden" />
-          <DashboardContent className="hidden lg:block" />
-        </div>
-      </motion.div>
+              </div>
+            ))}
+          </div>
+        </ShowcaseSubPanel>
+
+        <DashboardContent className="w-full lg:block" />
+      </div>
     </>
   );
 };

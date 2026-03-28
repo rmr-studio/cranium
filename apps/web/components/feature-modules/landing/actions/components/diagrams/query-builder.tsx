@@ -1,9 +1,5 @@
 'use client';
 
-import {
-  inViewProps,
-  useAnimateOnMount,
-} from '@/components/feature-modules/landing/actions/components/animate-context';
 import { MockDataTable } from '@/components/feature-modules/landing/time-saved/components/product-showcase/components/mock-data-table';
 import { MockIconRail } from '@/components/feature-modules/landing/time-saved/components/product-showcase/components/mock-shell';
 import { customerScenario } from '@/components/feature-modules/landing/time-saved/components/product-showcase/scenario-data';
@@ -26,8 +22,6 @@ import {
   TicketCheck,
   Users,
 } from 'lucide-react';
-import { motion } from 'motion/react';
-
 const FilterChip = ({
   icon: Icon,
   brandIcon,
@@ -57,12 +51,14 @@ const PlatformLabel = ({ icon, label }: { icon: React.ReactNode; label: string }
 export const QueryBuilderGraphic = ({ className }: { className?: string }) => {
   return (
     <>
-      <div
-        style={{ height: 700 }}
-        className="translate relative flex h-full w-full translate-x-24 translate-y-8 scale-60 rounded-xl border border-border shadow-lg sm:translate-y-0 sm:scale-80"
-      >
-        <MockIconRail />
-        <MockDataTable scenario={customerScenario} />
+      <div className="translate dark relative flex h-full w-full">
+        <div
+          className="hidden aspect-video scale-80 border border-border shadow-lg lg:flex"
+          style={{ height: 700 }}
+        >
+          <MockIconRail />
+          <MockDataTable scenario={customerScenario} />
+        </div>
       </div>
       <QuerySection />
     </>
@@ -70,15 +66,9 @@ export const QueryBuilderGraphic = ({ className }: { className?: string }) => {
 };
 
 export const QuerySection = () => {
-  const onMount = useAnimateOnMount();
   return (
-    <GlowBorder className="absolute -bottom-4 left-4 z-10 w-[480px] sm:left-32 md:bottom-24 md:left-48 md:scale-160">
-      <motion.div
-        className="paper-lite w-full rounded-md border border-border bg-card p-3 shadow-lg"
-        initial={{ opacity: 0, y: 12 }}
-        {...inViewProps(onMount, { opacity: 1, y: 0 })}
-        transition={{ duration: 0.4 }}
-      >
+    <GlowBorder className="dark absolute bottom-10 left-20 w-[500px] scale-120 sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 lg:bottom-40 lg:left-16 lg:translate-x-0 lg:translate-y-0">
+      <div className="glass-panel w-full rounded-md border border-border p-3 shadow-lg backdrop-blur-xl">
         <div className="mb-2.5">
           <WindowControls size={6} />
         </div>
@@ -86,14 +76,14 @@ export const QuerySection = () => {
         {/* Type selector */}
         <div className="flex items-center gap-1.5">
           <span className="text-[10px] font-medium text-muted-foreground">Type</span>
-          <div className="flex items-center gap-1 rounded border border-border bg-muted px-1.5 py-0.5 shadow-sm">
+          <div className="flex items-center gap-1 rounded border border-border bg-card px-1.5 py-0.5 shadow-sm">
             <Users className="h-2 w-2 text-muted-foreground" />
             <span className="text-[10px] text-muted-foreground">Customer</span>
           </div>
         </div>
 
         {/* Filter area */}
-        <div className="mt-2.5 rounded-lg bg-muted p-2.5">
+        <div className="mt-2.5 rounded-lg border bg-card/80 p-2.5">
           {/* Row 1: Acquisition source — Instagram campaign "March Stories" */}
           <div className="flex items-center gap-1">
             <PlatformLabel icon={<BrandInstagram size={10} />} label="Ads" />
@@ -159,7 +149,7 @@ export const QuerySection = () => {
           </div>
           <span className="text-[10px] font-medium text-muted-foreground">Remove All</span>
         </div>
-      </motion.div>
+      </div>
     </GlowBorder>
   );
 };

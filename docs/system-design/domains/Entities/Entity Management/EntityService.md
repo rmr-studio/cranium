@@ -41,6 +41,7 @@ CRUD service for entity instances with validation, relationship hydration, and u
 - `AuthTokenService` — JWT user extraction
 - `ActivityService` — Audit logging
 - `ApplicationEventPublisher` — Publishes `EntityEvent` for WebSocket broadcasting via [[WebSocketEventListener]]
+- `EntityTypeClassificationService` — Provides IDENTIFIER-classified attribute IDs to filter identity match trigger events (used indirectly — EntityService publishes `IdentityMatchTriggerEvent` which is consumed by [[IdentityMatchTriggerListener]])
 
 ## Used By
 
@@ -61,7 +62,8 @@ CRUD service for entity instances with validation, relationship hydration, and u
 7. Save relationships via `saveRelationshipsPerDefinition()`: extract `relationshipPayload: Map<UUID, List<UUID>>` (keyed by definition ID → target entity IDs); load definitions via [[EntityTypeRelationshipService]]; for each definition in the payload, delegate to [[EntityRelationshipService]] with the resolved definition
 8. Log activity with CREATE or UPDATE operation
 9. Publish `EntityEvent` via `ApplicationEventPublisher` with operation type, entity type context, and summary
-10. Return saved entity (`impactedEntities` is always `null` — bidirectional sync removed)
+10. Publish `IdentityMatchTriggerEvent` via `ApplicationEventPublisher` with entity ID, workspace ID, entity type ID, and IDENTIFIER-classified attribute values (both previous and new). Consumed by [[IdentityMatchTriggerListener]] after transaction commit.
+11. Return saved entity (`impactedEntities` is always `null` — bidirectional sync removed)
 
 **Unique constraint enforcement:**
 
@@ -142,6 +144,7 @@ Retrieves all entities in workspace (across all types). Relationships NOT hydrat
 - [[EntityTypeAttributeService]] — Unique constraint operations
 - [[EntityAttributeService]] — Normalized attribute CRUD
 - [[Entity Management]] — Parent subdomain
+- [[IdentityMatchTriggerListener]] — Consumes IdentityMatchTriggerEvent to trigger identity matching pipeline
 
 ---
 
@@ -169,3 +172,9 @@ Retrieves all entities in workspace (across all types). Relationships NOT hydrat
 - `saveEntity` publishes `EntityEvent` after activity logging with CREATE or UPDATE operation, entity type context, and entity type name in summary.
 - `deleteEntities` publishes `EntityEvent` grouped by entity type with DELETE operation, including deleted entity IDs and count in summary.
 - Events are consumed by [[WebSocketEventListener]] and broadcast to `/topic/workspace/{workspaceId}/entities` after transaction commit.
+
+### 2026-03-19 — Identity match event publishing
+
+- Added `EntityTypeClassificationService` as a constructor dependency for filtering IDENTIFIER-classified attributes.
+- `saveEntity` now publishes `IdentityMatchTriggerEvent` after entity save with previous and new IDENTIFIER attribute values.
+- Event consumed by [[IdentityMatchTriggerListener]] after transaction commit to trigger identity matching pipeline.

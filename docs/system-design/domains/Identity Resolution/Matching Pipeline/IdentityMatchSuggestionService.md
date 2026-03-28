@@ -15,7 +15,7 @@ Sub-Domains:
 
 ## Purpose
 
-Manages the write path for match suggestions — idempotent persistence, re-suggestion when scores improve, rejection with signal snapshot, and activity audit logging.
+Manages the write path for match suggestions — idempotent persistence, re-suggestion when scores improve, same-cluster guard, and activity audit logging.
 
 ## Responsibilities
 
@@ -23,8 +23,8 @@ Manages the write path for match suggestions — idempotent persistence, re-sugg
 - Suggestion creation with canonical UUID ordering (source < target)
 - Idempotent create (catches DataIntegrityViolationException for duplicate pairs)
 - Re-suggestion logic (new score > rejected score triggers soft-delete of old suggestion + create new)
-- Rejection with signal snapshot (copies signals to rejectionSignals)
-- Activity logging for suggestion creation and rejection
+- Same-cluster guard (skips suggestions for entities already in the same active cluster)
+- Activity logging for suggestion creation
 
 **Does NOT own:**
 - Candidate finding (IdentityMatchCandidateService)
@@ -39,13 +39,14 @@ Manages the write path for match suggestions — idempotent persistence, re-sugg
 | ActivityService | Injected | Audit logging for suggestion create/reject |
 | AuthTokenService | Injected | User ID retrieval for rejection flow |
 | KLogger | Injected | Structured logging |
+| IdentityClusterMemberRepository | Injected | Cluster membership lookup for same-cluster guard |
+| IdentityClusterRepository | Injected | Cluster existence verification (active cluster check) |
 
 ## Consumed By
 
 | Consumer | Method | Context |
 |---|---|---|
 | IdentityMatchActivitiesImpl | persistSuggestions | Temporal activity — PersistSuggestions step |
-| Future REST controller | rejectSuggestion | User-initiated rejection (not yet exposed) |
 
 ## Public Interface
 
@@ -66,37 +67,24 @@ Persists match suggestions for scored candidates. Idempotent — duplicate pairs
 - `scoredCandidates` — scored candidate pairs from ScoringService (already in canonical UUID order)
 - `userId` — may be null in Temporal context (no JWT). Activity logging is skipped when null.
 
-### rejectSuggestion
-
-```kotlin
-fun rejectSuggestion(suggestionId: UUID, userId: UUID): MatchSuggestion
-```
-
-Transitions a suggestion to REJECTED status. Validates that the suggestion is currently PENDING. Snapshots the current signals as rejectionSignals for future re-suggestion comparison.
-
-**Throws:** IllegalArgumentException if the suggestion status is not PENDING.
-
 ## Key Logic
 
 ### Canonical Ordering
 
 `canonicalOrder(a, b)` returns (lower, higher) UUID pair. This prevents duplicate suggestion pairs (A,B vs B,A). Enforced both in application code and via a DB CHECK constraint: `source_entity_id < target_entity_id`.
 
+### Same-Cluster Guard
+
+Before checking for existing suggestions, `inSameCluster(sourceId, targetId)` verifies both entities aren't already members of the same active identity cluster. Uses `IdentityClusterMemberRepository.findByEntityId` to look up memberships, then verifies the shared cluster is not soft-deleted via `IdentityClusterRepository.findById` (which respects @SQLRestriction). This prevents redundant suggestions for entities already confirmed as the same identity.
+
 ### createOrResuggest Flow
 
-1. Check for an active (non-deleted) suggestion for this pair — if exists, skip
-2. Check for a rejected (deleted, status=REJECTED) suggestion for this pair
-3. If rejected exists and new score > rejected score: soft-delete the rejected suggestion, create a new one
-4. If rejected exists and new score <= rejected score: skip (not worth re-suggesting)
-5. If no prior suggestion: create new
-
-### Rejection Flow
-
-1. Validate suggestion status is PENDING
-2. Copy current `signals` to `rejectionSignals` (preserves the signal state at rejection time)
-3. Set status to REJECTED, record `resolvedBy` (userId) and `resolvedAt` (timestamp)
-4. Soft-delete: set `deleted = true`, `deletedAt` = now
-5. Log rejection activity
+1. Check if both entities are already in the same active cluster — if so, skip (no point suggesting a match for already-clustered entities)
+2. Check for an active (non-deleted) suggestion for this pair — if exists, skip
+3. Check for a rejected (deleted, status=REJECTED) suggestion for this pair
+4. If rejected exists and new score > rejected score: soft-delete the rejected suggestion, create a new one
+5. If rejected exists and new score <= rejected score: skip (not worth re-suggesting)
+6. If no prior suggestion: create new
 
 ### Activity Logging
 
@@ -128,5 +116,4 @@ Activity logging is only performed when `userId` is non-null. In Temporal contex
 | Scenario | Behaviour |
 |---|---|
 | Duplicate pair insert | Catches DataIntegrityViolationException, returns null (idempotent) |
-| Rejection of non-PENDING suggestion | Throws IllegalArgumentException with descriptive message |
 | Activity logging failure | Not explicitly caught — would propagate (acceptable since logging is non-critical path) |

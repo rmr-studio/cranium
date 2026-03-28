@@ -20,10 +20,11 @@ Core pipeline for identity resolution. Implements three-phase matching: candidat
 | [[IdentityMatchCandidateService]] | Two-phase pg_trgm blocking — GIN index leverage with `%` operator + similarity threshold for finding candidate matches | Service |
 | [[IdentityMatchScoringService]] | Pure computation — weighted average scoring with configurable per-signal-type weights | Service |
 | [[IdentityMatchSuggestionService]] | Suggestion persistence — idempotent creation, re-suggestion on improved score, rejection with signal snapshot | Service |
-| EntityTypeClassificationService | Cached IDENTIFIER attribute lookup for entity types using ConcurrentHashMap | Service |
-| IdentityMatchQueueService | Enqueues IDENTITY_MATCH jobs with deduplication via partial unique index | Service |
-| IdentityMatchDispatcherService | Scheduled queue polling (every 5s) with ShedLock distributed locking | Service |
-| IdentityMatchQueueProcessorService | Per-item processing with REQUIRES_NEW transactions — dispatches to Temporal | Service |
+| [[EntityTypeClassificationService]] | Cached IDENTIFIER attribute lookup for entity types using ConcurrentHashMap | Service |
+| [[IdentityMatchQueueService]] | Enqueues IDENTITY_MATCH jobs with deduplication via partial unique index | Service |
+| [[IdentityMatchDispatcherService]] | Scheduled queue polling (every 5s) with ShedLock distributed locking | Service |
+| [[IdentityMatchQueueProcessorService]] | Per-item processing with REQUIRES_NEW transactions — dispatches to Temporal | Service |
+| [[IdentityMatchTriggerListener]] | Listens for entity save events, filters by IDENTIFIER classification, enqueues matching jobs | Listener |
 | MatchSuggestionEntity | Candidate pair for human review — JSONB signals, canonical UUID ordering, soft-delete | Entity |
 | MatchSuggestionRepository | Native SQL queries for active/rejected suggestions (bypasses @SQLRestriction) | Repository |
 | MatchSignalType | Signal type enum with default weights and SchemaType mapping | Enum |
@@ -39,3 +40,4 @@ Core pipeline for identity resolution. Implements three-phase matching: candidat
 | Date | Change | Domains |
 |---|---|---|
 | 2026-03-17 | Initial matching pipeline implementation | Identity Resolution |
+| 2026-03-19 | Component documentation for queue services, dispatcher, classifier, and trigger listener | Identity Resolution |

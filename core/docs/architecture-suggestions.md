@@ -87,6 +87,12 @@ This would allow `time-entry` (and any future entity type) to use a stable, uniq
 
 This applies to all attribute types, not just `ID`.
 
+## 2026-03-17 — Identity Resolution Domain Documentation
+
+**Trigger:** Created full Identity Resolution domain documentation (14 new docs, 7 updates to Workflows domain docs).
+**Affected vault notes:** Domain Boundaries/Dependency Map, System Patterns (event-driven Temporal pipeline, pg_trgm similarity matching, canonical UUID ordering)
+**Suggested update:** Review and author substantive architectural content for the Identity Resolution domain. The vault now has structural scaffolding and component docs, but the following warrant human review: (1) the cross-domain dependency from Identity → Entities via native SQL (bypasses normal service layer) should be reflected in the dependency map, (2) the "no @PreAuthorize" pattern for Temporal-called services (workspace isolation at query level) is a new security pattern worth documenting in System Patterns, (3) cluster entities are scaffolded but not functional — track when services are implemented.
+
 ## 2026-03-09 — Relationship Simplification May Affect System Design Docs
 
 **Trigger:** Removed semantic group targeting, polymorphic toggle, and exclusion mechanism from entity relationships

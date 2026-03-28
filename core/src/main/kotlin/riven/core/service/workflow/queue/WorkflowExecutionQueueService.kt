@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import riven.core.entity.workflow.ExecutionQueueEntity
+import riven.core.enums.workflow.ExecutionJobType
 import riven.core.enums.workflow.ExecutionQueueStatus
 import riven.core.exceptions.NotFoundException
 import riven.core.models.common.json.JsonObject
@@ -61,6 +62,7 @@ class WorkflowExecutionQueueService(
 
         val queueEntity = ExecutionQueueEntity(
             workspaceId = workspaceId,
+            jobType = ExecutionJobType.WORKFLOW_EXECUTION,
             workflowDefinitionId = workflowDefinitionId,
             status = ExecutionQueueStatus.PENDING,
             createdAt = ZonedDateTime.now(),

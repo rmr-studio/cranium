@@ -20,6 +20,7 @@ The Execution Engine subdomain integrates with Temporal.io to provide durable wo
 | [[WorkflowCoordinationService]] | Temporal activity — coordinates node execution, manages graph state, persists results. Entry point for all non-deterministic work. | Temporal Activity / Service |
 | [[WorkflowGraphCoordinationService]] | DAG execution loop — validates graph, sorts topologically, iterates ready nodes in batches | Service |
 | [[WorkflowCompletionActivityImpl]] | Records final workflow execution status, updates/deletes queue entries | Temporal Activity / Service |
+| [[TemporalWorkerConfiguration]] | Registers Temporal workers for multiple task queues — default workflows, external API activities, and identity matching | Configuration |
 
 > [!warning] Sequential batch execution
 > Nodes in the same batch execute sequentially, not truly parallel. This is a WorkflowCoordinationService limitation marked as TODO in the code.
@@ -40,4 +41,4 @@ The Execution Engine subdomain integrates with Temporal.io to provide durable wo
 
 | Date | Change | Feature/ADR |
 | ---- | ------ | ----------- |
-|      |        | [[]]        |
+| 2026-03-17 | TemporalWorkerConfiguration now registers identity match worker on dedicated identity.match task queue | Identity Resolution |

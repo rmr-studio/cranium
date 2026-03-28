@@ -2,7 +2,6 @@ package riven.core.service.workflow.queue
 
 import io.github.oshai.kotlinlogging.KLogger
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 
@@ -25,7 +24,6 @@ import org.springframework.stereotype.Service
  * rather than holding all locks until the entire batch finishes.
  */
 @Service
-@ConditionalOnProperty(name = ["riven.workflow.engine.enabled"], havingValue = "true", matchIfMissing = true)
 class WorkflowExecutionDispatcherService(
     private val workflowExecutionQueueService: WorkflowExecutionQueueService,
     private val workflowExecutionQueueProcessorService: WorkflowExecutionQueueProcessorService,

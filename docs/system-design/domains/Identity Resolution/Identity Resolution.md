@@ -10,7 +10,7 @@ Updated: 2026-03-27
 
 ## Overview
 
-Identity Resolution detects duplicate entities within a workspace using pg_trgm trigram similarity, weighted scoring, and human-reviewable match suggestions. The pipeline runs as a Temporal-orchestrated background process, currently triggered only via domain events (entity save/update) — there are no REST API endpoints.
+Identity Resolution detects duplicate entities within a workspace using pg_trgm trigram similarity, weighted scoring, and human-reviewable match suggestions. The pipeline runs as a Temporal-orchestrated background process, triggered via domain events (entity save/update). The domain exposes 9 REST API endpoints under `/api/v1/identity/{workspaceId}` for suggestion review, cluster management, and identity confirmation.
 
 ## Boundaries
 
@@ -18,7 +18,10 @@ Identity Resolution detects duplicate entities within a workspace using pg_trgm 
 - Candidate finding (pg_trgm blocking via GIN index)
 - Scoring (weighted signals with configurable per-signal-type weights)
 - Suggestion persistence (idempotent creation, re-suggestion, rejection)
-- Cluster entities (scaffolded for future use)
+- Identity cluster lifecycle (creation, merge, dissolution)
+- Cluster management (creation, merge, manual member addition, rename)
+- Match confirmation with relationship creation and notification
+- REST API for suggestion review and cluster management (9 endpoints)
 - Temporal workflow orchestration for the matching pipeline
 
 **Does NOT own:**
@@ -32,7 +35,7 @@ Identity Resolution detects duplicate entities within a workspace using pg_trgm 
 | Sub-Domain | Scope | Status |
 |---|---|---|
 | [[Matching Pipeline]] | Candidate finding, scoring, suggestion management, queue dispatch, classification cache | Active |
-| [[Clusters]] | Entity grouping into confirmed identity clusters | Scaffolded |
+| [[Clusters]] | Entity grouping into confirmed identity clusters | Active |
 | [[Temporal Integration]] | Workflow and activity orchestration for the matching pipeline | Active |
 
 ## Flows
@@ -67,10 +70,14 @@ Identity Resolution detects duplicate entities within a workspace using pg_trgm 
 | Entities | Queries `entity_attributes` and `entity_type_semantic_metadata` via native SQL for IDENTIFIER-classified attributes |
 | Workflows | Uses `ExecutionQueueEntity` and queue infrastructure for IDENTITY_MATCH job dispatch |
 | Activity | Uses `ActivityService` for audit logging of suggestion create/reject |
+| Entities | Creates CONNECTED_ENTITIES relationships via EntityRelationshipService on suggestion confirmation; queries entities for cluster member enrichment |
+| Notifications | Publishes REVIEW_REQUEST broadcast notification on suggestion confirmation |
 
 ### Consumed By
 
-Nothing currently — no REST API, no external consumers. Triggered internally via domain events published by EntityService.
+| Consumer | Interaction |
+|---|---|
+| [[IdentityController]] | REST API — 9 endpoints under `/api/v1/identity/{workspaceId}` for suggestion review, cluster management, and confirmation |
 
 ## Service Summary
 
@@ -79,10 +86,15 @@ Nothing currently — no REST API, no external consumers. Triggered internally v
 | Matching Pipeline | [[IdentityMatchCandidateService]] | pg_trgm candidate finding — two-phase GIN index blocking + similarity threshold |
 | Matching Pipeline | [[IdentityMatchScoringService]] | Weighted scoring — pure computation, weighted average with configurable per-signal-type weights |
 | Matching Pipeline | [[IdentityMatchSuggestionService]] | Suggestion persistence — idempotent creation, re-suggestion on improved score, rejection |
-| Matching Pipeline | EntityTypeClassificationService | Cached IDENTIFIER attribute lookup for entity types using ConcurrentHashMap |
-| Matching Pipeline | IdentityMatchQueueService | IDENTITY_MATCH job enqueueing with deduplication via partial unique index |
-| Matching Pipeline | IdentityMatchDispatcherService | Scheduled queue polling (every 5s) with ShedLock distributed locking |
-| Matching Pipeline | IdentityMatchQueueProcessorService | Per-item processing with REQUIRES_NEW transactions — dispatches to Temporal |
+| Matching Pipeline | [[EntityTypeClassificationService]] | Cached IDENTIFIER attribute lookup for entity types using ConcurrentHashMap |
+| Matching Pipeline | [[IdentityMatchQueueService]] | IDENTITY_MATCH job enqueueing with deduplication via partial unique index |
+| Matching Pipeline | [[IdentityMatchDispatcherService]] | Scheduled queue polling (every 5s) with ShedLock distributed locking |
+| Matching Pipeline | [[IdentityMatchQueueProcessorService]] | Per-item processing with REQUIRES_NEW transactions — dispatches to Temporal |
+| Matching Pipeline | [[IdentityMatchTriggerListener]] | Event listener — filters entity save events by IDENTIFIER classification, enqueues matching jobs |
+| Clusters | [[IdentityConfirmationService]] | Human decision path — confirm/reject suggestions, 5-case cluster resolution, relationship creation, notification |
+| Clusters | [[IdentityClusterService]] | Manual cluster mutations — add member, rename cluster |
+| Clusters | [[IdentityReadService]] | Read API for suggestions and clusters — member enrichment, pending counts |
+| Clusters | [[IdentityController]] | REST controller — 9 endpoints under /api/v1/identity/{workspaceId} |
 | Temporal Integration | IdentityMatchWorkflowImpl | Temporal workflow — deterministic orchestration of 3-activity pipeline with short-circuit |
 | Temporal Integration | IdentityMatchActivitiesImpl | Temporal activities — thin delegation to CandidateService, ScoringService, SuggestionService |
 
@@ -95,11 +107,12 @@ Nothing currently — no REST API, no external consumers. Triggered internally v
 | Soft-delete on rejection | Enables re-suggestion comparison — new scores can be compared against rejected scores to determine if a re-suggestion is warranted. |
 | No @PreAuthorize annotations | Called from Temporal without JWT context. Workspace isolation enforced at query level in WHERE clauses. |
 | Dedicated IDENTITY_MATCH queue type | Isolates identity match jobs from the default workflow queue, enabling independent polling and scaling. |
+| 5-case cluster resolution | Handles all combinations of clustered/unclustered entity pairs in a single when block. Merge picks larger cluster (source wins ties) to minimize member movement. |
+| CONNECTED_ENTITIES relationship on confirm | Confirmation creates a real relationship in the Entities domain rather than only grouping in clusters — enables relationship-based navigation and queries. |
+| Broadcast notification on confirm | REVIEW_REQUEST notification with null userId targets all workspace members — enables team awareness of confirmed identity links. |
 
 ## Technical Debt
 
-- Cluster entities are scaffolded but no services exist yet — pending future phase for confirmed match grouping.
-- No REST API endpoints — suggestions can only be created via the pipeline, rejection endpoint not yet exposed.
 - Fixed similarity threshold — not configurable per workspace.
 - `MatchSignalType.fromSchemaType` only maps EMAIL/PHONE directly; all other IDENTIFIER-classified schema types map to CUSTOM_IDENTIFIER.
 
@@ -108,6 +121,7 @@ Nothing currently — no REST API, no external consumers. Triggered internally v
 | Date | Change | Domains |
 |---|---|---|
 | 2026-03-17 | Initial identity resolution domain | Identity Resolution |
+| 2026-03-19 | Phase 4/5: confirmation, cluster management, REST API, event-driven triggers | Identity Resolution, Entities |
 | 2026-03-27 | Integration with entity ingestion pipeline — ingestion-time identity resolution, cross-source matching, cluster auto-creation | Entity Ingestion Pipeline |
 
 ---

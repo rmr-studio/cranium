@@ -87,3 +87,10 @@ CREATE INDEX IF NOT EXISTS idx_entity_attributes_value_lookup
 -- Workspace-scoped queries
 CREATE INDEX IF NOT EXISTS idx_entity_attributes_workspace
     ON public.entity_attributes (workspace_id) WHERE deleted = false;
+
+-- Trigram GIN index for fuzzy attribute value matching (identity resolution)
+-- Expression MUST be (value->>'value') not (value::text) — extracts scalar string from JSONB
+-- Partial: only indexes non-deleted attributes
+CREATE INDEX IF NOT EXISTS idx_entity_attributes_trgm
+    ON public.entity_attributes USING GIN ((value->>'value') gin_trgm_ops)
+    WHERE deleted = false;

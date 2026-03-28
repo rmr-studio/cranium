@@ -47,6 +47,7 @@ riven:
     anonymous-rpm: ${RATE_LIMIT_ANONYMOUS_RPM:30}
     cache-max-size: 10000
     cache-expire-minutes: 10
+    trusted-proxy-cidrs: ${RATE_LIMIT_TRUSTED_PROXY_CIDRS:}
   posthog:
     enabled: ${POSTHOG_ENABLED:false}
     api-key: ${POSTHOG_API_KEY:}

@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.jwt.Jwt
+import org.springframework.security.web.util.matcher.IpAddressMatcher
 import org.springframework.web.filter.OncePerRequestFilter
 import riven.core.configuration.properties.RateLimitConfigurationProperties
 import riven.core.enums.common.ApiError
@@ -22,11 +23,16 @@ import java.time.Duration
  * Per-request rate limiting filter using Bucket4j token buckets backed by a Caffeine cache.
  *
  * Authenticated requests are keyed on the JWT subject (user UUID) with a higher limit.
- * Unauthenticated requests are keyed on the client IP (CF-Connecting-IP → X-Forwarded-For → remoteAddr)
- * with a lower limit. Feature-flagged via `riven.rate-limit.enabled`.
+ * Unauthenticated requests are keyed on the client IP with a lower limit. Forwarded IP
+ * headers (CF-Connecting-IP, X-Forwarded-For) are only trusted when the request originates
+ * from a configured trusted proxy CIDR; otherwise remoteAddr is used.
  *
- * Fail-open: any exception in this filter logs a warning, increments an error counter,
- * and passes the request through.
+ * CORS preflight (OPTIONS) requests are passed through without consuming a bucket token.
+ * Feature-flagged via `riven.rate-limit.enabled`.
+ *
+ * Fail-open: any exception in the rate-limit logic logs a warning, increments an error
+ * counter, and passes the request through. Downstream filter chain exceptions propagate
+ * normally.
  */
 class RateLimitFilter(
     private val properties: RateLimitConfigurationProperties,
@@ -34,20 +40,23 @@ class RateLimitFilter(
     private val objectMapper: ObjectMapper,
     private val exceededCounter: Counter,
     private val filterErrorCounter: Counter,
-    private val kLogger: KLogger
+    private val kLogger: KLogger,
 ) : OncePerRequestFilter() {
+
+    private val trustedProxyMatchers: List<IpAddressMatcher> =
+        properties.trustedProxyCidrs.map { IpAddressMatcher(it) }
 
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        filterChain: FilterChain
+        filterChain: FilterChain,
     ) {
-        if (!properties.enabled) {
+        if (!properties.enabled || isCorsPreflightRequest(request)) {
             filterChain.doFilter(request, response)
             return
         }
 
-        try {
+        val allowed = try {
             val (key, authenticated) = resolveKey(request)
             val rpm = if (authenticated) properties.authenticatedRpm else properties.anonymousRpm
             val bucket = bucketCache.get(key) { createBucket(rpm) }
@@ -59,30 +68,50 @@ class RateLimitFilter(
             response.setHeader(HEADER_RESET, (probe.nanosToWaitForRefill / 1_000_000_000 + 1).toString())
 
             if (probe.isConsumed) {
-                filterChain.doFilter(request, response)
+                true
             } else {
                 exceededCounter.increment()
                 writeRateLimitResponse(response, probe.nanosToWaitForRefill)
+                false
             }
         } catch (e: Exception) {
             kLogger.warn(e) { "Rate limit filter error, failing open: ${e.message}" }
             filterErrorCounter.increment()
+            true
+        }
+
+        if (allowed) {
             filterChain.doFilter(request, response)
         }
     }
 
     // ------ Private Helpers ------
 
+    private fun isCorsPreflightRequest(request: HttpServletRequest): Boolean =
+        request.method == "OPTIONS"
+                && request.getHeader("Origin") != null
+                && request.getHeader("Access-Control-Request-Method") != null
+
     private fun resolveKey(request: HttpServletRequest): Pair<String, Boolean> {
         val jwt = extractJwt()
         if (jwt != null) {
             return "user:${jwt.subject}" to true
         }
-        val ip = request.getHeader(CF_CONNECTING_IP)
-            ?: extractFirstForwardedIp(request)
-            ?: request.remoteAddr
+        val ip = resolveClientIp(request)
         return "ip:$ip" to false
     }
+
+    private fun resolveClientIp(request: HttpServletRequest): String {
+        if (!isFromTrustedProxy(request)) {
+            return request.remoteAddr
+        }
+        return request.getHeader(CF_CONNECTING_IP)
+            ?: extractFirstForwardedIp(request)
+            ?: request.remoteAddr
+    }
+
+    private fun isFromTrustedProxy(request: HttpServletRequest): Boolean =
+        trustedProxyMatchers.any { it.matches(request.remoteAddr) }
 
     private fun extractJwt(): Jwt? {
         val authentication = SecurityContextHolder.getContext().authentication ?: return null
@@ -108,7 +137,7 @@ class RateLimitFilter(
         val errorResponse = ErrorResponse(
             statusCode = HttpStatus.TOO_MANY_REQUESTS,
             message = "Too many requests. Try again in $retryAfterSeconds seconds.",
-            error = ApiError.RATE_LIMIT_EXCEEDED
+            error = ApiError.RATE_LIMIT_EXCEEDED,
         )
         response.writer.write(objectMapper.writeValueAsString(errorResponse))
     }

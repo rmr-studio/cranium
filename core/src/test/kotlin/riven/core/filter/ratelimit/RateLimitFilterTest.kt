@@ -95,6 +95,16 @@ class RateLimitFilterTest {
         uri: String = "/api/v1/test"
     ): MockHttpServletRequest = MockHttpServletRequest(method, uri)
 
+    private fun createFilterWithTrustedProxies(cidrs: List<String>): RateLimitFilter =
+        RateLimitFilter(
+            properties = properties.copy(trustedProxyCidrs = cidrs),
+            bucketCache = bucketCache,
+            objectMapper = objectMapper,
+            exceededCounter = exceededCounter,
+            filterErrorCounter = filterErrorCounter,
+            kLogger = kLogger,
+        )
+
     // ------ Feature Flag ------
 
     @Nested
@@ -117,6 +127,37 @@ class RateLimitFilterTest {
             verify(filterChain).doFilter(request, response)
             assertEquals(200, response.status)
             assertTrue(response.getHeader("X-RateLimit-Limit") == null)
+        }
+    }
+
+    // ------ CORS Preflight ------
+
+    @Nested
+    inner class CorsPreflight {
+        @Test
+        fun `CORS preflight request is passed through without consuming a bucket token`() {
+            val request = createRequest(method = "OPTIONS")
+            request.addHeader("Origin", "https://app.example.com")
+            request.addHeader("Access-Control-Request-Method", "POST")
+            request.remoteAddr = "10.0.0.1"
+            val response = MockHttpServletResponse()
+
+            filter.doFilter(request, response, filterChain)
+
+            verify(filterChain).doFilter(request, response)
+            assertTrue(response.getHeader("X-RateLimit-Limit") == null)
+        }
+
+        @Test
+        fun `OPTIONS request without CORS headers is rate limited normally`() {
+            val request = createRequest(method = "OPTIONS")
+            request.remoteAddr = "10.0.0.1"
+            val response = MockHttpServletResponse()
+
+            filter.doFilter(request, response, filterChain)
+
+            verify(filterChain).doFilter(request, response)
+            assertNotNull(response.getHeader("X-RateLimit-Limit"))
         }
     }
 
@@ -200,36 +241,63 @@ class RateLimitFilterTest {
     @Nested
     inner class IpFallbackChain {
         @Test
-        fun `uses CF-Connecting-IP when present`() {
-            val request = createRequest()
-            request.addHeader("CF-Connecting-IP", "1.2.3.4")
-            request.addHeader("X-Forwarded-For", "5.6.7.8")
-            request.remoteAddr = "127.0.0.1"
+        fun `uses CF-Connecting-IP when request is from trusted proxy`() {
+            val trustedFilter = createFilterWithTrustedProxies(listOf("127.0.0.1/32"))
 
             // Exhaust bucket for 1.2.3.4
             repeat(3) {
                 val req = createRequest()
+                req.remoteAddr = "127.0.0.1"
                 req.addHeader("CF-Connecting-IP", "1.2.3.4")
-                filter.doFilter(req, MockHttpServletResponse(), filterChain)
+                trustedFilter.doFilter(req, MockHttpServletResponse(), filterChain)
             }
 
+            val request = createRequest()
+            request.remoteAddr = "127.0.0.1"
+            request.addHeader("CF-Connecting-IP", "1.2.3.4")
+            request.addHeader("X-Forwarded-For", "5.6.7.8")
             val response = MockHttpServletResponse()
-            filter.doFilter(request, response, filterChain)
+            trustedFilter.doFilter(request, response, filterChain)
 
             assertEquals(429, response.status)
         }
 
         @Test
-        fun `uses X-Forwarded-For when CF-Connecting-IP absent`() {
+        fun `uses X-Forwarded-For when CF-Connecting-IP absent and request is from trusted proxy`() {
+            val trustedFilter = createFilterWithTrustedProxies(listOf("127.0.0.1/32"))
+
             // Exhaust bucket for 5.6.7.8 via X-Forwarded-For
             repeat(3) {
                 val req = createRequest()
+                req.remoteAddr = "127.0.0.1"
                 req.addHeader("X-Forwarded-For", "5.6.7.8, 10.0.0.1")
-                filter.doFilter(req, MockHttpServletResponse(), filterChain)
+                trustedFilter.doFilter(req, MockHttpServletResponse(), filterChain)
             }
 
             val request = createRequest()
+            request.remoteAddr = "127.0.0.1"
             request.addHeader("X-Forwarded-For", "5.6.7.8, 10.0.0.1")
+            val response = MockHttpServletResponse()
+            trustedFilter.doFilter(request, response, filterChain)
+
+            assertEquals(429, response.status)
+        }
+
+        @Test
+        fun `ignores forwarded headers when request is not from trusted proxy`() {
+            // Default filter has no trusted proxies — forwarded headers should be ignored.
+            // Exhaust bucket for remoteAddr "10.0.0.99"
+            repeat(3) {
+                val req = createRequest()
+                req.remoteAddr = "10.0.0.99"
+                req.addHeader("CF-Connecting-IP", "1.2.3.4")
+                filter.doFilter(req, MockHttpServletResponse(), filterChain)
+            }
+
+            // Same remoteAddr should be blocked even though CF-Connecting-IP differs
+            val request = createRequest()
+            request.remoteAddr = "10.0.0.99"
+            request.addHeader("CF-Connecting-IP", "9.9.9.9")
             val response = MockHttpServletResponse()
             filter.doFilter(request, response, filterChain)
 
@@ -352,7 +420,7 @@ class RateLimitFilterTest {
                 objectMapper = objectMapper,
                 exceededCounter = exceededCounter,
                 filterErrorCounter = filterErrorCounter,
-                kLogger = kLogger
+                kLogger = kLogger,
             )
 
             val request = createRequest()
@@ -362,6 +430,30 @@ class RateLimitFilterTest {
             verify(filterChain).doFilter(request, response)
             verify(filterErrorCounter).increment()
             verify(exceededCounter, never()).increment()
+        }
+
+        /**
+         * Regression test: downstream filter chain exceptions must propagate normally.
+         *
+         * Previously the try/catch wrapped both the rate-limit logic AND filterChain.doFilter,
+         * causing downstream handler exceptions to be swallowed and logged as rate-limit errors.
+         * After the fix, only rate-limit logic is inside the try/catch.
+         */
+        @Test
+        fun `downstream filter chain exception propagates and is not caught by rate limit error handler`() {
+            setSecurityContext()
+            val downstreamException = RuntimeException("downstream handler exploded")
+            whenever(filterChain.doFilter(any(), any())).thenThrow(downstreamException)
+
+            val request = createRequest()
+            val response = MockHttpServletResponse()
+
+            val thrown = org.junit.jupiter.api.assertThrows<RuntimeException> {
+                filter.doFilter(request, response, filterChain)
+            }
+
+            assertEquals("downstream handler exploded", thrown.message)
+            verify(filterErrorCounter, never()).increment()
         }
     }
 

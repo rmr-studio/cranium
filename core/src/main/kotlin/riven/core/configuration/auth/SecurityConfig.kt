@@ -75,8 +75,12 @@ class SecurityConfig(
         corsConfig.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
         corsConfig.allowedHeaders = listOf("Authorization", "Content-Type", "Accept", "Origin")
         corsConfig.exposedHeaders = listOf(
-            "Authorization", "Content-Type",
-            "X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset"
+            "Authorization",
+            "Content-Type",
+            "X-RateLimit-Limit",
+            "X-RateLimit-Remaining",
+            "X-RateLimit-Reset",
+            "Retry-After",
         )
         corsConfig.allowCredentials = true
 

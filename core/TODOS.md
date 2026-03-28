@@ -142,13 +142,13 @@
 
 ---
 
-### Configure Cloudflare rate limiting rules for production
+### Configure Cloudflare rate-limiting rules for production
 
-**What:** Set up two Cloudflare WAF rate limiting rules: 60 req/10s per IP on `/api/*`, and 10 req/10s per IP on `/api/v1/webhooks/*`.
+**What:** Set up two Cloudflare WAF rate-limiting rules: 60 req/10s per IP on `/api/*`, and 10 req/10s per IP on `/api/v1/webhooks/*`.
 
 **Why:** Edge-level IP rate limiting is Layer 1 defense — stops abuse before it reaches the application. The stricter webhook rule accounts for Nango's defined cadence.
 
-**Context:** Configured in Cloudflare dashboard, not code. Check which Cloudflare plan Riven is on — free plan has limited rate limiting rules.
+**Context:** Configured in Cloudflare dashboard, not code. Check which Cloudflare plan Riven is on — free plan has limited rate-limiting rules.
 
 **Depends on:** Production deployment with Cloudflare DNS configured.
 

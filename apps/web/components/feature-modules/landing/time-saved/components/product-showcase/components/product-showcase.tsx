@@ -1,28 +1,63 @@
 'use client';
 
-import { cn } from '@/lib/utils';
-import { useCallback, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { DesktopShowcase } from '@/components/feature-modules/landing/time-saved/components/product-showcase/components/desktop-showcase';
 import { MobileShowcase } from '@/components/feature-modules/landing/time-saved/components/product-showcase/components/mobile-showcase';
 
-export function ProductShowcaseGraphic({ className }: { className?: string }) {
-  const [activeScenario, setActiveScenario] = useState(0);
-  const handleScenarioChange = useCallback((i: number) => {
-    setActiveScenario(i);
+/**
+ * Computes a zoom factor so the showcase fills the container edge-to-edge.
+ * Uses the container width-to-viewport-height ratio to interpolate between
+ * narrow (phone, higher zoom) and wide (tablet/small desktop, lower zoom).
+ */
+function useMobileShowcaseZoom() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [zoom, setZoom] = useState(1.4);
+  const rafId = useRef<number>(0);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    function update() {
+      cancelAnimationFrame(rafId.current);
+      rafId.current = requestAnimationFrame(() => {
+        const width = el!.clientWidth;
+        const vh = window.innerHeight;
+        const ratio = width / vh;
+        const z = Math.max(1, Math.min(1.6, 1.9 - ratio * 1.3));
+        setZoom(z);
+      });
+    }
+
+    const obs = new ResizeObserver(update);
+    obs.observe(el);
+    window.addEventListener('resize', update);
+    return () => {
+      obs.disconnect();
+      window.removeEventListener('resize', update);
+      cancelAnimationFrame(rafId.current);
+    };
   }, []);
 
+  return { containerRef, zoom };
+}
+
+export function ProductShowcaseGraphic({ className }: { className?: string }) {
+  const { containerRef, zoom } = useMobileShowcaseZoom();
+
   return (
-    <div className={cn('relative z-30 h-full w-full', className)}>
+    <>
       {/* Desktop: wide horizontal overlap layout */}
-      <div className="hidden px-12 lg:block">
-        <DesktopShowcase activeScenario={activeScenario} onScenarioChange={handleScenarioChange} />
-      </div>
+
+      <DesktopShowcase />
 
       {/* Mobile: vertical stacked layout */}
-      <div className="mt-24 block translate-x-12 scale-160 overflow-hidden px-4 sm:translate-x-24 sm:scale-120 md:translate-y-0 lg:hidden">
-        <MobileShowcase activeScenario={activeScenario} onScenarioChange={handleScenarioChange} />
+      <div ref={containerRef} className="mt-10 block overflow-hidden px-4 lg:hidden">
+        <div className="dark origin-top-left translate-y-12" style={{ scale: zoom }}>
+          <MobileShowcase />
+        </div>
       </div>
-    </div>
+    </>
   );
 }

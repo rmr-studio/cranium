@@ -9,7 +9,13 @@ interface AccordionItemProps {
   compact?: boolean;
 }
 
-export function AccordionItem({ title, description, isActive, onClick, compact }: AccordionItemProps) {
+export function AccordionItem({
+  title,
+  description,
+  isActive,
+  onClick,
+  compact,
+}: AccordionItemProps) {
   return (
     <button
       type="button"
@@ -26,9 +32,7 @@ export function AccordionItem({ title, description, isActive, onClick, compact }
           <div
             className={cn(
               'rounded-full transition-all duration-300',
-              isActive
-                ? 'h-3 w-3 bg-primary-foreground dark:bg-foreground'
-                : 'h-2 w-2 bg-primary-foreground/20 dark:bg-foreground/20',
+              isActive ? 'h-2 w-2 bg-primary/90' : 'h-2 w-2 bg-content/50',
             )}
           />
         </div>
@@ -39,9 +43,7 @@ export function AccordionItem({ title, description, isActive, onClick, compact }
           className={cn(
             'font-semibold transition-colors duration-300',
             compact ? 'text-base' : 'text-lg',
-            isActive
-              ? 'text-primary-foreground dark:text-foreground'
-              : 'text-primary-foreground/40 dark:text-foreground/40',
+            isActive ? 'text-primary' : 'text-content/80',
           )}
         >
           {title}
@@ -54,7 +56,7 @@ export function AccordionItem({ title, description, isActive, onClick, compact }
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="overflow-hidden text-sm leading-relaxed text-primary-foreground/50 dark:text-foreground/50"
+              className="overflow-hidden text-sm leading-relaxed text-content/90"
             >
               <span className="block pt-2">{description}</span>
             </motion.p>

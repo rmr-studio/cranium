@@ -2,8 +2,10 @@ import { cn } from '@/lib/utils';
 import { ArrowUp, CogIcon, Download, LayoutGrid, Search, Sparkles } from 'lucide-react';
 
 import { ShowcaseIconRail } from '@/components/ui/diagrams/brand-ui-primitives';
-import { ClassNameProps } from '@riven/utils';
+import { useContainerScale } from '@/hooks/use-container-scale';
+import { ChildNodeProps, ClassNameProps } from '@riven/utils';
 import { FC } from 'react';
+import { useIsMobile } from '../../../../../../../../packages/hooks/src/use-mobile';
 
 const DASHBOARD_NAV_ICONS = [
   { icon: <LayoutGrid className="size-5" />, active: false },
@@ -12,44 +14,42 @@ const DASHBOARD_NAV_ICONS = [
   { icon: <CogIcon className="size-5" />, active: false },
 ];
 
-// ── Insight Card Shell ──────────────────────────────────────────────
-
-function InsightCard({
-  label,
-  labelColor,
-  timestamp,
-  accentBorder,
-  children,
-  actions,
-}: {
+interface Props {
   label: string;
   labelColor?: string;
   timestamp?: string;
   accentBorder?: string;
   children: React.ReactNode;
   actions: React.ReactNode;
-}) {
+  minHeight?: number;
+}
+// ── Insight Card Shell ──────────────────────────────────────────────
+
+const InsightCard: FC<Props> = ({
+  label,
+  labelColor,
+  timestamp,
+  accentBorder,
+  minHeight = 120,
+  children,
+  actions,
+}) => {
   return (
     <div
       className={cn(
-        'flex flex-col justify-between rounded-lg border border-border bg-card p-5',
+        'flex flex-col justify-between rounded-sm border border-neutral-800 p-4 backdrop-blur-2xl',
         accentBorder,
       )}
-      style={{ minHeight: 200 }}
+      style={{ minHeight }}
     >
       {/* Header */}
       <div>
         <div className="flex items-center justify-between">
-          <span
-            className={cn(
-              'font-display text-xs tracking-[0.05em] uppercase',
-              labelColor ?? 'text-muted-foreground/50',
-            )}
-          >
+          <span className={cn('font-display text-xs tracking-[0.05em] text-white uppercase')}>
             {label}
           </span>
           {timestamp && (
-            <span className="font-display text-xs tracking-[0.05em] text-muted-foreground/30 uppercase">
+            <span className="font-display text-xs tracking-[0.05em] text-white/80 uppercase">
               {timestamp}
             </span>
           )}
@@ -60,17 +60,17 @@ function InsightCard({
       </div>
 
       {/* Actions */}
-      <div className="mt-6">{actions}</div>
+      <div className="mt-4">{actions}</div>
     </div>
   );
-}
+};
 
 function CardAction({ label, muted }: { label: string; muted?: boolean }) {
   return (
     <span
       className={cn(
         'font-display text-xs tracking-[0.05em] uppercase',
-        muted ? 'text-muted-foreground/30' : 'text-foreground/70',
+        muted ? 'text-neutral-500' : 'text-foreground/70',
       )}
     >
       {label}
@@ -87,7 +87,7 @@ function MiniBarChart() {
       {bars.map((h, i) => (
         <div
           key={i}
-          className="w-12 rounded-sm bg-foreground/80 dark:bg-foreground/60"
+          className="w-6 rounded-sm bg-white/80"
           style={{
             height: `${h}%`,
             opacity: i < 2 ? 1 : i < 4 ? 0.5 : 0.25,
@@ -100,32 +100,51 @@ function MiniBarChart() {
 
 // ── Quick Action Pills ──────────────────────────────────────────────
 
-function ActionPill({ label, dark }: { label: string; dark?: boolean }) {
+const ActionPill: React.FC<ChildNodeProps> = ({ children }) => {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-xs',
-        dark
-          ? 'border-foreground bg-foreground text-background'
-          : 'border-border text-foreground/70',
+        'inline-flex items-center gap-1.5 rounded-md border border-neutral-800 px-4 py-1.5 text-xs text-neutral-300 backdrop-blur-2xl',
       )}
     >
-      {dark && <Download className="size-3" />}
-      {label}
+      {children}
     </span>
   );
-}
+};
 
 // ── Main Dashboard Component ────────────────────────────────────────
 
 export function MockDashboard() {
+  const DESKTOP_WIDTH = 1720;
+  const DESKTOP_HEIGHT = 1050;
+  const MOBILE_WIDTH = 1000;
+  const MOBILE_HEIGHT = Math.round(DESKTOP_HEIGHT * (MOBILE_WIDTH / DESKTOP_WIDTH));
+  const isMobile = useIsMobile();
+
+  const height = isMobile ? MOBILE_HEIGHT : DESKTOP_HEIGHT;
+  const width = isMobile ? MOBILE_WIDTH : DESKTOP_WIDTH;
+  const { containerRef, scale } = useContainerScale(width);
+
   return (
     <div
-      className="z-20 flex overflow-hidden rounded-xl border-border bg-card shadow-lg dark:border"
-      style={{ height: 1200 }}
+      ref={containerRef}
+      className="relative z-30 w-full translate-x-8 p-6 px-0 md:px-12 lg:translate-x-0 lg:translate-y-0 lg:scale-100"
     >
-      <ShowcaseIconRail icons={DASHBOARD_NAV_ICONS} />
-      <DashboardContent />
+      <div
+        className="origin-top-left"
+        style={{
+          width,
+          transform: `scale(${scale})`,
+          height: height * scale,
+        }}
+      >
+        <div className="relative flex" style={{ height }}>
+          <div className="dark flex overflow-hidden rounded-xl" style={{ height: 1050 }}>
+            <ShowcaseIconRail icons={DASHBOARD_NAV_ICONS} />
+            <DashboardContent />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -134,30 +153,21 @@ export const DashboardContent: FC<ClassNameProps> = ({ className }) => {
   return (
     <div
       className={cn(
-        'paper-lite relative flex flex-1 flex-col overflow-hidden bg-background',
+        'glass-panel relative flex flex-1 flex-col overflow-hidden backdrop-blur-xl',
         className,
       )}
     >
       {/* Gradient accent line */}
-      <div
-        className="h-px w-full"
-        style={{
-          background:
-            'linear-gradient(90deg, var(--cta-g1), var(--cta-g2), var(--cta-g3), transparent)',
-        }}
-      />
 
       <div className="px-12 pt-10 pb-16">
         {/* Greeting */}
-        <h2 className="font-serif text-5xl font-normal -tracking-[0.02em] text-foreground">
-          Morning Jared
-        </h2>
-        <p className="mt-2 text-sm" style={{ color: 'oklch(0.65 0.17 145)' }}>
+        <h2 className="font-display text-3xl tracking-tighter text-white">Morning Jared</h2>
+        <p className="mt-2 font-display text-sm text-neutral-200 italic">
           here&apos;s your customer lifecycle at a glance.
         </p>
 
         {/* Card Grid */}
-        <div className="mt-8 grid grid-cols-3 gap-4">
+        <div className="mt-4 grid grid-cols-3 gap-2">
           {/* Card 1: Lifecycle Summary */}
           <InsightCard
             label="Lifecycle Summary"
@@ -169,7 +179,7 @@ export const DashboardContent: FC<ClassNameProps> = ({ className }) => {
               </div>
             }
           >
-            <p className="text-sm leading-relaxed text-foreground/80">
+            <p className="text-sm leading-relaxed text-neutral-200">
               312 customers acquired this quarter across 5 channels. Instagram volume up{' '}
               <span className="font-semibold" style={{ color: 'oklch(0.65 0.17 145)' }}>
                 34%
@@ -253,12 +263,15 @@ export const DashboardContent: FC<ClassNameProps> = ({ className }) => {
 
         {/* Quick Actions */}
         <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
-          <ActionPill label="Channel Performance" />
-          <ActionPill label="Cohort Overview" />
-          <ActionPill label="Support Correlation" />
-          <ActionPill label="At-Risk Segment" />
-          <ActionPill label="Churn Retrospective" />
-          <ActionPill label="Export" dark />
+          <ActionPill>Channel Performance</ActionPill>
+          <ActionPill>Cohort Overview</ActionPill>
+          <ActionPill>Support Correlation</ActionPill>
+          <ActionPill>At-Risk Segment</ActionPill>
+          <ActionPill>Churn Retrospective</ActionPill>
+          <ActionPill>
+            <Download className="size-3" />
+            Export
+          </ActionPill>
         </div>
         <DashboardPromptInput />
       </div>
@@ -270,7 +283,7 @@ export const DashboardPromptInput: FC<ClassNameProps> = ({ className }) => {
   return (
     <div className={cn('mx-auto mt-10 max-w-2xl', className)}>
       {/* Autocomplete suggestions — floating above input */}
-      <div className="rounded-t-xl border border-b-0 border-border bg-card px-2 py-2 shadow-sm">
+      <div className="rounded-t-xl border border-b-0 border-border px-2 py-2 shadow-sm">
         {[
           {
             prefix: 'I want to',
@@ -296,7 +309,7 @@ export const DashboardPromptInput: FC<ClassNameProps> = ({ className }) => {
       </div>
 
       {/* Chat input */}
-      <div className="flex items-center gap-3 rounded-b-xl border border-border bg-card px-4 py-3 shadow-sm">
+      <div className="flex items-center gap-3 rounded-b-xl border border-border px-4 py-3 shadow-sm">
         <span className="flex-1 text-sm text-foreground/70">I want to</span>
         <div className="flex items-center gap-2">
           <Sparkles className="size-4 text-muted-foreground/30" />

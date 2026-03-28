@@ -36,8 +36,8 @@ const defaultShaders: Record<string, ShaderColors> = {
     colors: ['#1a3a4a', '#2a2a3a', '#1a1a2a'],
   },
   amber: {
-    base: '#8dbaa4',
-    colors: ['#a3b570', '#c4a882'],
+    base: '#1a1a2a',
+    colors: ['#c6750c', '#1a1a2a', '#1a3a4a'],
   },
 };
 
@@ -66,6 +66,8 @@ interface ShaderContainerProps {
   shape?: 'wave' | 'dots' | 'truchet' | 'corners' | 'ripple' | 'blob' | 'sphere';
   className?: string;
   staticOnly?: boolean; // If true, forces static image fallback
+  /** Marks the static image as the LCP element — sets loading="eager" and fetchpriority="high" */
+  priority?: boolean;
 }
 
 export function ShaderContainer({
@@ -74,11 +76,12 @@ export function ShaderContainer({
   staticImages,
   softness = 0.125,
   intensity = 0.3,
-  noise = 0.35,
+  noise = 0.7,
   speed = 1,
   rotation = 304,
   shape = 'wave',
   staticOnly = false,
+  priority = false,
   className,
 }: ShaderContainerProps) {
   const { theme } = useTheme();
@@ -135,12 +138,13 @@ export function ShaderContainer({
           src={staticImagePath}
           alt=""
           fill
+          priority={priority}
           aria-hidden="true"
           className="object-cover"
         />
       ) : null}
 
-      <div className="relative z-10">{children}</div>
+      <div className="relative z-10 flex h-full w-auto">{children}</div>
     </div>
   );
 }

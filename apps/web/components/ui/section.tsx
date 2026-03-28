@@ -41,7 +41,9 @@ export const Section = React.forwardRef<HTMLDivElement, Props>(
           'relative z-20 mb-12 overflow-hidden pt-16 md:pt-24 lg:mb-20 lg:px-12 lg:pt-20',
           className,
         )}
-        style={lazyRender ? { contentVisibility: 'auto', containIntrinsicSize: 'auto 800px' } : undefined}
+        style={
+          lazyRender ? { contentVisibility: 'auto', containIntrinsicSize: 'auto 800px' } : undefined
+        }
         {...(navbarInverse ? { 'data-navbar-inverse': '' } : {})}
         {...rest}
       >
@@ -50,6 +52,14 @@ export const Section = React.forwardRef<HTMLDivElement, Props>(
           mask={mask}
           className={cn(gridClassName)}
           size={size}
+          style={{
+            maskImage:
+              'radial-gradient(ellipse at center, black 30%, transparent 75%), linear-gradient(to bottom, black 0%, black 40%, transparent 65%)',
+            maskComposite: 'intersect',
+            WebkitMaskImage:
+              'radial-gradient(ellipse at center, black 30%, transparent 75%), linear-gradient(to bottom, black 0%, black 40%, transparent 65%)',
+            WebkitMaskComposite: 'source-in' as string,
+          }}
           fill={fill}
         />
         {children}

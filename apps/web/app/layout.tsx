@@ -5,7 +5,7 @@ import { BGPattern } from '@/components/ui/background/grids';
 import { getCdnUrl } from '@/lib/cdn-image-loader';
 import { AuthProvider } from '@/providers/auth-provider';
 import { LazyQueryProvider as QueryProvider } from '@/providers/lazy-query-provider';
-import { MotionProvider } from '@/providers/motion-provider';
+
 import { ThemeProvider } from '@/providers/theme-provider';
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono, Instrument_Serif, Space_Mono } from 'next/font/google';
@@ -125,7 +125,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} ${spaceMono.variable} relative min-h-screen antialiased`}
+        className={`paper-lite ${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} ${spaceMono.variable} relative min-h-screen antialiased`}
         style={
           {
             '--paper-texture': `url(${getCdnUrl('images/black-paper.webp')})`,
@@ -134,7 +134,7 @@ export default function RootLayout({
       >
         <BGPattern
           variant={'diagonal-stripes'}
-          size={24}
+          size={12}
           fill="color-mix(in srgb, var(--primary) 15%, transparent)"
           className="bg-primary/5"
         />
@@ -144,17 +144,15 @@ export default function RootLayout({
           themes={['light', 'dark', 'amber']}
           disableTransitionOnChange
         >
-          <MotionProvider>
-            <QueryProvider>
-              <AuthProvider>
-                <Navbar />
-                <PageStage>
-                  {children}
-                  <Footer />
-                </PageStage>
-              </AuthProvider>
-            </QueryProvider>
-          </MotionProvider>
+          <QueryProvider>
+            <AuthProvider>
+              <Navbar />
+              <PageStage>
+                {children}
+                <Footer />
+              </PageStage>
+            </AuthProvider>
+          </QueryProvider>
           <Toaster richColors position="bottom-right" />
         </ThemeProvider>
       </body>

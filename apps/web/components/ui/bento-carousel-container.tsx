@@ -7,7 +7,6 @@ import { useIsMobile } from '@/hooks/use-is-mobile';
 import { useMounted } from '@riven/hooks';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
 import * as React from 'react';
 import { BGPattern } from './background/grids';
 
@@ -142,25 +141,18 @@ export function BentoSlide({
 
   const config = getGridConfig();
 
-  return (
-    <AnimatePresence>
-      {mounted && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className={cn('grid h-full gap-4', className)}
-          style={{
-            gridTemplateAreas: config.areas,
-            gridTemplateColumns: config.cols,
-            gridTemplateRows: config.rows,
-          }}
-        >
-          {children}
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
+  return mounted ? (
+    <div
+      className={cn('grid h-full gap-4 animate-fade-in-up', className)}
+      style={{
+        gridTemplateAreas: config.areas,
+        gridTemplateColumns: config.cols,
+        gridTemplateRows: config.rows,
+      }}
+    >
+      {children}
+    </div>
+  ) : null;
 }
 
 interface BentoCarouselProps {
@@ -343,46 +335,34 @@ export function BentoCarouselContainer({
 
   // Mobile view using shadcn carousel
   if (isMobile && mobileCards) {
+    if (!mounted) return null;
     return (
-      <AnimatePresence>
-        {mounted && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <Carousel
-              className={cn('w-full', className)}
-              opts={{
-                align: 'start',
-                loop: false,
-              }}
-            >
-              <CarouselContent className="ml-4">
-                {mobileCards.map((card, index) => (
-                  <CarouselItem key={index} className="basis-[90%] pl-2">
-                    <div className="h-[480px] [&>*]:h-full">{card}</div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <MobileCarouselNav />
-            </Carousel>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <div className="animate-fade-in-up">
+        <Carousel
+          className={cn('w-full', className)}
+          opts={{
+            align: 'start',
+            loop: false,
+          }}
+        >
+          <CarouselContent className="ml-4">
+            {mobileCards.map((card, index) => (
+              <CarouselItem key={index} className="basis-[90%] pl-2">
+                <div className="h-[480px] [&>*]:h-full">{card}</div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <MobileCarouselNav />
+        </Carousel>
+      </div>
     );
   }
 
   // Desktop view with custom implementation
+  if (!mounted) return null;
   return (
-    <AnimatePresence>
-      {mounted && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className={cn('relative', className)}
-        >
+    <div className={cn('relative animate-fade-in-up', className)}>
+
           {/* Carousel container */}
           <div
             ref={containerRef}
@@ -469,8 +449,6 @@ export function BentoCarouselContainer({
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    </div>
   );
 }

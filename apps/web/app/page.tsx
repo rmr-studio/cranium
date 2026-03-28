@@ -1,11 +1,15 @@
 import { FeaturedPosts } from '@/components/feature-modules/blogs/components/featured-posts';
-import { DailyActions } from '@/components/feature-modules/landing/actions/components/daily-actions';
-import { ChurnRetrospective } from '@/components/feature-modules/landing/churn-retrospective/churn-retro';
-import { DashboardShowcase } from '@/components/feature-modules/landing/hero/components/dashboard/dashboard-showcase';
-import { Hero } from '@/components/feature-modules/landing/hero/components/hero';
 import { getAllPosts, getFeaturedPost } from '@/lib/blog';
 import dynamic from 'next/dynamic';
 
+const Hero = dynamic(() =>
+  import('@/components/feature-modules/landing/hero/components/hero').then((m) => m.Hero),
+);
+const DashboardShowcase = dynamic(() =>
+  import('@/components/feature-modules/landing/hero/components/dashboard/dashboard-showcase').then(
+    (m) => m.DashboardShowcase,
+  ),
+);
 const CrossDomainIntelligence = dynamic(() =>
   import('@/components/feature-modules/landing/cross-domain-intelligence/cross-domain-section').then(
     (m) => m.CrossDomainIntelligence,
@@ -16,10 +20,19 @@ const TimeSaved = dynamic(() =>
     (m) => m.TimeSaved,
   ),
 );
+const ChurnRetrospective = dynamic(() =>
+  import('@/components/feature-modules/landing/churn-retrospective/churn-retro').then(
+    (m) => m.ChurnRetrospective,
+  ),
+);
+const DailyActions = dynamic(() =>
+  import('@/components/feature-modules/landing/actions/components/daily-actions').then(
+    (m) => m.DailyActions,
+  ),
+);
 const Faq = dynamic(() =>
   import('@/components/feature-modules/landing/faq/components/faq').then((m) => m.Faq),
 );
-
 const Waitlist = dynamic(() =>
   import('@/components/feature-modules/waitlist/components/waitlist').then((m) => m.Waitlist),
 );

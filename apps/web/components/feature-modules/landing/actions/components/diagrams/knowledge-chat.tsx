@@ -80,7 +80,7 @@ export const KnowledgeChatGraphic = ({ className }: { className?: string }) => {
             <WindowControls size={6} />
 
             {/* ── User Message 1 ── */}
-            <div delay={0.1} className="flex justify-end">
+            <div className="flex justify-end">
               <div className="rounded-sm bg-foreground/[0.05] px-2 py-1">
                 <p className="text-[9px] leading-[1.5] -tracking-[0.03em] text-foreground">
                   What&apos;s driving the increase in support tickets this month?
@@ -89,7 +89,7 @@ export const KnowledgeChatGraphic = ({ className }: { className?: string }) => {
             </div>
 
             {/* ── AI Response 1 ── */}
-            <div delay={0.15} className="space-y-2">
+            <div className="space-y-2">
               <h3 className="text-[10px] font-semibold text-foreground">Support Ticket Analysis</h3>
               <p className="text-[8px] leading-[1.5] -tracking-[0.03em] text-muted-foreground">
                 Support volume is up 34% month-over-month, driven by:
@@ -120,7 +120,7 @@ export const KnowledgeChatGraphic = ({ className }: { className?: string }) => {
             </div>
 
             {/* ── User Message 2 ── */}
-            <div delay={0.25} className="flex justify-end">
+            <div className="flex justify-end">
               <div className="rounded-sm bg-foreground/[0.05] px-2 py-1">
                 <p className="text-[9px] leading-[1.5] -tracking-[0.03em] text-foreground">
                   Which customers affected by shipping delays have the highest LTV?
@@ -129,7 +129,7 @@ export const KnowledgeChatGraphic = ({ className }: { className?: string }) => {
             </div>
 
             {/* ── AI Response 2 ── */}
-            <div delay={0.3} className="space-y-2">
+            <div className="space-y-2">
               <h3 className="text-[10px] font-semibold text-foreground">
                 Affected High-LTV Customers
               </h3>

@@ -1,7 +1,6 @@
 <p align="center">
-  <img src="apps/web/public/Logo.svg" width="80" alt="Riven Logo" />
+  <img src="https://cdn.riven.software/images/og-image.png" alt="Riven Dashboard" width="100%" />
 </p>
-
 <h1 align="center">Riven</h1>
 
 <p align="center">
@@ -18,8 +17,9 @@
 <br />
 
 <p align="center">
-  <img src="https://cdn.riven.software/images/og-image.png" alt="Riven Dashboard" width="100%" />
+  <img src="https://cdn.riven.software/images/dashboard-preview.png" alt="Riven Dashboard" width="100%" />
 </p>
+
 
 ## What is Riven?
 

@@ -31,12 +31,11 @@ export function CrossDomainIntelligence() {
         <div className="space-y-10 px-4 sm:px-8 md:space-y-14 md:px-12">
           <SectionDivider>Cross Domain Intelligence</SectionDivider>
 
-          <div className="max-w-3xl px-4 sm:px-8">
-            <h2 className="font-sans text-3xl leading-none tracking-tighter text-primary md:text-4xl lg:text-5xl">
-              Insights that{' '}
-              <span className="font-serif font-normal italic">no single tool could see.</span>
+          <div className="px-4 sm:px-8">
+            <h2 className="font-serif text-3xl leading-none tracking-tighter text-primary md:text-4xl lg:text-6xl">
+              Insights that <span className="font-normal">no single tool could see.</span>
             </h2>
-            <p className="mt-4 text-sm leading-none text-content/90 md:text-base">
+            <p className="mt-4 max-w-3xl text-sm leading-none text-content/90 md:text-base">
               Riven connects the dots across every data source you use. Presenting the patterns,
               risks, and opportunities that only emerge when your entire business is understood as
               one system.
@@ -48,8 +47,11 @@ export function CrossDomainIntelligence() {
           <ShaderContainer
             staticImages={gradients}
             shaders={dashboardShaders}
-            className="relative z-30 mx-0! w-full rounded-none border-none! px-0!"
+            className="relative z-30 mx-0! w-full rounded-none border-none! px-0! py-0! shadow-lg shadow-foreground/40 md:rounded-r-lg 3xl:rounded-l-lg dark:shadow-none"
           >
+            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 hidden w-24 bg-gradient-to-r from-black/60 via-black/25 to-transparent md:w-40 3xl:block" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-black/60 via-black/25 to-transparent md:w-40" />
+            <div className="pointer-events-none absolute inset-0 z-10 opacity-60 shadow-[inset_20px_0_40px_rgba(0,0,0,0.5),inset_-20px_0_40px_rgba(0,0,0,0.5)] md:shadow-[inset_32px_0_60px_rgba(0,0,0,0.55),inset_-32px_0_60px_rgba(0,0,0,0.25)]" />
             <CrossDomainCarousel />
           </ShaderContainer>
         </div>

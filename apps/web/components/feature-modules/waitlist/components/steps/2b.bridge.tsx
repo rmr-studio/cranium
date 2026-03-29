@@ -2,13 +2,7 @@ import { OkButton } from '@/components/feature-modules/waitlist/components/ok-bu
 import { CheckCircle2 } from 'lucide-react';
 import { motion } from 'motion/react';
 
-export function BridgeStep({
-  onContinue,
-  onSkip,
-}: {
-  onContinue: () => void;
-  onSkip: () => void;
-}) {
+export function BridgeStep({ onContinue, onSkip }: { onContinue: () => void; onSkip: () => void }) {
   return (
     <div className="py-16 text-center md:py-24">
       <motion.div
@@ -23,9 +17,7 @@ export function BridgeStep({
       >
         <CheckCircle2 className="mx-auto h-14 w-14 text-teal-500" />
       </motion.div>
-      <h3 className="mt-6 font-serif text-2xl font-normal text-heading md:text-3xl">
-        You&apos;re in.
-      </h3>
+      <h3 className="mt-6 text-2xl font-normal text-heading md:text-3xl">You&apos;re in.</h3>
       <p className="mx-auto mt-3 max-w-md text-muted-foreground">
         Want to help shape what we build first? These 4 quick questions directly influence our
         roadmap.

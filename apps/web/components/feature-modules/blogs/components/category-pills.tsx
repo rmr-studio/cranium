@@ -15,7 +15,7 @@ export function CategoryPills({ categories }: CategoryPillsProps) {
 
   return (
     <div className="mb-12">
-      <h2 className="mb-4 font-[family-name:var(--font-instrument-serif)] text-2xl italic text-muted-foreground">
+      <h2 className="mb-4 font-serif text-2xl text-muted-foreground">
         Browse by category:
       </h2>
       <nav className="flex flex-wrap gap-2" aria-label="Blog categories">
@@ -23,7 +23,7 @@ export function CategoryPills({ categories }: CategoryPillsProps) {
           href="/resources/blog"
           aria-current={isAll ? 'page' : undefined}
           className={cn(
-            'rounded-sm border px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-widest transition-colors',
+            'rounded-sm border px-3 py-1.5 font-mono text-xs font-bold tracking-widest uppercase transition-colors',
             isAll
               ? 'border-foreground bg-foreground text-background'
               : 'border-border text-muted-foreground hover:border-muted-foreground hover:text-foreground',
@@ -39,7 +39,7 @@ export function CategoryPills({ categories }: CategoryPillsProps) {
               href={`/resources/blog/category/${cat.slug}`}
               aria-current={isActive ? 'page' : undefined}
               className={cn(
-                'rounded-sm border px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-widest transition-colors',
+                'rounded-sm border px-3 py-1.5 font-mono text-xs font-bold tracking-widest uppercase transition-colors',
                 isActive
                   ? 'border-foreground bg-foreground text-background'
                   : 'border-border text-muted-foreground hover:border-muted-foreground hover:text-foreground',

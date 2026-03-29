@@ -1,32 +1,48 @@
 import { Footer } from '@/components/footer';
 import { Navbar } from '@/components/navbar';
-import { PageStage } from '@/components/page-stage';
-import { BGPattern } from '@/components/ui/background/grids';
 import { getCdnUrl } from '@/lib/cdn-image-loader';
 import { AuthProvider } from '@/providers/auth-provider';
 import { LazyQueryProvider as QueryProvider } from '@/providers/lazy-query-provider';
 
+import { PageStage } from '@/components/page-stage';
 import { ThemeProvider } from '@/providers/theme-provider';
 import type { Metadata, Viewport } from 'next';
-import { Geist, Geist_Mono, Instrument_Serif, Space_Mono } from 'next/font/google';
+import { Geist, Geist_Mono, Space_Mono } from 'next/font/google';
+import localFont from 'next/font/local';
 import { Toaster } from 'sonner';
 import './globals.css';
 
+const redaction = localFont({
+  src: [
+    {
+      path: '../public/fonts/redaction/webfonts/Redaction-Regular.woff2',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: '../public/fonts/redaction/webfonts/Redaction-Bold.woff2',
+      weight: '700',
+      style: 'normal',
+    },
+    {
+      path: '../public/fonts/redaction/webfonts/Redaction-Italic.woff2',
+      weight: '400',
+      style: 'italic',
+    },
+  ],
+  variable: '--font-redaction',
+  display: 'swap',
+});
+
 const geistSans = Geist({
-  variable: '--font-geist-sans',
+  variable: '--font-geist',
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
 });
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
-});
-
-const instrumentSerif = Instrument_Serif({
-  variable: '--font-instrument-serif',
-  subsets: ['latin'],
-  weight: '400',
-  style: ['normal', 'italic'],
 });
 
 const spaceMono = Space_Mono({
@@ -125,32 +141,24 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`paper-lite ${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} ${spaceMono.variable} relative min-h-screen antialiased`}
+        className={`paper-lite ${geistSans.variable} ${redaction.variable} ${geistMono.variable} ${spaceMono.variable} relative min-h-screen antialiased`}
         style={
           {
             '--paper-texture': `url(${getCdnUrl('images/black-paper.webp')})`,
           } as React.CSSProperties
         }
       >
-        <BGPattern
-          variant={'diagonal-stripes'}
-          size={12}
-          fill="color-mix(in srgb, var(--primary) 15%, transparent)"
-          className="bg-primary/5"
-        />
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="dark"
           themes={['light', 'dark', 'amber']}
           disableTransitionOnChange
         >
           <QueryProvider>
             <AuthProvider>
               <Navbar />
-              <PageStage>
-                {children}
-                <Footer />
-              </PageStage>
+              <PageStage>{children}</PageStage>
+              <Footer />
             </AuthProvider>
           </QueryProvider>
           <Toaster richColors position="bottom-right" />

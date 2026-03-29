@@ -97,7 +97,7 @@ export function ShaderContainer({
     <div
       ref={containerRef}
       className={cn(
-        'relative z-50 mt-10 ml-4 overflow-hidden rounded-lg px-8 py-16 sm:ml-8 lg:ml-0',
+        'relative z-50 mt-10 ml-4 overflow-hidden rounded-lg px-8 py-16  sm:ml-8 lg:ml-0',
         className,
       )}
       style={{ backgroundColor: shader.base }}

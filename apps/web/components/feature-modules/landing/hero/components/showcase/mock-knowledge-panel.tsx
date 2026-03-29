@@ -2,7 +2,7 @@
 
 import { Sparkles } from 'lucide-react';
 
-import type { ShowcaseScenario } from '@/components/feature-modules/landing/time-saved/components/product-showcase/scenario-types';
+import type { ShowcaseScenario } from '@/components/feature-modules/landing/hero/components/showcase/scenario-types';
 import { MockBreadcrumb } from '@/components/ui/diagrams/brand-ui-primitives';
 import { ClassNameProps, cn } from '@riven/utils';
 import { FC } from 'react';
@@ -14,7 +14,7 @@ interface Props extends ClassNameProps {
 export const MockKnowledgePanel: FC<Props> = ({ scenario, className }) => {
   return (
     <div
-      style={{ width: 680 }}
+      style={{ width: 800, height: 940 }}
       className={cn('glass-panel flex flex-col rounded-xl shadow-xl backdrop-blur-xl', className)}
     >
       {/* Breadcrumb */}

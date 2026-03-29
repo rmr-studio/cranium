@@ -1,6 +1,5 @@
 'use client';
 
-import { AtmosphericOrbs } from '@/components/ui/atmospheric-orbs';
 import { Section } from '@/components/ui/section';
 import { cn } from '@/lib/utils';
 
@@ -33,15 +32,12 @@ const items = [
 
 export function TimeSaved() {
   return (
-    <Section id="time-saved" navbarInverse lazyRender size={24} mask="none" className="pb-20">
-      <AtmosphericOrbs variant="inner" />
-
+    <Section id="time-saved" navbarInverse size={24} mask="none" className="pb-20">
       <div className="clamp relative z-10 px-4 sm:px-8">
         {/* Heading */}
         <div className="mb-14 md:mb-20">
-          <h2 className="text-4xl leading-none md:text-5xl">
-            <span className="font-sans tracking-tighter">Less stitching.</span>{' '}
-            <span className="font-serif font-normal italic">More signal.</span>
+          <h2 className="font-serif text-4xl leading-none md:text-5xl lg:text-6xl">
+            Less stitching. More signal.
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-none tracking-tighter text-content/90">
             Riven eliminates the manual work caused by disconnected tools. Allowing you to focus on
@@ -63,7 +59,7 @@ export function TimeSaved() {
                   )}
                 >
                   <p className="mb-2 text-xs tracking-wide">{item.label}</p>
-                  <p className="mb-3 text-lg font-medium tracking-tight lg:text-xl">
+                  <p className="mb-3 font-serif text-lg font-medium tracking-tight lg:text-xl">
                     {item.metric}
                   </p>
                   <p className="text-sm leading-relaxed tracking-normal text-content/70">
@@ -75,7 +71,7 @@ export function TimeSaved() {
               {/* Row 2: last item + summary (col-span-2) */}
               <div className="flex flex-col justify-end p-7 lg:p-8">
                 <p className="mb-2 text-xs tracking-wide">{items[3].label}</p>
-                <p className="mb-3 text-lg font-medium tracking-tight lg:text-xl">
+                <p className="mb-3 font-serif text-lg font-medium tracking-tight lg:text-xl">
                   {items[3].metric}
                 </p>
                 <p className="text-sm leading-relaxed tracking-normal text-content/90">
@@ -87,7 +83,7 @@ export function TimeSaved() {
               <div className="col-span-2 flex flex-col justify-between border-l border-content/50 p-7 lg:flex-row lg:items-end lg:p-8">
                 <div>
                   <p className="mb-2 text-xs tracking-wide">Take back control</p>
-                  <p className="mb-3 text-lg font-medium tracking-tight lg:text-xl">
+                  <p className="mb-3 font-serif text-lg font-medium tracking-tight lg:text-xl">
                     What you save
                   </p>
                   <p className="text-sm leading-relaxed tracking-normal text-content/90">
@@ -95,11 +91,11 @@ export function TimeSaved() {
                     the anxiety of making decisions based on incomplete information.
                   </p>
                 </div>
-                <div className="mt-6 shrink-0 space-y-0.5 font-serif font-light tracking-tight lg:mt-0 lg:pl-8 lg:text-right">
-                  <p className="text-3xl lg:text-4xl xl:text-5xl">8–12 hours</p>
-                  <p className="text-3xl lg:text-4xl xl:text-5xl">16 tabs</p>
-                  <p className="text-3xl lg:text-4xl xl:text-5xl">3 spreadsheets</p>
-                  <p className="text-3xl font-semibold italic lg:text-4xl xl:text-5xl">
+                <div className="mt-6 shrink-0 space-y-0.5 font-light tracking-tight lg:mt-0 lg:pl-8 lg:text-right">
+                  <p className="text-3xl text-primary/70 lg:text-4xl xl:text-5xl">8–12 hours</p>
+                  <p className="text-3xl text-primary/80 lg:text-4xl xl:text-5xl">16 tabs</p>
+                  <p className="text-3xl text-primary/90 lg:text-4xl xl:text-5xl">3 spreadsheets</p>
+                  <p className="font-serif text-3xl font-semibold lg:text-4xl xl:text-5xl">
                     1 massive headache
                   </p>
                 </div>
@@ -112,23 +108,23 @@ export function TimeSaved() {
         <div className="flex flex-col gap-4 md:hidden">
           {items.map((item) => (
             <div key={item.label} className="border-l-2 border-content/50 py-4 pr-3 pl-5">
-              <p className="text-base font-medium tracking-tight">{item.metric}</p>
+              <p className="font-serif text-base font-medium tracking-tight">{item.metric}</p>
               <p className="mt-1.5 text-sm leading-relaxed tracking-normal text-content/90">
                 {item.description}
               </p>
             </div>
           ))}
           <div className="border-l-2 border-content/50 py-4 pr-3 pl-5">
-            <p className="text-base font-medium tracking-tight">What you save</p>
+            <p className="font-serif text-base font-medium tracking-tight">What you save</p>
             <p className="mt-1.5 text-sm leading-relaxed tracking-normal text-content/90">
               Hours of manual work every week. The mental overhead of stitching together data, the
               anxiety of making decisions based on incomplete information.
             </p>
-            <div className="mt-4 space-y-0.5 font-serif font-light tracking-tight">
+            <div className="mt-4 space-y-0.5 font-light tracking-tight">
               <p className="text-2xl">8–12 hours</p>
               <p className="text-2xl">16 tabs</p>
               <p className="text-2xl">3 spreadsheets</p>
-              <p className="text-2xl font-semibold italic">1 massive headache</p>
+              <p className="font-serif text-2xl font-semibold">1 massive headache</p>
             </div>
           </div>
         </div>

@@ -5,7 +5,7 @@ import { ShowcaseIconRail } from '@/components/ui/diagrams/brand-ui-primitives';
 import { useContainerScale } from '@/hooks/use-container-scale';
 import { ChildNodeProps, ClassNameProps } from '@riven/utils';
 import { FC } from 'react';
-import { useIsMobile } from '../../../../../../../../packages/hooks/src/use-mobile';
+import { useIsMobile } from '../../../../../../../packages/hooks/src/use-mobile';
 
 const DASHBOARD_NAV_ICONS = [
   { icon: <LayoutGrid className="size-5" />, active: false },
@@ -45,7 +45,7 @@ const InsightCard: FC<Props> = ({
       {/* Header */}
       <div>
         <div className="flex items-center justify-between">
-          <span className={cn('font-display text-xs tracking-[0.05em] text-white uppercase')}>
+          <span className={cn('font-serif text-xs tracking-[0.05em] text-white uppercase')}>
             {label}
           </span>
           {timestamp && (
@@ -56,11 +56,11 @@ const InsightCard: FC<Props> = ({
         </div>
 
         {/* Body */}
-        <div className="mt-4">{children}</div>
+        <div className="mt-2">{children}</div>
       </div>
 
       {/* Actions */}
-      <div className="mt-4">{actions}</div>
+      <div className="mt-2">{actions}</div>
     </div>
   );
 };
@@ -128,7 +128,7 @@ export function MockDashboard() {
   return (
     <div
       ref={containerRef}
-      className="relative z-30 w-full translate-x-8 p-6 px-0 md:px-12 lg:translate-x-0 lg:translate-y-0 lg:scale-100"
+      className="relative z-30 w-full -translate-x-24 scale-70 p-6 px-0 sm:translate-x-8 sm:scale-100 md:px-12 lg:translate-x-0 lg:translate-y-0"
     >
       <div
         className="origin-top-left"
@@ -161,8 +161,8 @@ export const DashboardContent: FC<ClassNameProps> = ({ className }) => {
 
       <div className="px-12 pt-10 pb-16">
         {/* Greeting */}
-        <h2 className="font-display text-3xl tracking-tighter text-white">Morning Jared</h2>
-        <p className="mt-2 font-display text-sm text-neutral-200 italic">
+        <h2 className="font-serif text-3xl tracking-tighter text-white">Morning Jared</h2>
+        <p className="font-display text-sm tracking-tighter text-content">
           here&apos;s your customer lifecycle at a glance.
         </p>
 
@@ -227,7 +227,7 @@ export const DashboardContent: FC<ClassNameProps> = ({ className }) => {
               Your current churn rate is 9.4% &amp; the 90-day trend is
             </p>
             <p
-              className="mt-3 font-serif text-4xl font-normal italic"
+              className="mt-3 font-display text-4xl font-normal"
               style={{ color: 'oklch(0.65 0.17 145)' }}
             >
               Improving

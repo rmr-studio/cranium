@@ -67,7 +67,7 @@ export const MobileNavbar: FC<MobileNavbarExtendedProps> = ({
           <div className="flex items-center gap-3">
             <Link href="/" onClick={() => setIsOpen(false)} className="flex items-center gap-1.5">
               <Logo size={22} className="fill-logo-primary" />
-              <span className="mt-0.5 font-serif text-lg font-bold text-logo-primary">Riven</span>
+              <span className="mt-0.5 text-lg font-bold text-logo-primary">Riven</span>
             </Link>
             <Link
               href="https://github.com/rmr-studio/riven"

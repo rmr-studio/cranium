@@ -1,979 +1,1233 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" class="light">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Riven Design System Preview</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --font-sans: 'Geist', system-ui, -apple-system, sans-serif;
-      --font-mono: 'Geist Mono', ui-monospace, monospace;
-      --font-serif: 'Instrument Serif', Georgia, serif;
-      --font-display: 'Space Mono', monospace;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Riven Design System Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --font-sans: 'Geist', system-ui, -apple-system, sans-serif;
+        --font-mono: 'Geist Mono', ui-monospace, monospace;
+        --: 'Instrument Serif', Georgia, serif;
+        --font-display: 'Space Mono', monospace;
 
-      --bg: oklch(0.985 0 0);
-      --bg-elevated: oklch(1 0 0);
-      --fg: oklch(0.145 0 0);
-      --content: oklch(0.375 0 0);
-      --heading: oklch(0.28 0 0);
-      --muted: oklch(0.97 0 0);
-      --muted-fg: oklch(0.556 0 0);
-      --border: oklch(0.922 0 0);
-      --primary: oklch(0.205 0 0);
-      --primary-fg: oklch(0.985 0 0);
-      --destructive: oklch(0.577 0.245 27.325);
-      --edit: oklch(0.8366 0.117 66.29);
-      --archive: oklch(0.585 0.204 277.12);
-      --success: oklch(0.65 0.17 145);
-      --warning: oklch(0.75 0.15 75);
+        --bg: oklch(0.985 0 0);
+        --bg-elevated: oklch(1 0 0);
+        --fg: oklch(0.145 0 0);
+        --content: oklch(0.375 0 0);
+        --heading: oklch(0.28 0 0);
+        --muted: oklch(0.97 0 0);
+        --muted-fg: oklch(0.556 0 0);
+        --border: oklch(0.922 0 0);
+        --primary: oklch(0.205 0 0);
+        --primary-fg: oklch(0.985 0 0);
+        --destructive: oklch(0.577 0.245 27.325);
+        --edit: oklch(0.8366 0.117 66.29);
+        --archive: oklch(0.585 0.204 277.12);
+        --success: oklch(0.65 0.17 145);
+        --warning: oklch(0.75 0.15 75);
 
-      --shadow-sm: 0px 1px 3px oklch(0 0 0 / 0.04);
-      --shadow-md: 0px 4px 12px oklch(0 0 0 / 0.06);
-      --shadow-lg: 0px 8px 24px oklch(0 0 0 / 0.08);
+        --shadow-sm: 0px 1px 3px oklch(0 0 0 / 0.04);
+        --shadow-md: 0px 4px 12px oklch(0 0 0 / 0.06);
+        --shadow-lg: 0px 8px 24px oklch(0 0 0 / 0.08);
 
-      --radius-sm: 4px;
-      --radius-md: 6px;
-      --radius-lg: 8px;
-      --radius-xl: 12px;
+        --radius-sm: 4px;
+        --radius-md: 6px;
+        --radius-lg: 8px;
+        --radius-xl: 12px;
 
-      --rail-width: 56px;
-      --panel-width: 240px;
-    }
+        --rail-width: 56px;
+        --panel-width: 240px;
+      }
 
-    .dark {
-      --bg: oklch(0.205 0 0);
-      --bg-elevated: oklch(0.24 0 0);
-      --fg: oklch(0.985 0 0);
-      --content: oklch(0.8 0 0);
-      --heading: oklch(0.85 0 0);
-      --muted: oklch(0.269 0 0);
-      --muted-fg: oklch(0.708 0 0);
-      --border: oklch(1 0 0 / 0.1);
-      --primary: oklch(0.922 0 0);
-      --primary-fg: oklch(0.205 0 0);
-      --shadow-sm: 0px 1px 3px oklch(0 0 0 / 0.2);
-      --shadow-md: 0px 4px 12px oklch(0 0 0 / 0.3);
-      --shadow-lg: 0px 8px 24px oklch(0 0 0 / 0.4);
-    }
+      .dark {
+        --bg: oklch(0.205 0 0);
+        --bg-elevated: oklch(0.24 0 0);
+        --fg: oklch(0.985 0 0);
+        --content: oklch(0.8 0 0);
+        --heading: oklch(0.85 0 0);
+        --muted: oklch(0.269 0 0);
+        --muted-fg: oklch(0.708 0 0);
+        --border: oklch(1 0 0 / 0.1);
+        --primary: oklch(0.922 0 0);
+        --primary-fg: oklch(0.205 0 0);
+        --shadow-sm: 0px 1px 3px oklch(0 0 0 / 0.2);
+        --shadow-md: 0px 4px 12px oklch(0 0 0 / 0.3);
+        --shadow-lg: 0px 8px 24px oklch(0 0 0 / 0.4);
+      }
 
-    .amber {
-      --bg: oklch(0.91 0.035 78);
-      --bg-elevated: oklch(0.93 0.032 80);
-      --fg: oklch(0.25 0.02 60);
-      --content: oklch(0.45 0.04 65);
-      --heading: oklch(0.38 0.03 65);
-      --muted: oklch(0.88 0.04 75);
-      --muted-fg: oklch(0.45 0.03 65);
-      --border: oklch(0.25 0.02 60 / 0.15);
-      --primary: oklch(0.35 0.04 65);
-      --primary-fg: oklch(0.93 0.032 80);
-    }
+      .amber {
+        --bg: oklch(0.91 0.035 78);
+        --bg-elevated: oklch(0.93 0.032 80);
+        --fg: oklch(0.25 0.02 60);
+        --content: oklch(0.45 0.04 65);
+        --heading: oklch(0.38 0.03 65);
+        --muted: oklch(0.88 0.04 75);
+        --muted-fg: oklch(0.45 0.03 65);
+        --border: oklch(0.25 0.02 60 / 0.15);
+        --primary: oklch(0.35 0.04 65);
+        --primary-fg: oklch(0.93 0.032 80);
+      }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-    body {
-      font-family: var(--font-sans);
-      font-size: 14px;
-      line-height: 1.5;
-      color: var(--content);
-      background: var(--bg);
-      -webkit-font-smoothing: antialiased;
-      letter-spacing: -0.01em;
-    }
+      body {
+        font-family: var(--font-sans);
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--content);
+        background: var(--bg);
+        -webkit-font-smoothing: antialiased;
+        letter-spacing: -0.01em;
+      }
 
-    /* ============ THEME SWITCHER ============ */
-    .theme-bar {
-      position: fixed; top: 0; right: 0;
-      z-index: 100;
-      display: flex; gap: 4px;
-      padding: 12px 16px;
-      background: var(--bg-elevated);
-      border-bottom-left-radius: var(--radius-lg);
-      box-shadow: var(--shadow-md);
-    }
-    .theme-btn {
-      font-family: var(--font-sans);
-      font-size: 12px; font-weight: 500;
-      padding: 6px 12px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: transparent;
-      color: var(--muted-fg);
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .theme-btn:hover { background: var(--muted); color: var(--fg); }
-    .theme-btn.active {
-      background: var(--primary);
-      color: var(--primary-fg);
-      border-color: var(--primary);
-    }
+      /* ============ THEME SWITCHER ============ */
+      .theme-bar {
+        position: fixed;
+        top: 0;
+        right: 0;
+        z-index: 100;
+        display: flex;
+        gap: 4px;
+        padding: 12px 16px;
+        background: var(--bg-elevated);
+        border-bottom-left-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+      }
+      .theme-btn {
+        font-family: var(--font-sans);
+        font-size: 12px;
+        font-weight: 500;
+        padding: 6px 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: transparent;
+        color: var(--muted-fg);
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .theme-btn:hover {
+        background: var(--muted);
+        color: var(--fg);
+      }
+      .theme-btn.active {
+        background: var(--primary);
+        color: var(--primary-fg);
+        border-color: var(--primary);
+      }
 
-    /* ============ SECTIONS ============ */
-    .section {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 64px 32px;
-      border-bottom: 1px solid var(--border);
-    }
-    .section:last-child { border-bottom: none; }
-    .section-label {
-      font-family: var(--font-display);
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted-fg);
-      margin-bottom: 8px;
-    }
-    .section-title {
-      font-family: var(--font-sans);
-      font-size: 32px;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      line-height: 1;
-      color: var(--heading);
-      margin-bottom: 8px;
-    }
-    .section-desc {
-      font-size: 15px;
-      color: var(--muted-fg);
-      max-width: 560px;
-      margin-bottom: 48px;
-    }
+      /* ============ SECTIONS ============ */
+      .section {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 64px 32px;
+        border-bottom: 1px solid var(--border);
+      }
+      .section:last-child {
+        border-bottom: none;
+      }
+      .section-label {
+        font-family: var(--font-display);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--muted-fg);
+        margin-bottom: 8px;
+      }
+      .section-title {
+        font-family: var(--font-sans);
+        font-size: 32px;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        color: var(--heading);
+        margin-bottom: 8px;
+      }
+      .section-desc {
+        font-size: 15px;
+        color: var(--muted-fg);
+        max-width: 560px;
+        margin-bottom: 48px;
+      }
 
-    /* ============ TYPOGRAPHY SPECIMENS ============ */
-    .type-specimen {
-      margin-bottom: 40px;
-      padding-bottom: 40px;
-      border-bottom: 1px solid var(--border);
-    }
-    .type-specimen:last-child { border-bottom: none; }
-    .type-meta {
-      display: flex;
-      align-items: baseline;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-    .type-name {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--muted-fg);
-      background: var(--muted);
-      padding: 2px 8px;
-      border-radius: var(--radius-sm);
-    }
-    .type-details {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--muted-fg);
-    }
-    .type-display {
-      font-family: var(--font-sans);
-      font-size: 56px;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      line-height: 1;
-      color: var(--heading);
-    }
-    .type-h1 {
-      font-family: var(--font-sans);
-      font-size: 32px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      line-height: 1.1;
-      color: var(--heading);
-    }
-    .type-h2 {
-      font-family: var(--font-sans);
-      font-size: 24px;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      line-height: 1.2;
-      color: var(--heading);
-    }
-    .type-h3 {
-      font-family: var(--font-sans);
-      font-size: 18px;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-      line-height: 1.3;
-      color: var(--heading);
-    }
-    .type-body {
-      font-family: var(--font-sans);
-      font-size: 14px;
-      line-height: 1.6;
-      color: var(--content);
-      max-width: 560px;
-    }
-    .type-small {
-      font-family: var(--font-sans);
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--muted-fg);
-    }
-    .type-serif-display {
-      font-family: var(--font-serif);
-      font-size: 48px;
-      font-style: normal;
-      line-height: 1.1;
-      color: var(--heading);
-    }
-    .type-mono-display {
-      font-family: var(--font-display);
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      color: var(--muted-fg);
-    }
-    .type-data {
-      font-family: var(--font-sans);
-      font-size: 40px;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      line-height: 1;
-      color: var(--heading);
-      font-variant-numeric: tabular-nums;
-    }
+      /* ============ TYPOGRAPHY SPECIMENS ============ */
+      .type-specimen {
+        margin-bottom: 40px;
+        padding-bottom: 40px;
+        border-bottom: 1px solid var(--border);
+      }
+      .type-specimen:last-child {
+        border-bottom: none;
+      }
+      .type-meta {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      .type-name {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--muted-fg);
+        background: var(--muted);
+        padding: 2px 8px;
+        border-radius: var(--radius-sm);
+      }
+      .type-details {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--muted-fg);
+      }
+      .type-display {
+        font-family: var(--font-sans);
+        font-size: 56px;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        color: var(--heading);
+      }
+      .type-h1 {
+        font-family: var(--font-sans);
+        font-size: 32px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+        color: var(--heading);
+      }
+      .type-h2 {
+        font-family: var(--font-sans);
+        font-size: 24px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+        color: var(--heading);
+      }
+      .type-h3 {
+        font-family: var(--font-sans);
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        line-height: 1.3;
+        color: var(--heading);
+      }
+      .type-body {
+        font-family: var(--font-sans);
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--content);
+        max-width: 560px;
+      }
+      .type-small {
+        font-family: var(--font-sans);
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--muted-fg);
+      }
+      .type-serif-display {
+        font-family: var(--);
+        font-size: 48px;
+        font-style: normal;
+        line-height: 1.1;
+        color: var(--heading);
+      }
+      .type-mono-display {
+        font-family: var(--font-display);
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--muted-fg);
+      }
+      .type-data {
+        font-family: var(--font-sans);
+        font-size: 40px;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        color: var(--heading);
+        font-variant-numeric: tabular-nums;
+      }
 
-    /* ============ COLOR PALETTE ============ */
-    .palette-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 12px;
-      margin-bottom: 32px;
-    }
-    .swatch {
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      border: 1px solid var(--border);
-    }
-    .swatch-color {
-      height: 64px;
-    }
-    .swatch-info {
-      padding: 8px 10px;
-      background: var(--bg-elevated);
-    }
-    .swatch-name {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--fg);
-    }
-    .swatch-value {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--muted-fg);
-    }
+      /* ============ COLOR PALETTE ============ */
+      .palette-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px;
+        margin-bottom: 32px;
+      }
+      .swatch {
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        border: 1px solid var(--border);
+      }
+      .swatch-color {
+        height: 64px;
+      }
+      .swatch-info {
+        padding: 8px 10px;
+        background: var(--bg-elevated);
+      }
+      .swatch-name {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--fg);
+      }
+      .swatch-value {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--muted-fg);
+      }
 
-    /* ============ COMPONENTS ============ */
-    .components-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 32px;
-    }
-    .component-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: center;
-    }
-    .component-label {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--muted-fg);
-      width: 100px;
-      flex-shrink: 0;
-    }
+      /* ============ COMPONENTS ============ */
+      .components-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+      }
+      .component-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+      }
+      .component-label {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--muted-fg);
+        width: 100px;
+        flex-shrink: 0;
+      }
 
-    /* Buttons */
-    .btn {
-      font-family: var(--font-sans);
-      font-size: 13px;
-      font-weight: 500;
-      padding: 8px 16px;
-      border-radius: var(--radius-sm);
-      border: none;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.15s;
-      letter-spacing: -0.01em;
-    }
-    .btn-primary {
-      background: var(--primary);
-      color: var(--primary-fg);
-    }
-    .btn-primary:hover { opacity: 0.9; }
-    .btn-secondary {
-      background: var(--bg-elevated);
-      color: var(--fg);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-sm);
-    }
-    .btn-secondary:hover { background: var(--muted); }
-    .btn-ghost {
-      background: transparent;
-      color: var(--muted-fg);
-    }
-    .btn-ghost:hover { background: var(--muted); color: var(--fg); }
-    .btn-destructive {
-      background: var(--destructive);
-      color: white;
-    }
-    .btn-xs { font-size: 12px; padding: 4px 10px; }
-    .btn-sm { font-size: 13px; padding: 6px 12px; }
-    .btn-lg { font-size: 14px; padding: 10px 20px; }
+      /* Buttons */
+      .btn {
+        font-family: var(--font-sans);
+        font-size: 13px;
+        font-weight: 500;
+        padding: 8px 16px;
+        border-radius: var(--radius-sm);
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.15s;
+        letter-spacing: -0.01em;
+      }
+      .btn-primary {
+        background: var(--primary);
+        color: var(--primary-fg);
+      }
+      .btn-primary:hover {
+        opacity: 0.9;
+      }
+      .btn-secondary {
+        background: var(--bg-elevated);
+        color: var(--fg);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+      }
+      .btn-secondary:hover {
+        background: var(--muted);
+      }
+      .btn-ghost {
+        background: transparent;
+        color: var(--muted-fg);
+      }
+      .btn-ghost:hover {
+        background: var(--muted);
+        color: var(--fg);
+      }
+      .btn-destructive {
+        background: var(--destructive);
+        color: white;
+      }
+      .btn-xs {
+        font-size: 12px;
+        padding: 4px 10px;
+      }
+      .btn-sm {
+        font-size: 13px;
+        padding: 6px 12px;
+      }
+      .btn-lg {
+        font-size: 14px;
+        padding: 10px 20px;
+      }
 
-    /* Inputs */
-    .input {
-      font-family: var(--font-sans);
-      font-size: 13px;
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: var(--bg-elevated);
-      color: var(--fg);
-      width: 280px;
-      outline: none;
-      transition: border-color 0.15s;
-    }
-    .input::placeholder { color: var(--muted-fg); }
-    .input:focus { border-color: var(--primary); }
+      /* Inputs */
+      .input {
+        font-family: var(--font-sans);
+        font-size: 13px;
+        padding: 8px 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--bg-elevated);
+        color: var(--fg);
+        width: 280px;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      .input::placeholder {
+        color: var(--muted-fg);
+      }
+      .input:focus {
+        border-color: var(--primary);
+      }
 
-    /* Cards */
-    .card {
-      background: var(--bg-elevated);
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-sm);
-      padding: 20px 24px;
-    }
-    .card-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--heading);
-      margin-bottom: 4px;
-    }
-    .card-desc {
-      font-size: 13px;
-      color: var(--muted-fg);
-    }
+      /* Cards */
+      .card {
+        background: var(--bg-elevated);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+        padding: 20px 24px;
+      }
+      .card-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--heading);
+        margin-bottom: 4px;
+      }
+      .card-desc {
+        font-size: 13px;
+        color: var(--muted-fg);
+      }
 
-    /* Badges */
-    .badge {
-      font-family: var(--font-sans);
-      font-size: 11px;
-      font-weight: 500;
-      padding: 2px 8px;
-      border-radius: var(--radius-sm);
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .badge-default { background: var(--muted); color: var(--fg); }
-    .badge-success { background: oklch(0.95 0.05 145); color: oklch(0.35 0.1 145); }
-    .badge-warning { background: oklch(0.93 0.05 75); color: oklch(0.40 0.1 75); }
-    .badge-destructive { background: oklch(0.93 0.05 27); color: oklch(0.45 0.15 27); }
+      /* Badges */
+      .badge {
+        font-family: var(--font-sans);
+        font-size: 11px;
+        font-weight: 500;
+        padding: 2px 8px;
+        border-radius: var(--radius-sm);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .badge-default {
+        background: var(--muted);
+        color: var(--fg);
+      }
+      .badge-success {
+        background: oklch(0.95 0.05 145);
+        color: oklch(0.35 0.1 145);
+      }
+      .badge-warning {
+        background: oklch(0.93 0.05 75);
+        color: oklch(0.4 0.1 75);
+      }
+      .badge-destructive {
+        background: oklch(0.93 0.05 27);
+        color: oklch(0.45 0.15 27);
+      }
 
-    /* Alerts */
-    .alert {
-      padding: 12px 16px;
-      border-radius: var(--radius-lg);
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .alert-success { background: oklch(0.95 0.04 145); color: oklch(0.35 0.1 145); border: 1px solid oklch(0.88 0.06 145); }
-    .alert-warning { background: oklch(0.94 0.04 75); color: oklch(0.40 0.1 75); border: 1px solid oklch(0.88 0.06 75); }
-    .alert-error { background: oklch(0.95 0.04 27); color: oklch(0.45 0.15 27); border: 1px solid oklch(0.90 0.06 27); }
-    .alert-info { background: var(--muted); color: var(--content); border: 1px solid var(--border); }
+      /* Alerts */
+      .alert {
+        padding: 12px 16px;
+        border-radius: var(--radius-lg);
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .alert-success {
+        background: oklch(0.95 0.04 145);
+        color: oklch(0.35 0.1 145);
+        border: 1px solid oklch(0.88 0.06 145);
+      }
+      .alert-warning {
+        background: oklch(0.94 0.04 75);
+        color: oklch(0.4 0.1 75);
+        border: 1px solid oklch(0.88 0.06 75);
+      }
+      .alert-error {
+        background: oklch(0.95 0.04 27);
+        color: oklch(0.45 0.15 27);
+        border: 1px solid oklch(0.9 0.06 27);
+      }
+      .alert-info {
+        background: var(--muted);
+        color: var(--content);
+        border: 1px solid var(--border);
+      }
 
-    /* ============ APP MOCKUP ============ */
-    .app-mockup {
-      border-radius: var(--radius-xl);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-lg);
-      overflow: hidden;
-      display: flex;
-      height: 520px;
-      background: var(--bg);
-    }
+      /* ============ APP MOCKUP ============ */
+      .app-mockup {
+        border-radius: var(--radius-xl);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+        display: flex;
+        height: 520px;
+        background: var(--bg);
+      }
 
-    /* Icon Rail */
-    .mock-rail {
-      width: var(--rail-width);
-      background: var(--fg);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 16px 0;
-      flex-shrink: 0;
-    }
-    .mock-rail-logo {
-      width: 28px; height: 28px;
-      border-radius: 6px;
-      background: var(--primary-fg);
-      opacity: 0.9;
-      margin-bottom: 24px;
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-sans);
-      font-weight: 700;
-      font-size: 14px;
-      color: var(--fg);
-    }
-    .mock-rail-icon {
-      width: 36px; height: 36px;
-      border-radius: var(--radius-md);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--primary-fg);
-      opacity: 0.5;
-      margin-bottom: 4px;
-      cursor: pointer;
-      transition: all 0.15s;
-      font-size: 16px;
-    }
-    .mock-rail-icon:hover { opacity: 0.8; background: oklch(1 0 0 / 0.08); }
-    .mock-rail-icon.active { opacity: 1; background: oklch(1 0 0 / 0.12); }
+      /* Icon Rail */
+      .mock-rail {
+        width: var(--rail-width);
+        background: var(--fg);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 16px 0;
+        flex-shrink: 0;
+      }
+      .mock-rail-logo {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        background: var(--primary-fg);
+        opacity: 0.9;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-sans);
+        font-weight: 700;
+        font-size: 14px;
+        color: var(--fg);
+      }
+      .mock-rail-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-fg);
+        opacity: 0.5;
+        margin-bottom: 4px;
+        cursor: pointer;
+        transition: all 0.15s;
+        font-size: 16px;
+      }
+      .mock-rail-icon:hover {
+        opacity: 0.8;
+        background: oklch(1 0 0 / 0.08);
+      }
+      .mock-rail-icon.active {
+        opacity: 1;
+        background: oklch(1 0 0 / 0.12);
+      }
 
-    /* Side Panel */
-    .mock-panel {
-      width: var(--panel-width);
-      background: var(--bg-elevated);
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      flex-shrink: 0;
-    }
-    .mock-panel-header {
-      padding: 16px;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--heading);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      min-height: 52px;
-    }
-    .mock-panel-search {
-      margin: 12px 12px 8px;
-      padding: 7px 10px;
-      font-size: 12px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: var(--bg);
-      color: var(--muted-fg);
-    }
-    .mock-panel-section {
-      padding: 4px 8px;
-      font-family: var(--font-sans);
-      font-size: 11px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--muted-fg);
-      margin-top: 12px;
-    }
-    .mock-panel-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 12px;
-      margin: 1px 8px;
-      font-size: 13px;
-      color: var(--content);
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      transition: all 0.1s;
-    }
-    .mock-panel-item:hover { background: var(--muted); }
-    .mock-panel-item.active {
-      background: var(--muted);
-      color: var(--heading);
-      font-weight: 500;
-    }
-    .mock-panel-item-icon {
-      width: 16px; height: 16px;
-      opacity: 0.5;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px;
-    }
-    .mock-panel-item-count {
-      margin-left: auto;
-      font-size: 11px;
-      color: var(--muted-fg);
-      font-variant-numeric: tabular-nums;
-    }
+      /* Side Panel */
+      .mock-panel {
+        width: var(--panel-width);
+        background: var(--bg-elevated);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+      }
+      .mock-panel-header {
+        padding: 16px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--heading);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 52px;
+      }
+      .mock-panel-search {
+        margin: 12px 12px 8px;
+        padding: 7px 10px;
+        font-size: 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--bg);
+        color: var(--muted-fg);
+      }
+      .mock-panel-section {
+        padding: 4px 8px;
+        font-family: var(--font-sans);
+        font-size: 11px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted-fg);
+        margin-top: 12px;
+      }
+      .mock-panel-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 12px;
+        margin: 1px 8px;
+        font-size: 13px;
+        color: var(--content);
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: all 0.1s;
+      }
+      .mock-panel-item:hover {
+        background: var(--muted);
+      }
+      .mock-panel-item.active {
+        background: var(--muted);
+        color: var(--heading);
+        font-weight: 500;
+      }
+      .mock-panel-item-icon {
+        width: 16px;
+        height: 16px;
+        opacity: 0.5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+      }
+      .mock-panel-item-count {
+        margin-left: auto;
+        font-size: 11px;
+        color: var(--muted-fg);
+        font-variant-numeric: tabular-nums;
+      }
 
-    /* Main Content */
-    .mock-main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    .mock-toolbar {
-      display: flex;
-      align-items: center;
-      padding: 12px 24px;
-      border-bottom: 1px solid var(--border);
-      gap: 12px;
-      min-height: 52px;
-    }
-    .mock-toolbar-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--heading);
-    }
-    .mock-toolbar-count {
-      font-size: 12px;
-      color: var(--muted-fg);
-      font-variant-numeric: tabular-nums;
-    }
-    .mock-toolbar-spacer { flex: 1; }
+      /* Main Content */
+      .mock-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .mock-toolbar {
+        display: flex;
+        align-items: center;
+        padding: 12px 24px;
+        border-bottom: 1px solid var(--border);
+        gap: 12px;
+        min-height: 52px;
+      }
+      .mock-toolbar-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--heading);
+      }
+      .mock-toolbar-count {
+        font-size: 12px;
+        color: var(--muted-fg);
+        font-variant-numeric: tabular-nums;
+      }
+      .mock-toolbar-spacer {
+        flex: 1;
+      }
 
-    /* Table */
-    .mock-table {
-      flex: 1;
-      overflow: auto;
-    }
-    .mock-table table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    .mock-table th {
-      text-align: left;
-      padding: 10px 16px;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--muted-fg);
-      border-bottom: 1px solid var(--border);
-      background: var(--bg);
-      position: sticky;
-      top: 0;
-    }
-    .mock-table td {
-      padding: 12px 16px;
-      font-size: 13px;
-      color: var(--content);
-      border-bottom: 1px solid var(--border);
-    }
-    .mock-table tr:hover td {
-      background: var(--muted);
-    }
-    .mock-table .name-cell {
-      font-weight: 500;
-      color: var(--heading);
-    }
-    .mock-table .time-cell {
-      color: var(--muted-fg);
-      font-variant-numeric: tabular-nums;
-    }
-    .mock-table .entity-cell {
-      display: flex; align-items: center; gap: 6px;
-    }
-    .mock-table .entity-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-    }
-    .mock-count {
-      padding: 24px 16px 8px;
-      font-size: 12px;
-      color: var(--muted-fg);
-    }
-  </style>
-</head>
-<body>
-  <!-- Theme Switcher -->
-  <div class="theme-bar">
-    <button class="theme-btn active" onclick="setTheme('light')">Light</button>
-    <button class="theme-btn" onclick="setTheme('dark')">Dark</button>
-    <button class="theme-btn" onclick="setTheme('amber')">Amber</button>
-  </div>
-
-  <!-- TYPOGRAPHY -->
-  <div class="section">
-    <div class="section-label">Typography</div>
-    <div class="section-title">The type does the work</div>
-    <div class="section-desc">Geist across four weights. Tight tracking on headlines, comfortable on body. Instrument Serif for editorial moments. Space Mono for system labels.</div>
-
-    <div class="type-specimen">
-      <div class="type-meta">
-        <span class="type-name">Display</span>
-        <span class="type-details">Geist 700 &middot; 56px &middot; -0.03em &middot; leading-none</span>
-      </div>
-      <div class="type-display">$47,291.04</div>
+      /* Table */
+      .mock-table {
+        flex: 1;
+        overflow: auto;
+      }
+      .mock-table table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .mock-table th {
+        text-align: left;
+        padding: 10px 16px;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--muted-fg);
+        border-bottom: 1px solid var(--border);
+        background: var(--bg);
+        position: sticky;
+        top: 0;
+      }
+      .mock-table td {
+        padding: 12px 16px;
+        font-size: 13px;
+        color: var(--content);
+        border-bottom: 1px solid var(--border);
+      }
+      .mock-table tr:hover td {
+        background: var(--muted);
+      }
+      .mock-table .name-cell {
+        font-weight: 500;
+        color: var(--heading);
+      }
+      .mock-table .time-cell {
+        color: var(--muted-fg);
+        font-variant-numeric: tabular-nums;
+      }
+      .mock-table .entity-cell {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .mock-table .entity-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+      .mock-count {
+        padding: 24px 16px 8px;
+        font-size: 12px;
+        color: var(--muted-fg);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Theme Switcher -->
+    <div class="theme-bar">
+      <button class="theme-btn active" onclick="setTheme('light')">Light</button>
+      <button class="theme-btn" onclick="setTheme('dark')">Dark</button>
+      <button class="theme-btn" onclick="setTheme('amber')">Amber</button>
     </div>
 
-    <div class="type-specimen">
-      <div class="type-meta">
-        <span class="type-name">H1</span>
-        <span class="type-details">Geist 700 &middot; 32px &middot; -0.02em</span>
+    <!-- TYPOGRAPHY -->
+    <div class="section">
+      <div class="section-label">Typography</div>
+      <div class="section-title">The type does the work</div>
+      <div class="section-desc">
+        Geist across four weights. Tight tracking on headlines, comfortable on body. Instrument
+        Serif for editorial moments. Space Mono for system labels.
       </div>
-      <div class="type-h1">Employees</div>
-    </div>
 
-    <div class="type-specimen">
-      <div class="type-meta">
-        <span class="type-name">H2</span>
-        <span class="type-details">Geist 600 &middot; 24px &middot; -0.02em</span>
-      </div>
-      <div class="type-h2">Meeting Notes</div>
-    </div>
-
-    <div class="type-specimen">
-      <div class="type-meta">
-        <span class="type-name">H3</span>
-        <span class="type-details">Geist 600 &middot; 18px &middot; -0.01em</span>
-      </div>
-      <div class="type-h3">Account Summary</div>
-    </div>
-
-    <div class="type-specimen">
-      <div class="type-meta">
-        <span class="type-name">Body</span>
-        <span class="type-details">Geist 400 &middot; 14px &middot; 1.6 line-height</span>
-      </div>
-      <div class="type-body">Riven connects all your business tools through flexible data modelling and integrations. Every entity, relationship, and workflow lives in one unified workspace where context flows naturally between domains.</div>
-    </div>
-
-    <div class="type-specimen">
-      <div class="type-meta">
-        <span class="type-name">UI Label</span>
-        <span class="type-details">Geist 500 &middot; 13px</span>
-      </div>
-      <div class="type-small">Last interaction &middot; Created by &middot; Record type</div>
-    </div>
-
-    <div class="type-specimen">
-      <div class="type-meta">
-        <span class="type-name">Serif Display</span>
-        <span class="type-details">Instrument Serif &middot; 48px &middot; editorial accent</span>
-      </div>
-      <div class="type-serif-display">For the connected business</div>
-    </div>
-
-    <div class="type-specimen">
-      <div class="type-meta">
-        <span class="type-name">System Label</span>
-        <span class="type-details">Space Mono 700 &middot; 14px &middot; uppercase &middot; 0.05em</span>
-      </div>
-      <div class="type-mono-display">Workspace &middot; Resources &middot; Settings</div>
-    </div>
-
-    <div class="type-specimen">
-      <div class="type-meta">
-        <span class="type-name">Data</span>
-        <span class="type-details">Geist 700 &middot; 40px &middot; tabular-nums &middot; -0.03em</span>
-      </div>
-      <div class="type-data">$11,135.04</div>
-    </div>
-  </div>
-
-  <!-- COLORS -->
-  <div class="section">
-    <div class="section-label">Color</div>
-    <div class="section-title">Restrained monochrome</div>
-    <div class="section-desc">Zero chroma for the core system. Color is earned through semantic meaning, never decoration. Toggle dark and amber modes above.</div>
-
-    <div class="palette-grid">
-      <div class="swatch">
-        <div class="swatch-color" style="background: var(--bg)"></div>
-        <div class="swatch-info"><div class="swatch-name">Background</div><div class="swatch-value">oklch(0.985 0 0)</div></div>
-      </div>
-      <div class="swatch">
-        <div class="swatch-color" style="background: var(--bg-elevated)"></div>
-        <div class="swatch-info"><div class="swatch-name">Elevated</div><div class="swatch-value">oklch(1 0 0)</div></div>
-      </div>
-      <div class="swatch">
-        <div class="swatch-color" style="background: var(--muted)"></div>
-        <div class="swatch-info"><div class="swatch-name">Muted</div><div class="swatch-value">oklch(0.97 0 0)</div></div>
-      </div>
-      <div class="swatch">
-        <div class="swatch-color" style="background: var(--border)"></div>
-        <div class="swatch-info"><div class="swatch-name">Border</div><div class="swatch-value">oklch(0.922 0 0)</div></div>
-      </div>
-      <div class="swatch">
-        <div class="swatch-color" style="background: var(--muted-fg)"></div>
-        <div class="swatch-info"><div class="swatch-name">Muted FG</div><div class="swatch-value">oklch(0.556 0 0)</div></div>
-      </div>
-      <div class="swatch">
-        <div class="swatch-color" style="background: var(--content)"></div>
-        <div class="swatch-info"><div class="swatch-name">Content</div><div class="swatch-value">oklch(0.375 0 0)</div></div>
-      </div>
-      <div class="swatch">
-        <div class="swatch-color" style="background: var(--heading)"></div>
-        <div class="swatch-info"><div class="swatch-name">Heading</div><div class="swatch-value">oklch(0.28 0 0)</div></div>
-      </div>
-      <div class="swatch">
-        <div class="swatch-color" style="background: var(--fg)"></div>
-        <div class="swatch-info"><div class="swatch-name">Foreground</div><div class="swatch-value">oklch(0.145 0 0)</div></div>
-      </div>
-    </div>
-
-    <div style="font-size: 12px; font-weight: 500; color: var(--muted-fg); margin-bottom: 12px;">Semantic</div>
-    <div class="palette-grid">
-      <div class="swatch">
-        <div class="swatch-color" style="background: var(--destructive)"></div>
-        <div class="swatch-info"><div class="swatch-name">Destructive</div><div class="swatch-value">oklch(0.577 0.245 27)</div></div>
-      </div>
-      <div class="swatch">
-        <div class="swatch-color" style="background: var(--edit)"></div>
-        <div class="swatch-info"><div class="swatch-name">Edit</div><div class="swatch-value">oklch(0.837 0.117 66)</div></div>
-      </div>
-      <div class="swatch">
-        <div class="swatch-color" style="background: var(--archive)"></div>
-        <div class="swatch-info"><div class="swatch-name">Archive</div><div class="swatch-value">oklch(0.585 0.204 277)</div></div>
-      </div>
-      <div class="swatch">
-        <div class="swatch-color" style="background: var(--success)"></div>
-        <div class="swatch-info"><div class="swatch-name">Success</div><div class="swatch-value">oklch(0.65 0.17 145)</div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- COMPONENTS -->
-  <div class="section">
-    <div class="section-label">Components</div>
-    <div class="section-title">Built with shadcn/ui</div>
-    <div class="section-desc">Buttons, inputs, cards, badges, and alerts using the Riven design tokens. 4px radius on interactive elements, 8px on containers.</div>
-
-    <div class="components-grid">
-      <div class="component-row">
-        <span class="component-label">Buttons</span>
-        <button class="btn btn-primary">Create Entity</button>
-        <button class="btn btn-secondary">Cancel</button>
-        <button class="btn btn-ghost">Skip</button>
-        <button class="btn btn-destructive">Delete</button>
-      </div>
-      <div class="component-row">
-        <span class="component-label">Sizes</span>
-        <button class="btn btn-primary btn-xs">XS</button>
-        <button class="btn btn-primary btn-sm">Small</button>
-        <button class="btn btn-primary">Default</button>
-        <button class="btn btn-primary btn-lg">Large</button>
-      </div>
-      <div class="component-row">
-        <span class="component-label">Input</span>
-        <input class="input" placeholder="Search entities..." />
-      </div>
-      <div class="component-row">
-        <span class="component-label">Badges</span>
-        <span class="badge badge-default">Default</span>
-        <span class="badge badge-success">Connected</span>
-        <span class="badge badge-warning">Pending</span>
-        <span class="badge badge-destructive">Overdue</span>
-      </div>
-      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-        <div class="card" style="flex: 1; min-width: 200px;">
-          <div class="card-title">Open</div>
-          <div style="font-size: 28px; font-weight: 700; letter-spacing: -0.03em; color: var(--heading); margin: 8px 0 4px; font-variant-numeric: tabular-nums;">$4,291</div>
-          <div class="card-desc">3 invoices</div>
+      <div class="type-specimen">
+        <div class="type-meta">
+          <span class="type-name">Display</span>
+          <span class="type-details"
+            >Geist 700 &middot; 56px &middot; -0.03em &middot; leading-none</span
+          >
         </div>
-        <div class="card" style="flex: 1; min-width: 200px;">
-          <div class="card-title">Overdue</div>
-          <div style="font-size: 28px; font-weight: 700; letter-spacing: -0.03em; color: var(--destructive); margin: 8px 0 4px; font-variant-numeric: tabular-nums;">$820</div>
-          <div class="card-desc">1 invoice</div>
-        </div>
-        <div class="card" style="flex: 1; min-width: 200px;">
-          <div class="card-title">Paid</div>
-          <div style="font-size: 28px; font-weight: 700; letter-spacing: -0.03em; color: var(--heading); margin: 8px 0 4px; font-variant-numeric: tabular-nums;">$12,450</div>
-          <div class="card-desc">8 invoices</div>
-        </div>
-      </div>
-      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
-        <div class="alert alert-success">&#10003; Entity type "Employees" created successfully</div>
-        <div class="alert alert-warning">&#9888; 3 entities have validation warnings</div>
-        <div class="alert alert-error">&#10007; Failed to save entity: duplicate identifier</div>
-        <div class="alert alert-info">&#8505; Notes are auto-saved every 2.5 seconds</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- APP MOCKUP -->
-  <div class="section">
-    <div class="section-label">Layout</div>
-    <div class="section-title">Icon rail + panel + content</div>
-    <div class="section-desc">The three-column layout: dark icon rail for navigation, collapsible sub-panel for context, and the main content area. Inspired by Midday and Lightfield.</div>
-
-    <div class="app-mockup">
-      <!-- Icon Rail -->
-      <div class="mock-rail">
-        <div class="mock-rail-logo">R</div>
-        <div class="mock-rail-icon" title="Overview">&#9632;</div>
-        <div class="mock-rail-icon active" title="Entities">&#9670;</div>
-        <div class="mock-rail-icon" title="Notes">&#9998;</div>
-        <div class="mock-rail-icon" title="Workflows">&#8634;</div>
-        <div style="flex:1"></div>
-        <div class="mock-rail-icon" title="Settings">&#9881;</div>
+        <div class="type-display">$47,291.04</div>
       </div>
 
-      <!-- Side Panel -->
-      <div class="mock-panel">
-        <div class="mock-panel-header">
-          <span>Entities</span>
-          <span style="font-size: 11px; color: var(--muted-fg); cursor: pointer;">&#x276E;&#x276E;</span>
+      <div class="type-specimen">
+        <div class="type-meta">
+          <span class="type-name">H1</span>
+          <span class="type-details">Geist 700 &middot; 32px &middot; -0.02em</span>
         </div>
-        <div class="mock-panel-search">&#x1F50D; Search...</div>
-        <div class="mock-panel-section">Records</div>
-        <div class="mock-panel-item active">
-          <span class="mock-panel-item-icon">&#9673;</span>
-          Employees
-          <span class="mock-panel-item-count">24</span>
+        <div class="type-h1">Employees</div>
+      </div>
+
+      <div class="type-specimen">
+        <div class="type-meta">
+          <span class="type-name">H2</span>
+          <span class="type-details">Geist 600 &middot; 24px &middot; -0.02em</span>
         </div>
-        <div class="mock-panel-item">
-          <span class="mock-panel-item-icon">&#9632;</span>
-          Companies
-          <span class="mock-panel-item-count">12</span>
+        <div class="type-h2">Meeting Notes</div>
+      </div>
+
+      <div class="type-specimen">
+        <div class="type-meta">
+          <span class="type-name">H3</span>
+          <span class="type-details">Geist 600 &middot; 18px &middot; -0.01em</span>
         </div>
-        <div class="mock-panel-item">
-          <span class="mock-panel-item-icon">&#9734;</span>
-          Deals
-          <span class="mock-panel-item-count">8</span>
+        <div class="type-h3">Account Summary</div>
+      </div>
+
+      <div class="type-specimen">
+        <div class="type-meta">
+          <span class="type-name">Body</span>
+          <span class="type-details">Geist 400 &middot; 14px &middot; 1.6 line-height</span>
         </div>
-        <div class="mock-panel-section">Resources</div>
-        <div class="mock-panel-item">
-          <span class="mock-panel-item-icon">&#9998;</span>
-          Notes
-        </div>
-        <div class="mock-panel-item">
-          <span class="mock-panel-item-icon">&#8635;</span>
-          Workflows
+        <div class="type-body">
+          Riven connects all your business tools through flexible data modelling and integrations.
+          Every entity, relationship, and workflow lives in one unified workspace where context
+          flows naturally between domains.
         </div>
       </div>
 
-      <!-- Main Content -->
-      <div class="mock-main">
-        <div class="mock-toolbar">
-          <span class="mock-toolbar-title">Employees</span>
-          <span class="mock-toolbar-count">24</span>
-          <span class="mock-toolbar-spacer"></span>
-          <input class="input" style="width: 200px; font-size: 12px; padding: 6px 10px;" placeholder="Search employees..." />
-          <button class="btn btn-secondary btn-sm">&#x2B; Filter</button>
-          <button class="btn btn-primary btn-sm">+ New</button>
+      <div class="type-specimen">
+        <div class="type-meta">
+          <span class="type-name">UI Label</span>
+          <span class="type-details">Geist 500 &middot; 13px</span>
         </div>
-        <div class="mock-table">
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Date Joined</th>
-                <th>Company</th>
-                <th style="width: 40px;"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="name-cell">Kenneth Hernandez</td>
-                <td>kenneth.h@example.com</td>
-                <td class="time-cell">24/01/2024</td>
-                <td class="entity-cell"><span class="entity-dot" style="background: oklch(0.6 0.15 200)"></span> Nimbus Technologies</td>
-                <td style="color: var(--muted-fg);">&#8942;</td>
-              </tr>
-              <tr>
-                <td class="name-cell">Billy Price</td>
-                <td>billy.price@example.com</td>
-                <td class="time-cell">06/08/2020</td>
-                <td class="entity-cell"><span class="entity-dot" style="background: oklch(0.6 0.15 280)"></span> Cipher Solutions</td>
-                <td style="color: var(--muted-fg);">&#8942;</td>
-              </tr>
-              <tr>
-                <td class="name-cell">Robert Lee</td>
-                <td>robert.lee@example.com</td>
-                <td class="time-cell">29/04/2023</td>
-                <td class="entity-cell"><span class="entity-dot" style="background: oklch(0.65 0.15 30)"></span> Ember Technologies</td>
-                <td style="color: var(--muted-fg);">&#8942;</td>
-              </tr>
-              <tr>
-                <td class="name-cell">Martha Rogers</td>
-                <td>martha.r@example.com</td>
-                <td class="time-cell">28/04/2024</td>
-                <td class="entity-cell"><span class="entity-dot" style="background: oklch(0.6 0.15 145)"></span> Quasar Solutions</td>
-                <td style="color: var(--muted-fg);">&#8942;</td>
-              </tr>
-              <tr>
-                <td class="name-cell">Judith Long</td>
-                <td>judith.long@example.com</td>
-                <td class="time-cell">26/02/2021</td>
-                <td class="entity-cell"><span class="entity-dot" style="background: oklch(0.6 0.15 60)"></span> Ionic Solutions</td>
-                <td style="color: var(--muted-fg);">&#8942;</td>
-              </tr>
-              <tr>
-                <td class="name-cell">Donald Green</td>
-                <td>donald.g@example.com</td>
-                <td class="time-cell">14/06/2022</td>
-                <td class="entity-cell"><span class="entity-dot" style="background: oklch(0.6 0.15 320)"></span> Valor Technologies</td>
-                <td style="color: var(--muted-fg);">&#8942;</td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="mock-count">6 employees</div>
+        <div class="type-small">Last interaction &middot; Created by &middot; Record type</div>
+      </div>
+
+      <div class="type-specimen">
+        <div class="type-meta">
+          <span class="type-name">Serif Display</span>
+          <span class="type-details">Instrument Serif &middot; 48px &middot; editorial accent</span>
+        </div>
+        <div class="type-serif-display">For the connected business</div>
+      </div>
+
+      <div class="type-specimen">
+        <div class="type-meta">
+          <span class="type-name">System Label</span>
+          <span class="type-details"
+            >Space Mono 700 &middot; 14px &middot; uppercase &middot; 0.05em</span
+          >
+        </div>
+        <div class="type-mono-display">Workspace &middot; Resources &middot; Settings</div>
+      </div>
+
+      <div class="type-specimen">
+        <div class="type-meta">
+          <span class="type-name">Data</span>
+          <span class="type-details"
+            >Geist 700 &middot; 40px &middot; tabular-nums &middot; -0.03em</span
+          >
+        </div>
+        <div class="type-data">$11,135.04</div>
+      </div>
+    </div>
+
+    <!-- COLORS -->
+    <div class="section">
+      <div class="section-label">Color</div>
+      <div class="section-title">Restrained monochrome</div>
+      <div class="section-desc">
+        Zero chroma for the core system. Color is earned through semantic meaning, never decoration.
+        Toggle dark and amber modes above.
+      </div>
+
+      <div class="palette-grid">
+        <div class="swatch">
+          <div class="swatch-color" style="background: var(--bg)"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Background</div>
+            <div class="swatch-value">oklch(0.985 0 0)</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background: var(--bg-elevated)"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Elevated</div>
+            <div class="swatch-value">oklch(1 0 0)</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background: var(--muted)"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Muted</div>
+            <div class="swatch-value">oklch(0.97 0 0)</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background: var(--border)"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Border</div>
+            <div class="swatch-value">oklch(0.922 0 0)</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background: var(--muted-fg)"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Muted FG</div>
+            <div class="swatch-value">oklch(0.556 0 0)</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background: var(--content)"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Content</div>
+            <div class="swatch-value">oklch(0.375 0 0)</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background: var(--heading)"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Heading</div>
+            <div class="swatch-value">oklch(0.28 0 0)</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background: var(--fg)"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Foreground</div>
+            <div class="swatch-value">oklch(0.145 0 0)</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size: 12px; font-weight: 500; color: var(--muted-fg); margin-bottom: 12px">
+        Semantic
+      </div>
+      <div class="palette-grid">
+        <div class="swatch">
+          <div class="swatch-color" style="background: var(--destructive)"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Destructive</div>
+            <div class="swatch-value">oklch(0.577 0.245 27)</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background: var(--edit)"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Edit</div>
+            <div class="swatch-value">oklch(0.837 0.117 66)</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background: var(--archive)"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Archive</div>
+            <div class="swatch-value">oklch(0.585 0.204 277)</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background: var(--success)"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Success</div>
+            <div class="swatch-value">oklch(0.65 0.17 145)</div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- SPACING -->
-  <div class="section">
-    <div class="section-label">Spacing &amp; Radius</div>
-    <div class="section-title">4px base, comfortable density</div>
-    <div class="section-desc">Generous padding in content areas. Tight in data-dense views. Border radius: 4px on interactive elements, 8px on containers.</div>
+    <!-- COMPONENTS -->
+    <div class="section">
+      <div class="section-label">Components</div>
+      <div class="section-title">Built with shadcn/ui</div>
+      <div class="section-desc">
+        Buttons, inputs, cards, badges, and alerts using the Riven design tokens. 4px radius on
+        interactive elements, 8px on containers.
+      </div>
 
-    <div style="display: flex; gap: 4px; align-items: flex-end; margin-bottom: 32px;">
-      <div style="width: 2px; height: 2px; background: var(--fg); border-radius: 1px;" title="2px"></div>
-      <div style="width: 4px; height: 4px; background: var(--fg); border-radius: 1px;" title="4px"></div>
-      <div style="width: 8px; height: 8px; background: var(--fg); border-radius: 1px;" title="8px"></div>
-      <div style="width: 16px; height: 16px; background: var(--fg); border-radius: 2px;" title="16px"></div>
-      <div style="width: 24px; height: 24px; background: var(--fg); border-radius: 2px;" title="24px"></div>
-      <div style="width: 32px; height: 32px; background: var(--fg); border-radius: 2px;" title="32px"></div>
-      <div style="width: 48px; height: 48px; background: var(--fg); border-radius: 3px;" title="48px"></div>
-      <div style="width: 64px; height: 64px; background: var(--fg); border-radius: 3px;" title="64px"></div>
-    </div>
-
-    <div style="display: flex; gap: 16px; flex-wrap: wrap;">
-      <div style="display: flex; flex-direction: column; gap: 8px;">
-        <span style="font-size: 11px; color: var(--muted-fg); font-family: var(--font-mono);">border-radius scale</span>
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <div style="width: 48px; height: 32px; border: 2px solid var(--fg); border-radius: 4px;"></div>
-          <span style="font-size: 11px; color: var(--muted-fg); font-family: var(--font-mono);">sm: 4px</span>
+      <div class="components-grid">
+        <div class="component-row">
+          <span class="component-label">Buttons</span>
+          <button class="btn btn-primary">Create Entity</button>
+          <button class="btn btn-secondary">Cancel</button>
+          <button class="btn btn-ghost">Skip</button>
+          <button class="btn btn-destructive">Delete</button>
         </div>
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <div style="width: 48px; height: 32px; border: 2px solid var(--fg); border-radius: 6px;"></div>
-          <span style="font-size: 11px; color: var(--muted-fg); font-family: var(--font-mono);">md: 6px</span>
+        <div class="component-row">
+          <span class="component-label">Sizes</span>
+          <button class="btn btn-primary btn-xs">XS</button>
+          <button class="btn btn-primary btn-sm">Small</button>
+          <button class="btn btn-primary">Default</button>
+          <button class="btn btn-primary btn-lg">Large</button>
         </div>
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <div style="width: 48px; height: 32px; border: 2px solid var(--fg); border-radius: 8px;"></div>
-          <span style="font-size: 11px; color: var(--muted-fg); font-family: var(--font-mono);">lg: 8px</span>
+        <div class="component-row">
+          <span class="component-label">Input</span>
+          <input class="input" placeholder="Search entities..." />
         </div>
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <div style="width: 48px; height: 32px; border: 2px solid var(--fg); border-radius: 12px;"></div>
-          <span style="font-size: 11px; color: var(--muted-fg); font-family: var(--font-mono);">xl: 12px</span>
+        <div class="component-row">
+          <span class="component-label">Badges</span>
+          <span class="badge badge-default">Default</span>
+          <span class="badge badge-success">Connected</span>
+          <span class="badge badge-warning">Pending</span>
+          <span class="badge badge-destructive">Overdue</span>
+        </div>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap">
+          <div class="card" style="flex: 1; min-width: 200px">
+            <div class="card-title">Open</div>
+            <div
+              style="
+                font-size: 28px;
+                font-weight: 700;
+                letter-spacing: -0.03em;
+                color: var(--heading);
+                margin: 8px 0 4px;
+                font-variant-numeric: tabular-nums;
+              "
+            >
+              $4,291
+            </div>
+            <div class="card-desc">3 invoices</div>
+          </div>
+          <div class="card" style="flex: 1; min-width: 200px">
+            <div class="card-title">Overdue</div>
+            <div
+              style="
+                font-size: 28px;
+                font-weight: 700;
+                letter-spacing: -0.03em;
+                color: var(--destructive);
+                margin: 8px 0 4px;
+                font-variant-numeric: tabular-nums;
+              "
+            >
+              $820
+            </div>
+            <div class="card-desc">1 invoice</div>
+          </div>
+          <div class="card" style="flex: 1; min-width: 200px">
+            <div class="card-title">Paid</div>
+            <div
+              style="
+                font-size: 28px;
+                font-weight: 700;
+                letter-spacing: -0.03em;
+                color: var(--heading);
+                margin: 8px 0 4px;
+                font-variant-numeric: tabular-nums;
+              "
+            >
+              $12,450
+            </div>
+            <div class="card-desc">8 invoices</div>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px">
+          <div class="alert alert-success">
+            &#10003; Entity type "Employees" created successfully
+          </div>
+          <div class="alert alert-warning">&#9888; 3 entities have validation warnings</div>
+          <div class="alert alert-error">&#10007; Failed to save entity: duplicate identifier</div>
+          <div class="alert alert-info">&#8505; Notes are auto-saved every 2.5 seconds</div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="section" style="text-align: center; color: var(--muted-fg); font-size: 12px; padding: 32px;">
-    Riven Design System &middot; Generated by /design-consultation &middot; 2026
-  </div>
+    <!-- APP MOCKUP -->
+    <div class="section">
+      <div class="section-label">Layout</div>
+      <div class="section-title">Icon rail + panel + content</div>
+      <div class="section-desc">
+        The three-column layout: dark icon rail for navigation, collapsible sub-panel for context,
+        and the main content area. Inspired by Midday and Lightfield.
+      </div>
 
-  <script>
-    function setTheme(theme) {
-      document.documentElement.className = theme === 'light' ? '' : theme;
-      document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
-    }
-  </script>
-</body>
+      <div class="app-mockup">
+        <!-- Icon Rail -->
+        <div class="mock-rail">
+          <div class="mock-rail-logo">R</div>
+          <div class="mock-rail-icon" title="Overview">&#9632;</div>
+          <div class="mock-rail-icon active" title="Entities">&#9670;</div>
+          <div class="mock-rail-icon" title="Notes">&#9998;</div>
+          <div class="mock-rail-icon" title="Workflows">&#8634;</div>
+          <div style="flex: 1"></div>
+          <div class="mock-rail-icon" title="Settings">&#9881;</div>
+        </div>
+
+        <!-- Side Panel -->
+        <div class="mock-panel">
+          <div class="mock-panel-header">
+            <span>Entities</span>
+            <span style="font-size: 11px; color: var(--muted-fg); cursor: pointer"
+              >&#x276E;&#x276E;</span
+            >
+          </div>
+          <div class="mock-panel-search">&#x1F50D; Search...</div>
+          <div class="mock-panel-section">Records</div>
+          <div class="mock-panel-item active">
+            <span class="mock-panel-item-icon">&#9673;</span>
+            Employees
+            <span class="mock-panel-item-count">24</span>
+          </div>
+          <div class="mock-panel-item">
+            <span class="mock-panel-item-icon">&#9632;</span>
+            Companies
+            <span class="mock-panel-item-count">12</span>
+          </div>
+          <div class="mock-panel-item">
+            <span class="mock-panel-item-icon">&#9734;</span>
+            Deals
+            <span class="mock-panel-item-count">8</span>
+          </div>
+          <div class="mock-panel-section">Resources</div>
+          <div class="mock-panel-item">
+            <span class="mock-panel-item-icon">&#9998;</span>
+            Notes
+          </div>
+          <div class="mock-panel-item">
+            <span class="mock-panel-item-icon">&#8635;</span>
+            Workflows
+          </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="mock-main">
+          <div class="mock-toolbar">
+            <span class="mock-toolbar-title">Employees</span>
+            <span class="mock-toolbar-count">24</span>
+            <span class="mock-toolbar-spacer"></span>
+            <input
+              class="input"
+              style="width: 200px; font-size: 12px; padding: 6px 10px"
+              placeholder="Search employees..."
+            />
+            <button class="btn btn-secondary btn-sm">&#x2B; Filter</button>
+            <button class="btn btn-primary btn-sm">+ New</button>
+          </div>
+          <div class="mock-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Date Joined</th>
+                  <th>Company</th>
+                  <th style="width: 40px"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="name-cell">Kenneth Hernandez</td>
+                  <td>kenneth.h@example.com</td>
+                  <td class="time-cell">24/01/2024</td>
+                  <td class="entity-cell">
+                    <span class="entity-dot" style="background: oklch(0.6 0.15 200)"></span> Nimbus
+                    Technologies
+                  </td>
+                  <td style="color: var(--muted-fg)">&#8942;</td>
+                </tr>
+                <tr>
+                  <td class="name-cell">Billy Price</td>
+                  <td>billy.price@example.com</td>
+                  <td class="time-cell">06/08/2020</td>
+                  <td class="entity-cell">
+                    <span class="entity-dot" style="background: oklch(0.6 0.15 280)"></span> Cipher
+                    Solutions
+                  </td>
+                  <td style="color: var(--muted-fg)">&#8942;</td>
+                </tr>
+                <tr>
+                  <td class="name-cell">Robert Lee</td>
+                  <td>robert.lee@example.com</td>
+                  <td class="time-cell">29/04/2023</td>
+                  <td class="entity-cell">
+                    <span class="entity-dot" style="background: oklch(0.65 0.15 30)"></span> Ember
+                    Technologies
+                  </td>
+                  <td style="color: var(--muted-fg)">&#8942;</td>
+                </tr>
+                <tr>
+                  <td class="name-cell">Martha Rogers</td>
+                  <td>martha.r@example.com</td>
+                  <td class="time-cell">28/04/2024</td>
+                  <td class="entity-cell">
+                    <span class="entity-dot" style="background: oklch(0.6 0.15 145)"></span> Quasar
+                    Solutions
+                  </td>
+                  <td style="color: var(--muted-fg)">&#8942;</td>
+                </tr>
+                <tr>
+                  <td class="name-cell">Judith Long</td>
+                  <td>judith.long@example.com</td>
+                  <td class="time-cell">26/02/2021</td>
+                  <td class="entity-cell">
+                    <span class="entity-dot" style="background: oklch(0.6 0.15 60)"></span> Ionic
+                    Solutions
+                  </td>
+                  <td style="color: var(--muted-fg)">&#8942;</td>
+                </tr>
+                <tr>
+                  <td class="name-cell">Donald Green</td>
+                  <td>donald.g@example.com</td>
+                  <td class="time-cell">14/06/2022</td>
+                  <td class="entity-cell">
+                    <span class="entity-dot" style="background: oklch(0.6 0.15 320)"></span> Valor
+                    Technologies
+                  </td>
+                  <td style="color: var(--muted-fg)">&#8942;</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="mock-count">6 employees</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SPACING -->
+    <div class="section">
+      <div class="section-label">Spacing &amp; Radius</div>
+      <div class="section-title">4px base, comfortable density</div>
+      <div class="section-desc">
+        Generous padding in content areas. Tight in data-dense views. Border radius: 4px on
+        interactive elements, 8px on containers.
+      </div>
+
+      <div style="display: flex; gap: 4px; align-items: flex-end; margin-bottom: 32px">
+        <div
+          style="width: 2px; height: 2px; background: var(--fg); border-radius: 1px"
+          title="2px"
+        ></div>
+        <div
+          style="width: 4px; height: 4px; background: var(--fg); border-radius: 1px"
+          title="4px"
+        ></div>
+        <div
+          style="width: 8px; height: 8px; background: var(--fg); border-radius: 1px"
+          title="8px"
+        ></div>
+        <div
+          style="width: 16px; height: 16px; background: var(--fg); border-radius: 2px"
+          title="16px"
+        ></div>
+        <div
+          style="width: 24px; height: 24px; background: var(--fg); border-radius: 2px"
+          title="24px"
+        ></div>
+        <div
+          style="width: 32px; height: 32px; background: var(--fg); border-radius: 2px"
+          title="32px"
+        ></div>
+        <div
+          style="width: 48px; height: 48px; background: var(--fg); border-radius: 3px"
+          title="48px"
+        ></div>
+        <div
+          style="width: 64px; height: 64px; background: var(--fg); border-radius: 3px"
+          title="64px"
+        ></div>
+      </div>
+
+      <div style="display: flex; gap: 16px; flex-wrap: wrap">
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <span style="font-size: 11px; color: var(--muted-fg); font-family: var(--font-mono)"
+            >border-radius scale</span
+          >
+          <div style="display: flex; gap: 8px; align-items: center">
+            <div
+              style="width: 48px; height: 32px; border: 2px solid var(--fg); border-radius: 4px"
+            ></div>
+            <span style="font-size: 11px; color: var(--muted-fg); font-family: var(--font-mono)"
+              >sm: 4px</span
+            >
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center">
+            <div
+              style="width: 48px; height: 32px; border: 2px solid var(--fg); border-radius: 6px"
+            ></div>
+            <span style="font-size: 11px; color: var(--muted-fg); font-family: var(--font-mono)"
+              >md: 6px</span
+            >
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center">
+            <div
+              style="width: 48px; height: 32px; border: 2px solid var(--fg); border-radius: 8px"
+            ></div>
+            <span style="font-size: 11px; color: var(--muted-fg); font-family: var(--font-mono)"
+              >lg: 8px</span
+            >
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center">
+            <div
+              style="width: 48px; height: 32px; border: 2px solid var(--fg); border-radius: 12px"
+            ></div>
+            <span style="font-size: 11px; color: var(--muted-fg); font-family: var(--font-mono)"
+              >xl: 12px</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="section"
+      style="text-align: center; color: var(--muted-fg); font-size: 12px; padding: 32px"
+    >
+      Riven Design System &middot; Generated by /design-consultation &middot; 2026
+    </div>
+
+    <script>
+      function setTheme(theme) {
+        document.documentElement.className = theme === 'light' ? '' : theme;
+        document.querySelectorAll('.theme-btn').forEach((b) => b.classList.remove('active'));
+        event.target.classList.add('active');
+      }
+    </script>
+  </body>
 </html>

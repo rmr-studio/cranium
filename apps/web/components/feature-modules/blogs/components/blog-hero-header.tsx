@@ -60,7 +60,7 @@ function FeaturedPostMeta({
       </span>
       <h2
         className={cn(
-          'mt-3 font-[family-name:var(--font-instrument-serif)] tracking-tight',
+          'mt-3 font-serif tracking-tight',
           large ? 'text-3xl lg:text-5xl' : 'text-3xl lg:text-4xl',
         )}
       >
@@ -176,7 +176,7 @@ export function BlogHeroHeader({
             <span className="font-mono text-xs font-bold tracking-widest text-background/50 uppercase">
               {CATEGORY_LABELS[post.category]}
             </span>
-            <h1 className="mt-4 font-[family-name:var(--font-instrument-serif)] text-4xl tracking-tight lg:text-5xl">
+            <h1 className="mt-4 font-serif text-4xl tracking-tight lg:text-5xl">
               {post.title}
             </h1>
             <p className="mt-4 text-lg leading-snug text-background/60">{post.description}</p>

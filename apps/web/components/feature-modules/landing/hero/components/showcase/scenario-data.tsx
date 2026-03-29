@@ -1,10 +1,6 @@
-import {
-  Mail,
-  MessageSquare,
-  SquareDashedMousePointer,
-  Users,
-} from 'lucide-react';
+import { Mail, MessageSquare, SquareDashedMousePointer, Users } from 'lucide-react';
 
+import type { ShowcaseScenario } from '@/components/feature-modules/landing/hero/components/showcase/scenario-types';
 import {
   BrandFacebook,
   BrandGmail,
@@ -20,7 +16,6 @@ import {
   BrandStripe,
 } from '@/components/ui/diagrams/brand-icons';
 import { EntityChip, PlatformChip } from '@/components/ui/diagrams/brand-ui-primitives';
-import type { ShowcaseScenario } from '@/components/feature-modules/landing/time-saved/components/product-showcase/scenario-types';
 
 // ── Scenario 1: Customers ──────────────────────────────────────────────
 
@@ -293,4 +288,3 @@ export const customerScenario: ShowcaseScenario = {
     </>
   ),
 };
-

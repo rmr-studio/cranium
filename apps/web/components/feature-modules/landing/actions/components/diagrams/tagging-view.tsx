@@ -212,7 +212,7 @@ export function MockTaggingView() {
           {/* Header row */}
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
-              <h2 className="font-serif text-4xl font-normal -tracking-[0.02em] text-foreground">
+              <h2 className="text-4xl font-normal -tracking-[0.02em] text-foreground">
                 At-Risk Q1
               </h2>
               <span className="rounded-full border border-border bg-muted/30 px-3 py-0.5 text-xs text-muted-foreground">

@@ -1,4 +1,4 @@
-import type { ShowcaseScenario } from '@/components/feature-modules/landing/time-saved/components/product-showcase/scenario-types';
+import type { ShowcaseScenario } from '@/components/feature-modules/landing/hero/components/showcase/scenario-types';
 import { MockBreadcrumb } from '@/components/ui/diagrams/brand-ui-primitives';
 
 export function MockActivityTimeline({ scenario }: { scenario: ShowcaseScenario }) {

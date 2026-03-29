@@ -1,12 +1,12 @@
 import { cn } from '@/lib/utils';
 import { CogIcon, Filter, Search } from 'lucide-react';
 
-import type { ShowcaseScenario } from '@/components/feature-modules/landing/time-saved/components/product-showcase/scenario-types';
+import type { ShowcaseScenario } from '@/components/feature-modules/landing/hero/components/showcase/scenario-types';
 import { MockBreadcrumb, TableHeader } from '@/components/ui/diagrams/brand-ui-primitives';
 
 export function MockDataTable({ scenario }: { scenario: ShowcaseScenario }) {
   return (
-    <div className="glass-panel flex flex-1 flex-col border-l backdrop-blur-md">
+    <div className="glass-panel flex flex-1 flex-col border-l backdrop-blur-xl">
       {/* Top bar: breadcrumb */}
       <div className="flex h-12 shrink-0 items-center justify-between border-b border-border px-6">
         <MockBreadcrumb items={['Home', '...', 'Entities', scenario.tableTitle]} />
@@ -20,7 +20,7 @@ export function MockDataTable({ scenario }: { scenario: ShowcaseScenario }) {
               <span className={cn('size-4', scenario.entityColor)}>{scenario.entityIcon}</span>
             </div>
             <div>
-              <h2 className="text-2xl leading-none font-bold -tracking-[0.02em] text-foreground">
+              <h2 className="font-serif text-2xl leading-none font-bold -tracking-[0.02em] text-foreground">
                 {scenario.tableTitle}
               </h2>
               <p className="mt-1 text-xs text-muted-foreground">{scenario.tableSubtitle}</p>

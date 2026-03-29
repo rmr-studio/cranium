@@ -45,9 +45,8 @@ export function DashboardShowcase() {
     <ShowcaseSection
       id="features"
       heading={
-        <h2 className="mt-4 text-3xl md:text-4xl lg:text-5xl">
-          What channels produce{' '}
-          <span className="font-serif font-normal italic">customers who stay?</span>
+        <h2 className="mt-4 font-serif text-3xl md:text-5xl lg:text-6xl">
+          What channels produce customers who stay?
         </h2>
       }
       features={FEATURES}
@@ -55,8 +54,8 @@ export function DashboardShowcase() {
     >
       <div className="flex flex-col-reverse md:flex-col">
         <section className="mx-auto mt-10 flex w-full flex-col items-center">
-          <h3 className="mt-8 font-sans text-2xl sm:text-4xl">
-            Keep powerful insights <span className="font-serif font-normal italic">in sight.</span>
+          <h3 className="mt-8 font-serif text-2xl sm:text-4xl md:text-5xl">
+            Keep powerful insights in sight.
           </h3>
 
           <p className="mx-4 mt-4 max-w-3xl text-center text-base leading-tight text-content">
@@ -69,9 +68,14 @@ export function DashboardShowcase() {
         <ShaderContainer
           staticImages={gradients}
           shaders={dashboardShaders}
-          className="relative z-30 w-full"
+          className="relative z-30 w-full p-0! shadow-lg shadow-foreground/40 lg:rounded-lg dark:shadow-none"
         >
-          <MockDashboard />
+          <section className="lg:p-12">
+            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 hidden w-24 bg-gradient-to-r from-black/60 via-black/25 to-transparent md:w-40 3xl:block" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-black/60 via-black/25 to-transparent md:w-40" />
+            <div className="pointer-events-none absolute inset-0 z-10 opacity-60 shadow-[inset_20px_0_40px_rgba(0,0,0,0.5),inset_-20px_0_40px_rgba(0,0,0,0.5)] md:shadow-[inset_32px_0_60px_rgba(0,0,0,0.55),inset_-32px_0_60px_rgba(0,0,0,0.25)]" />
+            <MockDashboard />
+          </section>
         </ShaderContainer>
       </div>
     </ShowcaseSection>

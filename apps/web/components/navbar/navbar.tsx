@@ -11,9 +11,9 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
-import { cn } from '@/lib/utils';
 import { NAV_LINKS_FLAT } from '@/lib/navigation';
 import { scrollToHashOnLoad, scrollToSection } from '@/lib/scroll';
+import { cn } from '@/lib/utils';
 import { useAuth } from '@/providers/auth-provider';
 import { Logo } from '@riven/ui/logo';
 import { ThemeToggle } from '@riven/ui/theme-toggle';
@@ -106,7 +106,9 @@ export function Navbar() {
                           scrollToSection('features', '/#features');
                         }}
                       >
-                        <span className="nav-link-stable" data-text="Features">Features</span>
+                        <span className="nav-link-stable" data-text="Features">
+                          Features
+                        </span>
                       </Link>
                     </NavigationMenuLink>
                   </NavigationMenuItem>
@@ -122,7 +124,9 @@ export function Navbar() {
                       )}
                     >
                       <Link href="/story">
-                        <span className="nav-link-stable" data-text="Story">Story</span>
+                        <span className="nav-link-stable" data-text="Story">
+                          Story
+                        </span>
                       </Link>
                     </NavigationMenuLink>
                   </NavigationMenuItem>

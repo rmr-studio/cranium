@@ -37,10 +37,7 @@ export const Section = React.forwardRef<HTMLDivElement, Props>(
       <section
         id={id}
         ref={ref}
-        className={cn(
-          'relative z-20 mb-12 overflow-hidden pt-16 md:pt-24 lg:mb-20 lg:px-12 lg:pt-20',
-          className,
-        )}
+        className={cn('relative z-20 mb-12 pt-16 md:pt-24 lg:mb-20 lg:px-12 lg:pt-20', className)}
         style={
           lazyRender ? { contentVisibility: 'auto', containIntrinsicSize: 'auto 800px' } : undefined
         }

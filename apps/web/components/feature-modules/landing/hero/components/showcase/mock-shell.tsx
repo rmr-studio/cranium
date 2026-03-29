@@ -27,7 +27,7 @@ const ENTITY_NAV_ICONS = [
 ];
 
 export function MockIconRail() {
-  return <ShowcaseIconRail  icons={ENTITY_NAV_ICONS} showWorkspace />;
+  return <ShowcaseIconRail icons={ENTITY_NAV_ICONS} showWorkspace />;
 }
 
 interface SubpanelProps extends ClassNameProps {
@@ -36,14 +36,14 @@ interface SubpanelProps extends ClassNameProps {
 
 export const MockSubPanel: FC<SubpanelProps> = ({ activeEntity, className }) => {
   const entities = [
-    { icon: <Users className="size-4 text-blue-500" />, name: 'Customers' },
-    { icon: <MessageSquare className="size-4 text-teal-500" />, name: 'Communications' },
-    { icon: <Ticket className="size-4 text-orange-500" />, name: 'Support Tickets' },
-    { icon: <Repeat className="size-4 text-green-500" />, name: 'Subscriptions' },
-    { icon: <Activity className="size-4 text-teal-500" />, name: 'Feature Usage' },
-    { icon: <Megaphone className="size-4 text-purple-500" />, name: 'Acquisition Sources' },
-    { icon: <CreditCard className="size-4 text-green-500" />, name: 'Billing Events' },
-    { icon: <UserMinus className="size-4 text-red-500" />, name: 'Churn Events' },
+    { icon: <Users className="size-4" />, name: 'Customers' },
+    { icon: <MessageSquare className="size-4" />, name: 'Communications' },
+    { icon: <Ticket className="size-4" />, name: 'Support Tickets' },
+    { icon: <Repeat className="size-4" />, name: 'Subscriptions' },
+    { icon: <Activity className="size-4" />, name: 'Feature Usage' },
+    { icon: <Megaphone className="size-4" />, name: 'Acquisition Sources' },
+    { icon: <CreditCard className="size-4" />, name: 'Billing Events' },
+    { icon: <UserMinus className="size-4" />, name: 'Churn Events' },
   ];
 
   return (
@@ -71,9 +71,7 @@ export const MockSubPanel: FC<SubpanelProps> = ({ activeEntity, className }) => 
               key={entity.name}
               className={cn(
                 'flex items-center gap-2 rounded-md px-3 py-2 text-sm',
-                isActive
-                  ? 'bg-accent font-medium text-foreground'
-                  : 'text-muted-foreground/40',
+                isActive ? 'bg-accent font-medium text-foreground' : 'text-muted-foreground/40',
               )}
             >
               {entity.icon}

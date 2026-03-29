@@ -35,7 +35,7 @@ export function Hero() {
   };
 
   return (
-    <section className="relative h-fit w-full py-16 pt-20! md:py-24 lg:px-12 lg:py-32">
+    <section className="relative h-fit w-full py-16 pt-20! lg:py-32">
       {/* Dot pattern — visible at top, fades out toward middle */}
 
       <BGPattern
@@ -53,13 +53,14 @@ export function Hero() {
           WebkitMaskComposite: 'source-in' as string,
         }}
       />
-
-      <HeroCopy />
-      <section className="relative flex flex-col space-x-4 xl:flex-row">
+      <section className="md:py-24 lg:px-12">
+        <HeroCopy />
+      </section>
+      <section className="relative flex flex-col space-x-4 xl:flex-row 3xl:px-3">
         <ShaderContainer
           priority
           staticImages={gradients}
-          className="z-50 mx-0! w-full p-0 shadow-lg shadow-foreground/30 lg:mr-4! lg:ml-0! dark:shadow-none"
+          className="z-50 mx-0! w-full rounded-l-none! rounded-r-none! p-0 shadow-lg shadow-foreground/30 lg:mr-4! lg:ml-0! xl:w-2/3 xl:rounded-r-lg! 3xl:rounded-l-lg! dark:shadow-none"
         >
           <section className="p-4">
             <div className="pointer-events-none absolute inset-y-0 left-0 z-10 hidden w-24 bg-gradient-to-r from-black/60 via-black/25 to-transparent md:w-40 3xl:block" />
@@ -73,7 +74,7 @@ export function Hero() {
           priority
           shaders={dashboardShaders}
           staticImages={gradients2}
-          className="z-50 mx-0! rounded-l-none rounded-r-lg! p-0 shadow-lg shadow-foreground/40 lg:mr-0! lg:ml-4! lg:rounded-l-lg xl:w-2/5 dark:shadow-none"
+          className="z-50 mx-0! rounded-l-none rounded-r-none! p-0 shadow-lg shadow-foreground/40 lg:mr-0! lg:ml-4! lg:rounded-l-lg xl:w-1/3 3xl:rounded-r-lg! dark:shadow-none"
         >
           <section className="p-4">
             <div className="pointer-events-none absolute inset-y-0 left-0 z-10 hidden w-24 bg-gradient-to-r from-black/60 via-black/25 to-transparent md:w-40 3xl:block" />

@@ -1,30 +1,20 @@
 
-# BundleTemplatePreview
+# MatchSuggestionStatus
 
 
 ## Properties
 
 Name | Type
 ------------ | -------------
-`key` | string
-`name` | string
-`description` | string
-`entityTypes` | [Array&lt;CatalogEntityTypeModel&gt;](CatalogEntityTypeModel.md)
-`relationships` | [Array&lt;CatalogRelationshipModel&gt;](CatalogRelationshipModel.md)
 
 ## Example
 
 ```typescript
-import type { BundleTemplatePreview } from ''
+import type { MatchSuggestionStatus } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "key": null,
-  "name": null,
-  "description": null,
-  "entityTypes": null,
-  "relationships": null,
-} satisfies BundleTemplatePreview
+} satisfies MatchSuggestionStatus
 
 console.log(example)
 
@@ -33,7 +23,7 @@ const exampleJSON: string = JSON.stringify(example)
 console.log(exampleJSON)
 
 // Parse the JSON string back to an object
-const exampleParsed = JSON.parse(exampleJSON) as BundleTemplatePreview
+const exampleParsed = JSON.parse(exampleJSON) as MatchSuggestionStatus
 console.log(exampleParsed)
 ```
 

@@ -1,22 +1,20 @@
 
-# InstallBundleRequest
+# BusinessType
 
 
 ## Properties
 
 Name | Type
 ------------ | -------------
-`bundleKey` | string
 
 ## Example
 
 ```typescript
-import type { InstallBundleRequest } from ''
+import type { BusinessType } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "bundleKey": null,
-} satisfies InstallBundleRequest
+} satisfies BusinessType
 
 console.log(example)
 
@@ -25,7 +23,7 @@ const exampleJSON: string = JSON.stringify(example)
 console.log(exampleJSON)
 
 // Parse the JSON string back to an object
-const exampleParsed = JSON.parse(exampleJSON) as InstallBundleRequest
+const exampleParsed = JSON.parse(exampleJSON) as BusinessType
 console.log(exampleParsed)
 ```
 

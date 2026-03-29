@@ -1,5 +1,5 @@
 
-# CatalogSemanticMetadataModel
+# ClusterDetailResponse
 
 
 ## Properties
@@ -7,26 +7,28 @@
 Name | Type
 ------------ | -------------
 `id` | string
-`targetType` | [SemanticMetadataTargetType](SemanticMetadataTargetType.md)
-`targetId` | string
-`definition` | string
-`classification` | [SemanticAttributeClassification](SemanticAttributeClassification.md)
-`tags` | Array&lt;string&gt;
+`workspaceId` | string
+`name` | string
+`memberCount` | number
+`members` | [Array&lt;ClusterMemberContext&gt;](ClusterMemberContext.md)
+`createdAt` | Date
+`updatedAt` | Date
 
 ## Example
 
 ```typescript
-import type { CatalogSemanticMetadataModel } from ''
+import type { ClusterDetailResponse } from ''
 
 // TODO: Update the object below with actual values
 const example = {
   "id": null,
-  "targetType": null,
-  "targetId": null,
-  "definition": null,
-  "classification": null,
-  "tags": null,
-} satisfies CatalogSemanticMetadataModel
+  "workspaceId": null,
+  "name": null,
+  "memberCount": null,
+  "members": null,
+  "createdAt": null,
+  "updatedAt": null,
+} satisfies ClusterDetailResponse
 
 console.log(example)
 
@@ -35,7 +37,7 @@ const exampleJSON: string = JSON.stringify(example)
 console.log(exampleJSON)
 
 // Parse the JSON string back to an object
-const exampleParsed = JSON.parse(exampleJSON) as CatalogSemanticMetadataModel
+const exampleParsed = JSON.parse(exampleJSON) as ClusterDetailResponse
 console.log(exampleParsed)
 ```
 

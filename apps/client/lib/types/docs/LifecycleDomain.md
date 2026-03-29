@@ -1,30 +1,20 @@
 
-# BundleDetail
+# LifecycleDomain
 
 
 ## Properties
 
 Name | Type
 ------------ | -------------
-`id` | string
-`key` | string
-`name` | string
-`description` | string
-`templateKeys` | Array&lt;string&gt;
 
 ## Example
 
 ```typescript
-import type { BundleDetail } from ''
+import type { LifecycleDomain } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "id": null,
-  "key": null,
-  "name": null,
-  "description": null,
-  "templateKeys": null,
-} satisfies BundleDetail
+} satisfies LifecycleDomain
 
 console.log(example)
 
@@ -33,7 +23,7 @@ const exampleJSON: string = JSON.stringify(example)
 console.log(exampleJSON)
 
 // Parse the JSON string back to an object
-const exampleParsed = JSON.parse(exampleJSON) as BundleDetail
+const exampleParsed = JSON.parse(exampleJSON) as LifecycleDomain
 console.log(exampleParsed)
 ```
 

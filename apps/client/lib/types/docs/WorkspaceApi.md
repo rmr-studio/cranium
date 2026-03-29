@@ -9,6 +9,7 @@ All URIs are relative to *http://localhost:8081*
 | [**getUserInvites**](WorkspaceApi.md#getuserinvites) | **GET** /api/v1/workspace/invite/user |  |
 | [**getWorkspace**](WorkspaceApi.md#getworkspace) | **GET** /api/v1/workspace/{workspaceId} |  |
 | [**getWorkspaceInvites**](WorkspaceApi.md#getworkspaceinvites) | **GET** /api/v1/workspace/invite/workspace/{workspaceId} |  |
+| [**installTemplate**](WorkspaceApi.md#installtemplate) | **POST** /api/v1/workspace/{workspaceId}/install-template | Install or reinstall the lifecycle template for a workspace. Idempotent — returns early if already installed. |
 | [**inviteToWorkspace**](WorkspaceApi.md#invitetoworkspace) | **POST** /api/v1/workspace/invite/workspace/{workspaceId}/email/{email}/role/{role} |  |
 | [**rejectInvite**](WorkspaceApi.md#rejectinvite) | **POST** /api/v1/workspace/invite/reject/{inviteToken} |  |
 | [**removeMemberFromWorkspace**](WorkspaceApi.md#removememberfromworkspace) | **DELETE** /api/v1/workspace/{workspaceId}/member/{memberId} |  |
@@ -354,6 +355,79 @@ example().catch(console.error);
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## installTemplate
+
+> TemplateInstallationResponse installTemplate(workspaceId, businessType)
+
+Install or reinstall the lifecycle template for a workspace. Idempotent — returns early if already installed.
+
+### Example
+
+```ts
+import {
+  Configuration,
+  WorkspaceApi,
+} from '';
+import type { InstallTemplateRequest } from '';
+
+async function example() {
+  console.log("🚀 Testing  SDK...");
+  const config = new Configuration({ 
+    // Configure HTTP bearer authorization: bearerAuth
+    accessToken: "YOUR BEARER TOKEN",
+  });
+  const api = new WorkspaceApi(config);
+
+  const body = {
+    // string
+    workspaceId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // BusinessType
+    businessType: ...,
+  } satisfies InstallTemplateRequest;
+
+  try {
+    const data = await api.installTemplate(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **workspaceId** | `string` |  | [Defaults to `undefined`] |
+| **businessType** | `BusinessType` |  | [Defaults to `undefined`] [Enum: DTC_ECOMMERCE, B2C_SAAS] |
+
+### Return type
+
+[**TemplateInstallationResponse**](TemplateInstallationResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `*/*`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Template installed or already present |  -  |
+| **404** | Template not found in catalog |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 

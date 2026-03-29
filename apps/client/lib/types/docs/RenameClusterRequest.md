@@ -1,28 +1,22 @@
 
-# CompleteOnboardingRequest
+# RenameClusterRequest
 
 
 ## Properties
 
 Name | Type
 ------------ | -------------
-`workspace` | [OnboardingWorkspace](OnboardingWorkspace.md)
-`profile` | [OnboardingProfile](OnboardingProfile.md)
-`businessType` | [BusinessType](BusinessType.md)
-`invites` | [Array&lt;OnboardingInvite&gt;](OnboardingInvite.md)
+`name` | string
 
 ## Example
 
 ```typescript
-import type { CompleteOnboardingRequest } from ''
+import type { RenameClusterRequest } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "workspace": null,
-  "profile": null,
-  "businessType": null,
-  "invites": null,
-} satisfies CompleteOnboardingRequest
+  "name": null,
+} satisfies RenameClusterRequest
 
 console.log(example)
 
@@ -31,7 +25,7 @@ const exampleJSON: string = JSON.stringify(example)
 console.log(exampleJSON)
 
 // Parse the JSON string back to an object
-const exampleParsed = JSON.parse(exampleJSON) as CompleteOnboardingRequest
+const exampleParsed = JSON.parse(exampleJSON) as RenameClusterRequest
 console.log(exampleParsed)
 ```
 

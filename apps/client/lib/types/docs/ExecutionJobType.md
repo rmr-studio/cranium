@@ -1,28 +1,20 @@
 
-# CompleteOnboardingRequest
+# ExecutionJobType
 
 
 ## Properties
 
 Name | Type
 ------------ | -------------
-`workspace` | [OnboardingWorkspace](OnboardingWorkspace.md)
-`profile` | [OnboardingProfile](OnboardingProfile.md)
-`businessType` | [BusinessType](BusinessType.md)
-`invites` | [Array&lt;OnboardingInvite&gt;](OnboardingInvite.md)
 
 ## Example
 
 ```typescript
-import type { CompleteOnboardingRequest } from ''
+import type { ExecutionJobType } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "workspace": null,
-  "profile": null,
-  "businessType": null,
-  "invites": null,
-} satisfies CompleteOnboardingRequest
+} satisfies ExecutionJobType
 
 console.log(example)
 
@@ -31,7 +23,7 @@ const exampleJSON: string = JSON.stringify(example)
 console.log(exampleJSON)
 
 // Parse the JSON string back to an object
-const exampleParsed = JSON.parse(exampleJSON) as CompleteOnboardingRequest
+const exampleParsed = JSON.parse(exampleJSON) as ExecutionJobType
 console.log(exampleParsed)
 ```
 

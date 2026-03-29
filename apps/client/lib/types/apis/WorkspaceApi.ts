@@ -15,15 +15,21 @@
 
 import * as runtime from '../runtime';
 import type {
+  BusinessType,
   SaveWorkspaceRequest,
+  TemplateInstallationResponse,
   Workspace,
   WorkspaceInvite,
   WorkspaceMember,
   WorkspaceRoles,
 } from '../models/index';
 import {
+    BusinessTypeFromJSON,
+    BusinessTypeToJSON,
     SaveWorkspaceRequestFromJSON,
     SaveWorkspaceRequestToJSON,
+    TemplateInstallationResponseFromJSON,
+    TemplateInstallationResponseToJSON,
     WorkspaceFromJSON,
     WorkspaceToJSON,
     WorkspaceInviteFromJSON,
@@ -49,6 +55,11 @@ export interface GetWorkspaceRequest {
 
 export interface GetWorkspaceInvitesRequest {
     workspaceId: string;
+}
+
+export interface InstallTemplateRequest {
+    workspaceId: string;
+    businessType: BusinessType;
 }
 
 export interface InviteToWorkspaceRequest {
@@ -293,6 +304,62 @@ export class WorkspaceApi extends runtime.BaseAPI {
      */
     async getWorkspaceInvites(requestParameters: GetWorkspaceInvitesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<WorkspaceInvite>> {
         const response = await this.getWorkspaceInvitesRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Install or reinstall the lifecycle template for a workspace. Idempotent — returns early if already installed.
+     */
+    async installTemplateRaw(requestParameters: InstallTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TemplateInstallationResponse>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling installTemplate().'
+            );
+        }
+
+        if (requestParameters['businessType'] == null) {
+            throw new runtime.RequiredError(
+                'businessType',
+                'Required parameter "businessType" was null or undefined when calling installTemplate().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['businessType'] != null) {
+            queryParameters['businessType'] = requestParameters['businessType'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/v1/workspace/{workspaceId}/install-template`;
+        urlPath = urlPath.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => TemplateInstallationResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Install or reinstall the lifecycle template for a workspace. Idempotent — returns early if already installed.
+     */
+    async installTemplate(requestParameters: InstallTemplateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TemplateInstallationResponse> {
+        const response = await this.installTemplateRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

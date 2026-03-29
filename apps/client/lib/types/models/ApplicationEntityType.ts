@@ -31,6 +31,8 @@ export enum ApplicationEntityType {
     File = 'FILE',
     Notification = 'NOTIFICATION',
     IntegrationInstallation = 'INTEGRATION_INSTALLATION',
+    MatchSuggestion = 'MATCH_SUGGESTION',
+    IdentityCluster = 'IDENTITY_CLUSTER',
     Note = 'NOTE'
 }
 

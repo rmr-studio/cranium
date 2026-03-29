@@ -1,5 +1,5 @@
 
-# CatalogRelationshipTargetRuleModel
+# IdentityCluster
 
 
 ## Properties
@@ -7,24 +7,26 @@
 Name | Type
 ------------ | -------------
 `id` | string
-`targetEntityTypeKey` | string
-`cardinalityOverride` | [EntityRelationshipCardinality](EntityRelationshipCardinality.md)
-`inverseVisible` | boolean
-`inverseName` | string
+`workspaceId` | string
+`name` | string
+`memberCount` | number
+`createdAt` | Date
+`updatedAt` | Date
 
 ## Example
 
 ```typescript
-import type { CatalogRelationshipTargetRuleModel } from ''
+import type { IdentityCluster } from ''
 
 // TODO: Update the object below with actual values
 const example = {
   "id": null,
-  "targetEntityTypeKey": null,
-  "cardinalityOverride": null,
-  "inverseVisible": null,
-  "inverseName": null,
-} satisfies CatalogRelationshipTargetRuleModel
+  "workspaceId": null,
+  "name": null,
+  "memberCount": null,
+  "createdAt": null,
+  "updatedAt": null,
+} satisfies IdentityCluster
 
 console.log(example)
 
@@ -33,7 +35,7 @@ const exampleJSON: string = JSON.stringify(example)
 console.log(exampleJSON)
 
 // Parse the JSON string back to an object
-const exampleParsed = JSON.parse(exampleJSON) as CatalogRelationshipTargetRuleModel
+const exampleParsed = JSON.parse(exampleJSON) as IdentityCluster
 console.log(exampleParsed)
 ```
 

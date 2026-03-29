@@ -1,22 +1,30 @@
 
-# InstallTemplateRequest
+# ClusterSummaryResponse
 
 
 ## Properties
 
 Name | Type
 ------------ | -------------
-`templateKey` | string
+`id` | string
+`workspaceId` | string
+`name` | string
+`memberCount` | number
+`createdAt` | Date
 
 ## Example
 
 ```typescript
-import type { InstallTemplateRequest } from ''
+import type { ClusterSummaryResponse } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "templateKey": null,
-} satisfies InstallTemplateRequest
+  "id": null,
+  "workspaceId": null,
+  "name": null,
+  "memberCount": null,
+  "createdAt": null,
+} satisfies ClusterSummaryResponse
 
 console.log(example)
 
@@ -25,7 +33,7 @@ const exampleJSON: string = JSON.stringify(example)
 console.log(exampleJSON)
 
 // Parse the JSON string back to an object
-const exampleParsed = JSON.parse(exampleJSON) as InstallTemplateRequest
+const exampleParsed = JSON.parse(exampleJSON) as ClusterSummaryResponse
 console.log(exampleParsed)
 ```
 

@@ -10,6 +10,7 @@ Name | Type
 `key` | string
 `icon` | [Icon](Icon.md)
 `semanticGroup` | [SemanticGroup](SemanticGroup.md)
+`lifecycleDomain` | [LifecycleDomain](LifecycleDomain.md)
 `semantics` | [SaveSemanticMetadataRequest](SaveSemanticMetadataRequest.md)
 
 ## Example
@@ -23,6 +24,7 @@ const example = {
   "key": null,
   "icon": null,
   "semanticGroup": null,
+  "lifecycleDomain": null,
   "semantics": null,
 } satisfies CreateEntityTypeRequest
 

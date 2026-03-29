@@ -1,30 +1,24 @@
 
-# BundlePreview
+# PendingMatchCountResponse
 
 
 ## Properties
 
 Name | Type
 ------------ | -------------
-`id` | string
-`key` | string
-`name` | string
-`description` | string
-`templates` | [Array&lt;BundleTemplatePreview&gt;](BundleTemplatePreview.md)
+`entityId` | string
+`pendingCount` | number
 
 ## Example
 
 ```typescript
-import type { BundlePreview } from ''
+import type { PendingMatchCountResponse } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "id": null,
-  "key": null,
-  "name": null,
-  "description": null,
-  "templates": null,
-} satisfies BundlePreview
+  "entityId": null,
+  "pendingCount": null,
+} satisfies PendingMatchCountResponse
 
 console.log(example)
 
@@ -33,7 +27,7 @@ const exampleJSON: string = JSON.stringify(example)
 console.log(exampleJSON)
 
 // Parse the JSON string back to an object
-const exampleParsed = JSON.parse(exampleJSON) as BundlePreview
+const exampleParsed = JSON.parse(exampleJSON) as PendingMatchCountResponse
 console.log(exampleParsed)
 ```
 

@@ -1,32 +1,30 @@
 
-# ManifestSummary
+# ClusterMemberContext
 
 
 ## Properties
 
 Name | Type
 ------------ | -------------
-`id` | string
-`key` | string
-`name` | string
-`description` | string
-`manifestVersion` | string
-`entityTypeCount` | number
+`entityId` | string
+`typeKey` | string
+`sourceType` | [SourceType](SourceType.md)
+`identifierKey` | string
+`joinedAt` | Date
 
 ## Example
 
 ```typescript
-import type { ManifestSummary } from ''
+import type { ClusterMemberContext } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "id": null,
-  "key": null,
-  "name": null,
-  "description": null,
-  "manifestVersion": null,
-  "entityTypeCount": null,
-} satisfies ManifestSummary
+  "entityId": null,
+  "typeKey": null,
+  "sourceType": null,
+  "identifierKey": null,
+  "joinedAt": null,
+} satisfies ClusterMemberContext
 
 console.log(example)
 
@@ -35,7 +33,7 @@ const exampleJSON: string = JSON.stringify(example)
 console.log(exampleJSON)
 
 // Parse the JSON string back to an object
-const exampleParsed = JSON.parse(exampleJSON) as ManifestSummary
+const exampleParsed = JSON.parse(exampleJSON) as ClusterMemberContext
 console.log(exampleParsed)
 ```
 

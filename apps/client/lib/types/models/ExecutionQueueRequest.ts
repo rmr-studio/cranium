@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { ExecutionJobType } from './ExecutionJobType';
+import {
+    ExecutionJobTypeFromJSON,
+    ExecutionJobTypeFromJSONTyped,
+    ExecutionJobTypeToJSON,
+    ExecutionJobTypeToJSONTyped,
+} from './ExecutionJobType';
 import type { ExecutionQueueStatus } from './ExecutionQueueStatus';
 import {
     ExecutionQueueStatusFromJSON,
@@ -41,10 +48,22 @@ export interface ExecutionQueueRequest {
     workspaceId: string;
     /**
      * 
+     * @type {ExecutionJobType}
+     * @memberof ExecutionQueueRequest
+     */
+    jobType: ExecutionJobType;
+    /**
+     * 
      * @type {string}
      * @memberof ExecutionQueueRequest
      */
-    workflowDefinitionId: string;
+    entityId?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ExecutionQueueRequest
+     */
+    workflowDefinitionId?: string;
     /**
      * 
      * @type {string}
@@ -97,7 +116,7 @@ export interface ExecutionQueueRequest {
 export function instanceOfExecutionQueueRequest(value: object): value is ExecutionQueueRequest {
     if (!('id' in value) || value['id'] === undefined) return false;
     if (!('workspaceId' in value) || value['workspaceId'] === undefined) return false;
-    if (!('workflowDefinitionId' in value) || value['workflowDefinitionId'] === undefined) return false;
+    if (!('jobType' in value) || value['jobType'] === undefined) return false;
     if (!('status' in value) || value['status'] === undefined) return false;
     if (!('createdAt' in value) || value['createdAt'] === undefined) return false;
     if (!('attemptCount' in value) || value['attemptCount'] === undefined) return false;
@@ -116,7 +135,9 @@ export function ExecutionQueueRequestFromJSONTyped(json: any, ignoreDiscriminato
         
         'id': json['id'],
         'workspaceId': json['workspaceId'],
-        'workflowDefinitionId': json['workflowDefinitionId'],
+        'jobType': ExecutionJobTypeFromJSON(json['jobType']),
+        'entityId': json['entityId'] == null ? undefined : json['entityId'],
+        'workflowDefinitionId': json['workflowDefinitionId'] == null ? undefined : json['workflowDefinitionId'],
         'executionId': json['executionId'] == null ? undefined : json['executionId'],
         'status': ExecutionQueueStatusFromJSON(json['status']),
         'createdAt': (new Date(json['createdAt'])),
@@ -140,6 +161,8 @@ export function ExecutionQueueRequestToJSONTyped(value?: ExecutionQueueRequest |
         
         'id': value['id'],
         'workspaceId': value['workspaceId'],
+        'jobType': ExecutionJobTypeToJSON(value['jobType']),
+        'entityId': value['entityId'],
         'workflowDefinitionId': value['workflowDefinitionId'],
         'executionId': value['executionId'],
         'status': ExecutionQueueStatusToJSON(value['status']),

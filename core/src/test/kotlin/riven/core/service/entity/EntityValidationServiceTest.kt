@@ -4,11 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.reset
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
-import org.springframework.test.context.bean.override.mockito.MockitoBean
 import riven.core.configuration.auth.WorkspaceSecurity
 import riven.core.entity.entity.EntityEntity
 import riven.core.entity.entity.EntityTypeEntity
@@ -23,7 +21,6 @@ import riven.core.models.common.validation.Schema
 import riven.core.models.entity.EntityTypeSchema
 import riven.core.models.entity.payload.EntityAttributePrimitivePayload
 import riven.core.models.entity.payload.EntityAttributeRelationPayloadReference
-import riven.core.repository.entity.EntityRelationshipRepository
 import riven.core.service.auth.AuthTokenService
 import riven.core.service.schema.SchemaService
 import riven.core.service.util.BaseServiceTest
@@ -57,9 +54,6 @@ class EntityValidationServiceTest : BaseServiceTest() {
     @Configuration
     class TestConfig
 
-    @MockitoBean
-    private lateinit var entityRelationshipRepository: EntityRelationshipRepository
-
     @Autowired
     private lateinit var entityValidationService: EntityValidationService
 
@@ -75,8 +69,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
 
     @BeforeEach
     fun setup() {
-        // Reset all mocks
-        reset(entityRelationshipRepository)
+        // Reset test state
 
         // Initialize common attribute keys
         nameAttributeKey = UUID.randomUUID()

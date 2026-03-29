@@ -108,10 +108,6 @@ class BlockTypeService(
         }
     }
 
-    fun deleteBlockType(workspaceId: UUID, typeId: UUID) {
-        TODO()
-    }
-
     fun getSystemBlockType(type: SystemBlockTypes): BlockTypeEntity {
         return findOrThrow {
             blockTypeRepository.findByKey(type.key)

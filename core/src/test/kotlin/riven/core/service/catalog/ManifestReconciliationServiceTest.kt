@@ -29,14 +29,14 @@ class ManifestReconciliationServiceTest {
             id = UUID.randomUUID(),
             key = "customer",
             name = "Customer",
-            manifestType = ManifestType.MODEL,
+            manifestType = ManifestType.INTEGRATION,
             stale = false
         )
         val unseenEntry = ManifestCatalogEntity(
             id = UUID.randomUUID(),
             key = "old-model",
-            name = "Old Model",
-            manifestType = ManifestType.MODEL,
+            name = "Old Integration",
+            manifestType = ManifestType.INTEGRATION,
             stale = false
         )
 
@@ -44,7 +44,7 @@ class ManifestReconciliationServiceTest {
         whenever(manifestCatalogRepository.save(any<ManifestCatalogEntity>()))
             .thenAnswer { it.getArgument<ManifestCatalogEntity>(0) }
 
-        val seen = setOf("customer" to ManifestType.MODEL)
+        val seen = setOf("customer" to ManifestType.INTEGRATION)
         service.reconcileStaleEntries(seen)
 
         // Only unseenEntry should be saved (stale changed from false to true)
@@ -63,7 +63,7 @@ class ManifestReconciliationServiceTest {
             id = UUID.randomUUID(),
             key = "customer",
             name = "Customer",
-            manifestType = ManifestType.MODEL,
+            manifestType = ManifestType.INTEGRATION,
             stale = true
         )
 
@@ -71,7 +71,7 @@ class ManifestReconciliationServiceTest {
         whenever(manifestCatalogRepository.save(any<ManifestCatalogEntity>()))
             .thenAnswer { it.getArgument<ManifestCatalogEntity>(0) }
 
-        val seen = setOf("customer" to ManifestType.MODEL)
+        val seen = setOf("customer" to ManifestType.INTEGRATION)
         service.reconcileStaleEntries(seen)
 
         verify(manifestCatalogRepository).save(argThat<ManifestCatalogEntity> {
@@ -81,11 +81,11 @@ class ManifestReconciliationServiceTest {
 
     @Test
     fun `reconcileStaleEntries distinguishes entries by manifest type`() {
-        val modelEntry = ManifestCatalogEntity(
+        val integrationEntry = ManifestCatalogEntity(
             id = UUID.randomUUID(),
             key = "customer",
-            name = "Customer Model",
-            manifestType = ManifestType.MODEL,
+            name = "Customer Integration",
+            manifestType = ManifestType.INTEGRATION,
             stale = false
         )
         val templateEntry = ManifestCatalogEntity(
@@ -96,21 +96,21 @@ class ManifestReconciliationServiceTest {
             stale = false
         )
 
-        whenever(manifestCatalogRepository.findAll()).thenReturn(listOf(modelEntry, templateEntry))
+        whenever(manifestCatalogRepository.findAll()).thenReturn(listOf(integrationEntry, templateEntry))
         whenever(manifestCatalogRepository.save(any<ManifestCatalogEntity>()))
             .thenAnswer { it.getArgument<ManifestCatalogEntity>(0) }
 
-        // Only MODEL was seen, not TEMPLATE
-        val seen = setOf("customer" to ManifestType.MODEL)
+        // Only INTEGRATION was seen, not TEMPLATE
+        val seen = setOf("customer" to ManifestType.INTEGRATION)
         service.reconcileStaleEntries(seen)
 
         // Template should be marked stale
         verify(manifestCatalogRepository).save(argThat<ManifestCatalogEntity> {
             key == "customer" && manifestType == ManifestType.TEMPLATE && stale
         })
-        // Model should not be saved (unchanged)
+        // Integration should not be saved (unchanged)
         verify(manifestCatalogRepository, never()).save(argThat<ManifestCatalogEntity> {
-            key == "customer" && manifestType == ManifestType.MODEL
+            key == "customer" && manifestType == ManifestType.INTEGRATION
         })
     }
 
@@ -120,13 +120,13 @@ class ManifestReconciliationServiceTest {
             id = UUID.randomUUID(),
             key = "customer",
             name = "Customer",
-            manifestType = ManifestType.MODEL,
+            manifestType = ManifestType.INTEGRATION,
             stale = false
         )
 
         whenever(manifestCatalogRepository.findAll()).thenReturn(listOf(entry))
 
-        val seen = setOf("customer" to ManifestType.MODEL)
+        val seen = setOf("customer" to ManifestType.INTEGRATION)
         service.reconcileStaleEntries(seen)
 
         verify(manifestCatalogRepository, never()).save(any())

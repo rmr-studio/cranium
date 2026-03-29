@@ -17,6 +17,7 @@ data class EntityTypeSemanticMetadata(
     val targetId: UUID,
     val definition: String?,
     val classification: SemanticAttributeClassification?,
+    val signalType: String? = null,
     val tags: List<String>,
     val createdAt: ZonedDateTime?,
     val updatedAt: ZonedDateTime?,

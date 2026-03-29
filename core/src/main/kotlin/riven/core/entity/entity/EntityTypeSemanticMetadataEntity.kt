@@ -50,6 +50,9 @@ data class EntityTypeSemanticMetadataEntity(
     @Column(name = "classification", nullable = true)
     var classification: SemanticAttributeClassification? = null,
 
+    @Column(name = "signal_type", nullable = true)
+    var signalType: String? = null,
+
     @Type(JsonBinaryType::class)
     @Column(name = "tags", columnDefinition = "jsonb", nullable = false)
     var tags: List<String> = emptyList(),
@@ -68,6 +71,7 @@ data class EntityTypeSemanticMetadataEntity(
             targetId = this.targetId,
             definition = this.definition,
             classification = this.classification,
+            signalType = this.signalType,
             tags = this.tags,
             createdAt = this.createdAt,
             updatedAt = this.updatedAt,

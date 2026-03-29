@@ -7,6 +7,7 @@ import riven.core.entity.identity.MatchSuggestionEntity
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.enums.identity.MatchSignalType
+import riven.core.enums.identity.MatchSource
 import riven.core.enums.identity.MatchSuggestionStatus
 import riven.core.models.identity.CandidateMatch
 import riven.core.models.identity.MatchSignal
@@ -58,12 +59,16 @@ object IdentityFactory {
         targetValue: String = "test@example.com",
         similarity: Double = 0.95,
         weight: Double = 0.9,
+        matchSource: MatchSource = MatchSource.TRIGRAM,
+        crossType: Boolean = false,
     ): MatchSignal = MatchSignal(
         type = type,
         sourceValue = sourceValue,
         targetValue = targetValue,
         similarity = similarity,
         weight = weight,
+        matchSource = matchSource,
+        crossType = crossType,
     )
 
     /**
@@ -75,12 +80,16 @@ object IdentityFactory {
         candidateValue: String = "test@example.com",
         signalType: MatchSignalType = MatchSignalType.EMAIL,
         similarityScore: Double = 0.85,
+        candidateSignalType: MatchSignalType? = null,
+        matchSource: MatchSource = MatchSource.TRIGRAM,
     ): CandidateMatch = CandidateMatch(
         candidateEntityId = candidateEntityId,
         candidateAttributeId = candidateAttributeId,
         candidateValue = candidateValue,
         signalType = signalType,
         similarityScore = similarityScore,
+        candidateSignalType = candidateSignalType,
+        matchSource = matchSource,
     )
 
     /**
@@ -111,6 +120,7 @@ object IdentityFactory {
         targetType: SemanticMetadataTargetType = SemanticMetadataTargetType.ATTRIBUTE,
         targetId: UUID = UUID.randomUUID(),
         classification: SemanticAttributeClassification? = SemanticAttributeClassification.IDENTIFIER,
+        signalType: String? = null,
         definition: String? = null,
         tags: List<String> = emptyList(),
     ): EntityTypeSemanticMetadataEntity = EntityTypeSemanticMetadataEntity(
@@ -120,6 +130,7 @@ object IdentityFactory {
         targetType = targetType,
         targetId = targetId,
         classification = classification,
+        signalType = signalType,
         definition = definition,
         tags = tags,
     )

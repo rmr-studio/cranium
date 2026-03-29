@@ -203,7 +203,7 @@ class WorkflowCoordinationServiceTest {
         //
         // Processing (what the action does):
         // 1. Parse entityId from config
-        // 2. Call entityService.bulkDeleteEntities(workspaceId, DeleteEntityRequest(BY_ID, [entityId]))
+        // 2. Call entityService.deleteEntities(workspaceId, DeleteEntityRequest(BY_ID, [entityId]))
         // 3. Check for deletion errors
         // 4. Return deletion confirmation
         //

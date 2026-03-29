@@ -155,7 +155,7 @@ data class WorkflowDeleteEntityActionConfig(
         val entityService = services.service<EntityService>()
 
         // Execute deletion via EntityService
-        val result = entityService.bulkDeleteEntities(
+        val result = entityService.deleteEntities(
             dataStore.metadata.workspaceId,
             DeleteEntityRequest(
                 type = EntitySelectType.BY_ID,

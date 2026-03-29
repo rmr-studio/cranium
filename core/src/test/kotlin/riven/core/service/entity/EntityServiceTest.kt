@@ -401,7 +401,7 @@ class EntityServiceTest : BaseServiceTest() {
     }
 
     @Test
-    fun `bulkDeleteEntities publishes EntityEvent with DELETE operation`() {
+    fun `deleteEntities publishes EntityEvent with DELETE operation`() {
         val deletedEntity = EntityFactory.createEntityEntity(
             id = entityId,
             workspaceId = workspaceId,
@@ -417,7 +417,7 @@ class EntityServiceTest : BaseServiceTest() {
             type = EntitySelectType.BY_ID,
             entityIds = listOf(entityId),
         )
-        service.bulkDeleteEntities(workspaceId, request)
+        service.deleteEntities(workspaceId, request)
 
         val events = applicationEvents.stream(EntityEvent::class.java).toList()
         assertEquals(1, events.size)
@@ -524,19 +524,19 @@ class EntityServiceTest : BaseServiceTest() {
         }
 
         /**
-         * Verifies that bulkDeleteEntities rejects requests when the authenticated user
+         * Verifies that deleteEntities rejects requests when the authenticated user
          * does not have access to the target workspace. The @PreAuthorize annotation
          * on the service method should trigger an AccessDeniedException before any
          * business logic executes.
          */
         @Test
-        fun `bulkDeleteEntities throws AccessDeniedException for unauthorized workspace`() {
+        fun `deleteEntities throws AccessDeniedException for unauthorized workspace`() {
             val request = DeleteEntityRequest(
                 type = EntitySelectType.BY_ID,
                 entityIds = listOf(entityId),
             )
             assertThrows(AccessDeniedException::class.java) {
-                service.bulkDeleteEntities(workspaceId, request)
+                service.deleteEntities(workspaceId, request)
             }
         }
     }
@@ -587,7 +587,7 @@ class EntityServiceTest : BaseServiceTest() {
                 entityIds = ids,
             )
 
-            val result = service.bulkDeleteEntities(workspaceId, request)
+            val result = service.deleteEntities(workspaceId, request)
 
             assertEquals(2, result.deletedCount)
             assertNull(result.error)
@@ -656,7 +656,7 @@ class EntityServiceTest : BaseServiceTest() {
                 excludeIds = listOf(id3),
             )
 
-            val result = service.bulkDeleteEntities(workspaceId, request)
+            val result = service.deleteEntities(workspaceId, request)
 
             assertEquals(2, result.deletedCount)
             assertNull(result.error)
@@ -678,7 +678,7 @@ class EntityServiceTest : BaseServiceTest() {
                 entityIds = listOf(UUID.randomUUID(), UUID.randomUUID()),
             )
 
-            val result = service.bulkDeleteEntities(workspaceId, request)
+            val result = service.deleteEntities(workspaceId, request)
 
             assertEquals(0, result.deletedCount)
             assertNotNull(result.error)
@@ -726,7 +726,7 @@ class EntityServiceTest : BaseServiceTest() {
                 entityIds = listOf(deletedId),
             )
 
-            val result = service.bulkDeleteEntities(workspaceId, request)
+            val result = service.deleteEntities(workspaceId, request)
 
             assertNotNull(result.updatedEntities)
             val allUpdated = result.updatedEntities!!.values.flatten()

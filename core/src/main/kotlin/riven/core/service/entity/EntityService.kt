@@ -464,7 +464,7 @@ class EntityService(
      */
     @Transactional
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
-    fun bulkDeleteEntities(workspaceId: UUID, request: DeleteEntityRequest): DeleteEntityResponse {
+    fun deleteEntities(workspaceId: UUID, request: DeleteEntityRequest): DeleteEntityResponse {
         val userId = authTokenService.getUserId()
 
         val idsToDelete = resolveEntityIds(request, workspaceId)

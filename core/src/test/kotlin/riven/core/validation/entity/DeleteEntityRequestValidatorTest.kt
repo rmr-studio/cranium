@@ -10,12 +10,12 @@ import riven.core.enums.entity.EntitySelectType
 import riven.core.enums.entity.query.FilterOperator
 import riven.core.models.entity.query.filter.FilterValue
 import riven.core.models.entity.query.filter.QueryFilter
-import riven.core.models.request.entity.BulkDeleteEntityRequest
+import riven.core.models.request.entity.DeleteEntityRequest
 import java.util.*
 
-class BulkDeleteEntityRequestValidatorTest {
+class DeleteEntityRequestValidatorTest {
 
-    private val validator = BulkDeleteEntityRequestValidator()
+    private val validator = DeleteEntityRequestValidator()
     private lateinit var context: ConstraintValidatorContext
     private lateinit var violationBuilder: ConstraintValidatorContext.ConstraintViolationBuilder
 
@@ -38,7 +38,7 @@ class BulkDeleteEntityRequestValidatorTest {
 
         @Test
         fun `valid BY_ID request with entityIds passes`() {
-            val request = BulkDeleteEntityRequest(
+            val request = DeleteEntityRequest(
                 type = EntitySelectType.BY_ID,
                 entityIds = listOf(UUID.randomUUID()),
             )
@@ -47,7 +47,7 @@ class BulkDeleteEntityRequestValidatorTest {
 
         @Test
         fun `BY_ID with null entityIds fails`() {
-            val request = BulkDeleteEntityRequest(
+            val request = DeleteEntityRequest(
                 type = EntitySelectType.BY_ID,
                 entityIds = null,
             )
@@ -57,7 +57,7 @@ class BulkDeleteEntityRequestValidatorTest {
 
         @Test
         fun `BY_ID with empty entityIds fails`() {
-            val request = BulkDeleteEntityRequest(
+            val request = DeleteEntityRequest(
                 type = EntitySelectType.BY_ID,
                 entityIds = emptyList(),
             )
@@ -67,7 +67,7 @@ class BulkDeleteEntityRequestValidatorTest {
 
         @Test
         fun `BY_ID with filter fails`() {
-            val request = BulkDeleteEntityRequest(
+            val request = DeleteEntityRequest(
                 type = EntitySelectType.BY_ID,
                 entityIds = listOf(UUID.randomUUID()),
                 filter = createFilter(),
@@ -78,7 +78,7 @@ class BulkDeleteEntityRequestValidatorTest {
 
         @Test
         fun `BY_ID with excludeIds fails`() {
-            val request = BulkDeleteEntityRequest(
+            val request = DeleteEntityRequest(
                 type = EntitySelectType.BY_ID,
                 entityIds = listOf(UUID.randomUUID()),
                 excludeIds = listOf(UUID.randomUUID()),
@@ -89,7 +89,7 @@ class BulkDeleteEntityRequestValidatorTest {
 
         @Test
         fun `BY_ID with entityTypeId fails`() {
-            val request = BulkDeleteEntityRequest(
+            val request = DeleteEntityRequest(
                 type = EntitySelectType.BY_ID,
                 entityIds = listOf(UUID.randomUUID()),
                 entityTypeId = UUID.randomUUID(),
@@ -100,7 +100,7 @@ class BulkDeleteEntityRequestValidatorTest {
 
         @Test
         fun `BY_ID with multiple violations reports all`() {
-            val request = BulkDeleteEntityRequest(
+            val request = DeleteEntityRequest(
                 type = EntitySelectType.BY_ID,
                 entityIds = null,
                 filter = createFilter(),
@@ -117,7 +117,7 @@ class BulkDeleteEntityRequestValidatorTest {
 
         @Test
         fun `valid ALL request with entityTypeId and filter passes`() {
-            val request = BulkDeleteEntityRequest(
+            val request = DeleteEntityRequest(
                 type = EntitySelectType.ALL,
                 entityTypeId = UUID.randomUUID(),
                 filter = createFilter(),
@@ -127,7 +127,7 @@ class BulkDeleteEntityRequestValidatorTest {
 
         @Test
         fun `ALL with excludeIds and filter passes`() {
-            val request = BulkDeleteEntityRequest(
+            val request = DeleteEntityRequest(
                 type = EntitySelectType.ALL,
                 entityTypeId = UUID.randomUUID(),
                 filter = createFilter(),
@@ -138,7 +138,7 @@ class BulkDeleteEntityRequestValidatorTest {
 
         @Test
         fun `ALL without entityTypeId fails`() {
-            val request = BulkDeleteEntityRequest(
+            val request = DeleteEntityRequest(
                 type = EntitySelectType.ALL,
                 filter = createFilter(),
             )
@@ -148,7 +148,7 @@ class BulkDeleteEntityRequestValidatorTest {
 
         @Test
         fun `ALL without filter fails`() {
-            val request = BulkDeleteEntityRequest(
+            val request = DeleteEntityRequest(
                 type = EntitySelectType.ALL,
                 entityTypeId = UUID.randomUUID(),
             )
@@ -158,7 +158,7 @@ class BulkDeleteEntityRequestValidatorTest {
 
         @Test
         fun `ALL with entityIds fails`() {
-            val request = BulkDeleteEntityRequest(
+            val request = DeleteEntityRequest(
                 type = EntitySelectType.ALL,
                 entityTypeId = UUID.randomUUID(),
                 filter = createFilter(),
@@ -170,7 +170,7 @@ class BulkDeleteEntityRequestValidatorTest {
 
         @Test
         fun `ALL with multiple violations reports all`() {
-            val request = BulkDeleteEntityRequest(
+            val request = DeleteEntityRequest(
                 type = EntitySelectType.ALL,
                 entityIds = listOf(UUID.randomUUID()),
             )

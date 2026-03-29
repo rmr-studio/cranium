@@ -6,8 +6,8 @@ import kotlin.reflect.KClass
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-@Constraint(validatedBy = [BulkDeleteEntityRequestValidator::class])
-annotation class ValidBulkDeleteEntityRequest(
+@Constraint(validatedBy = [DeleteEntityRequestValidator::class])
+annotation class ValidDeleteEntityRequest(
     val message: String = "Invalid bulk delete request",
     val groups: Array<KClass<*>> = [],
     val payload: Array<KClass<out Payload>> = []

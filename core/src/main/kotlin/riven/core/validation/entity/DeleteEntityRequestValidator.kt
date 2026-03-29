@@ -3,11 +3,11 @@ package riven.core.validation.entity
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 import riven.core.enums.entity.EntitySelectType
-import riven.core.models.request.entity.BulkDeleteEntityRequest
+import riven.core.models.request.entity.DeleteEntityRequest
 
-class BulkDeleteEntityRequestValidator : ConstraintValidator<ValidBulkDeleteEntityRequest, BulkDeleteEntityRequest> {
+class DeleteEntityRequestValidator : ConstraintValidator<ValidDeleteEntityRequest, DeleteEntityRequest> {
 
-    override fun isValid(request: BulkDeleteEntityRequest, context: ConstraintValidatorContext): Boolean {
+    override fun isValid(request: DeleteEntityRequest, context: ConstraintValidatorContext): Boolean {
         val violations = mutableListOf<String>()
 
         when (request.type) {

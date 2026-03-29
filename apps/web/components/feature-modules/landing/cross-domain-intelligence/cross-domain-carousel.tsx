@@ -134,7 +134,7 @@ export function CrossDomainCarousel() {
           {INSIGHT_CARDS.map((card) => (
             <CarouselItem
               key={card.title}
-              className="basis-[95%] bg-transparent md:basis-[45%] md:pl-6 lg:basis-[36%]"
+              className="basis-[85%] bg-transparent md:basis-[45%] md:pl-6 lg:basis-[40%]"
             >
               <InsightCardComponent card={card} />
             </CarouselItem>

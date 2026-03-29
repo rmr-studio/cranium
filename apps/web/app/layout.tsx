@@ -51,7 +51,7 @@ const spaceMono = Space_Mono({
   weight: ['400', '700'],
 });
 
-const SITE_TITLE = 'Riven — Customer Lifecycle Intelligence for Growing Teams';
+const SITE_TITLE = 'Riven | Advanced Customer Lifecycle Intelligence';
 const SITE_DESCRIPTION =
   'One workspace for your customer lifecycle stack. From marketing to CRMs to payments, analytics and support. Cross-domain intelligence surfaces churn risks, hidden patterns, and growth opportunities no single tool can see. Query across every platform in plain English, tag and track accounts, and act on insights without leaving the tab.';
 

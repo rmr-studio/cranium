@@ -1,5 +1,8 @@
 package riven.core.service.util.factory.entity
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
+import riven.core.entity.entity.EntityAttributeEntity
 import riven.core.entity.entity.EntityEntity
 import riven.core.entity.entity.EntityRelationshipEntity
 import riven.core.entity.entity.EntityTypeEntity
@@ -10,8 +13,8 @@ import riven.core.enums.common.icon.IconType
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
 import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.integration.SourceType
 import riven.core.enums.entity.semantics.SemanticGroup
+import riven.core.enums.integration.SourceType
 import riven.core.models.common.validation.Schema
 import riven.core.models.entity.EntityTypeSchema
 import riven.core.models.entity.configuration.ColumnConfiguration
@@ -158,9 +161,9 @@ object EntityFactory {
         typeId: UUID = UUID.randomUUID(),
         attributeId: UUID = UUID.randomUUID(),
         schemaType: SchemaType = SchemaType.TEXT,
-        value: com.fasterxml.jackson.databind.JsonNode = com.fasterxml.jackson.databind.node.JsonNodeFactory.instance.textNode("test-value"),
-    ): riven.core.entity.entity.EntityAttributeEntity {
-        return riven.core.entity.entity.EntityAttributeEntity(
+        value: JsonNode = JsonNodeFactory.instance.textNode("test-value"),
+    ): EntityAttributeEntity {
+        return EntityAttributeEntity(
             id = id,
             entityId = entityId,
             workspaceId = workspaceId,

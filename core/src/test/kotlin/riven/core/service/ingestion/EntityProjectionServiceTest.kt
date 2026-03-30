@@ -16,7 +16,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean
 import riven.core.entity.entity.EntityAttributeEntity
 import riven.core.entity.entity.EntityEntity
 import riven.core.entity.entity.EntityRelationshipEntity
-import riven.core.entity.integration.ProjectionRuleEntity
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.integration.SourceType
 import riven.core.models.entity.payload.EntityAttributePrimitivePayload
@@ -32,6 +31,7 @@ import riven.core.service.entity.EntityAttributeService
 import riven.core.service.identity.IdentityClusterService
 import riven.core.service.util.BaseServiceTest
 import riven.core.service.util.factory.entity.EntityFactory
+import riven.core.service.util.factory.integration.IntegrationFactory
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import org.mockito.Mockito.reset
 import org.springframework.beans.factory.annotation.Autowired
@@ -89,7 +89,7 @@ class EntityProjectionServiceTest : BaseServiceTest() {
     private fun createProjectionRuleEntity(
         autoCreate: Boolean = true,
         relDefId: UUID? = relationshipDefId,
-    ): ProjectionRuleEntity = ProjectionRuleEntity(
+    ) = IntegrationFactory.createProjectionRule(
         id = UUID.randomUUID(),
         workspaceId = workspaceId,
         sourceEntityTypeId = sourceEntityTypeId,

@@ -117,7 +117,6 @@ object ProjectionTestContainer {
         ),
     ],
 )
-@SuppressWarnings("all")
 class ProjectionPipelineIntegrationTestConfig {
 
     @Bean

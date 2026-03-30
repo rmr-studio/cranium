@@ -5,10 +5,10 @@ import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
+import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
-import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
@@ -28,16 +28,11 @@ import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 import riven.core.entity.entity.EntityAttributeEntity
 import riven.core.entity.entity.EntityEntity
-import riven.core.service.util.factory.entity.EntityFactory
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.integration.SourceType
 import riven.core.models.entity.payload.EntityAttributePrimitivePayload
 import riven.core.models.ingestion.ProjectionResult
-import riven.core.repository.entity.EntityAttributeRepository
-import riven.core.repository.entity.EntityRelationshipRepository
-import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.repository.entity.RelationshipDefinitionRepository
+import riven.core.repository.entity.*
 import riven.core.repository.integration.ProjectionRuleRepository
 import riven.core.service.catalog.ManifestResolverService
 import riven.core.service.catalog.ManifestScannerService
@@ -45,9 +40,9 @@ import riven.core.service.catalog.ManifestUpsertService
 import riven.core.service.catalog.TemplateInstallationService
 import riven.core.service.entity.EntityAttributeService
 import riven.core.service.entity.type.EntityTypeService
-import riven.core.service.identity.IdentityClusterService
 import riven.core.service.integration.materialization.TemplateMaterializationService
 import riven.core.service.util.SchemaInitializer
+import riven.core.service.util.factory.entity.EntityFactory
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -147,7 +142,8 @@ class ProjectionPipelineIntegrationTestConfig {
     fun workspaceSecurity(): riven.core.configuration.auth.WorkspaceSecurity {
         val mock = org.mockito.Mockito.mock(riven.core.configuration.auth.WorkspaceSecurity::class.java)
         org.mockito.Mockito.doReturn(true).`when`(mock).hasWorkspace(org.mockito.kotlin.any())
-        org.mockito.Mockito.doReturn(true).`when`(mock).hasWorkspaceRole(org.mockito.kotlin.any(), org.mockito.kotlin.any())
+        org.mockito.Mockito.doReturn(true).`when`(mock)
+            .hasWorkspaceRole(org.mockito.kotlin.any(), org.mockito.kotlin.any())
         return mock
     }
 
@@ -156,7 +152,10 @@ class ProjectionPipelineIntegrationTestConfig {
         org.mockito.Mockito.mock(riven.core.service.workflow.queue.WorkflowExecutionQueueService::class.java)
 
     @Bean
-    fun activityService(logger: KLogger, activityLogRepository: riven.core.repository.activity.ActivityLogRepository): riven.core.service.activity.ActivityService =
+    fun activityService(
+        logger: KLogger,
+        activityLogRepository: riven.core.repository.activity.ActivityLogRepository
+    ): riven.core.service.activity.ActivityService =
         riven.core.service.activity.ActivityService(logger, activityLogRepository)
 }
 
@@ -174,37 +173,56 @@ class ProjectionPipelineIntegrationTestConfig {
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
 )
 @ActiveProfiles("integration")
-@TestPropertySource(properties = [
-    "spring.jpa.hibernate.ddl-auto=none",
-    "spring.main.allow-bean-definition-overriding=true",
-    "riven.manifests.auto-load=false",
-])
+@TestPropertySource(
+    properties = [
+        "spring.jpa.hibernate.ddl-auto=none",
+        "spring.main.allow-bean-definition-overriding=true",
+        "riven.manifests.auto-load=false",
+    ]
+)
 @Testcontainers
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class ProjectionPipelineIntegrationTestBase {
 
     // ------ Injected Services ------
 
-    @Autowired protected lateinit var entityProjectionService: EntityProjectionService
-    @Autowired protected lateinit var identityResolutionService: IdentityResolutionService
-    @Autowired protected lateinit var entityTypeService: EntityTypeService
-    @Autowired protected lateinit var entityAttributeService: EntityAttributeService
-    @Autowired protected lateinit var templateInstallationService: TemplateInstallationService
-    @Autowired protected lateinit var materializationService: TemplateMaterializationService
-    @Autowired protected lateinit var manifestUpsertService: ManifestUpsertService
-    @Autowired protected lateinit var manifestScannerService: ManifestScannerService
-    @Autowired protected lateinit var manifestResolverService: ManifestResolverService
-    @Autowired protected lateinit var objectMapper: ObjectMapper
+    @Autowired
+    protected lateinit var entityProjectionService: EntityProjectionService
+    @Autowired
+    protected lateinit var identityResolutionService: IdentityResolutionService
+    @Autowired
+    protected lateinit var entityTypeService: EntityTypeService
+    @Autowired
+    protected lateinit var entityAttributeService: EntityAttributeService
+    @Autowired
+    protected lateinit var templateInstallationService: TemplateInstallationService
+    @Autowired
+    protected lateinit var materializationService: TemplateMaterializationService
+    @Autowired
+    protected lateinit var manifestUpsertService: ManifestUpsertService
+    @Autowired
+    protected lateinit var manifestScannerService: ManifestScannerService
+    @Autowired
+    protected lateinit var manifestResolverService: ManifestResolverService
+    @Autowired
+    protected lateinit var objectMapper: ObjectMapper
 
     // ------ Injected Repositories ------
 
-    @Autowired protected lateinit var entityRepository: EntityRepository
-    @Autowired protected lateinit var entityTypeRepository: EntityTypeRepository
-    @Autowired protected lateinit var entityAttributeRepository: EntityAttributeRepository
-    @Autowired protected lateinit var entityRelationshipRepository: EntityRelationshipRepository
-    @Autowired protected lateinit var relationshipDefinitionRepository: RelationshipDefinitionRepository
-    @Autowired protected lateinit var projectionRuleRepository: ProjectionRuleRepository
-    @Autowired protected lateinit var jdbcTemplate: JdbcTemplate
+    @Autowired
+    protected lateinit var entityRepository: EntityRepository
+    @Autowired
+    protected lateinit var entityTypeRepository: EntityTypeRepository
+    @Autowired
+    protected lateinit var entityAttributeRepository: EntityAttributeRepository
+    @Autowired
+    protected lateinit var entityRelationshipRepository: EntityRelationshipRepository
+    @Autowired
+    protected lateinit var relationshipDefinitionRepository: RelationshipDefinitionRepository
+    @Autowired
+    protected lateinit var projectionRuleRepository: ProjectionRuleRepository
+    @Autowired
+    protected lateinit var jdbcTemplate: JdbcTemplate
 
     // ------ Test Constants ------
 
@@ -243,7 +261,7 @@ abstract class ProjectionPipelineIntegrationTestBase {
     protected fun loadIntegrationManifests() {
         val scannedIntegrations = manifestScannerService.scanIntegrations()
         for (scanned in scannedIntegrations) {
-            val resolved = manifestResolverService.resolveManifest(scanned, emptyMap())
+            val resolved = manifestResolverService.resolveManifest(scanned)
             manifestUpsertService.upsertManifest(resolved)
         }
     }

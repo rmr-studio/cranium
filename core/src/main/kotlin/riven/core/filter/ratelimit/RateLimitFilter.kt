@@ -13,9 +13,9 @@ import org.springframework.http.MediaType
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher
-import org.springframework.security.web.util.matcher.IpAddressMatcher
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher
 import org.springframework.security.web.util.matcher.OrRequestMatcher
+import java.net.InetAddress
 import org.springframework.web.filter.OncePerRequestFilter
 import riven.core.configuration.properties.RateLimitConfigurationProperties
 import riven.core.enums.common.ApiError
@@ -46,14 +46,16 @@ class RateLimitFilter(
     private val kLogger: KLogger,
 ) : OncePerRequestFilter() {
 
-    private val trustedProxyMatchers: List<IpAddressMatcher> =
-        properties.trustedProxyCidrs.filter { it.isNotBlank() }.map { IpAddressMatcher(it) }
+    private val trustedProxyCidrs: List<CidrRange> =
+        properties.trustedProxyCidrs.filter { it.isNotBlank() }.map { CidrRange.parse(it) }
 
-    private val publicEndpointMatcher = OrRequestMatcher(
-        AntPathRequestMatcher.antMatcher("/api/v1/webhooks/nango"),
-        AntPathRequestMatcher.antMatcher("/api/v1/storage/download/{token}"),
-        AntPathRequestMatcher.antMatcher("/api/v1/avatars/**"),
-    )
+    private val publicEndpointMatcher: OrRequestMatcher = PathPatternRequestMatcher.withDefaults().let { builder ->
+        OrRequestMatcher(
+            builder.matcher("/api/v1/webhooks/nango"),
+            builder.matcher("/api/v1/storage/download/{token}"),
+            builder.matcher("/api/v1/avatars/**"),
+        )
+    }
 
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -120,7 +122,7 @@ class RateLimitFilter(
     }
 
     private fun isFromTrustedProxy(request: HttpServletRequest): Boolean =
-        trustedProxyMatchers.any { it.matches(request.remoteAddr) }
+        trustedProxyCidrs.any { it.matches(request.remoteAddr) }
 
     private fun extractJwt(): Jwt? {
         val authentication = SecurityContextHolder.getContext().authentication ?: return null
@@ -152,6 +154,36 @@ class RateLimitFilter(
             error = ApiError.RATE_LIMIT_EXCEEDED,
         )
         response.writer.write(objectMapper.writeValueAsString(errorResponse))
+    }
+
+    /**
+     * Lightweight CIDR matcher replacing the deprecated Spring Security IpAddressMatcher.
+     */
+    private data class CidrRange(val network: ByteArray, val prefixLength: Int) {
+
+        fun matches(address: String): Boolean {
+            val addr = InetAddress.getByName(address).address
+            if (addr.size != network.size) return false
+            val fullBytes = prefixLength / 8
+            val remainingBits = prefixLength % 8
+            for (i in 0 until fullBytes) {
+                if (addr[i] != network[i]) return false
+            }
+            if (remainingBits > 0) {
+                val mask = (0xFF shl (8 - remainingBits)) and 0xFF
+                if ((addr[fullBytes].toInt() and mask) != (network[fullBytes].toInt() and mask)) return false
+            }
+            return true
+        }
+
+        companion object {
+            fun parse(cidr: String): CidrRange {
+                val parts = cidr.split("/")
+                val address = InetAddress.getByName(parts[0]).address
+                val prefix = if (parts.size == 2) parts[1].toInt() else address.size * 8
+                return CidrRange(address, prefix)
+            }
+        }
     }
 
     companion object {

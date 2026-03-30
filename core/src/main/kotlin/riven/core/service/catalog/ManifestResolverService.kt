@@ -137,7 +137,11 @@ class ManifestResolverService(
         }
 
         if (!hasShorthand && !hasFullFormat) {
-            logger.warn { "Relationship '${rel.get("key")?.asText()}' has neither shorthand nor full format — skipping" }
+            logger.warn {
+                "Relationship '${
+                    rel.get("key")?.asText()
+                }' has neither shorthand nor full format — skipping"
+            }
             return null
         }
 
@@ -209,7 +213,11 @@ class ManifestResolverService(
             NormalizedTargetRule(
                 targetEntityTypeKey = rule.get("targetEntityTypeKey").asText(),
                 cardinalityOverride = cardinalityOverrideStr?.let {
-                    try { EntityRelationshipCardinality.valueOf(it) } catch (_: IllegalArgumentException) { null }
+                    try {
+                        EntityRelationshipCardinality.valueOf(it)
+                    } catch (_: IllegalArgumentException) {
+                        null
+                    }
                 },
                 inverseVisible = rule.get("inverseVisible")?.asBoolean(),
                 inverseName = rule.get("inverseName")?.asText()

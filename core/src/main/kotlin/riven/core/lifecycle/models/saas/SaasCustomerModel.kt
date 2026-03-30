@@ -43,7 +43,7 @@ object SaasCustomerModel : CoreModelDefinition(
         ProjectionAcceptRule(
             domain = LifecycleDomain.UNCATEGORIZED,
             semanticGroup = SemanticGroup.CUSTOMER,
-            relationshipName = "source-data",
+            relationshipName = ProjectionAcceptRule.SOURCE_DATA_RELATIONSHIP,
         ),
     ),
 )

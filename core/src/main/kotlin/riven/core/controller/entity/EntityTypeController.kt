@@ -27,8 +27,7 @@ class EntityTypeController(
     @Operation(
         summary = "Get all entity types for a workspace",
         description = "Retrieves all entity types associated with the specified workspace, " +
-            "including relationship definitions and semantic metadata bundles. " +
-            "By default, integration-sourced entity types (internal) are hidden."
+            "including relationship definitions and semantic metadata bundles. "
     )
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "Entity types retrieved successfully"),
@@ -37,9 +36,8 @@ class EntityTypeController(
     )
     fun getEntityTypesForWorkspace(
         @PathVariable workspaceId: UUID,
-        @RequestParam(defaultValue = "false") includeInternal: Boolean,
     ): ResponseEntity<List<EntityType>> {
-        return ResponseEntity.ok(entityTypeService.getWorkspaceEntityTypesWithIncludes(workspaceId, includeInternal))
+        return ResponseEntity.ok(entityTypeService.getEntityTypes(workspaceId))
     }
 
     @GetMapping("/workspace/{workspaceId}/key/{key}")

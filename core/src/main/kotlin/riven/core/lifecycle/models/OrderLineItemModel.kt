@@ -32,7 +32,7 @@ object OrderLineItemModel : CoreModelDefinition(
         ProjectionAcceptRule(
             domain = LifecycleDomain.BILLING,
             semanticGroup = SemanticGroup.TRANSACTION,
-            relationshipName = "source-data",
+            relationshipName = ProjectionAcceptRule.SOURCE_DATA_RELATIONSHIP,
         ),
     ),
     attributes = mapOf(

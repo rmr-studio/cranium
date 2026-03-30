@@ -33,7 +33,7 @@ object DtcBillingEventModel : CoreModelDefinition(
         ProjectionAcceptRule(
             domain = LifecycleDomain.BILLING,
             semanticGroup = SemanticGroup.FINANCIAL,
-            relationshipName = "source-data",
+            relationshipName = ProjectionAcceptRule.SOURCE_DATA_RELATIONSHIP,
         ),
     ),
     attributes = BillingEventBase.attributes + mapOf(

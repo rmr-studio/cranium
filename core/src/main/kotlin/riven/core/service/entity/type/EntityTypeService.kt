@@ -380,9 +380,8 @@ class EntityTypeService(
      * semantic metadata, and derived columns.
      */
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
-    fun getWorkspaceEntityTypesWithIncludes(workspaceId: UUID, includeInternal: Boolean = false): List<EntityType> {
-        val allEntityTypes = getWorkspaceEntityTypes(workspaceId)
-        val entityTypes = if (includeInternal) allEntityTypes else allEntityTypes.filter { it.sourceIntegrationId == null }
+    fun getEntityTypes(workspaceId: UUID): List<EntityType> {
+        val entityTypes = getWorkspaceEntityTypes(workspaceId)
         val entityTypeIds = entityTypes.map { it.id }
 
         val relationshipMap = entityTypeRelationshipService.getDefinitionsForEntityTypes(workspaceId, entityTypeIds)

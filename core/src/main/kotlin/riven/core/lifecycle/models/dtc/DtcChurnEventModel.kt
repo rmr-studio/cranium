@@ -33,7 +33,7 @@ object DtcChurnEventModel : CoreModelDefinition(
         ProjectionAcceptRule(
             domain = LifecycleDomain.RETENTION,
             semanticGroup = SemanticGroup.FINANCIAL,
-            relationshipName = "source-data",
+            relationshipName = ProjectionAcceptRule.SOURCE_DATA_RELATIONSHIP,
         ),
     ),
     attributes = ChurnEventBase.attributes + mapOf(

@@ -31,7 +31,7 @@ object SupportTicketModel : CoreModelDefinition(
         ProjectionAcceptRule(
             domain = LifecycleDomain.SUPPORT,
             semanticGroup = SemanticGroup.SUPPORT,
-            relationshipName = "source-data",
+            relationshipName = ProjectionAcceptRule.SOURCE_DATA_RELATIONSHIP,
         ),
     ),
     attributes = mapOf(

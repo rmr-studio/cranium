@@ -33,7 +33,7 @@ object SaasCommunicationModel : CoreModelDefinition(
         ProjectionAcceptRule(
             domain = LifecycleDomain.UNCATEGORIZED,
             semanticGroup = SemanticGroup.COMMUNICATION,
-            relationshipName = "source-data",
+            relationshipName = ProjectionAcceptRule.SOURCE_DATA_RELATIONSHIP,
         ),
     ),
     attributes = CommunicationBase.attributes + mapOf(

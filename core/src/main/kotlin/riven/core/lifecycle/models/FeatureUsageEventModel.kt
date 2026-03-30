@@ -31,7 +31,7 @@ object FeatureUsageEventModel : CoreModelDefinition(
         ProjectionAcceptRule(
             domain = LifecycleDomain.USAGE,
             semanticGroup = SemanticGroup.OPERATIONAL,
-            relationshipName = "source-data",
+            relationshipName = ProjectionAcceptRule.SOURCE_DATA_RELATIONSHIP,
         ),
     ),
     attributes = mapOf(

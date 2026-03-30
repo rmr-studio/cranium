@@ -31,7 +31,7 @@ object ProductModel : CoreModelDefinition(
         ProjectionAcceptRule(
             domain = LifecycleDomain.USAGE,
             semanticGroup = SemanticGroup.PRODUCT,
-            relationshipName = "source-data",
+            relationshipName = ProjectionAcceptRule.SOURCE_DATA_RELATIONSHIP,
         ),
     ),
     attributes = mapOf(

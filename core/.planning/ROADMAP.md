@@ -61,8 +61,8 @@ Plans:
   4. A pipeline integration test confirms William/Bill nickname match produces a merge suggestion
 **Plans:** 2 plans
 Plans:
-- [ ] 02-01-PLAN.md — Model extensions, MatchSource enum, signal_type schema/JPA/cache, candidate query wiring
-- [ ] 02-02-PLAN.md — Confidence gate + cross-type discount in scoring service with unit tests
+- [ ] 03-01-PLAN.md — NicknameExpander and TokenSimilarity utility objects with unit tests
+- [ ] 03-02-PLAN.md — Wire nickname query + token re-scoring into CandidateService, pipeline integration tests
 
 ### Phase 4: Email Decomposition Strategy
 **Goal**: EMAIL signal types discover candidates with same domain and similar local parts, while free email domains are excluded to prevent candidate explosion
@@ -102,6 +102,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Signal-Type-Aware Normalization + Candidate Query Fixes | 2/2 | Complete   | 2026-03-28 |
 | 2. Scoring Improvements + Signal Classification | 2/2 | Complete   | 2026-03-29 |
-| 3. Nickname Lookup + Token-Set Similarity | 0/TBD | Not started | - |
+| 3. Nickname Lookup + Token-Set Similarity | 0/2 | Not started | - |
 | 4. Email Decomposition Strategy | 0/TBD | Not started | - |
 | 5. Phonetic Matching + Method Consolidation | 0/TBD | Not started | - |

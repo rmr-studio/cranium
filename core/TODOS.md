@@ -130,6 +130,30 @@
 
 ---
 
+### Migrate to Redis-backed Bucket4j when scaling to multiple instances
+
+**What:** Replace the Caffeine in-memory cache with a Redis-backed Bucket4j `ProxyManager` for distributed rate limiting.
+
+**Why:** The current single-instance Caffeine cache works for one app instance, but scaling to multiple instances means each instance has its own independent rate limit state. A user could get 200 rpm per instance instead of 200 rpm total.
+
+**Context:** Bucket4j supports Redis via `bucket4j-redis` (Lettuce or Jedis). The filter logic stays identical — only the bucket storage backend changes. Swap `Cache<String, Bucket>` for `ProxyManager<String>` in `RateLimitFilterConfiguration`.
+
+**Depends on:** Multi-instance deployment (not yet planned).
+
+---
+
+### Configure Cloudflare rate-limiting rules for production
+
+**What:** Set up two Cloudflare WAF rate-limiting rules: 60 req/10s per IP on `/api/*`, and 10 req/10s per IP on `/api/v1/webhooks/*`.
+
+**Why:** Edge-level IP rate limiting is Layer 1 defense — stops abuse before it reaches the application. The stricter webhook rule accounts for Nango's defined cadence.
+
+**Context:** Configured in Cloudflare dashboard, not code. Check which Cloudflare plan Riven is on — free plan has limited rate-limiting rules.
+
+**Depends on:** Production deployment with Cloudflare DNS configured.
+
+---
+
 ## Strategic
 
 ### Entity Ingestion Pipeline — Classify, Route, Map, Resolve

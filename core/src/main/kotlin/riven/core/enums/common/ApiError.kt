@@ -50,4 +50,7 @@ enum class ApiError {
 
     @JsonProperty("STORAGE_PROVIDER_ERROR")
     STORAGE_PROVIDER_ERROR,
+
+    @JsonProperty("RATE_LIMIT_EXCEEDED")
+    RATE_LIMIT_EXCEEDED,
 }

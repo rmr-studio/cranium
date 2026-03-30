@@ -43,6 +43,10 @@ None. This is a static Kotlin `object` with no Spring injection or runtime depen
 
 The `allModels` property is computed lazily on first access. It flattens all models from all registered model sets and runs `validate()`. If any model has duplicate keys, invalid relationship references, or missing target models, validation fails immediately with an `IllegalStateException`. This ensures errors surface at boot time when [[CoreModelCatalogService]] triggers first access, rather than silently producing corrupt catalog data.
 
+**Projection routing:**
+
+`findModelsAccepting()` iterates all registered models and filters their `projectionAccepts` lists for matching (domain, group) pairs. This enables source-agnostic routing — when an integration entity type with `lifecycleDomain=BILLING` and `semanticGroup=TRANSACTION` is materialized, the registry finds all core models that accept that combination (e.g., OrderModel, SubscriptionModel).
+
 **Model set structure:**
 
 A `CoreModelSet` groups related [[CoreModelDefinition]] instances with additional cross-model relationships that span multiple entity types within the set. Each model set declares a `manifestKey` which becomes the `key` in `manifest_catalog` -- this is also what `BusinessType.templateKey` resolves to.
@@ -67,6 +71,10 @@ Convert a single model set to a `ResolvedManifest` containing all resolved entit
 
 Convert all registered model sets to resolved manifests. This is the primary entry point used by [[CoreModelCatalogService]] during boot-time catalog population.
 
+### `findModelsAccepting(domain: LifecycleDomain, group: SemanticGroup): List<Pair<CoreModelDefinition, ProjectionAcceptRule>>`
+
+Find all core models whose `projectionAccepts` includes a rule matching the given (domain, group) pair. Returns the matching models along with the specific accept rule that matched. Used by [[TemplateMaterializationService]] during projection rule installation.
+
 ### `validate()`
 
 Check all registered models for duplicate keys, invalid relationship references, and missing target models. Called lazily on first access to `allModels`. Throws `IllegalStateException` on validation failure.
@@ -86,4 +94,5 @@ Check all registered models for duplicate keys, invalid relationship references,
 - [[CoreModelDefinition]] -- the base class for individual model definitions
 - [[CoreModelCatalogService]] -- the Spring service that consumes this registry at boot time
 - [[ManifestUpsertService]] -- downstream persistence for resolved manifests
+- [[TemplateMaterializationService]] — finds target core models for projection rule installation via `findModelsAccepting()`
 - [[Core Model Definitions]] -- parent subdomain

@@ -1,6 +1,8 @@
 package riven.core.entity.integration
 
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
+import org.hibernate.annotations.Type
 import org.hibernate.annotations.UpdateTimestamp
 import riven.core.enums.integration.SyncStatus
 import riven.core.models.integration.IntegrationSyncState
@@ -55,6 +57,13 @@ data class IntegrationSyncStateEntity(
     @Column(name = "last_records_failed")
     var lastRecordsFailed: Int? = null,
 
+    @Column(name = "last_pipeline_step", length = 50)
+    var lastPipelineStep: String? = null,
+
+    @Type(JsonBinaryType::class)
+    @Column(name = "projection_result", columnDefinition = "jsonb")
+    var projectionResult: Map<String, Any>? = null,
+
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: ZonedDateTime = ZonedDateTime.now(),
 
@@ -72,6 +81,8 @@ data class IntegrationSyncStateEntity(
         consecutiveFailureCount = consecutiveFailureCount,
         lastErrorMessage = lastErrorMessage,
         lastRecordsSynced = lastRecordsSynced,
-        lastRecordsFailed = lastRecordsFailed
+        lastRecordsFailed = lastRecordsFailed,
+        lastPipelineStep = lastPipelineStep,
+        projectionResult = projectionResult
     )
 }

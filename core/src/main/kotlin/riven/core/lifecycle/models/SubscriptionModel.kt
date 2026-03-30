@@ -11,6 +11,7 @@ import riven.core.lifecycle.AttributeOptions
 import riven.core.lifecycle.AttributeSemantics
 import riven.core.lifecycle.CoreModelAttribute
 import riven.core.lifecycle.CoreModelDefinition
+import riven.core.lifecycle.ProjectionAcceptRule
 
 /**
  * Subscription — a recurring subscription plan held by a customer. B2C SaaS specific.
@@ -26,6 +27,13 @@ object SubscriptionModel : CoreModelDefinition(
     identifierKey = "plan-name",
     semanticDefinition = "A recurring subscription plan held by a customer. The core revenue relationship in a SaaS business.",
     semanticTags = listOf("subscription", "recurring-revenue", "saas", "billing"),
+    projectionAccepts = listOf(
+        ProjectionAcceptRule(
+            domain = LifecycleDomain.BILLING,
+            semanticGroup = SemanticGroup.TRANSACTION,
+            relationshipName = ProjectionAcceptRule.SOURCE_DATA_RELATIONSHIP,
+        ),
+    ),
     attributes = mapOf(
         "plan-name" to CoreModelAttribute(
             schemaType = SchemaType.TEXT, label = "Plan", dataType = DataType.STRING,

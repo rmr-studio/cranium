@@ -1,8 +1,8 @@
 import { cn } from '@/lib/utils';
 import { CogIcon, LayoutGrid, Search } from 'lucide-react';
 
-import { ShowcaseIconRail } from '@/components/ui/diagrams/brand-ui-primitives';
 import { BrandKlaviyo, BrandShopify, BrandStripe } from '@/components/ui/diagrams/brand-icons';
+import { ShowcaseIconRail } from '@/components/ui/diagrams/brand-ui-primitives';
 
 const QUEUE_NAV_ICONS = [
   { icon: <LayoutGrid className="size-5" />, active: true },
@@ -38,7 +38,7 @@ function QueueCard({
 }) {
   return (
     <div
-      className={cn('rounded-lg border border-border bg-card p-5 border-l-4', className)}
+      className={cn('rounded-lg border border-l-4 border-border bg-card p-5', className)}
       style={{ borderLeftColor: borderColor }}
     >
       {/* Header */}
@@ -161,9 +161,7 @@ export function MockMorningQueue() {
         {/* Content area */}
         <div className="px-12 pt-10 pb-16">
           {/* Greeting */}
-          <h2 className="font-serif text-5xl font-normal -tracking-[0.02em] text-foreground">
-            Good morning
-          </h2>
+          <h2 className="text-5xl font-normal -tracking-[0.02em] text-foreground">Good morning</h2>
           <p className="mt-2 text-sm" style={{ color: 'oklch(0.65 0.17 145)' }}>
             3 items need your attention
           </p>

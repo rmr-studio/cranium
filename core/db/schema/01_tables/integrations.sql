@@ -85,7 +85,28 @@ CREATE TABLE IF NOT EXISTS integration_sync_state (
     last_error_message        TEXT,
     last_records_synced       INTEGER,
     last_records_failed       INTEGER,
+    last_pipeline_step        VARCHAR(50),
+    projection_result         JSONB,
     created_at                TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at                TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE(integration_connection_id, entity_type_id)
+);
+
+-- =====================================================
+-- ENTITY TYPE PROJECTION RULES TABLE
+-- =====================================================
+-- Maps source entity types (integration) to target entity types (core lifecycle).
+-- Installed automatically from core model projectionAccepts during materialization.
+-- workspace_id = NULL for system rules (from core model manifests).
+-- Future: workspace_id = UUID for user-defined custom projection rules.
+
+CREATE TABLE IF NOT EXISTS entity_type_projection_rules (
+    id                     UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    workspace_id           UUID REFERENCES workspaces(id) ON DELETE CASCADE,
+    source_entity_type_id  UUID NOT NULL REFERENCES entity_types(id) ON DELETE CASCADE,
+    target_entity_type_id  UUID NOT NULL REFERENCES entity_types(id) ON DELETE CASCADE,
+    relationship_def_id    UUID REFERENCES relationship_definitions(id) ON DELETE SET NULL,
+    auto_create            BOOLEAN NOT NULL DEFAULT true,
+    created_at             TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE(workspace_id, source_entity_type_id, target_entity_type_id)
 );

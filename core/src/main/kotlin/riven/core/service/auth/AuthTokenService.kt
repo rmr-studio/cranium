@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class AuthTokenService(private val logger: KLogger) {
+open class AuthTokenService(private val logger: KLogger) {
 
     /**
      * Retrieves the JWT from the security context.
@@ -29,7 +29,7 @@ class AuthTokenService(private val logger: KLogger) {
      * Retrieves the user ID from the JWT claims.
      */
     @Throws(AccessDeniedException::class, IllegalArgumentException::class)
-    fun getUserId(): UUID {
+    open fun getUserId(): UUID {
         return getJwt().claims["sub"].let {
             if (it == null) {
                 logger.warn { "User ID not found in JWT claims" }
@@ -41,7 +41,7 @@ class AuthTokenService(private val logger: KLogger) {
     }
 
 
-    fun getUserEmail(): String {
+    open fun getUserEmail(): String {
         return getJwt().claims["email"].let {
             if (it == null) {
                 logger.warn { "Email not found in JWT claims" }

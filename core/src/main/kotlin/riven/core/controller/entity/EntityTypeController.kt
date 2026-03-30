@@ -27,7 +27,7 @@ class EntityTypeController(
     @Operation(
         summary = "Get all entity types for a workspace",
         description = "Retrieves all entity types associated with the specified workspace, " +
-            "including relationship definitions and semantic metadata bundles."
+            "including relationship definitions and semantic metadata bundles. "
     )
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "Entity types retrieved successfully"),
@@ -37,7 +37,7 @@ class EntityTypeController(
     fun getEntityTypesForWorkspace(
         @PathVariable workspaceId: UUID,
     ): ResponseEntity<List<EntityType>> {
-        return ResponseEntity.ok(entityTypeService.getWorkspaceEntityTypesWithIncludes(workspaceId))
+        return ResponseEntity.ok(entityTypeService.getEntityTypes(workspaceId))
     }
 
     @GetMapping("/workspace/{workspaceId}/key/{key}")

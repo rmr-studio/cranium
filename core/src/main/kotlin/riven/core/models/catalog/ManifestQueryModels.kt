@@ -18,7 +18,7 @@ import java.util.*
  * that don't belong in query responses.
  */
 
-/** Lightweight summary for list endpoints (getAvailableTemplates, getAvailableModels). */
+/** Lightweight summary for list endpoints (getAvailableTemplates). */
 data class ManifestSummary(
     val id: UUID,
     val key: String,

@@ -50,6 +50,32 @@ interface EntityAttributeRepository : JpaRepository<EntityAttributeEntity, UUID>
     fun softDeleteByEntityIds(entityIds: Array<UUID>, workspaceId: UUID)
 
     /**
+     * Batch identifier value lookup for projection identity resolution.
+     * Finds attributes where the attribute_id is one of the IDENTIFIER attributes
+     * AND the text value matches one of the candidate values, scoped to a specific entity type.
+     *
+     * Used by [riven.core.service.ingestion.IdentityResolutionService] for Check 2.
+     */
+    @Query(
+        value = """
+            SELECT ea.* FROM entity_attributes ea
+            JOIN entities e ON ea.entity_id = e.id AND e.deleted = false
+            WHERE ea.workspace_id = :workspaceId
+              AND e.type_id = :entityTypeId
+              AND ea.attribute_id IN (:attributeIds)
+              AND ea.value ->> 'value' IN (:textValues)
+              AND ea.deleted = false
+        """,
+        nativeQuery = true
+    )
+    fun findByIdentifierValuesForEntityType(
+        workspaceId: UUID,
+        entityTypeId: UUID,
+        attributeIds: Collection<UUID>,
+        textValues: Collection<String>,
+    ): List<EntityAttributeEntity>
+
+    /**
      * Find entity attributes whose JSONB value column contains a text value matching the given string.
      *
      * Uses the ->> operator to extract the JSON text as a plain string for comparison.

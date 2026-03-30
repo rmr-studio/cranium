@@ -6,7 +6,7 @@ const Hero = dynamic(() =>
   import('@/components/feature-modules/landing/hero/components/hero').then((m) => m.Hero),
 );
 const DashboardShowcase = dynamic(() =>
-  import('@/components/feature-modules/landing/hero/components/dashboard/dashboard-showcase').then(
+  import('@/components/feature-modules/landing/dashboard/components/dashboard-showcase').then(
     (m) => m.DashboardShowcase,
   ),
 );

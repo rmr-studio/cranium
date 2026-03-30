@@ -1,5 +1,28 @@
 # Architecture Changelog
 
+## [2026-03-29] — Entity Projection Pipeline Implementation
+
+**Domains affected:** Entity, Integration, Ingestion (new), Identity, Lifecycle
+**What changed:**
+
+- Implemented the projection pipeline: integration entities are now projected into core lifecycle entities via domain-based routing rules
+- Created `service.ingestion` package with `EntityProjectionService` and `IdentityResolutionService` — batch identity resolution using 2-query strategy (sourceExternalId match → IDENTIFIER attribute match)
+- Added `entity_type_projection_rules` table and `ProjectionRuleEntity` — maps source (integration) entity types to target (core lifecycle) entity types
+- Projection rules are installed automatically during integration template materialization in `TemplateMaterializationService`, using `CoreModelRegistry.findModelsAccepting()` to match (lifecycleDomain, semanticGroup) pairs
+- Added `projectionAccepts` rules to all 15 core model definitions — each declares which (domain, group) pairs route integration data into it
+- Wired `executeProjections` activity stub in `IntegrationSyncActivitiesImpl` to call `EntityProjectionService.processProjections()`
+- Added entity visibility filter: `includeInternal` query parameter on entity type listing (default: false) hides integration-sourced entity types
+- Added `readonly` parameter to `assembleColumns()` — readonly entity types skip relationship columns
+- Added `lastPipelineStep` and `projectionResult` (JSONB) columns to `IntegrationSyncStateEntity` for pipeline observability
+
+**New cross-domain dependencies:** yes — `service.ingestion.EntityProjectionService` depends on `service.identity.IdentityClusterService` and `service.identity.EntityTypeClassificationService` for cluster assignment and identifier resolution
+**New components introduced:**
+- `EntityProjectionService` — core projection pipeline: rule loading, identity resolution, entity create/update, relationship linking
+- `IdentityResolutionService` — batch identity resolution with 2-query strategy
+- `ProjectionRuleEntity` / `ProjectionRuleRepository` — projection rule storage
+- `ProjectionResult` / `ResolutionResult` — pipeline result models in `models.ingestion`
+- `CoreModelRegistry.findModelsAccepting()` — lookup method for projection routing
+
 ## [2026-03-27] — Entity Ingestion Pipeline Architecture (Engineering Review)
 
 **Domains affected:** Entity, Integration, Identity Resolution, Catalog

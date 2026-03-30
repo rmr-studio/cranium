@@ -5,9 +5,9 @@ import { QueryBuilderGraphic } from '@/components/feature-modules/landing/action
 import { RulesEngineGraphic } from '@/components/feature-modules/landing/actions/components/diagrams/rules-engine';
 import { TaggingViewShowcase } from '@/components/feature-modules/landing/actions/components/diagrams/tagging-view-showcase';
 import { GlowBorder } from '@/components/ui/glow-border';
-import { DashboardPromptInput } from '../../hero/components/dashboard/mock-dashboard';
-import { MockKnowledgePanel } from '../../time-saved/components/product-showcase/components/mock-knowledge-panel';
-import { customerScenario } from '../../time-saved/components/product-showcase/scenario-data';
+import { DashboardPromptInput } from '../../dashboard/components/mock-dashboard';
+import { MockKnowledgePanel } from '../../hero/components/showcase/mock-knowledge-panel';
+import { customerScenario } from '../../hero/components/showcase/scenario-data';
 
 export interface KnowledgeLayerSectionContent {
   title: React.ReactNode;

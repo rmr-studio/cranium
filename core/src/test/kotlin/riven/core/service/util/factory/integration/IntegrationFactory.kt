@@ -3,6 +3,7 @@ package riven.core.service.util.factory.integration
 import riven.core.entity.integration.IntegrationConnectionEntity
 import riven.core.entity.integration.IntegrationDefinitionEntity
 import riven.core.entity.integration.IntegrationSyncStateEntity
+import riven.core.entity.integration.ProjectionRuleEntity
 import riven.core.entity.integration.WorkspaceIntegrationInstallationEntity
 import riven.core.enums.integration.ConnectionStatus
 import riven.core.enums.integration.InstallationStatus
@@ -27,6 +28,8 @@ object IntegrationFactory {
         lastErrorMessage: String? = null,
         lastRecordsSynced: Int? = null,
         lastRecordsFailed: Int? = null,
+        lastPipelineStep: String? = null,
+        projectionResult: Map<String, Any>? = null,
     ): IntegrationSyncStateEntity {
         return IntegrationSyncStateEntity(
             id = id,
@@ -38,6 +41,8 @@ object IntegrationFactory {
             lastErrorMessage = lastErrorMessage,
             lastRecordsSynced = lastRecordsSynced,
             lastRecordsFailed = lastRecordsFailed,
+            lastPipelineStep = lastPipelineStep,
+            projectionResult = projectionResult,
         )
     }
 
@@ -69,6 +74,27 @@ object IntegrationFactory {
             status = status,
             deleted = deleted,
             deletedAt = deletedAt,
+        )
+    }
+
+    /**
+     * Creates a ProjectionRuleEntity with all fields as parameters and sensible defaults.
+     */
+    fun createProjectionRule(
+        id: UUID? = null,
+        workspaceId: UUID? = UUID.randomUUID(),
+        sourceEntityTypeId: UUID = UUID.randomUUID(),
+        targetEntityTypeId: UUID = UUID.randomUUID(),
+        relationshipDefId: UUID? = null,
+        autoCreate: Boolean = true,
+    ): ProjectionRuleEntity {
+        return ProjectionRuleEntity(
+            id = id,
+            workspaceId = workspaceId,
+            sourceEntityTypeId = sourceEntityTypeId,
+            targetEntityTypeId = targetEntityTypeId,
+            relationshipDefId = relationshipDefId,
+            autoCreate = autoCreate,
         )
     }
 

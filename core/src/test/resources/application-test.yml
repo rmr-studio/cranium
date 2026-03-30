@@ -27,6 +27,8 @@ spring:
 
 # Temporal configuration for tests (not used with TestWorkflowEnvironment)
 riven:
+  rate-limit:
+    enabled: false
   posthog:
     enabled: false
   websocket:

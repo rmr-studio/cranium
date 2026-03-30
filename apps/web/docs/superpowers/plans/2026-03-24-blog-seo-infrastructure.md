@@ -69,6 +69,7 @@ apps/web/
 ### Task 1: Install Dependencies
 
 **Files:**
+
 - Modify: `apps/web/package.json`
 
 - [ ] **Step 1: Install MDX and rehype packages**
@@ -89,6 +90,7 @@ cd apps/web && pnpm add -D vitest @vitejs/plugin-react jsdom @testing-library/re
 - [ ] **Step 3: Add test script to package.json**
 
 Add to `scripts` in `apps/web/package.json`:
+
 ```json
 "test": "vitest run",
 "test:watch": "vitest"
@@ -97,6 +99,7 @@ Add to `scripts` in `apps/web/package.json`:
 - [ ] **Step 4: Create Vitest config**
 
 Create `apps/web/vitest.config.ts`:
+
 ```typescript
 import { defineConfig } from 'vitest/config';
 import path from 'path';
@@ -126,6 +129,7 @@ git commit -m "chore: add blog infrastructure dependencies (MDX, rehype, Fuse.js
 ### Task 2: Blog Types and Utility Library
 
 **Files:**
+
 - Create: `apps/web/lib/blog-types.ts`
 - Create: `apps/web/lib/blog.ts`
 - Create: `apps/web/__tests__/lib/blog.test.ts`
@@ -134,6 +138,7 @@ git commit -m "chore: add blog infrastructure dependencies (MDX, rehype, Fuse.js
 - [ ] **Step 1: Create blog types**
 
 Create `apps/web/lib/blog-types.ts`:
+
 ```typescript
 export interface BlogPostMeta {
   slug: string;
@@ -177,16 +182,17 @@ export interface Heading {
 - [ ] **Step 2: Create sample MDX post as test fixture**
 
 Create `apps/web/content/blog/intercom-vs-zendesk.mdx`:
+
 ```mdx
 ---
-title: "Intercom vs Zendesk: Which Support Tool Fits a Scaling Startup?"
-description: "A direct comparison of Intercom and Zendesk for startups scaling past 1,000 customers — features, pricing, and what matters when your support data needs to connect."
-date: "2026-03-24"
-updated: "2026-03-24"
-author: "Jared Tucker"
-category: "tool-comparison"
-tags: ["support-tools", "intercom", "zendesk", "customer-support"]
-coverImage: "images/blog/intercom-vs-zendesk.webp"
+title: 'Intercom vs Zendesk: Which Support Tool Fits a Scaling Startup?'
+description: 'A direct comparison of Intercom and Zendesk for startups scaling past 1,000 customers — features, pricing, and what matters when your support data needs to connect.'
+date: '2026-03-24'
+updated: '2026-03-24'
+author: 'Jared Tucker'
+category: 'tool-comparison'
+tags: ['support-tools', 'intercom', 'zendesk', 'customer-support']
+coverImage: 'images/blog/intercom-vs-zendesk.webp'
 featured: true
 ---
 
@@ -194,12 +200,12 @@ Intercom wins on proactive engagement and product tours. Zendesk wins on ticket 
 
 ## Quick Comparison
 
-| Feature | Intercom | Zendesk |
-|---------|----------|---------|
-| Best for | Product-led growth, in-app messaging | High-volume ticket management |
-| Pricing | From $39/seat/mo | From $19/agent/mo |
-| API quality | Excellent | Good |
-| Reporting | Beautiful, shallow | Deep, complex |
+| Feature     | Intercom                             | Zendesk                       |
+| ----------- | ------------------------------------ | ----------------------------- |
+| Best for    | Product-led growth, in-app messaging | High-volume ticket management |
+| Pricing     | From $39/seat/mo                     | From $19/agent/mo             |
+| API quality | Excellent                            | Good                          |
+| Reporting   | Beautiful, shallow                   | Deep, complex                 |
 
 ## When Intercom Makes Sense
 
@@ -220,18 +226,22 @@ The real question isn't which support tool is better in isolation. It's whether 
 ## Frequently Asked Questions
 
 ### Is Intercom better than Zendesk for small teams?
+
 For teams under 10, Intercom's all-in-one approach (chat, help center, product tours) means fewer tools to manage. Zendesk requires more configuration but scales better past 50 agents.
 
 ### Can you use both Intercom and Zendesk?
+
 Yes — some teams use Intercom for in-app messaging and Zendesk for email ticket management. The challenge is keeping customer context unified across both.
 
 ### Which has better integrations?
+
 Both have extensive integration ecosystems. Zendesk has more native integrations (1000+), while Intercom's API is more developer-friendly for custom integrations.
 ```
 
 - [ ] **Step 3: Write failing tests for blog utilities**
 
 Create `apps/web/__tests__/lib/blog.test.ts`:
+
 ```typescript
 import { describe, it, expect } from 'vitest';
 import {
@@ -264,8 +274,9 @@ describe('getAllPosts', () => {
     const posts = await getAllPosts();
     expect(posts.length).toBeGreaterThan(0);
     for (let i = 1; i < posts.length; i++) {
-      expect(new Date(posts[i - 1].date).getTime())
-        .toBeGreaterThanOrEqual(new Date(posts[i].date).getTime());
+      expect(new Date(posts[i - 1].date).getTime()).toBeGreaterThanOrEqual(
+        new Date(posts[i].date).getTime(),
+      );
     }
   });
 
@@ -327,11 +338,13 @@ describe('getFeaturedPost', () => {
 ```bash
 cd apps/web && pnpm test
 ```
+
 Expected: FAIL — `@/lib/blog` module not found.
 
 - [ ] **Step 5: Implement blog utilities**
 
 Create `apps/web/lib/blog.ts`:
+
 ```typescript
 import fs from 'fs';
 import path from 'path';
@@ -445,7 +458,10 @@ export async function getRelatedPosts(
       const overlap = post.tags.filter((t) => currentTagSet.has(t)).length;
       return { post, overlap };
     })
-    .sort((a, b) => b.overlap - a.overlap || new Date(b.post.date).getTime() - new Date(a.post.date).getTime());
+    .sort(
+      (a, b) =>
+        b.overlap - a.overlap || new Date(b.post.date).getTime() - new Date(a.post.date).getTime(),
+    );
 
   return scored.slice(0, limit).map((s) => s.post);
 }
@@ -466,6 +482,7 @@ export async function getPostsByCategory(category: BlogCategory): Promise<BlogPo
 ```bash
 cd apps/web && pnpm test
 ```
+
 Expected: All tests PASS.
 
 - [ ] **Step 7: Commit**
@@ -480,12 +497,14 @@ git commit -m "feat: add blog utility library with types, parsing, and tests"
 ### Task 3: Fix robots.ts and Update Sitemap
 
 **Files:**
+
 - Modify: `apps/web/app/robots.ts`
 - Modify: `apps/web/app/sitemap.ts`
 
 - [ ] **Step 1: Fix robots.ts to allow AI crawlers**
 
 Replace the contents of `apps/web/app/robots.ts`:
+
 ```typescript
 import type { MetadataRoute } from 'next';
 
@@ -508,6 +527,7 @@ This removes the block on GPTBot, CCBot, Google-Extended, and anthropic-ai. All 
 - [ ] **Step 2: Update sitemap to include blog routes**
 
 Replace `apps/web/app/sitemap.ts`:
+
 ```typescript
 import type { MetadataRoute } from 'next';
 import { getAllPosts, getCategories } from '@/lib/blog';
@@ -568,6 +588,7 @@ git commit -m "fix: allow AI crawlers in robots.ts, add blog routes to sitemap"
 ### Task 4: MDX Rendering Components
 
 **Files:**
+
 - Create: `apps/web/components/feature-modules/blog/mdx/mdx-components.tsx`
 - Create: `apps/web/components/feature-modules/blog/mdx/code-block.tsx`
 - Create: `apps/web/components/feature-modules/blog/mdx/comparison-table.tsx`
@@ -575,6 +596,7 @@ git commit -m "fix: allow AI crawlers in robots.ts, add blog routes to sitemap"
 - [ ] **Step 1: Create code block with copy-to-clipboard**
 
 Create `apps/web/components/feature-modules/blog/mdx/code-block.tsx`:
+
 ```tsx
 'use client';
 
@@ -601,10 +623,14 @@ export function CodeBlock({ children, ...props }: React.HTMLAttributes<HTMLPreEl
       </pre>
       <button
         onClick={handleCopy}
-        className="absolute right-3 top-3 rounded-sm border border-border bg-card p-1.5 opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100"
+        className="absolute top-3 right-3 rounded-sm border border-border bg-card p-1.5 opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100"
         aria-label="Copy code"
       >
-        {copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5 text-muted-foreground" />}
+        {copied ? (
+          <Check className="text-success size-3.5" />
+        ) : (
+          <Copy className="size-3.5 text-muted-foreground" />
+        )}
       </button>
     </div>
   );
@@ -614,6 +640,7 @@ export function CodeBlock({ children, ...props }: React.HTMLAttributes<HTMLPreEl
 - [ ] **Step 2: Create interactive comparison table**
 
 Create `apps/web/components/feature-modules/blog/mdx/comparison-table.tsx`:
+
 ```tsx
 'use client';
 
@@ -680,7 +707,7 @@ export function ComparisonTable({ columns, rows, highlightColumn }: ComparisonTa
               <th
                 key={col.key}
                 className={cn(
-                  'cursor-pointer px-4 py-3 text-left font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground',
+                  'cursor-pointer px-4 py-3 text-left font-mono text-xs font-bold tracking-widest text-muted-foreground uppercase transition-colors hover:text-foreground',
                   highlightColumn === col.key && 'bg-primary/5 text-foreground',
                 )}
                 onClick={() => handleSort(col.key)}
@@ -695,14 +722,14 @@ export function ComparisonTable({ columns, rows, highlightColumn }: ComparisonTa
         </thead>
         <tbody>
           {sorted.map((row, i) => (
-            <tr key={String(row[columns[0]?.key] ?? i)} className="border-b border-border last:border-0">
+            <tr
+              key={String(row[columns[0]?.key] ?? i)}
+              className="border-b border-border last:border-0"
+            >
               {columns.map((col) => (
                 <td
                   key={col.key}
-                  className={cn(
-                    'px-4 py-3',
-                    highlightColumn === col.key && 'bg-primary/5',
-                  )}
+                  className={cn('px-4 py-3', highlightColumn === col.key && 'bg-primary/5')}
                 >
                   <CellValue value={row[col.key] ?? ''} />
                 </td>
@@ -719,6 +746,7 @@ export function ComparisonTable({ columns, rows, highlightColumn }: ComparisonTa
 - [ ] **Step 3: Create MDX component overrides**
 
 Create `apps/web/components/feature-modules/blog/mdx/mdx-components.tsx`:
+
 ```tsx
 import { cn } from '@/lib/utils';
 import { Link as LinkIcon } from 'lucide-react';
@@ -727,7 +755,15 @@ import Link from 'next/link';
 import { CodeBlock } from './code-block';
 import { ComparisonTable } from './comparison-table';
 
-function HeadingLink({ id, level, children }: { id?: string; level: number; children: React.ReactNode }) {
+function HeadingLink({
+  id,
+  level,
+  children,
+}: {
+  id?: string;
+  level: number;
+  children: React.ReactNode;
+}) {
   const Tag = `h${level}` as keyof JSX.IntrinsicElements;
   const sizes: Record<number, string> = {
     2: 'text-2xl font-semibold tracking-tight mt-12 mb-4',
@@ -740,7 +776,7 @@ function HeadingLink({ id, level, children }: { id?: string; level: number; chil
       {id && (
         <a
           href={`#${id}`}
-          className="ml-2 inline-block opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
+          className="ml-2 inline-block opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100"
           aria-label={`Link to ${typeof children === 'string' ? children : 'section'}`}
         >
           <LinkIcon className="size-4 text-muted-foreground" />
@@ -751,8 +787,16 @@ function HeadingLink({ id, level, children }: { id?: string; level: number; chil
 }
 
 export const mdxComponents: MDXComponents = {
-  h2: ({ children, id }) => <HeadingLink id={id} level={2}>{children}</HeadingLink>,
-  h3: ({ children, id }) => <HeadingLink id={id} level={3}>{children}</HeadingLink>,
+  h2: ({ children, id }) => (
+    <HeadingLink id={id} level={2}>
+      {children}
+    </HeadingLink>
+  ),
+  h3: ({ children, id }) => (
+    <HeadingLink id={id} level={3}>
+      {children}
+    </HeadingLink>
+  ),
   p: ({ children }) => <p className="mb-4 leading-relaxed text-content">{children}</p>,
   a: ({ href, children }) => (
     <Link
@@ -763,10 +807,12 @@ export const mdxComponents: MDXComponents = {
     </Link>
   ),
   ul: ({ children }) => <ul className="mb-4 ml-6 list-disc space-y-1 text-content">{children}</ul>,
-  ol: ({ children }) => <ol className="mb-4 ml-6 list-decimal space-y-1 text-content">{children}</ol>,
+  ol: ({ children }) => (
+    <ol className="mb-4 ml-6 list-decimal space-y-1 text-content">{children}</ol>
+  ),
   li: ({ children }) => <li className="leading-relaxed">{children}</li>,
   blockquote: ({ children }) => (
-    <blockquote className="my-6 border-l-2 border-border pl-6 font-[family-name:var(--font-instrument-serif)] text-xl italic text-muted-foreground">
+    <blockquote className="my-6 border-l-2 border-border pl-6 font-[family-name:var(--font-instrument-serif)] text-xl text-muted-foreground">
       {children}
     </blockquote>
   ),
@@ -778,7 +824,7 @@ export const mdxComponents: MDXComponents = {
   ),
   thead: ({ children }) => <thead className="border-b border-border bg-muted/50">{children}</thead>,
   th: ({ children }) => (
-    <th className="px-4 py-3 text-left font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
+    <th className="px-4 py-3 text-left font-mono text-xs font-bold tracking-widest text-muted-foreground uppercase">
       {children}
     </th>
   ),
@@ -800,6 +846,7 @@ git commit -m "feat: add MDX rendering components (code block, comparison table,
 ### Task 5: Blog UI Components
 
 **Files:**
+
 - Create: `apps/web/components/feature-modules/blog/components/blog-hero.tsx`
 - Create: `apps/web/components/feature-modules/blog/components/blog-feed.tsx`
 - Create: `apps/web/components/feature-modules/blog/components/category-pills.tsx`
@@ -811,11 +858,12 @@ git commit -m "feat: add MDX rendering components (code block, comparison table,
 - Create: `apps/web/components/feature-modules/blog/components/featured-posts.tsx`
 - Create: `apps/web/hooks/use-reading-progress.ts`
 
-This is the largest task. Each component follows the design system tokens from DESIGN.md. Blog index layout: featured hero with cover image → "Browse by category:" in Instrument Serif italic + horizontal pill buttons → Hex-style text-only feed (date in Space Mono, title in Geist 600, excerpt, author, tags).
+This is the largest task. Each component follows the design system tokens from DESIGN.md. Blog index layout: featured hero with cover image → "Browse by category:" in Instrument Serif + horizontal pill buttons → Hex-style text-only feed (date in Space Mono, title in Geist 600, excerpt, author, tags).
 
 - [ ] **Step 1: Create reading progress hook**
 
 Create `apps/web/hooks/use-reading-progress.ts`:
+
 ```typescript
 import { useEffect, useState } from 'react';
 
@@ -840,6 +888,7 @@ export function useReadingProgress() {
 - [ ] **Step 2: Create reading progress bar**
 
 Create `apps/web/components/feature-modules/blog/components/reading-progress.tsx`:
+
 ```tsx
 'use client';
 
@@ -850,7 +899,7 @@ export function ReadingProgress() {
 
   return (
     <div
-      className="fixed left-0 top-0 z-50 h-0.5 bg-foreground transition-[width] duration-150 ease-out"
+      className="fixed top-0 left-0 z-50 h-0.5 bg-foreground transition-[width] duration-150 ease-out"
       style={{ width: `${progress}%` }}
       role="progressbar"
       aria-valuenow={Math.round(progress)}
@@ -865,6 +914,7 @@ export function ReadingProgress() {
 - [ ] **Step 3: Create breadcrumbs**
 
 Create `apps/web/components/feature-modules/blog/components/breadcrumbs.tsx`:
+
 ```tsx
 import { CATEGORY_LABELS, type BlogCategory } from '@/lib/blog-types';
 import { ChevronRight } from 'lucide-react';
@@ -878,13 +928,15 @@ interface BreadcrumbsProps {
 export function Breadcrumbs({ category, postTitle }: BreadcrumbsProps) {
   return (
     <nav aria-label="Breadcrumb" className="mb-8">
-      <ol className="flex items-center gap-1.5 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+      <ol className="flex items-center gap-1.5 font-mono text-xs tracking-widest text-muted-foreground uppercase">
         <li>
           <Link href="/" className="transition-colors hover:text-foreground">
             Home
           </Link>
         </li>
-        <li><ChevronRight className="size-3" /></li>
+        <li>
+          <ChevronRight className="size-3" />
+        </li>
         <li>
           <Link href="/blog" className="transition-colors hover:text-foreground">
             Blog
@@ -892,9 +944,14 @@ export function Breadcrumbs({ category, postTitle }: BreadcrumbsProps) {
         </li>
         {category && (
           <>
-            <li><ChevronRight className="size-3" /></li>
             <li>
-              <Link href={`/blog/category/${category}`} className="transition-colors hover:text-foreground">
+              <ChevronRight className="size-3" />
+            </li>
+            <li>
+              <Link
+                href={`/blog/category/${category}`}
+                className="transition-colors hover:text-foreground"
+              >
                 {CATEGORY_LABELS[category]}
               </Link>
             </li>
@@ -902,8 +959,10 @@ export function Breadcrumbs({ category, postTitle }: BreadcrumbsProps) {
         )}
         {postTitle && (
           <>
-            <li><ChevronRight className="size-3" /></li>
-            <li className="truncate max-w-48 text-foreground">{postTitle}</li>
+            <li>
+              <ChevronRight className="size-3" />
+            </li>
+            <li className="max-w-48 truncate text-foreground">{postTitle}</li>
           </>
         )}
       </ol>
@@ -915,6 +974,7 @@ export function Breadcrumbs({ category, postTitle }: BreadcrumbsProps) {
 - [ ] **Step 4: Create blog hero (featured post with cover image)**
 
 Create `apps/web/components/feature-modules/blog/components/blog-hero.tsx`:
+
 ```tsx
 import { CATEGORY_LABELS, type BlogPostMeta } from '@/lib/blog-types';
 import { cdnImageLoader } from '@/lib/cdn-image-loader';
@@ -939,16 +999,14 @@ export function BlogHero({ post }: { post: BlogPostMeta }) {
           </div>
         )}
         <div className="p-6 lg:p-8">
-          <span className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
+          <span className="font-mono text-xs font-bold tracking-widest text-muted-foreground uppercase">
             {CATEGORY_LABELS[post.category]}
           </span>
-          <h2 className="mt-3 text-2xl font-bold tracking-tight lg:text-3xl">
-            {post.title}
-          </h2>
+          <h2 className="mt-3 text-2xl font-bold tracking-tight lg:text-3xl">{post.title}</h2>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground lg:text-base">
             {post.description}
           </p>
-          <div className="mt-4 flex items-center gap-3 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+          <div className="mt-4 flex items-center gap-3 font-mono text-xs tracking-widest text-muted-foreground uppercase">
             <span>{post.author}</span>
             <span>&middot;</span>
             <time dateTime={post.date}>
@@ -971,6 +1029,7 @@ export function BlogHero({ post }: { post: BlogPostMeta }) {
 - [ ] **Step 5: Create category pills**
 
 Create `apps/web/components/feature-modules/blog/components/category-pills.tsx`:
+
 ```tsx
 'use client';
 
@@ -989,7 +1048,7 @@ export function CategoryPills({ categories }: CategoryPillsProps) {
 
   return (
     <div className="mb-12">
-      <h2 className="mb-4 font-[family-name:var(--font-instrument-serif)] text-2xl italic text-muted-foreground">
+      <h2 className="mb-4 font-[family-name:var(--font-instrument-serif)] text-2xl text-muted-foreground">
         Browse by category:
       </h2>
       <div className="flex flex-wrap gap-2" role="tablist">
@@ -998,7 +1057,7 @@ export function CategoryPills({ categories }: CategoryPillsProps) {
           role="tab"
           aria-selected={isAll}
           className={cn(
-            'rounded-sm border px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-widest transition-colors',
+            'rounded-sm border px-3 py-1.5 font-mono text-xs font-bold tracking-widest uppercase transition-colors',
             isAll
               ? 'border-foreground bg-foreground text-background'
               : 'border-border text-muted-foreground hover:border-muted-foreground hover:text-foreground',
@@ -1015,7 +1074,7 @@ export function CategoryPills({ categories }: CategoryPillsProps) {
               role="tab"
               aria-selected={isActive}
               className={cn(
-                'rounded-sm border px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-widest transition-colors',
+                'rounded-sm border px-3 py-1.5 font-mono text-xs font-bold tracking-widest uppercase transition-colors',
                 isActive
                   ? 'border-foreground bg-foreground text-background'
                   : 'border-border text-muted-foreground hover:border-muted-foreground hover:text-foreground',
@@ -1034,6 +1093,7 @@ export function CategoryPills({ categories }: CategoryPillsProps) {
 - [ ] **Step 6: Create blog feed (Hex-style text-only)**
 
 Create `apps/web/components/feature-modules/blog/components/blog-feed.tsx`:
+
 ```tsx
 import { CATEGORY_LABELS, type BlogPostMeta } from '@/lib/blog-types';
 import Link from 'next/link';
@@ -1043,7 +1103,10 @@ export function BlogFeed({ posts }: { posts: BlogPostMeta[] }) {
     return (
       <div className="py-16 text-center">
         <p className="text-lg text-muted-foreground">No posts published yet. Check back soon.</p>
-        <Link href="/" className="mt-4 inline-block text-sm text-foreground underline underline-offset-4">
+        <Link
+          href="/"
+          className="mt-4 inline-block text-sm text-foreground underline underline-offset-4"
+        >
           Back to home
         </Link>
       </div>
@@ -1055,7 +1118,7 @@ export function BlogFeed({ posts }: { posts: BlogPostMeta[] }) {
       {posts.map((post) => (
         <article key={post.slug} className="py-6 first:pt-0">
           <Link href={`/blog/${post.slug}`} className="group block">
-            <div className="mb-2 flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+            <div className="mb-2 flex items-center gap-2 font-mono text-xs tracking-widest text-muted-foreground uppercase">
               <time dateTime={post.date}>
                 {new Date(post.date).toLocaleDateString('en-US', {
                   month: 'short',
@@ -1069,15 +1132,15 @@ export function BlogFeed({ posts }: { posts: BlogPostMeta[] }) {
             <h3 className="text-lg font-semibold tracking-tight transition-colors group-hover:text-muted-foreground lg:text-xl">
               {post.title}
             </h3>
-            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground line-clamp-2">
+            <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
               {post.description}
             </p>
             <div className="mt-3 flex items-center justify-between">
-              <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+              <span className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
                 {post.author}
               </span>
               <div className="flex gap-2">
-                <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                <span className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
                   {CATEGORY_LABELS[post.category]}
                 </span>
               </div>
@@ -1093,6 +1156,7 @@ export function BlogFeed({ posts }: { posts: BlogPostMeta[] }) {
 - [ ] **Step 7: Create blog search**
 
 Create `apps/web/components/feature-modules/blog/components/blog-search.tsx`:
+
 ```tsx
 'use client';
 
@@ -1123,19 +1187,19 @@ export function BlogSearch({ posts }: BlogSearchProps) {
   return (
     <div>
       <div className="relative mb-8">
-        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search posts..."
           aria-label="Search blog posts"
-          className="w-full rounded-sm border border-border bg-transparent py-2.5 pl-10 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus:border-muted-foreground focus:outline-none"
+          className="w-full rounded-sm border border-border bg-transparent py-2.5 pr-10 pl-10 text-sm text-foreground placeholder:text-muted-foreground focus:border-muted-foreground focus:outline-none"
         />
         {query && (
           <button
             onClick={() => setQuery('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
             aria-label="Clear search"
           >
             <X className="size-4" />
@@ -1163,6 +1227,7 @@ export function BlogSearch({ posts }: BlogSearchProps) {
 - [ ] **Step 8: Create table of contents**
 
 Create `apps/web/components/feature-modules/blog/components/table-of-contents.tsx`:
+
 ```tsx
 'use client';
 
@@ -1226,7 +1291,7 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
     <>
       {/* Desktop: sticky sidebar */}
       <nav aria-label="Table of contents" className="hidden lg:block">
-        <p className="mb-3 font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
+        <p className="mb-3 font-mono text-xs font-bold tracking-widest text-muted-foreground uppercase">
           On this page
         </p>
         {list}
@@ -1238,11 +1303,14 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
           onClick={() => setIsOpen(!isOpen)}
           className="flex w-full items-center justify-between rounded-sm border border-border px-4 py-2.5 text-sm"
         >
-          <span className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
+          <span className="font-mono text-xs font-bold tracking-widest text-muted-foreground uppercase">
             Table of Contents
           </span>
           <ChevronDown
-            className={cn('size-4 text-muted-foreground transition-transform', isOpen && 'rotate-180')}
+            className={cn(
+              'size-4 text-muted-foreground transition-transform',
+              isOpen && 'rotate-180',
+            )}
           />
         </button>
         {isOpen && <div className="mt-2 rounded-sm border border-border p-4">{list}</div>}
@@ -1255,6 +1323,7 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
 - [ ] **Step 9: Create related posts**
 
 Create `apps/web/components/feature-modules/blog/components/related-posts.tsx`:
+
 ```tsx
 import type { BlogPostMeta } from '@/lib/blog-types';
 import Link from 'next/link';
@@ -1264,14 +1333,14 @@ export function RelatedPosts({ posts }: { posts: BlogPostMeta[] }) {
 
   return (
     <section className="mt-16 border-t border-border pt-12">
-      <h2 className="mb-6 font-[family-name:var(--font-instrument-serif)] text-2xl italic text-muted-foreground">
+      <h2 className="mb-6 font-[family-name:var(--font-instrument-serif)] text-2xl text-muted-foreground">
         More from the blog
       </h2>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {posts.map((post) => (
           <Link key={post.slug} href={`/blog/${post.slug}`} className="group block">
             <article>
-              <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+              <span className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
                 {new Date(post.date).toLocaleDateString('en-US', {
                   month: 'short',
                   day: 'numeric',
@@ -1281,9 +1350,7 @@ export function RelatedPosts({ posts }: { posts: BlogPostMeta[] }) {
               <h3 className="mt-2 font-semibold tracking-tight transition-colors group-hover:text-muted-foreground">
                 {post.title}
               </h3>
-              <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-                {post.description}
-              </p>
+              <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{post.description}</p>
             </article>
           </Link>
         ))}
@@ -1296,6 +1363,7 @@ export function RelatedPosts({ posts }: { posts: BlogPostMeta[] }) {
 - [ ] **Step 10: Create featured posts (landing page section)**
 
 Create `apps/web/components/feature-modules/blog/components/featured-posts.tsx`:
+
 ```tsx
 import { CATEGORY_LABELS, type BlogPostMeta } from '@/lib/blog-types';
 import { cdnImageLoader } from '@/lib/cdn-image-loader';
@@ -1310,7 +1378,7 @@ interface FeaturedPostsProps {
 export function FeaturedPosts({ featured, recent }: FeaturedPostsProps) {
   return (
     <section className="relative z-20 px-6 py-20 lg:px-12">
-      <h2 className="mb-12 font-[family-name:var(--font-instrument-serif)] text-3xl italic text-muted-foreground lg:text-4xl">
+      <h2 className="mb-12 font-[family-name:var(--font-instrument-serif)] text-3xl text-muted-foreground lg:text-4xl">
         Latest from the blog
       </h2>
 
@@ -1322,7 +1390,7 @@ export function FeaturedPosts({ featured, recent }: FeaturedPostsProps) {
               <div className="aspect-video overflow-hidden">
                 <Image
                   src={featured.coverImage}
-              loader={cdnImageLoader}
+                  loader={cdnImageLoader}
                   alt={featured.title}
                   width={800}
                   height={450}
@@ -1331,13 +1399,13 @@ export function FeaturedPosts({ featured, recent }: FeaturedPostsProps) {
               </div>
             )}
             <div className="p-6">
-              <span className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
+              <span className="font-mono text-xs font-bold tracking-widest text-muted-foreground uppercase">
                 {CATEGORY_LABELS[featured.category]}
               </span>
               <h3 className="mt-2 text-xl font-bold tracking-tight lg:text-2xl">
                 {featured.title}
               </h3>
-              <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
+              <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
                 {featured.description}
               </p>
             </div>
@@ -1349,16 +1417,16 @@ export function FeaturedPosts({ featured, recent }: FeaturedPostsProps) {
           {recent.map((post) => (
             <Link key={post.slug} href={`/blog/${post.slug}`} className="group block">
               <article className="rounded-lg border border-border p-5 transition-colors hover:border-muted-foreground/30">
-                <span className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                <span className="font-mono text-xs font-bold tracking-widest text-muted-foreground uppercase">
                   {CATEGORY_LABELS[post.category]}
                 </span>
                 <h3 className="mt-2 font-semibold tracking-tight transition-colors group-hover:text-muted-foreground">
                   {post.title}
                 </h3>
-                <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
+                <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
                   {post.description}
                 </p>
-                <span className="mt-3 inline-block font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                <span className="mt-3 inline-block font-mono text-xs tracking-widest text-muted-foreground uppercase">
                   {post.readTime} min read
                 </span>
               </article>
@@ -1370,7 +1438,7 @@ export function FeaturedPosts({ featured, recent }: FeaturedPostsProps) {
       <div className="mt-8 text-center">
         <Link
           href="/blog"
-          className="font-mono text-sm uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
+          className="font-mono text-sm tracking-widest text-muted-foreground uppercase transition-colors hover:text-foreground"
         >
           View all posts &rarr;
         </Link>
@@ -1392,6 +1460,7 @@ git commit -m "feat: add blog UI components (hero, feed, search, TOC, pills, bre
 ### Task 6: Blog Pages
 
 **Files:**
+
 - Create: `apps/web/app/blog/page.tsx`
 - Create: `apps/web/app/blog/[slug]/page.tsx`
 - Create: `apps/web/app/blog/category/[category]/page.tsx`
@@ -1401,6 +1470,7 @@ git commit -m "feat: add blog UI components (hero, feed, search, TOC, pills, bre
 - [ ] **Step 1: Create blog index page**
 
 Create `apps/web/app/blog/page.tsx`:
+
 ```tsx
 import { BlogFeed } from '@/components/feature-modules/blog/components/blog-feed';
 import { BlogHero } from '@/components/feature-modules/blog/components/blog-hero';
@@ -1427,12 +1497,10 @@ export default async function BlogPage() {
     getFeaturedPost(),
   ]);
 
-  const feedPosts = featured
-    ? posts.filter((p) => p.slug !== featured.slug)
-    : posts;
+  const feedPosts = featured ? posts.filter((p) => p.slug !== featured.slug) : posts;
 
   return (
-    <main className="mx-auto max-w-5xl px-6 pb-20 pt-12 lg:px-8">
+    <main className="mx-auto max-w-5xl px-6 pt-12 pb-20 lg:px-8">
       {featured && <BlogHero post={featured} />}
 
       <div className="mt-12">
@@ -1448,6 +1516,7 @@ export default async function BlogPage() {
 - [ ] **Step 2: Create blog post page**
 
 Create `apps/web/app/blog/[slug]/page.tsx`:
+
 ```tsx
 import { Breadcrumbs } from '@/components/feature-modules/blog/components/breadcrumbs';
 import { ReadingProgress } from '@/components/feature-modules/blog/components/reading-progress';
@@ -1512,7 +1581,12 @@ function ArticleJsonLd({ post }: { post: Awaited<ReturnType<typeof getPostBySlug
     author: { '@type': 'Person', name: post.author },
     publisher: { '@type': 'Organization', name: 'Riven', url: 'https://getriven.io' },
   };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />;
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
 }
 
 function BreadcrumbJsonLd({ post }: { post: Awaited<ReturnType<typeof getPostBySlug>> }) {
@@ -1532,7 +1606,12 @@ function BreadcrumbJsonLd({ post }: { post: Awaited<ReturnType<typeof getPostByS
       { '@type': 'ListItem', position: 4, name: post.title },
     ],
   };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />;
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
 }
 
 export default async function BlogPostPage({ params }: Props) {
@@ -1548,19 +1627,17 @@ export default async function BlogPostPage({ params }: Props) {
       <ArticleJsonLd post={post} />
       <BreadcrumbJsonLd post={post} />
 
-      <main className="mx-auto max-w-5xl px-6 pb-20 pt-12 lg:px-8">
+      <main className="mx-auto max-w-5xl px-6 pt-12 pb-20 lg:px-8">
         <Breadcrumbs category={post.category} postTitle={post.title} />
 
         <div className="lg:grid lg:grid-cols-[1fr_200px] lg:gap-12">
           <article className="max-w-prose">
             <header className="mb-12">
-              <span className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
+              <span className="font-mono text-xs font-bold tracking-widest text-muted-foreground uppercase">
                 {CATEGORY_LABELS[post.category]}
               </span>
-              <h1 className="mt-3 text-3xl font-bold tracking-tight lg:text-4xl">
-                {post.title}
-              </h1>
-              <div className="mt-4 flex items-center gap-3 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+              <h1 className="mt-3 text-3xl font-bold tracking-tight lg:text-4xl">{post.title}</h1>
+              <div className="mt-4 flex items-center gap-3 font-mono text-xs tracking-widest text-muted-foreground uppercase">
                 <time dateTime={post.date}>
                   {new Date(post.date).toLocaleDateString('en-US', {
                     month: 'short',
@@ -1620,6 +1697,7 @@ export default async function BlogPostPage({ params }: Props) {
 - [ ] **Step 3: Create category page**
 
 Create `apps/web/app/blog/category/[category]/page.tsx`:
+
 ```tsx
 import { BlogFeed } from '@/components/feature-modules/blog/components/blog-feed';
 import { CategoryPills } from '@/components/feature-modules/blog/components/category-pills';
@@ -1659,7 +1737,7 @@ export default async function CategoryPage({ params }: Props) {
   if (posts.length === 0) notFound();
 
   return (
-    <main className="mx-auto max-w-5xl px-6 pb-20 pt-12 lg:px-8">
+    <main className="mx-auto max-w-5xl px-6 pt-12 pb-20 lg:px-8">
       <h1 className="mb-8 text-3xl font-bold tracking-tight">
         {CATEGORY_LABELS[category as BlogCategory]}
       </h1>
@@ -1673,6 +1751,7 @@ export default async function CategoryPage({ params }: Props) {
 - [ ] **Step 4: Create RSS feed route**
 
 Create `apps/web/app/blog/rss.xml/route.ts`:
+
 ```typescript
 import { getAllPosts } from '@/lib/blog';
 
@@ -1721,6 +1800,7 @@ export async function GET() {
 - [ ] **Step 5: Create dynamic OG image route**
 
 Create `apps/web/app/api/og/route.tsx`:
+
 ```tsx
 import { getPostBySlug } from '@/lib/blog';
 import { CATEGORY_LABELS } from '@/lib/blog-types';
@@ -1732,23 +1812,21 @@ export async function GET(request: NextRequest) {
 
   if (!slug) {
     return new ImageResponse(
-      (
-        <div
-          style={{
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: '#1a1a1a',
-            color: '#ffffff',
-            fontSize: 48,
-            fontWeight: 700,
-          }}
-        >
-          Riven Blog
-        </div>
-      ),
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#1a1a1a',
+          color: '#ffffff',
+          fontSize: 48,
+          fontWeight: 700,
+        }}
+      >
+        Riven Blog
+      </div>,
       { width: 1200, height: 630 },
     );
   }
@@ -1759,57 +1837,57 @@ export async function GET(request: NextRequest) {
   }
 
   return new ImageResponse(
-    (
-      <div
-        style={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          padding: '60px 80px',
-          backgroundColor: '#0a0a0a',
-          color: '#ffffff',
-        }}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <span
-            style={{
-              fontSize: 14,
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              color: '#888',
-            }}
-          >
-            {CATEGORY_LABELS[post.category]}
-          </span>
-          <span
-            style={{
-              fontSize: 48,
-              fontWeight: 700,
-              lineHeight: 1.1,
-              letterSpacing: '-0.02em',
-              maxWidth: '900px',
-            }}
-          >
-            {post.title}
-          </span>
-        </div>
-        <div
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        padding: '60px 80px',
+        backgroundColor: '#0a0a0a',
+        color: '#ffffff',
+      }}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <span
           style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-end',
-            fontSize: 16,
+            fontSize: 14,
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
             color: '#888',
           }}
         >
-          <span>{post.author} &middot; {post.readTime} min read</span>
-          <span style={{ fontSize: 20, fontWeight: 700, color: '#fff' }}>Riven</span>
-        </div>
+          {CATEGORY_LABELS[post.category]}
+        </span>
+        <span
+          style={{
+            fontSize: 48,
+            fontWeight: 700,
+            lineHeight: 1.1,
+            letterSpacing: '-0.02em',
+            maxWidth: '900px',
+          }}
+        >
+          {post.title}
+        </span>
       </div>
-    ),
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-end',
+          fontSize: 16,
+          color: '#888',
+        }}
+      >
+        <span>
+          {post.author} &middot; {post.readTime} min read
+        </span>
+        <span style={{ fontSize: 20, fontWeight: 700, color: '#fff' }}>Riven</span>
+      </div>
+    </div>,
     {
       width: 1200,
       height: 630,
@@ -1833,11 +1911,13 @@ git commit -m "feat: add blog pages (index, post, category), RSS feed, and OG im
 ### Task 7: Landing Page Integration
 
 **Files:**
+
 - Modify: `apps/web/app/page.tsx`
 
 - [ ] **Step 1: Convert landing page to server component and add featured posts**
 
 Replace `apps/web/app/page.tsx`:
+
 ```tsx
 import { DailyActions } from '@/components/feature-modules/actions/components/daily-actions';
 import { FeaturedPosts } from '@/components/feature-modules/blog/components/featured-posts';
@@ -1885,6 +1965,7 @@ export default async function Home() {
 ```
 
 Key changes:
+
 - Removed `'use client'` directive — now a server component
 - Added `async` to enable server-side blog data fetching
 - Added `FeaturedPosts` section between `DailyActions` and `Faq`
@@ -1910,29 +1991,32 @@ git commit -m "feat: convert landing page to server component, add featured blog
 ### Task 8: Second Sample Post + Verify Build
 
 **Files:**
+
 - Create: `apps/web/content/blog/tracking-churn-across-tools.mdx`
 
 - [ ] **Step 1: Create second sample post to test feed with multiple posts**
 
 Create `apps/web/content/blog/tracking-churn-across-tools.mdx`:
+
 ```mdx
 ---
-title: "How to Track Churn When Your Data Lives in 6 Different Tools"
-description: "Most DTC operators can tell you their churn rate. Almost none can tell you why customers leave — because the signals are scattered across Stripe, Gorgias, Shopify, and 3 other tools."
-date: "2026-03-20"
-updated: "2026-03-20"
-author: "Jared Tucker"
-category: "operational-intelligence"
-tags: ["churn", "analytics", "DTC", "cross-domain"]
+title: 'How to Track Churn When Your Data Lives in 6 Different Tools'
+description: 'Most DTC operators can tell you their churn rate. Almost none can tell you why customers leave — because the signals are scattered across Stripe, Gorgias, Shopify, and 3 other tools.'
+date: '2026-03-20'
+updated: '2026-03-20'
+author: 'Jared Tucker'
+category: 'operational-intelligence'
+tags: ['churn', 'analytics', 'DTC', 'cross-domain']
 ---
 
-Most DTC operators can tell you their churn rate. Almost none can tell you *why* customers leave. The signals are there — a support ticket here, a failed payment there, a product return two weeks ago — but they're scattered across 6 different tools that don't talk to each other.
+Most DTC operators can tell you their churn rate. Almost none can tell you _why_ customers leave. The signals are there — a support ticket here, a failed payment there, a product return two weeks ago — but they're scattered across 6 different tools that don't talk to each other.
 
 ## The 15-Minute Customer View Problem
 
 Try to answer this question: "Why did Sarah Chen cancel her subscription last week?"
 
 To find out, you'd need to check:
+
 - **Stripe** — payment history, failed charges, refunds
 - **Gorgias** — support tickets, satisfaction scores
 - **Shopify** — order history, returns
@@ -1973,12 +2057,15 @@ This takes 4-8 hours per week for a team managing 1,000+ customers. And by the t
 ## Frequently Asked Questions
 
 ### How do you calculate churn rate across multiple tools?
-Start with billing data (Stripe/Chargebee) as your source of truth for active vs. churned. Then enrich each churned customer with signals from support, product, and marketing tools to understand the *why* behind the number.
+
+Start with billing data (Stripe/Chargebee) as your source of truth for active vs. churned. Then enrich each churned customer with signals from support, product, and marketing tools to understand the _why_ behind the number.
 
 ### What's a good churn rate for DTC e-commerce?
+
 Monthly churn rates for subscription DTC brands typically range from 5-10%. But the aggregate number hides everything — churn by acquisition channel, by product, by season. The operators who reduce churn are the ones who can segment it.
 
 ### Can you predict churn before it happens?
+
 With connected data, yes. The pattern of "support ticket + low email engagement + failed payment" is visible days or weeks before cancellation. But only if your tools talk to each other.
 ```
 
@@ -1987,6 +2074,7 @@ With connected data, yes. The pattern of "support ticket + low email engagement 
 ```bash
 cd apps/web && pnpm test
 ```
+
 Expected: All tests pass with both sample posts.
 
 - [ ] **Step 3: Run build to verify everything compiles**
@@ -1994,6 +2082,7 @@ Expected: All tests pass with both sample posts.
 ```bash
 cd apps/web && pnpm build
 ```
+
 Expected: Build succeeds. Blog pages are statically generated.
 
 - [ ] **Step 4: Commit**
@@ -2008,6 +2097,7 @@ git commit -m "feat: add second sample blog post, verify build passes"
 ## Summary
 
 8 tasks total:
+
 1. **Dependencies** — install MDX, rehype, Fuse.js, OG, Vitest
 2. **Blog library** — types, utilities, tests, first sample post
 3. **SEO fixes** — robots.ts, sitemap.ts

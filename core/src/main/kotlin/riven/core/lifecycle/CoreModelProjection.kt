@@ -14,7 +14,12 @@ data class ProjectionAcceptRule(
     val semanticGroup: SemanticGroup,
     val relationshipName: String,
     val autoCreate: Boolean = true,
-)
+) {
+    companion object {
+        /** Standard relationship name for integration-to-core projection links. */
+        const val SOURCE_DATA_RELATIONSHIP = "source-data"
+    }
+}
 
 /**
  * Aggregation column definition. Computed at query time from relationships.

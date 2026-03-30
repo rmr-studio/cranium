@@ -11,6 +11,7 @@ import riven.core.lifecycle.AttributeOptions
 import riven.core.lifecycle.AttributeSemantics
 import riven.core.lifecycle.CoreModelAttribute
 import riven.core.lifecycle.CoreModelDefinition
+import riven.core.lifecycle.ProjectionAcceptRule
 
 /**
  * Support Ticket — tracks customer issues, questions, and feedback through resolution.
@@ -26,6 +27,13 @@ object SupportTicketModel : CoreModelDefinition(
     identifierKey = "subject",
     semanticDefinition = "A support ticket tracks a customer issue, question, or piece of feedback through its lifecycle from creation to resolution. It is the primary unit of work for customer support operations and feeds into service quality metrics.",
     semanticTags = listOf("support", "service", "customer-success", "operations"),
+    projectionAccepts = listOf(
+        ProjectionAcceptRule(
+            domain = LifecycleDomain.SUPPORT,
+            semanticGroup = SemanticGroup.SUPPORT,
+            relationshipName = ProjectionAcceptRule.SOURCE_DATA_RELATIONSHIP,
+        ),
+    ),
     attributes = mapOf(
         "subject" to CoreModelAttribute(
             schemaType = SchemaType.TEXT, label = "Subject", dataType = DataType.STRING,

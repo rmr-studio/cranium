@@ -1,12 +1,10 @@
 package riven.core.service.catalog
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
-import riven.core.entity.catalog.ManifestCatalogEntity
 import riven.core.enums.catalog.ManifestType
 import riven.core.models.catalog.ResolvedManifest
 import riven.core.models.catalog.ScannedManifest
@@ -50,68 +48,24 @@ class ManifestLoaderServiceTest {
             logger
         )
 
-        // Default: empty scans and no stale entries
-        whenever(scannerService.scanModels()).thenReturn(emptyList())
-        whenever(scannerService.scanTemplates()).thenReturn(emptyList())
         whenever(scannerService.scanIntegrations()).thenReturn(emptyList())
         whenever(manifestCatalogRepository.findByStaleTrue()).thenReturn(emptyList())
-    }
-
-    // ------ Load Order ------
-
-    @Test
-    fun `loadAllManifests loads in order models then templates then integrations`() {
-        service.loadAllManifests()
-
-        val inOrder = inOrder(scannerService)
-        inOrder.verify(scannerService).scanModels()
-        inOrder.verify(scannerService).scanTemplates()
-        inOrder.verify(scannerService).scanIntegrations()
-    }
-
-    // ------ Model Index ------
-
-    @Test
-    fun `loadAllManifests builds model index from scanned models for template resolution`() {
-        val modelJson = objectMapper.readTree("""{"key":"customer","name":"Customer"}""")
-        val modelScanned = ScannedManifest("customer", ManifestType.MODEL, modelJson)
-        val modelResolved = createResolvedManifest("customer", ManifestType.MODEL)
-
-        whenever(scannerService.scanModels()).thenReturn(listOf(modelScanned))
-        whenever(resolverService.resolveManifest(eq(modelScanned), eq(emptyMap())))
-            .thenReturn(modelResolved)
-
-        val templateJson = objectMapper.readTree("""{"key":"saas","name":"SaaS Starter"}""")
-        val templateScanned = ScannedManifest("saas", ManifestType.TEMPLATE, templateJson)
-        val templateResolved = createResolvedManifest("saas", ManifestType.TEMPLATE)
-
-        whenever(scannerService.scanTemplates()).thenReturn(listOf(templateScanned))
-        whenever(resolverService.resolveManifest(eq(templateScanned), argThat<Map<String, JsonNode>> {
-            containsKey("customer")
-        })).thenReturn(templateResolved)
-
-        service.loadAllManifests()
-
-        // Verify template resolution received model index with customer key
-        verify(resolverService).resolveManifest(eq(templateScanned), argThat<Map<String, JsonNode>> {
-            containsKey("customer") && this["customer"] == modelJson
-        })
     }
 
     // ------ Per-Manifest Exception Isolation ------
 
     @Test
     fun `loadAllManifests catches upsert exception and continues`() {
-        val model1Json = objectMapper.readTree("""{"key":"m1"}""")
-        val model2Json = objectMapper.readTree("""{"key":"m2"}""")
-        val scanned1 = ScannedManifest("m1", ManifestType.MODEL, model1Json)
-        val scanned2 = ScannedManifest("m2", ManifestType.MODEL, model2Json)
-        val resolved1 = createResolvedManifest("m1", ManifestType.MODEL)
-        val resolved2 = createResolvedManifest("m2", ManifestType.MODEL)
+        val json1 = objectMapper.readTree("""{"key":"i1"}""")
+        val json2 = objectMapper.readTree("""{"key":"i2"}""")
+        val scanned1 = ScannedManifest("i1", ManifestType.INTEGRATION, json1)
+        val scanned2 = ScannedManifest("i2", ManifestType.INTEGRATION, json2)
+        val resolved1 = createResolvedManifest("i1", ManifestType.INTEGRATION)
+        val resolved2 = createResolvedManifest("i2", ManifestType.INTEGRATION)
 
-        whenever(scannerService.scanModels()).thenReturn(listOf(scanned1, scanned2))
-        whenever(resolverService.resolveManifest(eq(scanned1), any())).thenReturn(resolved1)
-        whenever(resolverService.resolveManifest(eq(scanned2), any())).thenReturn(resolved2)
+        whenever(scannerService.scanIntegrations()).thenReturn(listOf(scanned1, scanned2))
+        whenever(resolverService.resolveManifest(eq(scanned1))).thenReturn(resolved1)
+        whenever(resolverService.resolveManifest(eq(scanned2))).thenReturn(resolved2)
 
         // First upsert throws, second should still be called
         doThrow(RuntimeException("DB error")).whenever(upsertService).upsertManifest(resolved1)
@@ -126,28 +80,28 @@ class ManifestLoaderServiceTest {
 
     @Test
     fun `loadAllManifests calls reconciliation after load with seen manifests`() {
-        val modelJson = objectMapper.readTree("""{"key":"m1"}""")
-        val scanned = ScannedManifest("m1", ManifestType.MODEL, modelJson)
-        val resolved = createResolvedManifest("m1", ManifestType.MODEL)
+        val json = objectMapper.readTree("""{"key":"i1"}""")
+        val scanned = ScannedManifest("i1", ManifestType.INTEGRATION, json)
+        val resolved = createResolvedManifest("i1", ManifestType.INTEGRATION)
 
-        whenever(scannerService.scanModels()).thenReturn(listOf(scanned))
-        whenever(resolverService.resolveManifest(eq(scanned), any())).thenReturn(resolved)
+        whenever(scannerService.scanIntegrations()).thenReturn(listOf(scanned))
+        whenever(resolverService.resolveManifest(eq(scanned))).thenReturn(resolved)
 
         service.loadAllManifests()
 
         verify(reconciliationService).reconcileStaleEntries(argThat {
-            contains("m1" to ManifestType.MODEL) && size == 1
+            contains("i1" to ManifestType.INTEGRATION) && size == 1
         })
     }
 
     @Test
     fun `loadAllManifests does not add stale-resolved manifests to seen set`() {
-        val modelJson = objectMapper.readTree("""{"key":"m1"}""")
-        val scanned = ScannedManifest("m1", ManifestType.MODEL, modelJson)
-        val resolved = createResolvedManifest("m1", ManifestType.MODEL, stale = true)
+        val json = objectMapper.readTree("""{"key":"i1"}""")
+        val scanned = ScannedManifest("i1", ManifestType.INTEGRATION, json)
+        val resolved = createResolvedManifest("i1", ManifestType.INTEGRATION, stale = true)
 
-        whenever(scannerService.scanModels()).thenReturn(listOf(scanned))
-        whenever(resolverService.resolveManifest(eq(scanned), any())).thenReturn(resolved)
+        whenever(scannerService.scanIntegrations()).thenReturn(listOf(scanned))
+        whenever(resolverService.resolveManifest(eq(scanned))).thenReturn(resolved)
 
         service.loadAllManifests()
 
@@ -177,12 +131,12 @@ class ManifestLoaderServiceTest {
 
     @Test
     fun `loadAllManifests logs summary with correct counts`() {
-        val modelJson = objectMapper.readTree("""{"key":"m1"}""")
-        val scanned = ScannedManifest("m1", ManifestType.MODEL, modelJson)
-        val resolved = createResolvedManifest("m1", ManifestType.MODEL)
+        val json = objectMapper.readTree("""{"key":"i1"}""")
+        val scanned = ScannedManifest("i1", ManifestType.INTEGRATION, json)
+        val resolved = createResolvedManifest("i1", ManifestType.INTEGRATION)
 
-        whenever(scannerService.scanModels()).thenReturn(listOf(scanned))
-        whenever(resolverService.resolveManifest(eq(scanned), any())).thenReturn(resolved)
+        whenever(scannerService.scanIntegrations()).thenReturn(listOf(scanned))
+        whenever(resolverService.resolveManifest(eq(scanned))).thenReturn(resolved)
         whenever(manifestCatalogRepository.findByStaleTrue()).thenReturn(emptyList())
 
         service.loadAllManifests()

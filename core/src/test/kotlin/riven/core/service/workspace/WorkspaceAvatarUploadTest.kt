@@ -12,11 +12,9 @@ import org.springframework.web.multipart.MultipartFile
 import riven.core.configuration.auth.WorkspaceSecurity
 import riven.core.entity.workspace.WorkspaceEntity
 import riven.core.entity.workspace.WorkspaceMemberEntity
-import riven.core.enums.storage.StorageDomain
 import riven.core.enums.workspace.WorkspacePlan
 import riven.core.enums.workspace.WorkspaceRoles
 import riven.core.models.request.workspace.SaveWorkspaceRequest
-import riven.core.models.response.storage.UploadFileResponse
 import riven.core.models.user.User
 import riven.core.repository.workspace.WorkspaceMemberRepository
 import riven.core.repository.workspace.WorkspaceRepository
@@ -26,7 +24,6 @@ import riven.core.service.storage.StorageService
 import riven.core.service.user.UserService
 import riven.core.service.util.WithUserPersona
 import riven.core.service.util.WorkspaceRole
-import riven.core.service.util.factory.storage.StorageFactory
 import java.util.*
 
 @SpringBootTest(
@@ -93,17 +90,12 @@ class WorkspaceAvatarUploadTest {
         )
 
         val mockFile = mock<MultipartFile>()
-        val fileMetadata = StorageFactory.fileMetadata(
-            workspaceId = workspaceId,
-            storageKey = storageKey
-        )
-        val uploadResponse = UploadFileResponse(file = fileMetadata, signedUrl = "https://example.com/signed")
 
         whenever(authTokenService.getUserId()).thenReturn(userId)
         whenever(workspaceRepository.save(any<WorkspaceEntity>())).thenReturn(savedEntity)
         whenever(workspaceMemberRepository.save(any<WorkspaceMemberEntity>())).thenReturn(mock())
-        whenever(storageService.uploadFileInternal(eq(workspaceId), eq(StorageDomain.AVATAR), eq(mockFile), isNull()))
-            .thenReturn(uploadResponse)
+        whenever(storageService.updateWorkspaceAvatar(eq(workspaceId), eq(mockFile), isNull()))
+            .thenReturn(storageKey)
         whenever(userService.getUserWithWorkspacesFromSession()).thenReturn(
             User(id = userId, email = "test@test.com", name = "Test User")
         )
@@ -116,7 +108,7 @@ class WorkspaceAvatarUploadTest {
 
         workspaceService.saveWorkspace(request, avatar = mockFile)
 
-        verify(storageService).uploadFileInternal(eq(workspaceId), eq(StorageDomain.AVATAR), eq(mockFile), isNull())
+        verify(storageService).updateWorkspaceAvatar(eq(workspaceId), eq(mockFile), isNull())
         // Workspace is saved twice: once for initial create, once after avatar upload
         verify(workspaceRepository, times(2)).save(any<WorkspaceEntity>())
     }
@@ -144,7 +136,7 @@ class WorkspaceAvatarUploadTest {
 
         workspaceService.saveWorkspace(request, avatar = null)
 
-        verify(storageService, never()).uploadFileInternal(any(), any(), any(), anyOrNull())
+        verify(storageService, never()).updateWorkspaceAvatar(any(), any(), anyOrNull())
         // Workspace saved only once for initial create
         verify(workspaceRepository, times(1)).save(any<WorkspaceEntity>())
     }
@@ -159,19 +151,14 @@ class WorkspaceAvatarUploadTest {
         )
 
         val mockFile = mock<MultipartFile>()
-        val fileMetadata = StorageFactory.fileMetadata(
-            workspaceId = workspaceId,
-            storageKey = storageKey
-        )
-        val uploadResponse = UploadFileResponse(file = fileMetadata, signedUrl = "https://example.com/signed")
 
         whenever(authTokenService.getUserId()).thenReturn(userId)
         whenever(workspaceRepository.findById(workspaceId)).thenReturn(Optional.of(existingEntity))
         whenever(workspaceMemberRepository.findByWorkspaceIdAndUserId(workspaceId, userId))
             .thenReturn(Optional.of(mock<WorkspaceMemberEntity>()))
         whenever(workspaceRepository.save(any<WorkspaceEntity>())).thenReturn(existingEntity)
-        whenever(storageService.uploadFileInternal(eq(workspaceId), eq(StorageDomain.AVATAR), eq(mockFile), isNull()))
-            .thenReturn(uploadResponse)
+        whenever(storageService.updateWorkspaceAvatar(eq(workspaceId), eq(mockFile), isNull()))
+            .thenReturn(storageKey)
         whenever(userService.getUserWithWorkspacesFromSession()).thenReturn(
             User(id = userId, email = "test@test.com", name = "Test User", memberships = listOf())
         )
@@ -185,7 +172,7 @@ class WorkspaceAvatarUploadTest {
 
         workspaceService.saveWorkspace(request, avatar = mockFile)
 
-        verify(storageService).uploadFileInternal(eq(workspaceId), eq(StorageDomain.AVATAR), eq(mockFile), isNull())
+        verify(storageService).updateWorkspaceAvatar(eq(workspaceId), eq(mockFile), isNull())
         // Workspace saved twice: once for update, once after avatar upload
         verify(workspaceRepository, times(2)).save(any<WorkspaceEntity>())
     }

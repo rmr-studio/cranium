@@ -108,8 +108,8 @@ export const Faq = ({ preview = false }: FaqProps) => {
   return (
     <Section id="faqs" size={24}>
       <div className="clamp relative z-10 flex flex-col">
-        <h2 className="text-center text-4xl leading-none tracking-tighter text-heading md:text-5xl">
-          Frequently Asked <span className="font-serif font-normal italic">Questions</span>
+        <h2 className="text-center font-serif text-4xl leading-none tracking-tighter text-heading md:text-6xl">
+          Frequently Asked Questions
         </h2>
         <Accordion type="single" collapsible className="mx-auto mt-10 w-full max-w-4xl px-4">
           {items.map((item, i) => (

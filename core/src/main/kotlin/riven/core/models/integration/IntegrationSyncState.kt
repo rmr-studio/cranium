@@ -12,5 +12,7 @@ data class IntegrationSyncState(
     val consecutiveFailureCount: Int,
     val lastErrorMessage: String?,
     val lastRecordsSynced: Int?,
-    val lastRecordsFailed: Int?
+    val lastRecordsFailed: Int?,
+    val lastPipelineStep: String?,
+    val projectionResult: Map<String, Any>?
 )

@@ -15,9 +15,7 @@ export function FeaturedPosts({ featured, recent }: FeaturedPostsProps) {
 
   return (
     <section className="relative z-20 px-6 py-20 lg:px-12">
-      <h2 className="mb-12 font-[family-name:var(--font-instrument-serif)] text-3xl text-muted-foreground italic lg:text-4xl">
-        Latest from the blog
-      </h2>
+      <h2 className="mb-12 font-serif text-3xl lg:text-6xl">Latest from the blog</h2>
 
       <div className="grid gap-8 lg:grid-cols-5">
         {/* Featured post — large with cover image */}

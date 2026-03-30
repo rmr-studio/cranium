@@ -68,6 +68,7 @@ class IntegrationSyncActivitiesImpl(
     private val catalogEntityTypeRepository: CatalogEntityTypeRepository,
     private val entityTypeRepository: EntityTypeRepository,
     private val integrationHealthService: IntegrationHealthService,
+    private val entityProjectionService: riven.core.service.ingestion.EntityProjectionService,
     private val transactionTemplate: TransactionTemplate,
     private val logger: KLogger,
 ) : IntegrationSyncActivities {
@@ -155,13 +156,29 @@ class IntegrationSyncActivitiesImpl(
     }
 
     /**
-     * No-op stub for the projection pipeline (Pass 3).
+     * Executes the projection pipeline (Pass 3): projects integration entities into core lifecycle entities.
      *
-     * Will be implemented by the ingestion-pipeline branch to run domain-based projection
-     * routing for each synced entity. Currently logs and returns.
+     * Delegates to [EntityProjectionService] which handles rule loading, identity resolution,
+     * entity creation/update, relationship linking, and cluster assignment.
      */
     override fun executeProjections(connectionId: UUID, workspaceId: UUID, entityTypeId: UUID, syncedEntityIds: List<UUID>) {
-        logger.info { "Pass 3 (projections): No-op — ingestion pipeline not yet implemented. ${syncedEntityIds.size} entities available for projection." }
+        if (syncedEntityIds.isEmpty()) {
+            logger.info { "Pass 3 (projections): No entities to project for connection=$connectionId" }
+            return
+        }
+
+        logger.info { "Pass 3 (projections): Projecting ${syncedEntityIds.size} entities for connection=$connectionId, entityType=$entityTypeId" }
+
+        val result = entityProjectionService.processProjections(
+            syncedEntityIds = syncedEntityIds,
+            workspaceId = workspaceId,
+            sourceEntityTypeId = entityTypeId,
+        )
+
+        logger.info {
+            "Pass 3 (projections): Complete for connection=$connectionId — " +
+                "created=${result.created}, updated=${result.updated}, skipped=${result.skipped}, errors=${result.errors}"
+        }
     }
 
     /**

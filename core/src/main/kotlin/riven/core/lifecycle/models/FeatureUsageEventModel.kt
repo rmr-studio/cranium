@@ -11,6 +11,7 @@ import riven.core.lifecycle.AttributeOptions
 import riven.core.lifecycle.AttributeSemantics
 import riven.core.lifecycle.CoreModelAttribute
 import riven.core.lifecycle.CoreModelDefinition
+import riven.core.lifecycle.ProjectionAcceptRule
 
 /**
  * Feature Usage Event — records product feature usage by a customer. B2C SaaS specific.
@@ -26,6 +27,13 @@ object FeatureUsageEventModel : CoreModelDefinition(
     identifierKey = "feature-name",
     semanticDefinition = "Records product feature usage by a customer. Used for activation analysis, feature adoption tracking, and engagement scoring.",
     semanticTags = listOf("product-analytics", "engagement", "activation"),
+    projectionAccepts = listOf(
+        ProjectionAcceptRule(
+            domain = LifecycleDomain.USAGE,
+            semanticGroup = SemanticGroup.OPERATIONAL,
+            relationshipName = ProjectionAcceptRule.SOURCE_DATA_RELATIONSHIP,
+        ),
+    ),
     attributes = mapOf(
         "feature-name" to CoreModelAttribute(
             schemaType = SchemaType.TEXT, label = "Feature", dataType = DataType.STRING,

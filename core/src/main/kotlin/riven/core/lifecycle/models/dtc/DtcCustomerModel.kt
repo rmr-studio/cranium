@@ -5,6 +5,7 @@ import riven.core.enums.common.icon.IconType
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.lifecycle.CoreModelDefinition
+import riven.core.lifecycle.ProjectionAcceptRule
 import riven.core.lifecycle.models.base.CustomerBase
 
 /**
@@ -24,4 +25,11 @@ object DtcCustomerModel : CoreModelDefinition(
     semanticTags = listOf("crm", "contact", "revenue", "lifecycle"),
     attributes = CustomerBase.attributes,
     relationships = CustomerBase.relationships,
+    projectionAccepts = listOf(
+        ProjectionAcceptRule(
+            domain = LifecycleDomain.UNCATEGORIZED,
+            semanticGroup = SemanticGroup.CUSTOMER,
+            relationshipName = ProjectionAcceptRule.SOURCE_DATA_RELATIONSHIP,
+        ),
+    ),
 )

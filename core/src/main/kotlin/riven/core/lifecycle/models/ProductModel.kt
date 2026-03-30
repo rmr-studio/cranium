@@ -11,6 +11,7 @@ import riven.core.lifecycle.AttributeOptions
 import riven.core.lifecycle.AttributeSemantics
 import riven.core.lifecycle.CoreModelAttribute
 import riven.core.lifecycle.CoreModelDefinition
+import riven.core.lifecycle.ProjectionAcceptRule
 
 /**
  * Product — a sellable item in the store catalogue. DTC E-commerce specific.
@@ -26,6 +27,13 @@ object ProductModel : CoreModelDefinition(
     identifierKey = "name",
     semanticDefinition = "A sellable item in the store catalogue. Products are what customers purchase via orders.",
     semanticTags = listOf("catalogue", "inventory", "ecommerce"),
+    projectionAccepts = listOf(
+        ProjectionAcceptRule(
+            domain = LifecycleDomain.USAGE,
+            semanticGroup = SemanticGroup.PRODUCT,
+            relationshipName = ProjectionAcceptRule.SOURCE_DATA_RELATIONSHIP,
+        ),
+    ),
     attributes = mapOf(
         "name" to CoreModelAttribute(
             schemaType = SchemaType.TEXT, label = "Name", dataType = DataType.STRING,

@@ -11,6 +11,7 @@ import riven.core.lifecycle.AttributeOptions
 import riven.core.lifecycle.AttributeSemantics
 import riven.core.lifecycle.CoreModelAttribute
 import riven.core.lifecycle.CoreModelDefinition
+import riven.core.lifecycle.ProjectionAcceptRule
 import riven.core.lifecycle.models.base.CommunicationBase
 
 /**
@@ -28,6 +29,13 @@ object DtcCommunicationModel : CoreModelDefinition(
     identifierKey = "subject",
     semanticDefinition = "A communication logs a customer interaction, capturing what was discussed, the outcome, and any follow-up actions. Provides the audit trail for customer relationship management across channels.",
     semanticTags = listOf("customer-relations", "interaction", "crm", "communication"),
+    projectionAccepts = listOf(
+        ProjectionAcceptRule(
+            domain = LifecycleDomain.UNCATEGORIZED,
+            semanticGroup = SemanticGroup.COMMUNICATION,
+            relationshipName = ProjectionAcceptRule.SOURCE_DATA_RELATIONSHIP,
+        ),
+    ),
     attributes = CommunicationBase.attributes + mapOf(
         "type" to CoreModelAttribute(
             schemaType = SchemaType.SELECT, label = "Type", dataType = DataType.STRING,

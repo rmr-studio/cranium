@@ -14,6 +14,7 @@ Name | Type
 `_protected` | boolean
 `identifierKey` | string
 `semanticGroup` | [SemanticGroup](SemanticGroup.md)
+`lifecycleDomain` | [LifecycleDomain](LifecycleDomain.md)
 `sourceType` | [SourceType](SourceType.md)
 `sourceIntegrationId` | string
 `readonly` | boolean
@@ -44,6 +45,7 @@ const example = {
   "_protected": null,
   "identifierKey": null,
   "semanticGroup": null,
+  "lifecycleDomain": null,
   "sourceType": null,
   "sourceIntegrationId": null,
   "readonly": null,

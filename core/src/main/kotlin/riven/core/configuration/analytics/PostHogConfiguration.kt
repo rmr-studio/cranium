@@ -120,7 +120,7 @@ class PostHogConfiguration {
     ): FilterRegistrationBean<PostHogCaptureFilter> {
         val filter = PostHogCaptureFilter(postHogService, logger)
         val registration = FilterRegistrationBean(filter)
-        registration.order = -99  // After Spring Security (-100), so SecurityContext is populated
+        registration.order = -98  // After Spring Security (-100) and RateLimitFilter (-99)
         registration.addUrlPatterns("/api/*")
         return registration
     }

@@ -68,6 +68,14 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_entities_integration_dedup
     ON entities (workspace_id, source_integration_id, source_external_id)
     WHERE deleted = false AND source_external_id IS NOT NULL;
 
+-- Identity Resolution Index (Projection Pipeline)
+-- Batch sourceExternalId match on target entity type for projection identity resolution.
+-- Distinct from the dedup index (which includes source_integration_id) because
+-- projection matches across integration boundaries by entity_type_id.
+CREATE INDEX IF NOT EXISTS idx_entities_identity_resolution
+    ON entities (type_id, workspace_id, source_external_id)
+    WHERE deleted = false AND source_external_id IS NOT NULL;
+
 -- =====================================================
 -- ENTITY ATTRIBUTE INDEXES
 -- =====================================================

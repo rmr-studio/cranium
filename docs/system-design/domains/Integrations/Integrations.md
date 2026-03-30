@@ -32,7 +32,6 @@ The Integrations domain manages the full lifecycle of third-party integrations w
 
 - Catalog definitions (manifest scanning, resolution, persistence) — owned by [[Catalog]] domain
 - Entity type schema management and user-defined attributes — owned by [[Entities]] domain
-- Sync execution and data ingestion — future, will be orchestrated by Temporal workflows
 - OAuth flow UI — frontend responsibility; backend receives completion notification via Nango webhook
 
 ---
@@ -45,6 +44,7 @@ The Integrations domain manages the full lifecycle of third-party integrations w
 | [[Connection Management]] | Manages Nango connection lifecycle and the 8-state connection state machine |
 | [[Data Sync]] | Tracks per-connection per-entity-type sync progress — status, cursor position, failure counts, and record metrics |
 | [[Webhook Authentication]] | Handles inbound Nango webhook events — HMAC signature validation, auth event processing (connection creation + materialization), sync event routing |
+| [[Entity Projection]] | Projection pipeline (Pass 3) — transforms synced integration entities into core lifecycle entities via projection rules, identity resolution, and attribute mapping |
 
 ---
 
@@ -54,6 +54,7 @@ The Integrations domain manages the full lifecycle of third-party integrations w
 |---|---|---|
 | [[Flow - Auth Webhook]] | Background | Nango sends auth webhook after OAuth → HMAC validation → connection creation → installation tracking → materialization |
 | [[Flow - Integration Disable]] | User-facing | Workspace admin disables an integration — soft-deletes entity types, disconnects Nango, snapshots sync state |
+| [[Flow - Entity Projection Pipeline]] | Background | Temporal activity projects integration entities into core lifecycle entities — identity resolution, attribute transfer, relationship linking |
 
 ---
 
@@ -67,6 +68,7 @@ The Integrations domain manages the full lifecycle of third-party integrations w
 | IntegrationConnectionEntity | Per-workspace Nango connection with state machine | id, workspace_id, integration_id, nango_connection_id, status |
 | WorkspaceIntegrationInstallationEntity | Tracks enabled integrations per workspace with sync config and installation status | id, workspace_id, integration_definition_id, manifest_key, sync_config, status, last_synced_at, deleted |
 | IntegrationSyncStateEntity | Per-connection per-entity-type sync progress | id, integration_connection_id, entity_type_id, status, last_cursor, consecutive_failure_count |
+| ProjectionRuleEntity | Maps source integration entity types to target core lifecycle entity types | id, workspace_id, source_entity_type_id, target_entity_type_id, relationship_def_id, auto_create |
 
 ### Database Tables
 
@@ -76,6 +78,7 @@ The Integrations domain manages the full lifecycle of third-party integrations w
 | integration_connections | IntegrationConnectionEntity | One per workspace per integration, state machine enforced |
 | workspace_integration_installations | WorkspaceIntegrationInstallationEntity | Soft-deletable, unique on (workspace_id, integration_definition_id), `status` column tracks installation lifecycle |
 | integration_sync_state | IntegrationSyncStateEntity | System-managed, CASCADE deletes on connection/entity-type removal, unique on (integration_connection_id, entity_type_id) |
+| entity_type_projection_rules | ProjectionRuleEntity | System-managed, CASCADE deletes on entity type removal, unique on (workspace_id, source_entity_type_id, target_entity_type_id) |
 
 ---
 
@@ -96,6 +99,7 @@ The Integrations domain manages the full lifecycle of third-party integrations w
 | [[Entities]] | Creates and soft-deletes workspace-scoped entity types and relationships | [[EntityTypeService]], [[EntityTypeRelationshipService]], [[EntityTypeSemanticMetadataService]], [[EntityTypeSequenceService]] | [[Flow - Auth Webhook]] |
 | [[Catalog]] | Reads manifest catalog entries, catalog entity types, catalog relationships, and target rules | [[ManifestCatalogRepository]], [[CatalogEntityTypeRepository]], [[CatalogRelationshipRepository]] | [[Flow - Auth Webhook]] |
 | [[Activity]] | Logs enable/disable and connection operations | [[ActivityService]] | All mutation flows |
+| [[Identity Resolution]] | Best-effort cluster assignment for projected entity pairs | [[IdentityClusterService]] | [[Flow - Entity Projection Pipeline]] |
 
 ### Consumed By
 
@@ -164,6 +168,7 @@ The ingestion pipeline is a 4-step process:
 | `FieldMappingService` | Applies catalog field mappings to transform integration schema → core schema |
 | `IdentityResolutionService` | Ingestion-time identity matching — resolves incoming data against existing entities |
 | `EntityProjectionService` | Creates projected core entity rows from mapped integration data |
+| `ProjectionRuleEntity` | Routes integration entity types to core lifecycle types |
 | `IntegrationSyncWorkflow` | Temporal workflow orchestrating the 4-step pipeline |
 
 ### Data Flow

@@ -28,9 +28,10 @@ export const Story = () => {
   return (
     <Section id="story" size={24} className="mt-18">
       <article className="relative z-10 mx-auto flex max-w-5xl flex-col px-6 lg:px-8">
-        <h1 className="text-center font-sans text-4xl leading-none tracking-tighter text-heading sm:text-5xl">
-          Why I am building <span className="font-serif font-normal italic">Riven</span>
+        <h1 className="text-center font-sans font-serif text-4xl leading-none tracking-tighter text-heading sm:text-6xl">
+          Why I am building Riven
         </h1>
+
         <ShaderContainer
           className="relative z-0 mt-8 mb-4 ml-0! px-0 py-4 shadow-lg shadow-foreground/40 dark:border dark:shadow-none"
           staticImages={gradients}

@@ -8,6 +8,8 @@ Name | Type
 ------------ | -------------
 `id` | string
 `workspaceId` | string
+`jobType` | [ExecutionJobType](ExecutionJobType.md)
+`entityId` | string
 `workflowDefinitionId` | string
 `executionId` | string
 `status` | [ExecutionQueueStatus](ExecutionQueueStatus.md)
@@ -26,6 +28,8 @@ import type { ExecutionQueueRequest } from ''
 const example = {
   "id": null,
   "workspaceId": null,
+  "jobType": null,
+  "entityId": null,
   "workflowDefinitionId": null,
   "executionId": null,
   "status": null,

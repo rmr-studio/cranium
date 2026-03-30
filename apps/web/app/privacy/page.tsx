@@ -14,7 +14,7 @@ export default function PrivacyPolicy() {
         fill="color-mix(in srgb, var(--primary) 8%, transparent)"
         mask="fade-edges"
       >
-        <h1 className="text-center font-serif text-4xl font-bold tracking-tight text-primary md:text-5xl">
+        <h1 className="text-center text-4xl font-bold tracking-tight text-primary md:text-5xl">
           Legal
         </h1>
       </Section>
@@ -23,7 +23,7 @@ export default function PrivacyPolicy() {
       <article className="mx-auto max-w-3xl px-6 py-16 md:py-24">
         {/* Title block */}
         <header className="mb-12 border-b border-border pb-8">
-          <h2 className="font-serif text-3xl font-semibold tracking-tight text-primary md:text-4xl">
+          <h2 className="text-3xl font-semibold tracking-tight text-primary md:text-4xl">
             Privacy Policy
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">Updated February 20, 2026</p>

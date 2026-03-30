@@ -76,6 +76,13 @@ import {
     IconToJSON,
     IconToJSONTyped,
 } from './Icon';
+import type { LifecycleDomain } from './LifecycleDomain';
+import {
+    LifecycleDomainFromJSON,
+    LifecycleDomainFromJSONTyped,
+    LifecycleDomainToJSON,
+    LifecycleDomainToJSONTyped,
+} from './LifecycleDomain';
 
 /**
  * 
@@ -131,6 +138,12 @@ export interface EntityType {
      * @memberof EntityType
      */
     semanticGroup: SemanticGroup;
+    /**
+     * 
+     * @type {LifecycleDomain}
+     * @memberof EntityType
+     */
+    lifecycleDomain: LifecycleDomain;
     /**
      * 
      * @type {SourceType}
@@ -231,6 +244,7 @@ export function instanceOfEntityType(value: object): value is EntityType {
     if (!('_protected' in value) || value['_protected'] === undefined) return false;
     if (!('identifierKey' in value) || value['identifierKey'] === undefined) return false;
     if (!('semanticGroup' in value) || value['semanticGroup'] === undefined) return false;
+    if (!('lifecycleDomain' in value) || value['lifecycleDomain'] === undefined) return false;
     if (!('sourceType' in value) || value['sourceType'] === undefined) return false;
     if (!('readonly' in value) || value['readonly'] === undefined) return false;
     if (!('schema' in value) || value['schema'] === undefined) return false;
@@ -258,6 +272,7 @@ export function EntityTypeFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         '_protected': json['protected'],
         'identifierKey': json['identifierKey'],
         'semanticGroup': SemanticGroupFromJSON(json['semanticGroup']),
+        'lifecycleDomain': LifecycleDomainFromJSON(json['lifecycleDomain']),
         'sourceType': SourceTypeFromJSON(json['sourceType']),
         'sourceIntegrationId': json['sourceIntegrationId'] == null ? undefined : json['sourceIntegrationId'],
         'readonly': json['readonly'],
@@ -294,6 +309,7 @@ export function EntityTypeToJSONTyped(value?: EntityType | null, ignoreDiscrimin
         'protected': value['_protected'],
         'identifierKey': value['identifierKey'],
         'semanticGroup': SemanticGroupToJSON(value['semanticGroup']),
+        'lifecycleDomain': LifecycleDomainToJSON(value['lifecycleDomain']),
         'sourceType': SourceTypeToJSON(value['sourceType']),
         'sourceIntegrationId': value['sourceIntegrationId'],
         'readonly': value['readonly'],

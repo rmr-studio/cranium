@@ -16,7 +16,7 @@ export function SuccessStep({ completedSurvey }: { completedSurvey: boolean }) {
       >
         <CheckCircle2 className="mx-auto h-14 w-14 text-teal-500" />
       </motion.div>
-      <h3 className="mt-6 font-serif text-2xl font-normal text-heading md:text-3xl">You are on the list!</h3>
+      <h3 className="mt-6 text-2xl font-normal text-heading md:text-3xl">You are on the list!</h3>
       <p className="mx-auto mt-3 max-w-md text-muted-foreground">
         {completedSurvey
           ? "Thanks for helping shape the product. We'll use your input to prioritize what we build."

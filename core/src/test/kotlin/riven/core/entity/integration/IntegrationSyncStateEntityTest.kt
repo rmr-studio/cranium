@@ -31,6 +31,8 @@ class IntegrationSyncStateEntityTest {
         assertNull(entity.lastErrorMessage)
         assertNull(entity.lastRecordsSynced)
         assertNull(entity.lastRecordsFailed)
+        assertNull(entity.lastPipelineStep)
+        assertNull(entity.projectionResult)
     }
 
     // ------ toModel mapping ------
@@ -51,6 +53,8 @@ class IntegrationSyncStateEntityTest {
             lastErrorMessage = "some error",
             lastRecordsSynced = 100,
             lastRecordsFailed = 2,
+            lastPipelineStep = "PROJECTION",
+            projectionResult = mapOf("created" to 5, "updated" to 3),
         )
 
         val model = entity.toModel()
@@ -64,6 +68,8 @@ class IntegrationSyncStateEntityTest {
         assertEquals("some error", model.lastErrorMessage)
         assertEquals(100, model.lastRecordsSynced)
         assertEquals(2, model.lastRecordsFailed)
+        assertEquals("PROJECTION", model.lastPipelineStep)
+        assertEquals(mapOf("created" to 5, "updated" to 3), model.projectionResult)
     }
 
     @Test

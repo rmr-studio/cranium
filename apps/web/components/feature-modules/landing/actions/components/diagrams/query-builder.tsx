@@ -1,8 +1,8 @@
 'use client';
 
-import { MockDataTable } from '@/components/feature-modules/landing/time-saved/components/product-showcase/components/mock-data-table';
-import { MockIconRail } from '@/components/feature-modules/landing/time-saved/components/product-showcase/components/mock-shell';
-import { customerScenario } from '@/components/feature-modules/landing/time-saved/components/product-showcase/scenario-data';
+import { MockDataTable } from '@/components/feature-modules/landing/hero/components/showcase/mock-data-table';
+import { MockIconRail } from '@/components/feature-modules/landing/hero/components/showcase/mock-shell';
+import { customerScenario } from '@/components/feature-modules/landing/hero/components/showcase/scenario-data';
 import {
   BrandGorgias,
   BrandInstagram,

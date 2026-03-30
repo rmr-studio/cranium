@@ -380,7 +380,7 @@ class EntityTypeService(
      * semantic metadata, and derived columns.
      */
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
-    fun getWorkspaceEntityTypesWithIncludes(workspaceId: UUID): List<EntityType> {
+    fun getEntityTypes(workspaceId: UUID): List<EntityType> {
         val entityTypes = getWorkspaceEntityTypes(workspaceId)
         val entityTypeIds = entityTypes.map { it.id }
 
@@ -397,7 +397,7 @@ class EntityTypeService(
             et.copy(
                 relationships = relationships,
                 semantics = bundleMap[et.id],
-                columns = assembleColumns(et.schema, relationships, et.columnConfiguration),
+                columns = assembleColumns(et.schema, relationships, et.columnConfiguration, readonly = et.readonly),
             )
         }
     }
@@ -624,10 +624,12 @@ class EntityTypeService(
         fun assembleColumns(
             schema: EntityTypeSchema,
             relationships: List<RelationshipDefinition>,
-            config: ColumnConfiguration?
+            config: ColumnConfiguration?,
+            readonly: Boolean = false,
         ): List<EntityTypeAttributeColumn> {
             val attributeIds = schema.properties?.keys ?: emptySet()
-            val relationshipIds = relationships.map { it.id }.toSet()
+            // Readonly entity types (integration-sourced) skip inverse/relationship columns
+            val relationshipIds = if (readonly) emptySet() else relationships.map { it.id }.toSet()
             val allIds = attributeIds + relationshipIds
 
             val orderedIds = config?.order

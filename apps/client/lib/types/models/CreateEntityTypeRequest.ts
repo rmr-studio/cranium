@@ -41,6 +41,13 @@ import {
     IconToJSON,
     IconToJSONTyped,
 } from './Icon';
+import type { LifecycleDomain } from './LifecycleDomain';
+import {
+    LifecycleDomainFromJSON,
+    LifecycleDomainFromJSONTyped,
+    LifecycleDomainToJSON,
+    LifecycleDomainToJSONTyped,
+} from './LifecycleDomain';
 
 /**
  * 
@@ -74,6 +81,12 @@ export interface CreateEntityTypeRequest {
     semanticGroup: SemanticGroup;
     /**
      * 
+     * @type {LifecycleDomain}
+     * @memberof CreateEntityTypeRequest
+     */
+    lifecycleDomain: LifecycleDomain;
+    /**
+     * 
      * @type {SaveSemanticMetadataRequest}
      * @memberof CreateEntityTypeRequest
      */
@@ -90,6 +103,7 @@ export function instanceOfCreateEntityTypeRequest(value: object): value is Creat
     if (!('key' in value) || value['key'] === undefined) return false;
     if (!('icon' in value) || value['icon'] === undefined) return false;
     if (!('semanticGroup' in value) || value['semanticGroup'] === undefined) return false;
+    if (!('lifecycleDomain' in value) || value['lifecycleDomain'] === undefined) return false;
     return true;
 }
 
@@ -107,6 +121,7 @@ export function CreateEntityTypeRequestFromJSONTyped(json: any, ignoreDiscrimina
         'key': json['key'],
         'icon': IconFromJSON(json['icon']),
         'semanticGroup': SemanticGroupFromJSON(json['semanticGroup']),
+        'lifecycleDomain': LifecycleDomainFromJSON(json['lifecycleDomain']),
         'semantics': json['semantics'] == null ? undefined : SaveSemanticMetadataRequestFromJSON(json['semantics']),
     };
 }
@@ -126,6 +141,7 @@ export function CreateEntityTypeRequestToJSONTyped(value?: CreateEntityTypeReque
         'key': value['key'],
         'icon': IconToJSON(value['icon']),
         'semanticGroup': SemanticGroupToJSON(value['semanticGroup']),
+        'lifecycleDomain': LifecycleDomainToJSON(value['lifecycleDomain']),
         'semantics': SaveSemanticMetadataRequestToJSON(value['semantics']),
     };
 }

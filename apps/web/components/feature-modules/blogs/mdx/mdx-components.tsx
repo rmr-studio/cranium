@@ -5,7 +5,15 @@ import Link from 'next/link';
 import { CodeBlock } from './code-block';
 import { ComparisonTable } from './comparison-table';
 
-function HeadingLink({ id, level, children }: { id?: string; level: number; children: React.ReactNode }) {
+function HeadingLink({
+  id,
+  level,
+  children,
+}: {
+  id?: string;
+  level: number;
+  children: React.ReactNode;
+}) {
   const Tag = `h${level}` as keyof React.JSX.IntrinsicElements;
   const sizes: Record<number, string> = {
     2: 'text-2xl font-semibold tracking-tight mt-12 mb-4',
@@ -18,7 +26,7 @@ function HeadingLink({ id, level, children }: { id?: string; level: number; chil
       {id && (
         <a
           href={`#${id}`}
-          className="ml-2 inline-block opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
+          className="ml-2 inline-block opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100"
           aria-label={`Link to ${typeof children === 'string' ? children : 'section'}`}
         >
           <LinkIcon className="size-4 text-muted-foreground" />
@@ -29,8 +37,16 @@ function HeadingLink({ id, level, children }: { id?: string; level: number; chil
 }
 
 export const mdxComponents: MDXComponents = {
-  h2: ({ children, id }) => <HeadingLink id={id} level={2}>{children}</HeadingLink>,
-  h3: ({ children, id }) => <HeadingLink id={id} level={3}>{children}</HeadingLink>,
+  h2: ({ children, id }) => (
+    <HeadingLink id={id} level={2}>
+      {children}
+    </HeadingLink>
+  ),
+  h3: ({ children, id }) => (
+    <HeadingLink id={id} level={3}>
+      {children}
+    </HeadingLink>
+  ),
   p: ({ children }) => <p className="mb-4 leading-relaxed text-content">{children}</p>,
   a: ({ href, children }) => (
     <Link
@@ -41,10 +57,12 @@ export const mdxComponents: MDXComponents = {
     </Link>
   ),
   ul: ({ children }) => <ul className="mb-4 ml-6 list-disc space-y-1 text-content">{children}</ul>,
-  ol: ({ children }) => <ol className="mb-4 ml-6 list-decimal space-y-1 text-content">{children}</ol>,
+  ol: ({ children }) => (
+    <ol className="mb-4 ml-6 list-decimal space-y-1 text-content">{children}</ol>
+  ),
   li: ({ children }) => <li className="leading-relaxed">{children}</li>,
   blockquote: ({ children }) => (
-    <blockquote className="my-6 border-l-2 border-border pl-6 font-[family-name:var(--font-instrument-serif)] text-xl italic text-muted-foreground">
+    <blockquote className="my-6 border-l-2 border-border pl-6 font-serif text-xl text-muted-foreground">
       {children}
     </blockquote>
   ),
@@ -56,7 +74,7 @@ export const mdxComponents: MDXComponents = {
   ),
   thead: ({ children }) => <thead className="border-b border-border bg-muted/50">{children}</thead>,
   th: ({ children }) => (
-    <th className="px-4 py-3 text-left font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
+    <th className="px-4 py-3 text-left font-mono text-xs font-bold tracking-widest text-muted-foreground uppercase">
       {children}
     </th>
   ),

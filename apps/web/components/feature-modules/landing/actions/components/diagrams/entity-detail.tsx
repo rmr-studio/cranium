@@ -141,9 +141,7 @@ export function MockEntityDetail() {
         <div className="flex-1 overflow-y-auto px-8 pt-6 pb-8">
           {/* Header section */}
           <div className="flex items-start justify-between">
-            <h2 className="font-serif text-4xl font-normal -tracking-[0.02em] text-foreground">
-              Sarah Chen
-            </h2>
+            <h2 className="text-4xl font-normal -tracking-[0.02em] text-foreground">Sarah Chen</h2>
             <span className="rounded-md bg-emerald-500/10 px-3 py-1 font-display text-xs tracking-[0.05em] text-emerald-600 uppercase">
               Active
             </span>

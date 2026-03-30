@@ -33,6 +33,7 @@ JPA repository for normalized entity attribute values stored in the `entity_attr
 ## Used By
 
 - [[EntityAttributeService]] — All attribute CRUD operations
+- [[IdentityResolutionService]] — Identifier key matching (Check 2) during projection identity resolution
 
 ---
 
@@ -41,6 +42,10 @@ JPA repository for normalized entity attribute values stored in the `entity_attr
 **Derived query methods:**
 - `findByEntityId(entityId)` — Standard Spring Data derived query
 - `findByEntityIdIn(entityIds)` — JPQL query: `SELECT a FROM EntityAttributeEntity a WHERE a.entityId IN :entityIds`
+
+**Identifier value lookup (native SQL):**
+
+`findByIdentifierValuesForEntityType` uses a native SQL query with JSONB text extraction (`ea.value ->> 'value'`) to find attributes matching candidate identifier values. This is the only query in this repository that performs JSONB field extraction — all other queries treat the `value` column as an opaque blob. The query joins against the `entities` table to filter by entity type, since `entity_attributes` does not store `type_id` directly.
 
 **Native SQL methods:**
 - `hardDeleteByEntityId(entityId)` — `DELETE FROM entity_attributes WHERE entity_id = :entityId`. Uses native SQL to bypass Hibernate's `@SQLRestriction("deleted = false")`, ensuring soft-deleted rows are also removed during the save flow.
@@ -66,12 +71,18 @@ Hard-deletes ALL attribute rows (including soft-deleted) for an entity. Used in 
 
 Soft-deletes all non-deleted attributes for the given entity IDs within a workspace.
 
+### `findByIdentifierValuesForEntityType(workspaceId: UUID, entityTypeId: UUID, attributeIds: Collection<UUID>, textValues: Collection<String>): List<EntityAttributeEntity>`
+
+Batch identifier value lookup for projection identity resolution (Check 2). Native SQL query that joins `entity_attributes` with `entities` (filtered by entity type and workspace), then matches on `attribute_id IN (:attributeIds)` and `value ->> 'value' IN (:textValues)`. The JSONB `value ->> 'value'` extraction pulls the text value from the normalized attribute storage format.
+
 ---
 
 ## Gotchas
 
 - **Hard-delete bypasses soft-delete:** `hardDeleteByEntityId` uses native SQL specifically to bypass `@SQLRestriction("deleted = false")`. This is intentional for the save flow — old rows (including soft-deleted) must be fully removed before re-insertion.
 - **Array parameter:** `softDeleteByEntityIds` takes `Array<UUID>` (not `Collection`) because the native SQL uses PostgreSQL's `ANY(:entityIds)` syntax.
+- **JSONB extraction in native SQL:** `findByIdentifierValuesForEntityType` uses `ea.value ->> 'value'` (PostgreSQL JSONB text extraction). This assumes the attribute value follows the normalized `{"value": "..."}` structure. If the structure changes, this query will silently return no results.
+- **Joins entities table:** Unlike other methods that query `entity_attributes` alone, this method joins against `entities` to filter by `type_id` and `deleted = false`. The join is necessary because `entity_attributes` doesn't store the entity type directly.
 
 ---
 

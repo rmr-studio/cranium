@@ -75,4 +75,20 @@ interface EntityRepository : JpaRepository<EntityEntity, UUID> {
         sourceExternalId: String,
     ): List<EntityEntity>
 
+    /**
+     * Batch sourceExternalId match on a specific entity type within a workspace.
+     * Used by the projection pipeline for identity resolution (Check 1).
+     */
+    @Query("""
+        SELECT e FROM EntityEntity e
+        WHERE e.typeId = :entityTypeId
+          AND e.workspaceId = :workspaceId
+          AND e.sourceExternalId IN :sourceExternalIds
+    """)
+    fun findByTypeIdAndWorkspaceIdAndSourceExternalIdIn(
+        entityTypeId: UUID,
+        workspaceId: UUID,
+        sourceExternalIds: Collection<String>,
+    ): List<EntityEntity>
+
 }

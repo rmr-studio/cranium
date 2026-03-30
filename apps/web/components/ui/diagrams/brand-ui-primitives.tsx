@@ -18,8 +18,8 @@ export function ShowcaseIconRail({
       {/* Optional workspace avatar */}
       {showWorkspace && (
         <>
-          <div className="pt-3 pb-2">
-            <div className="flex size-8 items-center justify-center rounded-md bg-background/15 text-xs font-bold text-background">
+          <div className="pt-3">
+            <div className="flex size-8 items-center justify-center rounded-md border bg-background/15 text-xs font-bold text-primary">
               R
             </div>
           </div>
@@ -121,7 +121,7 @@ export function ShowcaseSubPanel({
   return (
     <div
       className={cn(
-        'glass-panel flex h-full w-56 shrink-0 flex-col border-r border-border',
+        'glass-panel flex h-full w-56 shrink-0 flex-col border-r border-border backdrop-blur-xl',
         className,
       )}
     >

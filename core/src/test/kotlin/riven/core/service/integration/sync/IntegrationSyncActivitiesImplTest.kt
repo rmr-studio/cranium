@@ -103,6 +103,7 @@ class IntegrationSyncActivitiesImplTest {
             catalogEntityTypeRepository: CatalogEntityTypeRepository,
             entityTypeRepository: EntityTypeRepository,
             integrationHealthService: IntegrationHealthService,
+            entityProjectionService: riven.core.service.ingestion.EntityProjectionService,
             transactionTemplate: TransactionTemplate,
             logger: KLogger,
         ): IntegrationSyncActivitiesImpl {
@@ -121,6 +122,7 @@ class IntegrationSyncActivitiesImplTest {
                 catalogEntityTypeRepository = catalogEntityTypeRepository,
                 entityTypeRepository = entityTypeRepository,
                 integrationHealthService = integrationHealthService,
+                entityProjectionService = entityProjectionService,
                 transactionTemplate = transactionTemplate,
                 logger = logger,
             ) {
@@ -173,6 +175,9 @@ class IntegrationSyncActivitiesImplTest {
 
     @MockitoBean
     private lateinit var integrationHealthService: IntegrationHealthService
+
+    @MockitoBean
+    private lateinit var entityProjectionService: riven.core.service.ingestion.EntityProjectionService
 
     @MockitoBean
     private lateinit var transactionTemplate: TransactionTemplate
@@ -302,7 +307,7 @@ class IntegrationSyncActivitiesImplTest {
             entityRepository, entityAttributeService, entityRelationshipRepository,
             relationshipDefinitionRepository, definitionRepository, manifestCatalogRepository,
             catalogFieldMappingRepository, catalogEntityTypeRepository, entityTypeRepository,
-            integrationHealthService, transactionTemplate,
+            integrationHealthService, entityProjectionService, transactionTemplate,
         )
 
         whenever(transactionTemplate.execute<Any>(any())).thenAnswer { invocation ->

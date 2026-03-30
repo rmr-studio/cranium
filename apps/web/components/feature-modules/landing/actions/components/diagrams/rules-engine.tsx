@@ -5,7 +5,7 @@ import { ShowcaseIconRail, ShowcaseSubPanel } from '@/components/ui/diagrams/bra
 import { GlowBorder } from '@/components/ui/glow-border';
 import { WindowControls } from '@/components/ui/window-controls';
 import { Bell, CogIcon, LayoutGrid, Search } from 'lucide-react';
-import { DashboardContent } from '../../../hero/components/dashboard/mock-dashboard';
+import { DashboardContent } from '../../../dashboard/components/mock-dashboard';
 
 // ── Filter Chip (same style as query-builder) ───────────────────────
 

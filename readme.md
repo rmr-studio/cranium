@@ -4,7 +4,8 @@
 <h1 align="center">Riven</h1>
 
 <p align="center">
-  Connect your SaaS tools into one workspace. Ask questions across all of them.
+  Riven is an all-in-one operational intelligence platform, designed to help B2C SaaS and DTC Ecommerce Businesses manage and gain complete oversight of their customer lifecycle in order to gain immediate cross domain actionable insights from marketing and acquisition groups, product usage, support load all the way through to churn, and the underlying reasons behind it. Riven connects all of a businesses external SaaS tools and data sources to surface the patterns and insights that no singular tool could pick up alone, combined inside a unified, collaborative flexible entiy ecosystem and workspace. 
+
 </p>
 
 <p align="center">
@@ -28,6 +29,10 @@ Riven pulls data from your CRM, project management, support, billing, and other 
 Most platforms force you into their data model. Riven lets you define your own entity types, attributes and relationships so the schema fits your business.
 
 The knowledge base has context across every connected source, so you can ask a question that touches your CRM and your support desk without switching tabs. Workflows are built visually as DAGs and run on Temporal.
+
+## Activity
+
+![Alt](https://repobeats.axiom.co/api/embed/d19c02d268f41f632d0d4e81648544b93ffd1ae8.svg "Repobeats analytics image")
 
 ## Tech stack
 

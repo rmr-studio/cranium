@@ -30,6 +30,8 @@ JPA entity tracking per-connection per-entity-type sync progress. Records sync s
 | `last_error_message` | `String?` | Error message from the most recent failed sync |
 | `last_records_synced` | `Int?` | Number of records successfully synced in the last run |
 | `last_records_failed` | `Int?` | Number of records that failed in the last run |
+| `last_pipeline_step` | `String?` | Tracks which projection pipeline step last completed (e.g., "PROJECTION") |
+| `projection_result` | `Map<String, Any>?` | JSONB summary of the last projection operation — created/updated/skipped/error counts |
 
 ### SyncStatus Enum
 

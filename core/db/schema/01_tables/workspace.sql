@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS "workspaces"
 (
     "id"               UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
-    "name"             VARCHAR(100)     NOT NULL0
+    "name"             VARCHAR(100)     NOT NULL,
     "plan"             VARCHAR          NOT NULL DEFAULT 'FREE' CHECK (plan IN ('FREE', 'STARTUP', 'SCALE', 'ENTERPRISE')),
     "default_currency" VARCHAR(3)       NOT NULL DEFAULT 'AUD',
     "avatar_url"       TEXT,

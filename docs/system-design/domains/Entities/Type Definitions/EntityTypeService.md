@@ -99,11 +99,15 @@ No diff calculation or impact analysis is performed on save — the create/updat
 **Enriched entity type queries:**
 
 Methods `getWorkspaceEntityTypesWithIncludes()` and `getEntityTypeByKeyWithIncludes()` always load relationship definitions and semantic metadata alongside entity types:
-1. Fetch entity types for workspace
+1. Fetch entity types for workspace, then filter out integration-sourced types unless `includeInternal` is true
 2. Batch-fetch relationship definitions via `entityTypeRelationshipService.getDefinitionsForEntityTypes()`
 3. Batch-fetch semantic metadata via `semanticMetadataService.getMetadataForEntityTypes()`
 4. Build `SemanticMetadataBundle` per entity type
 5. Return enriched `EntityType` models with `relationships` and `semantics` fields populated
+
+**Column assembly for readonly types:**
+
+`assembleColumns()` accepts a `readonly` parameter (default `false`). When `readonly = true` (integration-sourced entity types), relationship columns are excluded — the `relationshipIds` set is empty. This prevents integration entity types from displaying inverse/relationship columns in the UI, since their relationships are system-managed and not user-editable.
 
 **Integration lifecycle operations:**
 
@@ -169,9 +173,9 @@ Retrieves entity type by ID (no workspace scope — used for system operations).
 
 Batch retrieval by IDs.
 
-### `getWorkspaceEntityTypesWithIncludes(workspaceId): List<EntityType>`
+### `getWorkspaceEntityTypesWithIncludes(workspaceId: UUID, includeInternal: Boolean = false): List<EntityType>`
 
-Retrieves all entity types for workspace, enriched with relationship definitions and semantic metadata bundles.
+Retrieves all entity types for workspace, enriched with relationship definitions and semantic metadata bundles. By default, filters out integration-sourced entity types (`sourceIntegrationId != null`). Pass `includeInternal = true` to include them.
 
 ### `getEntityTypeByKeyWithIncludes(workspaceId, key): EntityType`
 
@@ -228,6 +232,11 @@ Groups metadata records by targetType into structured bundle (entity type + attr
 - Method signatures simplified: `include: List<String>` parameter removed from both enriched query methods
 - Return type changed from `EntityTypeWithSemanticsResponse` back to `EntityType` (semantics embedded in model)
 - Publish flow now creates CONNECTED_ENTITIES fallback definition for each new entity type via `entityTypeRelationshipService.createFallbackDefinition()`.
+
+### 2026-03-29
+
+- `getWorkspaceEntityTypesWithIncludes()` gains `includeInternal` parameter — filters integration-sourced types by default
+- `assembleColumns()` gains `readonly` parameter — skips relationship columns for readonly (integration-sourced) entity types
 
 ### 2025-07-17
 

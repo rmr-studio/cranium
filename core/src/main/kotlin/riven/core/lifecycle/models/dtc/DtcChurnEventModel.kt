@@ -11,6 +11,7 @@ import riven.core.lifecycle.AttributeOptions
 import riven.core.lifecycle.AttributeSemantics
 import riven.core.lifecycle.CoreModelAttribute
 import riven.core.lifecycle.CoreModelDefinition
+import riven.core.lifecycle.ProjectionAcceptRule
 import riven.core.lifecycle.models.base.ChurnEventBase
 
 /**
@@ -28,6 +29,13 @@ object DtcChurnEventModel : CoreModelDefinition(
     identifierKey = "reason",
     semanticDefinition = "Records when and why a customer stopped purchasing. The terminal lifecycle event for DTC ecommerce, with revenue impact tracking.",
     semanticTags = listOf("churn", "retention", "lifecycle", "revenue"),
+    projectionAccepts = listOf(
+        ProjectionAcceptRule(
+            domain = LifecycleDomain.RETENTION,
+            semanticGroup = SemanticGroup.FINANCIAL,
+            relationshipName = ProjectionAcceptRule.SOURCE_DATA_RELATIONSHIP,
+        ),
+    ),
     attributes = ChurnEventBase.attributes + mapOf(
         "reason" to CoreModelAttribute(
             schemaType = SchemaType.SELECT, label = "Reason", dataType = DataType.STRING,

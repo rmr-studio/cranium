@@ -22,7 +22,7 @@ Abstract base class for all core lifecycle model definitions. Each business-type
 - Define the canonical schema for a single core entity type as a compile-time Kotlin object
 - Declare typed attributes via `Map<String, CoreModelAttribute>` with schema type, data type, format, constraints, and semantic annotations
 - Declare relationships via `List<CoreModelRelationship>` with cardinality and source/target model keys
-- Declare optional projection accept rules and aggregation column definitions via `CoreModelProjection`
+- Declare projection accept rules via `projectionAccepts: List<ProjectionAcceptRule>` — specifies which integration entities route to this core model based on (LifecycleDomain, SemanticGroup) pairs
 - Convert to `ResolvedEntityType` for consumption by the manifest catalog pipeline
 
 ---
@@ -49,6 +49,10 @@ Each concrete model is a Kotlin `object` extending `CoreModelDefinition`. Proper
 - `CoreModelAttribute` -- attribute definition with `SchemaType`, `DataType`, format string, constraints map, and `AttributeSemantics` for semantic annotation
 - `CoreModelRelationship` -- relationship definition with cardinality, source/target model keys, and `toNormalized()` conversion to `NormalizedRelationship`
 - `CoreModelProjection` -- projection accept rules and aggregation column definitions for future-use projection routing
+
+**Projection accept rules:**
+
+Each core model can declare `projectionAccepts` — a list of `ProjectionAcceptRule` entries specifying which integration entity types should project into this core model. Rules match on `(LifecycleDomain, SemanticGroup)` pairs, making them source-agnostic — the same rule applies regardless of which integration the data came from. During template materialization, [[TemplateMaterializationService]] reads these rules and installs corresponding [[ProjectionRuleEntity]] rows. The `relationshipName` field (typically `"source-data"`) specifies the name of the relationship definition linking integration → core entity types.
 
 ---
 
@@ -78,4 +82,15 @@ Converts the model's relationship definitions to `NormalizedRelationship` object
 - [[CoreModelRegistry]] -- registry that collects and validates all definitions
 - [[CoreModelCatalogService]] -- service that triggers catalog population from these definitions
 - [[ManifestUpsertService]] -- downstream persistence layer that receives the resolved output
+- [[EntityProjectionService]] — Consumes projection rules at runtime
+- [[TemplateMaterializationService]] — Installs projection rules from these declarations
 - [[Core Model Definitions]] -- parent subdomain
+
+---
+
+## Changelog
+
+### 2026-03-29
+
+- Added `projectionAccepts` parameter — declares which integration entities route to each core model via (LifecycleDomain, SemanticGroup) pairs
+- `ProjectionAcceptRule` data class defined alongside CoreModelDefinition: `domain`, `semanticGroup`, `relationshipName`, `autoCreate`

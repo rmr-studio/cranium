@@ -41,8 +41,8 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Matching Utilities
 
-- [ ] **UTIL-01**: NicknameExpander utility with ~150 bidirectional English name groups (William<->Bill, Robert<->Bob, etc.)
-- [ ] **UTIL-02**: TokenSimilarity utility computing overlap coefficient on word token sets
+- [x] **UTIL-01**: NicknameExpander utility with ~150 bidirectional English name groups (William<->Bill, Robert<->Bob, etc.)
+- [x] **UTIL-02**: TokenSimilarity utility computing overlap coefficient on word token sets
 - [ ] **UTIL-03**: EmailMatcher utility parsing emails into local+domain parts with similarity computation
 - [ ] **UTIL-04**: EmailMatcher includes local-part tokenization (john.smith -> {john, smith})
 
@@ -53,8 +53,8 @@ Requirements for this milestone. Each maps to roadmap phases.
 ### Testing
 
 - [x] **TEST-01**: Unit tests for all normalization functions (phone digit extraction, diacritics, title stripping, email plus-addressing)
-- [ ] **TEST-02**: Unit tests for NicknameExpander (expand, areEquivalent, unknown names)
-- [ ] **TEST-03**: Unit tests for TokenSimilarity (partial overlap, identical, no overlap)
+- [x] **TEST-02**: Unit tests for NicknameExpander (expand, areEquivalent, unknown names)
+- [x] **TEST-03**: Unit tests for TokenSimilarity (partial overlap, identical, no overlap)
 - [ ] **TEST-04**: Unit tests for EmailMatcher (parse, similarity, tokenizeLocal)
 - [x] **TEST-05**: Unit tests for scoring confidence gate (single NAME rejected, single EMAIL accepted, two signals accepted)
 - [x] **TEST-06**: Unit tests for cross-type score discounting
@@ -110,11 +110,11 @@ Deferred to future release. Tracked but not in current roadmap.
 | SIGC-03 | Phase 2 | Complete |
 | TEST-05 | Phase 2 | Complete |
 | TEST-06 | Phase 2 | Complete |
-| UTIL-01 | Phase 3 | Pending |
-| UTIL-02 | Phase 3 | Pending |
+| UTIL-01 | Phase 3 | Complete |
+| UTIL-02 | Phase 3 | Complete |
 | CAND-04 | Phase 3 | Pending |
-| TEST-02 | Phase 3 | Pending |
-| TEST-03 | Phase 3 | Pending |
+| TEST-02 | Phase 3 | Complete |
+| TEST-03 | Phase 3 | Complete |
 | TEST-07 | Phase 3 | Pending |
 | TEST-08 | Phase 3 | Pending |
 | UTIL-03 | Phase 4 | Pending |

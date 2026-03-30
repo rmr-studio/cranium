@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 02-02-PLAN.md
-last_updated: "2026-03-29T05:19:41.440Z"
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-03-30T22:17:07.702Z"
 last_activity: 2026-03-28 — Roadmap created
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 6
+  completed_plans: 5
   percent: 0
 ---
 
@@ -54,6 +54,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P02 | 15 | 2 tasks | 4 files |
 | Phase 02 P01 | 67 | 2 tasks | 12 files |
 | Phase 02 P02 | 2 | 1 tasks | 2 files |
+| Phase 03 P01 | 3 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -78,6 +79,8 @@ Recent decisions affecting current work:
 - [Phase 02-01]: matchSource defaults to TRIGRAM for backward Temporal serialization compatibility
 - [Phase 02]: Confidence gate checks DEFAULT_WEIGHTS base weight, not discounted MatchSignal.weight — prevents cross-type double-penalty
 - [Phase 02]: Null candidateSignalType treated as same-type (no discount) for backward Temporal serialization compatibility
+- [Phase 03]: NicknameExpander as Kotlin object (not Spring bean) — pure stateless lookup testable without Spring context
+- [Phase 03]: TokenSimilarity uses overlap coefficient not Jaccard — returns 1.0 for subset containment (John vs John Smith)
 
 ### Pending Todos
 
@@ -90,6 +93,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-29T05:16:07.923Z
-Stopped at: Completed 02-02-PLAN.md
+Last session: 2026-03-30T22:17:03.675Z
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None

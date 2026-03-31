@@ -29,6 +29,7 @@ import riven.core.models.request.entity.type.SaveSemanticMetadataRequest
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.repository.entity.EntityTypeSemanticMetadataRepository
 import riven.core.service.auth.AuthTokenService
+import riven.core.service.identity.EntityTypeClassificationService
 import riven.core.service.util.BaseServiceTest
 import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.WithUserPersona
@@ -62,6 +63,9 @@ class EntityTypeSemanticMetadataServiceTest : BaseServiceTest() {
 
     @MockitoBean
     private lateinit var entityTypeRepository: EntityTypeRepository
+
+    @MockitoBean
+    private lateinit var classificationService: EntityTypeClassificationService
 
     @Autowired
     private lateinit var service: EntityTypeSemanticMetadataService

@@ -50,6 +50,16 @@ class EmailMatcherTest {
         fun `bare at sign returns null for domain`() {
             assertNull(EmailMatcher.extractDomain("@"))
         }
+
+        /**
+         * Regression: extractDomain previously returned a domain for addresses with an empty local
+         * part (e.g. "@acme.com") because the guard only checked `idx < 0`. Fixed by rejecting
+         * `idx <= 0`, which catches both missing '@' and '@' at position 0.
+         */
+        @Test
+        fun `malformed email with empty local part returns null`() {
+            assertNull(EmailMatcher.extractDomain("@acme.com"))
+        }
     }
 
     // ------ extractLocal ------
@@ -75,6 +85,16 @@ class EmailMatcherTest {
         @Test
         fun `malformed email with empty local part returns null`() {
             assertNull(EmailMatcher.extractLocal("@acme.com"))
+        }
+
+        /**
+         * Regression: extractLocal previously returned a local part for addresses with an empty
+         * domain (e.g. "john@") because the guard only checked `idx < 0`. Fixed by rejecting
+         * `idx == email.lastIndex`, which catches trailing '@' with no domain.
+         */
+        @Test
+        fun `malformed email with empty domain returns null`() {
+            assertNull(EmailMatcher.extractLocal("john@"))
         }
     }
 

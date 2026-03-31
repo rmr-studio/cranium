@@ -49,27 +49,31 @@ object EmailMatcher {
     /**
      * Extracts the domain part from an email address (the part after the last `@`), lowercased.
      *
+     * Returns `null` if no `@` is present, or if either the local part or domain is empty
+     * (e.g. `"@acme.com"` or `"john@"`).
+     *
      * @param email The email address to parse.
-     * @return The domain string (e.g. `"acme.com"`), or `null` if no `@` is present.
+     * @return The domain string (e.g. `"acme.com"`), or `null` if the address is malformed.
      */
     fun extractDomain(email: String): String? {
         val idx = email.lastIndexOf('@')
-        if (idx < 0) return null
-        val domain = email.substring(idx + 1).lowercase()
-        return domain.ifEmpty { null }
+        if (idx <= 0 || idx == email.lastIndex) return null
+        return email.substring(idx + 1).lowercase()
     }
 
     /**
      * Extracts the local part from an email address (the part before the last `@`).
      *
+     * Returns `null` if no `@` is present, or if either the local part or domain is empty
+     * (e.g. `"@acme.com"` or `"john@"`).
+     *
      * @param email The email address to parse.
-     * @return The local part string (e.g. `"john.smith"`), or `null` if no `@` is present.
+     * @return The local part string (e.g. `"john.smith"`), or `null` if the address is malformed.
      */
     fun extractLocal(email: String): String? {
         val idx = email.lastIndexOf('@')
-        if (idx < 0) return null
-        val local = email.substring(0, idx)
-        return local.ifEmpty { null }
+        if (idx <= 0 || idx == email.lastIndex) return null
+        return email.substring(0, idx)
     }
 
     /**

@@ -3,6 +3,7 @@ package riven.core.service.identity
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
+import riven.core.enums.identity.MatchSignalType
 import riven.core.enums.identity.MatchSource
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
@@ -314,7 +315,7 @@ class IdentityMatchPipelineIntegrationTest {
         // localPartSimilarity("j.smith", "john.smith"):
         //   tokens A = ["j", "smith"], tokens B = ["john", "smith"]
         //   overlap = |{"smith"}| / min(2, 2) = 0.5 — exactly at threshold, candidate is included.
-        insertSemanticMetadata(attrEmailDomainId, "ATTRIBUTE", "IDENTIFIER")
+        insertSemanticMetadata(attrEmailDomainId, "ATTRIBUTE", "IDENTIFIER", "EMAIL")
         insertAttribute(attrRowEmailDomainA, entityEmailDomainA, workspaceId, entityTypeId, attrEmailDomainId, "EMAIL", "j.smith@acme.com")
         insertAttribute(attrRowEmailDomainB, entityEmailDomainB, workspaceId, entityTypeId, attrEmailDomainId, "EMAIL", "john.smith@acme.com")
 
@@ -939,6 +940,16 @@ class IdentityMatchPipelineIntegrationTest {
             "Expected no EMAIL_DOMAIN candidates for gmail.com (free domain). " +
                 "Found: ${emailDomainCandidates.map { "${it.candidateEntityId} matchSource=${it.matchSource}" }}",
         )
+
+        // Verify that candidates found (if any) have EMAIL signalType from the properly-seeded metadata
+        val emailSignalCandidates = candidates.filter { it.signalType == MatchSignalType.EMAIL }
+        if (candidates.isNotEmpty()) {
+            assertEquals(
+                candidates.size, emailSignalCandidates.size,
+                "Expected all candidates for gmail entities to have EMAIL signalType (requires signal_type='EMAIL' in metadata). " +
+                    "Non-EMAIL candidates: ${candidates.filter { it.signalType != MatchSignalType.EMAIL }.map { "${it.candidateEntityId} signalType=${it.signalType}" }}",
+            )
+        }
     }
 
     /**

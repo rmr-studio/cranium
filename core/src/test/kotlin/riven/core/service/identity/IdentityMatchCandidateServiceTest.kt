@@ -86,8 +86,8 @@ class IdentityMatchCandidateServiceTest {
     /**
      * Creates a mock Query for the candidate similarity search.
      *
-     * Each row is Array<Any?>: [candidateEntityId, candidateAttributeId, candidateValue, simScore, candidateSignalType]
-     * candidateSignalType defaults to null (no signal_type stored on metadata row).
+     * Each row is Array<Any?>: [candidateEntityId, candidateAttributeId, candidateValue, simScore, candidateSignalType, candidateSchemaType]
+     * candidateSignalType defaults to null (no signal_type stored on metadata row); candidateSchemaType is required for fallback.
      */
     private fun candidateQuery(rows: List<Array<Any?>>): Query = mock<Query>().also {
         whenever(it.setParameter(any<String>(), any())).thenReturn(it)
@@ -168,13 +168,13 @@ class IdentityMatchCandidateServiceTest {
 
             // Trigram query returns a candidate at score 0.7
             val trigramRows = listOf(
-                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "(555) 123-4567", 0.7, null),
+                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "(555) 123-4567", 0.7, null, SchemaType.PHONE.name),
             )
             val trigramQ = candidateQuery(trigramRows)
 
             // Exact-digits query returns the SAME candidate at score 1.0
             val exactDigitsRows = listOf(
-                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "(555) 123-4567", 1.0, null),
+                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "(555) 123-4567", 1.0, null, SchemaType.PHONE.name),
             )
             val exactDigitsQ = candidateQuery(exactDigitsRows)
 
@@ -206,10 +206,10 @@ class IdentityMatchCandidateServiceTest {
 
             // Trigram returns one entity, exact-digits returns a DIFFERENT entity
             val trigramRows = listOf(
-                arrayOf<Any?>(entityFromTrigram.toString(), attrFromTrigram.toString(), "555-1234567", 0.85, null),
+                arrayOf<Any?>(entityFromTrigram.toString(), attrFromTrigram.toString(), "555-1234567", 0.85, null, SchemaType.PHONE.name),
             )
             val exactDigitsRows = listOf(
-                arrayOf<Any?>(entityFromExactDigits.toString(), attrFromExactDigits.toString(), "(555) 123-4567", 1.0, null),
+                arrayOf<Any?>(entityFromExactDigits.toString(), attrFromExactDigits.toString(), "(555) 123-4567", 1.0, null, SchemaType.PHONE.name),
             )
 
             whenever(entityManager.createNativeQuery(any()))
@@ -243,8 +243,8 @@ class IdentityMatchCandidateServiceTest {
             val candidateAttrId1 = UUID.randomUUID()
             val candidateAttrId2 = UUID.randomUUID()
             val candidateRows = listOf(
-                arrayOf<Any?>(candidateEntityId.toString(), candidateAttrId1.toString(), "test@example.com", 0.95, null),
-                arrayOf<Any?>(candidateEntityId.toString(), candidateAttrId2.toString(), "test+alias@example.com", 0.70, null),
+                arrayOf<Any?>(candidateEntityId.toString(), candidateAttrId1.toString(), "test@example.com", 0.95, null, SchemaType.EMAIL.name),
+                arrayOf<Any?>(candidateEntityId.toString(), candidateAttrId2.toString(), "test+alias@example.com", 0.70, null, SchemaType.EMAIL.name),
             )
             val candidateQMock = candidateQuery(candidateRows)
             val emailDomainQ = candidateQuery(emptyList())
@@ -273,8 +273,8 @@ class IdentityMatchCandidateServiceTest {
 
             // Two rows for the same (entityId, attributeId) pair — same attribute, different scores
             val candidateRows = listOf(
-                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "test@example.com", 0.95, null),
-                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "test@example.com", 0.70, null),
+                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "test@example.com", 0.95, null, SchemaType.EMAIL.name),
+                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "test@example.com", 0.70, null, SchemaType.EMAIL.name),
             )
             val candidateQMock = candidateQuery(candidateRows)
             val emailDomainQ = candidateQuery(emptyList())
@@ -505,7 +505,7 @@ class IdentityMatchCandidateServiceTest {
 
             // Trigram returns a candidate at score 0.7, but token overlap with "john smith" is 1.0
             val trigramRows = listOf(
-                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "john smith", 0.7, null),
+                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "john smith", 0.7, null, SchemaType.TEXT.name),
             )
             val trigramQ = candidateQuery(trigramRows)
             val nicknameQ = candidateQuery(emptyList())
@@ -542,7 +542,7 @@ class IdentityMatchCandidateServiceTest {
 
             // Candidate "jonathan" has trigram score 0.8, but token overlap with "jon" is 0.0 (no shared token)
             val trigramRows = listOf(
-                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "jonathan", 0.8, null),
+                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "jonathan", 0.8, null, SchemaType.TEXT.name),
             )
             val trigramQ = candidateQuery(trigramRows)
             val nicknameQ = candidateQuery(emptyList())
@@ -584,13 +584,13 @@ class IdentityMatchCandidateServiceTest {
 
             // Trigram returns a candidate at score 0.95
             val trigramRows = listOf(
-                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "bill smith", 0.95, null),
+                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "bill smith", 0.95, null, SchemaType.TEXT.name),
             )
             val trigramQ = candidateQuery(trigramRows)
 
             // Nickname query returns the SAME (entityId, attributeId) at score 0.95 — same score, NICKNAME source
             val nicknameRows = listOf(
-                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "bill smith", 0.95, null),
+                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "bill smith", 0.95, null, SchemaType.TEXT.name),
             )
             val nicknameQ = candidateQuery(nicknameRows)
             // dmetaphone scalars for "william" and "smith" — empty codes → no phonetic SQL query
@@ -639,14 +639,14 @@ class IdentityMatchCandidateServiceTest {
 
             // Trigram returns the candidate at score 0.5 (same as email domain overlap score below)
             val trigramRows = listOf(
-                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), candidateEmail, 0.5, null),
+                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), candidateEmail, 0.5, null, SchemaType.EMAIL.name),
             )
             val trigramQ = candidateQuery(trigramRows)
 
             // Email domain query returns 4-column rows [entityId, attributeId, value, signalType]
             // The Kotlin-side localPartSimilarity("a.smith", "alice.smith") = 0.5 (shared token "smith")
             val emailDomainRows: List<Array<Any?>> = listOf(
-                arrayOf(candidateEntityId.toString(), candidateAttributeId.toString(), candidateEmail, null),
+                arrayOf(candidateEntityId.toString(), candidateAttributeId.toString(), candidateEmail, null, SchemaType.EMAIL.name),
             )
             val emailDomainQ = mock<Query>().also {
                 whenever(it.setParameter(any<String>(), any())).thenReturn(it)
@@ -681,13 +681,13 @@ class IdentityMatchCandidateServiceTest {
 
             // Trigram returns a candidate at score 0.99 (higher)
             val trigramRows = listOf(
-                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "bill smith", 0.99, null),
+                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "bill smith", 0.99, null, SchemaType.TEXT.name),
             )
             val trigramQ = candidateQuery(trigramRows)
 
             // Nickname query returns SAME candidate at score 0.95 (lower)
             val nicknameRows = listOf(
-                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "bill smith", 0.95, null),
+                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "bill smith", 0.95, null, SchemaType.TEXT.name),
             )
             val nicknameQ = candidateQuery(nicknameRows)
             // dmetaphone scalars for "william" and "smith" — empty codes → no phonetic SQL query
@@ -734,7 +734,7 @@ class IdentityMatchCandidateServiceTest {
             val dmetaphoneQ = dmetaphoneScalarQuery("SM0")  // "smith" → dmetaphone code "SM0"
             // Phonetic SQL returns one candidate row (e.g. "smythe" — phonetically equivalent to "smith")
             val phoneticRows = listOf(
-                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "smythe", 0.85, null),
+                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "smythe", 0.85, null, SchemaType.TEXT.name),
             )
             val phoneticQ = candidateQuery(phoneticRows)
 
@@ -841,14 +841,14 @@ class IdentityMatchCandidateServiceTest {
             // Trigram returns "smythe" at score 0.85 — token overlap with trigger "smith" is 0.0 (no shared token)
             // so re-scoring leaves it at 0.85, matching the phonetic score
             val trigramRows = listOf(
-                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "smythe", 0.85, null),
+                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "smythe", 0.85, null, SchemaType.TEXT.name),
             )
             val trigramQ = candidateQuery(trigramRows)
             val nicknameQ = candidateQuery(emptyList())
             val dmetaphoneQ = dmetaphoneScalarQuery("SM0")
             // Phonetic SQL returns same (entityId, attributeId) at the fixed phonetic score 0.85
             val phoneticRows = listOf(
-                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "smythe", 0.85, null),
+                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "smythe", 0.85, null, SchemaType.TEXT.name),
             )
             val phoneticQ = candidateQuery(phoneticRows)
 
@@ -888,13 +888,13 @@ class IdentityMatchCandidateServiceTest {
             val trigramQ = candidateQuery(emptyList())
             // Nickname query returns candidate at score 0.85
             val nicknameRows = listOf(
-                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "bill", 0.85, null),
+                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "bill", 0.85, null, SchemaType.TEXT.name),
             )
             val nicknameQ = candidateQuery(nicknameRows)
             val dmetaphoneQ = dmetaphoneScalarQuery("ALM")  // "william" → some phonetic code
             // Phonetic SQL returns SAME (entityId, attributeId) at 0.85
             val phoneticRows = listOf(
-                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "bill", 0.85, null),
+                arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "bill", 0.85, null, SchemaType.TEXT.name),
             )
             val phoneticQ = candidateQuery(phoneticRows)
 

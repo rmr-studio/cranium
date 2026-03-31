@@ -80,7 +80,7 @@ object IdentityFactory {
         candidateValue: String = "test@example.com",
         signalType: MatchSignalType = MatchSignalType.EMAIL,
         similarityScore: Double = 0.85,
-        candidateSignalType: MatchSignalType? = null,
+        candidateSignalType: MatchSignalType? = signalType,
         matchSource: MatchSource = MatchSource.TRIGRAM,
     ): CandidateMatch = CandidateMatch(
         candidateEntityId = candidateEntityId,

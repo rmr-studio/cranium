@@ -12,9 +12,9 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * Provides cached IDENTIFIER-attribute classification lookups for entity types.
  *
- * Classification is immutable after creation in the current system, so cached entries
- * do not require TTL eviction. The cache only needs invalidation when new attributes
- * are added to an entity type (which could introduce a new IDENTIFIER entry).
+ * Cache entries are evicted when metadata changes via [EntityTypeSemanticMetadataService],
+ * which calls [invalidate] on every upsert (single or bulk). This ensures the cache
+ * reflects the current classification and signal-type state.
  *
  * The cache maps entityTypeId to a map of (IDENTIFIER attribute ID -> MatchSignalType).
  * The signal type is resolved from the `signal_type` column on the metadata row; if null,

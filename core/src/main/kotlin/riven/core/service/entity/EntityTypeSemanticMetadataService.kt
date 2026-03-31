@@ -17,6 +17,7 @@ import riven.core.models.request.entity.type.BulkSaveSemanticMetadataRequest
 import riven.core.models.request.entity.type.SaveSemanticMetadataRequest
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.repository.entity.EntityTypeSemanticMetadataRepository
+import riven.core.service.identity.EntityTypeClassificationService
 import riven.core.util.ServiceUtil
 import java.util.UUID
 
@@ -35,6 +36,7 @@ import java.util.UUID
 class EntityTypeSemanticMetadataService(
     private val repository: EntityTypeSemanticMetadataRepository,
     private val entityTypeRepository: EntityTypeRepository,
+    private val classificationService: EntityTypeClassificationService,
     private val logger: KLogger,
 ) {
 
@@ -147,13 +149,12 @@ class EntityTypeSemanticMetadataService(
             .associateBy { it.targetId }
 
         val entitiesToSave = requests.map { req ->
-            val derivedSignalType = deriveSignalType(req.classification)
             val existing = existingByTargetId[req.targetId]
             if (existing != null) {
                 existing.apply {
                     definition = req.definition
                     classification = req.classification
-                    signalType = derivedSignalType
+                    signalType = req.signalType ?: existing.signalType ?: deriveSignalType(req.classification)
                     tags = req.tags
                 }
             } else {
@@ -164,13 +165,15 @@ class EntityTypeSemanticMetadataService(
                     targetId = req.targetId,
                     definition = req.definition,
                     classification = req.classification,
-                    signalType = derivedSignalType,
+                    signalType = req.signalType ?: deriveSignalType(req.classification),
                     tags = req.tags,
                 )
             }
         }
 
-        return repository.saveAll(entitiesToSave).map { it.toModel() }
+        val saved = repository.saveAll(entitiesToSave).map { it.toModel() }
+        classificationService.invalidate(entityTypeId)
+        return saved
     }
 
     // ------ Lifecycle hooks (called from other services) ------
@@ -290,13 +293,12 @@ class EntityTypeSemanticMetadataService(
         request: SaveSemanticMetadataRequest,
     ): EntityTypeSemanticMetadata {
         val existing = repository.findByEntityTypeIdAndTargetTypeAndTargetId(entityTypeId, targetType, targetId)
-        val derivedSignalType = deriveSignalType(request.classification)
 
         val entity = if (existing.isPresent) {
             existing.get().apply {
                 definition = request.definition
                 classification = request.classification
-                signalType = derivedSignalType
+                signalType = request.signalType ?: existing.get().signalType ?: deriveSignalType(request.classification)
                 tags = request.tags
             }
         } else {
@@ -307,12 +309,14 @@ class EntityTypeSemanticMetadataService(
                 targetId = targetId,
                 definition = request.definition,
                 classification = request.classification,
-                signalType = derivedSignalType,
+                signalType = request.signalType ?: deriveSignalType(request.classification),
                 tags = request.tags,
             )
         }
 
-        return repository.save(entity).toModel()
+        val saved = repository.save(entity).toModel()
+        classificationService.invalidate(entityTypeId)
+        return saved
     }
 
     /**

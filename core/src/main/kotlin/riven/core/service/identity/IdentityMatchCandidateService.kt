@@ -281,7 +281,8 @@ class IdentityMatchCandidateService(
                    ea.attribute_id AS candidate_attribute_id,
                    ea.value->>'value' AS candidate_value,
                    similarity(ea.value->>'value', :inputValue) AS sim_score,
-                   sm.signal_type AS candidate_signal_type
+                   sm.signal_type AS candidate_signal_type,
+                   ea.schema_type AS candidate_schema_type
             FROM entity_attributes ea
             JOIN entity_type_semantic_metadata sm
                 ON sm.workspace_id = :workspaceId
@@ -308,7 +309,9 @@ class IdentityMatchCandidateService(
         val rows = query.resultList as List<Array<Any>>
         return rows.map { row ->
             val rawSignalType = row[4]?.toString()
+            val rawSchemaType = row[5].toString()
             val candidateSignalType = MatchSignalType.fromColumnValue(rawSignalType)
+                ?: MatchSignalType.fromSchemaType(SchemaType.valueOf(rawSchemaType))
             CandidateMatch(
                 candidateEntityId = parseUuid(row[0]),
                 candidateAttributeId = parseUuid(row[1]),
@@ -346,7 +349,8 @@ class IdentityMatchCandidateService(
                    ea.attribute_id AS candidate_attribute_id,
                    ea.value->>'value' AS candidate_value,
                    1.0            AS sim_score,
-                   sm.signal_type AS candidate_signal_type
+                   sm.signal_type AS candidate_signal_type,
+                   ea.schema_type AS candidate_schema_type
             FROM entity_attributes ea
             JOIN entity_type_semantic_metadata sm
                 ON sm.workspace_id = :workspaceId
@@ -369,7 +373,9 @@ class IdentityMatchCandidateService(
         val rows = query.resultList as List<Array<Any>>
         return rows.map { row ->
             val rawSignalType = row[4]?.toString()
+            val rawSchemaType = row[5].toString()
             val candidateSignalType = MatchSignalType.fromColumnValue(rawSignalType)
+                ?: MatchSignalType.fromSchemaType(SchemaType.valueOf(rawSchemaType))
             CandidateMatch(
                 candidateEntityId = parseUuid(row[0]),
                 candidateAttributeId = parseUuid(row[1]),
@@ -387,6 +393,8 @@ class IdentityMatchCandidateService(
      *
      * Tokenizes [normalizedValue] by whitespace, expands each token via [NicknameExpander],
      * and queries the DB for attribute values matching any nickname variant using an IN-clause.
+     * Also matches the full normalized value exactly (e.g. "bill smith" when the trigger is
+     * "william smith") via an OR clause, since the IN-clause only covers individual tokens.
      * Returns an empty list immediately if no known nickname variants exist for any token —
      * this avoids an empty IN-clause SQL error.
      *
@@ -418,7 +426,8 @@ class IdentityMatchCandidateService(
                    ea.attribute_id AS candidate_attribute_id,
                    ea.value->>'value' AS candidate_value,
                    0.95            AS sim_score,
-                   sm.signal_type  AS candidate_signal_type
+                   sm.signal_type  AS candidate_signal_type,
+                   ea.schema_type  AS candidate_schema_type
             FROM entity_attributes ea
             JOIN entity_type_semantic_metadata sm
                 ON sm.workspace_id = :workspaceId
@@ -429,19 +438,24 @@ class IdentityMatchCandidateService(
             WHERE ea.workspace_id = :workspaceId
               AND ea.entity_id != :triggerEntityId
               AND ea.deleted = false
-              AND LOWER(ea.value->>'value') IN (:variants)
+              AND (LOWER(ea.value->>'value') IN (:variants) OR LOWER(ea.value->>'value') = :fullNormalizedValue)
             LIMIT $CANDIDATE_LIMIT
         """.trimIndent()
+
+        val fullNormalizedValue = normalizedValue.lowercase()
 
         val query = entityManager.createNativeQuery(sql)
         query.setParameter("workspaceId", workspaceId)
         query.setParameter("triggerEntityId", triggerEntityId)
         query.setParameter("variants", variants)
+        query.setParameter("fullNormalizedValue", fullNormalizedValue)
 
         val rows = query.resultList as List<Array<Any>>
         return rows.map { row ->
             val rawSignalType = row[4]?.toString()
+            val rawSchemaType = row[5].toString()
             val candidateSignalType = MatchSignalType.fromColumnValue(rawSignalType)
+                ?: MatchSignalType.fromSchemaType(SchemaType.valueOf(rawSchemaType))
             CandidateMatch(
                 candidateEntityId = parseUuid(row[0]),
                 candidateAttributeId = parseUuid(row[1]),
@@ -524,7 +538,8 @@ class IdentityMatchCandidateService(
                    ea.attribute_id AS candidate_attribute_id,
                    ea.value->>'value' AS candidate_value,
                    0.85            AS sim_score,
-                   sm.signal_type  AS candidate_signal_type
+                   sm.signal_type  AS candidate_signal_type,
+                   ea.schema_type  AS candidate_schema_type
             FROM entity_attributes ea
             JOIN entity_type_semantic_metadata sm
                 ON sm.workspace_id = :workspaceId
@@ -556,7 +571,9 @@ class IdentityMatchCandidateService(
     private fun mapPhoneticRows(rows: List<Array<Any>>, signalType: MatchSignalType): List<CandidateMatch> {
         return rows.map { row ->
             val rawSignalType = row[4]?.toString()
+            val rawSchemaType = row[5].toString()
             val candidateSignalType = MatchSignalType.fromColumnValue(rawSignalType)
+                ?: MatchSignalType.fromSchemaType(SchemaType.valueOf(rawSchemaType))
             CandidateMatch(
                 candidateEntityId = parseUuid(row[0]),
                 candidateAttributeId = parseUuid(row[1]),
@@ -573,12 +590,13 @@ class IdentityMatchCandidateService(
      * Finds candidates sharing the same corporate email domain as the trigger entity.
      *
      * Two-phase approach:
-     * 1. SQL phase: fetches all same-domain candidates in the workspace using `split_part` to
-     *    extract and compare the domain from stored email values. Only the domain is checked at
-     *    this stage — no similarity filtering in SQL.
+     * 1. SQL phase: fetches all same-domain candidates in the workspace (no row limit) using
+     *    `split_part` to extract and compare the domain from stored email values. Only the
+     *    domain is checked at this stage — no similarity filtering in SQL.
      * 2. Kotlin phase: extracts the local part from each candidate email and computes overlap
      *    coefficient via [EmailMatcher.localPartSimilarity]. Candidates with overlap below 0.5
-     *    are discarded; the remainder are returned with [MatchSource.EMAIL_DOMAIN].
+     *    are discarded; results are capped at [EMAIL_DOMAIN_FETCH_LIMIT] after scoring so the
+     *    best local-part matches are always retained even for large corporate domains.
      *
      * The free-domain guard (skip gmail.com, yahoo.com, etc.) is enforced in [findEmailCandidates]
      * before calling this method — so this method assumes the domain is already known to
@@ -602,7 +620,8 @@ class IdentityMatchCandidateService(
             SELECT ea.entity_id   AS candidate_entity_id,
                    ea.attribute_id AS candidate_attribute_id,
                    ea.value->>'value' AS candidate_value,
-                   sm.signal_type  AS candidate_signal_type
+                   sm.signal_type  AS candidate_signal_type,
+                   ea.schema_type  AS candidate_schema_type
             FROM entity_attributes ea
             JOIN entity_type_semantic_metadata sm
                 ON sm.workspace_id = :workspaceId
@@ -614,7 +633,6 @@ class IdentityMatchCandidateService(
               AND ea.entity_id != :triggerEntityId
               AND ea.deleted = false
               AND LOWER(split_part(ea.value->>'value', '@', 2)) = :domain
-            LIMIT $EMAIL_DOMAIN_FETCH_LIMIT
         """.trimIndent()
 
         val rows = executeEmailDomainQuery(sql, workspaceId, triggerEntityId, domain)
@@ -641,6 +659,7 @@ class IdentityMatchCandidateService(
      *
      * Extracts the local part from each candidate email and computes overlap coefficient
      * via [EmailMatcher.localPartSimilarity]. Candidates with overlap below 0.5 are discarded.
+     * Results are capped at [EMAIL_DOMAIN_FETCH_LIMIT] after scoring to bound output size.
      */
     private fun scoreAndFilterByLocalPart(
         rows: List<Array<Any>>,
@@ -656,7 +675,9 @@ class IdentityMatchCandidateService(
             if (overlap < 0.5) return@mapNotNull null
 
             val rawSignalType = row[3]?.toString()
+            val rawSchemaType = row[4].toString()
             val candidateSignalType = MatchSignalType.fromColumnValue(rawSignalType)
+                ?: MatchSignalType.fromSchemaType(SchemaType.valueOf(rawSchemaType))
             CandidateMatch(
                 candidateEntityId = parseUuid(row[0]),
                 candidateAttributeId = parseUuid(row[1]),
@@ -666,7 +687,7 @@ class IdentityMatchCandidateService(
                 candidateSignalType = candidateSignalType,
                 matchSource = MatchSource.EMAIL_DOMAIN,
             )
-        }
+        }.take(EMAIL_DOMAIN_FETCH_LIMIT)
     }
 
     /**

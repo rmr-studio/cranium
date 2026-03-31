@@ -7,5 +7,6 @@ enum class IntegrationCategory {
     EMAIL,
     PROJECT_MANAGEMENT,
     COMMUNICATION,
+    PRODUCT_ANALYTICS,
     OTHER
 }

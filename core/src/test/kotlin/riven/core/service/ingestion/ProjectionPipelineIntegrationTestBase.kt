@@ -243,7 +243,7 @@ abstract class ProjectionPipelineIntegrationTestBase {
     protected fun loadIntegrationManifests() {
         val scannedIntegrations = manifestScannerService.scanIntegrations()
         for (scanned in scannedIntegrations) {
-            val resolved = manifestResolverService.resolveManifest(scanned, emptyMap())
+            val resolved = manifestResolverService.resolveManifest(scanned)
             manifestUpsertService.upsertManifest(resolved)
         }
     }

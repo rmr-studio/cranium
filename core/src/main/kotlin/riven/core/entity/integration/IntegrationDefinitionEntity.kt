@@ -28,20 +28,20 @@ data class IntegrationDefinitionEntity(
     val slug: String,
 
     @Column(name = "name", nullable = false)
-    val name: String,
+    var name: String,
 
     @Column(name = "icon_url")
-    val iconUrl: String? = null,
+    var iconUrl: String? = null,
 
     @Column(name = "description")
-    val description: String? = null,
+    var description: String? = null,
 
     @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = false, length = 50)
-    val category: IntegrationCategory,
+    var category: IntegrationCategory,
 
     @Column(name = "nango_provider_key", nullable = false, length = 100)
-    val nangoProviderKey: String,
+    var nangoProviderKey: String,
 
     @Type(JsonBinaryType::class)
     @Column(name = "capabilities", columnDefinition = "jsonb", nullable = false)

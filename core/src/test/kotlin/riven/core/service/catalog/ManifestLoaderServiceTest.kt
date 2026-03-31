@@ -18,6 +18,7 @@ class ManifestLoaderServiceTest {
     private lateinit var upsertService: ManifestUpsertService
     private lateinit var reconciliationService: ManifestReconciliationService
     private lateinit var integrationDefinitionStaleSyncService: IntegrationDefinitionStaleSyncService
+    private lateinit var integrationDefinitionSeederService: IntegrationDefinitionSeederService
     private lateinit var manifestCatalogRepository: ManifestCatalogRepository
     private lateinit var healthIndicator: ManifestCatalogHealthIndicator
     private lateinit var logger: KLogger
@@ -32,6 +33,7 @@ class ManifestLoaderServiceTest {
         upsertService = mock()
         reconciliationService = mock()
         integrationDefinitionStaleSyncService = mock()
+        integrationDefinitionSeederService = mock()
         manifestCatalogRepository = mock()
         healthIndicator = ManifestCatalogHealthIndicator()
         logger = mock()
@@ -42,6 +44,7 @@ class ManifestLoaderServiceTest {
             upsertService,
             reconciliationService,
             integrationDefinitionStaleSyncService,
+            integrationDefinitionSeederService,
             manifestCatalogRepository,
             healthIndicator,
             ManifestConfigurationProperties(),

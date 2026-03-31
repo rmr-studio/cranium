@@ -4,7 +4,7 @@
   "title": "Integration Manifest",
   "description": "Schema for integration manifests. An integration defines entity types for external data sources (HubSpot, Salesforce, etc.) with optional field mappings. Entity types are always inline (no $ref) and typically readonly.",
   "type": "object",
-  "required": ["manifestVersion", "key", "name", "entityTypes"],
+  "required": ["manifestVersion", "key", "name", "category", "entityTypes"],
   "additionalProperties": false,
   "properties": {
     "manifestVersion": {
@@ -24,6 +24,19 @@
     "description": {
       "type": "string",
       "description": "Optional description of the integration's purpose."
+    },
+    "category": {
+      "type": "string",
+      "enum": ["CRM", "PAYMENTS", "SUPPORT", "EMAIL", "PROJECT_MANAGEMENT", "COMMUNICATION", "PRODUCT_ANALYTICS", "OTHER"],
+      "description": "Integration category for catalog grouping. Must match IntegrationCategory enum."
+    },
+    "nangoProviderKey": {
+      "type": "string",
+      "description": "Nango provider config key for OAuth. Empty string means the integration is not yet connectable (coming soon)."
+    },
+    "iconUrl": {
+      "type": "string",
+      "description": "Relative path to the integration icon asset (e.g., '/integrations/hubspot.svg')."
     },
     "entityTypes": {
       "type": "array",

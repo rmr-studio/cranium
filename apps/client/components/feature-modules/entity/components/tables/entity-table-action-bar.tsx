@@ -3,8 +3,10 @@
 import { Button } from '@riven/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@riven/ui/tooltip';
 
+import type { QueryFilter } from '@/lib/types/entity';
 import { Ellipsis, Trash2 } from 'lucide-react';
 import { FC, useState } from 'react';
+import type { EntitySelection } from '../../hooks/use-entity-selection';
 import { DeleteEntityModal } from '../ui/modals/instance/delete-entity-modal';
 import { EntityRow } from './entity-table-utils';
 
@@ -13,6 +15,8 @@ interface Props {
   clearSelection: () => void;
   workspaceId: string;
   entityTypeId: string;
+  entitySelection: EntitySelection;
+  queryFilter: QueryFilter | undefined;
 }
 
 const EntityActionBar: FC<Props> = ({
@@ -20,6 +24,8 @@ const EntityActionBar: FC<Props> = ({
   clearSelection,
   workspaceId,
   entityTypeId,
+  entitySelection,
+  queryFilter,
 }) => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
@@ -59,6 +65,8 @@ const EntityActionBar: FC<Props> = ({
         selectedRows={selectedRows}
         workspaceId={workspaceId}
         entityTypeId={entityTypeId}
+        entitySelection={entitySelection}
+        queryFilter={queryFilter}
         onSuccess={handleDeleteSuccess}
       />
     </>

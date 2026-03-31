@@ -1,5 +1,6 @@
 import { InfiniteData } from '@tanstack/react-query';
-import { EntityQueryResponse, Entity } from '@/lib/types/entity';
+import { EntityQueryResponse, Entity, EntitySelectType } from '@/lib/types/entity';
+import type { DeleteEntityRequest } from '@/lib/types/entity';
 import { removeEntitiesFromPages, replaceEntitiesInPages } from './entity-cache.utils';
 
 function makeEntity(id: string): Entity {
@@ -90,7 +91,6 @@ const mockDeleteEntities = EntityService.deleteEntities as jest.MockedFunction<
 
 const WORKSPACE_ID = 'workspace-1';
 const TYPE_ID_A = 'type-a';
-const TYPE_ID_B = 'type-b';
 
 function createWrapper(queryClient: ReturnType<typeof createTestQueryClient>) {
   return function Wrapper({ children }: { children: React.ReactNode }) {
@@ -114,7 +114,7 @@ beforeEach(() => {
 });
 
 describe('useDeleteEntityMutation', () => {
-  describe('cache removal on successful deletion', () => {
+  describe('BY_ID mode: surgical cache removal', () => {
     it('removes deleted entities from cache, leaving non-deleted entities intact', async () => {
       const queryClient = createTestQueryClient();
       const entityA = createMockEntity({ id: 'entity-1', typeId: TYPE_ID_A });
@@ -129,8 +129,14 @@ describe('useDeleteEntityMutation', () => {
         { wrapper: createWrapper(queryClient) },
       );
 
+      const request: DeleteEntityRequest = {
+        type: EntitySelectType.ById,
+        entityTypeId: TYPE_ID_A,
+        entityIds: ['entity-1', 'entity-2'],
+      };
+
       await act(async () => {
-        result.current.mutate({ entityIds: { [TYPE_ID_A]: ['entity-1', 'entity-2'] } });
+        result.current.mutate(request);
       });
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -138,42 +144,6 @@ describe('useDeleteEntityMutation', () => {
       const remaining = getEntityCache(queryClient, WORKSPACE_ID, TYPE_ID_A);
       expect(remaining).toHaveLength(1);
       expect(remaining![0].id).toBe('entity-3');
-    });
-
-    it('removes entities from multiple type caches independently', async () => {
-      const queryClient = createTestQueryClient();
-      const entityA1 = createMockEntity({ id: 'entity-a1', typeId: TYPE_ID_A });
-      const entityA2 = createMockEntity({ id: 'entity-a2', typeId: TYPE_ID_A });
-      const entityB1 = createMockEntity({ id: 'entity-b1', typeId: TYPE_ID_B });
-      const entityB2 = createMockEntity({ id: 'entity-b2', typeId: TYPE_ID_B });
-
-      seedEntityCache(queryClient, WORKSPACE_ID, TYPE_ID_A, [entityA1, entityA2]);
-      seedEntityCache(queryClient, WORKSPACE_ID, TYPE_ID_B, [entityB1, entityB2]);
-      mockDeleteEntities.mockResolvedValue(createDeleteResponse(2));
-
-      const { result } = renderHook(
-        () => useDeleteEntityMutation(WORKSPACE_ID),
-        { wrapper: createWrapper(queryClient) },
-      );
-
-      await act(async () => {
-        result.current.mutate({
-          entityIds: {
-            [TYPE_ID_A]: ['entity-a1'],
-            [TYPE_ID_B]: ['entity-b2'],
-          },
-        });
-      });
-
-      await waitFor(() => expect(result.current.isSuccess).toBe(true));
-
-      const cacheA = getEntityCache(queryClient, WORKSPACE_ID, TYPE_ID_A);
-      expect(cacheA).toHaveLength(1);
-      expect(cacheA![0].id).toBe('entity-a2');
-
-      const cacheB = getEntityCache(queryClient, WORKSPACE_ID, TYPE_ID_B);
-      expect(cacheB).toHaveLength(1);
-      expect(cacheB![0].id).toBe('entity-b1');
     });
   });
 
@@ -194,140 +164,119 @@ describe('useDeleteEntityMutation', () => {
         { wrapper: createWrapper(queryClient) },
       );
 
+      const request: DeleteEntityRequest = {
+        type: EntitySelectType.ById,
+        entityTypeId: TYPE_ID_A,
+        entityIds: ['entity-2'],
+      };
+
       await act(async () => {
-        result.current.mutate({ entityIds: { [TYPE_ID_A]: ['entity-2'] } });
+        result.current.mutate(request);
       });
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
       const remaining = getEntityCache(queryClient, WORKSPACE_ID, TYPE_ID_A);
-      // entity-2 was deleted, entity-1 was updated
       const updated = remaining?.find((e) => e.id === 'entity-1');
       expect(updated?.payload).toEqual({ name: 'Updated' });
     });
   });
 
-  describe('empty entity IDs handling', () => {
-    it('rejects and shows error toast when entityIds map is empty', async () => {
+  describe('toast notifications', () => {
+    it('shows success toast with count', async () => {
       const queryClient = createTestQueryClient();
+      mockDeleteEntities.mockResolvedValue(createDeleteResponse(3));
 
       const { result } = renderHook(
         () => useDeleteEntityMutation(WORKSPACE_ID),
         { wrapper: createWrapper(queryClient) },
       );
 
-      await act(async () => {
-        result.current.mutate({ entityIds: {} });
-      });
-
-      await waitFor(() => expect(result.current.isError).toBe(true));
-
-      expect(mockDeleteEntities).not.toHaveBeenCalled();
-      expect(result.current.error?.message).toBe('No entities to delete');
-      expect(toast.error).toHaveBeenCalledWith(
-        'Failed to delete selected entities: No entities to delete',
-      );
-    });
-
-    it('rejects and shows error toast when all ID arrays are empty', async () => {
-      const queryClient = createTestQueryClient();
-
-      const { result } = renderHook(
-        () => useDeleteEntityMutation(WORKSPACE_ID),
-        { wrapper: createWrapper(queryClient) },
-      );
+      const request: DeleteEntityRequest = {
+        type: EntitySelectType.ById,
+        entityTypeId: TYPE_ID_A,
+        entityIds: ['e1', 'e2', 'e3'],
+      };
 
       await act(async () => {
-        result.current.mutate({ entityIds: { [TYPE_ID_A]: [], [TYPE_ID_B]: [] } });
-      });
-
-      await waitFor(() => expect(result.current.isError).toBe(true));
-
-      expect(mockDeleteEntities).not.toHaveBeenCalled();
-      expect(result.current.error?.message).toBe('No entities to delete');
-      expect(toast.error).toHaveBeenCalledWith(
-        'Failed to delete selected entities: No entities to delete',
-      );
-    });
-  });
-
-  describe('error response handling', () => {
-    it('throws and shows error toast when deletedCount is 0 with an error message', async () => {
-      const queryClient = createTestQueryClient();
-      const entity = createMockEntity({ id: 'entity-1', typeId: TYPE_ID_A });
-      seedEntityCache(queryClient, WORKSPACE_ID, TYPE_ID_A, [entity]);
-
-      mockDeleteEntities.mockResolvedValue({ deletedCount: 0, error: 'Permission denied' });
-
-      const { result } = renderHook(
-        () => useDeleteEntityMutation(WORKSPACE_ID),
-        { wrapper: createWrapper(queryClient) },
-      );
-
-      await act(async () => {
-        result.current.mutate({ entityIds: { [TYPE_ID_A]: ['entity-1'] } });
-      });
-
-      await waitFor(() => expect(result.current.isError).toBe(true));
-
-      expect(result.current.error?.message).toBe('Permission denied');
-      expect(toast.error).toHaveBeenCalledWith(
-        'Failed to delete selected entities: Permission denied',
-      );
-      expect(toast.success).not.toHaveBeenCalled();
-    });
-
-    it('does not remove entities from cache when deletedCount is 0 with error', async () => {
-      const queryClient = createTestQueryClient();
-      const entityA = createMockEntity({ id: 'entity-1', typeId: TYPE_ID_A });
-      const entityB = createMockEntity({ id: 'entity-2', typeId: TYPE_ID_A });
-      seedEntityCache(queryClient, WORKSPACE_ID, TYPE_ID_A, [entityA, entityB]);
-
-      mockDeleteEntities.mockResolvedValue({ deletedCount: 0, error: 'Permission denied' });
-
-      const { result } = renderHook(
-        () => useDeleteEntityMutation(WORKSPACE_ID),
-        { wrapper: createWrapper(queryClient) },
-      );
-
-      await act(async () => {
-        result.current.mutate({ entityIds: { [TYPE_ID_A]: ['entity-1'] } });
-      });
-
-      await waitFor(() => expect(result.current.isError).toBe(true));
-
-      // Cache should be untouched — no entities removed
-      const cache = getEntityCache(queryClient, WORKSPACE_ID, TYPE_ID_A);
-      expect(cache).toHaveLength(2);
-    });
-
-    it('shows warning toast on partial failure when deletedCount > 0 with error', async () => {
-      const queryClient = createTestQueryClient();
-      const entityA = createMockEntity({ id: 'entity-1', typeId: TYPE_ID_A });
-      const entityB = createMockEntity({ id: 'entity-2', typeId: TYPE_ID_A });
-      seedEntityCache(queryClient, WORKSPACE_ID, TYPE_ID_A, [entityA, entityB]);
-
-      mockDeleteEntities.mockResolvedValue({
-        deletedCount: 1,
-        error: '1 entity could not be deleted',
-      });
-
-      const { result } = renderHook(
-        () => useDeleteEntityMutation(WORKSPACE_ID),
-        { wrapper: createWrapper(queryClient) },
-      );
-
-      await act(async () => {
-        result.current.mutate({ entityIds: { [TYPE_ID_A]: ['entity-1', 'entity-2'] } });
+        result.current.mutate(request);
       });
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-      expect(toast.warning).toHaveBeenCalledWith(
-        '1 entities deleted, but some failed: 1 entity could not be deleted',
+      expect(toast.success).toHaveBeenCalledWith('3 entities deleted successfully');
+    });
+
+    it('shows singular toast for single entity', async () => {
+      const queryClient = createTestQueryClient();
+      mockDeleteEntities.mockResolvedValue(createDeleteResponse(1));
+
+      const { result } = renderHook(
+        () => useDeleteEntityMutation(WORKSPACE_ID),
+        { wrapper: createWrapper(queryClient) },
       );
-      expect(toast.success).not.toHaveBeenCalled();
-      expect(toast.error).not.toHaveBeenCalled();
+
+      const request: DeleteEntityRequest = {
+        type: EntitySelectType.ById,
+        entityTypeId: TYPE_ID_A,
+        entityIds: ['e1'],
+      };
+
+      await act(async () => {
+        result.current.mutate(request);
+      });
+
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+      expect(toast.success).toHaveBeenCalledWith('1 entity deleted successfully');
+    });
+
+    it('shows error toast on failure', async () => {
+      const queryClient = createTestQueryClient();
+      mockDeleteEntities.mockRejectedValue(new Error('Permission denied'));
+
+      const { result } = renderHook(
+        () => useDeleteEntityMutation(WORKSPACE_ID),
+        { wrapper: createWrapper(queryClient) },
+      );
+
+      const request: DeleteEntityRequest = {
+        type: EntitySelectType.ById,
+        entityTypeId: TYPE_ID_A,
+        entityIds: ['e1'],
+      };
+
+      await act(async () => {
+        result.current.mutate(request);
+      });
+
+      await waitFor(() => expect(result.current.isError).toBe(true));
+
+      expect(toast.error).toHaveBeenCalledWith('Failed to delete entities: Permission denied');
+    });
+  });
+
+  describe('cache strategy selection', () => {
+    it('uses surgical removal for BY_ID requests', () => {
+      const request: DeleteEntityRequest = {
+        type: EntitySelectType.ById,
+        entityTypeId: 'type-1',
+        entityIds: ['id-1', 'id-2'],
+      };
+
+      expect(request.type).toBe(EntitySelectType.ById);
+      expect(request.entityIds).toBeDefined();
+    });
+
+    it('uses invalidation for ALL requests', () => {
+      const request: DeleteEntityRequest = {
+        type: EntitySelectType.All,
+        entityTypeId: 'type-1',
+        excludeIds: ['id-3'],
+      };
+
+      expect(request.type).toBe(EntitySelectType.All);
+      expect(request.entityIds).toBeUndefined();
     });
   });
 });

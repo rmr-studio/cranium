@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Signal-Type-Aware Normalization + Candidate Query Fixes** - Foundation normalization pipeline and structural query bug fixes that unblock all downstream phases (completed 2026-03-28)
 - [x] **Phase 2: Scoring Improvements + Signal Classification** - Confidence gate, cross-type discounting, and signal_type tag that make scores trustworthy (completed 2026-03-29)
-- [ ] **Phase 3: Nickname Lookup + Token-Set Similarity** - Name variant matching via nickname expansion and word-token overlap
+- [x] **Phase 3: Nickname Lookup + Token-Set Similarity** - Name variant matching via nickname expansion and word-token overlap (completed 2026-03-30)
 - [ ] **Phase 4: Email Decomposition Strategy** - Domain-aware candidate discovery with local-part tokenization and free-domain exclusion
 - [ ] **Phase 5: Phonetic Matching + Method Consolidation** - Phonetic name matching via dmetaphone and consolidated when() dispatch
 
@@ -59,7 +59,7 @@ Plans:
   2. NicknameExpander.expand() returns all known variants for a given canonical name
   3. Token-set overlap correctly identifies "Smith John" and "John Smith" as equivalent via TokenSimilarity
   4. A pipeline integration test confirms William/Bill nickname match produces a merge suggestion
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 Plans:
 - [ ] 03-01-PLAN.md — NicknameExpander and TokenSimilarity utility objects with unit tests
 - [ ] 03-02-PLAN.md — Wire nickname query + token re-scoring into CandidateService, pipeline integration tests
@@ -75,8 +75,8 @@ Plans:
   4. A pipeline integration test confirms email domain match produces a suggestion for a corporate domain
 **Plans:** 2 plans
 Plans:
-- [ ] 02-01-PLAN.md — Model extensions, MatchSource enum, signal_type schema/JPA/cache, candidate query wiring
-- [ ] 02-02-PLAN.md — Confidence gate + cross-type discount in scoring service with unit tests
+- [ ] 04-01-PLAN.md — EmailMatcher Kotlin object utility with unit tests (TDD)
+- [ ] 04-02-PLAN.md — Wire email domain query into CandidateService, pipeline integration tests
 
 ### Phase 5: Phonetic Matching + Method Consolidation
 **Goal**: NAME signal types discover phonetically similar candidates via dmetaphone, and all candidate query paths are consolidated into a single when(signalType) dispatch
@@ -90,8 +90,8 @@ Plans:
   5. A pipeline integration test confirms multi-strategy merge produces correct composite scores
 **Plans:** 2 plans
 Plans:
-- [ ] 02-01-PLAN.md — Model extensions, MatchSource enum, signal_type schema/JPA/cache, candidate query wiring
-- [ ] 02-02-PLAN.md — Confidence gate + cross-type discount in scoring service with unit tests
+- [ ] 05-01-PLAN.md — TBD
+- [ ] 05-02-PLAN.md — TBD
 
 ## Progress
 
@@ -102,6 +102,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Signal-Type-Aware Normalization + Candidate Query Fixes | 2/2 | Complete   | 2026-03-28 |
 | 2. Scoring Improvements + Signal Classification | 2/2 | Complete   | 2026-03-29 |
-| 3. Nickname Lookup + Token-Set Similarity | 0/2 | Not started | - |
-| 4. Email Decomposition Strategy | 0/TBD | Not started | - |
+| 3. Nickname Lookup + Token-Set Similarity | 2/2 | Complete   | 2026-03-30 |
+| 4. Email Decomposition Strategy | 0/2 | Planning complete | - |
 | 5. Phonetic Matching + Method Consolidation | 0/TBD | Not started | - |

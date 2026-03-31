@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-03-30T22:17:07.702Z"
+stopped_at: Completed 03-02-PLAN.md
+last_updated: "2026-03-30T22:36:10.084Z"
 last_activity: 2026-03-28 — Roadmap created
 progress:
   total_phases: 5
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 6
-  completed_plans: 5
+  completed_plans: 6
   percent: 0
 ---
 
@@ -55,6 +55,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02 P01 | 67 | 2 tasks | 12 files |
 | Phase 02 P02 | 2 | 1 tasks | 2 files |
 | Phase 03 P01 | 3 | 2 tasks | 5 files |
+| Phase 03 P02 | 12 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -81,6 +82,8 @@ Recent decisions affecting current work:
 - [Phase 02]: Null candidateSignalType treated as same-type (no discount) for backward Temporal serialization compatibility
 - [Phase 03]: NicknameExpander as Kotlin object (not Spring bean) — pure stateless lookup testable without Spring context
 - [Phase 03]: TokenSimilarity uses overlap coefficient not Jaccard — returns 1.0 for subset containment (John vs John Smith)
+- [Phase 03]: signal_type from semantic metadata overrides SchemaType for trigger signal routing — SchemaType has no NAME/COMPANY variants
+- [Phase 03]: TEST-07 uses unusual hyphenation to force exact-digits path — trigram similarity below 0.3 threshold
 
 ### Pending Todos
 
@@ -93,6 +96,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-30T22:17:03.675Z
-Stopped at: Completed 03-01-PLAN.md
+Last session: 2026-03-30T22:32:34.000Z
+Stopped at: Completed 03-02-PLAN.md
 Resume file: None

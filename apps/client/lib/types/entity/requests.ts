@@ -16,7 +16,9 @@ import type { SaveTargetRuleRequest } from '../models/SaveTargetRuleRequest';
 import type { SaveSemanticMetadataRequest } from '../models/SaveSemanticMetadataRequest';
 import type { BulkSaveSemanticMetadataRequest } from '../models/BulkSaveSemanticMetadataRequest';
 import type { UpdateEntityTypeConfigurationRequest } from '../models/UpdateEntityTypeConfigurationRequest';
+import type { DeleteEntityRequest } from '../models/DeleteEntityRequest';
 import { EntityTypeRequestDefinition } from '../models/EntityTypeRequestDefinition';
+import { EntitySelectType } from '../models/EntitySelectType';
 
 export type {
   CreateEntityTypeRequest,
@@ -36,6 +38,7 @@ export type {
   SaveSemanticMetadataRequest,
   BulkSaveSemanticMetadataRequest,
   UpdateEntityTypeConfigurationRequest,
+  DeleteEntityRequest,
 };
 
-export { EntityTypeRequestDefinition };
+export { EntityTypeRequestDefinition, EntitySelectType };

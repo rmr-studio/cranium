@@ -130,6 +130,10 @@ allOpen {
     annotation("jakarta.persistence.Embeddable")
 }
 
+tasks.bootRun {
+    systemProperty("spring.profiles.active", "dev")
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
 }

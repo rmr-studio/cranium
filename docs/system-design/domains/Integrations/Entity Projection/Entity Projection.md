@@ -6,10 +6,12 @@ Created: 2026-03-29
 Domains:
   - "[[Integrations]]"
 ---
-
 # Entity Projection
 
 This subdomain handles Pass 3 of the integration sync pipeline — projecting integration entities into core lifecycle entities. After integration data is synced and schema-mapped (Passes 1-2), projection rules route each integration entity type to its corresponding core entity type. Identity resolution determines whether the incoming data matches an existing core entity (update) or requires a new one (create). Attribute transfer copies field values from the integration entity to the core entity using a source-wins merge strategy. The pipeline runs in Temporal activity context without JWT auth — workspace isolation is by parameter.
+
+## [[FAQ]]
+
 
 ## Components
 

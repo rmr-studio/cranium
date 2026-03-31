@@ -37,10 +37,9 @@ class IdentityMatchCandidateService(
      * Returns candidate matches for a given trigger entity using signal-type-aware normalization
      * and pg_trgm blocking on IDENTIFIER attributes.
      *
-     * For each IDENTIFIER-classified attribute of the trigger entity, runs a native SQL query
-     * that uses the `%` pg_trgm operator for GIN-index blocking, then filters by `similarity()`
-     * score. For PHONE signals, an additional exact-digits query is unioned in Kotlin to catch
-     * differently-formatted numbers that share the same digits.
+     * For each IDENTIFIER-classified attribute of the trigger entity, dispatches to a per-type
+     * orchestrator method via a when(signalType) expression. Each orchestrator runs all strategies
+     * appropriate for its signal type and returns fully-processed candidates.
      *
      * Results are merged and deduplicated by (candidateEntityId, candidateAttributeId),
      * keeping the highest-scoring match per group.
@@ -71,39 +70,14 @@ class IdentityMatchCandidateService(
 
             logger.debug { "Scanning candidates for attribute $attributeId (type=$signalType) value='$normalizedValue'" }
 
-            val candidates = runCandidateQuery(triggerEntityId, workspaceId, normalizedValue, signalType)
-
-            // For NAME signals, re-score trigram candidates with token overlap BEFORE adding
-            val processedCandidates = if (signalType == MatchSignalType.NAME) {
-                candidates.map { candidate ->
-                    val tokenOverlap = TokenSimilarity.overlap(normalizedValue, candidate.candidateValue)
-                    val finalScore = maxOf(candidate.similarityScore, tokenOverlap)
-                    if (finalScore > candidate.similarityScore) candidate.copy(similarityScore = finalScore) else candidate
-                }
-            } else {
-                candidates
+            val candidates = when (signalType) {
+                MatchSignalType.NAME              -> findNameCandidates(triggerEntityId, workspaceId, normalizedValue, signalType)
+                MatchSignalType.PHONE             -> findPhoneCandidates(triggerEntityId, workspaceId, normalizedValue, signalType)
+                MatchSignalType.EMAIL             -> findEmailCandidates(triggerEntityId, workspaceId, normalizedValue, signalType)
+                MatchSignalType.COMPANY,
+                MatchSignalType.CUSTOM_IDENTIFIER -> findDefaultCandidates(triggerEntityId, workspaceId, normalizedValue, signalType)
             }
-            allCandidates.addAll(processedCandidates)
-
-            if (signalType == MatchSignalType.PHONE) {
-                val exactCandidates = findPhoneExactDigitsCandidates(triggerEntityId, workspaceId, normalizedValue)
-                allCandidates.addAll(exactCandidates)
-            }
-
-            if (signalType == MatchSignalType.NAME) {
-                val nicknameCandidates = findNicknameCandidates(triggerEntityId, workspaceId, normalizedValue, signalType)
-                allCandidates.addAll(nicknameCandidates)
-            }
-
-            if (signalType == MatchSignalType.EMAIL) {
-                val domain = EmailMatcher.extractDomain(normalizedValue)
-                if (domain != null && !EmailMatcher.isFreeEmailDomain(domain)) {
-                    val emailDomainCandidates = findEmailDomainCandidates(
-                        triggerEntityId, workspaceId, normalizedValue, domain, signalType
-                    )
-                    allCandidates.addAll(emailDomainCandidates)
-                }
-            }
+            allCandidates.addAll(candidates)
         }
 
         return mergeCandidates(allCandidates)
@@ -135,6 +109,111 @@ class IdentityMatchCandidateService(
             }
         }
         return result
+    }
+
+    // ------ Per-type orchestrator methods ------
+
+    /**
+     * Runs all candidate strategies for NAME signals:
+     * 1. Trigram candidates, re-scored with token overlap coefficient
+     * 2. Nickname expansion candidates
+     * 3. Phonetic (dmetaphone) candidates
+     *
+     * @param triggerEntityId the entity to exclude from results
+     * @param workspaceId workspace scope
+     * @param normalizedValue normalized trigger name value (space-separated tokens)
+     * @param signalType NAME signal type to assign to returned candidates
+     */
+    private fun findNameCandidates(
+        triggerEntityId: UUID,
+        workspaceId: UUID,
+        normalizedValue: String,
+        signalType: MatchSignalType,
+    ): List<CandidateMatch> {
+        val result = mutableListOf<CandidateMatch>()
+
+        // Step 1: Trigram candidates, re-scored with token overlap
+        val trigramCandidates = runCandidateQuery(triggerEntityId, workspaceId, normalizedValue, signalType)
+        val reScored = trigramCandidates.map { candidate ->
+            val tokenOverlap = TokenSimilarity.overlap(normalizedValue, candidate.candidateValue)
+            val finalScore = maxOf(candidate.similarityScore, tokenOverlap)
+            if (finalScore > candidate.similarityScore) candidate.copy(similarityScore = finalScore) else candidate
+        }
+        result.addAll(reScored)
+
+        // Step 2: Nickname expansion candidates
+        result.addAll(findNicknameCandidates(triggerEntityId, workspaceId, normalizedValue, signalType))
+
+        // Step 3: Phonetic candidates
+        result.addAll(findPhoneticCandidates(triggerEntityId, workspaceId, normalizedValue, signalType))
+
+        return result
+    }
+
+    /**
+     * Runs all candidate strategies for PHONE signals:
+     * 1. Trigram candidates
+     * 2. Exact-digits candidates (catches differently-formatted phone numbers)
+     *
+     * @param triggerEntityId the entity to exclude from results
+     * @param workspaceId workspace scope
+     * @param normalizedValue digits-only phone number (as returned by IdentityNormalizationService for PHONE)
+     * @param signalType PHONE signal type to assign to returned candidates
+     */
+    private fun findPhoneCandidates(
+        triggerEntityId: UUID,
+        workspaceId: UUID,
+        normalizedValue: String,
+        signalType: MatchSignalType,
+    ): List<CandidateMatch> {
+        val result = mutableListOf<CandidateMatch>()
+        result.addAll(runCandidateQuery(triggerEntityId, workspaceId, normalizedValue, signalType))
+        result.addAll(findPhoneExactDigitsCandidates(triggerEntityId, workspaceId, normalizedValue))
+        return result
+    }
+
+    /**
+     * Runs all candidate strategies for EMAIL signals:
+     * 1. Trigram candidates
+     * 2. Corporate email domain candidates (only when the domain is not a free provider)
+     *
+     * @param triggerEntityId the entity to exclude from results
+     * @param workspaceId workspace scope
+     * @param normalizedValue normalized trigger email address
+     * @param signalType EMAIL signal type to assign to returned candidates
+     */
+    private fun findEmailCandidates(
+        triggerEntityId: UUID,
+        workspaceId: UUID,
+        normalizedValue: String,
+        signalType: MatchSignalType,
+    ): List<CandidateMatch> {
+        val result = mutableListOf<CandidateMatch>()
+        result.addAll(runCandidateQuery(triggerEntityId, workspaceId, normalizedValue, signalType))
+
+        val domain = EmailMatcher.extractDomain(normalizedValue)
+        if (domain != null && !EmailMatcher.isFreeEmailDomain(domain)) {
+            result.addAll(findEmailDomainCandidates(triggerEntityId, workspaceId, normalizedValue, domain, signalType))
+        }
+
+        return result
+    }
+
+    /**
+     * Runs the default candidate strategy (trigram only) for COMPANY and CUSTOM_IDENTIFIER signals.
+     *
+     * @param triggerEntityId the entity to exclude from results
+     * @param workspaceId workspace scope
+     * @param normalizedValue normalized trigger attribute value
+     * @param signalType signal type to assign to returned candidates
+     */
+    private fun findDefaultCandidates(
+        triggerEntityId: UUID,
+        workspaceId: UUID,
+        normalizedValue: String,
+        signalType: MatchSignalType,
+    ): List<CandidateMatch> {
+        return runCandidateQuery(triggerEntityId, workspaceId, normalizedValue, signalType)
     }
 
     // ------ Private helpers ------
@@ -365,6 +444,110 @@ class IdentityMatchCandidateService(
     }
 
     /**
+     * Computes dmetaphone phonetic codes for each token using PostgreSQL's fuzzystrmatch extension.
+     *
+     * Issues a JDBC scalar query `SELECT dmetaphone(:token)` per token rather than using a
+     * Kotlin-side phonetic library — ensures the phonetic algorithm is identical on both sides
+     * of the comparison (trigger tokens vs. stored DB values).
+     *
+     * Tokens shorter than 2 characters are filtered out before issuing queries; single-char
+     * initials produce unreliable codes. Tokens that produce an empty code (e.g. all-vowel
+     * strings) are excluded from the result set to prevent false-positive matches.
+     *
+     * @param tokens list of whitespace-split name tokens (caller must pre-filter non-empty)
+     * @return set of non-empty phonetic codes; may be empty if no token produces a valid code
+     */
+    private fun computePhoneticCodes(tokens: List<String>): Set<String> {
+        return tokens
+            .filter { it.length >= 2 }
+            .mapNotNull { token ->
+                val q = entityManager.createNativeQuery("SELECT dmetaphone(:token)")
+                q.setParameter("token", token)
+                (q.singleResult as? String)?.takeIf { it.isNotEmpty() }
+            }
+            .toSet()
+    }
+
+    /**
+     * Runs a phonetic candidate lookup for NAME signals using PostgreSQL's dmetaphone() function.
+     *
+     * Two-phase approach:
+     * 1. Kotlin phase: tokenizes [normalizedValue], computes dmetaphone codes per token via JDBC
+     *    scalar queries. Early return with empty list if no valid codes (prevents SQL error on
+     *    empty collection parameter).
+     * 2. SQL phase: uses EXISTS with regexp_split_to_table to tokenize stored DB values and
+     *    compare per-token dmetaphone codes against the pre-computed trigger codes.
+     *
+     * All matches receive a fixed similarity score of 0.85 and [MatchSource.PHONETIC].
+     * Results flow into [mergeCandidates] for deduplication; a phonetic match for the same
+     * (entityId, attributeId) as a trigram match will be preferred by the tiebreaker ordering.
+     *
+     * @param triggerEntityId the entity to exclude from results
+     * @param workspaceId workspace scope
+     * @param normalizedValue normalized trigger name value (space-separated tokens)
+     * @param signalType the signal type to assign to returned candidates (NAME)
+     */
+    @Suppress("UNCHECKED_CAST")
+    private fun findPhoneticCandidates(
+        triggerEntityId: UUID,
+        workspaceId: UUID,
+        normalizedValue: String,
+        signalType: MatchSignalType,
+    ): List<CandidateMatch> {
+        val tokens = normalizedValue.lowercase().split(Regex("\\s+")).filter { it.isNotEmpty() }
+        val phoneticCodes = computePhoneticCodes(tokens)
+
+        // Early return guards against empty-collection SQL parameter error
+        if (phoneticCodes.isEmpty()) return emptyList()
+
+        val sql = """
+            SELECT ea.entity_id   AS candidate_entity_id,
+                   ea.attribute_id AS candidate_attribute_id,
+                   ea.value->>'value' AS candidate_value,
+                   0.85            AS sim_score,
+                   sm.signal_type  AS candidate_signal_type
+            FROM entity_attributes ea
+            JOIN entity_type_semantic_metadata sm
+                ON sm.workspace_id = :workspaceId
+               AND sm.target_type = 'ATTRIBUTE'
+               AND sm.target_id = ea.attribute_id
+               AND sm.classification = 'IDENTIFIER'
+               AND sm.deleted = false
+            WHERE ea.workspace_id = :workspaceId
+              AND ea.entity_id != :triggerEntityId
+              AND ea.deleted = false
+              AND EXISTS (
+                  SELECT 1
+                  FROM regexp_split_to_table(LOWER(ea.value->>'value'), '\s+') AS token
+                  WHERE LENGTH(token) >= 2
+                    AND dmetaphone(token) != ''
+                    AND dmetaphone(token) = ANY(:phoneticCodes)
+              )
+            LIMIT $CANDIDATE_LIMIT
+        """.trimIndent()
+
+        val query = entityManager.createNativeQuery(sql)
+        query.setParameter("workspaceId", workspaceId)
+        query.setParameter("triggerEntityId", triggerEntityId)
+        query.setParameter("phoneticCodes", phoneticCodes.toTypedArray())
+
+        val rows = query.resultList as List<Array<Any>>
+        return rows.map { row ->
+            val rawSignalType = row[4]?.toString()
+            val candidateSignalType = MatchSignalType.fromColumnValue(rawSignalType)
+            CandidateMatch(
+                candidateEntityId = parseUuid(row[0]),
+                candidateAttributeId = parseUuid(row[1]),
+                candidateValue = row[2].toString(),
+                signalType = signalType,
+                similarityScore = (row[3] as Number).toDouble(),
+                candidateSignalType = candidateSignalType,
+                matchSource = MatchSource.PHONETIC,
+            )
+        }
+    }
+
+    /**
      * Finds candidates sharing the same corporate email domain as the trigger entity.
      *
      * Two-phase approach:
@@ -375,8 +558,8 @@ class IdentityMatchCandidateService(
      *    coefficient via [EmailMatcher.localPartSimilarity]. Candidates with overlap below 0.5
      *    are discarded; the remainder are returned with [MatchSource.EMAIL_DOMAIN].
      *
-     * The free-domain guard (skip gmail.com, yahoo.com, etc.) is enforced in the [findCandidates]
-     * loop before calling this method — so this method assumes the domain is already known to
+     * The free-domain guard (skip gmail.com, yahoo.com, etc.) is enforced in [findEmailCandidates]
+     * before calling this method — so this method assumes the domain is already known to
      * be corporate.
      *
      * @param triggerEntityId the entity to exclude from results
@@ -447,7 +630,10 @@ class IdentityMatchCandidateService(
      *
      * Grouping by attribute (not signal type) preserves multi-attribute matches — a candidate
      * entity with two distinct IDENTIFIER attributes produces two result rows. Deduplication
-     * only collapses trigram vs exact-digits results for the same (entity, attribute) pair.
+     * only collapses results for the same (entity, attribute) pair.
+     *
+     * When scores are equal, the tiebreaker prefers higher-fidelity match sources:
+     * NICKNAME > PHONETIC > EMAIL_DOMAIN > EXACT_NORMALIZED > TRIGRAM
      */
     private fun mergeCandidates(candidates: List<CandidateMatch>): List<CandidateMatch> {
         return candidates
@@ -459,8 +645,11 @@ class IdentityMatchCandidateService(
                         compareBy<CandidateMatch> { it.similarityScore }
                             .thenBy {
                                 when (it.matchSource) {
-                                    MatchSource.NICKNAME, MatchSource.EMAIL_DOMAIN -> 1
-                                    else -> 0
+                                    MatchSource.NICKNAME         -> 4
+                                    MatchSource.PHONETIC         -> 3
+                                    MatchSource.EMAIL_DOMAIN     -> 2
+                                    MatchSource.EXACT_NORMALIZED -> 1
+                                    MatchSource.TRIGRAM          -> 0
                                 }
                             }
                     )

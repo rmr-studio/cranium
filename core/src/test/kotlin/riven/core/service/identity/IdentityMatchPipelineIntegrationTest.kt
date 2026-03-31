@@ -216,6 +216,8 @@ class IdentityMatchPipelineIntegrationTest {
     fun installExtensionsAndSeedData() {
         // Install pg_trgm extension (not applied by Hibernate create-drop)
         jdbcTemplate.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm")
+        // Install fuzzystrmatch extension — required for dmetaphone() phonetic candidate queries (Phase 5)
+        jdbcTemplate.execute("CREATE EXTENSION IF NOT EXISTS fuzzystrmatch")
 
         // Apply identity constraints needed by IdentityMatchSuggestionService
         jdbcTemplate.execute("DROP INDEX IF EXISTS uq_match_suggestions_pair")

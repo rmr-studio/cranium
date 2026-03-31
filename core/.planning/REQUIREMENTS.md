@@ -61,9 +61,9 @@ Requirements for this milestone. Each maps to roadmap phases.
 - [x] **TEST-07**: Pipeline integration test: phone formatting variation produces match via exact-digits query
 - [x] **TEST-08**: Pipeline integration test: nickname match produces suggestion (William<->Bill)
 - [x] **TEST-09**: Pipeline integration test: email domain match produces suggestion (jsmith@acme.com<->john.smith@acme.com)
-- [ ] **TEST-10**: Pipeline integration test: phonetic match produces suggestion (Smith<->Smythe)
+- [x] **TEST-10**: Pipeline integration test: phonetic match produces suggestion (Smith<->Smythe)
 - [x] **TEST-11**: Pipeline integration test: free email domain (gmail.com) does NOT trigger domain strategy
-- [ ] **TEST-12**: Pipeline integration test: multi-strategy merge produces correct composite scores
+- [x] **TEST-12**: Pipeline integration test: multi-strategy merge produces correct composite scores
 
 ## v2 Requirements
 
@@ -127,8 +127,8 @@ Deferred to future release. Tracked but not in current roadmap.
 | CAND-07 | Phase 5 | Complete |
 | CAND-08 | Phase 5 | Complete |
 | DB-01 | Phase 5 | Complete |
-| TEST-10 | Phase 5 | Pending |
-| TEST-12 | Phase 5 | Pending |
+| TEST-10 | Phase 5 | Complete |
+| TEST-12 | Phase 5 | Complete |
 
 **Coverage:**
 - v1 requirements: 37 total

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-03-31T09:38:49.220Z"
+stopped_at: Completed 05-02-PLAN.md
+last_updated: "2026-03-31T09:46:28.230Z"
 last_activity: 2026-03-28 — Roadmap created
 progress:
   total_phases: 5
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 10
-  completed_plans: 9
+  completed_plans: 10
   percent: 0
 ---
 
@@ -59,6 +59,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04 P01 | 1 | 1 tasks | 2 files |
 | Phase 04 P02 | 11 | 2 tasks | 3 files |
 | Phase 05-01 P01 | 10 | 2 tasks | 4 files |
+| Phase 05 P02 | 5 | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -95,6 +96,8 @@ Recent decisions affecting current work:
 - [Phase 05-01]: dmetaphone computed via JDBC scalar queries per token — no Kotlin phonetic library, same algorithm both sides
 - [Phase 05-01]: when(signalType) as expression enforces exhaustiveness at compile time — new MatchSignalType requires when branch
 - [Phase 05-01]: Early return in findPhoneticCandidates when phoneticCodes is empty — prevents Hibernate empty-collection SQL error
+- [Phase 05-02]: TEST-10 and TEST-12 as separate test methods — same trigger, different assertion focus (candidate matchSource vs signal set + composite score)
+- [Phase 05-02]: Phone 9995551234 chosen for phonetic test entities — distinct from all other test fixtures to prevent EXACT_NORMALIZED cross-test interference
 
 ### Pending Todos
 
@@ -107,6 +110,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-31T09:38:49.216Z
-Stopped at: Completed 05-01-PLAN.md
+Last session: 2026-03-31T09:46:28.228Z
+Stopped at: Completed 05-02-PLAN.md
 Resume file: None

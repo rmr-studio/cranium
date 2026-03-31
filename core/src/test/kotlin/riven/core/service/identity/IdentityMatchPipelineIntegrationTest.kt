@@ -210,6 +210,18 @@ class IdentityMatchPipelineIntegrationTest {
         val entityGmailB = UUID.fromString("30000000-0000-0000-0000-000000000033")
         val attrRowGmailA = UUID.fromString("50000000-0000-0000-0000-000000000032")
         val attrRowGmailB = UUID.fromString("50000000-0000-0000-0000-000000000033")
+
+        // TEST-10 / TEST-12: Phonetic match + multi-strategy merge (Smythe/Smith + exact PHONE)
+        // Entity A ("smythe") and Entity B ("smith") share the same phonetic code SM0 via dmetaphone().
+        // Both share phone "9995551234" — distinct from other test phones — so EXACT_NORMALIZED PHONE also fires.
+        val attrNamePhoneticId = UUID.fromString("40000000-0000-0000-0000-000000000040")
+        val attrPhonePhoneticId = UUID.fromString("40000000-0000-0000-0000-000000000041")
+        val entityPhoneticA = UUID.fromString("40000000-0000-0000-0000-000000000040")
+        val entityPhoneticB = UUID.fromString("40000000-0000-0000-0000-000000000041")
+        val attrRowPhoneticAName = UUID.fromString("50000000-0000-0000-0000-000000000040")
+        val attrRowPhoneticAPhone = UUID.fromString("50000000-0000-0000-0000-000000000041")
+        val attrRowPhoneticBName = UUID.fromString("50000000-0000-0000-0000-000000000042")
+        val attrRowPhoneticBPhone = UUID.fromString("50000000-0000-0000-0000-000000000043")
     }
 
     @org.junit.jupiter.api.BeforeAll
@@ -700,6 +712,40 @@ class IdentityMatchPipelineIntegrationTest {
     }
 
     /**
+     * Task 1 setup verification: phonetic test entities have been seeded with NAME and PHONE attributes.
+     *
+     * Verifies that the fuzzystrmatch extension is installed and callable, and that the phonetic
+     * test entities (entityPhoneticA = "smythe", entityPhoneticB = "smith") have the expected
+     * attribute rows in entity_attributes. This confirms the fixture is ready for TEST-10/TEST-12.
+     */
+    @Test
+    @org.junit.jupiter.api.Order(9)
+    fun `phonetic test entities are seeded with name and phone attributes`() {
+        // Verify fuzzystrmatch is installed and dmetaphone() is callable
+        val phoneticCode = jdbcTemplate.queryForObject(
+            "SELECT dmetaphone('smith')",
+            String::class.java,
+        )
+        assertEquals("SM0", phoneticCode, "Expected dmetaphone('smith') = 'SM0' (fuzzystrmatch installed)")
+
+        // Verify phonetic entity A ("smythe") has both NAME and PHONE attribute rows
+        val countA = jdbcTemplate.queryForObject(
+            "SELECT COUNT(*) FROM entity_attributes WHERE entity_id = ?",
+            Int::class.java,
+            entityPhoneticA,
+        )
+        assertEquals(2, countA, "Expected entity A (smythe) to have 2 attribute rows (NAME + PHONE)")
+
+        // Verify phonetic entity B ("smith") has both NAME and PHONE attribute rows
+        val countB = jdbcTemplate.queryForObject(
+            "SELECT COUNT(*) FROM entity_attributes WHERE entity_id = ?",
+            Int::class.java,
+            entityPhoneticB,
+        )
+        assertEquals(2, countB, "Expected entity B (smith) to have 2 attribute rows (NAME + PHONE)")
+    }
+
+    /**
      * TEST-11: Free email domain does NOT trigger the domain-aware candidate strategy.
      *
      * Entity A (j.smith@gmail.com) and Entity B (john.smith@gmail.com) share the free domain
@@ -710,7 +756,7 @@ class IdentityMatchPipelineIntegrationTest {
      * so findEmailDomainCandidates should never be called for gmail.com.
      */
     @Test
-    @org.junit.jupiter.api.Order(9)
+    @org.junit.jupiter.api.Order(10)
     fun `free email domain does NOT trigger domain strategy`() {
         val candidates = candidateService.findCandidates(entityGmailA, workspaceId)
 

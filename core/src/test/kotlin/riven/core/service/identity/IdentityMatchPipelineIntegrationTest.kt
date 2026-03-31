@@ -725,6 +725,97 @@ class IdentityMatchPipelineIntegrationTest {
     }
 
     /**
+     * TEST-10: Verifies that phonetically similar names (Smith/Smythe) produce a match suggestion
+     * via dmetaphone(). Entity B ("smith") triggers resolution and finds Entity A ("smythe")
+     * because both produce the same phonetic code "SM0".
+     *
+     * Expected: candidate list is non-empty, entity A appears with matchSource=PHONETIC, and a
+     * PENDING suggestion is persisted.
+     */
+    @Test
+    @org.junit.jupiter.api.Order(9)
+    fun `phonetic name match Smith Smythe produces PENDING suggestion`() {
+        val candidates = candidateService.findCandidates(entityPhoneticB, workspaceId)
+
+        assertTrue(candidates.isNotEmpty(), "Expected at least one candidate for entity B (smith)")
+
+        val phoneticCandidate = candidates.firstOrNull { it.candidateEntityId == entityPhoneticA }
+        assertNotNull(
+            phoneticCandidate,
+            "Expected entity A (smythe) to appear as candidate for entity B (smith). " +
+                "Found candidates: ${candidates.map { "${it.candidateEntityId} matchSource=${it.matchSource}" }}",
+        )
+        assertEquals(
+            MatchSource.PHONETIC, phoneticCandidate!!.matchSource,
+            "Expected matchSource=PHONETIC for Smith/Smythe name match",
+        )
+
+        val triggerAttributes = candidateService.getTriggerAttributes(entityPhoneticB, workspaceId)
+        val scored = scoringService.scoreCandidates(entityPhoneticB, triggerAttributes, candidates)
+
+        val entityAScored = scored.filter {
+            it.targetEntityId == entityPhoneticA || it.sourceEntityId == entityPhoneticA
+        }
+        assertTrue(entityAScored.isNotEmpty(), "Expected entity A to appear in scored candidates above confidence gate")
+
+        val count = suggestionService.persistSuggestions(workspaceId, scored, null)
+        assertTrue(count >= 1, "Expected at least one suggestion to be persisted for Smith/Smythe phonetic match")
+
+        val suggestions = jdbcTemplate.queryForList(
+            "SELECT * FROM match_suggestions WHERE workspace_id = ? AND deleted = false AND status = 'PENDING'",
+            workspaceId,
+        )
+        val phoneticSuggestion = suggestions.firstOrNull { row ->
+            val source = row["source_entity_id"].toString()
+            val target = row["target_entity_id"].toString()
+            source == entityPhoneticA.toString() || target == entityPhoneticA.toString() ||
+                source == entityPhoneticB.toString() || target == entityPhoneticB.toString()
+        }
+        assertNotNull(phoneticSuggestion, "Expected a PENDING suggestion for Smith/Smythe phonetic pair")
+    }
+
+    /**
+     * TEST-12: Verifies multi-strategy merge produces correct composite scores.
+     * Entity B ("smith" + phone "9995551234") matches Entity A ("smythe" + same phone) via two
+     * strategies: phonetic NAME match (PHONETIC) and exact-digits PHONE match (EXACT_NORMALIZED).
+     * Asserts exactly 2 signals with correct provenance and composite score above threshold.
+     */
+    @Test
+    @org.junit.jupiter.api.Order(10)
+    fun `multi-strategy merge has 2 signals PHONETIC NAME and EXACT_NORMALIZED PHONE with score above threshold`() {
+        val candidates = candidateService.findCandidates(entityPhoneticB, workspaceId)
+        val triggerAttributes = candidateService.getTriggerAttributes(entityPhoneticB, workspaceId)
+        val scored = scoringService.scoreCandidates(entityPhoneticB, triggerAttributes, candidates)
+
+        val entityAScored = scored.firstOrNull {
+            it.targetEntityId == entityPhoneticA || it.sourceEntityId == entityPhoneticA
+        }
+        assertNotNull(entityAScored, "Expected entity A to appear in scored candidates")
+
+        assertEquals(
+            2, requireNotNull(entityAScored).signals.size,
+            "Expected exactly 2 signals (PHONETIC NAME + EXACT_NORMALIZED PHONE). " +
+                "Found: ${entityAScored.signals.map { it.matchSource }}",
+        )
+
+        val matchSources = entityAScored.signals.map { it.matchSource }.toSet()
+        assertTrue(
+            matchSources.contains(MatchSource.PHONETIC),
+            "Expected one signal with matchSource=PHONETIC for NAME match. Found: $matchSources",
+        )
+        assertTrue(
+            matchSources.contains(MatchSource.EXACT_NORMALIZED),
+            "Expected one signal with matchSource=EXACT_NORMALIZED for PHONE match. Found: $matchSources",
+        )
+
+        assertTrue(
+            entityAScored.compositeScore > IdentityMatchScoringService.MINIMUM_SCORE_THRESHOLD,
+            "Expected composite score > MINIMUM_SCORE_THRESHOLD (${IdentityMatchScoringService.MINIMUM_SCORE_THRESHOLD}). " +
+                "Actual: ${entityAScored.compositeScore}",
+        )
+    }
+
+    /**
      * Task 1 setup verification: phonetic test entities have been seeded with NAME and PHONE attributes.
      *
      * Verifies that the fuzzystrmatch extension is installed and callable, and that the phonetic
@@ -732,7 +823,7 @@ class IdentityMatchPipelineIntegrationTest {
      * attribute rows in entity_attributes. This confirms the fixture is ready for TEST-10/TEST-12.
      */
     @Test
-    @org.junit.jupiter.api.Order(9)
+    @org.junit.jupiter.api.Order(11)
     fun `phonetic test entities are seeded with name and phone attributes`() {
         // Verify fuzzystrmatch is installed and dmetaphone() is callable
         val phoneticCode = jdbcTemplate.queryForObject(
@@ -769,7 +860,7 @@ class IdentityMatchPipelineIntegrationTest {
      * so findEmailDomainCandidates should never be called for gmail.com.
      */
     @Test
-    @org.junit.jupiter.api.Order(10)
+    @org.junit.jupiter.api.Order(12)
     fun `free email domain does NOT trigger domain strategy`() {
         val candidates = candidateService.findCandidates(entityGmailA, workspaceId)
 

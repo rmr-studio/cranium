@@ -88,7 +88,7 @@ Plans:
   3. All candidate query strategies are dispatched from a single when(signalType) expression with private methods — no inline if-chains
   4. A pipeline integration test confirms phonetic match (Smith/Smythe) produces a suggestion
   5. A pipeline integration test confirms multi-strategy merge produces correct composite scores
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
 - [ ] 05-01-PLAN.md — Add fuzzystrmatch extension, findPhoneticCandidates, when() dispatch consolidation, unit tests
 - [ ] 05-02-PLAN.md — Pipeline integration tests for phonetic match (TEST-10) and multi-strategy merge (TEST-12)
@@ -104,4 +104,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Scoring Improvements + Signal Classification | 2/2 | Complete   | 2026-03-29 |
 | 3. Nickname Lookup + Token-Set Similarity | 2/2 | Complete   | 2026-03-30 |
 | 4. Email Decomposition Strategy | 1/2 | In Progress|  |
-| 5. Phonetic Matching + Method Consolidation | 0/2 | Not started | - |
+| 5. Phonetic Matching + Method Consolidation | 1/2 | In Progress|  |

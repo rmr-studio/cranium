@@ -23,8 +23,8 @@ Requirements for this milestone. Each maps to roadmap phases.
 - [x] **CAND-04**: NAME signal types run nickname expansion query (expands trigger name to known variants, queries for any match)
 - [x] **CAND-05**: EMAIL signal types run domain-aware query (same domain candidates with local-part similarity scoring)
 - [x] **CAND-06**: Free email domains (gmail, yahoo, outlook, ~30 total) are excluded from domain-aware query (prevents candidate explosion)
-- [ ] **CAND-07**: NAME signal types run phonetic query via dmetaphone() (catches phonetically similar names: Smith/Smythe)
-- [ ] **CAND-08**: All candidate query methods consolidated into when(signalType) dispatch with private methods (no strategy interface)
+- [x] **CAND-07**: NAME signal types run phonetic query via dmetaphone() (catches phonetically similar names: Smith/Smythe)
+- [x] **CAND-08**: All candidate query methods consolidated into when(signalType) dispatch with private methods (no strategy interface)
 
 ### Scoring
 
@@ -48,7 +48,7 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Database
 
-- [ ] **DB-01**: fuzzystrmatch PostgreSQL extension added to db/schema/00_extensions/extensions.sql
+- [x] **DB-01**: fuzzystrmatch PostgreSQL extension added to db/schema/00_extensions/extensions.sql
 
 ### Testing
 
@@ -124,9 +124,9 @@ Deferred to future release. Tracked but not in current roadmap.
 | TEST-04 | Phase 4 | Complete |
 | TEST-09 | Phase 4 | Complete |
 | TEST-11 | Phase 4 | Complete |
-| CAND-07 | Phase 5 | Pending |
-| CAND-08 | Phase 5 | Pending |
-| DB-01 | Phase 5 | Pending |
+| CAND-07 | Phase 5 | Complete |
+| CAND-08 | Phase 5 | Complete |
+| DB-01 | Phase 5 | Complete |
 | TEST-10 | Phase 5 | Pending |
 | TEST-12 | Phase 5 | Pending |
 

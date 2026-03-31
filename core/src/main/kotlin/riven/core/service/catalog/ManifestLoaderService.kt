@@ -102,7 +102,7 @@ class ManifestLoaderService(
         seenManifests: Set<Pair<String, ManifestType>>
     ) {
         if (totalScanned > 0) {
-            reconciliationService.reconcileStaleEntries(seenManifests)
+            reconciliationService.reconcileStaleEntries(seenManifests, setOf(ManifestType.INTEGRATION))
         } else {
             logger.warn { "No manifests found on classpath — skipping stale reconciliation" }
         }

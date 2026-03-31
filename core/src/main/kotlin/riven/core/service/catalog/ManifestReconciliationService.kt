@@ -21,16 +21,23 @@ class ManifestReconciliationService(
 
     /**
      * Reconciles stale flags after a successful load cycle.
+     * Only operates on catalog entries whose [ManifestType] is represented in [reconciledTypes] —
+     * manifest types loaded by other services (e.g. core model templates) are not touched.
      * Entries whose (key, type) pair is in [seenManifests] are marked non-stale;
-     * entries not in the set are marked stale.
+     * entries of a reconciled type not in the set are marked stale.
      */
     @Transactional
-    fun reconcileStaleEntries(seenManifests: Set<Pair<String, ManifestType>>) {
+    fun reconcileStaleEntries(
+        seenManifests: Set<Pair<String, ManifestType>>,
+        reconciledTypes: Set<ManifestType>
+    ) {
         val allEntries = manifestCatalogRepository.findAll()
         var markedStale = 0
         var unmarkedStale = 0
 
         for (entry in allEntries) {
+            if (entry.manifestType !in reconciledTypes) continue
+
             val shouldBeStale = (entry.key to entry.manifestType) !in seenManifests
             if (entry.stale != shouldBeStale) {
                 entry.stale = shouldBeStale

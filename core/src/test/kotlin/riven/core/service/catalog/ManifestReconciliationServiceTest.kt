@@ -45,7 +45,7 @@ class ManifestReconciliationServiceTest {
             .thenAnswer { it.getArgument<ManifestCatalogEntity>(0) }
 
         val seen = setOf("customer" to ManifestType.INTEGRATION)
-        service.reconcileStaleEntries(seen)
+        service.reconcileStaleEntries(seen, setOf(ManifestType.INTEGRATION))
 
         // Only unseenEntry should be saved (stale changed from false to true)
         verify(manifestCatalogRepository, times(1)).save(argThat<ManifestCatalogEntity> {
@@ -72,7 +72,7 @@ class ManifestReconciliationServiceTest {
             .thenAnswer { it.getArgument<ManifestCatalogEntity>(0) }
 
         val seen = setOf("customer" to ManifestType.INTEGRATION)
-        service.reconcileStaleEntries(seen)
+        service.reconcileStaleEntries(seen, setOf(ManifestType.INTEGRATION))
 
         verify(manifestCatalogRepository).save(argThat<ManifestCatalogEntity> {
             key == "customer" && !stale
@@ -80,18 +80,18 @@ class ManifestReconciliationServiceTest {
     }
 
     @Test
-    fun `reconcileStaleEntries distinguishes entries by manifest type`() {
+    fun `reconcileStaleEntries skips manifest types not in reconciledTypes`() {
         val integrationEntry = ManifestCatalogEntity(
             id = UUID.randomUUID(),
-            key = "customer",
-            name = "Customer Integration",
+            key = "hubspot",
+            name = "HubSpot Integration",
             manifestType = ManifestType.INTEGRATION,
             stale = false
         )
         val templateEntry = ManifestCatalogEntity(
             id = UUID.randomUUID(),
-            key = "customer",
-            name = "Customer Template",
+            key = "b2c",
+            name = "B2C Template",
             manifestType = ManifestType.TEMPLATE,
             stale = false
         )
@@ -100,17 +100,48 @@ class ManifestReconciliationServiceTest {
         whenever(manifestCatalogRepository.save(any<ManifestCatalogEntity>()))
             .thenAnswer { it.getArgument<ManifestCatalogEntity>(0) }
 
-        // Only INTEGRATION was seen, not TEMPLATE
-        val seen = setOf("customer" to ManifestType.INTEGRATION)
-        service.reconcileStaleEntries(seen)
+        // Only reconciling INTEGRATION type — template should be untouched
+        val seen = setOf("hubspot" to ManifestType.INTEGRATION)
+        service.reconcileStaleEntries(seen, setOf(ManifestType.INTEGRATION))
 
-        // Template should be marked stale
-        verify(manifestCatalogRepository).save(argThat<ManifestCatalogEntity> {
-            key == "customer" && manifestType == ManifestType.TEMPLATE && stale
-        })
-        // Integration should not be saved (unchanged)
+        // Template should NOT be touched (not in reconciledTypes)
         verify(manifestCatalogRepository, never()).save(argThat<ManifestCatalogEntity> {
-            key == "customer" && manifestType == ManifestType.INTEGRATION
+            key == "b2c"
+        })
+        // Integration is seen and unchanged — also not saved
+        verify(manifestCatalogRepository, never()).save(any())
+    }
+
+    @Test
+    fun `reconcileStaleEntries marks unseen integration stale without affecting templates`() {
+        val unseenIntegration = ManifestCatalogEntity(
+            id = UUID.randomUUID(),
+            key = "old-integration",
+            name = "Old Integration",
+            manifestType = ManifestType.INTEGRATION,
+            stale = false
+        )
+        val templateEntry = ManifestCatalogEntity(
+            id = UUID.randomUUID(),
+            key = "b2c",
+            name = "B2C Template",
+            manifestType = ManifestType.TEMPLATE,
+            stale = false
+        )
+
+        whenever(manifestCatalogRepository.findAll()).thenReturn(listOf(unseenIntegration, templateEntry))
+        whenever(manifestCatalogRepository.save(any<ManifestCatalogEntity>()))
+            .thenAnswer { it.getArgument<ManifestCatalogEntity>(0) }
+
+        service.reconcileStaleEntries(emptySet(), setOf(ManifestType.INTEGRATION))
+
+        // Unseen integration should be marked stale
+        verify(manifestCatalogRepository).save(argThat<ManifestCatalogEntity> {
+            key == "old-integration" && stale
+        })
+        // Template should NOT be touched
+        verify(manifestCatalogRepository, never()).save(argThat<ManifestCatalogEntity> {
+            key == "b2c"
         })
     }
 
@@ -127,7 +158,7 @@ class ManifestReconciliationServiceTest {
         whenever(manifestCatalogRepository.findAll()).thenReturn(listOf(entry))
 
         val seen = setOf("customer" to ManifestType.INTEGRATION)
-        service.reconcileStaleEntries(seen)
+        service.reconcileStaleEntries(seen, setOf(ManifestType.INTEGRATION))
 
         verify(manifestCatalogRepository, never()).save(any())
     }

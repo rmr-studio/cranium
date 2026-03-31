@@ -8,10 +8,7 @@ import {
   QueryFilterType,
   SortDirection,
 } from '@/lib/types/entity';
-import {
-  keepPreviousData,
-  useInfiniteQuery,
-} from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
 import { SortingState } from '@tanstack/react-table';
 import { EntityService } from '../../service/entity.service';
 import { entityKeys } from './entity-query-keys';
@@ -60,28 +57,30 @@ export function buildCompositeFilter(
 
   if (searchFilter && queryFilter) {
     return {
-      type: QueryFilterType.And,
       conditions: [searchFilter, queryFilter],
+      type: QueryFilterType.And,
     } as QueryFilter;
   }
 
   return searchFilter ?? queryFilter;
 }
 
-function buildSearchFilter(
-  search?: string,
-  attributeIds?: string[],
-): QueryFilter | undefined {
+function buildSearchFilter(search?: string, attributeIds?: string[]): QueryFilter | undefined {
   if (!search || !attributeIds || attributeIds.length === 0) {
     return undefined;
   }
 
-  const conditions: QueryFilter[] = attributeIds.map((attributeId) => ({
-    type: QueryFilterType.Attribute,
-    attributeId,
-    operator: FilterOperator.Contains,
-    value: { kind: FilterValueKind.Literal, value: search },
-  }));
+  const conditions: QueryFilter[] = attributeIds.map((attributeId) => {
+    const filter: QueryFilter = {
+      type: QueryFilterType.Attribute,
+      attributeId,
+      operator: FilterOperator.Contains,
+      // @ts-expect-error - TS doesn't understand the backend's sealed class hierarchy with discriminator properties
+      value: { kind: FilterValueKind.Literal, value: search },
+    };
+
+    return filter;
+  });
 
   if (conditions.length === 1) {
     return conditions[0];
@@ -146,6 +145,7 @@ export function useEntityQuery({
         entityTypeId!,
         { limit: ENTITY_PAGE_SIZE, offset: pageParam, orderBy },
         compositeFilter,
+        pageParam === 0, // includeCount only on first page
       ),
     initialPageParam: 0,
     getNextPageParam,

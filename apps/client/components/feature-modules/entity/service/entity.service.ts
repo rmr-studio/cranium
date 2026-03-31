@@ -102,6 +102,7 @@ export class EntityService {
     entityTypeId: string,
     pagination: QueryPagination,
     filter?: QueryFilter,
+    includeCount: boolean = false,
   ): Promise<EntityQueryResponse> {
     validateSession(session);
     validateUuid(workspaceId);
@@ -111,7 +112,7 @@ export class EntityService {
     try {
       const request: EntityQueryRequest = {
         pagination,
-        includeCount: false,
+        includeCount,
         maxDepth: 1,
         ...(filter ? { filter } : {}),
       };
@@ -125,7 +126,7 @@ export class EntityService {
       // then override the body with our own plain-object serialization.
       const safeRequest: EntityQueryRequest = {
         pagination,
-        includeCount: false,
+        includeCount,
         maxDepth: 1,
       };
 

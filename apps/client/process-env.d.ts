@@ -11,7 +11,6 @@ declare global {
       NEXT_PUBLIC_SUPABASE_ANON_KEY: string | undefined;
       NEXT_PUBLIC_SUPABASE_URL: string | undefined;
       NEXT_PUBLIC_AUTH_PROVIDER: string;
-      NEXT_PUBLIC_WS_URL: string;
     }
   }
 }

@@ -1,10 +1,10 @@
 'use client';
 
 import { useAuth } from '@/components/provider/auth-context';
+import { createAuthProvider } from '@/lib/auth';
 import { createStompClient, updateStompToken } from '@/lib/websocket/stomp-client';
 import type { Client } from '@stomp/stompjs';
 import { createContext, useCallback, useEffect, useRef, useState } from 'react';
-import { createAuthProvider } from '@/lib/auth';
 
 // ------ Connection State Machine ------
 // DISCONNECTED ──activate()──→ CONNECTING ──onConnect──→ CONNECTED
@@ -13,7 +13,12 @@ import { createAuthProvider } from '@/lib/auth';
 //      │                            │                        ▼
 // AUTH_FAILED ←──onStompError──  RECONNECTING ←──────────────┘
 
-export type ConnectionState = 'DISCONNECTED' | 'CONNECTING' | 'CONNECTED' | 'RECONNECTING' | 'AUTH_FAILED';
+export type ConnectionState =
+  | 'DISCONNECTED'
+  | 'CONNECTING'
+  | 'CONNECTED'
+  | 'RECONNECTING'
+  | 'AUTH_FAILED';
 
 export interface WebSocketContextValue {
   connectionState: ConnectionState;
@@ -57,18 +62,15 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
       clientRef.current.deactivate();
     }
 
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL;
-    if (!wsUrl) {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('[WS] NEXT_PUBLIC_WS_URL is not configured — WebSocket disabled');
-      }
+    if (!process.env.NEXT_PUBLIC_API_URL) {
+      console.error('NEXT_PUBLIC_API_URL is not defined');
       return;
     }
 
     setConnectionState('CONNECTING');
 
     const stompClient = await createStompClient({
-      wsUrl,
+      wsUrl: `${process.env.NEXT_PUBLIC_API_URL}/ws`,
       token,
       onConnect: () => {
         setConnectionState('CONNECTED');

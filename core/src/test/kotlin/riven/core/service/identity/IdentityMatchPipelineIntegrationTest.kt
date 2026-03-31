@@ -222,6 +222,41 @@ class IdentityMatchPipelineIntegrationTest {
         val attrRowPhoneticAPhone = UUID.fromString("50000000-0000-0000-0000-000000000041")
         val attrRowPhoneticBName = UUID.fromString("50000000-0000-0000-0000-000000000042")
         val attrRowPhoneticBPhone = UUID.fromString("50000000-0000-0000-0000-000000000043")
+
+        // Gap coverage: shared NAME + PHONE semantic attribute types for diacritics, inversions, title tests
+        val attrNameGapId = UUID.fromString("40000000-0000-0000-0000-000000000050")
+        val attrPhoneGapId = UUID.fromString("40000000-0000-0000-0000-000000000051")
+
+        // Gap coverage: Diacritics normalization (José García → jose garcia)
+        val entityDiacriticsA = UUID.fromString("30000000-0000-0000-0000-000000000050")
+        val entityDiacriticsB = UUID.fromString("30000000-0000-0000-0000-000000000051")
+        val attrRowDiacriticsAName = UUID.fromString("50000000-0000-0000-0000-000000000050")
+        val attrRowDiacriticsAPhone = UUID.fromString("50000000-0000-0000-0000-000000000051")
+        val attrRowDiacriticsBName = UUID.fromString("50000000-0000-0000-0000-000000000052")
+        val attrRowDiacriticsBPhone = UUID.fromString("50000000-0000-0000-0000-000000000053")
+
+        // Gap coverage: Name inversion (Fitzgerald Thomas ↔ Thomas Fitzgerald)
+        val entityInversionA = UUID.fromString("30000000-0000-0000-0000-000000000060")
+        val entityInversionB = UUID.fromString("30000000-0000-0000-0000-000000000061")
+        val attrRowInversionAName = UUID.fromString("50000000-0000-0000-0000-000000000060")
+        val attrRowInversionAPhone = UUID.fromString("50000000-0000-0000-0000-000000000061")
+        val attrRowInversionBName = UUID.fromString("50000000-0000-0000-0000-000000000062")
+        val attrRowInversionBPhone = UUID.fromString("50000000-0000-0000-0000-000000000063")
+
+        // Gap coverage: Title/suffix stripping (Dr. Maximilian Rothschild Esq. → maximilian rothschild)
+        val entityTitleA = UUID.fromString("30000000-0000-0000-0000-000000000070")
+        val entityTitleB = UUID.fromString("30000000-0000-0000-0000-000000000071")
+        val attrRowTitleAName = UUID.fromString("50000000-0000-0000-0000-000000000070")
+        val attrRowTitleAPhone = UUID.fromString("50000000-0000-0000-0000-000000000071")
+        val attrRowTitleBName = UUID.fromString("50000000-0000-0000-0000-000000000072")
+        val attrRowTitleBPhone = UUID.fromString("50000000-0000-0000-0000-000000000073")
+
+        // Gap coverage: Confidence gate rejection (single NAME signal, no corroborating signal)
+        val attrNameGateId = UUID.fromString("40000000-0000-0000-0000-000000000060")
+        val entityGateA = UUID.fromString("30000000-0000-0000-0000-000000000080")
+        val entityGateB = UUID.fromString("30000000-0000-0000-0000-000000000081")
+        val attrRowGateAName = UUID.fromString("50000000-0000-0000-0000-000000000080")
+        val attrRowGateBName = UUID.fromString("50000000-0000-0000-0000-000000000081")
     }
 
     @org.junit.jupiter.api.BeforeAll
@@ -301,6 +336,38 @@ class IdentityMatchPipelineIntegrationTest {
         // Entity B: "smith" (phonetically equivalent to "smythe") + same phone
         insertAttribute(attrRowPhoneticBName, entityPhoneticB, workspaceId, entityTypeId, attrNamePhoneticId, "TEXT", "smith")
         insertAttribute(attrRowPhoneticBPhone, entityPhoneticB, workspaceId, entityTypeId, attrPhonePhoneticId, "PHONE", "9995551234")
+
+        // Gap coverage: shared NAME + PHONE semantic metadata for diacritics, inversions, title tests
+        insertSemanticMetadata(attrNameGapId, "ATTRIBUTE", "IDENTIFIER", "NAME")
+        insertSemanticMetadata(attrPhoneGapId, "ATTRIBUTE", "IDENTIFIER", "PHONE")
+
+        // Diacritics: Entity A has accented "José García", Entity B has plain "jose garcia".
+        // Both share phone "6661110000" as corroborating signal for confidence gate.
+        insertAttribute(attrRowDiacriticsAName, entityDiacriticsA, workspaceId, entityTypeId, attrNameGapId, "TEXT", "José García")
+        insertAttribute(attrRowDiacriticsAPhone, entityDiacriticsA, workspaceId, entityTypeId, attrPhoneGapId, "PHONE", "6661110000")
+        insertAttribute(attrRowDiacriticsBName, entityDiacriticsB, workspaceId, entityTypeId, attrNameGapId, "TEXT", "jose garcia")
+        insertAttribute(attrRowDiacriticsBPhone, entityDiacriticsB, workspaceId, entityTypeId, attrPhoneGapId, "PHONE", "6661110000")
+
+        // Name inversion: Entity A "Fitzgerald Thomas", Entity B "Thomas Fitzgerald".
+        // Both share phone "6662220000" as corroborating signal.
+        insertAttribute(attrRowInversionAName, entityInversionA, workspaceId, entityTypeId, attrNameGapId, "TEXT", "Fitzgerald Thomas")
+        insertAttribute(attrRowInversionAPhone, entityInversionA, workspaceId, entityTypeId, attrPhoneGapId, "PHONE", "6662220000")
+        insertAttribute(attrRowInversionBName, entityInversionB, workspaceId, entityTypeId, attrNameGapId, "TEXT", "Thomas Fitzgerald")
+        insertAttribute(attrRowInversionBPhone, entityInversionB, workspaceId, entityTypeId, attrPhoneGapId, "PHONE", "6662220000")
+
+        // Title/suffix stripping: Entity A "Dr. Maximilian Rothschild Esq.", Entity B "Maximilian Rothschild".
+        // Normalization strips "Dr." from start and "Esq." from end → "maximilian rothschild".
+        // Both share phone "6663330000" as corroborating signal.
+        insertAttribute(attrRowTitleAName, entityTitleA, workspaceId, entityTypeId, attrNameGapId, "TEXT", "Dr. Maximilian Rothschild Esq.")
+        insertAttribute(attrRowTitleAPhone, entityTitleA, workspaceId, entityTypeId, attrPhoneGapId, "PHONE", "6663330000")
+        insertAttribute(attrRowTitleBName, entityTitleB, workspaceId, entityTypeId, attrNameGapId, "TEXT", "Maximilian Rothschild")
+        insertAttribute(attrRowTitleBPhone, entityTitleB, workspaceId, entityTypeId, attrPhoneGapId, "PHONE", "6663330000")
+
+        // Confidence gate rejection: NAME-only entities, no corroborating phone/email.
+        // "Bartholomew Henderson" vs "Bartholomew Hendersen" — high trigram similarity, single NAME signal.
+        insertSemanticMetadata(attrNameGateId, "ATTRIBUTE", "IDENTIFIER", "NAME")
+        insertAttribute(attrRowGateAName, entityGateA, workspaceId, entityTypeId, attrNameGateId, "TEXT", "Bartholomew Henderson")
+        insertAttribute(attrRowGateBName, entityGateB, workspaceId, entityTypeId, attrNameGateId, "TEXT", "Bartholomew Hendersen")
 
         // Entity A: email="john@example.com", phone="555-1234" (trigger)
         insertAttribute(attrRowAEmail, entityAId, workspaceId, entityTypeId, attrEmailIdForTypeA, "EMAIL", "john@example.com")
@@ -872,5 +939,196 @@ class IdentityMatchPipelineIntegrationTest {
             "Expected no EMAIL_DOMAIN candidates for gmail.com (free domain). " +
                 "Found: ${emailDomainCandidates.map { "${it.candidateEntityId} matchSource=${it.matchSource}" }}",
         )
+    }
+
+    /**
+     * Gap coverage: Diacritics normalization produces match after accent stripping.
+     *
+     * Entity A has NAME="José García" (accented). Normalization applies NFKD decomposition
+     * and strips combining marks → "jose garcia". Entity B has NAME="jose garcia" (plain ASCII).
+     * Both share phone "6661110000" as corroborating signal for the confidence gate.
+     *
+     * This was identified as a test gap: NORM-03 (Unicode NFKD decomposition) had unit test
+     * coverage but no pipeline integration test proving accented names match plain ASCII names
+     * end-to-end against real PostgreSQL.
+     */
+    @Test
+    @org.junit.jupiter.api.Order(13)
+    fun `diacritics normalization José García matches jose garcia after accent stripping`() {
+        val candidates = candidateService.findCandidates(entityDiacriticsA, workspaceId)
+        assertTrue(candidates.isNotEmpty(), "Expected at least one candidate for José García")
+
+        val entityBCandidate = candidates.firstOrNull { it.candidateEntityId == entityDiacriticsB }
+        assertNotNull(
+            entityBCandidate,
+            "Expected entity B (jose garcia) to appear as candidate for entity A (José García). " +
+                "Found candidates: ${candidates.map { "${it.candidateEntityId} matchSource=${it.matchSource}" }}",
+        )
+
+        val triggerAttributes = candidateService.getTriggerAttributes(entityDiacriticsA, workspaceId)
+        val scored = scoringService.scoreCandidates(entityDiacriticsA, triggerAttributes, candidates)
+
+        val entityBScored = scored.filter {
+            it.targetEntityId == entityDiacriticsB || it.sourceEntityId == entityDiacriticsB
+        }
+        assertTrue(entityBScored.isNotEmpty(), "Expected entity B to appear in scored candidates above threshold")
+
+        val count = suggestionService.persistSuggestions(workspaceId, scored, null)
+        assertTrue(count >= 1, "Expected at least one suggestion for diacritics match")
+
+        val suggestions = jdbcTemplate.queryForList(
+            "SELECT * FROM match_suggestions WHERE workspace_id = ? AND deleted = false AND status = 'PENDING'",
+            workspaceId,
+        )
+        val diacriticsSuggestion = suggestions.firstOrNull { row ->
+            val source = row["source_entity_id"].toString()
+            val target = row["target_entity_id"].toString()
+            (source == entityDiacriticsA.toString() || source == entityDiacriticsB.toString()) &&
+                (target == entityDiacriticsA.toString() || target == entityDiacriticsB.toString())
+        }
+        assertNotNull(diacriticsSuggestion, "Expected a PENDING suggestion for José García / jose garcia pair")
+    }
+
+    /**
+     * Gap coverage: Name inversion produces match via token-set overlap.
+     *
+     * Entity A has NAME="Fitzgerald Thomas", Entity B has NAME="Thomas Fitzgerald".
+     * After normalization both contain tokens {"fitzgerald", "thomas"} in different order.
+     * TokenSimilarity overlap coefficient = |{fitzgerald, thomas}| / min(2, 2) = 1.0.
+     * Both share phone "6662220000" as corroborating signal for the confidence gate.
+     *
+     * This was identified as a test gap: UTIL-02 (TokenSimilarity) had unit tests but no
+     * pipeline integration test proving name inversions match end-to-end.
+     */
+    @Test
+    @org.junit.jupiter.api.Order(14)
+    fun `name inversion Fitzgerald Thomas matches Thomas Fitzgerald via token overlap`() {
+        val candidates = candidateService.findCandidates(entityInversionA, workspaceId)
+        assertTrue(candidates.isNotEmpty(), "Expected at least one candidate for Fitzgerald Thomas")
+
+        val entityBCandidate = candidates.firstOrNull { it.candidateEntityId == entityInversionB }
+        assertNotNull(
+            entityBCandidate,
+            "Expected entity B (Thomas Fitzgerald) to appear as candidate for entity A (Fitzgerald Thomas). " +
+                "Found candidates: ${candidates.map { "${it.candidateEntityId} matchSource=${it.matchSource}" }}",
+        )
+
+        val triggerAttributes = candidateService.getTriggerAttributes(entityInversionA, workspaceId)
+        val scored = scoringService.scoreCandidates(entityInversionA, triggerAttributes, candidates)
+
+        val entityBScored = scored.filter {
+            it.targetEntityId == entityInversionB || it.sourceEntityId == entityInversionB
+        }
+        assertTrue(entityBScored.isNotEmpty(), "Expected entity B to appear in scored candidates above threshold")
+
+        val count = suggestionService.persistSuggestions(workspaceId, scored, null)
+        assertTrue(count >= 1, "Expected at least one suggestion for name inversion match")
+
+        val suggestions = jdbcTemplate.queryForList(
+            "SELECT * FROM match_suggestions WHERE workspace_id = ? AND deleted = false AND status = 'PENDING'",
+            workspaceId,
+        )
+        val inversionSuggestion = suggestions.firstOrNull { row ->
+            val source = row["source_entity_id"].toString()
+            val target = row["target_entity_id"].toString()
+            (source == entityInversionA.toString() || source == entityInversionB.toString()) &&
+                (target == entityInversionA.toString() || target == entityInversionB.toString())
+        }
+        assertNotNull(inversionSuggestion, "Expected a PENDING suggestion for Fitzgerald Thomas / Thomas Fitzgerald pair")
+    }
+
+    /**
+     * Gap coverage: Title and suffix stripping produces match after stopword removal.
+     *
+     * Entity A has NAME="Dr. Maximilian Rothschild Esq." — normalization strips "Dr." from start
+     * and "Esq." from end → "maximilian rothschild". Entity B has NAME="Maximilian Rothschild".
+     * Both share phone "6663330000" as corroborating signal for the confidence gate.
+     *
+     * This was identified as a test gap: NORM-04 (title/suffix stripping) had unit tests for
+     * individual stopwords but no pipeline integration test proving decorated names match
+     * plain names end-to-end.
+     */
+    @Test
+    @org.junit.jupiter.api.Order(15)
+    fun `title suffix stripping Dr Maximilian Rothschild Esq matches Maximilian Rothschild`() {
+        val candidates = candidateService.findCandidates(entityTitleA, workspaceId)
+        assertTrue(candidates.isNotEmpty(), "Expected at least one candidate for Dr. Maximilian Rothschild Esq.")
+
+        val entityBCandidate = candidates.firstOrNull { it.candidateEntityId == entityTitleB }
+        assertNotNull(
+            entityBCandidate,
+            "Expected entity B (Maximilian Rothschild) to appear as candidate for entity A (Dr. Maximilian Rothschild Esq.). " +
+                "Found candidates: ${candidates.map { "${it.candidateEntityId} matchSource=${it.matchSource}" }}",
+        )
+
+        val triggerAttributes = candidateService.getTriggerAttributes(entityTitleA, workspaceId)
+        val scored = scoringService.scoreCandidates(entityTitleA, triggerAttributes, candidates)
+
+        val entityBScored = scored.filter {
+            it.targetEntityId == entityTitleB || it.sourceEntityId == entityTitleB
+        }
+        assertTrue(entityBScored.isNotEmpty(), "Expected entity B to appear in scored candidates above threshold")
+
+        val count = suggestionService.persistSuggestions(workspaceId, scored, null)
+        assertTrue(count >= 1, "Expected at least one suggestion for title/suffix match")
+
+        val suggestions = jdbcTemplate.queryForList(
+            "SELECT * FROM match_suggestions WHERE workspace_id = ? AND deleted = false AND status = 'PENDING'",
+            workspaceId,
+        )
+        val titleSuggestion = suggestions.firstOrNull { row ->
+            val source = row["source_entity_id"].toString()
+            val target = row["target_entity_id"].toString()
+            (source == entityTitleA.toString() || source == entityTitleB.toString()) &&
+                (target == entityTitleA.toString() || target == entityTitleB.toString())
+        }
+        assertNotNull(titleSuggestion, "Expected a PENDING suggestion for Dr. Maximilian Rothschild Esq. / Maximilian Rothschild pair")
+    }
+
+    /**
+     * Gap coverage: Single NAME signal is rejected by confidence gate end-to-end.
+     *
+     * Entity A has NAME="Bartholomew Henderson" (trigger, NAME-only — no phone or email).
+     * Entity B has NAME="Bartholomew Hendersen" (1 char difference, high trigram similarity).
+     * The candidate is found by trigram but the scoring confidence gate rejects it because:
+     * - Only 1 signal (NAME)
+     * - NAME base weight (0.5) < CONFIDENCE_GATE_THRESHOLD (0.85)
+     *
+     * This was identified as a test gap: SCOR-01 (confidence gate) had unit tests but no
+     * pipeline integration test proving single-signal rejection works end-to-end.
+     */
+    @Test
+    @org.junit.jupiter.api.Order(16)
+    fun `single NAME signal rejected by confidence gate produces no suggestion`() {
+        val candidates = candidateService.findCandidates(entityGateA, workspaceId)
+        assertTrue(candidates.isNotEmpty(), "Expected candidates to be found (high trigram similarity)")
+
+        val entityBCandidate = candidates.firstOrNull { it.candidateEntityId == entityGateB }
+        assertNotNull(
+            entityBCandidate,
+            "Expected entity B (Bartholomew Hendersen) as candidate before scoring. " +
+                "Found candidates: ${candidates.map { "${it.candidateEntityId} matchSource=${it.matchSource}" }}",
+        )
+
+        val triggerAttributes = candidateService.getTriggerAttributes(entityGateA, workspaceId)
+        val scored = scoringService.scoreCandidates(entityGateA, triggerAttributes, candidates)
+
+        val entityBScored = scored.filter {
+            it.targetEntityId == entityGateB || it.sourceEntityId == entityGateB
+        }
+        assertTrue(
+            entityBScored.isEmpty(),
+            "Expected entity B to be REJECTED by confidence gate (single NAME signal, weight 0.5 < 0.85). " +
+                "But found scored: ${entityBScored.map { "score=${it.compositeScore}, signals=${it.signals.map { s -> "${s.type}:${s.weight}" }}" }}",
+        )
+
+        suggestionService.persistSuggestions(workspaceId, scored, null)
+
+        val suggestions = jdbcTemplate.queryForList(
+            """SELECT * FROM match_suggestions WHERE workspace_id = ? AND deleted = false
+               AND (source_entity_id IN (?, ?) OR target_entity_id IN (?, ?))""",
+            workspaceId, entityGateA, entityGateB, entityGateA, entityGateB,
+        )
+        assertTrue(suggestions.isEmpty(), "Expected no suggestion for gate-rejected single NAME signal pair")
     }
 }

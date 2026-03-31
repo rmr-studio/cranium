@@ -289,6 +289,19 @@ class IdentityMatchPipelineIntegrationTest {
         insertAttribute(attrRowGmailA, entityGmailA, workspaceId, entityTypeId, attrEmailDomainId, "EMAIL", "j.smith@gmail.com")
         insertAttribute(attrRowGmailB, entityGmailB, workspaceId, entityTypeId, attrEmailDomainId, "EMAIL", "john.smith@gmail.com")
 
+        // TEST-10 / TEST-12: Phonetic match (Smythe/Smith) + multi-strategy merge
+        // Entity A ("smythe") and Entity B ("smith") both map to phonetic code SM0 via dmetaphone().
+        // Both share phone "9995551234" — distinct from all other test phone numbers — so the
+        // EXACT_NORMALIZED PHONE strategy also fires and merges into a second signal (TEST-12).
+        insertSemanticMetadata(attrNamePhoneticId, "ATTRIBUTE", "IDENTIFIER", "NAME")
+        insertSemanticMetadata(attrPhonePhoneticId, "ATTRIBUTE", "IDENTIFIER", "PHONE")
+        // Entity A: "smythe" + corroborating phone
+        insertAttribute(attrRowPhoneticAName, entityPhoneticA, workspaceId, entityTypeId, attrNamePhoneticId, "TEXT", "smythe")
+        insertAttribute(attrRowPhoneticAPhone, entityPhoneticA, workspaceId, entityTypeId, attrPhonePhoneticId, "PHONE", "9995551234")
+        // Entity B: "smith" (phonetically equivalent to "smythe") + same phone
+        insertAttribute(attrRowPhoneticBName, entityPhoneticB, workspaceId, entityTypeId, attrNamePhoneticId, "TEXT", "smith")
+        insertAttribute(attrRowPhoneticBPhone, entityPhoneticB, workspaceId, entityTypeId, attrPhonePhoneticId, "PHONE", "9995551234")
+
         // Entity A: email="john@example.com", phone="555-1234" (trigger)
         insertAttribute(attrRowAEmail, entityAId, workspaceId, entityTypeId, attrEmailIdForTypeA, "EMAIL", "john@example.com")
         insertAttribute(attrRowAPhone, entityAId, workspaceId, entityTypeId, attrPhoneIdForTypeA, "PHONE", "555-1234")

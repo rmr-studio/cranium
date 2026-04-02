@@ -8,10 +8,7 @@ Updated: 2026-04-01
 Domains:
   - "[[Knowledge]]"
   - "[[Entities]]"
-blocked by:
-  - "[[Prompt Construction for Knowledge Model Queries]]"
-  - "[[Data Extraction and Retrieval from Queries]]"
-  - "[[Lifecycle-Aware Onboarding Flow]]"
+blocked by: []
 ---
 # Feature: Business Definition Layer
 
@@ -75,13 +72,14 @@ Workspace-level business definitions stored as natural language, AI-compiled int
 | version | INT | Optimistic locking. Incremented on each edit. |
 | created_at | TIMESTAMP | |
 | updated_at | TIMESTAMP | |
-| deleted_at | TIMESTAMP | Null = active. Non-null = soft-deleted. Excluded from AI context and UI. |
+| (inherited) deleted | BOOLEAN | Inherited from AuditableSoftDeletableEntity. false = active, true = soft-deleted. @SQLRestriction("deleted = false") auto-excludes from queries. |
+| (inherited) deletedAt | TIMESTAMP | Inherited. Set when deleted = true. |
 
 **Unique constraint:** `(workspace_id, normalized_term)` — prevents "Active Customer" and "active customers" from coexisting.
 
 **Indexes:**
 - `idx_wbd_workspace_id` on `workspace_id` (list definitions for workspace)
-- `idx_wbd_workspace_status` on `(workspace_id, status)` WHERE `deleted_at IS NULL` (active definitions query)
+- `idx_wbd_workspace_status` on `(workspace_id, status)` WHERE `deleted = false` (active definitions query)
 
 ### Entity Modifications
 
@@ -488,17 +486,28 @@ No backfill needed. Existing workspaces start with empty definitions and receive
 
 ## 13. Implementation Tasks
 
-- [ ] Create `workspace_business_definitions` table migration
-- [ ] Implement `WorkspaceBusinessDefinitionEntity` JPA entity
-- [ ] Implement `WorkspaceBusinessDefinitionRepository`
-- [ ] Implement `WorkspaceBusinessDefinitionService` (CRUD, soft-delete, version management)
-- [ ] Add 6 REST endpoints to `KnowledgeController`
-- [ ] Implement `DefinitionCompilationService` (AI-driven NL → compiled params)
-- [ ] Add compilation trigger on definition create/update
+### Phase 1: CRUD Foundation (ships now, no blockers)
+- [ ] Implement `WorkspaceBusinessDefinitionEntity` JPA entity (extends AuditableSoftDeletableEntity)
+- [ ] Implement `WorkspaceBusinessDefinitionRepository` (Spring Data JPA)
+- [ ] Implement `TermNormalizationUtil` (pure function: lowercase, trim, strip trailing 's')
+- [ ] Implement `WorkspaceBusinessDefinitionService` (CRUD, normalization, soft-delete, @Version optimistic locking)
+- [ ] Add 5 REST endpoints to `KnowledgeController` (list, get, create, update, delete)
+- [ ] Admin-only mutations via `@PreAuthorize("@workspaceSecurity.hasWorkspaceRoleOrHigher(#workspaceId, T(riven.core.enums.workspace.WorkspaceRoles).ADMIN)")`
+- [ ] Write unit tests for `TermNormalizationUtil` (5 cases)
+- [ ] Write unit tests for `WorkspaceBusinessDefinitionService` (17 cases)
+
+### Phase 2: AI Compilation + Injection (ships with Prompt Construction pipeline)
+- [ ] Implement `DefinitionCompilationService` (NL → compiled params via AI)
+- [ ] Define `compiled_params` JSONB schema (prototype against real entity model)
+- [ ] Add compilation trigger on definition create/update (async mechanism TBD with pipeline)
 - [ ] Implement `compiled_params` validation against entity model schema
 - [ ] Add definition loading to AI query prompt construction pipeline
 - [ ] Add "Definitions Used" citation to AI query responses
 - [ ] Implement undefined term detection in AI query flow
+- [ ] Add export endpoint (GET /definitions/export)
+- [ ] Write integration tests for compilation + query resolution flow
+
+### Phase 3: Discovery + Templates + Views (ships after Phase 2 validation)
 - [ ] Implement `DefinitionDiscoveryService` (async, post-integration-sync)
 - [ ] Add `suggestedDefinitions` to catalog manifest schema
 - [ ] Update `TemplateInstallationService` to create default definitions
@@ -506,9 +515,6 @@ No backfill needed. Existing workspaces start with empty definitions and receive
 - [ ] Build definitions settings page (frontend)
 - [ ] Add "Definitions Used" footer component to AI answer UI
 - [ ] Add definition indicators to analytics views
-- [ ] Implement `FEATURE_BUSINESS_DEFINITIONS` feature flag
-- [ ] Write unit tests for `WorkspaceBusinessDefinitionService`
-- [ ] Write integration tests for compilation + query resolution flow
 - [ ] Write integration tests for discovery service
 
 ---

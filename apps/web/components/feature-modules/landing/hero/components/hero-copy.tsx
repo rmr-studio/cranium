@@ -10,15 +10,15 @@ export const HeroCopy = () => {
   return (
     <div className="relative z-20 mt-10 items-center px-4 pb-4 sm:pb-6 md:px-8 md:pt-8 md:pb-0 lg:px-0">
       <div>
-        <h1 className="text-center font-serif text-[clamp(1.75rem,8vw,2.75rem)] leading-none tracking-tighter sm:text-5xl md:text-[4rem] lg:text-start lg:text-[4.75rem]">
+        <h1 className="text-center font-serif text-[clamp(1.75rem,8vw,2.75rem)] leading-none tracking-tighter sm:text-5xl md:text-[4rem] lg:text-start lg:text-[4rem]">
           Contextual Customer Insights
           <br />
-          For People Drowning in Tools
+          For Companies Drowning In Spreadsheets and Tabs
         </h1>
       </div>
 
       <h2
-        className={`mt-8 max-w-6xl text-center text-base leading-none tracking-tighter text-heading/85 sm:px-0 md:text-lg lg:mt-3 lg:text-start lg:text-xl`}
+        className={`mt-8 max-w-6xl text-center text-base leading-none tracking-tighter text-heading/85 sm:px-0 md:text-lg lg:mt-3 lg:text-start`}
       >
         The intelligence layer that understands your customer lifecycle data spread across every
         tool in your stack to find the connections and patterns you never knew existed. Learn how to

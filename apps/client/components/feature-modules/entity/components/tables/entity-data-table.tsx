@@ -28,7 +28,7 @@ import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { useConfigFormState } from '../../context/configuration-provider';
 import { useEntityDraft } from '../../context/entity-provider';
-import { useEntityQuery } from '../../hooks/query/use-entity-query';
+import { buildCompositeFilter, useEntityQuery } from '../../hooks/query/use-entity-query';
 import { useEntityColumnConfig } from '../../hooks/use-entity-column-config';
 import { useEntityInlineEdit } from '../../hooks/use-entity-inline-edit';
 import { useEntitySearch } from '../../hooks/use-entity-search';
@@ -112,6 +112,12 @@ export const EntityDataTable: FC<Props> = ({ entityType, className, workspaceId 
     return entityResponse.pages[0]?.totalCount;
   }, [entityResponse]);
 
+  // Composed filter matching what useEntityQuery sends to the API (search + queryFilter)
+  const compositeFilter = useMemo(
+    () => buildCompositeFilter(debouncedSearch || undefined, searchableColumns, queryFilter),
+    [debouncedSearch, searchableColumns, queryFilter],
+  );
+
   // Server-aware selection state — totalCount kept in sync from the query
   const selection = useEntitySelection(totalCount);
   const { selectAll, deselectAll } = selection;
@@ -123,11 +129,11 @@ export const EntityDataTable: FC<Props> = ({ entityType, className, workspaceId 
     }
   }, [isError, error]);
 
-  // Reset selection when filter, search, or sort changes
+  // Reset selection when filter, search, sort, or dataset identity changes
   useEffect(() => {
     deselectAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally reset on query dependency changes
-  }, [debouncedSearch, queryFilter, sorting]);
+  }, [debouncedSearch, queryFilter, sorting, entityType.id, workspaceId]);
 
   // Flatten pages into a single entity list
   const entities = useMemo(
@@ -342,7 +348,8 @@ export const EntityDataTable: FC<Props> = ({ entityType, className, workspaceId 
         onChange={handleQueryFilterChange}
       />
     ),
-    [entityType, queryFilter, handleQueryFilterChange],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- queryFilter is only used for initial hydration; EntityQueryBuilder owns its own internal state
+    [entityType, handleQueryFilterChange],
   );
 
   return (
@@ -389,7 +396,7 @@ export const EntityDataTable: FC<Props> = ({ entityType, className, workspaceId 
                   workspaceId={workspaceId}
                   entityTypeId={entityType.id}
                   entitySelection={selection}
-                  queryFilter={queryFilter}
+                  queryFilter={compositeFilter}
                 />
               ),
             }}

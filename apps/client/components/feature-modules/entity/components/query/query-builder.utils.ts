@@ -2,16 +2,16 @@
 
 import {
   type EntityType,
+  type QueryFilter,
   type RelationshipDefinition,
+  type RelationshipFilter,
+  type SchemaUUID,
+  FilterOperator,
   FilterValueKind,
   QueryFilterType,
   RelationshipFilterType,
+  SchemaType,
 } from '@/lib/types/entity';
-import { FilterOperator } from '@/lib/types/models/FilterOperator';
-import type { QueryFilter } from '@/lib/types/models/QueryFilter';
-import type { RelationshipFilter } from '@/lib/types/models/RelationshipFilter';
-import { SchemaType } from '@/lib/types/models/SchemaType';
-import type { SchemaUUID } from '@/lib/types/models/SchemaUUID';
 import { v4 as uuid } from 'uuid';
 
 // ---------------------------------------------------------------------------

@@ -16,6 +16,9 @@ import { type RelationshipDefinition } from '../models/RelationshipDefinition';
 import { type RelationshipTargetRule } from '../models/RelationshipTargetRule';
 import { type SemanticMetadataBundle } from '../models/SemanticMetadataBundle';
 
+import type { RelationshipFilter } from '../models/RelationshipFilter';
+import { SchemaType } from '../models/SchemaType';
+import type { SchemaUUID } from '../models/SchemaUUID';
 import { type DeleteDefinitionImpact } from '../models/DeleteDefinitionImpact';
 import { type EntityQueryRequest } from '../models/EntityQueryRequest';
 import { type EntityQueryResponse } from '../models/EntityQueryResponse';
@@ -52,7 +55,9 @@ export type {
   QueryFilter,
   QueryPagination,
   RelationshipDefinition,
+  RelationshipFilter,
   RelationshipTargetRule,
+  SchemaUUID,
   SemanticMetadataBundle,
 };
 
@@ -60,6 +65,7 @@ export {
   EntityPropertyType,
   EntityRelationshipCardinality,
   FilterOperator,
+  SchemaType,
   SemanticAttributeClassification,
   SemanticGroup,
   SemanticMetadataTargetType,

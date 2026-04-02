@@ -1,11 +1,15 @@
 'use client';
 
-import { TableBody, TableCell, TableRow } from '@riven/ui/table';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { TableBody, TableCell, TableRow } from '@riven/ui/table';
 import { Row, Table as TanStackTable } from '@tanstack/react-table';
 import React, { ReactNode, useMemo } from 'react';
 import { useDataTableStore } from '../data-table-provider';
-import type { ActionColumnConfig, ColumnResizingConfig, RowActionsConfig } from '../data-table.types';
+import type {
+  ActionColumnConfig,
+  ColumnResizingConfig,
+  RowActionsConfig,
+} from '../data-table.types';
 import { DraggableRow } from './draggable-row';
 
 interface DataTableBodyProps<TData> {
@@ -73,7 +77,8 @@ function DataTableBodyComponent<TData>({
   const rows = table.getRowModel().rows;
 
   // Total columns including extra header-only columns (for colSpan on empty state)
-  const totalColSpan = finalColumnsCount + (hasRowActions ? 1 : 0) + (hasEndOfHeaderContent ? 1 : 0);
+  const totalColSpan =
+    finalColumnsCount + (hasRowActions ? 1 : 0) + (hasEndOfHeaderContent ? 1 : 0);
 
   if (!rows?.length) {
     return (
@@ -111,9 +116,9 @@ function DataTableBodyComponent<TData>({
             disableDragForRow={disableDragForRow}
             isSelectionEnabled={isSelectionEnabled}
             isSelected={isSelected}
-            onToggleSelected={onRowToggle
-              ? () => onRowToggle(row.id)
-              : (value) => row.toggleSelected(value)}
+            onToggleSelected={
+              onRowToggle ? () => onRowToggle(row.id) : (value) => row.toggleSelected(value)
+            }
             enableInlineEdit={enableInlineEdit}
             focusedCell={focusedCell}
             actionColumnConfig={actionColumnConfig}

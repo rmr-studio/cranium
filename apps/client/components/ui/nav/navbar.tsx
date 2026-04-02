@@ -53,7 +53,7 @@ export const Navbar = () => {
 
 export const NavbarUserProfile: FC = () => {
   const { isLoadingAuth, isLoading, data: user } = useProfile();
-  if (isLoadingAuth || isLoading) return <Skeleton className="size-8 rounded-md" />;
+  if (isLoadingAuth || isLoading) return <Skeleton className="size-9 rounded-sm" />;
   if (!user)
     return (
       <div className="flex">

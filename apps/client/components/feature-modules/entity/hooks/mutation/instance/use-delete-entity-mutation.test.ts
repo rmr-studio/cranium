@@ -268,15 +268,37 @@ describe('useDeleteEntityMutation', () => {
       expect(request.entityIds).toBeDefined();
     });
 
-    it('uses invalidation for ALL requests', () => {
+    it('uses invalidation for ALL requests', async () => {
+      const queryClient = createTestQueryClient();
+      const entityA = createMockEntity({ id: 'entity-1', typeId: TYPE_ID_A });
+      seedEntityCache(queryClient, WORKSPACE_ID, TYPE_ID_A, [entityA]);
+      mockDeleteEntities.mockResolvedValue(createDeleteResponse(1));
+
+      const invalidateSpy = jest.spyOn(queryClient, 'invalidateQueries');
+
+      const { result } = renderHook(
+        () => useDeleteEntityMutation(WORKSPACE_ID),
+        { wrapper: createWrapper(queryClient) },
+      );
+
       const request: DeleteEntityRequest = {
         type: EntitySelectType.All,
-        entityTypeId: 'type-1',
-        excludeIds: ['id-3'],
+        entityTypeId: TYPE_ID_A,
       };
 
-      expect(request.type).toBe(EntitySelectType.All);
-      expect(request.entityIds).toBeUndefined();
+      await act(async () => {
+        result.current.mutate(request);
+      });
+
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+      expect(invalidateSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          queryKey: ['entities', WORKSPACE_ID, TYPE_ID_A, 'query'],
+        }),
+      );
+
+      invalidateSpy.mockRestore();
     });
   });
 });

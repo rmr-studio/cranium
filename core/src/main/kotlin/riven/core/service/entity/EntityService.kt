@@ -27,8 +27,9 @@ import riven.core.models.response.entity.DeleteEntityResponse
 import riven.core.models.response.entity.SaveEntityResponse
 import riven.core.enums.entity.EntitySelectType
 import riven.core.service.entity.query.EntityQueryService
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
-import java.util.concurrent.CompletableFuture
 import riven.core.repository.entity.EntityRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.activity.log
@@ -487,22 +488,18 @@ class EntityService(
     private fun fetchImpactedEntities(impactedEntityIds: List<UUID>, workspaceId: UUID): Map<UUID, List<Entity>>? {
         if (impactedEntityIds.isEmpty()) return null
 
-        val entitiesFuture = CompletableFuture.supplyAsync {
-            entityRepository.findAllById(impactedEntityIds)
+        // Three independent queries — fan out for parallel I/O
+        val (impactedEntityEntities, impactedRelationships, impactedAttributes) = runBlocking(Dispatchers.IO) {
+            val entities = async { entityRepository.findAllById(impactedEntityIds) }
+            val relationships = async {
+                entityRelationshipService.findRelatedEntities(
+                    entityIds = impactedEntityIds.toSet(),
+                    workspaceId = workspaceId,
+                )
+            }
+            val attributes = async { entityAttributeService.getAttributesForEntities(impactedEntityIds.toSet()) }
+            Triple(entities.await(), relationships.await(), attributes.await())
         }
-        val relationshipsFuture = CompletableFuture.supplyAsync {
-            entityRelationshipService.findRelatedEntities(
-                entityIds = impactedEntityIds.toSet(),
-                workspaceId = workspaceId,
-            )
-        }
-        val attributesFuture = CompletableFuture.supplyAsync {
-            entityAttributeService.getAttributesForEntities(impactedEntityIds.toSet())
-        }
-
-        val impactedEntityEntities = entitiesFuture.get()
-        val impactedRelationships = relationshipsFuture.get()
-        val impactedAttributes = attributesFuture.get()
 
         return impactedEntityEntities
             .map { impactedEntity ->

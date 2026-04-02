@@ -1,13 +1,17 @@
 'use client';
 
-import { TableCell, TableRow } from '@riven/ui/table';
-import { cn } from '@riven/utils';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { TableCell, TableRow } from '@riven/ui/table';
+import { cn } from '@riven/utils';
 import { Row, flexRender } from '@tanstack/react-table';
 import React from 'react';
 import { useCellInteraction, useDataTableActions, useDataTableStore } from '../data-table-provider';
-import type { ActionColumnConfig, ColumnResizingConfig, RowActionsConfig } from '../data-table.types';
+import type {
+  ActionColumnConfig,
+  ColumnResizingConfig,
+  RowActionsConfig,
+} from '../data-table.types';
 import { isEditableColumn } from '../data-table.types';
 import { ActionCell } from './action-cell';
 import { EditableCell } from './cells/editable-cell';
@@ -145,7 +149,7 @@ function DraggableRowComponent<TData>({
             onClick={handleCellClick}
             key={cell.id}
             className={cn(
-              'border-l border-l-accent/40 first:border-l-transparent',
+              'border-l border-l-accent/40 p-3 first:border-l-transparent',
               // Focus styling - blue ring and subtle background
               isFocused && 'bg-blue-50 ring-2 ring-blue-500 ring-inset dark:bg-blue-500/5',
             )}

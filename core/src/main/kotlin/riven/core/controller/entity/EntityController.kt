@@ -116,7 +116,7 @@ class EntityController(
         return ResponseEntity.ok(response)
     }
 
-    @PutMapping("/workspace/{workspaceId}/delete")
+    @PostMapping("/workspace/{workspaceId}/delete")
     @Operation(summary = "Bulk deletes entities by ID selection or filter-based selection")
     @ApiResponses(
         value = [

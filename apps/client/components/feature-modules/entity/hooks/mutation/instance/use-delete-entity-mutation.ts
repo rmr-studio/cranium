@@ -48,33 +48,33 @@ export function useDeleteEntityMutation(
 
       options?.onSuccess?.(response, variables, context);
 
-      if (!entityTypeId) return;
-
       // Cache update strategy depends on deletion mode
-      if (variables.type === EntitySelectType.All) {
-        // ALL mode: can't surgically remove — invalidate to refetch
-        queryClient.invalidateQueries({
-          queryKey: ['entities', workspaceId, entityTypeId, 'query'],
-        });
-        queryClient.invalidateQueries({
-          queryKey: entityKeys.entities.list(workspaceId, entityTypeId),
-        });
-      } else {
-        // BY_ID mode: surgical removal from cache
-        const idSet = new Set(variables.entityIds ?? []);
+      if (entityTypeId) {
+        if (variables.type === EntitySelectType.All) {
+          // ALL mode: can't surgically remove — invalidate to refetch
+          queryClient.invalidateQueries({
+            queryKey: ['entities', workspaceId, entityTypeId, 'query'],
+          });
+          queryClient.invalidateQueries({
+            queryKey: entityKeys.entities.list(workspaceId, entityTypeId),
+          });
+        } else {
+          // BY_ID mode: surgical removal from cache
+          const idSet = new Set(variables.entityIds ?? []);
 
-        queryClient.setQueriesData<InfiniteData<EntityQueryResponse>>(
-          { queryKey: ['entities', workspaceId, entityTypeId, 'query'] },
-          (oldData) => removeEntitiesFromPages(oldData, idSet),
-        );
+          queryClient.setQueriesData<InfiniteData<EntityQueryResponse>>(
+            { queryKey: ['entities', workspaceId, entityTypeId, 'query'] },
+            (oldData) => removeEntitiesFromPages(oldData, idSet),
+          );
 
-        queryClient.setQueryData<Entity[]>(
-          entityKeys.entities.list(workspaceId, entityTypeId),
-          (oldData) => {
-            if (!oldData) return oldData;
-            return oldData.filter((entity) => !idSet.has(entity.id));
-          },
-        );
+          queryClient.setQueryData<Entity[]>(
+            entityKeys.entities.list(workspaceId, entityTypeId),
+            (oldData) => {
+              if (!oldData) return oldData;
+              return oldData.filter((entity) => !idSet.has(entity.id));
+            },
+          );
+        }
       }
 
       // Update impacted entities across both cache types

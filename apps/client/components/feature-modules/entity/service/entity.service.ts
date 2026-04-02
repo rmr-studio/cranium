@@ -14,7 +14,7 @@ import {
   SaveEntityResponse,
 } from '@/lib/types/entity';
 import { fromError, isSaveEntityResponse, normalizeApiError } from '@/lib/util/error/error.util';
-import { validateSession, validateUuid } from '@/lib/util/service/service.util';
+import { validateSession, validateUuid, withBodyOverride } from '@/lib/util/service/service.util';
 
 export class EntityService {
   /**
@@ -118,13 +118,8 @@ export class EntityService {
         ...(filter ? { filter } : {}),
       };
 
-      // The generated QueryFilterToJSON has infinite mutual recursion for
-      // discriminated union variants (Or/And). OrToJSON spreads
-      // ...QueryFilterToJSONTyped(value, true) which ignores ignoreDiscriminator
-      // and dispatches back to OrToJSON → stack overflow.
-      //
-      // Workaround: pass a filter-free request to avoid the recursive ToJSON,
-      // then override the body with our own plain-object serialization.
+      // Pass a filter-free request to the generated serializer to avoid
+      // QueryFilterToJSON infinite recursion, then override the body.
       const safeRequest: EntityQueryRequest = {
         pagination,
         includeCount,
@@ -133,9 +128,7 @@ export class EntityService {
 
       const response = await api.queryEntitiesRaw(
         { workspaceId, entityTypeId, entityQueryRequest: safeRequest },
-        filter
-          ? async () => ({ body: request } as RequestInit)
-          : undefined,
+        filter ? withBodyOverride(request) : undefined,
       );
 
       return await response.value();
@@ -152,6 +145,17 @@ export class EntityService {
     validateSession(session);
     validateUuid(workspaceId);
     const api = createEntityApi(session!);
-    return api.deleteEntities({ workspaceId, deleteEntityRequest: request });
+
+    try {
+      // Use raw method + body override to avoid QueryFilterToJSON infinite recursion
+      const safeRequest: DeleteEntityRequest = { ...request, filter: undefined };
+      const response = await api.deleteEntitiesRaw(
+        { workspaceId, deleteEntityRequest: safeRequest },
+        request.filter ? withBodyOverride(request) : undefined,
+      );
+      return await response.value();
+    } catch (error) {
+      return await normalizeApiError(error);
+    }
   }
 }

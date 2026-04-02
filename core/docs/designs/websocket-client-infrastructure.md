@@ -200,10 +200,8 @@ apps/client/
 │       │                                  # Subscribes to /topic/workspace/{id}/* on mount,
 │       │                                  # unsubscribes on workspace change or unmount.
 │       │                                  # Calls the query bridge for each received message.
-│       └── use-websocket-query-bridge.ts  # Pure logic hook: receives WebSocketMessage,
-│                                          # looks up strategy, applies setQueryData or
-│                                          # invalidateQueries. Called BY use-workspace-subscription,
-│                                          # not independently.
+│       # NOTE: query bridge logic lives in lib/websocket/query-bridge.ts (plain function,
+│       #       not a hook). Imported by use-workspace-subscription.
 ├── lib/
 │   ├── websocket/
 │   │   ├── stomp-client.ts               # STOMP client factory + config (dynamic import)
@@ -226,10 +224,10 @@ WebSocketProvider (creates STOMP client, manages connection lifecycle)
           ├── subscribes to 5 STOMP topics for active workspaceId
           ├── parses incoming STOMP frames → WebSocketMessage
           ├── calls dev-logger in dev mode
-          └── calls use-websocket-query-bridge per message
+          └── calls handleWebSocketMessage() from lib/websocket/query-bridge.ts
               ├── looks up strategy from cache-strategy.ts
               ├── checks suppressSelf (userId === currentUserId?)
-              ├── applies setQueryData or invalidateQueries
+              ├── applies invalidation (or setQueryData when implemented)
               └── triggers toast for remote changes (if applicable)
 ```
 

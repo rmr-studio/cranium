@@ -2,6 +2,6 @@ export type {
   WebSocketMessage,
   WebSocketChannel,
   OperationType,
-} from '../../websocket/message-types';
+} from '@/lib/websocket/message-types';
 
-export { WORKSPACE_CHANNELS } from '../../websocket/message-types';
+export { WORKSPACE_CHANNELS } from '@/lib/websocket/message-types';

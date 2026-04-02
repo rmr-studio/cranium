@@ -38,7 +38,7 @@ export function ConnectionStatus() {
       </TooltipTrigger>
       <TooltipContent side="bottom">
         <p>{config.label}</p>
-        <p className="text-muted-foreground text-[10px]">{lastConnectedLabel}</p>
+        <p className="text-muted-foreground text-xs">{lastConnectedLabel}</p>
       </TooltipContent>
     </Tooltip>
   );

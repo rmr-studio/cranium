@@ -1,8 +1,7 @@
 'use client';
 
 import { useAuth } from '@/components/provider/auth-context';
-import { createAuthProvider } from '@/lib/auth';
-import { createStompClient, updateStompToken } from '@/lib/websocket/stomp-client';
+import { createStompClient } from '@/lib/websocket/stomp-client';
 import type { Client } from '@stomp/stompjs';
 import { createContext, useCallback, useEffect, useRef, useState } from 'react';
 
@@ -42,20 +41,28 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const [client, setClient] = useState<Client | null>(null);
 
   const clientRef = useRef<Client | null>(null);
+  const initGenRef = useRef(0);
+  const intentionalDisconnectRef = useRef(false);
   const token = session?.access_token;
 
   // ------ STOMP Lifecycle ------
 
   const initializeClient = useCallback(async () => {
     if (!token) {
+      intentionalDisconnectRef.current = true;
       if (clientRef.current?.active) {
         clientRef.current.deactivate();
         clientRef.current = null;
         setClient(null);
       }
       setConnectionState('DISCONNECTED');
+      setLastConnectedAt(null);
       return;
     }
+
+    // Increment generation to guard against stale async resolutions
+    const generation = ++initGenRef.current;
+    intentionalDisconnectRef.current = false;
 
     // Tear down existing client
     if (clientRef.current?.active) {
@@ -77,6 +84,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
         setLastConnectedAt(new Date());
       },
       onDisconnect: () => {
+        if (intentionalDisconnectRef.current) return;
         setConnectionState((prev) => (prev === 'AUTH_FAILED' ? prev : 'RECONNECTING'));
       },
       onStompError: (frame) => {
@@ -89,6 +97,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
         }
       },
       onWebSocketClose: () => {
+        if (intentionalDisconnectRef.current) return;
         setConnectionState((prev) => {
           if (prev === 'AUTH_FAILED') return prev;
           if (prev === 'CONNECTED') return 'RECONNECTING';
@@ -96,6 +105,12 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
         });
       },
     });
+
+    // Stale guard: if a newer initializeClient call started, discard this result
+    if (generation !== initGenRef.current) {
+      stompClient.deactivate();
+      return;
+    }
 
     clientRef.current = stompClient;
     setClient(stompClient);
@@ -107,31 +122,12 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     initializeClient();
 
     return () => {
+      intentionalDisconnectRef.current = true;
       if (clientRef.current?.active) {
         clientRef.current.deactivate();
       }
     };
   }, [initializeClient]);
-
-  // ------ Token Refresh Handling ------
-
-  useEffect(() => {
-    const provider = createAuthProvider();
-    const subscription = provider.onAuthStateChange((event, newSession) => {
-      if (event !== 'TOKEN_REFRESHED' || !newSession || !clientRef.current) return;
-
-      const currentClient = clientRef.current;
-      updateStompToken(currentClient, newSession.access_token);
-
-      // Force reconnect to use the new token
-      if (currentClient.active) {
-        currentClient.deactivate();
-        currentClient.activate();
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
 
   return (
     <WebSocketContext.Provider value={{ connectionState, client, lastConnectedAt }}>

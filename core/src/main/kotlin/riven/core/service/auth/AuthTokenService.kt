@@ -55,6 +55,23 @@ open class AuthTokenService(private val logger: KLogger) {
         return jwt.claims["email"]?.toString() ?: "Unknown"
     }
 
+    /**
+     * Safe alternative to [getUserDisplayName] for contexts where a security context
+     * may not exist (e.g. async event handlers, background tasks).
+     * Returns null instead of throwing when no JWT is present.
+     */
+    open fun getUserDisplayNameOrNull(): String? {
+        val authentication = SecurityContextHolder.getContext().authentication
+            ?: return null
+        val jwt = authentication.principal as? Jwt ?: return null
+        val metadata = jwt.claims["user_metadata"]
+        if (metadata is Map<*, *>) {
+            val name = metadata["full_name"] ?: metadata["name"]
+            if (name != null) return name.toString()
+        }
+        return jwt.claims["email"]?.toString()
+    }
+
     open fun getUserEmail(): String {
         return getJwt().claims["email"].let {
             if (it == null) {

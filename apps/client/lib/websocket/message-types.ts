@@ -8,7 +8,7 @@ export const WORKSPACE_CHANNELS = [
 
 export type WebSocketChannel = (typeof WORKSPACE_CHANNELS)[number];
 
-export type OperationType = 'CREATE' | 'UPDATE' | 'DELETE' | 'RESTORE';
+export type OperationType = 'CREATE' | 'READ' | 'UPDATE' | 'DELETE' | 'RESTORE';
 
 export interface WebSocketMessage {
   channel: WebSocketChannel;

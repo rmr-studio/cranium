@@ -103,14 +103,12 @@ export function handleWebSocketMessage(
     return;
   }
 
-  // Apply cache strategy
+  // Apply cache strategy (fall back to invalidation for unimplemented actions like setQueryData)
   const prefix = channelQueryKeyPrefixes[message.channel];
-  if (strategy.action === 'invalidate') {
-    queryClient.invalidateQueries({
-      queryKey: [prefix[0], message.workspaceId],
-      refetchType: 'active',
-    });
-  }
+  queryClient.invalidateQueries({
+    queryKey: [prefix[0], message.workspaceId],
+    refetchType: 'active',
+  });
 
   // Supplementary invalidations (e.g. entity type counts)
   const supplementary = SUPPLEMENTARY_INVALIDATIONS[message.channel];
@@ -142,5 +140,16 @@ export function invalidateAllWorkspaceQueries(queryClient: QueryClient, workspac
       queryKey: [prefix[0], workspaceId],
       refetchType: 'active',
     });
+  }
+
+  // Also invalidate supplementary query keys (e.g. entityTypes for entity count consistency)
+  for (const keys of Object.values(SUPPLEMENTARY_INVALIDATIONS)) {
+    if (!keys) continue;
+    for (const key of keys) {
+      queryClient.invalidateQueries({
+        queryKey: [...key, workspaceId],
+        refetchType: 'active',
+      });
+    }
   }
 }

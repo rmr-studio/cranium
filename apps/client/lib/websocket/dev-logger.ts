@@ -1,4 +1,4 @@
-import type { WebSocketMessage } from './message-types';
+import type { WebSocketMessage } from '@/lib/websocket/message-types';
 
 export function logWebSocketMessage(message: WebSocketMessage): void {
   if (process.env.NODE_ENV !== 'development') return;

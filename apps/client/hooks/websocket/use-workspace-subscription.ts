@@ -99,7 +99,20 @@ function unsubscribeAll(subscriptions: StompSubscription[]): void {
 
 function parseMessage(stompMessage: IMessage): WebSocketMessage | null {
   try {
-    return JSON.parse(stompMessage.body) as WebSocketMessage;
+    const parsed = JSON.parse(stompMessage.body);
+    if (
+      !parsed ||
+      typeof parsed.channel !== 'string' ||
+      typeof parsed.operation !== 'string' ||
+      typeof parsed.workspaceId !== 'string' ||
+      !WORKSPACE_CHANNELS.includes(parsed.channel)
+    ) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[WS] Malformed message — missing or invalid fields:', parsed);
+      }
+      return null;
+    }
+    return parsed as WebSocketMessage;
   } catch {
     if (process.env.NODE_ENV === 'development') {
       console.error('[WS] Failed to parse STOMP message:', stompMessage.body);

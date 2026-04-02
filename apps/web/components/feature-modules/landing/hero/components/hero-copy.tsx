@@ -11,7 +11,7 @@ export const HeroCopy = () => {
     <div className="relative z-20 mt-10 items-center px-4 pb-4 sm:pb-6 md:px-8 md:pt-8 md:pb-0 lg:px-0">
       <div>
         <h1 className="text-center font-serif text-[clamp(1.75rem,8vw,2.75rem)] leading-none tracking-tighter sm:text-5xl md:text-[3.5rem] lg:text-start lg:text-[4rem]">
-          Contextual Insights For People
+          Contextual Insights For Companies
           <br />
           Drowning In Spreadsheets And Tabs.
         </h1>

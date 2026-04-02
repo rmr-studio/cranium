@@ -255,6 +255,7 @@ class NotificationService(
                     "message" to entity.content.message,
                     "referenceType" to entity.referenceType?.name,
                     "referenceId" to entity.referenceId?.toString(),
+                    "userDisplayName" to authTokenService.getUserDisplayName(),
                 ),
             )
         )

@@ -1,5 +1,6 @@
 import { AuthProvider } from '@/components/provider/auth-context';
 import { ThemeProvider } from '@/components/provider/ThemeContext';
+import { WebSocketProvider } from '@/components/provider/websocket-provider';
 import QueryClientWrapper from '@/components/util/query.wrapper';
 import StoreProviderWrapper from '@/components/util/store.wrapper';
 import type { Metadata } from 'next';
@@ -72,9 +73,11 @@ export default function RootLayout({
         >
           <AuthProvider>
             <QueryClientWrapper>
-              <StoreProviderWrapper>
-                <main className="relative w-full">{children}</main>
-              </StoreProviderWrapper>
+              <WebSocketProvider>
+                <StoreProviderWrapper>
+                  <main className="relative w-full">{children}</main>
+                </StoreProviderWrapper>
+              </WebSocketProvider>
             </QueryClientWrapper>
           </AuthProvider>
         </ThemeProvider>

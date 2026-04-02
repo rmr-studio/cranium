@@ -116,6 +116,7 @@ class BlockEnvironmentService(
                     version = request.version,
                     summary = mapOf(
                         "operationCount" to request.operations.size,
+                        "userDisplayName" to authTokenService.getUserDisplayName(),
                     ),
                 )
             )

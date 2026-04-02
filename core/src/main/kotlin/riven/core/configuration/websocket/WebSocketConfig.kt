@@ -31,6 +31,7 @@ class WebSocketConfig(
         val origins = wsProperties.allowedOrigins.ifEmpty { securityProperties.allowedOrigins }
         registry.addEndpoint(wsProperties.endpoint)
             .setAllowedOrigins(*origins.toTypedArray())
+            .withSockJS()
     }
 
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {

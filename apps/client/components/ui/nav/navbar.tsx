@@ -2,6 +2,7 @@
 
 import { UserProfileDropdown } from '@/components/feature-modules/user/components/avatar-dropdown';
 import { useProfile } from '@/components/feature-modules/user/hooks/use-profile';
+import { ConnectionStatus } from '@/components/feature-modules/workspace/components/connection-status';
 import { useIconRail } from '@/components/ui/sidebar/icon-rail-context';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@riven/ui/button';
@@ -46,7 +47,8 @@ export const Navbar = () => {
       <div className="mr-2 flex w-auto grow justify-end">
         <NavbarUserProfile />
       </div>
-      <div className="flex items-center">
+      <div className="flex items-center gap-3">
+        <ConnectionStatus />
         <ThemeToggle />
       </div>
     </nav>

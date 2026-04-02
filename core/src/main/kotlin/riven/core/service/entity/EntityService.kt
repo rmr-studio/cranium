@@ -279,6 +279,7 @@ class EntityService(
                         entityTypeKey = type.key,
                         summary = mapOf(
                             "entityTypeName" to type.displayNameSingular,
+                            "userDisplayName" to authTokenService.getUserDisplayName(),
                         ),
                     )
                 )
@@ -491,6 +492,7 @@ class EntityService(
                         summary = mapOf(
                             "deletedIds" to entities.mapNotNull { it.id },
                             "deletedCount" to entities.size,
+                            "userDisplayName" to authTokenService.getUserDisplayName(),
                         ),
                     )
                 )

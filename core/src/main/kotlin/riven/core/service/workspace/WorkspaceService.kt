@@ -188,7 +188,10 @@ class WorkspaceService(
                 userId = userId,
                 operation = if (request.id == null) OperationType.CREATE else OperationType.UPDATE,
                 entityId = id,
-                summary = mapOf("name" to entity.name),
+                summary = mapOf(
+                    "name" to entity.name,
+                    "userDisplayName" to authTokenService.getUserDisplayName(),
+                ),
             )
         )
     }

@@ -115,8 +115,10 @@ class IdentityMatchCandidateService(
             val rawSignalType = row[3]?.toString()
             val signalType = MatchSignalType.fromColumnValue(rawSignalType)
                 ?: MatchSignalType.fromSchemaType(schemaType)
+            val normalizedValue = normalizationService.normalize(rawValue, signalType)
+            if (normalizedValue.isBlank()) continue
             if (!result.containsKey(signalType)) {
-                result[signalType] = normalizationService.normalize(rawValue, signalType)
+                result[signalType] = normalizedValue
             }
         }
         return result
@@ -361,7 +363,12 @@ class IdentityMatchCandidateService(
             WHERE ea.workspace_id = :workspaceId
               AND ea.entity_id != :triggerEntityId
               AND ea.deleted = false
-              AND regexp_replace(ea.value->>'value', '[^0-9]', '', 'g') = :normalizedDigits
+              AND CASE
+                    WHEN LENGTH(regexp_replace(ea.value->>'value', '[^0-9]', '', 'g')) = 11
+                     AND regexp_replace(ea.value->>'value', '[^0-9]', '', 'g') LIKE '1%'
+                    THEN SUBSTRING(regexp_replace(ea.value->>'value', '[^0-9]', '', 'g') FROM 2)
+                    ELSE regexp_replace(ea.value->>'value', '[^0-9]', '', 'g')
+                  END = :normalizedDigits
             LIMIT $CANDIDATE_LIMIT
         """.trimIndent()
 
@@ -392,11 +399,10 @@ class IdentityMatchCandidateService(
      * Runs a nickname expansion candidate lookup for NAME signals.
      *
      * Tokenizes [normalizedValue] by whitespace, expands each token via [NicknameExpander],
-     * and queries the DB for attribute values matching any nickname variant using an IN-clause.
-     * Also matches the full normalized value exactly (e.g. "bill smith" when the trigger is
-     * "william smith") via an OR clause, since the IN-clause only covers individual tokens.
-     * Returns an empty list immediately if no known nickname variants exist for any token —
-     * this avoids an empty IN-clause SQL error.
+     * and builds full-name variants via Cartesian product of per-token expansions (e.g.
+     * "william smith" → {"bill smith", "will smith", "willy smith", "liam smith", …}).
+     * Queries the DB for stored values matching any full-name variant using an IN-clause.
+     * Returns an empty list immediately if no token has nickname expansions.
      *
      * All matches receive a fixed similarity score of 0.95 and [MatchSource.NICKNAME].
      *
@@ -412,14 +418,21 @@ class IdentityMatchCandidateService(
         normalizedValue: String,
         signalType: MatchSignalType,
     ): List<CandidateMatch> {
-        // Tokenize trigger value and expand each token to all known nickname variants
+        // Tokenize trigger value and expand each token to produce full-name nickname variants.
+        // For "william smith", produces {"bill smith", "will smith", "willy smith", "liam smith", "william smith"}.
         val tokens = normalizedValue.lowercase().split(Regex("\\s+")).filter { it.isNotEmpty() }
-        val variants: Set<String> = tokens.flatMap { token ->
-            NicknameExpander.expand(token) + token
-        }.map { it.lowercase() }.toSet()
 
-        // Empty variants means no known nicknames for any token — skip SQL to avoid empty IN-clause
-        if (variants.isEmpty()) return emptyList()
+        // Per-token expansion: each token maps to itself + all nickname variants
+        val tokenVariants: List<List<String>> = tokens.map { token ->
+            (NicknameExpander.expand(token) + token).map { it.lowercase() }.distinct()
+        }
+
+        // Check if any token has nickname expansions (more than just itself)
+        val hasNicknames = tokenVariants.any { it.size > 1 }
+        if (!hasNicknames) return emptyList()
+
+        // Build full-name variants via Cartesian product of per-token variants
+        val fullNameVariants = buildFullNameVariants(tokenVariants)
 
         val sql = """
             SELECT ea.entity_id   AS candidate_entity_id,
@@ -438,17 +451,14 @@ class IdentityMatchCandidateService(
             WHERE ea.workspace_id = :workspaceId
               AND ea.entity_id != :triggerEntityId
               AND ea.deleted = false
-              AND (LOWER(ea.value->>'value') IN (:variants) OR LOWER(ea.value->>'value') = :fullNormalizedValue)
+              AND LOWER(ea.value->>'value') IN (:fullNameVariants)
             LIMIT $CANDIDATE_LIMIT
         """.trimIndent()
-
-        val fullNormalizedValue = normalizedValue.lowercase()
 
         val query = entityManager.createNativeQuery(sql)
         query.setParameter("workspaceId", workspaceId)
         query.setParameter("triggerEntityId", triggerEntityId)
-        query.setParameter("variants", variants)
-        query.setParameter("fullNormalizedValue", fullNormalizedValue)
+        query.setParameter("fullNameVariants", fullNameVariants)
 
         val rows = query.resultList as List<Array<Any>>
         return rows.map { row ->
@@ -687,7 +697,7 @@ class IdentityMatchCandidateService(
                 candidateSignalType = candidateSignalType,
                 matchSource = MatchSource.EMAIL_DOMAIN,
             )
-        }.take(EMAIL_DOMAIN_FETCH_LIMIT)
+        }.sortedByDescending { it.similarityScore }.take(EMAIL_DOMAIN_FETCH_LIMIT)
     }
 
     /**
@@ -723,6 +733,28 @@ class IdentityMatchCandidateService(
                     "Candidate group was empty - groupBy should never produce an empty group"
                 }
             }
+    }
+
+    /**
+     * Builds full-name variants from per-token variant lists via Cartesian product.
+     *
+     * For input `[["william", "bill", "will"], ["smith"]]` produces
+     * `["william smith", "bill smith", "will smith"]`.
+     *
+     * Capped at 500 variants to prevent combinatorial explosion with many expandable tokens.
+     */
+    private fun buildFullNameVariants(tokenVariants: List<List<String>>): List<String> {
+        var combinations: List<List<String>> = listOf(emptyList())
+        for (variants in tokenVariants) {
+            combinations = combinations.flatMap { prefix ->
+                variants.map { variant -> prefix + variant }
+            }
+            if (combinations.size > 500) {
+                combinations = combinations.take(500)
+                break
+            }
+        }
+        return combinations.map { it.joinToString(" ") }
     }
 
     /** Parses a UUID from either a [UUID] instance or its string representation. */

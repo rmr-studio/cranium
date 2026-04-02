@@ -4,6 +4,8 @@ import io.github.oshai.kotlinlogging.KLogger
 import jakarta.transaction.Transactional
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
+import org.springframework.transaction.support.TransactionSynchronization
+import org.springframework.transaction.support.TransactionSynchronizationManager
 import riven.core.entity.entity.EntityTypeEntity
 import riven.core.entity.entity.EntityTypeSemanticMetadataEntity
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
@@ -172,7 +174,7 @@ class EntityTypeSemanticMetadataService(
         }
 
         val saved = repository.saveAll(entitiesToSave).map { it.toModel() }
-        classificationService.invalidate(entityTypeId)
+        invalidateClassificationCacheAfterCommit(entityTypeId)
         return saved
     }
 
@@ -254,6 +256,7 @@ class EntityTypeSemanticMetadataService(
      */
     fun deleteForTarget(entityTypeId: UUID, targetType: SemanticMetadataTargetType, targetId: UUID) {
         repository.hardDeleteByTarget(entityTypeId, targetType, targetId)
+        invalidateClassificationCacheAfterCommit(entityTypeId)
     }
 
     /**
@@ -266,6 +269,7 @@ class EntityTypeSemanticMetadataService(
      */
     fun softDeleteForEntityType(entityTypeId: UUID) {
         repository.softDeleteByEntityTypeId(entityTypeId)
+        invalidateClassificationCacheAfterCommit(entityTypeId)
     }
 
     /**
@@ -315,8 +319,28 @@ class EntityTypeSemanticMetadataService(
         }
 
         val saved = repository.save(entity).toModel()
-        classificationService.invalidate(entityTypeId)
+        invalidateClassificationCacheAfterCommit(entityTypeId)
         return saved
+    }
+
+    /**
+     * Registers a post-commit callback to evict the classification cache for [entityTypeId].
+     *
+     * Defers invalidation until after the current transaction commits, preventing concurrent
+     * readers from repopulating the cache with stale data before the write is visible.
+     * If no transaction is active (e.g. called from a non-transactional lifecycle hook),
+     * invalidates immediately as a fallback.
+     */
+    private fun invalidateClassificationCacheAfterCommit(entityTypeId: UUID) {
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
+                override fun afterCommit() {
+                    classificationService.invalidate(entityTypeId)
+                }
+            })
+        } else {
+            classificationService.invalidate(entityTypeId)
+        }
     }
 
     /**

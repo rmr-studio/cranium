@@ -72,7 +72,10 @@ object IdentityFactory {
     )
 
     /**
-     * Creates a [CandidateMatch] representing a raw pg_trgm query result row.
+     * Creates a [CandidateMatch] test instance representing a candidate match row.
+     *
+     * The [matchSource] parameter controls the origin strategy (defaults to [MatchSource.TRIGRAM]
+     * but can be set to any [MatchSource] — NICKNAME, PHONETIC, EMAIL_DOMAIN, EXACT_NORMALIZED).
      */
     fun createCandidateMatch(
         candidateEntityId: UUID = UUID.randomUUID(),

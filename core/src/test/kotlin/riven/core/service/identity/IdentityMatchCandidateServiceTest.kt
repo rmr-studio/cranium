@@ -455,18 +455,15 @@ class IdentityMatchCandidateServiceTest {
         fun `findCandidates skips nickname query when trigger name has no known nickname variants`() {
             /**
              * For NAME signals where no token maps to a known nickname group (e.g. a unique
-             * custom name), findNicknameCandidates should return early without calling createNativeQuery.
-             * "zzunknownname" is not in any nickname group, so variants = {"zzunknownname"} only,
-             * but because NicknameExpander.expand returns empty for unknown names, tokens
-             * expand to just the original token. The IN-clause will still run (original token is included).
-             *
-             * This test verifies that for a single-token name "zzunknownname", the nickname SQL
-             * IS still executed because variants = {"zzunknownname"} (non-empty set).
+             * custom name), findNicknameCandidates checks hasNicknames (any token with >1 variant)
+             * and returns early without calling createNativeQuery.
+             * "zzunknownname" is not in any nickname group, so each token expands to just itself —
+             * hasNicknames is false and the nickname SQL is skipped entirely.
              *
              * After Phase 5, NAME signals also invoke computePhoneticCodes (1 scalar dmetaphone query
              * for "zzunknownname"). The scalar returns empty string so phoneticCodes is empty and
              * findPhoneticCandidates returns early — no phonetic SQL query.
-             * Expected calls: 1 trigger + 1 trigram + 1 nickname + 1 dmetaphone scalar = 4 total.
+             * Expected calls: 1 trigger + 1 trigram + 1 dmetaphone scalar = 3 total.
              */
             val attrId = UUID.randomUUID()
             val triggerRows = listOf(
@@ -474,20 +471,18 @@ class IdentityMatchCandidateServiceTest {
             )
             val triggerQuery = triggerAttributeQuery(triggerRows)
             val trigramQ = candidateQuery(emptyList())
-            val nicknameQ = candidateQuery(emptyList())
             val dmetaphoneQ = dmetaphoneScalarQuery("")  // single token, returns empty code
 
             whenever(normalizationService.normalize(any(), any())).thenReturn("zzunknownname")
             whenever(entityManager.createNativeQuery(any()))
                 .thenReturn(triggerQuery)
                 .thenReturn(trigramQ)
-                .thenReturn(nicknameQ)
                 .thenReturn(dmetaphoneQ)   // dmetaphone scalar for "zzunknownname"
 
             identityMatchCandidateService.findCandidates(triggerEntityId, workspaceId)
 
-            // 4 calls: trigger + trigram + nickname + 1 dmetaphone scalar (no phonetic SQL — empty code)
-            verify(entityManager, times(4)).createNativeQuery(any())
+            // 3 calls: trigger + trigram + 1 dmetaphone scalar (no nickname — no known variants; no phonetic SQL — empty code)
+            verify(entityManager, times(3)).createNativeQuery(any())
         }
 
         @Test
@@ -722,7 +717,8 @@ class IdentityMatchCandidateServiceTest {
              * phonetic SQL query. The result should contain a candidate with matchSource=PHONETIC
              * and similarityScore=0.85 (the fixed phonetic score).
              *
-             * Total calls: 1 trigger + 1 trigram + 1 nickname + 1 dmetaphone scalar + 1 phonetic SQL = 5.
+             * "smith" has no nickname variants (hasNicknames=false), so the nickname query is skipped.
+             * Total calls: 1 trigger + 1 trigram + 1 dmetaphone scalar + 1 phonetic SQL = 4.
              */
             val attrId = UUID.randomUUID()
             val triggerRows = listOf(
@@ -730,7 +726,6 @@ class IdentityMatchCandidateServiceTest {
             )
             val triggerQuery = triggerAttributeQuery(triggerRows)
             val trigramQ = candidateQuery(emptyList())
-            val nicknameQ = candidateQuery(emptyList())
             val dmetaphoneQ = dmetaphoneScalarQuery("SM0")  // "smith" → dmetaphone code "SM0"
             // Phonetic SQL returns one candidate row (e.g. "smythe" — phonetically equivalent to "smith")
             val phoneticRows = listOf(
@@ -742,7 +737,6 @@ class IdentityMatchCandidateServiceTest {
             whenever(entityManager.createNativeQuery(any()))
                 .thenReturn(triggerQuery)
                 .thenReturn(trigramQ)
-                .thenReturn(nicknameQ)
                 .thenReturn(dmetaphoneQ)   // dmetaphone scalar for "smith"
                 .thenReturn(phoneticQ)     // phonetic candidate SQL
 
@@ -752,7 +746,7 @@ class IdentityMatchCandidateServiceTest {
             assertEquals(candidateEntityId, result[0].candidateEntityId)
             assertEquals(MatchSource.PHONETIC, result[0].matchSource, "matchSource should be PHONETIC")
             assertEquals(0.85, result[0].similarityScore, 1e-6, "Phonetic candidates have fixed score 0.85")
-            verify(entityManager, times(5)).createNativeQuery(any())
+            verify(entityManager, times(4)).createNativeQuery(any())
         }
 
         @Test
@@ -763,7 +757,8 @@ class IdentityMatchCandidateServiceTest {
              * phoneticCodes is empty immediately (no JDBC calls at all).
              * findPhoneticCandidates returns early with emptyList().
              *
-             * Total calls: 1 trigger + 1 trigram + 1 nickname = 3 (no dmetaphone scalars, no phonetic SQL).
+             * "a b" tokens have no nickname variants (hasNicknames=false), so nickname query is skipped.
+             * Total calls: 1 trigger + 1 trigram = 2 (no nickname, no dmetaphone scalars, no phonetic SQL).
              */
             val attrId = UUID.randomUUID()
             val triggerRows = listOf(
@@ -771,19 +766,17 @@ class IdentityMatchCandidateServiceTest {
             )
             val triggerQuery = triggerAttributeQuery(triggerRows)
             val trigramQ = candidateQuery(emptyList())
-            val nicknameQ = candidateQuery(emptyList())
 
             whenever(normalizationService.normalize(any(), any())).thenReturn("a b")
             whenever(entityManager.createNativeQuery(any()))
                 .thenReturn(triggerQuery)
                 .thenReturn(trigramQ)
-                .thenReturn(nicknameQ)
 
             val result = identityMatchCandidateService.findCandidates(triggerEntityId, workspaceId)
 
             assertTrue(result.isEmpty(), "No results expected for short-token trigger value")
-            // Exactly 3 calls: trigger lookup + trigram + nickname. No dmetaphone or phonetic SQL.
-            verify(entityManager, times(3)).createNativeQuery(any())
+            // Exactly 2 calls: trigger lookup + trigram. No nickname (no variants), no dmetaphone or phonetic SQL.
+            verify(entityManager, times(2)).createNativeQuery(any())
         }
 
         @Test
@@ -794,8 +787,9 @@ class IdentityMatchCandidateServiceTest {
              * so phoneticCodes is empty. findPhoneticCandidates early-returns without issuing the
              * phonetic SQL query — prevents the empty-collection SQL parameter error.
              *
-             * Total calls: 1 trigger + 1 trigram + 1 nickname + 1 dmetaphone scalar = 4.
-             * No phonetic SQL query (empty phoneticCodes early return).
+             * "zz" has no nickname variants (hasNicknames=false), so nickname query is skipped.
+             * Total calls: 1 trigger + 1 trigram + 1 dmetaphone scalar = 3.
+             * No nickname query (no variants), no phonetic SQL query (empty phoneticCodes early return).
              */
             val attrId = UUID.randomUUID()
             val triggerRows = listOf(
@@ -803,21 +797,19 @@ class IdentityMatchCandidateServiceTest {
             )
             val triggerQuery = triggerAttributeQuery(triggerRows)
             val trigramQ = candidateQuery(emptyList())
-            val nicknameQ = candidateQuery(emptyList())
             val dmetaphoneQ = dmetaphoneScalarQuery("")  // empty code → phoneticCodes empty
 
             whenever(normalizationService.normalize(any(), any())).thenReturn("zz")
             whenever(entityManager.createNativeQuery(any()))
                 .thenReturn(triggerQuery)
                 .thenReturn(trigramQ)
-                .thenReturn(nicknameQ)
                 .thenReturn(dmetaphoneQ)
 
             val result = identityMatchCandidateService.findCandidates(triggerEntityId, workspaceId)
 
             assertTrue(result.isEmpty(), "No phonetic results expected when dmetaphone code is empty")
-            // 4 calls: trigger + trigram + nickname + 1 dmetaphone scalar. No phonetic SQL.
-            verify(entityManager, times(4)).createNativeQuery(any())
+            // 3 calls: trigger + trigram + 1 dmetaphone scalar. No nickname (no variants), no phonetic SQL.
+            verify(entityManager, times(3)).createNativeQuery(any())
         }
 
         @Test
@@ -844,7 +836,7 @@ class IdentityMatchCandidateServiceTest {
                 arrayOf<Any?>(candidateEntityId.toString(), candidateAttributeId.toString(), "smythe", 0.85, null, SchemaType.TEXT.name),
             )
             val trigramQ = candidateQuery(trigramRows)
-            val nicknameQ = candidateQuery(emptyList())
+            // "smith" has no nickname variants (hasNicknames=false), so nickname query is skipped
             val dmetaphoneQ = dmetaphoneScalarQuery("SM0")
             // Phonetic SQL returns same (entityId, attributeId) at the fixed phonetic score 0.85
             val phoneticRows = listOf(
@@ -856,7 +848,6 @@ class IdentityMatchCandidateServiceTest {
             whenever(entityManager.createNativeQuery(any()))
                 .thenReturn(triggerQuery)
                 .thenReturn(trigramQ)
-                .thenReturn(nicknameQ)
                 .thenReturn(dmetaphoneQ)
                 .thenReturn(phoneticQ)
 
@@ -918,37 +909,41 @@ class IdentityMatchCandidateServiceTest {
              * After Phase 5 consolidation, NAME signals run all four strategies:
              * 1. Trigram (runCandidateQuery)
              * 2. Token re-scoring (inline, no extra query)
-             * 3. Nickname expansion (findNicknameCandidates)
+             * 3. Nickname expansion (findNicknameCandidates) — skipped when hasNicknames=false
              * 4. Phonetic (computePhoneticCodes scalar + findPhoneticCandidates SQL)
              *
-             * This test uses "smith" as trigger (1 token). Dmetaphone returns "SM0" so the phonetic
-             * SQL query is issued. Expected calls: 1 trigger + 1 trigram + 1 nickname + 1 dmetaphone scalar + 1 phonetic SQL = 5.
+             * This test uses "william smith" as trigger (2 tokens). "william" has known nickname
+             * variants so hasNicknames=true and the nickname query fires. Dmetaphone returns "ALM"
+             * for "william" and "SM0" for "smith" so the phonetic SQL query is issued.
+             * Expected calls: 1 trigger + 1 trigram + 1 nickname + 2 dmetaphone scalars + 1 phonetic SQL = 6.
              *
              * Verifying the call count confirms that the when(signalType) consolidation wired all
              * NAME strategies correctly and none were dropped.
              */
             val attrId = UUID.randomUUID()
             val triggerRows = listOf(
-                arrayOf<Any?>(attrId, "smith", SchemaType.TEXT.name, "NAME"),
+                arrayOf<Any?>(attrId, "william smith", SchemaType.TEXT.name, "NAME"),
             )
             val triggerQuery = triggerAttributeQuery(triggerRows)
             val trigramQ = candidateQuery(emptyList())
             val nicknameQ = candidateQuery(emptyList())
-            val dmetaphoneQ = dmetaphoneScalarQuery("SM0")  // non-empty → phonetic SQL fires
+            val dmetaphoneQ1 = dmetaphoneScalarQuery("ALM")  // "william" → non-empty
+            val dmetaphoneQ2 = dmetaphoneScalarQuery("SM0")  // "smith" → non-empty → phonetic SQL fires
             val phoneticQ = candidateQuery(emptyList())
 
-            whenever(normalizationService.normalize(any(), any())).thenReturn("smith")
+            whenever(normalizationService.normalize(any(), any())).thenReturn("william smith")
             whenever(entityManager.createNativeQuery(any()))
                 .thenReturn(triggerQuery)
                 .thenReturn(trigramQ)
                 .thenReturn(nicknameQ)
-                .thenReturn(dmetaphoneQ)
+                .thenReturn(dmetaphoneQ1)
+                .thenReturn(dmetaphoneQ2)
                 .thenReturn(phoneticQ)
 
             identityMatchCandidateService.findCandidates(triggerEntityId, workspaceId)
 
-            // 1 trigger + 1 trigram + 1 nickname + 1 dmetaphone scalar + 1 phonetic SQL = 5 total
-            verify(entityManager, times(5)).createNativeQuery(any())
+            // 1 trigger + 1 trigram + 1 nickname + 2 dmetaphone scalars + 1 phonetic SQL = 6 total
+            verify(entityManager, times(6)).createNativeQuery(any())
         }
     }
 

@@ -20,6 +20,7 @@ import riven.core.entity.entity.EntityTypeSemanticMetadataEntity
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
+import riven.core.enums.identity.MatchSignalType
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.enums.workspace.WorkspaceRoles
 import riven.core.exceptions.NotFoundException
@@ -75,7 +76,7 @@ class EntityTypeSemanticMetadataServiceTest : BaseServiceTest() {
 
     @BeforeEach
     fun setup() {
-        reset(repository, entityTypeRepository)
+        reset(repository, entityTypeRepository, classificationService)
 
         testEntityTypeId = UUID.randomUUID()
         testEntityType = createTestEntityType(testEntityTypeId, workspaceId)
@@ -199,6 +200,7 @@ class EntityTypeSemanticMetadataServiceTest : BaseServiceTest() {
         })
         assertEquals("Customer name", result.definition)
         assertEquals(SemanticAttributeClassification.IDENTIFIER, result.classification)
+        verify(classificationService).invalidate(testEntityTypeId)
     }
 
     @Test
@@ -245,6 +247,7 @@ class EntityTypeSemanticMetadataServiceTest : BaseServiceTest() {
         })
         assertEquals("New definition", result.definition)
         assertEquals(SemanticAttributeClassification.CATEGORICAL, result.classification)
+        verify(classificationService).invalidate(testEntityTypeId)
     }
 
     @Test
@@ -283,6 +286,7 @@ class EntityTypeSemanticMetadataServiceTest : BaseServiceTest() {
                 entities.any { it.targetId == attr1Id } &&
                 entities.any { it.targetId == attr2Id }
         })
+        verify(classificationService).invalidate(testEntityTypeId)
     }
 
     // ------ Lifecycle hooks ------
@@ -355,6 +359,7 @@ class EntityTypeSemanticMetadataServiceTest : BaseServiceTest() {
             eq(SemanticMetadataTargetType.ATTRIBUTE),
             eq(attributeId),
         )
+        verify(classificationService).invalidate(testEntityTypeId)
     }
 
     @Test
@@ -364,6 +369,81 @@ class EntityTypeSemanticMetadataServiceTest : BaseServiceTest() {
         service.softDeleteForEntityType(testEntityTypeId)
 
         verify(repository).softDeleteByEntityTypeId(eq(testEntityTypeId))
+        verify(classificationService).invalidate(testEntityTypeId)
+    }
+
+    @Test
+    fun `upsertMetadata - explicit signalType overrides existing value`() {
+        val targetId = UUID.randomUUID()
+        val existingEntity = createTestMetadata(
+            entityTypeId = testEntityTypeId,
+            targetType = SemanticMetadataTargetType.ATTRIBUTE,
+            targetId = targetId,
+            classification = SemanticAttributeClassification.IDENTIFIER,
+        ).apply { signalType = MatchSignalType.CUSTOM_IDENTIFIER }
+
+        whenever(
+            repository.findByEntityTypeIdAndTargetTypeAndTargetId(
+                testEntityTypeId, SemanticMetadataTargetType.ATTRIBUTE, targetId
+            )
+        ).thenReturn(Optional.of(existingEntity))
+
+        val updatedEntity = createTestMetadata(
+            entityTypeId = testEntityTypeId,
+            targetType = SemanticMetadataTargetType.ATTRIBUTE,
+            targetId = targetId,
+            classification = SemanticAttributeClassification.IDENTIFIER,
+        ).apply { signalType = MatchSignalType.EMAIL }
+        whenever(repository.save(any<EntityTypeSemanticMetadataEntity>())).thenReturn(updatedEntity)
+
+        val request = SaveSemanticMetadataRequest(
+            classification = SemanticAttributeClassification.IDENTIFIER,
+            signalType = MatchSignalType.EMAIL,
+        )
+
+        service.upsertMetadata(workspaceId, testEntityTypeId, SemanticMetadataTargetType.ATTRIBUTE, targetId, request)
+
+        verify(repository).save(argThat { entity ->
+            entity.signalType == MatchSignalType.EMAIL
+        })
+        verify(classificationService).invalidate(testEntityTypeId)
+    }
+
+    @Test
+    fun `upsertMetadata - omitted signalType preserves existing value`() {
+        val targetId = UUID.randomUUID()
+        val existingEntity = createTestMetadata(
+            entityTypeId = testEntityTypeId,
+            targetType = SemanticMetadataTargetType.ATTRIBUTE,
+            targetId = targetId,
+            classification = SemanticAttributeClassification.IDENTIFIER,
+        ).apply { signalType = MatchSignalType.PHONE }
+
+        whenever(
+            repository.findByEntityTypeIdAndTargetTypeAndTargetId(
+                testEntityTypeId, SemanticMetadataTargetType.ATTRIBUTE, targetId
+            )
+        ).thenReturn(Optional.of(existingEntity))
+
+        val updatedEntity = createTestMetadata(
+            entityTypeId = testEntityTypeId,
+            targetType = SemanticMetadataTargetType.ATTRIBUTE,
+            targetId = targetId,
+            classification = SemanticAttributeClassification.IDENTIFIER,
+        ).apply { signalType = MatchSignalType.PHONE }
+        whenever(repository.save(any<EntityTypeSemanticMetadataEntity>())).thenReturn(updatedEntity)
+
+        val request = SaveSemanticMetadataRequest(
+            classification = SemanticAttributeClassification.IDENTIFIER,
+            // signalType omitted — should preserve PHONE
+        )
+
+        service.upsertMetadata(workspaceId, testEntityTypeId, SemanticMetadataTargetType.ATTRIBUTE, targetId, request)
+
+        verify(repository).save(argThat { entity ->
+            entity.signalType == MatchSignalType.PHONE
+        })
+        verify(classificationService).invalidate(testEntityTypeId)
     }
 
     // ------ restoreForEntityType ------

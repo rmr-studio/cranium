@@ -190,6 +190,55 @@ class WorkspaceBusinessDefinitionService(
         logger.info { "Soft-deleted business definition '${entity.term}' from workspace $workspaceId" }
     }
 
+    // ------ Internal operations ------
+
+    /**
+     * Create a business definition without workspace security checks.
+     *
+     * Used by OnboardingService where the workspace was just created and the JWT
+     * does not yet contain the new workspace's role authorities.
+     */
+    @Transactional
+    internal fun createDefinitionInternal(
+        workspaceId: UUID,
+        userId: UUID,
+        request: CreateBusinessDefinitionRequest,
+    ): WorkspaceBusinessDefinition {
+        val normalizedTerm = TermNormalizationUtil.normalize(request.term)
+
+        validateTermLength(request.term)
+        validateDefinitionLength(request.definition)
+        checkForDuplicateTerm(workspaceId, normalizedTerm)
+
+        val entity = WorkspaceBusinessDefinitionEntity(
+            workspaceId = workspaceId,
+            term = request.term.trim(),
+            normalizedTerm = normalizedTerm,
+            definition = request.definition,
+            category = request.category,
+            source = request.source,
+            entityTypeRefs = request.entityTypeRefs,
+            attributeRefs = request.attributeRefs,
+        )
+
+        val saved = repository.save(entity)
+
+        activityService.log(
+            activity = Activity.BUSINESS_DEFINITION,
+            operation = OperationType.CREATE,
+            userId = userId,
+            workspaceId = workspaceId,
+            entityType = ApplicationEntityType.BUSINESS_DEFINITION,
+            entityId = saved.id,
+            "term" to saved.term,
+            "category" to saved.category.name,
+            "source" to saved.source.name,
+        )
+
+        logger.info { "Created business definition '${saved.term}' for workspace $workspaceId (internal)" }
+        return saved.toModel()
+    }
+
     // ------ Private helpers ------
 
     private fun checkForDuplicateTerm(workspaceId: UUID, normalizedTerm: String) {

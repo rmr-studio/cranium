@@ -6,11 +6,17 @@ import org.springframework.transaction.support.TransactionTemplate
 import org.springframework.web.multipart.MultipartFile
 import riven.core.enums.activity.Activity
 import riven.core.enums.core.ApplicationEntityType
+import riven.core.enums.knowledge.DefinitionSource
 import riven.core.enums.util.OperationType
+import riven.core.enums.workspace.BusinessType
 import riven.core.enums.workspace.WorkspaceRoles
 import riven.core.exceptions.ConflictException
+import riven.core.models.request.knowledge.CreateBusinessDefinitionRequest
 import riven.core.models.request.onboarding.CompleteOnboardingRequest
+import riven.core.models.request.onboarding.OnboardingBusinessDefinition
+import riven.core.models.request.onboarding.OnboardingInvite
 import riven.core.models.request.workspace.SaveWorkspaceRequest
+import riven.core.models.response.onboarding.BusinessDefinitionResult
 import riven.core.models.response.onboarding.CompleteOnboardingResponse
 import riven.core.models.response.onboarding.InviteResult
 import riven.core.models.response.onboarding.TemplateInstallResult
@@ -21,6 +27,7 @@ import riven.core.service.activity.ActivityService
 import riven.core.service.activity.log
 import riven.core.service.auth.AuthTokenService
 import riven.core.service.catalog.TemplateInstallationService
+import riven.core.service.knowledge.WorkspaceBusinessDefinitionService
 import riven.core.service.user.UserService
 import riven.core.service.workspace.WorkspaceInviteService
 import riven.core.service.workspace.WorkspaceService
@@ -39,6 +46,7 @@ class OnboardingService(
     private val userService: UserService,
     private val templateInstallationService: TemplateInstallationService,
     private val workspaceInviteService: WorkspaceInviteService,
+    private val businessDefinitionService: WorkspaceBusinessDefinitionService,
     private val authTokenService: AuthTokenService,
     private val activityService: ActivityService,
     private val transactionTemplate: TransactionTemplate,
@@ -71,17 +79,25 @@ class OnboardingService(
 
         val workspaceId = workspace.id
 
-        // Phase 2: Best-effort — templates + invites
-        val templateResults = installTemplatesBestEffort(workspaceId, request)
-        val inviteResults = sendInvitesBestEffort(workspaceId, userId, request)
+        // After initial transaction, we can start populating workspace specific data without blocking the user. These operations are best-effort and won't fail the entire flow if they encounter issues.
+        val templateResult = populateWorkspace(workspaceId, request.businessType)
+        val inviteResults = request.invites?.let {
+            sendWorkspaceInvites(workspaceId, userId, it)
+        }.orEmpty()
+
+        val definitionResults = request.businessDefinitions?.let {
+            saveWorkspaceDefinitions(workspaceId, userId, it)
+         }.orEmpty()
+
 
         logger.info { "Onboarding completed for user $userId, workspace $workspaceId" }
 
         return CompleteOnboardingResponse(
             workspace = workspace,
             user = user.toDisplay(),
-            templateResults = templateResults,
+            templateResult = templateResult,
             inviteResults = inviteResults,
+            definitionResults = definitionResults,
         )
     }
 
@@ -122,6 +138,7 @@ class OnboardingService(
             phone = request.profile.phone,
             defaultWorkspaceId = workspace.id,
             onboardingCompletedAt = ZonedDateTime.now(),
+            acquisitionChannels = request.acquisitionChannels,
         )
 
         val user = userService.updateUserDetails(saveRequest, profileAvatar)
@@ -143,74 +160,79 @@ class OnboardingService(
 
     // ------ Phase 2: Best-Effort Operations ------
 
-    private fun installTemplatesBestEffort(
-        workspaceId: UUID,
-        request: CompleteOnboardingRequest,
-    ): List<TemplateInstallResult> {
-        val templateKey = request.businessType.templateKey
-        return listOf(installTemplateSafely(workspaceId, templateKey))
-    }
-
-    private fun installTemplateSafely(workspaceId: UUID, templateKey: String): TemplateInstallResult {
+    private fun populateWorkspace(
+        id: UUID,
+        type: BusinessType
+    ): TemplateInstallResult {
         return try {
-            val response = templateInstallationService.installTemplate(workspaceId, templateKey)
+            val response = templateInstallationService.installTemplate(id, type.templateKey)
             TemplateInstallResult(
-                key = templateKey,
+                key = type.templateKey,
                 success = true,
                 entityTypesCreated = response.entityTypesCreated,
             )
         } catch (e: Exception) {
-            logger.error(e) { "Failed to install template '$templateKey' during onboarding" }
+            logger.error(e) { "Failed to install template '${type.templateKey}' during onboarding" }
             TemplateInstallResult(
-                key = templateKey,
+                key = type.templateKey,
                 success = false,
                 error = e.message,
             )
         }
     }
 
-    private fun sendInvitesBestEffort(
-        workspaceId: UUID,
-        userId: UUID,
-        request: CompleteOnboardingRequest,
-    ): List<InviteResult> {
-        val invites = request.invites ?: return emptyList()
+    private fun sendWorkspaceInvites(id: UUID, userId: UUID, invites: List<OnboardingInvite>): List<InviteResult> {
         val userEmail = authTokenService.getUserEmail()
 
         return invites.map { invite ->
-            sendInviteSafely(workspaceId, userId, invite.email, invite.role, userEmail)
+            val (email, role) = invite
+            if (email.equals(userEmail, ignoreCase = true)) {
+                return@map InviteResult(
+                    email = email,
+                    success = false,
+                    error = "Cannot invite yourself to your own workspace",
+                )
+            }
+
+            if (role == WorkspaceRoles.OWNER) {
+                return@map InviteResult(
+                    email = email,
+                    success = false,
+                    error = "Cannot invite with OWNER role",
+                )
+            }
+
+            try {
+                workspaceInviteService.createWorkspaceInvitationInternal(id, email, role, userId)
+                InviteResult(email = email, success = true)
+            } catch (e: Exception) {
+                logger.error(e) { "Failed to send invite to '$email' during onboarding" }
+                InviteResult(email = email, success = false, error = e.message)
+            }
         }
     }
 
-    private fun sendInviteSafely(
-        workspaceId: UUID,
+    private fun saveWorkspaceDefinitions(
+        id: UUID,
         userId: UUID,
-        email: String,
-        role: WorkspaceRoles,
-        userEmail: String,
-    ): InviteResult {
-        if (email.equals(userEmail, ignoreCase = true)) {
-            return InviteResult(
-                email = email,
-                success = false,
-                error = "Cannot invite yourself to your own workspace",
-            )
-        }
+        definitions: List<OnboardingBusinessDefinition>
+    ): List<BusinessDefinitionResult> {
 
-        if (role == WorkspaceRoles.OWNER) {
-            return InviteResult(
-                email = email,
-                success = false,
-                error = "Cannot invite with OWNER role",
-            )
-        }
-
-        return try {
-            workspaceInviteService.createWorkspaceInvitationInternal(workspaceId, email, role, userId)
-            InviteResult(email = email, success = true)
-        } catch (e: Exception) {
-            logger.error(e) { "Failed to send invite to '$email' during onboarding" }
-            InviteResult(email = email, success = false, error = e.message)
+        return definitions.map { definition ->
+            try {
+                val createRequest = CreateBusinessDefinitionRequest(
+                    term = definition.term,
+                    definition = definition.definition,
+                    category = definition.category,
+                    source = DefinitionSource.ONBOARDING,
+                )
+                businessDefinitionService.createDefinitionInternal(id, userId, createRequest)
+                BusinessDefinitionResult(term = definition.term, success = true)
+            } catch (e: Exception) {
+                logger.error(e) { "Failed to save business definition '${definition.term}' during onboarding" }
+                BusinessDefinitionResult(term = definition.term, success = false, error = e.message)
+            }
         }
     }
 }
+

@@ -117,6 +117,7 @@ class UserService(
             email = request.email
             phone = request.phone
             onboardingCompletedAt = request.onboardingCompletedAt ?: onboardingCompletedAt
+            acquisitionChannels = request.acquisitionChannels ?: acquisitionChannels
 
             defaultWorkspace = request.defaultWorkspaceId?.let { workspaceId ->
                 findOrThrow { workspaceRepository.findById(workspaceId) }

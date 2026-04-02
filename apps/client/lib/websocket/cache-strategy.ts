@@ -7,44 +7,26 @@ export interface CacheStrategyEntry {
   suppressSelf: boolean;
 }
 
-const strategyMap: Record<WebSocketChannel, Record<OperationType, CacheStrategyEntry>> = {
-  ENTITIES: {
-    CREATE: { action: 'invalidate', suppressSelf: true },
-    READ: { action: 'invalidate', suppressSelf: false },
-    UPDATE: { action: 'invalidate', suppressSelf: true },
-    DELETE: { action: 'invalidate', suppressSelf: true },
-    RESTORE: { action: 'invalidate', suppressSelf: true },
-  },
+const DEFAULT: CacheStrategyEntry = { action: 'invalidate', suppressSelf: false };
+
+// Channels where mutations from the current user are suppressed (optimistic updates handle them)
+const SUPPRESS_SELF_MUTATIONS: Set<WebSocketChannel> = new Set(['ENTITIES', 'BLOCKS']);
+const MUTATION_OPS: Set<OperationType> = new Set(['CREATE', 'UPDATE', 'DELETE', 'RESTORE']);
+
+// Per-channel overrides for specific operations
+const OVERRIDES: Partial<Record<WebSocketChannel, Partial<Record<OperationType, CacheStrategyEntry>>>> = {
   NOTIFICATIONS: {
-    CREATE: { action: 'invalidate', suppressSelf: false },
-    READ: { action: 'invalidate', suppressSelf: false },
     UPDATE: { action: 'setQueryData', suppressSelf: false },
-    DELETE: { action: 'invalidate', suppressSelf: false },
-    RESTORE: { action: 'invalidate', suppressSelf: false },
-  },
-  BLOCKS: {
-    CREATE: { action: 'invalidate', suppressSelf: true },
-    READ: { action: 'invalidate', suppressSelf: false },
-    UPDATE: { action: 'invalidate', suppressSelf: true },
-    DELETE: { action: 'invalidate', suppressSelf: true },
-    RESTORE: { action: 'invalidate', suppressSelf: true },
-  },
-  WORKFLOWS: {
-    CREATE: { action: 'invalidate', suppressSelf: false },
-    READ: { action: 'invalidate', suppressSelf: false },
-    UPDATE: { action: 'invalidate', suppressSelf: false },
-    DELETE: { action: 'invalidate', suppressSelf: false },
-    RESTORE: { action: 'invalidate', suppressSelf: false },
-  },
-  WORKSPACE: {
-    CREATE: { action: 'invalidate', suppressSelf: false },
-    READ: { action: 'invalidate', suppressSelf: false },
-    UPDATE: { action: 'invalidate', suppressSelf: false },
-    DELETE: { action: 'invalidate', suppressSelf: false },
-    RESTORE: { action: 'invalidate', suppressSelf: false },
   },
 };
 
 export function getStrategy(channel: WebSocketChannel, operation: OperationType): CacheStrategyEntry {
-  return strategyMap[channel][operation];
+  const override = OVERRIDES[channel]?.[operation];
+  if (override) return override;
+
+  if (SUPPRESS_SELF_MUTATIONS.has(channel) && MUTATION_OPS.has(operation)) {
+    return { action: 'invalidate', suppressSelf: true };
+  }
+
+  return DEFAULT;
 }

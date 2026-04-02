@@ -76,45 +76,63 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 
     setConnectionState('CONNECTING');
 
-    const stompClient = await createStompClient({
-      wsUrl: `${process.env.NEXT_PUBLIC_API_URL}/ws`,
-      token,
-      onConnect: () => {
-        setConnectionState('CONNECTED');
-        setLastConnectedAt(new Date());
-      },
-      onDisconnect: () => {
-        if (intentionalDisconnectRef.current) return;
-        setConnectionState((prev) => (prev === 'AUTH_FAILED' ? prev : 'RECONNECTING'));
-      },
-      onStompError: (frame) => {
-        const message = frame.headers['message'] ?? frame.body ?? '';
-        const isAuthError = message.includes('401') || message.toLowerCase().includes('auth');
+    let stompClient: Client | undefined;
+    try {
+      stompClient = await createStompClient({
+        wsUrl: `${process.env.NEXT_PUBLIC_API_URL}/ws`,
+        token,
+        onConnect: () => {
+          setConnectionState('CONNECTED');
+          setLastConnectedAt(new Date());
+        },
+        onDisconnect: () => {
+          if (intentionalDisconnectRef.current) return;
+          setConnectionState((prev) => (prev === 'AUTH_FAILED' ? prev : 'RECONNECTING'));
+        },
+        onStompError: (frame) => {
+          const message = frame.headers['message'] ?? frame.body ?? '';
+          const isAuthError = message.includes('401') || message.toLowerCase().includes('auth');
 
-        if (isAuthError) {
-          setConnectionState('AUTH_FAILED');
-          stompClient.deactivate();
+          if (isAuthError) {
+            setConnectionState('AUTH_FAILED');
+            stompClient?.deactivate();
+          }
+        },
+        onWebSocketClose: () => {
+          if (intentionalDisconnectRef.current) return;
+          setConnectionState((prev) => {
+            if (prev === 'AUTH_FAILED') return prev;
+            if (prev === 'CONNECTED') return 'RECONNECTING';
+            return prev;
+          });
+        },
+      });
+
+      // Stale guard: if a newer initializeClient call started, discard this result
+      if (generation !== initGenRef.current) {
+        stompClient.deactivate();
+        return;
+      }
+
+      clientRef.current = stompClient;
+      setClient(stompClient);
+      stompClient.activate();
+    } catch (error) {
+      console.error('Failed to create STOMP client:', error);
+
+      if (stompClient) {
+        stompClient.deactivate();
+      }
+
+      // Only update state if this is still the current generation
+      if (generation === initGenRef.current) {
+        clientRef.current = null;
+        setClient(null);
+        if (!intentionalDisconnectRef.current) {
+          setConnectionState('DISCONNECTED');
         }
-      },
-      onWebSocketClose: () => {
-        if (intentionalDisconnectRef.current) return;
-        setConnectionState((prev) => {
-          if (prev === 'AUTH_FAILED') return prev;
-          if (prev === 'CONNECTED') return 'RECONNECTING';
-          return prev;
-        });
-      },
-    });
-
-    // Stale guard: if a newer initializeClient call started, discard this result
-    if (generation !== initGenRef.current) {
-      stompClient.deactivate();
-      return;
+      }
     }
-
-    clientRef.current = stompClient;
-    setClient(stompClient);
-    stompClient.activate();
   }, [token]);
 
   // Initialize on mount / token change

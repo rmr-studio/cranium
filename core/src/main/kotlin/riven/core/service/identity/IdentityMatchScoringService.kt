@@ -23,6 +23,20 @@ class IdentityMatchScoringService(
     companion object {
         /** Candidates whose composite score falls below this value are not returned. */
         const val MINIMUM_SCORE_THRESHOLD = 0.5
+
+        /**
+         * Minimum base signal weight required for a single-signal candidate to pass the confidence gate.
+         * Candidates with a single signal whose base weight is below this threshold are rejected.
+         * Candidates with 2 or more distinct signals automatically pass regardless of individual weights.
+         */
+        const val CONFIDENCE_GATE_THRESHOLD = 0.85
+
+        /**
+         * Multiplier applied to a signal's base weight when the candidate attribute's signal type
+         * differs from the trigger signal type (cross-type match). A value matched against the wrong
+         * attribute type (e.g. an email string stored in a NAME attribute) is penalised.
+         */
+        const val CROSS_TYPE_DISCOUNT = 0.5
     }
 
     // ------ Public operations ------
@@ -69,6 +83,8 @@ class IdentityMatchScoringService(
         val signals = buildSignals(triggerAttributes, candidateRows)
         if (signals.isEmpty()) return null
 
+        if (!passesConfidenceGate(candidateEntityId, signals)) return null
+
         val compositeScore = computeCompositeScore(signals)
         if (compositeScore < MINIMUM_SCORE_THRESHOLD) {
             logger.debug { "Candidate $candidateEntityId score $compositeScore below threshold — skipping" }
@@ -87,7 +103,8 @@ class IdentityMatchScoringService(
      * Builds the [MatchSignal] list for a candidate entity.
      *
      * Groups candidate rows by signal type, takes the best match per type (highest similarity),
-     * and creates a [MatchSignal] for each with similarity > 0.
+     * and creates a [MatchSignal] for each with similarity > 0. Applies a [CROSS_TYPE_DISCOUNT]
+     * when the candidate attribute's signal type differs from the trigger signal type.
      */
     private fun buildSignals(
         triggerAttributes: Map<MatchSignalType, String>,
@@ -100,17 +117,51 @@ class IdentityMatchScoringService(
                 if (best.similarityScore == 0.0) return@mapNotNull null
 
                 val sourceValue = triggerAttributes[signalType] ?: best.candidateValue
-                val weight = MatchSignalType.DEFAULT_WEIGHTS[signalType]
+                val baseWeight = MatchSignalType.DEFAULT_WEIGHTS[signalType]
                     ?: error("No default weight defined for signal type $signalType")
+
+                val isCrossType = best.candidateSignalType != null && best.candidateSignalType != signalType
+                val effectiveWeight = if (isCrossType) baseWeight * CROSS_TYPE_DISCOUNT else baseWeight
 
                 MatchSignal(
                     type = signalType,
                     sourceValue = sourceValue,
                     targetValue = best.candidateValue,
                     similarity = best.similarityScore,
-                    weight = weight,
+                    weight = effectiveWeight,
+                    matchSource = best.matchSource,
+                    crossType = isCrossType,
                 )
             }
+    }
+
+    /**
+     * Applies the confidence gate to a candidate's signal list.
+     *
+     * A candidate with 2 or more distinct signals automatically passes.
+     * A single-signal candidate passes only if its base weight (from [MatchSignalType.DEFAULT_WEIGHTS])
+     * meets or exceeds [CONFIDENCE_GATE_THRESHOLD]. The gate always checks the base weight, never the
+     * effective (discounted) weight, so a high-weight signal type is not penalised for a cross-type match.
+     *
+     * @param candidateEntityId used for debug logging when rejecting a candidate
+     * @param signals the signals built by [buildSignals] for this candidate
+     * @return true if the candidate passes the gate; false if it should be filtered out
+     */
+    private fun passesConfidenceGate(candidateEntityId: UUID, signals: List<MatchSignal>): Boolean {
+        if (signals.size >= 2) return true
+
+        val signal = signals.first()
+        val baseWeight = MatchSignalType.DEFAULT_WEIGHTS[signal.type]
+            ?: error("No default weight defined for signal type ${signal.type}")
+
+        if (baseWeight < CONFIDENCE_GATE_THRESHOLD) {
+            logger.debug {
+                "Candidate $candidateEntityId rejected by confidence gate: " +
+                    "single ${signal.type} signal base weight $baseWeight < $CONFIDENCE_GATE_THRESHOLD"
+            }
+            return false
+        }
+        return true
     }
 
     /**

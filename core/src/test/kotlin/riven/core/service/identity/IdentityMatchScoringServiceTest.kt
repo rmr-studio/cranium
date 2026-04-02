@@ -212,6 +212,255 @@ class IdentityMatchScoringServiceTest {
         }
     }
 
+    // ------ Confidence gate ------
+
+    @Nested
+    inner class ConfidenceGate {
+
+        @Test
+        fun `single NAME signal is rejected by confidence gate despite high similarity`() {
+            // NAME base weight 0.5 < 0.85 gate threshold — should be rejected even at 0.9 similarity
+            val triggerAttributes = mapOf(MatchSignalType.NAME to "John Doe")
+            val candidates = listOf(
+                IdentityFactory.createCandidateMatch(
+                    candidateEntityId = candidateEntityId,
+                    signalType = MatchSignalType.NAME,
+                    candidateValue = "John Doe",
+                    similarityScore = 0.9,
+                )
+            )
+
+            val results = identityMatchScoringService.scoreCandidates(triggerEntityId, triggerAttributes, candidates)
+
+            assertTrue(results.isEmpty(), "Single NAME signal (base weight 0.5 < 0.85) should be rejected by confidence gate")
+        }
+
+        @Test
+        fun `single COMPANY signal is rejected by confidence gate`() {
+            // COMPANY base weight 0.3 < 0.85 gate threshold
+            val triggerAttributes = mapOf(MatchSignalType.COMPANY to "Acme Corp")
+            val candidates = listOf(
+                IdentityFactory.createCandidateMatch(
+                    candidateEntityId = candidateEntityId,
+                    signalType = MatchSignalType.COMPANY,
+                    candidateValue = "Acme Corp",
+                    similarityScore = 0.9,
+                )
+            )
+
+            val results = identityMatchScoringService.scoreCandidates(triggerEntityId, triggerAttributes, candidates)
+
+            assertTrue(results.isEmpty(), "Single COMPANY signal (base weight 0.3 < 0.85) should be rejected by confidence gate")
+        }
+
+        @Test
+        fun `single CUSTOM_IDENTIFIER signal is rejected by confidence gate`() {
+            // CUSTOM_IDENTIFIER base weight 0.7 < 0.85 gate threshold
+            val triggerAttributes = mapOf(MatchSignalType.CUSTOM_IDENTIFIER to "emp-001")
+            val candidates = listOf(
+                IdentityFactory.createCandidateMatch(
+                    candidateEntityId = candidateEntityId,
+                    signalType = MatchSignalType.CUSTOM_IDENTIFIER,
+                    candidateValue = "emp-001",
+                    similarityScore = 0.9,
+                )
+            )
+
+            val results = identityMatchScoringService.scoreCandidates(triggerEntityId, triggerAttributes, candidates)
+
+            assertTrue(results.isEmpty(), "Single CUSTOM_IDENTIFIER signal (base weight 0.7 < 0.85) should be rejected by confidence gate")
+        }
+
+        @Test
+        fun `single EMAIL signal passes confidence gate`() {
+            // EMAIL base weight 0.9 >= 0.85 gate threshold
+            val triggerAttributes = mapOf(MatchSignalType.EMAIL to "john@example.com")
+            val candidates = listOf(
+                IdentityFactory.createCandidateMatch(
+                    candidateEntityId = candidateEntityId,
+                    signalType = MatchSignalType.EMAIL,
+                    candidateValue = "john@example.com",
+                    similarityScore = 0.9,
+                )
+            )
+
+            val results = identityMatchScoringService.scoreCandidates(triggerEntityId, triggerAttributes, candidates)
+
+            assertEquals(1, results.size, "Single EMAIL signal (base weight 0.9 >= 0.85) should pass confidence gate")
+        }
+
+        @Test
+        fun `single PHONE signal passes confidence gate`() {
+            // PHONE base weight 0.85 >= 0.85 gate threshold (boundary case)
+            val triggerAttributes = mapOf(MatchSignalType.PHONE to "5551234567")
+            val candidates = listOf(
+                IdentityFactory.createCandidateMatch(
+                    candidateEntityId = candidateEntityId,
+                    signalType = MatchSignalType.PHONE,
+                    candidateValue = "5551234567",
+                    similarityScore = 0.9,
+                )
+            )
+
+            val results = identityMatchScoringService.scoreCandidates(triggerEntityId, triggerAttributes, candidates)
+
+            assertEquals(1, results.size, "Single PHONE signal (base weight 0.85 >= 0.85) should pass confidence gate")
+        }
+
+        @Test
+        fun `two signals NAME and COMPANY both low weight pass gate due to multi-signal rule`() {
+            // Multi-signal candidates automatically pass gate (2+ signals)
+            val triggerAttributes = mapOf(
+                MatchSignalType.NAME to "John Doe",
+                MatchSignalType.COMPANY to "Acme Corp",
+            )
+            val candidates = listOf(
+                IdentityFactory.createCandidateMatch(
+                    candidateEntityId = candidateEntityId,
+                    signalType = MatchSignalType.NAME,
+                    candidateValue = "John Doe",
+                    similarityScore = 0.9,
+                ),
+                IdentityFactory.createCandidateMatch(
+                    candidateEntityId = candidateEntityId,
+                    signalType = MatchSignalType.COMPANY,
+                    candidateValue = "Acme Corp",
+                    similarityScore = 0.9,
+                ),
+            )
+
+            val results = identityMatchScoringService.scoreCandidates(triggerEntityId, triggerAttributes, candidates)
+
+            assertEquals(1, results.size, "Two signals should pass confidence gate regardless of individual weights")
+        }
+
+        @Test
+        fun `cross-type EMAIL signal still passes gate because gate checks base weight not discounted weight`() {
+            // Trigger EMAIL matched against a NAME attribute: effective weight = 0.9 * 0.5 = 0.45
+            // But gate should check base weight 0.9 (from DEFAULT_WEIGHTS), not discounted 0.45
+            val triggerAttributes = mapOf(MatchSignalType.EMAIL to "john@example.com")
+            val candidates = listOf(
+                IdentityFactory.createCandidateMatch(
+                    candidateEntityId = candidateEntityId,
+                    signalType = MatchSignalType.EMAIL,
+                    candidateSignalType = MatchSignalType.NAME,    // cross-type: candidate is a NAME attribute
+                    candidateValue = "john@example.com",
+                    similarityScore = 0.9,
+                )
+            )
+
+            val results = identityMatchScoringService.scoreCandidates(triggerEntityId, triggerAttributes, candidates)
+
+            assertEquals(1, results.size, "Cross-type EMAIL signal should pass gate (gate checks base weight 0.9, not discounted 0.45)")
+        }
+    }
+
+    // ------ Cross-type discount ------
+
+    @Nested
+    inner class CrossTypeDiscount {
+
+        @Test
+        fun `same-type EMAIL match has no discount applied and crossType is false`() {
+            val triggerAttributes = mapOf(MatchSignalType.EMAIL to "john@example.com")
+            val candidates = listOf(
+                IdentityFactory.createCandidateMatch(
+                    candidateEntityId = candidateEntityId,
+                    signalType = MatchSignalType.EMAIL,
+                    candidateSignalType = MatchSignalType.EMAIL,   // same type
+                    candidateValue = "john@example.com",
+                    similarityScore = 0.9,
+                )
+            )
+
+            val results = identityMatchScoringService.scoreCandidates(triggerEntityId, triggerAttributes, candidates)
+
+            assertEquals(1, results.size)
+            val signal = results[0].signals[0]
+            assertEquals(0.9, signal.weight, 1e-4, "Same-type signal should have full weight 0.9")
+            assertEquals(false, signal.crossType, "Same-type signal should have crossType=false")
+        }
+
+        @Test
+        fun `cross-type match EMAIL trigger against NAME attribute applies 0_5x discount and sets crossType true`() {
+            val triggerAttributes = mapOf(MatchSignalType.EMAIL to "john@example.com")
+            val candidates = listOf(
+                IdentityFactory.createCandidateMatch(
+                    candidateEntityId = candidateEntityId,
+                    signalType = MatchSignalType.EMAIL,
+                    candidateSignalType = MatchSignalType.NAME,    // cross-type
+                    candidateValue = "john@example.com",
+                    similarityScore = 0.9,
+                )
+            )
+
+            val results = identityMatchScoringService.scoreCandidates(triggerEntityId, triggerAttributes, candidates)
+
+            assertEquals(1, results.size)
+            val signal = results[0].signals[0]
+            assertEquals(0.45, signal.weight, 1e-4, "Cross-type signal should have discounted weight 0.9 * 0.5 = 0.45")
+            assertEquals(true, signal.crossType, "Cross-type signal should have crossType=true")
+        }
+
+        @Test
+        fun `null candidateSignalType treated as same-type with no discount`() {
+            val triggerAttributes = mapOf(MatchSignalType.EMAIL to "john@example.com")
+            val candidates = listOf(
+                IdentityFactory.createCandidateMatch(
+                    candidateEntityId = candidateEntityId,
+                    signalType = MatchSignalType.EMAIL,
+                    candidateSignalType = null,                    // null = backward compat, treat as same-type
+                    candidateValue = "john@example.com",
+                    similarityScore = 0.9,
+                )
+            )
+
+            val results = identityMatchScoringService.scoreCandidates(triggerEntityId, triggerAttributes, candidates)
+
+            assertEquals(1, results.size)
+            val signal = results[0].signals[0]
+            assertEquals(0.9, signal.weight, 1e-4, "Null candidateSignalType should be treated as same-type (no discount)")
+            assertEquals(false, signal.crossType, "Null candidateSignalType should result in crossType=false")
+        }
+
+        @Test
+        fun `cross-type discount results in lower composite score than same-type match`() {
+            val entityIdSameType = UUID.fromString("44444444-0000-0000-0000-000000000004")
+            val entityIdCrossType = UUID.fromString("55555555-0000-0000-0000-000000000005")
+
+            val triggerAttributes = mapOf(MatchSignalType.EMAIL to "john@example.com")
+            val candidates = listOf(
+                // Same-type: EMAIL trigger against EMAIL candidate attribute
+                IdentityFactory.createCandidateMatch(
+                    candidateEntityId = entityIdSameType,
+                    signalType = MatchSignalType.EMAIL,
+                    candidateSignalType = MatchSignalType.EMAIL,
+                    candidateValue = "john@example.com",
+                    similarityScore = 0.9,
+                ),
+                // Cross-type: EMAIL trigger against NAME candidate attribute
+                IdentityFactory.createCandidateMatch(
+                    candidateEntityId = entityIdCrossType,
+                    signalType = MatchSignalType.EMAIL,
+                    candidateSignalType = MatchSignalType.NAME,
+                    candidateValue = "john@example.com",
+                    similarityScore = 0.9,
+                ),
+            )
+
+            val results = identityMatchScoringService.scoreCandidates(triggerEntityId, triggerAttributes, candidates)
+
+            assertEquals(2, results.size)
+            val sameTypeResult = results.first { it.targetEntityId == entityIdSameType }
+            val crossTypeResult = results.first { it.targetEntityId == entityIdCrossType }
+
+            assertEquals(0.9, sameTypeResult.compositeScore, 1e-4, "Same-type composite should be 0.9")
+            assertEquals(0.9, crossTypeResult.compositeScore, 1e-4, "Cross-type composite: (0.9 * 0.45) / 0.45 = 0.9 (similarity unchanged, weight is denominator)")
+            assertTrue(crossTypeResult.signals[0].weight < sameTypeResult.signals[0].weight,
+                "Cross-type signal weight should be lower than same-type weight")
+        }
+    }
+
     // ------ Signal breakdown content ------
 
     @Nested

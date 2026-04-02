@@ -125,6 +125,7 @@ class IdentityLifecycleIntegrationTestConfig {
         LoggerConfig::class,
         // Pipeline services
         IdentityMatchCandidateService::class,
+        IdentityNormalizationService::class,
         IdentityMatchScoringService::class,
         IdentityMatchSuggestionService::class,
         // Confirmation + cluster services

@@ -47,5 +47,25 @@ enum class MatchSignalType {
             SchemaType.PHONE -> PHONE
             else -> CUSTOM_IDENTIFIER
         }
+
+        /**
+         * Maps the TEXT value stored in the `signal_type` column on
+         * `entity_type_semantic_metadata` to a [MatchSignalType].
+         *
+         * Returns null when [value] is null (pre-existing rows without a signal_type).
+         * Null callers should fall back to [fromSchemaType] or [CUSTOM_IDENTIFIER].
+         *
+         * Note: The column stores "CUSTOM" but the enum value is [CUSTOM_IDENTIFIER] —
+         * never use [valueOf] to parse this column.
+         */
+        fun fromColumnValue(value: String?): MatchSignalType? = when (value) {
+            "EMAIL" -> EMAIL
+            "PHONE" -> PHONE
+            "NAME" -> NAME
+            "COMPANY" -> COMPANY
+            "CUSTOM" -> CUSTOM_IDENTIFIER
+            null -> null
+            else -> throw IllegalArgumentException("Unrecognized signal_type value: '$value'")
+        }
     }
 }

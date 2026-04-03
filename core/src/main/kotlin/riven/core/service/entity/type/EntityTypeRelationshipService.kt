@@ -63,6 +63,25 @@ class EntityTypeRelationshipService(
         request: SaveRelationshipDefinitionRequest,
     ): RelationshipDefinition {
         val userId = authTokenService.getUserId()
+        return createRelationshipDefinitionInternal(workspaceId, sourceEntityTypeId, request, userId)
+    }
+
+    /**
+     * Internal variant of [createRelationshipDefinition] without @PreAuthorize.
+     *
+     * Used by [riven.core.service.catalog.TemplateInstallationService] during onboarding
+     * when the workspace was just created and the JWT does not yet contain the new
+     * workspace's role authorities.
+     *
+     * @param userId the user performing the operation (passed explicitly since JWT may not reflect workspace membership)
+     */
+    @Transactional
+    internal fun createRelationshipDefinitionInternal(
+        workspaceId: UUID,
+        sourceEntityTypeId: UUID,
+        request: SaveRelationshipDefinitionRequest,
+        userId: UUID,
+    ): RelationshipDefinition {
         val sourceEntityType = ServiceUtil.findOrThrow { entityTypeRepository.findById(sourceEntityTypeId) }
         require(!sourceEntityType.readonly) { "Cannot create relationships on a readonly entity type '${sourceEntityType.key}'" }
 
@@ -522,6 +541,16 @@ class EntityTypeRelationshipService(
      */
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
     fun createFallbackDefinition(workspaceId: UUID, entityTypeId: UUID): RelationshipDefinitionEntity {
+        return createFallbackDefinitionInternal(workspaceId, entityTypeId)
+    }
+
+    /**
+     * Internal variant of [createFallbackDefinition] without @PreAuthorize.
+     *
+     * Used by [riven.core.service.catalog.TemplateInstallationService] during onboarding
+     * when the JWT does not yet contain the new workspace's role authorities.
+     */
+    internal fun createFallbackDefinitionInternal(workspaceId: UUID, entityTypeId: UUID): RelationshipDefinitionEntity {
         val entity = RelationshipDefinitionEntity(
             workspaceId = workspaceId,
             sourceEntityTypeId = entityTypeId,

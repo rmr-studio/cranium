@@ -22,7 +22,10 @@ export enum SourceType {
     Integration = 'INTEGRATION',
     Import = 'IMPORT',
     Api = 'API',
-    Workflow = 'WORKFLOW'
+    Workflow = 'WORKFLOW',
+    IdentityMatch = 'IDENTITY_MATCH',
+    Template = 'TEMPLATE',
+    Projected = 'PROJECTED'
 }
 
 

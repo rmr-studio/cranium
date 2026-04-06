@@ -10,12 +10,15 @@ import riven.core.entity.catalog.CatalogRelationshipTargetRuleEntity
 import riven.core.entity.entity.EntityTypeEntity
 import riven.core.entity.entity.RelationshipDefinitionEntity
 import riven.core.entity.entity.RelationshipTargetRuleEntity
+import riven.core.entity.integration.ProjectionRuleEntity
 import riven.core.enums.catalog.ManifestType
 import riven.core.enums.common.validation.SchemaType
+import riven.core.enums.entity.EntityRelationshipCardinality
 import riven.core.enums.core.DataFormat
 import riven.core.enums.core.DataType
 import riven.core.enums.integration.SourceType
 import riven.core.exceptions.NotFoundException
+import riven.core.lifecycle.CoreModelRegistry
 import riven.core.models.common.Icon
 import riven.core.models.common.validation.Schema
 import riven.core.models.entity.EntityTypeSchema
@@ -34,6 +37,7 @@ import riven.core.repository.catalog.ManifestCatalogRepository
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.repository.entity.RelationshipDefinitionRepository
 import riven.core.repository.entity.RelationshipTargetRuleRepository
+import riven.core.repository.integration.ProjectionRuleRepository
 import java.util.*
 
 /**
@@ -50,6 +54,7 @@ class TemplateMaterializationService(
     private val catalogRelationshipRepository: CatalogRelationshipRepository,
     private val catalogRelationshipTargetRuleRepository: CatalogRelationshipTargetRuleRepository,
     private val manifestCatalogRepository: ManifestCatalogRepository,
+    private val projectionRuleRepository: ProjectionRuleRepository,
     private val semanticMetadataService: EntityTypeSemanticMetadataService,
     private val relationshipService: EntityTypeRelationshipService,
     private val sequenceService: EntityTypeSequenceService,
@@ -91,6 +96,8 @@ class TemplateMaterializationService(
         val relationshipsCreated = materializeRelationships(
             workspaceId, catalogRelationships, entityTypeMaterializationResult.keyToIdMap
         )
+
+        installProjectionRules(workspaceId, catalogEntityTypes, entityTypeMaterializationResult.keyToIdMap)
 
         return MaterializationResult(
             entityTypesCreated = entityTypeMaterializationResult.created,
@@ -422,6 +429,107 @@ class TemplateMaterializationService(
                 )
             )
         }
+    }
+
+    // ------ Projection Rule Installation ------
+
+    /**
+     * Installs projection rules linking integration entity types to core lifecycle entity types.
+     *
+     * For each integration entity type, looks up core model definitions whose projectionAccepts
+     * match the integration entity type's (lifecycleDomain, semanticGroup). Creates a
+     * ProjectionRuleEntity for each match, along with a relationship definition to link them.
+     */
+    private fun installProjectionRules(
+        workspaceId: UUID,
+        catalogEntityTypes: List<CatalogEntityTypeEntity>,
+        keyToIdMap: Map<String, UUID>,
+    ) {
+        val coreEntityTypes = entityTypeRepository.findByworkspaceId(workspaceId)
+            .filter { it.sourceType == SourceType.TEMPLATE }
+            .associateBy { it.key }
+
+        if (coreEntityTypes.isEmpty()) return
+
+        for (catalogType in catalogEntityTypes) {
+            val sourceEntityTypeId = keyToIdMap[catalogType.key] ?: continue
+            val matches = CoreModelRegistry.findModelsAccepting(catalogType.lifecycleDomain, catalogType.semanticGroup)
+
+            for ((coreModel, acceptRule) in matches) {
+                val targetEntityType = coreEntityTypes[coreModel.key] ?: continue
+                val targetEntityTypeId = requireNotNull(targetEntityType.id)
+
+                installSingleProjectionRule(
+                    workspaceId, sourceEntityTypeId, targetEntityTypeId, acceptRule.relationshipName, acceptRule.autoCreate
+                )
+            }
+        }
+    }
+
+    /**
+     * Creates a single projection rule and its backing relationship definition.
+     * Idempotent — skips if the rule already exists.
+     */
+    private fun installSingleProjectionRule(
+        workspaceId: UUID,
+        sourceEntityTypeId: UUID,
+        targetEntityTypeId: UUID,
+        relationshipName: String,
+        autoCreate: Boolean,
+    ) {
+        if (projectionRuleRepository.existsByWorkspaceAndSourceAndTarget(workspaceId, sourceEntityTypeId, targetEntityTypeId)) {
+            logger.debug { "Projection rule already exists: source=$sourceEntityTypeId → target=$targetEntityTypeId, skipping" }
+            return
+        }
+
+        val relationshipDefId = findOrCreateProjectionRelationship(workspaceId, sourceEntityTypeId, targetEntityTypeId, relationshipName)
+
+        projectionRuleRepository.save(
+            ProjectionRuleEntity(
+                workspaceId = workspaceId,
+                sourceEntityTypeId = sourceEntityTypeId,
+                targetEntityTypeId = targetEntityTypeId,
+                relationshipDefId = relationshipDefId,
+                autoCreate = autoCreate,
+            )
+        )
+
+        logger.info { "Installed projection rule: source=$sourceEntityTypeId → target=$targetEntityTypeId (rel=$relationshipDefId)" }
+    }
+
+    /**
+     * Finds an existing "source-data" relationship definition or creates one.
+     * The relationship links the integration entity type (source) to the core entity type (target).
+     */
+    private fun findOrCreateProjectionRelationship(
+        workspaceId: UUID,
+        sourceEntityTypeId: UUID,
+        targetEntityTypeId: UUID,
+        relationshipName: String,
+    ): UUID {
+        val existing = relationshipDefinitionRepository
+            .findByWorkspaceIdAndSourceEntityTypeIdAndName(workspaceId, sourceEntityTypeId, relationshipName)
+        if (existing.isPresent) return requireNotNull(existing.get().id)
+
+        val relDef = relationshipDefinitionRepository.save(
+            RelationshipDefinitionEntity(
+                workspaceId = workspaceId,
+                sourceEntityTypeId = sourceEntityTypeId,
+                name = relationshipName,
+                cardinalityDefault = EntityRelationshipCardinality.MANY_TO_ONE,
+                `protected` = true,
+            )
+        )
+
+        relationshipTargetRuleRepository.save(
+            RelationshipTargetRuleEntity(
+                relationshipDefinitionId = requireNotNull(relDef.id),
+                targetEntityTypeId = targetEntityTypeId,
+                inverseName = relationshipName,
+            )
+        )
+
+        return requireNotNull(relDef.id)
     }
 
     // ------ UUID Generation ------

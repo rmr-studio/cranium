@@ -1,17 +1,17 @@
 'use client';
 
-import { FilterOperator } from '@/lib/types/models/FilterOperator';
-import { SchemaType } from '@/lib/types/models/SchemaType';
-import type { QueryFilter } from '@/lib/types/models/QueryFilter';
-import type { RelationshipFilter } from '@/lib/types/models/RelationshipFilter';
 import {
   type EntityType,
+  type QueryFilter,
   type RelationshipDefinition,
+  type RelationshipFilter,
+  type SchemaUUID,
+  FilterOperator,
   FilterValueKind,
   QueryFilterType,
   RelationshipFilterType,
+  SchemaType,
 } from '@/lib/types/entity';
-import type { SchemaUUID } from '@/lib/types/models/SchemaUUID';
 import { v4 as uuid } from 'uuid';
 
 // ---------------------------------------------------------------------------
@@ -101,6 +101,8 @@ const SCHEMA_TYPE_OPERATORS: Record<SchemaType, FilterOperator[]> = {
   [SchemaType.Url]: TEXT_OPERATORS,
   [SchemaType.Phone]: TEXT_OPERATORS,
   [SchemaType.Number]: NUMBER_OPERATORS,
+  // ID is a special case of NUMBER type with same operators, as the ID itself is sequential, and queries should ignore the custom prefix.
+  [SchemaType.Id]: NUMBER_OPERATORS,
   [SchemaType.Currency]: NUMBER_OPERATORS,
   [SchemaType.Percentage]: NUMBER_OPERATORS,
   [SchemaType.Rating]: NUMBER_OPERATORS,
@@ -163,18 +165,15 @@ export function getAttributesFromEntityType(entityType: EntityType): AttributeIn
   const properties = entityType.schema?.properties;
   if (!properties) return [];
 
-  return Object.entries(properties)
-    .map(([id, schema]) => ({
-      id,
-      label: schema.label ?? id,
-      schemaType: schema.key,
-      schema,
-    }));
+  return Object.entries(properties).map(([id, schema]) => ({
+    id,
+    label: schema.label ?? id,
+    schemaType: schema.key,
+    schema,
+  }));
 }
 
-export function getRelationshipsFromEntityType(
-  entityType: EntityType,
-): RelationshipDefinition[] {
+export function getRelationshipsFromEntityType(entityType: EntityType): RelationshipDefinition[] {
   return entityType.relationships ?? [];
 }
 
@@ -196,11 +195,7 @@ export function getSchemaForAttribute(
 // Internal state types
 // ---------------------------------------------------------------------------
 
-export type RelationshipConditionType =
-  | 'exists'
-  | 'notExists'
-  | 'countMatches'
-  | 'targetMatches';
+export type RelationshipConditionType = 'exists' | 'notExists' | 'countMatches' | 'targetMatches';
 
 export interface FilterConditionState {
   id: string;
@@ -271,9 +266,7 @@ function hasCompleteConditions(group: FilterGroupState): boolean {
 // State -> QueryFilter conversion
 // ---------------------------------------------------------------------------
 
-export function filterGroupStateToQueryFilter(
-  group: FilterGroupState,
-): QueryFilter | undefined {
+export function filterGroupStateToQueryFilter(group: FilterGroupState): QueryFilter | undefined {
   const filters = group.conditions
     .map((c) => (isFilterGroup(c) ? filterGroupStateToQueryFilter(c) : conditionToQueryFilter(c)))
     .filter((f): f is QueryFilter => f != null);
@@ -326,7 +319,10 @@ function buildRelationshipFilter(condition: FilterConditionState): QueryFilter |
         ? filterGroupStateToQueryFilter(condition.targetFilter)
         : undefined;
       if (!nested) return undefined;
-      relCondition = { type: RelationshipFilterType.TargetMatches, filter: nested } as RelationshipFilter;
+      relCondition = {
+        type: RelationshipFilterType.TargetMatches,
+        filter: nested,
+      } as RelationshipFilter;
       break;
     }
     default:
@@ -337,7 +333,7 @@ function buildRelationshipFilter(condition: FilterConditionState): QueryFilter |
     type: QueryFilterType.Relationship,
     relationshipId: condition.relationshipId,
     condition: relCondition,
-  } as QueryFilter;
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -369,9 +365,7 @@ export function queryFilterToFilterGroupState(filter: QueryFilter): FilterGroupS
   };
 }
 
-function queryFilterToItem(
-  filter: QueryFilter,
-): FilterConditionState | FilterGroupState {
+function queryFilterToItem(filter: QueryFilter): FilterConditionState | FilterGroupState {
   if (filter.type === 'And' || filter.type === 'Or') {
     return queryFilterToFilterGroupState(filter);
   }
@@ -382,7 +376,8 @@ function queryFilterToItem(
       type: 'attribute',
       attributeId: filter.attributeId,
       operator: filter.operator,
-      value: filter.value?.kind === 'Literal' ? (filter.value as { value?: unknown }).value : undefined,
+      value:
+        filter.value?.kind === 'Literal' ? (filter.value as { value?: unknown }).value : undefined,
     };
   }
 
@@ -394,7 +389,9 @@ function queryFilterToItem(
   return createEmptyCondition();
 }
 
-function hydrateRelationshipCondition(filter: QueryFilter & { type: 'Relationship' }): FilterConditionState {
+function hydrateRelationshipCondition(
+  filter: QueryFilter & { type: 'Relationship' },
+): FilterConditionState {
   const condition: FilterConditionState = {
     id: uuid(),
     type: 'relationship',

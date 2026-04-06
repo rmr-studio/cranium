@@ -14,7 +14,7 @@ Domains:
   - "[[Integrations]]"
   - "[[Notifications]]"
 blocked by:
-  - "[[Three-Tier Entity Model and Lifecycle Spine]]"
+  - "[[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]]"
   - "[[Identity Resolution System]]"
 ---
 # Feature: Action Primitives — Tags, Segments, Alerts, Write-back
@@ -221,7 +221,7 @@ The operator went from insight (channel performance) to action (tagged, alerted,
 
 - [[Lifecycle Analytics Views]] — primary surface where actions are triggered from
 - [[Churn Retrospective Timeline]] — tag/flag customers directly from the retrospective
-- [[Three-Tier Entity Model and Lifecycle Spine]] — entity types being tagged and segmented
+- [[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]] — entity types being tagged and segmented
 - [[Identity Resolution System]] — cross-tool entity linking for segment scoping
 - [[Integrations]] — Nango write-back capability
 - [[Notifications]] — alert delivery

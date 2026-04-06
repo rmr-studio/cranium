@@ -1,13 +1,17 @@
 'use client';
 
-import { TableCell, TableRow } from '@riven/ui/table';
-import { cn } from '@riven/utils';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { TableCell, TableRow } from '@riven/ui/table';
+import { cn } from '@riven/utils';
 import { Row, flexRender } from '@tanstack/react-table';
 import React from 'react';
 import { useCellInteraction, useDataTableActions, useDataTableStore } from '../data-table-provider';
-import type { ActionColumnConfig, ColumnResizingConfig, RowActionsConfig } from '../data-table.types';
+import type {
+  ActionColumnConfig,
+  ColumnResizingConfig,
+  RowActionsConfig,
+} from '../data-table.types';
 import { isEditableColumn } from '../data-table.types';
 import { ActionCell } from './action-cell';
 import { EditableCell } from './cells/editable-cell';
@@ -23,6 +27,10 @@ interface DraggableRowProps<TData> {
   disableDragForRow?: (row: Row<TData>) => boolean;
   enableInlineEdit?: boolean;
   isSelectionEnabled: boolean;
+  /** Pre-computed selected state — driven by external override or TanStack */
+  isSelected: boolean;
+  /** Selection toggle handler — driven by external override or TanStack */
+  onToggleSelected: (value: boolean) => void;
   focusedCell?: { rowId: string; columnId: string } | null;
   actionColumnConfig?: ActionColumnConfig;
   /** Render an empty trailing td to match the endOfHeaderContent th */
@@ -38,6 +46,8 @@ function DraggableRowComponent<TData>({
   disabled,
   disableDragForRow,
   isSelectionEnabled,
+  isSelected,
+  onToggleSelected,
   enableInlineEdit,
   focusedCell,
   actionColumnConfig,
@@ -68,7 +78,7 @@ function DraggableRowComponent<TData>({
     <TableRow
       ref={enableDragDrop && isMounted ? setNodeRef : undefined}
       style={style}
-      data-state={row.getIsSelected() ? 'selected' : undefined}
+      data-state={isSelected ? 'selected' : undefined}
       className={cn(
         'group/row',
         isDragging && 'opacity-0',
@@ -84,8 +94,8 @@ function DraggableRowComponent<TData>({
           return (
             <ActionCell<TData>
               key={cell.id}
-              isSelected={row.getIsSelected()}
-              onToggleSelected={(value) => row.toggleSelected(value)}
+              isSelected={isSelected}
+              onToggleSelected={onToggleSelected}
               enableDragDrop={enableDragDrop}
               isSelectionEnabled={isSelectionEnabled}
               isDragDisabled={isDragDisabled}
@@ -139,7 +149,7 @@ function DraggableRowComponent<TData>({
             onClick={handleCellClick}
             key={cell.id}
             className={cn(
-              'border-l border-l-accent/40 first:border-l-transparent',
+              'border-l border-l-accent/40 p-3 first:border-l-transparent',
               // Focus styling - blue ring and subtle background
               isFocused && 'bg-blue-50 ring-2 ring-blue-500 ring-inset dark:bg-blue-500/5',
             )}
@@ -196,10 +206,12 @@ export const DraggableRow = React.memo(DraggableRowComponent, (prevProps, nextPr
     prevProps.disabled === nextProps.disabled &&
     prevProps.enableDragDrop === nextProps.enableDragDrop &&
     prevProps.isSelectionEnabled === nextProps.isSelectionEnabled &&
+    prevProps.isSelected === nextProps.isSelected &&
     prevProps.focusedCell?.rowId === nextProps.focusedCell?.rowId &&
     prevProps.focusedCell?.columnId === nextProps.focusedCell?.columnId &&
     prevProps.hasEndOfHeaderContent === nextProps.hasEndOfHeaderContent &&
     prevProps.actionColumnConfig === nextProps.actionColumnConfig &&
-    prevProps.enableInlineEdit === nextProps.enableInlineEdit
+    prevProps.enableInlineEdit === nextProps.enableInlineEdit &&
+    prevProps.onToggleSelected === nextProps.onToggleSelected
   );
 }) as typeof DraggableRowComponent;

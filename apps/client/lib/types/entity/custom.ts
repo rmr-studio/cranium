@@ -1,9 +1,13 @@
 // Custom types specific to entity domain
+import { DataType, Icon, SchemaType, SchemaUUID } from '../common';
 import { EntityPropertyType } from '../models/EntityPropertyType';
-import { SchemaUUID, SchemaType, DataType, Icon } from '../common';
 
-import type { EntityRelationshipCardinality, RelationshipDefinition, RelationshipTargetRule } from './models';
 import type { SemanticAttributeClassification } from '../models/SemanticAttributeClassification';
+import type {
+  EntityRelationshipCardinality,
+  RelationshipDefinition,
+  RelationshipTargetRule,
+} from './models';
 
 export interface EntityTypeDefinition {
   id: string;
@@ -65,11 +69,11 @@ export enum RelationshipLimit {
  * but when bypassing the generated ToJSON serializer we must use the raw values.
  */
 export enum QueryFilterType {
-  Attribute = 'ATTRIBUTE',
-  Relationship = 'RELATIONSHIP',
-  IsRelatedTo = 'IS_RELATED_TO',
-  And = 'AND',
-  Or = 'OR',
+  Attribute = 'Attribute',
+  Relationship = 'Relationship',
+  IsRelatedTo = 'IsRelatedTo',
+  And = 'And',
+  Or = 'Or',
 }
 
 /**
@@ -78,22 +82,24 @@ export enum QueryFilterType {
  * Must match the backend's @JsonTypeName annotations exactly (uppercase).
  */
 export enum FilterValueKind {
-  Literal = 'LITERAL',
-  Template = 'TEMPLATE',
+  Literal = 'Literal',
+  Template = 'Template',
 }
 
 /**
  * Discriminator values for the RelationshipFilter sealed hierarchy.
  *
- * Must match the backend's @JsonTypeName annotations exactly (uppercase).
+ * Values must match the generated TypeScript union discriminators (PascalCase).
+ * The generated ToJSON/FromJSON functions handle translation to/from the
+ * backend's uppercase wire format.
  */
 export enum RelationshipFilterType {
-  Exists = 'EXISTS',
-  NotExists = 'NOT_EXISTS',
-  TargetEquals = 'TARGET_EQUALS',
-  TargetMatches = 'TARGET_MATCHES',
-  TargetTypeMatches = 'TARGET_TYPE_MATCHES',
-  CountMatches = 'COUNT_MATCHES',
+  Exists = 'Exists',
+  NotExists = 'NotExists',
+  TargetEquals = 'TargetEquals',
+  TargetMatches = 'TargetMatches',
+  TargetTypeMatches = 'TargetTypeMatches',
+  CountMatches = 'CountMatches',
 }
 
 /**
@@ -108,4 +114,3 @@ export interface RelationshipPickerProps {
   errors?: string[];
   disabled?: boolean;
 }
-

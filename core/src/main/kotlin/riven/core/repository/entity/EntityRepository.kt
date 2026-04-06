@@ -14,6 +14,9 @@ interface EntityRepository : JpaRepository<EntityEntity, UUID> {
     @Query("SELECT e FROM EntityEntity e WHERE e.id in :ids")
     fun findByIdIn(ids: Collection<UUID>): List<EntityEntity>
 
+    @Query("SELECT e FROM EntityEntity e WHERE e.id IN :ids AND e.workspaceId = :workspaceId")
+    fun findByIdInAndWorkspaceId(ids: Collection<UUID>, workspaceId: UUID): List<EntityEntity>
+
     /**
      * Find all entities for an workspace.
      */
@@ -57,6 +60,38 @@ interface EntityRepository : JpaRepository<EntityEntity, UUID> {
         workspaceId: UUID,
         sourceIntegrationId: UUID,
         sourceExternalIds: Collection<String>
+    ): List<EntityEntity>
+
+    /**
+     * Find a single entity by its source external ID within a workspace.
+     *
+     * Used by [riven.core.service.identity.IdentityLookupService] to resolve entities
+     * by their integration-sourced external identifier.
+     */
+    @Query("""
+        SELECT e FROM EntityEntity e
+        WHERE e.workspaceId = :workspaceId
+          AND e.sourceExternalId = :sourceExternalId
+    """)
+    fun findByWorkspaceIdAndSourceExternalId(
+        workspaceId: UUID,
+        sourceExternalId: String,
+    ): List<EntityEntity>
+
+    /**
+     * Batch sourceExternalId match on a specific entity type within a workspace.
+     * Used by the projection pipeline for identity resolution (Check 1).
+     */
+    @Query("""
+        SELECT e FROM EntityEntity e
+        WHERE e.typeId = :entityTypeId
+          AND e.workspaceId = :workspaceId
+          AND e.sourceExternalId IN :sourceExternalIds
+    """)
+    fun findByTypeIdAndWorkspaceIdAndSourceExternalIdIn(
+        entityTypeId: UUID,
+        workspaceId: UUID,
+        sourceExternalIds: Collection<String>,
     ): List<EntityEntity>
 
 }

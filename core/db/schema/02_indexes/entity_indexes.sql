@@ -68,6 +68,14 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_entities_integration_dedup
     ON entities (workspace_id, source_integration_id, source_external_id)
     WHERE deleted = false AND source_external_id IS NOT NULL;
 
+-- Identity Resolution Index (Projection Pipeline)
+-- Batch sourceExternalId match on target entity type for projection identity resolution.
+-- Distinct from the dedup index (which includes source_integration_id) because
+-- projection matches across integration boundaries by entity_type_id.
+CREATE INDEX IF NOT EXISTS idx_entities_identity_resolution
+    ON entities (type_id, workspace_id, source_external_id)
+    WHERE deleted = false AND source_external_id IS NOT NULL;
+
 -- =====================================================
 -- ENTITY ATTRIBUTE INDEXES
 -- =====================================================
@@ -87,3 +95,10 @@ CREATE INDEX IF NOT EXISTS idx_entity_attributes_value_lookup
 -- Workspace-scoped queries
 CREATE INDEX IF NOT EXISTS idx_entity_attributes_workspace
     ON public.entity_attributes (workspace_id) WHERE deleted = false;
+
+-- Trigram GIN index for fuzzy attribute value matching (identity resolution)
+-- Expression MUST be (value->>'value') not (value::text) — extracts scalar string from JSONB
+-- Partial: only indexes non-deleted attributes
+CREATE INDEX IF NOT EXISTS idx_entity_attributes_trgm
+    ON public.entity_attributes USING GIN ((value->>'value') gin_trgm_ops)
+    WHERE deleted = false;

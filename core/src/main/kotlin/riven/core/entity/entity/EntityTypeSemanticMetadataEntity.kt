@@ -7,6 +7,8 @@ import org.hibernate.annotations.Type
 import riven.core.entity.util.AuditableSoftDeletableEntity
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
+import riven.core.enums.identity.MatchSignalType
+import riven.core.enums.identity.MatchSignalTypeConverter
 import riven.core.models.entity.EntityTypeSemanticMetadata
 import java.util.*
 
@@ -50,6 +52,10 @@ data class EntityTypeSemanticMetadataEntity(
     @Column(name = "classification", nullable = true)
     var classification: SemanticAttributeClassification? = null,
 
+    @Convert(converter = MatchSignalTypeConverter::class)
+    @Column(name = "signal_type", nullable = true)
+    var signalType: MatchSignalType? = null,
+
     @Type(JsonBinaryType::class)
     @Column(name = "tags", columnDefinition = "jsonb", nullable = false)
     var tags: List<String> = emptyList(),
@@ -68,6 +74,7 @@ data class EntityTypeSemanticMetadataEntity(
             targetId = this.targetId,
             definition = this.definition,
             classification = this.classification,
+            signalType = this.signalType,
             tags = this.tags,
             createdAt = this.createdAt,
             updatedAt = this.updatedAt,

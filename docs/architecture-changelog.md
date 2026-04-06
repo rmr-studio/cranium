@@ -1,5 +1,24 @@
 # Architecture Changelog
 
+## 2026-03-17 — Identity Match Dispatch Infrastructure and EntityService Event Publishing
+
+**Domains affected:** Identity, Entity, Workflow
+
+**What changed:**
+
+- Created `IdentityMatchQueueProcessorService`: claims IDENTITY_MATCH items from the execution queue and starts `IdentityMatchWorkflow` on the `identity.match` Temporal task queue; handles `WorkflowExecutionAlreadyStarted` as idempotent success
+- Created `IdentityMatchDispatcherService`: `@Scheduled` + `@SchedulerLock` poller for the IDENTITY_MATCH queue and stale item recovery; uses unique ShedLock names (`processIdentityMatchQueue`, `recoverStaleIdentityMatchItems`) to avoid contention with the workflow execution dispatcher
+- Removed `@ConditionalOnProperty(riven.workflow.engine.enabled)` from `WorkflowExecutionDispatcherService` and `WorkflowExecutionQueueProcessorService` — Temporal is a required infrastructure dependency, not optional
+- `EntityService` now publishes `IdentityMatchTriggerEvent` after every `saveEntity()` call; only IDENTIFIER-classified attribute values are included (via `EntityTypeClassificationService`); event fires within the `@Transactional` boundary so `@TransactionalEventListener(AFTER_COMMIT)` in the listener fires post-commit
+- Full pipeline is now wired: `EntityService` → `IdentityMatchTriggerEvent` → `IdentityMatchTriggerListener` → `IdentityMatchQueueService` → execution queue → `IdentityMatchDispatcherService` → `IdentityMatchQueueProcessorService` → Temporal `IdentityMatchWorkflow`
+
+**New cross-domain dependencies:** Yes — `EntityService` (Entity domain) → `EntityTypeClassificationService` (Identity domain) via constructor injection for IDENTIFIER attribute ID lookup
+
+**New components introduced:**
+
+- `IdentityMatchQueueProcessorService` — Per-item REQUIRES_NEW processor that starts IdentityMatchWorkflow via WorkflowClient with retry/fail logic
+- `IdentityMatchDispatcherService` — Scheduled batch poller and stale recovery service for the IDENTITY_MATCH execution queue
+
 ## 2026-03-09 — Entity Attributes Normalization
 
 **Domains affected:** Entities
@@ -79,3 +98,19 @@
 - `RelationshipTargetRuleRepository` — JPA repository with inverse-visible queries
 - `QueryDirection` enum — FORWARD vs INVERSE for SQL generation
 - `DeleteDefinitionImpact` — Simple data class for two-pass impact pattern (replaces complex `EntityTypeRelationshipImpactAnalysis`)
+
+## 2026-03-16 — Identity Resolution Feature Design Populated
+
+**Domains affected:** Entities, Integrations
+
+**What changed:**
+
+- Populated the Identity Resolution feature design document from draft template to full specification, synthesizing content from CEO review (PLAN-REVIEW), engineering review (ENG-REVIEW), PROJECT, ROADMAP, and REQUIREMENTS planning documents
+- Moved feature design from `1. Planning/` to `2. Planned/` in the feature design pipeline
+- Document covers: data model (3 new tables), component design (5 services, 3 JPA entities, controller), 7 API endpoints, 16 failure modes, 15 architectural decisions, 5-phase implementation roadmap mapped to 30 requirements
+
+**New cross-domain dependencies:** Yes — Entities → Identity (new): `EntityService` will publish `EntitySavedEvent` consumed by `IdentityMatchTriggerService`. Identity → Entities: `IdentityMatchConfirmationService` creates relationships via `EntityRelationshipService` and reads attributes via `entity_attributes` table.
+
+**New components introduced:**
+
+- Feature design document only — no code components introduced in this change. The document specifies components to be built across 5 implementation phases.

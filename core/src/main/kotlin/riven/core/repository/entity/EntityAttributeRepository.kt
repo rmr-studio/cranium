@@ -48,4 +48,55 @@ interface EntityAttributeRepository : JpaRepository<EntityAttributeEntity, UUID>
         nativeQuery = true
     )
     fun softDeleteByEntityIds(entityIds: Array<UUID>, workspaceId: UUID)
+
+    /**
+     * Batch identifier value lookup for projection identity resolution.
+     * Finds attributes where the attribute_id is one of the IDENTIFIER attributes
+     * AND the text value matches one of the candidate values, scoped to a specific entity type.
+     *
+     * Used by [riven.core.service.ingestion.IdentityResolutionService] for Check 2.
+     */
+    @Query(
+        value = """
+            SELECT ea.* FROM entity_attributes ea
+            JOIN entities e ON ea.entity_id = e.id AND e.deleted = false
+            WHERE ea.workspace_id = :workspaceId
+              AND e.type_id = :entityTypeId
+              AND ea.attribute_id IN (:attributeIds)
+              AND ea.value ->> 'value' IN (:textValues)
+              AND ea.deleted = false
+        """,
+        nativeQuery = true
+    )
+    fun findByIdentifierValuesForEntityType(
+        workspaceId: UUID,
+        entityTypeId: UUID,
+        attributeIds: Collection<UUID>,
+        textValues: Collection<String>,
+    ): List<EntityAttributeEntity>
+
+    /**
+     * Find entity attributes whose JSONB value column contains a text value matching the given string.
+     *
+     * Uses the ->> operator to extract the JSON text as a plain string for comparison.
+     * Only matches attributes for the given workspace, attribute definition, and where the
+     * JSONB text representation equals the supplied value exactly.
+     *
+     * Used by [riven.core.service.identity.IdentityLookupService] for identifier-based entity lookup.
+     */
+    @Query(
+        value = """
+            SELECT ea.* FROM entity_attributes ea
+            WHERE ea.workspace_id = :workspaceId
+              AND ea.attribute_id = :attributeId
+              AND ea.value ->> 'value' = :textValue
+              AND ea.deleted = false
+        """,
+        nativeQuery = true
+    )
+    fun findByWorkspaceIdAndAttributeIdAndTextValue(
+        workspaceId: UUID,
+        attributeId: UUID,
+        textValue: String,
+    ): List<EntityAttributeEntity>
 }

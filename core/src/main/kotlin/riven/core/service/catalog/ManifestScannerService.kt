@@ -29,25 +29,6 @@ class ManifestScannerService(
 
     // ------ Public Scan Methods ------
 
-    /** Scans classpath models directory for model manifests. Key derived from filename. */
-    fun scanModels(): List<ScannedManifest> {
-        val resources = safeGetResources("${manifestProperties.basePath}/models/*.json")
-        return resources.mapNotNull { resource ->
-            val filename = resource.filename ?: return@mapNotNull null
-            val key = filename.removeSuffix(".json")
-            parseAndValidate(resource, key, ManifestType.MODEL, "manifests/schemas/model.schema.json")
-        }
-    }
-
-    /** Scans classpath lifecycle-spine directory for template manifests. Key derived from directory name. */
-    fun scanTemplates(): List<ScannedManifest> {
-        val resources = safeGetResources("${manifestProperties.basePath}/lifecycle-spine/*/manifest.json")
-        return resources.mapNotNull { resource ->
-            val key = extractDirectoryName(resource, "lifecycle-spine")
-            parseAndValidate(resource, key, ManifestType.TEMPLATE, "manifests/schemas/template.schema.json")
-        }
-    }
-
     /** Scans classpath integrations directory for integration manifests. Key derived from directory name. */
     fun scanIntegrations(): List<ScannedManifest> {
         val resources = safeGetResources("${manifestProperties.basePath}/integrations/*/manifest.json")

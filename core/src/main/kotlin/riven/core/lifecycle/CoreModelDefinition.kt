@@ -34,7 +34,7 @@ abstract class CoreModelDefinition(
     val identifierKey: String,
     val attributes: Map<String, CoreModelAttribute>,
     val relationships: List<CoreModelRelationship> = emptyList(),
-    val projectionAccepts: ProjectionAcceptRule? = null,
+    val projectionAccepts: List<ProjectionAcceptRule> = emptyList(),
     val aggregations: List<AggregationColumnDefinition> = emptyList(),
     val semanticDefinition: String? = null,
     val semanticTags: List<String> = emptyList(),

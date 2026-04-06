@@ -209,6 +209,7 @@ CREATE TABLE IF NOT EXISTS public.entity_type_semantic_metadata
                                                                               'TEMPORAL', 'FREETEXT',
                                                                               'RELATIONAL_REFERENCE'
         )),
+    "signal_type"    TEXT CHECK (signal_type IS NULL OR signal_type IN ('NAME', 'COMPANY', 'PHONE', 'EMAIL', 'CUSTOM')),
     "tags"           JSONB   NOT NULL         DEFAULT '[]'::jsonb,
     "deleted"        BOOLEAN NOT NULL         DEFAULT FALSE,
     "deleted_at"     TIMESTAMP WITH TIME ZONE DEFAULT NULL,

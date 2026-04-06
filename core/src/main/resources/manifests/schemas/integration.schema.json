@@ -90,6 +90,10 @@
             "UNCATEGORIZED"
           ]
         },
+        "lifecycleDomain": {
+          "type": "string",
+          "description": "Optional lifecycle domain for projection routing. Defaults to UNCATEGORIZED if omitted."
+        },
         "identifierKey": {
           "type": "string"
         },

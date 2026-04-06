@@ -1,5 +1,19 @@
 # Architecture Suggestions
 
+## [2026-03-27] — Entity Ingestion Pipeline Documentation Updates
+
+**Trigger:** Engineering review defined the Entity Ingestion Pipeline architecture with 6 confirmed architectural decisions, 3 new services, and cross-domain dependencies.
+**Affected vault notes:**
+- `feature-design/1. Planning/Smart Projection Architecture.md` — updated with source wins, multi-source conflict resolution, ProjectionAcceptRule as List, backfill projection, audit trail
+- `feature-design/1. Planning/Entity Ingestion Pipeline.md` — new feature design document
+- `domains/Identity Resolution/Identity Resolution.md` — integration with ingestion pipeline
+- `domains/Integrations/Integrations.md` — ingestion pipeline section
+- `domains/Entities/Entities.md` — projected entities and hub model section
+- `domains/Catalog/Catalog.md` — field mapping for ingestion section
+**Suggested update:** Review all updated documents for accuracy against current codebase state. The ingestion pipeline feature design is comprehensive but describes future architecture — verify implementation matches when built. The Smart Projection doc now references the Ingestion Pipeline doc — ensure both stay in sync.
+
+---
+
 ## [2026-03-14] — Notification Domain: Future Extension Considerations
 
 **Trigger:** Built notification domain with inbox, read-state, resolution lifecycle, and WebSocket delivery.
@@ -72,6 +86,12 @@ This would allow `time-entry` (and any future entity type) to use a stable, uniq
 - **Inject defaults:** `EntityService.saveEntity()` should inject attribute defaults before validation runs, so that attributes with configured defaults (e.g. a SELECT attribute defaulting to `"draft"`) are pre-populated on creation.
 
 This applies to all attribute types, not just `ID`.
+
+## 2026-03-17 — Identity Resolution Domain Documentation
+
+**Trigger:** Created full Identity Resolution domain documentation (14 new docs, 7 updates to Workflows domain docs).
+**Affected vault notes:** Domain Boundaries/Dependency Map, System Patterns (event-driven Temporal pipeline, pg_trgm similarity matching, canonical UUID ordering)
+**Suggested update:** Review and author substantive architectural content for the Identity Resolution domain. The vault now has structural scaffolding and component docs, but the following warrant human review: (1) the cross-domain dependency from Identity → Entities via native SQL (bypasses normal service layer) should be reflected in the dependency map, (2) the "no @PreAuthorize" pattern for Temporal-called services (workspace isolation at query level) is a new security pattern worth documenting in System Patterns, (3) cluster entities are scaffolded but not functional — track when services are implemented.
 
 ## 2026-03-09 — Relationship Simplification May Affect System Design Docs
 

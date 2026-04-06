@@ -53,33 +53,6 @@ class ActivityService(
         logger.info { "${activities.size} activities logged." }
     }
 
-    fun createActivityLog(
-        activity: Activity,
-        operation: OperationType,
-        userId: UUID,
-        workspaceId: UUID,
-        entityType: ApplicationEntityType,
-        entityId: UUID? = null,
-        details: JsonObject,
-        timestamp: ZonedDateTime = ZonedDateTime.now(),
-    ) {
-        // Create and save the activity log entry to the database
-        repository.save(
-            ActivityLogEntity(
-                id = UUID.randomUUID(),
-                userId = userId,
-                workspaceId = workspaceId,
-                activity = activity,
-                operation = operation,
-                entityType = entityType,
-                entityId = entityId,
-                timestamp = timestamp,
-                details = details
-            )
-        )
-
-    }
-
 }
 
 /** Convenience wrapper that accepts details as vararg pairs instead of requiring `mapOf(...)`. */

@@ -6,7 +6,6 @@ import riven.core.enums.catalog.ManifestType
 import riven.core.exceptions.NotFoundException
 import riven.core.models.catalog.CatalogEntityTypeModel
 import riven.core.models.catalog.ManifestDetail
-import riven.core.models.catalog.ManifestSummary
 import riven.core.repository.catalog.*
 import java.util.*
 
@@ -29,12 +28,6 @@ class ManifestCatalogService(
 ) {
 
     // ------ Public Read Operations ------
-
-    /**
-     * Returns lightweight summaries of all non-stale model manifests.
-     */
-    fun getAvailableModels(): List<ManifestSummary> =
-        getManifestSummaries(ManifestType.MODEL)
 
     /**
      * Returns a fully hydrated manifest detail including entity types (with semantic metadata),
@@ -91,16 +84,6 @@ class ManifestCatalogService(
     }
 
     // ------ Private Helpers ------
-
-    private fun getManifestSummaries(manifestType: ManifestType): List<ManifestSummary> {
-        val manifests = manifestCatalogRepository.findByManifestTypeAndStaleFalse(manifestType)
-        if (manifests.isEmpty()) return emptyList()
-
-        return manifests.map { manifest ->
-            val count = catalogEntityTypeRepository.findByManifestId(manifest.id!!).size
-            manifest.toSummary(count)
-        }
-    }
 
     private fun hydrateEntityTypes(
         entityTypes: List<riven.core.entity.catalog.CatalogEntityTypeEntity>

@@ -77,6 +77,10 @@ dependencies {
     // PostHog Analytics
     implementation("com.posthog:posthog-server:2.3.2")
 
+    // Rate Limiting
+    implementation("com.bucket4j:bucket4j-core:8.10.1")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.2.0")
+
     // Resilience4j Circuit Breaker
     implementation("io.github.resilience4j:resilience4j-spring-boot3:2.3.0")
     implementation("org.springframework.boot:spring-boot-starter-aop")
@@ -124,6 +128,10 @@ allOpen {
     annotation("jakarta.persistence.Entity")
     annotation("jakarta.persistence.MappedSuperclass")
     annotation("jakarta.persistence.Embeddable")
+}
+
+tasks.bootRun {
+    systemProperty("spring.profiles.active", "dev")
 }
 
 tasks.withType<Test> {

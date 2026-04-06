@@ -1,4 +1,5 @@
 import { Session } from "@/lib/auth";
+import type { InitOverrideFunction } from "@/lib/types/runtime";
 import { isUUID } from "validator";
 import { fromError, ResponseError } from "../error/error.util";
 
@@ -20,6 +21,17 @@ export function validateUuid(id: string) {
             error: "INVALID_ID",
         });
     }
+}
+
+/**
+ * Creates an init override that replaces the request body with a plain object,
+ * bypassing the generated ToJSON serializers which have infinite mutual
+ * recursion for discriminated union types (QueryFilter Or/And variants).
+ *
+ * Use with any generated `*Raw` API method when the request contains a QueryFilter.
+ */
+export function withBodyOverride(body: unknown): InitOverrideFunction {
+    return async () => ({ body } as RequestInit);
 }
 
 export async function handleError(

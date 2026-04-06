@@ -13,7 +13,7 @@ Domains:
 blocked by:
   - "[[SQL Aggregation Column Engine]]"
   - "[[Aggregation Query Benchmark]]"
-  - "[[Three-Tier Entity Model and Lifecycle Spine]]"
+  - "[[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]]"
   - "[[Prompt Construction for Knowledge Model Queries]]"
 ---
 # Feature: Lifecycle Queries as Architecture Validation
@@ -125,7 +125,7 @@ After validation queries are running:
 - [[Pre-written Lifecycle Queries]] — the full feature design this validates
 - [[SQL Aggregation Column Engine]] — the aggregation engine these queries exercise
 - [[Aggregation Query Benchmark]] — raw performance validation (runs before this)
-- [[Three-Tier Entity Model and Lifecycle Spine]] — the entity type foundation
+- [[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]] — the entity type foundation
 - [[Lifecycle Domain Model]] — cross-domain traversal this validates
 - [[Smart Projection Architecture]] — next major feature after validation passes
 - [[Churn Retrospective Timeline]] — example of a feature that depends on this validation passing

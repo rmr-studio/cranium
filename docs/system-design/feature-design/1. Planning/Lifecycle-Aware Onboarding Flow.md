@@ -13,7 +13,7 @@ Domains:
   - "[[Entities]]"
   - "[[Integrations]]"
 blocked by:
-  - "[[Three-Tier Entity Model and Lifecycle Spine]]"
+  - "[[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]]"
   - "[[Integration Access Layer]]"
 ---
 # Feature: Lifecycle-Aware Onboarding Flow
@@ -53,7 +53,7 @@ Replace generic template selection with a lifecycle-aware onboarding flow:
 
 ## Related Documents
 
-- [[Three-Tier Entity Model and Lifecycle Spine]] — spine installed during onboarding
+- [[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]] — spine installed during onboarding
 - [[Lifecycle Domain Model]] — coverage summary shows domain-level connectivity
 - [[Lifecycle Domain Coverage Indicator]] — reused in onboarding summary
 - [[Integration Access Layer]] — tool connection during onboarding

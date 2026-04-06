@@ -258,29 +258,6 @@ class BlockService(
         }
     }
 
-    // ---------- helpers ----------
-    // TODO: Uncomment when CreateBlockRequest is defined
-    /*
-    private fun resolveType(request: CreateBlockRequest): BlockTypeEntity =
-        when {
-            request.typeId != null -> blockTypeService.getById(request.typeId)
-            request.typeKey != null -> blockTypeService.getByKey(
-                request.typeKey,
-                request.workspaceId,
-                request.typeVersion
-            )
-
-            else -> throw IllegalArgumentException("Either typeId or typeKey must be provided")
-        }
-    */
-
-
-    @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
-    @Transactional
-    fun deleteBlocks(workspaceId: UUID, blockIds: List<UUID>) {
-        TODO()
-    }
-
     /**
      * Batch save blocks - used for efficient bulk operations.
      */

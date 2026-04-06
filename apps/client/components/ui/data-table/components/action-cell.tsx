@@ -1,12 +1,11 @@
 'use client';
 
-import type { DraggableAttributes } from '@dnd-kit/core';
-import type { DraggableSyntheticListeners } from '@dnd-kit/core';
+import { Checkbox } from '@/components/ui/checkbox';
+import type { ActionColumnConfig, ActionVisibility } from '@/components/ui/data-table/data-table.types';
+import type { DraggableAttributes, DraggableSyntheticListeners } from '@dnd-kit/core';
 import { TableCell } from '@riven/ui/table';
 import { cn } from '@riven/utils';
 import { GripVertical } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
-import type { ActionColumnConfig, ActionVisibility } from '@/components/ui/data-table/data-table.types';
 import type { ReactNode } from 'react';
 
 interface ActionCellProps<TData> {

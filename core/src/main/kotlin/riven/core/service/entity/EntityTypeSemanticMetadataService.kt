@@ -4,17 +4,22 @@ import io.github.oshai.kotlinlogging.KLogger
 import jakarta.transaction.Transactional
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
+import org.springframework.transaction.support.TransactionSynchronization
+import org.springframework.transaction.support.TransactionSynchronizationManager
 import riven.core.entity.entity.EntityTypeEntity
 import riven.core.entity.entity.EntityTypeSemanticMetadataEntity
+import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType.ATTRIBUTE
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType.ENTITY_TYPE
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType.RELATIONSHIP
+import riven.core.enums.identity.MatchSignalType
 import riven.core.models.entity.EntityTypeSemanticMetadata
 import riven.core.models.request.entity.type.BulkSaveSemanticMetadataRequest
 import riven.core.models.request.entity.type.SaveSemanticMetadataRequest
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.repository.entity.EntityTypeSemanticMetadataRepository
+import riven.core.service.identity.EntityTypeClassificationService
 import riven.core.util.ServiceUtil
 import java.util.UUID
 
@@ -33,6 +38,7 @@ import java.util.UUID
 class EntityTypeSemanticMetadataService(
     private val repository: EntityTypeSemanticMetadataRepository,
     private val entityTypeRepository: EntityTypeRepository,
+    private val classificationService: EntityTypeClassificationService,
     private val logger: KLogger,
 ) {
 
@@ -150,6 +156,7 @@ class EntityTypeSemanticMetadataService(
                 existing.apply {
                     definition = req.definition
                     classification = req.classification
+                    signalType = req.signalType ?: existing.signalType ?: deriveSignalType(req.classification)
                     tags = req.tags
                 }
             } else {
@@ -160,12 +167,15 @@ class EntityTypeSemanticMetadataService(
                     targetId = req.targetId,
                     definition = req.definition,
                     classification = req.classification,
+                    signalType = req.signalType ?: deriveSignalType(req.classification),
                     tags = req.tags,
                 )
             }
         }
 
-        return repository.saveAll(entitiesToSave).map { it.toModel() }
+        val saved = repository.saveAll(entitiesToSave).map { it.toModel() }
+        invalidateClassificationCacheAfterCommit(entityTypeId)
+        return saved
     }
 
     // ------ Lifecycle hooks (called from other services) ------
@@ -246,6 +256,7 @@ class EntityTypeSemanticMetadataService(
      */
     fun deleteForTarget(entityTypeId: UUID, targetType: SemanticMetadataTargetType, targetId: UUID) {
         repository.hardDeleteByTarget(entityTypeId, targetType, targetId)
+        invalidateClassificationCacheAfterCommit(entityTypeId)
     }
 
     /**
@@ -258,6 +269,7 @@ class EntityTypeSemanticMetadataService(
      */
     fun softDeleteForEntityType(entityTypeId: UUID) {
         repository.softDeleteByEntityTypeId(entityTypeId)
+        invalidateClassificationCacheAfterCommit(entityTypeId)
     }
 
     /**
@@ -290,6 +302,7 @@ class EntityTypeSemanticMetadataService(
             existing.get().apply {
                 definition = request.definition
                 classification = request.classification
+                signalType = request.signalType ?: existing.get().signalType ?: deriveSignalType(request.classification)
                 tags = request.tags
             }
         } else {
@@ -300,11 +313,48 @@ class EntityTypeSemanticMetadataService(
                 targetId = targetId,
                 definition = request.definition,
                 classification = request.classification,
+                signalType = request.signalType ?: deriveSignalType(request.classification),
                 tags = request.tags,
             )
         }
 
-        return repository.save(entity).toModel()
+        val saved = repository.save(entity).toModel()
+        invalidateClassificationCacheAfterCommit(entityTypeId)
+        return saved
+    }
+
+    /**
+     * Registers a post-commit callback to evict the classification cache for [entityTypeId].
+     *
+     * Defers invalidation until after the current transaction commits, preventing concurrent
+     * readers from repopulating the cache with stale data before the write is visible.
+     * If no transaction is active (e.g. called from a non-transactional lifecycle hook),
+     * invalidates immediately as a fallback.
+     */
+    private fun invalidateClassificationCacheAfterCommit(entityTypeId: UUID) {
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
+                override fun afterCommit() {
+                    classificationService.invalidate(entityTypeId)
+                }
+            })
+        } else {
+            classificationService.invalidate(entityTypeId)
+        }
+    }
+
+    /**
+     * Derives the [MatchSignalType] from the classification.
+     *
+     * Returns [MatchSignalType.CUSTOM_IDENTIFIER] when classification is IDENTIFIER
+     * (the JPA converter handles the CUSTOM_IDENTIFIER <-> "CUSTOM" DB mapping).
+     * Returns null when classification is not IDENTIFIER, clearing any previously stored signal type.
+     */
+    private fun deriveSignalType(
+        classification: SemanticAttributeClassification?,
+    ): MatchSignalType? = when (classification) {
+        SemanticAttributeClassification.IDENTIFIER -> MatchSignalType.CUSTOM_IDENTIFIER
+        else -> null
     }
 
     /**

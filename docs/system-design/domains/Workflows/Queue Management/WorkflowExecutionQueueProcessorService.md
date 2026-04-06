@@ -16,7 +16,7 @@ Part of [[Queue Management]]
 
 ## Purpose
 
-Processes individual queue items in isolated transactions, checking workspace capacity and dispatching available executions to Temporal. Ensures that row locks are released immediately after each item completes and failures in one item don't affect others.
+Processes individual WORKFLOW_EXECUTION queue items in isolated transactions, checking workspace capacity and dispatching available executions to Temporal. Ensures that row locks are released immediately after each item completes and failures in one item don't affect others. Identity match jobs (IDENTITY_MATCH) are handled by IdentityMatchQueueProcessorService in the Identity Resolution domain.
 
 ---
 
@@ -174,8 +174,10 @@ fun processItem(item: ExecutionQueueEntity)
 
 **Queue Item Processing Flow:**
 
+> **Note:** `claimPendingExecutions` now filters by `job_type='WORKFLOW_EXECUTION'`, so identity match items are never claimed by this processor.
+
 ```
-1. Claim batch (SKIP LOCKED)
+1. Claim batch (SKIP LOCKED, filtered to WORKFLOW_EXECUTION job_type)
    └─> Short transaction, releases locks immediately
 
 2. For each item (REQUIRES_NEW transaction per item):
@@ -250,7 +252,7 @@ _This component is NOT the source of truth for any entities - it coordinates bet
 
 |Query|Purpose|Performance Notes|
 |---|---|---|
-|claimPendingExecutions(size)|Claim batch via SKIP LOCKED|FOR UPDATE SKIP LOCKED prevents lock contention|
+|claimPendingExecutions(size)|Claim batch via SKIP LOCKED, filtered by job_type='WORKFLOW_EXECUTION'|FOR UPDATE SKIP LOCKED prevents lock contention|
 |countActiveByWorkspace(workspaceId)|Check capacity before dispatch|Indexed on workspace_id + status|
 |findById (various entities)|Load workflow definitions, versions, workspace|Standard PK lookups|
 
@@ -435,3 +437,4 @@ graph TD
 |Date|Change|Reason|
 |---|---|---|
 |2026-02-08|Initial documentation|Phase 1 - Workflows domain documentation|
+| 2026-03-17 | claimPendingExecutions now filters by job_type='WORKFLOW_EXECUTION' | Identity Resolution genericized queue |

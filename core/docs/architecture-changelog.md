@@ -1,5 +1,55 @@
 # Architecture Changelog
 
+## [2026-03-29] — Entity Projection Pipeline Implementation
+
+**Domains affected:** Entity, Integration, Ingestion (new), Identity, Lifecycle
+**What changed:**
+
+- Implemented the projection pipeline: integration entities are now projected into core lifecycle entities via domain-based routing rules
+- Created `service.ingestion` package with `EntityProjectionService` and `IdentityResolutionService` — batch identity resolution using 2-query strategy (sourceExternalId match → IDENTIFIER attribute match)
+- Added `entity_type_projection_rules` table and `ProjectionRuleEntity` — maps source (integration) entity types to target (core lifecycle) entity types
+- Projection rules are installed automatically during integration template materialization in `TemplateMaterializationService`, using `CoreModelRegistry.findModelsAccepting()` to match (lifecycleDomain, semanticGroup) pairs
+- Added `projectionAccepts` rules to all 15 core model definitions — each declares which (domain, group) pairs route integration data into it
+- Wired `executeProjections` activity stub in `IntegrationSyncActivitiesImpl` to call `EntityProjectionService.processProjections()`
+- Added entity visibility filter: `includeInternal` query parameter on entity type listing (default: false) hides integration-sourced entity types
+- Added `readonly` parameter to `assembleColumns()` — readonly entity types skip relationship columns
+- Added `lastPipelineStep` and `projectionResult` (JSONB) columns to `IntegrationSyncStateEntity` for pipeline observability
+
+**New cross-domain dependencies:** yes — `service.ingestion.EntityProjectionService` depends on `service.identity.IdentityClusterService` and `service.identity.EntityTypeClassificationService` for cluster assignment and identifier resolution
+**New components introduced:**
+- `EntityProjectionService` — core projection pipeline: rule loading, identity resolution, entity create/update, relationship linking
+- `IdentityResolutionService` — batch identity resolution with 2-query strategy
+- `ProjectionRuleEntity` / `ProjectionRuleRepository` — projection rule storage
+- `ProjectionResult` / `ResolutionResult` — pipeline result models in `models.ingestion`
+- `CoreModelRegistry.findModelsAccepting()` — lookup method for projection routing
+
+## [2026-03-27] — Entity Ingestion Pipeline Architecture (Engineering Review)
+
+**Domains affected:** Entity, Integration, Identity Resolution, Catalog
+**What changed:**
+
+- Defined the 4-step Entity Ingestion Pipeline: Classify → Route → Map → Resolve. This is the missing bridge between integration entity sync and core entity hub population.
+- Confirmed Hub Model architecture: core entity types (Customer, Support Ticket) are the user-facing hub where all interaction happens. Integration entity types + rows are hidden readonly infrastructure for sync fidelity, identity resolution, and audit.
+- Established field ownership rules: "Source wins" — mapped fields on projected entities are owned by the integration source and overwritten on next sync. Unmapped fields are user-owned and preserved.
+- Established multi-source conflict resolution: "Most recent sync wins" — timestamp-based, no configuration needed. When two integrations project to the same core entity, the most recently synced values for mapped fields win.
+- Added field-level audit trail requirement: when sync overwrites user-edited values, log old → new via `activityService.logActivity()`.
+- Changed `ProjectionAcceptRule` from nullable single value to `List<ProjectionAcceptRule>` on `CoreModelDefinition` to support multiple projection sources per core type.
+- Added `SourceType.PROJECTED` to discriminate auto-created core entities from user-created ones.
+- Defined new service layer: `FieldMappingService`, `IdentityResolutionService`, `EntityProjectionService` in `service.ingestion` package. `IntegrationSyncWorkflow` + `IntegrationSyncActivities` in `workflow.integration` package.
+- Identified backfill projection need: when a new core model is installed that matches existing unmatched integration entities, retroactive projection required (deferred as P2 TODO).
+
+**New cross-domain dependencies:** yes
+- Integration → Entity: ingestion pipeline creates entities in core entity types from integration sync data
+- Integration → Identity Resolution: ingestion pipeline's Step 4 (Resolve) uses identity resolution for entity matching
+- Catalog → Integration: `CatalogFieldMappingEntity` consumed by `FieldMappingService` during ingestion
+
+**New components introduced:**
+- `FieldMappingService` — transforms integration source fields → core entity type schema using catalog field mappings
+- `IdentityResolutionService` — matches incoming integration data to existing entities (sourceExternalId + identifier key)
+- `EntityProjectionService` — creates/updates core entities from integration data, manages identity clusters via relationships
+- `IntegrationSyncWorkflow` — Temporal workflow orchestrating the 4-step ingestion pipeline with activity-level retry and cursor pagination
+- `IntegrationSyncActivities` — Temporal activities for each pipeline step
+
 ## [2026-03-17] — Nango Webhook Endpoint with HMAC Security
 
 **Domains affected:** Integration
@@ -220,3 +270,85 @@
 
 **New cross-domain dependencies:** no
 **New components introduced:** none — this is a pure simplification/removal
+
+## [2026-03-18] — Phase 4 Feature Design: Confirmation and Clusters
+
+**Domains affected:** Identity Resolution, Entities
+**What changed:**
+
+- Generated feature design for Identity Cluster Confirmation and Union-Find Management
+- Documents confirmation state machine (PENDING → CONFIRMED/REJECTED with ConflictException guard), five-case Union-Find cluster assignment, merge algorithm (smaller → larger), and CONNECTED_ENTITIES relationship creation on confirm
+- Documents rejection move from IdentityMatchSuggestionService to new IdentityConfirmationService
+- Documents cluster-aware re-suggestion skip in persistSuggestions
+
+**New cross-domain dependencies:** yes — Identity Resolution → Entities (EntityRelationshipService for CONNECTED_ENTITIES creation on confirm), Identity Resolution → Notifications (confirmation broadcast to all workspace members)
+**New components introduced:**
+- `IdentityConfirmationService` — confirm/reject state machine with cluster orchestration, relationship creation, notification publishing, and activity logging
+- `IdentityClusterService` — cluster CRUD, Union-Find merge, auto-naming from NAME-signal attributes
+
+## [2026-03-17] — Identity Resolution Domain
+
+**Domains affected:** identity (new), workflow (queue management, execution engine)
+**What changed:**
+
+- Introduced Identity Resolution domain — Temporal-orchestrated pipeline for detecting duplicate entities using pg_trgm trigram similarity, weighted scoring, and human-reviewable match suggestions
+- New matching pipeline: IdentityMatchCandidateService (pg_trgm blocking), IdentityMatchScoringService (weighted average), IdentityMatchSuggestionService (idempotent persistence with re-suggestion logic)
+- New Temporal workflow/activities on dedicated `identity.match` task queue, isolated from default workflow queue
+- Event-driven trigger: EntityService publishes IdentityMatchTriggerEvent → IdentityMatchTriggerListener → queue dispatch → Temporal pipeline
+- Queue management services: IdentityMatchQueueService (dedup enqueue), IdentityMatchDispatcherService (ShedLock polling), IdentityMatchQueueProcessorService (REQUIRES_NEW dispatch)
+- EntityTypeClassificationService caches IDENTIFIER-classified attributes per entity type
+- Scaffolded cluster entities (IdentityClusterEntity, IdentityClusterMemberEntity) for future phase
+- New SQL schema: match_suggestions, identity_clusters, identity_cluster_members with pg_trgm extension, canonical UUID ordering constraints, partial unique indexes
+- TemporalWorkerConfiguration now registers identity match worker on IDENTITY_MATCH_QUEUE
+
+**New cross-domain dependencies:** yes — Identity Resolution → Entities (native SQL on entity_attributes + entity_type_semantic_metadata), Identity Resolution → Workflows (ExecutionQueueEntity for IDENTITY_MATCH jobs), Identity Resolution → Activity (audit logging)
+**New components introduced:**
+- `IdentityMatchCandidateService` — two-phase pg_trgm candidate finding
+- `IdentityMatchScoringService` — weighted average scoring with configurable signal weights
+- `IdentityMatchSuggestionService` — idempotent suggestion persistence with re-suggestion and rejection
+- `EntityTypeClassificationService` — cached IDENTIFIER attribute lookup
+- `IdentityMatchQueueService` — IDENTITY_MATCH job enqueueing with deduplication
+- `IdentityMatchDispatcherService` — scheduled queue polling with ShedLock
+- `IdentityMatchQueueProcessorService` — per-item Temporal dispatch with REQUIRES_NEW transactions
+- `IdentityMatchWorkflow/Impl` — Temporal workflow orchestrating 3-activity pipeline
+- `IdentityMatchActivities/Impl` — Temporal activities delegating to domain services
+- `IdentityMatchTriggerListener` — @TransactionalEventListener bridging entity saves to queue
+- `MatchSuggestionEntity` — candidate pair entity with JSONB signals and canonical UUID ordering
+- `IdentityClusterEntity` / `IdentityClusterMemberEntity` — scaffolded cluster entities
+- `MatchSignalType` — signal type enum with default weights
+- `MatchSuggestionStatus` — suggestion lifecycle enum
+
+## [2026-03-18] — IdentityConfirmationService with Cluster Management (Phase 04 Plan 02)
+
+**Domains affected:** identity
+**What changed:**
+
+- Added `IdentityConfirmationService` as the single owner of the suggestion confirm/reject state machine
+- `confirmSuggestion` creates a `CONNECTED_ENTITIES` relationship via `EntityRelationshipService` with `SourceType.IDENTITY_MATCH`, runs 5-case cluster resolution, logs activity, and publishes a `REVIEW_REQUEST` notification to all workspace members
+- `rejectSuggestion` transitions `PENDING -> REJECTED` with rejectionSignals snapshot, soft-delete, and activity logging
+- 5-case cluster resolution: (1) create new cluster, (2) expand source cluster, (3) expand target cluster, (4) merge clusters (smaller dissolved into larger, tie favors source entity's cluster), (5) same-cluster no-op
+- Cluster merge hard-deletes dissolving members, re-inserts them into surviving cluster preserving `joinedAt`/`joinedBy`, and soft-deletes the dissolving cluster
+- Removed `rejectSuggestion`, `validateRejectable`, `applyRejection`, and `logRejectionActivity` from `IdentityMatchSuggestionService` — rejection is now fully owned by `IdentityConfirmationService`
+- Integration test updated to reject via raw SQL instead of service call (avoids JWT context requirement in minimal integration test config)
+
+**New cross-domain dependencies:** yes — identity domain → entity domain via `EntityRelationshipService.addRelationship` with `SourceType.IDENTITY_MATCH`; identity domain → notification domain via `NotificationService.createInternalNotification`
+**New components introduced:**
+- `IdentityConfirmationService` — confirm/reject state machine with 5-case cluster management
+
+## [2026-03-16] — Generic Execution Queue with Job Type Discriminator (INFRA-01/02/03)
+
+**Domains affected:** workflow (execution queue), integration (SourceType enum)
+**What changed:**
+
+- Renamed `workflow_execution_queue` table to `execution_queue` in SQL schema and all JPA/repository layers
+- Added `job_type VARCHAR(30) NOT NULL DEFAULT 'WORKFLOW_EXECUTION'` discriminator column to `execution_queue`
+- Added `entity_id UUID` nullable FK column for IDENTITY_MATCH jobs (references entities table)
+- Changed `workflow_definition_id` from NOT NULL to nullable on `execution_queue`
+- Created `ExecutionJobType` enum with `WORKFLOW_EXECUTION` and `IDENTITY_MATCH` values
+- Both native queries (`claimPendingExecutions`, `findStaleClaimedItems`) now filter `AND job_type = 'WORKFLOW_EXECUTION'` ensuring workflow dispatcher never claims identity match jobs
+- Added dedup partial unique index `uq_execution_queue_pending_identity_match` on `(workspace_id, entity_id, job_type) WHERE status = 'PENDING' AND entity_id IS NOT NULL`
+- Added `IDENTITY_MATCH` to `SourceType` enum (for entity relationship source tracking in Phase 4)
+
+**New cross-domain dependencies:** no — queue change is internal to workflow domain; SourceType is an existing integration enum
+**New components introduced:**
+- `ExecutionJobType` enum — job type discriminator for the shared execution queue

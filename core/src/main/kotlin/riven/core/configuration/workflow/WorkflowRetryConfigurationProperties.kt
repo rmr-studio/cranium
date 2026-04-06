@@ -6,7 +6,13 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 data class WorkflowRetryConfigurationProperties(
     val default: RetryConfig = RetryConfig(),
     val httpAction: HttpRetryConfig = HttpRetryConfig(),
-    val crudAction: RetryConfig = RetryConfig(maxAttempts = 2)
+    val crudAction: RetryConfig = RetryConfig(maxAttempts = 2),
+    val integrationSync: RetryConfig = RetryConfig(
+        maxAttempts = 3,
+        initialIntervalSeconds = 30,
+        backoffCoefficient = 2.0,
+        maxIntervalSeconds = 120
+    )
 )
 
 data class RetryConfig(

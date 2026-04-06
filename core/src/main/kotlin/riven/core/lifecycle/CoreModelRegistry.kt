@@ -1,6 +1,8 @@
 package riven.core.lifecycle
 
 import riven.core.enums.catalog.ManifestType
+import riven.core.enums.entity.LifecycleDomain
+import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.models.catalog.NormalizedRelationship
 import riven.core.models.catalog.ResolvedManifest
 
@@ -38,6 +40,21 @@ object CoreModelRegistry {
     /** Find a model definition by entity type key within a specific model set. */
     fun findModel(manifestKey: String, modelKey: String): CoreModelDefinition? {
         return findModelSet(manifestKey)?.models?.find { it.key == modelKey }
+    }
+
+    /**
+     * Find all core models whose projectionAccepts includes a rule matching the given (domain, group) pair.
+     * Returns the matching models along with the specific accept rule that matched.
+     */
+    fun findModelsAccepting(
+        domain: LifecycleDomain,
+        group: SemanticGroup,
+    ): List<Pair<CoreModelDefinition, ProjectionAcceptRule>> {
+        return allModels.flatMap { model ->
+            model.projectionAccepts
+                .filter { rule -> rule.domain == domain && rule.semanticGroup == group }
+                .map { rule -> model to rule }
+        }
     }
 
     // ------ Validation (runs automatically on first access to allModels) ------

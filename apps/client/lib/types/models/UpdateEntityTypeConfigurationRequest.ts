@@ -48,6 +48,13 @@ import {
     IconToJSON,
     IconToJSONTyped,
 } from './Icon';
+import type { LifecycleDomain } from './LifecycleDomain';
+import {
+    LifecycleDomainFromJSON,
+    LifecycleDomainFromJSONTyped,
+    LifecycleDomainToJSON,
+    LifecycleDomainToJSONTyped,
+} from './LifecycleDomain';
 
 /**
  * 
@@ -79,6 +86,12 @@ export interface UpdateEntityTypeConfigurationRequest {
      * @memberof UpdateEntityTypeConfigurationRequest
      */
     semanticGroup?: SemanticGroup;
+    /**
+     * 
+     * @type {LifecycleDomain}
+     * @memberof UpdateEntityTypeConfigurationRequest
+     */
+    lifecycleDomain?: LifecycleDomain;
     /**
      * 
      * @type {ColumnConfiguration}
@@ -119,6 +132,7 @@ export function UpdateEntityTypeConfigurationRequestFromJSONTyped(json: any, ign
         'name': DisplayNameFromJSON(json['name']),
         'icon': IconFromJSON(json['icon']),
         'semanticGroup': json['semanticGroup'] == null ? undefined : SemanticGroupFromJSON(json['semanticGroup']),
+        'lifecycleDomain': json['lifecycleDomain'] == null ? undefined : LifecycleDomainFromJSON(json['lifecycleDomain']),
         'columnConfiguration': json['columnConfiguration'] == null ? undefined : ColumnConfigurationFromJSON(json['columnConfiguration']),
         'semantics': json['semantics'] == null ? undefined : SaveSemanticMetadataRequestFromJSON(json['semantics']),
     };
@@ -139,6 +153,7 @@ export function UpdateEntityTypeConfigurationRequestToJSONTyped(value?: UpdateEn
         'name': DisplayNameToJSON(value['name']),
         'icon': IconToJSON(value['icon']),
         'semanticGroup': SemanticGroupToJSON(value['semanticGroup']),
+        'lifecycleDomain': LifecycleDomainToJSON(value['lifecycleDomain']),
         'columnConfiguration': ColumnConfigurationToJSON(value['columnConfiguration']),
         'semantics': SaveSemanticMetadataRequestToJSON(value['semantics']),
     };

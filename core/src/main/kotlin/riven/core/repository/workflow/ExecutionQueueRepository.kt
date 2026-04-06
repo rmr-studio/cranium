@@ -30,8 +30,9 @@ interface ExecutionQueueRepository : JpaRepository<ExecutionQueueEntity, UUID> {
      */
     @Query(
         """
-        SELECT * FROM workflow_execution_queue
+        SELECT * FROM execution_queue
         WHERE status = 'PENDING'
+        AND job_type = 'WORKFLOW_EXECUTION'
         ORDER BY created_at ASC
         LIMIT :batchSize
         FOR UPDATE SKIP LOCKED
@@ -71,8 +72,9 @@ interface ExecutionQueueRepository : JpaRepository<ExecutionQueueEntity, UUID> {
      */
     @Query(
         """
-        SELECT * FROM workflow_execution_queue
+        SELECT * FROM execution_queue
         WHERE status = 'CLAIMED'
+        AND job_type = 'WORKFLOW_EXECUTION'
         AND claimed_at < (CURRENT_TIMESTAMP - INTERVAL '1 minute' * :minutesAgo)
         FOR UPDATE SKIP LOCKED
         """,
@@ -90,4 +92,47 @@ interface ExecutionQueueRepository : JpaRepository<ExecutionQueueEntity, UUID> {
      * @return Queue item if found, null otherwise
      */
     fun findByExecutionId(executionId: UUID): ExecutionQueueEntity?
+
+    /**
+     * Claim pending IDENTITY_MATCH jobs for dispatch.
+     *
+     * Mirrors [claimPendingExecutions] but filters exclusively on IDENTITY_MATCH job type.
+     * Uses SKIP LOCKED so multiple dispatcher instances do not compete for the same rows.
+     *
+     * @param batchSize Maximum items to claim in one poll cycle.
+     * @return Claimed entities — caller must transition status to CLAIMED.
+     */
+    @Query(
+        """
+        SELECT * FROM execution_queue
+        WHERE status = 'PENDING'
+        AND job_type = 'IDENTITY_MATCH'
+        ORDER BY created_at ASC
+        LIMIT :batchSize
+        FOR UPDATE SKIP LOCKED
+        """,
+        nativeQuery = true
+    )
+    fun claimPendingIdentityMatchJobs(@Param("batchSize") batchSize: Int): List<ExecutionQueueEntity>
+
+    /**
+     * Find stale CLAIMED IDENTITY_MATCH items for recovery.
+     *
+     * Items that were claimed but not dispatched within the timeout window are candidates
+     * for being reset to PENDING. Mirrors [findStaleClaimedItems] for IDENTITY_MATCH jobs.
+     *
+     * @param minutesAgo Threshold in minutes — items claimed more than this many minutes ago.
+     * @return Stale claimed items eligible for retry.
+     */
+    @Query(
+        """
+        SELECT * FROM execution_queue
+        WHERE status = 'CLAIMED'
+        AND job_type = 'IDENTITY_MATCH'
+        AND claimed_at < (CURRENT_TIMESTAMP - INTERVAL '1 minute' * :minutesAgo)
+        FOR UPDATE SKIP LOCKED
+        """,
+        nativeQuery = true
+    )
+    fun findStaleClaimedIdentityMatchItems(@Param("minutesAgo") minutesAgo: Int): List<ExecutionQueueEntity>
 }

@@ -12,7 +12,7 @@ Domains:
   - "[[Entities]]"
 blocked by:
   - "[[Lifecycle Domain Model]]"
-  - "[[Three-Tier Entity Model and Lifecycle Spine]]"
+  - "[[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]]"
   - "[[Data Chunking and Enrichment Pipeline]]"
 ---
 # Feature: Lifecycle Operations Dashboard

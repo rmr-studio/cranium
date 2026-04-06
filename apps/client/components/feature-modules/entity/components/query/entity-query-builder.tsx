@@ -1,14 +1,14 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
-import type { EntityType } from '@/lib/types/entity';
-import type { QueryFilter } from '@/lib/types/models/QueryFilter';
+import type { EntityType, QueryFilter } from '@/lib/types/entity';
 import { Button } from '@riven/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
 import { cn } from '@riven/utils';
 import { Filter } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { QueryBuilderPanel } from './query-builder-panel';
+import { debounce } from '@/lib/util/debounce.util';
 import {
   type FilterGroupState,
   countActiveConditions,
@@ -47,39 +47,45 @@ export function EntityQueryBuilder({
     value ? queryFilterToFilterGroupState(value) : createDefaultGroup(),
   );
 
-  // Sync from external value changes
-  const prevValueRef = useRef(value);
-  useEffect(() => {
-    if (value !== prevValueRef.current) {
-      prevValueRef.current = value;
-      setFilterGroup(value ? queryFilterToFilterGroupState(value) : createDefaultGroup());
-    }
-  }, [value]);
-
   const activeCount = countActiveConditions(filterGroup);
+
+  const debouncedOnChange = useMemo(
+    () =>
+      debounce((filter: QueryFilter | undefined, entityTypeId: string | undefined) => {
+        onChange(filter, entityTypeId);
+      }, 300),
+    [onChange],
+  );
+
+  // Clean up debounce timer on unmount
+  useEffect(() => {
+    return () => debouncedOnChange.cancel();
+  }, [debouncedOnChange]);
 
   const handleFilterGroupChange = useCallback(
     (group: FilterGroupState) => {
       setFilterGroup(group);
       const filter = filterGroupStateToQueryFilter(group);
-      onChange(filter, selectedEntityTypeId);
+      debouncedOnChange(filter, selectedEntityTypeId);
     },
-    [onChange, selectedEntityTypeId],
+    [debouncedOnChange, selectedEntityTypeId],
   );
 
   const handleEntityTypeChange = useCallback(
     (id: string) => {
+      debouncedOnChange.cancel();
       setSelectedEntityTypeId(id);
       setFilterGroup(createDefaultGroup());
       onChange(undefined, id);
     },
-    [onChange],
+    [debouncedOnChange, onChange],
   );
 
   const handleClearAll = useCallback(() => {
+    debouncedOnChange.cancel();
     setFilterGroup(createDefaultGroup());
     onChange(undefined, selectedEntityTypeId);
-  }, [onChange, selectedEntityTypeId]);
+  }, [debouncedOnChange, onChange, selectedEntityTypeId]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

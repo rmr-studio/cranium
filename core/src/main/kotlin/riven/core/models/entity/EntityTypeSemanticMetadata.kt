@@ -2,6 +2,7 @@ package riven.core.models.entity
 
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
+import riven.core.enums.identity.MatchSignalType
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -17,6 +18,7 @@ data class EntityTypeSemanticMetadata(
     val targetId: UUID,
     val definition: String?,
     val classification: SemanticAttributeClassification?,
+    val signalType: MatchSignalType? = null,
     val tags: List<String>,
     val createdAt: ZonedDateTime?,
     val updatedAt: ZonedDateTime?,

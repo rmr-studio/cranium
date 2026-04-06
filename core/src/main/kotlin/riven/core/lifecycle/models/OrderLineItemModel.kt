@@ -10,6 +10,7 @@ import riven.core.enums.core.DataType
 import riven.core.lifecycle.AttributeSemantics
 import riven.core.lifecycle.CoreModelAttribute
 import riven.core.lifecycle.CoreModelDefinition
+import riven.core.lifecycle.ProjectionAcceptRule
 
 /**
  * Order Line Item — an individual product entry within an order.
@@ -27,6 +28,13 @@ object OrderLineItemModel : CoreModelDefinition(
     identifierKey = "quantity",
     semanticDefinition = "An individual product entry within an order, capturing quantity, pricing, and discount for a specific product.",
     semanticTags = listOf("line-item", "transaction", "ecommerce"),
+    projectionAccepts = listOf(
+        ProjectionAcceptRule(
+            domain = LifecycleDomain.BILLING,
+            semanticGroup = SemanticGroup.TRANSACTION,
+            relationshipName = ProjectionAcceptRule.SOURCE_DATA_RELATIONSHIP,
+        ),
+    ),
     attributes = mapOf(
         "quantity" to CoreModelAttribute(
             schemaType = SchemaType.NUMBER, label = "Quantity", dataType = DataType.NUMBER,

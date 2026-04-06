@@ -120,13 +120,17 @@ function DragOverlayRow<TData>({
   table,
   activeRowId,
   actionColumnConfig,
+  getIsRowSelected,
 }: {
   table: ReturnType<typeof useReactTable<TData>>;
   activeRowId: UniqueIdentifier;
   actionColumnConfig?: ActionColumnConfig;
+  getIsRowSelected?: (rowId: string) => boolean;
 }) {
   const row = table.getRowModel().rows.find((r) => r.id === String(activeRowId));
   if (!row) return null;
+
+  const isSelected = getIsRowSelected ? getIsRowSelected(row.id) : row.getIsSelected();
 
   return (
     <table className="table-fixed border-separate border-spacing-0 opacity-60" style={{ width: table.getTotalSize() }}>
@@ -148,7 +152,7 @@ function DragOverlayRow<TData>({
                     <GripVertical className="h-4 w-4 text-muted-foreground" />
                   )}
                   {actionColumnConfig?.checkbox?.enabled !== false && (
-                    <Checkbox disabled checked={row.getIsSelected()} aria-hidden />
+                    <Checkbox disabled checked={isSelected} aria-hidden />
                   )}
                 </div>
               ) : (
@@ -356,8 +360,13 @@ export function DataTable<TData, TValue>({
         <div className="flex items-center justify-center">
           {showCheckbox && (
             <Checkbox
-              checked={table.getIsAllPageRowsSelected()}
-              onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+              checked={rowSelection?.isAllSelected ?? table.getIsAllPageRowsSelected()}
+              onCheckedChange={(value) => {
+                const intercepted = rowSelection?.onSelectAllChange?.(!!value);
+                if (!intercepted) {
+                  table.toggleAllPageRowsSelected(!!value);
+                }
+              }}
               aria-label="Select all"
               onClick={(e) => e.stopPropagation()}
             />
@@ -367,7 +376,7 @@ export function DataTable<TData, TValue>({
     };
 
     return [actionsColumn, ...columns];
-  }, [columns, enableDragDrop, isSelectionEnabled, actionColumnConfig]);
+  }, [columns, enableDragDrop, isSelectionEnabled, actionColumnConfig, rowSelection?.isAllSelected, rowSelection?.onSelectAllChange]);
 
   // ========================================================================
   // TanStack Table Configuration
@@ -805,6 +814,8 @@ export function DataTable<TData, TValue>({
             actionColumnConfig={actionColumnConfig}
             hasEndOfHeaderContent={hasEndOfHeaderContent}
             hasRowActions={hasRowActions}
+            getIsRowSelected={rowSelection?.getIsRowSelected}
+            onRowToggle={rowSelection?.onRowToggle}
           />
         </table>
 
@@ -865,6 +876,7 @@ export function DataTable<TData, TValue>({
               table={table}
               activeRowId={activeRowId}
               actionColumnConfig={actionColumnConfig}
+              getIsRowSelected={rowSelection?.getIsRowSelected}
             />
           ) : null}
         </DragOverlay>
@@ -876,7 +888,11 @@ export function DataTable<TData, TValue>({
   return (
     <div className={cn('relative min-w-0 space-y-4', className)}>
       {/* Selection Action Bar */}
-      <DataTableSelectionBar actionComponent={rowSelection?.actionComponent} />
+      <DataTableSelectionBar
+        actionComponent={rowSelection?.actionComponent}
+        externalSelectedCount={rowSelection?.selectedCount}
+        externalClearSelection={rowSelection?.onClearSelection}
+      />
 
       {/* Toolbar */}
       <DataTableToolbar search={search} filterContent={filterContent} actions={toolbarActions} />

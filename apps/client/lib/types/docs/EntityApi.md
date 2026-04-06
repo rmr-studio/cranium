@@ -6,7 +6,7 @@ All URIs are relative to *http://localhost:8081*
 |------------- | ------------- | -------------|
 | [**addRelationship**](EntityApi.md#addrelationshipoperation) | **POST** /api/v1/entity/workspace/{workspaceId}/entities/{entityId}/relationships | Add a relationship between two entities |
 | [**createEntityType**](EntityApi.md#createentitytypeoperation) | **POST** /api/v1/entity/schema/workspace/{workspaceId} | Create a new entity type |
-| [**deleteEntity**](EntityApi.md#deleteentity) | **DELETE** /api/v1/entity/workspace/{workspaceId} | Deletes an entity instance |
+| [**deleteEntities**](EntityApi.md#deleteentities) | **PUT** /api/v1/entity/workspace/{workspaceId}/delete | Bulk deletes entities by ID selection or filter-based selection |
 | [**deleteEntityTypeByKey**](EntityApi.md#deleteentitytypebykey) | **DELETE** /api/v1/entity/schema/workspace/{workspaceId}/key/{key} | Delete an entity type by key |
 | [**deleteEntityTypeDefinition**](EntityApi.md#deleteentitytypedefinition) | **DELETE** /api/v1/entity/schema/workspace/{workspaceId}/definition | Removes an attribute or relationship from an entity type |
 | [**getEntityByTypeIdForWorkspace**](EntityApi.md#getentitybytypeidforworkspace) | **GET** /api/v1/entity/workspace/{workspaceId}/type/{id} | Get all entity types for an workspace for a provided entity type |
@@ -176,13 +176,11 @@ example().catch(console.error);
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
-## deleteEntity
+## deleteEntities
 
-> DeleteEntityResponse deleteEntity(workspaceId, requestBody)
+> DeleteEntityResponse deleteEntities(workspaceId, deleteEntityRequest)
 
-Deletes an entity instance
-
-Deleted the specified entity instance within the workspace.
+Bulk deletes entities by ID selection or filter-based selection
 
 ### Example
 
@@ -191,7 +189,7 @@ import {
   Configuration,
   EntityApi,
 } from '';
-import type { DeleteEntityRequest } from '';
+import type { DeleteEntitiesRequest } from '';
 
 async function example() {
   console.log("🚀 Testing  SDK...");
@@ -204,12 +202,12 @@ async function example() {
   const body = {
     // string
     workspaceId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
-    // Array<string>
-    requestBody: ...,
-  } satisfies DeleteEntityRequest;
+    // DeleteEntityRequest
+    deleteEntityRequest: ...,
+  } satisfies DeleteEntitiesRequest;
 
   try {
-    const data = await api.deleteEntity(body);
+    const data = await api.deleteEntities(body);
     console.log(data);
   } catch (error) {
     console.error(error);
@@ -226,7 +224,7 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **workspaceId** | `string` |  | [Defaults to `undefined`] |
-| **requestBody** | `Array<string>` |  | |
+| **deleteEntityRequest** | [DeleteEntityRequest](DeleteEntityRequest.md) |  | |
 
 ### Return type
 
@@ -245,9 +243,8 @@ example().catch(console.error);
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | Entity instance deleted successfully |  -  |
-| **401** | Unauthorized access |  -  |
-| **404** | Workspace or entity not found |  -  |
+| **200** | Entities deleted successfully |  -  |
+| **400** | Invalid request |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
@@ -645,7 +642,7 @@ example().catch(console.error);
 
 Get all entity types for a workspace
 
-Retrieves all entity types associated with the specified workspace, including relationship definitions and semantic metadata bundles.
+Retrieves all entity types associated with the specified workspace, including relationship definitions and semantic metadata bundles. 
 
 ### Example
 

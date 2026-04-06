@@ -1,7 +1,7 @@
 import { EntityService } from '@/components/feature-modules/entity/service/entity.service';
 import { createEntityApi } from '@/lib/api/entity-api';
-import { EntityQueryResponse } from '@/lib/types/entity';
-import { FilterOperator } from '@/lib/types/entity';
+import { EntityQueryResponse, EntitySelectType, FilterOperator, type QueryFilter } from '@/lib/types/entity';
+import type { DeleteEntityRequest } from '@/lib/types/entity';
 import type { Session } from '@/lib/auth/auth.types';
 
 // Mock the API factory
@@ -132,6 +132,119 @@ describe('EntityService.queryEntities', () => {
     ).rejects.toMatchObject({
       status: 400,
       message: 'Invalid filter',
+    });
+  });
+});
+
+describe('EntityService.deleteEntities', () => {
+  const mockDeleteEntitiesRaw = jest.fn();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (createEntityApi as jest.Mock).mockReturnValue({
+      deleteEntitiesRaw: mockDeleteEntitiesRaw,
+    });
+  });
+
+  function mockRawDeleteResponse(data: { deletedCount: number }) {
+    mockDeleteEntitiesRaw.mockResolvedValue({
+      value: () => Promise.resolve(data),
+    });
+  }
+
+  it('sends a BY_ID request with entity IDs', async () => {
+    const request: DeleteEntityRequest = {
+      type: EntitySelectType.ById,
+      entityTypeId,
+      entityIds: ['id-1', 'id-2'],
+    };
+
+    mockRawDeleteResponse({ deletedCount: 2 });
+
+    const result = await EntityService.deleteEntities(mockSession, workspaceId, request);
+
+    expect(mockDeleteEntitiesRaw).toHaveBeenCalledWith(
+      {
+        workspaceId,
+        deleteEntityRequest: { ...request, filter: undefined },
+      },
+      undefined, // no initOverrides when no filter
+    );
+    expect(result.deletedCount).toBe(2);
+  });
+
+  it('sends an ALL request with filter and exclusions', async () => {
+    const filter: QueryFilter = {
+      type: 'And',
+      conditions: [],
+    } as QueryFilter;
+
+    const request: DeleteEntityRequest = {
+      type: EntitySelectType.All,
+      entityTypeId,
+      filter,
+      excludeIds: ['exclude-1'],
+    };
+
+    mockRawDeleteResponse({ deletedCount: 99 });
+
+    const result = await EntityService.deleteEntities(mockSession, workspaceId, request);
+
+    expect(mockDeleteEntitiesRaw).toHaveBeenCalledWith(
+      {
+        workspaceId,
+        deleteEntityRequest: { ...request, filter: undefined },
+      },
+      expect.any(Function), // initOverrides function when filter present
+    );
+    expect(result.deletedCount).toBe(99);
+  });
+
+  it('validates session before calling API', async () => {
+    const request: DeleteEntityRequest = {
+      type: EntitySelectType.ById,
+      entityTypeId,
+      entityIds: ['id-1'],
+    };
+
+    await expect(
+      EntityService.deleteEntities(null, workspaceId, request),
+    ).rejects.toMatchObject({ error: 'NO_SESSION' });
+  });
+
+  it('validates workspaceId is a UUID', async () => {
+    const request: DeleteEntityRequest = {
+      type: EntitySelectType.ById,
+      entityTypeId,
+      entityIds: ['id-1'],
+    };
+
+    await expect(
+      EntityService.deleteEntities(mockSession, 'not-a-uuid', request),
+    ).rejects.toMatchObject({ error: 'INVALID_ID' });
+  });
+
+  it('normalizes API errors', async () => {
+    const { ResponseError } = await import('@/lib/types');
+    const mockResponse = {
+      status: 400,
+      statusText: 'Bad Request',
+      json: () => Promise.resolve({ statusCode: 400, error: 'BAD_REQUEST', message: 'Invalid request' }),
+    } as Response;
+    const apiError = new ResponseError(mockResponse, 'Bad Request');
+    mockDeleteEntitiesRaw.mockRejectedValue(apiError);
+
+    const request: DeleteEntityRequest = {
+      type: EntitySelectType.ById,
+      entityTypeId,
+      entityIds: ['id-1'],
+    };
+
+    await expect(
+      EntityService.deleteEntities(mockSession, workspaceId, request),
+    ).rejects.toMatchObject({
+      status: 400,
+      message: 'Invalid request',
     });
   });
 });

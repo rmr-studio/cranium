@@ -1,0 +1,149 @@
+{
+  "manifestVersion": "1.0",
+  "key": "zendesk",
+  "name": "Zendesk",
+  "description": "Zendesk support integration providing contacts and tickets.",
+  "entityTypes": [
+    {
+      "key": "zendesk-contact",
+      "name": "Zendesk Contact",
+      "description": "A contact record synced from Zendesk.",
+      "displayName": {
+        "singular": "Zendesk Contact",
+        "plural": "Zendesk Contacts"
+      },
+      "icon": { "type": "USER", "colour": "GREEN" },
+      "semanticGroup": "CUSTOMER",
+      "identifierKey": "email",
+      "readonly": true,
+      "attributes": {
+        "email": {
+          "key": "EMAIL",
+          "label": "Email",
+          "type": "string",
+          "format": "email",
+          "required": true,
+          "unique": true,
+          "protected": true,
+          "semantics": {
+            "definition": "Primary email address from Zendesk.",
+            "classification": "IDENTIFIER",
+            "tags": ["contact", "zendesk"]
+          }
+        },
+        "name": {
+          "key": "TEXT",
+          "label": "Name",
+          "type": "string",
+          "protected": true,
+          "semantics": {
+            "definition": "Contact name from Zendesk.",
+            "classification": "IDENTIFIER",
+            "tags": ["name", "zendesk"]
+          }
+        }
+      },
+      "semantics": {
+        "definition": "A contact record synced from Zendesk. Read-only.",
+        "tags": ["zendesk", "support", "sync"]
+      }
+    },
+    {
+      "key": "zendesk-ticket",
+      "name": "Zendesk Ticket",
+      "description": "A support ticket synced from Zendesk.",
+      "displayName": {
+        "singular": "Zendesk Ticket",
+        "plural": "Zendesk Tickets"
+      },
+      "icon": { "type": "TICKET", "colour": "GREEN" },
+      "semanticGroup": "SUPPORT",
+      "lifecycleDomain": "SUPPORT",
+      "identifierKey": "subject",
+      "readonly": true,
+      "attributes": {
+        "subject": {
+          "key": "TEXT",
+          "label": "Subject",
+          "type": "string",
+          "required": true,
+          "protected": true,
+          "semantics": {
+            "definition": "Ticket subject line from Zendesk.",
+            "classification": "IDENTIFIER",
+            "tags": ["subject", "zendesk"]
+          }
+        },
+        "description": {
+          "key": "TEXT",
+          "label": "Description",
+          "type": "string",
+          "protected": true,
+          "semantics": {
+            "definition": "Ticket description from Zendesk.",
+            "classification": "FREETEXT",
+            "tags": ["detail", "zendesk"]
+          }
+        },
+        "status": {
+          "key": "SELECT",
+          "label": "Status",
+          "type": "string",
+          "protected": true,
+          "semantics": {
+            "definition": "Current ticket status from Zendesk.",
+            "classification": "CATEGORICAL",
+            "tags": ["status", "zendesk"]
+          }
+        },
+        "priority": {
+          "key": "SELECT",
+          "label": "Priority",
+          "type": "string",
+          "protected": true,
+          "semantics": {
+            "definition": "Ticket priority level from Zendesk.",
+            "classification": "CATEGORICAL",
+            "tags": ["priority", "zendesk"]
+          }
+        }
+      },
+      "semantics": {
+        "definition": "A support ticket synced from Zendesk. Read-only.",
+        "tags": ["zendesk", "support", "sync"]
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "key": "zendesk-contact-tickets",
+      "sourceEntityTypeKey": "zendesk-contact",
+      "name": "Zendesk Tickets",
+      "cardinality": "ONE_TO_MANY",
+      "targetEntityTypeKey": "zendesk-ticket",
+      "protected": true,
+      "semantics": {
+        "definition": "Links a Zendesk contact to their support tickets.",
+        "tags": ["zendesk", "support"]
+      }
+    }
+  ],
+  "fieldMappings": [
+    {
+      "entityTypeKey": "zendesk-contact",
+      "mappings": {
+        "email": { "source": "email", "transform": { "type": "direct" } },
+        "name": { "source": "name", "transform": { "type": "direct" } }
+      }
+    },
+    {
+      "entityTypeKey": "zendesk-ticket",
+      "mappings": {
+        "subject": { "source": "subject", "transform": { "type": "direct" } },
+        "description": { "source": "description", "transform": { "type": "direct" } },
+        "status": { "source": "status", "transform": { "type": "direct" } },
+        "priority": { "source": "priority", "transform": { "type": "direct" } }
+      }
+    }
+  ]
+}

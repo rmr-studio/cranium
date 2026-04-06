@@ -18,6 +18,8 @@ import riven.core.models.workflow.node.config.WorkflowNodeConfigField
 import riven.core.models.workflow.node.config.WorkflowNodeTypeMetadata
 import riven.core.models.workflow.node.config.validation.ConfigValidationResult
 import riven.core.models.workflow.node.service
+import riven.core.enums.entity.EntitySelectType
+import riven.core.models.request.entity.DeleteEntityRequest
 import riven.core.service.entity.EntityService
 import riven.core.service.workflow.state.WorkflowNodeConfigValidationService
 import java.util.*
@@ -155,13 +157,11 @@ data class WorkflowDeleteEntityActionConfig(
         // Execute deletion via EntityService
         val result = entityService.deleteEntities(
             dataStore.metadata.workspaceId,
-            listOf(resolvedEntityId)
+            DeleteEntityRequest(
+                type = EntitySelectType.BY_ID,
+                entityIds = listOf(resolvedEntityId),
+            )
         )
-
-        // Check for errors
-        if (result.error != null) {
-            throw IllegalStateException("Failed to delete entity: ${result.error}")
-        }
 
         // Return typed output
         return DeleteEntityOutput(

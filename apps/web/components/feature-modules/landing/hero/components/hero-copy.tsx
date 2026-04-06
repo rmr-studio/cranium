@@ -34,7 +34,7 @@ export const HeroCopy = () => {
           className="mt-8 w-auto"
           onClick={(e) => {
             e.preventDefault();
-          scrollToSection('waitlist');
+            scrollToSection('waitlist');
           }}
         >
           <CtaButton className="paper-lite mx-auto justify-center border bg-background p-6 text-primary hover:bg-accent/40 md:w-64">

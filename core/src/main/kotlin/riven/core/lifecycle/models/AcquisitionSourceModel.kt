@@ -11,6 +11,7 @@ import riven.core.lifecycle.AttributeOptions
 import riven.core.lifecycle.AttributeSemantics
 import riven.core.lifecycle.CoreModelAttribute
 import riven.core.lifecycle.CoreModelDefinition
+import riven.core.lifecycle.ProjectionAcceptRule
 
 /**
  * Acquisition Source — a marketing channel or campaign that brings users to the product.
@@ -26,6 +27,13 @@ object AcquisitionSourceModel : CoreModelDefinition(
     identifierKey = "name",
     semanticDefinition = "A marketing channel or campaign that brings users to the product. Used for attribution and channel quality analysis.",
     semanticTags = listOf("marketing", "acquisition", "attribution"),
+    projectionAccepts = listOf(
+        ProjectionAcceptRule(
+            domain = LifecycleDomain.ACQUISITION,
+            semanticGroup = SemanticGroup.OPERATIONAL,
+            relationshipName = ProjectionAcceptRule.SOURCE_DATA_RELATIONSHIP,
+        ),
+    ),
     attributes = mapOf(
         "name" to CoreModelAttribute(
             schemaType = SchemaType.TEXT, label = "Name", dataType = DataType.STRING,

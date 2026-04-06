@@ -2,6 +2,7 @@
 
 import { UserProfileDropdown } from '@/components/feature-modules/user/components/avatar-dropdown';
 import { useProfile } from '@/components/feature-modules/user/hooks/use-profile';
+import { ConnectionStatus } from '@/components/feature-modules/workspace/components/connection-status';
 import { useIconRail } from '@/components/ui/sidebar/icon-rail-context';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@riven/ui/button';
@@ -43,11 +44,10 @@ export const Navbar = () => {
           </motion.div>
         )}
       </AnimatePresence>
-      <div className="mr-2 flex w-auto grow justify-end">
-        <NavbarUserProfile />
-      </div>
-      <div className="flex items-center">
+      <div className="flex w-auto grow items-center justify-end space-x-2">
+        <ConnectionStatus />
         <ThemeToggle />
+        <NavbarUserProfile />
       </div>
     </nav>
   );
@@ -55,7 +55,7 @@ export const Navbar = () => {
 
 export const NavbarUserProfile: FC = () => {
   const { isLoadingAuth, isLoading, data: user } = useProfile();
-  if (isLoadingAuth || isLoading) return <Skeleton className="size-8 rounded-md" />;
+  if (isLoadingAuth || isLoading) return <Skeleton className="size-9 rounded-sm" />;
   if (!user)
     return (
       <div className="flex">

@@ -6,7 +6,6 @@
 
 Name | Type
 ------------ | -------------
-`error` | string
 `deletedCount` | number
 `updatedEntities` | { [key: string]: Array&lt;Entity&gt;; }
 
@@ -17,7 +16,6 @@ import type { DeleteEntityResponse } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "error": null,
   "deletedCount": null,
   "updatedEntities": null,
 } satisfies DeleteEntityResponse

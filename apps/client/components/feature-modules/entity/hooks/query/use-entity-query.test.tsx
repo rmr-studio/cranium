@@ -1,9 +1,14 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import {
+  EntityQueryResponse,
+  FilterOperator,
+  QueryFilter,
+  QueryFilterType,
+} from '@/lib/types/entity';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { renderHook, waitFor } from '@testing-library/react';
 import { ReactNode } from 'react';
-import { useEntityQuery, ENTITY_PAGE_SIZE, getNextPageParam } from './use-entity-query';
 import { EntityService } from '../../service/entity.service';
-import { EntityQueryResponse } from '@/lib/types/entity';
+import { ENTITY_PAGE_SIZE, getNextPageParam, useEntityQuery } from './use-entity-query';
 
 // Mock dependencies
 jest.mock('../../service/entity.service');
@@ -20,9 +25,7 @@ function createWrapper() {
     defaultOptions: { queries: { retry: false, gcTime: 0 } },
   });
   return function Wrapper({ children }: { children: ReactNode }) {
-    return (
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    );
+    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
   };
 }
 
@@ -69,10 +72,9 @@ describe('useEntityQuery', () => {
   it('fetches first page on mount', async () => {
     mockQueryEntities.mockResolvedValue(mockPage([{ id: 'e1' }], false, 0));
 
-    const { result } = renderHook(
-      () => useEntityQuery({ workspaceId, entityTypeId }),
-      { wrapper: createWrapper() },
-    );
+    const { result } = renderHook(() => useEntityQuery({ workspaceId, entityTypeId }), {
+      wrapper: createWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -82,24 +84,23 @@ describe('useEntityQuery', () => {
       entityTypeId,
       { limit: ENTITY_PAGE_SIZE, offset: 0 },
       undefined,
+      true, // First call always includes count
     );
     expect(result.current.data?.pages).toHaveLength(1);
   });
 
   it('does not fetch when workspaceId is undefined', () => {
-    renderHook(
-      () => useEntityQuery({ workspaceId: undefined, entityTypeId }),
-      { wrapper: createWrapper() },
-    );
+    renderHook(() => useEntityQuery({ workspaceId: undefined, entityTypeId }), {
+      wrapper: createWrapper(),
+    });
 
     expect(mockQueryEntities).not.toHaveBeenCalled();
   });
 
   it('does not fetch when entityTypeId is undefined', () => {
-    renderHook(
-      () => useEntityQuery({ workspaceId, entityTypeId: undefined }),
-      { wrapper: createWrapper() },
-    );
+    renderHook(() => useEntityQuery({ workspaceId, entityTypeId: undefined }), {
+      wrapper: createWrapper(),
+    });
 
     expect(mockQueryEntities).not.toHaveBeenCalled();
   });
@@ -123,35 +124,34 @@ describe('useEntityQuery', () => {
 
     const calledFilter = mockQueryEntities.mock.calls[0][4];
     expect(calledFilter).toMatchObject({
-      type: 'OR',
+      type: QueryFilterType.Or,
       conditions: expect.arrayContaining([
         expect.objectContaining({
-          type: 'ATTRIBUTE',
+          type: QueryFilterType.Attribute,
           attributeId: 'attr-name',
-          operator: 'CONTAINS',
+          operator: FilterOperator.Contains,
         }),
         expect.objectContaining({
-          type: 'ATTRIBUTE',
+          type: QueryFilterType.Attribute,
           attributeId: 'attr-title',
-          operator: 'CONTAINS',
+          operator: FilterOperator.Contains,
         }),
       ]),
     });
   });
 
   it('passes queryFilter when provided', async () => {
-    const queryFilter = {
-      type: 'Attribute' as const,
+    const queryFilter: QueryFilter = {
+      type: QueryFilterType.Attribute,
       attributeId: 'attr-1',
-      operator: 'EQUALS' as any,
+      operator: FilterOperator.Equals,
       value: { kind: 'Literal' as const, value: 'test' },
     };
     mockQueryEntities.mockResolvedValue(mockPage([], false, 0));
 
-    renderHook(
-      () => useEntityQuery({ workspaceId, entityTypeId, queryFilter }),
-      { wrapper: createWrapper() },
-    );
+    renderHook(() => useEntityQuery({ workspaceId, entityTypeId, queryFilter }), {
+      wrapper: createWrapper(),
+    });
 
     await waitFor(() => expect(mockQueryEntities).toHaveBeenCalled());
 
@@ -160,10 +160,10 @@ describe('useEntityQuery', () => {
   });
 
   it('combines search and queryFilter with AND', async () => {
-    const queryFilter = {
-      type: 'Attribute' as const,
+    const queryFilter: QueryFilter = {
+      type: QueryFilterType.Attribute,
       attributeId: 'attr-1',
-      operator: 'EQUALS' as any,
+      operator: FilterOperator.Equals,
       value: { kind: 'Literal' as const, value: 'test' },
     };
     mockQueryEntities.mockResolvedValue(mockPage([], false, 0));
@@ -184,9 +184,9 @@ describe('useEntityQuery', () => {
 
     const calledFilter = mockQueryEntities.mock.calls[0][4];
     expect(calledFilter).toMatchObject({
-      type: 'AND',
+      type: QueryFilterType.And,
       conditions: expect.arrayContaining([
-        expect.objectContaining({ type: 'ATTRIBUTE' }),
+        expect.objectContaining({ type: QueryFilterType.Attribute }),
         queryFilter,
       ]),
     });

@@ -5,6 +5,7 @@ import { DashboardContent } from '@/components/ui/sidebar/dashboard-content';
 import { IconRail } from '@/components/ui/sidebar/icon-rail';
 import { IconRailProvider } from '@/components/ui/sidebar/icon-rail-context';
 import { SubPanel } from '@/components/ui/sidebar/sub-panel';
+import { WebSocketSubscriptionManager } from '@/components/feature-modules/workspace/components/websocket-subscription-manager';
 import type { ChildNodeProps } from '@riven/utils';
 import { FC } from 'react';
 
@@ -13,6 +14,7 @@ const layout: FC<ChildNodeProps> = ({ children }) => {
     <AuthGuard>
       <OnboardWrapper>
         <IconRailProvider>
+          <WebSocketSubscriptionManager />
           <div className="flex h-screen w-full bg-primary py-0.5 dark:bg-secondary">
             <IconRail />
             <SubPanel />

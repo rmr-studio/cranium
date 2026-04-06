@@ -11,6 +11,7 @@ import riven.core.lifecycle.AttributeOptions
 import riven.core.lifecycle.AttributeSemantics
 import riven.core.lifecycle.CoreModelAttribute
 import riven.core.lifecycle.CoreModelDefinition
+import riven.core.lifecycle.ProjectionAcceptRule
 import riven.core.lifecycle.models.base.BillingEventBase
 
 /**
@@ -28,6 +29,13 @@ object SaasBillingEventModel : CoreModelDefinition(
     identifierKey = "description",
     semanticDefinition = "A financial event in the SaaS subscription lifecycle — charges, refunds, credits, trial events, or adjustments.",
     semanticTags = listOf("billing", "finance", "revenue", "subscription"),
+    projectionAccepts = listOf(
+        ProjectionAcceptRule(
+            domain = LifecycleDomain.BILLING,
+            semanticGroup = SemanticGroup.FINANCIAL,
+            relationshipName = ProjectionAcceptRule.SOURCE_DATA_RELATIONSHIP,
+        ),
+    ),
     attributes = BillingEventBase.attributes + mapOf(
         "type" to CoreModelAttribute(
             schemaType = SchemaType.SELECT, label = "Type", dataType = DataType.STRING,

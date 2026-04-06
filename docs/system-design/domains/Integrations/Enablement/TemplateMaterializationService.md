@@ -32,6 +32,8 @@ Creates workspace-scoped entity types and relationships from global catalog defi
 - Initialize ID sequences for attributes with `SchemaType.ID`
 - Build column configurations from catalog column definitions or schema property ordering
 - Resolve catalog identifier keys to deterministic UUIDs
+- Install projection rules linking integration entity types to core lifecycle entity types based on core model `projectionAccepts` declarations
+- Create "source-data" relationship definitions for projection links (MANY_TO_ONE, protected)
 
 ---
 
@@ -49,6 +51,8 @@ Creates workspace-scoped entity types and relationships from global catalog defi
 - [[EntityTypeSequenceService]] — Initializes ID sequences for `SchemaType.ID` attributes
 - `ObjectMapper` — JSON processing (injected but used for potential schema transformations)
 - `KLogger` — Structured logging
+- [[ProjectionRuleRepository]] — Persistence and idempotency checks for projection rules
+- [[CoreModelRegistry]] — Lookups core models accepting projections for a given (LifecycleDomain, SemanticGroup) pair
 
 ## Used By
 
@@ -139,6 +143,19 @@ Every materialized entity type receives a fallback CONNECTED_ENTITIES relationsh
 
 Schema attributes with `key = SchemaType.ID` require an auto-incrementing sequence. During initialization, the service iterates all schema properties and calls `sequenceService.initializeSequence(entityTypeId, attributeId)` for each ID-type attribute.
 
+### Projection rule installation
+
+After entity types and relationships are materialized, the service installs projection rules linking integration entity types to core lifecycle entity types:
+
+1. Fetches all TEMPLATE-sourced entity types in the workspace (these are the core lifecycle types)
+2. For each catalog entity type being materialized, looks up core models via `CoreModelRegistry.findModelsAccepting(catalogType.lifecycleDomain, catalogType.semanticGroup)`
+3. For each match, calls `installSingleProjectionRule()`:
+   - Checks if a rule already exists for this (workspace, source, target) triple — skips if so (idempotent)
+   - Finds or creates a "source-data" relationship definition (MANY_TO_ONE, protected) linking source → target
+   - Saves a `ProjectionRuleEntity` with the relationship definition ID and autoCreate flag from the accept rule
+
+The relationship definition created has `protected = true` and cardinality `MANY_TO_ONE` (many integration entities can project into one core entity). The inverse name mirrors the relationship name.
+
 ---
 
 ## Public Methods
@@ -151,6 +168,12 @@ Materializes all entity types and relationships for an integration into a worksp
 
 **Throws:** `NotFoundException` if the integration manifest does not exist for the given slug.
 
+**Internal methods (not public, but architecturally significant):**
+
+- `installProjectionRules(workspaceId, catalogEntityTypes, keyToIdMap)` — Iterates catalog entity types, matches against core model accept rules, installs projection rules
+- `installSingleProjectionRule(workspaceId, sourceEntityTypeId, targetEntityTypeId, relationshipName, autoCreate)` — Idempotent rule + relationship creation
+- `findOrCreateProjectionRelationship(workspaceId, sourceEntityTypeId, targetEntityTypeId, relationshipName)` — Finds existing or creates new "source-data" relationship definition
+
 ---
 
 ## Gotchas
@@ -162,6 +185,8 @@ Materializes all entity types and relationships for an integration into a worksp
 - **Soft-delete bypass queries.** The `findSoftDeletedByWorkspaceIdAndKeyIn()` and `findSoftDeletedByWorkspaceIdAndSourceEntityTypeIdAndName()` repository methods use custom queries to bypass the `@SQLRestriction("deleted = false")` filter. These are required for the restore-on-reconnect flow.
 - **Unresolvable target rules are silently skipped.** If a catalog relationship target rule references an entity type key that is not in the `keyToIdMap` (e.g., the target type belongs to a different integration), the rule is skipped with a warning log rather than failing the entire materialization.
 - **Random UUID fallback for missing identifier key.** If a catalog entity type has no `identifierKey`, a random UUID is used. This means the identifier key will differ across reconnections for that type, which may affect entity identity resolution.
+- **Projection rules require TEMPLATE core types.** Rule installation queries for `sourceType = TEMPLATE` entity types in the workspace. If core models haven't been installed yet (via catalog), no rules will be created. This is handled gracefully — an empty `coreEntityTypes` map means no rules.
+- **Relationship definition reuse.** `findOrCreateProjectionRelationship` checks for an existing relationship by (workspace, source, name) before creating. This means re-running materialization won't create duplicate relationships.
 
 ---
 
@@ -188,3 +213,9 @@ Materializes all entity types and relationships for an integration into a worksp
 
 - Added `integrationDefinitionId` parameter to `materializeIntegrationTemplates()` — sets `sourceIntegrationId` on materialized entity types for the integration dedup index
 - Updated callers: now called by [[NangoWebhookService]] (auth webhook) and [[IntegrationConnectionService]] (status transition) instead of [[IntegrationEnablementService]]
+
+### 2026-03-29
+
+- Added projection rule installation during materialization — installs `ProjectionRuleEntity` rows linking integration entity types to core lifecycle types based on `CoreModelRegistry.findModelsAccepting()` routing
+- New dependency on `ProjectionRuleRepository` and `CoreModelRegistry`
+- Creates "source-data" relationship definitions (MANY_TO_ONE, protected) for each projection link

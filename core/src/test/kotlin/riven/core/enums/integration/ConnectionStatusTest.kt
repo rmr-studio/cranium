@@ -127,8 +127,10 @@ class ConnectionStatusTest {
     }
 
     @Test
-    fun `DEGRADED cannot transition to SYNCING`() {
-        assertFalse(ConnectionStatus.DEGRADED.canTransitionTo(ConnectionStatus.SYNCING))
+    fun `DEGRADED can transition to SYNCING`() {
+        // Recovery path: a DEGRADED connection re-enters SYNCING when the next sync cycle begins.
+        // Health evaluation will then set the correct result status (HEALTHY/DEGRADED/FAILED).
+        assertTrue(ConnectionStatus.DEGRADED.canTransitionTo(ConnectionStatus.SYNCING))
     }
 
     // ========== STALE Transitions ==========
@@ -208,8 +210,10 @@ class ConnectionStatusTest {
     }
 
     @Test
-    fun `FAILED cannot transition to SYNCING`() {
-        assertFalse(ConnectionStatus.FAILED.canTransitionTo(ConnectionStatus.SYNCING))
+    fun `FAILED can transition to SYNCING`() {
+        // Recovery path: a FAILED connection can re-enter SYNCING when a new sync cycle begins.
+        // This allows failed connections to self-heal once the underlying issue is resolved.
+        assertTrue(ConnectionStatus.FAILED.canTransitionTo(ConnectionStatus.SYNCING))
     }
 
     @Test

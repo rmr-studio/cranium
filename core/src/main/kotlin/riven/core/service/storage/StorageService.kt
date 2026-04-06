@@ -132,6 +132,46 @@ class StorageService(
         return storageKey
     }
 
+    // ------ Avatar ------
+
+    /**
+     * Upload a new workspace avatar and clean up the previous one if it changed.
+     *
+     * Uses `uploadFileInternal` to bypass workspace @PreAuthorize — the caller
+     * is responsible for workspace access control.
+     *
+     * @return the storage key of the newly uploaded avatar
+     */
+    fun updateWorkspaceAvatar(workspaceId: UUID, file: MultipartFile, previousAvatarKey: String?): String {
+        val response = uploadFileInternal(workspaceId, StorageDomain.AVATAR, file)
+        cleanupPreviousAvatar(previousAvatarKey, response.file.storageKey)
+        return response.file.storageKey
+    }
+
+    /**
+     * Upload a new user avatar and clean up the previous one if it changed.
+     *
+     * @return the storage key of the newly uploaded avatar
+     */
+    fun updateUserAvatar(userId: UUID, file: MultipartFile, previousAvatarKey: String?): String {
+        val newKey = uploadUserFile(userId, StorageDomain.AVATAR, file)
+        cleanupPreviousAvatar(previousAvatarKey, newKey)
+        return newKey
+    }
+
+    /**
+     * Delete a previous avatar from storage if it exists.
+     */
+    fun removeAvatar(previousAvatarKey: String?) {
+        if (previousAvatarKey != null) deleteByStorageKey(previousAvatarKey)
+    }
+
+    private fun cleanupPreviousAvatar(previousKey: String?, newKey: String?) {
+        if (previousKey != null && previousKey != newKey) {
+            deleteByStorageKey(previousKey)
+        }
+    }
+
     // ------ Presigned Upload ------
 
     /**

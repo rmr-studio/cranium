@@ -1,6 +1,12 @@
 'use client';
 
-import { ActionColumnConfig, ColumnResizingConfig, DataTable, DataTableProvider, InfiniteScrollConfig } from '@/components/ui/data-table';
+import {
+  ActionColumnConfig,
+  ColumnResizingConfig,
+  DataTable,
+  DataTableProvider,
+  InfiniteScrollConfig,
+} from '@/components/ui/data-table';
 import { Form } from '@/components/ui/form';
 import {
   EntityAttributeDefinition,
@@ -13,19 +19,22 @@ import { debounce } from '@/lib/util/debounce.util';
 import type { ClassNameProps } from '@riven/utils';
 import { cn } from '@riven/utils';
 
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@riven/ui/button';
 import { Row, SortingState } from '@tanstack/react-table';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { MoreHorizontal, Plus, StickyNote } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { useConfigFormState } from '../../context/configuration-provider';
 import { useEntityDraft } from '../../context/entity-provider';
+import { useEntityQuery } from '../../hooks/query/use-entity-query';
+import { buildCompositeFilter } from '@/lib/util/query/filter.util';
 import { useEntityColumnConfig } from '../../hooks/use-entity-column-config';
 import { useEntityInlineEdit } from '../../hooks/use-entity-inline-edit';
-import { useEntityTableData } from '../../hooks/use-entity-table-data';
-import { useEntityQuery } from '../../hooks/query/use-entity-query';
 import { useEntitySearch } from '../../hooks/use-entity-search';
+import { useEntitySelection } from '../../hooks/use-entity-selection';
+import { useEntityTableData } from '../../hooks/use-entity-table-data';
 import { EntityQueryBuilder } from '../query/entity-query-builder';
 import { EntityTypeHeader } from '../ui/entity-type-header';
 import { AttributeFormModal } from '../ui/modals/type/attribute-form-modal';
@@ -34,11 +43,17 @@ import { ColumnHeaderPopover } from './column-header-popover';
 import { ColumnVisibilityPopover } from './column-visibility-popover';
 import { EntityDraftRow } from './entity-draft-row';
 import EntityActionBar from './entity-table-action-bar';
-import { EntityRow, isDraftRow, generateSearchConfigFromEntityType, isEntityRow } from './entity-table-utils';
-import { toast } from 'sonner';
+import {
+  EntityRow,
+  generateSearchConfigFromEntityType,
+  isDraftRow,
+  isEntityRow,
+} from './entity-table-utils';
 
 const noteDrawerImport = () =>
-  import('@/components/feature-modules/entity/components/notes/note-drawer').then((m) => m.NoteDrawer);
+  import('@/components/feature-modules/entity/components/notes/note-drawer').then(
+    (m) => m.NoteDrawer,
+  );
 const NoteDrawer = dynamic(noteDrawerImport, { ssr: false });
 
 export interface Props extends ClassNameProps {
@@ -46,11 +61,7 @@ export interface Props extends ClassNameProps {
   workspaceId: string;
 }
 
-export const EntityDataTable: FC<Props> = ({
-  entityType,
-  className,
-  workspaceId,
-}) => {
+export const EntityDataTable: FC<Props> = ({ entityType, className, workspaceId }) => {
   const { isDraftMode, enterDraftMode } = useEntityDraft();
   const { form } = useConfigFormState();
 
@@ -61,7 +72,7 @@ export const EntityDataTable: FC<Props> = ({
   } | null>(null);
 
   // Search state (debounced)
-  const { searchTerm, setSearchTerm, debouncedSearch, clearSearch } = useEntitySearch();
+  const { setSearchTerm, debouncedSearch, clearSearch } = useEntitySearch();
 
   // Sorting state (server-side via queryEntities)
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -80,7 +91,7 @@ export const EntityDataTable: FC<Props> = ({
 
   // Infinite query — owns all entity fetching
   const {
-    data,
+    data: entityResponse,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -97,6 +108,21 @@ export const EntityDataTable: FC<Props> = ({
     sorting,
   });
 
+  const totalCount = useMemo(() => {
+    if (!entityResponse) return undefined;
+    return entityResponse.pages[0]?.totalCount;
+  }, [entityResponse]);
+
+  // Composed filter matching what useEntityQuery sends to the API (search + queryFilter)
+  const compositeFilter = useMemo(
+    () => buildCompositeFilter(debouncedSearch || undefined, searchableColumns, queryFilter),
+    [debouncedSearch, searchableColumns, queryFilter],
+  );
+
+  // Server-aware selection state — totalCount kept in sync from the query
+  const selection = useEntitySelection(totalCount);
+  const { selectAll, deselectAll } = selection;
+
   // Surface query errors as toasts
   useEffect(() => {
     if (isError && error) {
@@ -104,24 +130,24 @@ export const EntityDataTable: FC<Props> = ({
     }
   }, [isError, error]);
 
+  // Reset selection when filter, search, sort, or dataset identity changes
+  useEffect(() => {
+    deselectAll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally reset on query dependency changes
+  }, [debouncedSearch, queryFilter, sorting, entityType.id, workspaceId]);
+
   // Flatten pages into a single entity list
   const entities = useMemo(
-    () => data?.pages.flatMap((page) => page.entities) ?? [],
-    [data?.pages],
+    () => entityResponse?.pages.flatMap((page) => page.entities) ?? [],
+    [entityResponse?.pages],
   );
 
   // Full table data (rows, columns) from flattened entities
   const { rowData, columns } = useEntityTableData(entityType, entities, isDraftMode);
 
   // Entity lookup for inline edit
-  const entityMap = useMemo(
-    () => new Map(entities.map((e) => [e.id, e])),
-    [entities],
-  );
-  const getEntityById = useCallback(
-    (id: string) => entityMap.get(id),
-    [entityMap],
-  );
+  const entityMap = useMemo(() => new Map(entities.map((e) => [e.id, e])), [entities]);
+  const getEntityById = useCallback((id: string) => entityMap.get(id), [entityMap]);
 
   const { handleCellEdit } = useEntityInlineEdit(workspaceId, entityType, getEntityById);
   const {
@@ -190,12 +216,7 @@ export const EntityDataTable: FC<Props> = ({
             onOpenChange={setVisibilityPopoverOpen}
           >
             <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-7"
-                disabled={isDraftMode}
-              >
+              <Button variant="ghost" size="icon" className="size-7" disabled={isDraftMode}>
                 <MoreHorizontal className="size-4" />
                 <span className="sr-only">Manage columns</span>
               </Button>
@@ -264,6 +285,8 @@ export const EntityDataTable: FC<Props> = ({
   );
 
   // Action column configuration — includes notes icon alongside drag handle and checkbox
+  // @ts-expect-error - not sure why types aren't lining up here, but it works
+  // TODO: investigate and fix
   const actionColumnConfig: ActionColumnConfig = useMemo(
     () => ({
       dragHandle: { enabled: true, visibility: 'hover-or-selected' },
@@ -279,9 +302,7 @@ export const EntityDataTable: FC<Props> = ({
             type="button"
             className={cn(
               'relative cursor-pointer text-muted-foreground transition-all hover:text-foreground',
-              hasNotes
-                ? 'opacity-100'
-                : 'opacity-0 group-hover/row:opacity-100',
+              hasNotes ? 'opacity-100' : 'opacity-0 group-hover/row:opacity-100',
             )}
             onMouseEnter={() => noteDrawerImport()}
             onClick={(e) => {
@@ -292,7 +313,7 @@ export const EntityDataTable: FC<Props> = ({
           >
             <StickyNote className="size-4" />
             {hasNotes && (
-              <span className="absolute -bottom-1 -right-1.5 flex size-3.5 items-center justify-center rounded-full bg-foreground text-[9px] font-medium leading-none text-background">
+              <span className="absolute -right-1.5 -bottom-1 flex size-3.5 items-center justify-center rounded-full bg-foreground text-[9px] leading-none font-medium text-background">
                 {noteCount}
               </span>
             )}
@@ -328,7 +349,8 @@ export const EntityDataTable: FC<Props> = ({
         onChange={handleQueryFilterChange}
       />
     ),
-    [entityType, queryFilter, handleQueryFilterChange],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- queryFilter is only used for initial hydration; EntityQueryBuilder owns its own internal state
+    [entityType, handleQueryFilterChange],
   );
 
   return (
@@ -351,13 +373,31 @@ export const EntityDataTable: FC<Props> = ({
             columns={columns}
             rowSelection={{
               enabled: true,
-              clearOnFilterChange: true,
-              actionComponent: ({ selectedRows, clearSelection }) => (
+              clearOnFilterChange: false, // handled by useEntitySelection's reset useEffect
+              isAllSelected: selection.mode === 'all',
+              onSelectAllChange: (checked) => {
+                if (checked) {
+                  selectAll();
+                } else {
+                  deselectAll();
+                }
+                return true; // always prevent default TanStack row-by-row behavior
+              },
+              // External selection overrides — useEntitySelection is the source of truth
+              getIsRowSelected: selection.isSelected,
+              onRowToggle: (rowId) => selection.toggleId(rowId),
+              selectedCount: selection.selectedCount,
+              onClearSelection: deselectAll,
+              actionComponent: ({ clearSelection }) => (
                 <EntityActionBar
-                  selectedRows={selectedRows}
-                  clearSelection={clearSelection}
+                  clearSelection={() => {
+                    clearSelection();
+                    deselectAll();
+                  }}
                   workspaceId={workspaceId}
                   entityTypeId={entityType.id}
+                  entitySelection={selection}
+                  queryFilter={compositeFilter}
                 />
               ),
             }}

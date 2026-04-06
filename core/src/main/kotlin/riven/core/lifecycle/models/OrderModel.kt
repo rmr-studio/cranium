@@ -11,6 +11,7 @@ import riven.core.lifecycle.AttributeOptions
 import riven.core.lifecycle.AttributeSemantics
 import riven.core.lifecycle.CoreModelAttribute
 import riven.core.lifecycle.CoreModelDefinition
+import riven.core.lifecycle.ProjectionAcceptRule
 
 /**
  * Order — a customer purchase order. DTC E-commerce specific.
@@ -26,6 +27,13 @@ object OrderModel : CoreModelDefinition(
     identifierKey = "order-number",
     semanticDefinition = "A customer purchase order. The core revenue event in the e-commerce lifecycle, linking customers to products and payments.",
     semanticTags = listOf("purchase", "transaction", "ecommerce", "revenue"),
+    projectionAccepts = listOf(
+        ProjectionAcceptRule(
+            domain = LifecycleDomain.BILLING,
+            semanticGroup = SemanticGroup.TRANSACTION,
+            relationshipName = ProjectionAcceptRule.SOURCE_DATA_RELATIONSHIP,
+        ),
+    ),
     attributes = mapOf(
         "order-number" to CoreModelAttribute(
             schemaType = SchemaType.TEXT, label = "Order Number", dataType = DataType.STRING,

@@ -93,15 +93,17 @@ class EntityTypeRelationshipService(
             )
         }
 
-        activityService.log(
+        activityService.logActivity(
             activity = Activity.ENTITY_RELATIONSHIP,
             operation = OperationType.CREATE,
             userId = userId,
             workspaceId = workspaceId,
             entityType = ApplicationEntityType.ENTITY_TYPE,
             entityId = sourceEntityTypeId,
-            "relationshipId" to defId.toString(),
-            "relationshipName" to request.name,
+            details = mapOf(
+                "relationshipId" to defId.toString(),
+                "relationshipName" to request.name,
+            ),
         )
 
         logger.info { "Created relationship definition '${request.name}' ($defId) for entity type $sourceEntityTypeId" }

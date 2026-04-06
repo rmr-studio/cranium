@@ -44,10 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // Only update session if user ID has changed
-      if (newSession.user.id !== session?.user.id) {
-        setSession(newSession);
-      }
+      setSession(newSession);
     });
 
     return () => subscription.unsubscribe();

@@ -41,6 +41,13 @@ riven:
   nango:
     secret-key: ${NANGO_SECRET_KEY:}
     base-url: ${NANGO_BASE_URL:https://api.nango.dev}
+  rate-limit:
+    enabled: ${RATE_LIMIT_ENABLED:true}
+    authenticated-rpm: ${RATE_LIMIT_AUTHENTICATED_RPM:200}
+    anonymous-rpm: ${RATE_LIMIT_ANONYMOUS_RPM:30}
+    cache-max-size: 10000
+    cache-expire-minutes: 10
+    trusted-proxy-cidrs: ${RATE_LIMIT_TRUSTED_PROXY_CIDRS:}
   posthog:
     enabled: ${POSTHOG_ENABLED:false}
     api-key: ${POSTHOG_API_KEY:}
@@ -48,6 +55,12 @@ riven:
   workflow:
     engine:
       target: ${TEMPORAL_SERVER_ADDRESS}
+    retry:
+      integration-sync:
+        max-attempts: 3
+        initial-interval-seconds: 30
+        backoff-coefficient: 2.0
+        max-interval-seconds: 120
   websocket:
     endpoint: /ws
     server-heartbeat-ms: 10000

@@ -10,6 +10,7 @@ import riven.core.enums.core.DataType
 import riven.core.lifecycle.AttributeSemantics
 import riven.core.lifecycle.CoreModelAttribute
 import riven.core.lifecycle.CoreModelDefinition
+import riven.core.lifecycle.ProjectionAcceptRule
 import riven.core.lifecycle.models.base.CustomerBase
 
 /**
@@ -38,4 +39,11 @@ object SaasCustomerModel : CoreModelDefinition(
         ),
     ),
     relationships = CustomerBase.relationships,
+    projectionAccepts = listOf(
+        ProjectionAcceptRule(
+            domain = LifecycleDomain.UNCATEGORIZED,
+            semanticGroup = SemanticGroup.CUSTOMER,
+            relationshipName = ProjectionAcceptRule.SOURCE_DATA_RELATIONSHIP,
+        ),
+    ),
 )

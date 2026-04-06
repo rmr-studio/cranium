@@ -76,7 +76,7 @@ The Workflows domain provides a DAG-based workflow execution engine that enables
 | WorkflowExecution | Execution instance records | id, definition_id, status, temporal_workflow_id, started_at, completed_at |
 | WorkflowNode | Node definitions within a workflow | id, definition_id, type, config (JSONB), position |
 | WorkflowEdge | Edges connecting nodes | id, definition_id, source_node_id, target_node_id |
-| ExecutionQueue | Queued execution requests | id, workspace_id, definition_id, status, claimed_at, dispatched_at |
+| ExecutionQueue | Queued execution requests (supports WORKFLOW_EXECUTION and IDENTITY_MATCH job types) | id, workspace_id, definition_id, status, claimed_at, dispatched_at |
 
 ### Database Tables
 
@@ -86,7 +86,7 @@ The Workflows domain provides a DAG-based workflow execution engine that enables
 | workflow_executions | WorkflowExecution | Tracks execution status and Temporal workflow IDs |
 | workflow_nodes | WorkflowNode | Polymorphic config stored as JSONB |
 | workflow_edges | WorkflowEdge | Defines DAG structure |
-| workflow_execution_queue | ExecutionQueue | State machine: PENDING -> CLAIMED -> DISPATCHED |
+| workflow_execution_queue | ExecutionQueue | State machine: PENDING → CLAIMED → DISPATCHED. Generic queue with job_type discriminator (WORKFLOW_EXECUTION, IDENTITY_MATCH) |
 
 ---
 
@@ -115,6 +115,7 @@ The Workflows domain provides a DAG-based workflow execution engine that enables
 | Consumer | What They Consume | Via Component | Related Flow |
 |----------|------------------|---------------|--------------|
 | REST API | Workflow management (definitions, executions, graph ops) | WorkflowDefinitionController, WorkflowExecutionController, WorkflowGraphController | [[Workflow Execution]] |
+| [[Identity Resolution]] | Execution queue infrastructure for IDENTITY_MATCH job dispatch | [[WorkflowExecutionQueueService]], [[ExecutionQueueEntity]] | [[Flow - Identity Match Pipeline]] |
 
 ---
 
@@ -205,3 +206,4 @@ flowchart TB
 | ---- | ------ | ----------- |
 | 2026-02-13 | Output metadata infrastructure for workflow nodes | Output Metadata |
 | 2026-02-13 | QueryEntity execution implemented, BulkUpdateEntity action node added | |
+| 2026-03-17 | ExecutionQueueEntity genericized with job_type discriminator; TemporalWorkerConfiguration registers identity match worker | Identity Resolution |

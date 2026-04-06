@@ -205,6 +205,23 @@ export interface RowSelectionConfig<TData> {
   onSelectionChange?: (selectedRows: TData[]) => void;
   actionComponent?: React.ComponentType<SelectionActionProps<TData>>;
   clearOnFilterChange?: boolean;
+  /** Called when the header "select all" checkbox is toggled. Return true to prevent default TanStack Table behavior. */
+  onSelectAllChange?: (checked: boolean) => boolean;
+  /** When true, the header checkbox shows as checked regardless of TanStack's internal row selection state. Use for server-side "select all" where selection is managed externally. */
+  isAllSelected?: boolean;
+
+  // --- External selection overrides ---
+  // When provided, the DataTable delegates selection state to the caller
+  // instead of using TanStack Table's internal rowSelection.
+
+  /** Override per-row selected state (bypasses TanStack's row.getIsSelected()) */
+  getIsRowSelected?: (rowId: string) => boolean;
+  /** Override per-row toggle (bypasses TanStack's row.toggleSelected()) */
+  onRowToggle?: (rowId: string) => void;
+  /** Override selected count for the selection bar */
+  selectedCount?: number;
+  /** Override clear selection for the selection bar */
+  onClearSelection?: () => void;
 }
 
 // ============================================================================

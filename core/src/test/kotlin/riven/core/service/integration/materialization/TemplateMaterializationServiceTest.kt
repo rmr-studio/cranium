@@ -86,6 +86,9 @@ class TemplateMaterializationServiceTest {
     private lateinit var manifestCatalogRepository: ManifestCatalogRepository
 
     @MockitoBean
+    private lateinit var projectionRuleRepository: riven.core.repository.integration.ProjectionRuleRepository
+
+    @MockitoBean
     private lateinit var semanticMetadataService: EntityTypeSemanticMetadataService
 
     @MockitoBean

@@ -21,39 +21,6 @@ class ManifestScannerServiceTest {
     private lateinit var logger: KLogger
     private lateinit var service: ManifestScannerService
 
-    private val validModelJson = """
-    {
-      "manifestVersion": "1.0",
-      "key": "customer",
-      "name": "Customer",
-      "displayName": { "singular": "Customer", "plural": "Customers" },
-      "attributes": {
-        "name": { "key": "TEXT", "type": "string" },
-        "email": { "key": "EMAIL", "type": "string" }
-      }
-    }
-    """.trimIndent()
-
-    private val validTemplateJson = """
-    {
-      "manifestVersion": "1.0",
-      "key": "saas-starter",
-      "name": "SaaS Starter",
-      "entityTypes": [
-        {
-          "key": "deal",
-          "name": "Deal",
-          "displayName": { "singular": "Deal", "plural": "Deals" },
-          "semanticGroup": "TRANSACTION",
-          "lifecycleDomain": "BILLING",
-          "attributes": {
-            "title": { "key": "TEXT", "type": "string" }
-          }
-        }
-      ]
-    }
-    """.trimIndent()
-
     private val validIntegrationJson = """
     {
       "manifestVersion": "1.0",
@@ -80,84 +47,6 @@ class ManifestScannerServiceTest {
         service = ManifestScannerService(resourcePatternResolver, objectMapper, ManifestConfigurationProperties(), logger)
     }
 
-    // ------ scanModels ------
-
-    @Test
-    fun `scanModels returns valid model manifest`() {
-        val resource = createResourceWithContent("customer.json", validModelJson)
-        whenever(resourcePatternResolver.getResources("classpath:manifests/models/*.json"))
-            .thenReturn(arrayOf(resource))
-        mockSchemaResource("manifests/schemas/model.schema.json")
-
-        val result = service.scanModels()
-
-        assertEquals(1, result.size)
-        assertEquals("customer", result[0].key)
-        assertEquals(ManifestType.MODEL, result[0].type)
-    }
-
-    @Test
-    fun `scanModels skips invalid manifest and logs WARN`() {
-        val invalidJson = """
-        {
-          "manifestVersion": "1.0",
-          "key": "bad-model",
-          "name": "Bad Model"
-        }
-        """.trimIndent()
-
-        val resource = createResourceWithContent("bad-model.json", invalidJson)
-        whenever(resourcePatternResolver.getResources("classpath:manifests/models/*.json"))
-            .thenReturn(arrayOf(resource))
-        mockSchemaResource("manifests/schemas/model.schema.json")
-
-        val result = service.scanModels()
-
-        assertEquals(0, result.size)
-        verify(logger).warn(any<() -> Any?>())
-    }
-
-    @Test
-    fun `scanModels handles unparseable JSON`() {
-        val resource = createResourceWithContent("garbage.json", "this is not json {{{")
-        whenever(resourcePatternResolver.getResources("classpath:manifests/models/*.json"))
-            .thenReturn(arrayOf(resource))
-
-        val result = service.scanModels()
-
-        assertEquals(0, result.size)
-        verify(logger).warn(any<Throwable>(), any<() -> Any?>())
-    }
-
-    @Test
-    fun `scanModels handles empty directory`() {
-        whenever(resourcePatternResolver.getResources("classpath:manifests/models/*.json"))
-            .thenReturn(emptyArray())
-
-        val result = service.scanModels()
-
-        assertEquals(0, result.size)
-    }
-
-    // ------ scanTemplates ------
-
-    @Test
-    fun `scanTemplates extracts key from directory name`() {
-        val resource = createResourceWithUrl(
-            "file:/app/manifests/lifecycle-spine/saas-starter/manifest.json",
-            validTemplateJson
-        )
-        whenever(resourcePatternResolver.getResources("classpath:manifests/lifecycle-spine/*/manifest.json"))
-            .thenReturn(arrayOf(resource))
-        mockSchemaResource("manifests/schemas/template.schema.json")
-
-        val result = service.scanTemplates()
-
-        assertEquals(1, result.size)
-        assertEquals("saas-starter", result[0].key)
-        assertEquals(ManifestType.TEMPLATE, result[0].type)
-    }
-
     // ------ scanIntegrations ------
 
     @Test
@@ -178,13 +67,6 @@ class ManifestScannerServiceTest {
     }
 
     // ------ Helpers ------
-
-    private fun createResourceWithContent(filename: String, content: String): Resource {
-        return mock {
-            on { this.filename } doReturn filename
-            on { getInputStream() } doAnswer { content.byteInputStream() }
-        }
-    }
 
     private fun createResourceWithUrl(urlString: String, content: String): Resource {
         return mock {

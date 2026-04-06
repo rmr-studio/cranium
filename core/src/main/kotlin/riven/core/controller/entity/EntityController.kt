@@ -6,11 +6,13 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import riven.core.models.entity.Entity
 import riven.core.models.request.entity.AddRelationshipRequest
+import riven.core.models.request.entity.DeleteEntityRequest
 import riven.core.models.request.entity.SaveEntityRequest
 import riven.core.models.request.entity.UpdateRelationshipRequest
 import riven.core.models.response.entity.RelationshipResponse
@@ -114,30 +116,21 @@ class EntityController(
         return ResponseEntity.ok(response)
     }
 
-
-    @DeleteMapping("/workspace/{workspaceId}")
-    @Operation(
-        summary = "Deletes an entity instance",
-        description = "Deleted the specified entity instance within the workspace."
-    )
+    @PostMapping("/workspace/{workspaceId}/delete")
+    @Operation(summary = "Bulk deletes entities by ID selection or filter-based selection")
     @ApiResponses(
-        ApiResponse(responseCode = "200", description = "Entity instance deleted successfully"),
-        ApiResponse(responseCode = "401", description = "Unauthorized access"),
-        ApiResponse(responseCode = "404", description = "Workspace or entity not found")
+        value = [
+            ApiResponse(responseCode = "200", description = "Entities deleted successfully"),
+            ApiResponse(responseCode = "400", description = "Invalid request"),
+            ApiResponse(responseCode = "401", description = "Unauthorized"),
+            ApiResponse(responseCode = "404", description = "No entities found matching selection criteria"),
+        ]
     )
-    fun deleteEntity(
+    fun deleteEntities(
         @PathVariable workspaceId: UUID,
-        @RequestBody entityIds: List<UUID>,
+        @Valid @RequestBody request: DeleteEntityRequest,
     ): ResponseEntity<DeleteEntityResponse> {
-        val response = entityService.deleteEntities(workspaceId, entityIds)
-        if (response.error != null) {
-            return if (response.deletedCount == 0) {
-                ResponseEntity.status(404).body(response)
-            } else {
-                ResponseEntity.status(409).body(response)
-            }
-        }
-
+        val response = entityService.deleteEntities(workspaceId, request)
         return ResponseEntity.ok(response)
     }
 

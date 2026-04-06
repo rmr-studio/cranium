@@ -1,8 +1,12 @@
 package riven.core.service.integration
 
 import io.github.oshai.kotlinlogging.KLogger
+import io.temporal.client.WorkflowClient
+import io.temporal.client.WorkflowExecutionAlreadyStarted
+import io.temporal.client.WorkflowOptions
 import org.springframework.stereotype.Service
 import org.springframework.transaction.support.TransactionTemplate
+import riven.core.configuration.workflow.TemporalWorkerConfiguration
 import riven.core.entity.integration.IntegrationConnectionEntity
 import riven.core.entity.integration.WorkspaceIntegrationInstallationEntity
 import riven.core.enums.activity.Activity
@@ -11,11 +15,13 @@ import riven.core.enums.integration.ConnectionStatus
 import riven.core.enums.integration.InstallationStatus
 import riven.core.enums.util.OperationType
 import riven.core.models.integration.NangoWebhookPayload
+import riven.core.models.integration.sync.IntegrationSyncWorkflowInput
 import riven.core.repository.integration.IntegrationConnectionRepository
 import riven.core.repository.integration.IntegrationDefinitionRepository
 import riven.core.repository.integration.WorkspaceIntegrationInstallationRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.integration.materialization.TemplateMaterializationService
+import riven.core.service.integration.sync.IntegrationSyncWorkflow
 import java.util.*
 
 /**
@@ -33,6 +39,7 @@ class NangoWebhookService(
     private val templateMaterializationService: TemplateMaterializationService,
     private val activityService: ActivityService,
     private val transactionTemplate: TransactionTemplate,
+    private val workflowClient: WorkflowClient,
     private val logger: KLogger
 ) {
 
@@ -118,12 +125,57 @@ class NangoWebhookService(
     }
 
     /**
-     * Phase 3 stub: logs received sync events without processing them.
-     * Dispatch to Temporal workflows will be implemented in Phase 3.
+     * Handles sync webhook events by dispatching a Temporal workflow for the given connection+model.
+     *
+     * Uses a deterministic workflow ID `sync-{connectionId}-{model}` so that duplicate
+     * Nango webhook deliveries for the same in-progress sync are silently ignored.
+     * [WorkflowExecutionAlreadyStarted] is the expected dedup signal and is not an error.
      */
     private fun handleSyncEvent(payload: NangoWebhookPayload) {
-        logger.info {
-            "Received sync webhook event for model=${payload.model}, syncName=${payload.syncName} — dispatch not yet implemented"
+        val nangoConnectionId = payload.connectionId
+        val model = payload.model
+
+        if (nangoConnectionId == null) {
+            logger.warn { "Sync webhook missing connectionId — skipping dispatch" }
+            return
+        }
+        if (model == null) {
+            logger.warn { "Sync webhook missing model — skipping dispatch" }
+            return
+        }
+
+        val connection = connectionRepository.findByNangoConnectionId(nangoConnectionId)
+        if (connection == null) {
+            logger.warn { "Sync webhook for unknown nango connection '$nangoConnectionId' — skipping dispatch" }
+            return
+        }
+
+        val connectionId = requireNotNull(connection.id) { "IntegrationConnectionEntity id must not be null" }
+        val workflowId = "sync-$connectionId-$model"
+
+        val stub = workflowClient.newWorkflowStub(
+            IntegrationSyncWorkflow::class.java,
+            WorkflowOptions.newBuilder()
+                .setWorkflowId(workflowId)
+                .setTaskQueue(TemporalWorkerConfiguration.INTEGRATION_SYNC_QUEUE)
+                .build()
+        )
+
+        try {
+            WorkflowClient.start { stub.execute(
+                IntegrationSyncWorkflowInput(
+                    connectionId = connectionId,
+                    workspaceId = connection.workspaceId,
+                    integrationId = connection.integrationId,
+                    nangoConnectionId = nangoConnectionId,
+                    providerConfigKey = payload.providerConfigKey ?: "",
+                    model = model,
+                    modifiedAfter = payload.modifiedAfter
+                )
+            ) }
+            logger.info { "Dispatched sync workflow $workflowId for connection=$connectionId, model=$model" }
+        } catch (e: WorkflowExecutionAlreadyStarted) {
+            logger.info { "Sync workflow $workflowId already running — ignoring duplicate webhook" }
         }
     }
 

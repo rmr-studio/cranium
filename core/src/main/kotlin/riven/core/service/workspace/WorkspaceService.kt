@@ -10,7 +10,6 @@ import org.springframework.web.multipart.MultipartFile
 import riven.core.entity.workspace.WorkspaceEntity
 import riven.core.entity.workspace.WorkspaceMemberEntity
 import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.storage.StorageDomain
 import riven.core.enums.util.OperationType
 import riven.core.enums.workspace.WorkspaceRoles
 import riven.core.exceptions.NotFoundException
@@ -108,17 +107,15 @@ class WorkspaceService(
         }
 
         avatar?.let { file ->
-            uploadWorkspaceAvatar(workspace.id, saved, file)
-            // Delete old avatar from storage if it was replaced
-            if (previousAvatarKey != null && previousAvatarKey != saved.avatarUrl) {
-                storageService.deleteByStorageKey(previousAvatarKey)
-            }
-            return workspace.copy(avatarUrl = saved.toModel().avatarUrl)
+            val newKey = storageService.updateWorkspaceAvatar(workspace.id, file, previousAvatarKey)
+            saved.avatarUrl = newKey
+            workspaceRepository.save(saved)
+            return workspace.copy(avatarUrl = newKey)
         }
 
-        // Delete old avatar from storage if it was removed
-        if (previousAvatarKey != null && previousAvatarKey != saved.avatarUrl) {
-            storageService.deleteByStorageKey(previousAvatarKey)
+        // Clean up old avatar if it was removed
+        if (request.removeAvatar) {
+            storageService.removeAvatar(previousAvatarKey)
         }
 
         return workspace
@@ -149,12 +146,6 @@ class WorkspaceService(
                 role = WorkspaceRoles.OWNER
             )
         )
-    }
-
-    private fun uploadWorkspaceAvatar(workspaceId: UUID, entity: WorkspaceEntity, file: MultipartFile) {
-        val uploadResponse = storageService.uploadFileInternal(workspaceId, StorageDomain.AVATAR, file)
-        entity.avatarUrl = uploadResponse.file.storageKey
-        workspaceRepository.save(entity)
     }
 
     private fun logWorkspaceActivity(userId: UUID, workspaceId: UUID, name: String, isUpdate: Boolean = false) {
@@ -197,7 +188,10 @@ class WorkspaceService(
                 userId = userId,
                 operation = if (request.id == null) OperationType.CREATE else OperationType.UPDATE,
                 entityId = id,
-                summary = mapOf("name" to entity.name),
+                summary = mapOf(
+                    "name" to entity.name,
+                    "userDisplayName" to authTokenService.getUserDisplayName(),
+                ),
             )
         )
     }

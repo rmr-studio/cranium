@@ -4,7 +4,7 @@ import type { SidePanelView } from '../types/side-panel.types';
 
 type Props = Extract<SidePanelView, { type: 'entity-notes' }>;
 
-export function EntityNotesView({ entityId, workspaceId }: Props) {
+export function EntityNotesView({ entityId }: Props) {
   return (
     <div className="space-y-2 p-2">
       <p className="text-sm text-muted-foreground">Entity notes view</p>

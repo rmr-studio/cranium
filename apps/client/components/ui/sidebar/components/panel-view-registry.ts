@@ -17,6 +17,7 @@ export type ViewComponentProps<T extends SidePanelViewType> = Extract<SidePanelV
  *
  * TypeScript enforces exhaustiveness via the `satisfies` check.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const viewRegistry: Record<SidePanelViewType, LazyExoticComponent<ComponentType<any>>> = {
   'definition-detail': lazy(() =>
     import('../views/definition-detail-view').then((m) => ({ default: m.DefinitionDetailView })),
@@ -27,4 +28,5 @@ export const viewRegistry: Record<SidePanelViewType, LazyExoticComponent<Compone
   'integration-detail': lazy(() =>
     import('../views/integration-detail-view').then((m) => ({ default: m.IntegrationDetailView })),
   ),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } satisfies Record<SidePanelViewType, LazyExoticComponent<ComponentType<any>>>;

@@ -3,7 +3,6 @@
 import { createContext, useContext, useEffect, useRef, type ReactNode } from 'react';
 import { useStore } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
-import { useIsMobile } from '@riven/hooks';
 import {
   createSidePanelStore,
   type SidePanelStore,
@@ -22,7 +21,6 @@ const SidePanelContext = createContext<SidePanelStoreApi | undefined>(undefined)
 // ---------------------------------------------------------------------------
 
 export function SidePanelProvider({ children }: { children: ReactNode }) {
-  const isMobile = useIsMobile();
   const storeRef = useRef<SidePanelStoreApi | null>(null);
 
   // Create store once

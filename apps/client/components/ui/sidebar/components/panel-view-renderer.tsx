@@ -70,6 +70,7 @@ export function PanelViewRenderer() {
             className="h-full"
           >
             <Suspense fallback={<PanelSkeleton />}>
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               <ViewComponent {...(currentView as any)} />
             </Suspense>
           </motion.div>

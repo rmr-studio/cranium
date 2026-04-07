@@ -4,7 +4,7 @@ import type { SidePanelView } from '../types/side-panel.types';
 
 type Props = Extract<SidePanelView, { type: 'definition-detail' }>;
 
-export function DefinitionDetailView({ definitionId, workspaceId }: Props) {
+export function DefinitionDetailView({ definitionId }: Props) {
   return (
     <div className="space-y-2 p-2">
       <p className="text-sm text-muted-foreground">Definition detail view</p>

@@ -27,5 +27,8 @@ declare namespace NodeJS {
 
     /** CDN URL for static assets */
     NEXT_PUBLIC_CDN_URL?: string;
+
+    /** Google Tag Manager container ID (e.g. GTM-XXXXXXX) */
+    NEXT_PUBLIC_GTM_ID?: string;
   }
 }

@@ -44,4 +44,34 @@ class TermNormalizationUtilTest {
     fun `strips trailing s from simple plural words`() {
         assertEquals("car", TermNormalizationUtil.normalize("cars"))
     }
+
+    @Test
+    fun `preserves words ending in us like status`() {
+        assertEquals("status", TermNormalizationUtil.normalize("status"))
+    }
+
+    @Test
+    fun `preserves words ending in is like analysis`() {
+        assertEquals("analysis", TermNormalizationUtil.normalize("analysis"))
+    }
+
+    @Test
+    fun `preserves short words like bus`() {
+        assertEquals("bus", TermNormalizationUtil.normalize("bus"))
+    }
+
+    @Test
+    fun `preserves words ending in us like focus`() {
+        assertEquals("focus", TermNormalizationUtil.normalize("focus"))
+    }
+
+    @Test
+    fun `still strips regular plural metrics`() {
+        assertEquals("metric", TermNormalizationUtil.normalize("metrics"))
+    }
+
+    @Test
+    fun `preserves words ending in os like chaos`() {
+        assertEquals("chaos", TermNormalizationUtil.normalize("chaos"))
+    }
 }

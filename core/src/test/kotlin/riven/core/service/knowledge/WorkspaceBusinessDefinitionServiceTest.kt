@@ -534,5 +534,12 @@ class WorkspaceBusinessDefinitionServiceTest : BaseServiceTest() {
                 service.deleteDefinition(otherWorkspaceId, UUID.randomUUID())
             }
         }
+
+        @Test
+        fun `getDefinition throws AccessDeniedException for unauthorized workspace`() {
+            assertThrows<AccessDeniedException> {
+                service.getDefinition(otherWorkspaceId, UUID.randomUUID())
+            }
+        }
     }
 }

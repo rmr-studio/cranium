@@ -66,6 +66,7 @@ export function useDefinitionForm(
         source: DefinitionSource.Manual,
         entityTypeRefs: values.entityTypeRefs,
         attributeRefs: values.attributeRefs,
+        isCustomized: false,
       });
     }
   };

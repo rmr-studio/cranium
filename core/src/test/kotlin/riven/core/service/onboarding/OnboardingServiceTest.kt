@@ -157,9 +157,7 @@ class OnboardingServiceTest : BaseServiceTest() {
 
         @Test
         fun `rejects user who has already completed onboarding`() {
-            val alreadyOnboardedUser = UserFactory.createUser(id = userId).apply {
-                onboardingCompletedAt = java.time.ZonedDateTime.now()
-            }
+            val alreadyOnboardedUser = UserFactory.createOnboardedUser(id = userId)
             whenever(userRepository.findByIdForUpdate(userId)).thenReturn(Optional.of(alreadyOnboardedUser))
 
             val request = defaultRequest()
@@ -245,13 +243,13 @@ class OnboardingServiceTest : BaseServiceTest() {
             )
 
             whenever(workspaceInviteService.createWorkspaceInvitationInternal(any(), any(), any(), any()))
-                .thenThrow(RuntimeException("Email service unavailable"))
+                .thenThrow(ConflictException("Invitation already exists"))
 
             val response = onboardingService.completeOnboarding(request)
 
             assertEquals(1, response.inviteResults.size)
             assertFalse(response.inviteResults[0].success)
-            assertEquals("Email service unavailable", response.inviteResults[0].error)
+            assertEquals("invite_conflict", response.inviteResults[0].error)
             // Onboarding still completes — workspace and template are intact
             assertNotNull(response.workspace)
         }
@@ -320,7 +318,7 @@ class OnboardingServiceTest : BaseServiceTest() {
 
             assertEquals(1, response.definitionResults.size)
             assertFalse(response.definitionResults[0].success)
-            assertEquals("Duplicate term", response.definitionResults[0].error)
+            assertEquals("definition_conflict", response.definitionResults[0].error)
             assertNotNull(response.workspace)
         }
     }

@@ -45,7 +45,7 @@ function PanelDefinitionCard({
     >
       <div className="flex items-center gap-2">
         <span className="truncate font-medium">{definition.term}</span>
-        <span className="bg-muted text-muted-foreground shrink-0 rounded-full px-1.5 py-0.5 text-[10px]">
+        <span className="bg-muted text-muted-foreground shrink-0 rounded-full px-1.5 py-0.5 text-xs">
           {CATEGORY_LABELS[definition.category]}
         </span>
       </div>
@@ -113,7 +113,7 @@ export function KnowledgePanel() {
             type="button"
             onClick={() => setCategoryFilter(value)}
             className={cn(
-              'rounded-full px-2 py-0.5 text-[11px] transition-colors',
+              'rounded-full px-2 py-0.5 text-xs transition-colors',
               categoryFilter === value
                 ? 'bg-foreground text-background'
                 : 'bg-muted text-muted-foreground hover:text-foreground',

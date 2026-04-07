@@ -176,9 +176,9 @@ describe('assemblePayload', () => {
       const result = assemblePayload({
         profile: baseProfile,
         workspace: baseWorkspace,
-        channels: { selectedChannels: ['GOOGLE_ADS', 'REFERRAL'] as AcquisitionChannel[] },
+        channels: { selectedChannels: [AcquisitionChannel.GoogleAds, AcquisitionChannel.Referral] },
       });
-      expect(result.acquisitionChannels).toEqual(['GOOGLE_ADS', 'REFERRAL']);
+      expect(result.acquisitionChannels).toEqual([AcquisitionChannel.GoogleAds, AcquisitionChannel.Referral]);
     });
 
     it('produces empty array when channels step is missing', () => {

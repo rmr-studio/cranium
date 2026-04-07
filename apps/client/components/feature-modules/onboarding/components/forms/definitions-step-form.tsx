@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { BusinessType, DefinitionCategory } from '@/lib/types/workspace';
+import { cn } from '@riven/utils';
 import { Plus, RotateCcw, X } from 'lucide-react';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import {
@@ -36,6 +37,7 @@ export interface DefinitionEntry {
 
 export interface DefinitionsLiveData {
   definitions: DefinitionEntry[];
+  businessType?: BusinessType;
 }
 
 interface WorkspaceLiveData {
@@ -57,7 +59,7 @@ export const DefinitionsStepForm: FC = () => {
   const businessType = workspaceLiveData?.businessType;
 
   const [definitions, setDefinitions] = useState<DefinitionEntry[]>(() => {
-    if (restoredData?.definitions?.length) return restoredData.definitions;
+    if (restoredData?.definitions?.length && restoredData?.businessType === businessType) return restoredData.definitions;
 
     const defaults = businessType ? DEFINITION_DEFAULTS[businessType] ?? [] : [];
     return defaults.map((d) => ({
@@ -83,7 +85,7 @@ export const DefinitionsStepForm: FC = () => {
 
   // Sync liveData
   useEffect(() => {
-    setLiveData('definitions', { definitions });
+    setLiveData('definitions', { definitions, businessType });
   }, [definitions, setLiveData]);
 
   const updateDefinition = useCallback((index: number, value: string) => {
@@ -206,11 +208,7 @@ export const DefinitionsStepForm: FC = () => {
                       <span className="text-sm font-semibold">{term}</span>
                       <div className="flex items-center gap-1.5">
                         <span
-                          className={`text-xs ${
-                            isModified
-                              ? 'text-foreground font-medium'
-                              : 'text-muted-foreground'
-                          }`}
+                          className={cn('text-xs', isModified ? 'text-foreground font-medium' : 'text-muted-foreground')}
                         >
                           {isModified ? 'Customized' : 'Default'}
                         </span>
@@ -244,22 +242,26 @@ export const DefinitionsStepForm: FC = () => {
       ))}
 
       <div className="flex items-center gap-3">
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="xs"
           onClick={addCustomTerm}
-          className="text-muted-foreground hover:text-foreground flex items-center gap-1 text-xs transition-colors"
+          className="text-muted-foreground hover:text-foreground gap-1"
         >
           <Plus className="size-3" />
           Add your own term
-        </button>
+        </Button>
 
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="xs"
           onClick={skip}
-          className="text-muted-foreground hover:text-foreground ml-auto text-xs transition-colors"
+          className="text-muted-foreground hover:text-foreground ml-auto"
         >
           Skip definitions
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -11,6 +11,8 @@ import riven.core.enums.util.OperationType
 import riven.core.enums.workspace.BusinessType
 import riven.core.enums.workspace.WorkspaceRoles
 import riven.core.exceptions.ConflictException
+import riven.core.exceptions.NotFoundException
+import riven.core.exceptions.UniqueConstraintViolationException
 import riven.core.models.request.knowledge.CreateBusinessDefinitionRequest
 import riven.core.models.request.onboarding.CompleteOnboardingRequest
 import riven.core.models.request.onboarding.OnboardingBusinessDefinition
@@ -190,9 +192,15 @@ class OnboardingService(
             try {
                 workspaceInviteService.createWorkspaceInvitationInternal(id, email, role, userId)
                 InviteResult(email = email, success = true)
+            } catch (e: NotFoundException) {
+                logger.error(e) { "Failed to send invite to '$email' during onboarding" }
+                InviteResult(email = email, success = false, error = "invite_not_found")
+            } catch (e: ConflictException) {
+                logger.error(e) { "Failed to send invite to '$email' during onboarding" }
+                InviteResult(email = email, success = false, error = "invite_conflict")
             } catch (e: Exception) {
                 logger.error(e) { "Failed to send invite to '$email' during onboarding" }
-                InviteResult(email = email, success = false, error = e.message)
+                throw e
             }
         }
     }
@@ -214,9 +222,15 @@ class OnboardingService(
                 )
                 businessDefinitionService.createDefinitionInternal(id, userId, createRequest)
                 BusinessDefinitionResult(term = definition.term, success = true)
+            } catch (e: ConflictException) {
+                logger.error(e) { "Failed to save business definition '${definition.term}' during onboarding" }
+                BusinessDefinitionResult(term = definition.term, success = false, error = "definition_conflict")
+            } catch (e: UniqueConstraintViolationException) {
+                logger.error(e) { "Failed to save business definition '${definition.term}' during onboarding" }
+                BusinessDefinitionResult(term = definition.term, success = false, error = "definition_duplicate")
             } catch (e: Exception) {
                 logger.error(e) { "Failed to save business definition '${definition.term}' during onboarding" }
-                BusinessDefinitionResult(term = definition.term, success = false, error = e.message)
+                throw e
             }
         }
     }

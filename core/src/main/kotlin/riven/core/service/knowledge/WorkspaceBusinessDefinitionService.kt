@@ -2,6 +2,7 @@ package riven.core.service.knowledge
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.orm.ObjectOptimisticLockingFailureException
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
@@ -13,6 +14,7 @@ import riven.core.enums.knowledge.DefinitionCategory
 import riven.core.enums.knowledge.DefinitionStatus
 import riven.core.enums.util.OperationType
 import riven.core.exceptions.ConflictException
+import riven.core.exceptions.UniqueConstraintViolationException
 import riven.core.models.common.markDeleted
 import riven.core.models.knowledge.WorkspaceBusinessDefinition
 import riven.core.models.request.knowledge.CreateBusinessDefinitionRequest
@@ -93,7 +95,13 @@ class WorkspaceBusinessDefinitionService(
             isCustomized = request.isCustomized,
         )
 
-        val saved = repository.save(entity)
+        val saved = try {
+            repository.save(entity)
+        } catch (e: DataIntegrityViolationException) {
+            throw UniqueConstraintViolationException("A business definition with this term already exists in the workspace")
+        } catch (e: ObjectOptimisticLockingFailureException) {
+            throw ConflictException("Definition '${entity.term}' was modified concurrently. Please try again.", e)
+        }
 
         activityService.log(
             activity = Activity.BUSINESS_DEFINITION,
@@ -176,7 +184,11 @@ class WorkspaceBusinessDefinitionService(
         val entity = findOrThrow { repository.findByIdAndWorkspaceId(id, workspaceId) }
 
         entity.markDeleted()
-        repository.save(entity)
+        try {
+            repository.save(entity)
+        } catch (e: ObjectOptimisticLockingFailureException) {
+            throw ConflictException("Definition '${entity.term}' was modified concurrently. Please refresh and try again.", e)
+        }
 
         activityService.log(
             activity = Activity.BUSINESS_DEFINITION,
@@ -223,7 +235,13 @@ class WorkspaceBusinessDefinitionService(
             isCustomized = request.isCustomized,
         )
 
-        val saved = repository.save(entity)
+        val saved = try {
+            repository.save(entity)
+        } catch (e: DataIntegrityViolationException) {
+            throw UniqueConstraintViolationException("A business definition with this term already exists in the workspace")
+        } catch (e: ObjectOptimisticLockingFailureException) {
+            throw ConflictException("Definition '${entity.term}' was modified concurrently. Please try again.", e)
+        }
 
         activityService.log(
             activity = Activity.BUSINESS_DEFINITION,

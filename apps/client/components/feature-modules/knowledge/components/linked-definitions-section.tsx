@@ -22,6 +22,9 @@ interface Props {
 
 export const LinkedDefinitionsSection: FC<Props> = ({ entityTypeId }) => {
   const selectedWorkspaceId = useWorkspaceStore((s) => s.selectedWorkspaceId);
+
+  if (!selectedWorkspaceId) return null;
+
   const { data: definitions, isLoading, isError, isLoadingAuth } = useDefinitions(selectedWorkspaceId);
 
   const linked = useMemo(() => {

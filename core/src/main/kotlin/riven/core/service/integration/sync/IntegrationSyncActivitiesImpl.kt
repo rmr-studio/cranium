@@ -247,6 +247,8 @@ class IntegrationSyncActivitiesImpl(
 
         val fieldMappings = resolveFieldMappings(fieldMappingEntity.mappings, keyMapping, entityType)
         val externalIdField = resolveExternalIdField(fieldMappingEntity.mappings)
+        val relationshipDefinitions = relationshipDefinitionRepository
+            .findByWorkspaceIdAndSourceEntityTypeId(input.workspaceId, entityTypeId)
 
         return ModelContext(
             entityTypeId = entityTypeId,
@@ -255,6 +257,7 @@ class IntegrationSyncActivitiesImpl(
             fieldMappings = fieldMappings,
             keyMapping = keyMapping,
             externalIdField = externalIdField,
+            relationshipDefinitions = relationshipDefinitions,
         )
     }
 
@@ -609,7 +612,7 @@ class IntegrationSyncActivitiesImpl(
         val uuidKeyedAttributes = mappingResult.attributes.mapKeys { (key, _) -> UUID.fromString(key) }
         entityAttributeService.saveAttributes(entityId, workspaceId, context.entityTypeId, uuidKeyedAttributes)
 
-        collectRelationshipPending(record.payload, entityId, context.entityTypeId, workspaceId, relationshipPending)
+        collectRelationshipPending(record.payload, entityId, context.relationshipDefinitions, relationshipPending)
 
         return entityId
     }
@@ -626,14 +629,10 @@ class IntegrationSyncActivitiesImpl(
     private fun collectRelationshipPending(
         payload: Map<String, Any?>,
         entityId: UUID,
-        entityTypeId: UUID,
-        workspaceId: UUID,
+        relationshipDefinitions: List<riven.core.entity.entity.RelationshipDefinitionEntity>,
         relationshipPending: MutableList<RelationshipPending>,
     ) {
-        val definitions = relationshipDefinitionRepository
-            .findByWorkspaceIdAndSourceEntityTypeId(workspaceId, entityTypeId)
-
-        for (definition in definitions) {
+        for (definition in relationshipDefinitions) {
             val definitionKey = definition.name
             @Suppress("UNCHECKED_CAST")
             val targetIds = payload[definitionKey] as? List<String> ?: continue
@@ -784,6 +783,7 @@ class IntegrationSyncActivitiesImpl(
         val fieldMappings: Map<String, ResolvedFieldMapping>,
         val keyMapping: Map<String, UUID>,
         val externalIdField: String,
+        val relationshipDefinitions: List<riven.core.entity.entity.RelationshipDefinitionEntity>,
     )
 
     /** Aggregated result of processing a single batch of records. */

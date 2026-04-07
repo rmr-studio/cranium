@@ -1,0 +1,160 @@
+{
+  "manifestVersion": "1.0",
+  "key": "posthog",
+  "name": "PostHog",
+  "description": "PostHog product analytics integration providing persons and events.",
+  "category": "PRODUCT_ANALYTICS",
+  "nangoProviderKey": "",
+  "iconUrl": "/integrations/posthog.svg",
+  "entityTypes": [
+    {
+      "key": "posthog-person",
+      "name": "Person",
+      "description": "A PostHog person record representing an identified user.",
+      "displayName": {
+        "singular": "Person",
+        "plural": "Persons"
+      },
+      "icon": {
+        "type": "USER",
+        "colour": "BLUE"
+      },
+      "semanticGroup": "CUSTOMER",
+      "identifierKey": "distinct-id",
+      "readonly": true,
+      "attributes": {
+        "distinct-id": {
+          "key": "TEXT",
+          "label": "Distinct ID",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "email": {
+          "key": "EMAIL",
+          "label": "Email",
+          "type": "string",
+          "format": "email",
+          "required": false,
+          "protected": true
+        },
+        "name": {
+          "key": "TEXT",
+          "label": "Name",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "created-at": {
+          "key": "DATETIME",
+          "label": "Created At",
+          "type": "string",
+          "format": "date-time",
+          "required": false,
+          "protected": true
+        }
+      }
+    },
+    {
+      "key": "posthog-event",
+      "name": "Event",
+      "description": "A PostHog analytics event.",
+      "displayName": {
+        "singular": "Event",
+        "plural": "Events"
+      },
+      "icon": {
+        "type": "ACTIVITY",
+        "colour": "ORANGE"
+      },
+      "semanticGroup": "OPERATIONAL",
+      "identifierKey": "event-name",
+      "readonly": true,
+      "attributes": {
+        "event-name": {
+          "key": "TEXT",
+          "label": "Event Name",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "timestamp": {
+          "key": "DATETIME",
+          "label": "Timestamp",
+          "type": "string",
+          "format": "date-time",
+          "required": false,
+          "protected": true
+        },
+        "distinct-id": {
+          "key": "TEXT",
+          "label": "Distinct ID",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "properties": {
+          "key": "OBJECT",
+          "label": "Properties",
+          "type": "object",
+          "required": false,
+          "protected": true
+        }
+      }
+    }
+  ],
+  "fieldMappings": [
+    {
+      "entityTypeKey": "posthog-person",
+      "mappings": {
+        "distinct-id": {
+          "source": "distinct_id",
+          "transform": { "type": "direct" }
+        },
+        "email": {
+          "source": "email",
+          "transform": { "type": "direct" }
+        },
+        "name": {
+          "source": "name",
+          "transform": { "type": "direct" }
+        },
+        "created-at": {
+          "source": "created_at",
+          "transform": { "type": "type_coercion", "targetType": "datetime" }
+        }
+      }
+    },
+    {
+      "entityTypeKey": "posthog-event",
+      "mappings": {
+        "event-name": {
+          "source": "event_name",
+          "transform": { "type": "direct" }
+        },
+        "timestamp": {
+          "source": "timestamp",
+          "transform": { "type": "type_coercion", "targetType": "datetime" }
+        },
+        "distinct-id": {
+          "source": "distinct_id",
+          "transform": { "type": "direct" }
+        },
+        "properties": {
+          "source": "properties",
+          "transform": { "type": "direct" }
+        }
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "key": "person-events",
+      "sourceEntityTypeKey": "posthog-person",
+      "name": "Events",
+      "cardinality": "ONE_TO_MANY",
+      "targetEntityTypeKey": "posthog-event",
+      "protected": true
+    }
+  ]
+}

@@ -159,6 +159,7 @@ docs/ListConfig.md
 docs/ListDisplayConfig.md
 docs/ListFilterLogicType.md
 docs/Literal.md
+docs/MatchSignalType.md
 docs/MatchSuggestionStatus.md
 docs/Metadata.md
 docs/MoveBlockOperation.md
@@ -491,6 +492,7 @@ models/ListConfig.ts
 models/ListDisplayConfig.ts
 models/ListFilterLogicType.ts
 models/Literal.ts
+models/MatchSignalType.ts
 models/MatchSuggestionStatus.ts
 models/Metadata.ts
 models/MoveBlockOperation.ts

@@ -23,6 +23,7 @@ export enum IntegrationCategory {
     Support = 'SUPPORT',
     Email = 'EMAIL',
     Communication = 'COMMUNICATION',
+    ProductAnalytics = 'PRODUCT_ANALYTICS',
     Other = 'OTHER'
 }
 

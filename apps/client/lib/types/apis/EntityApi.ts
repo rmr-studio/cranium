@@ -317,7 +317,7 @@ export class EntityApi extends runtime.BaseAPI {
 
         const response = await this.request({
             path: urlPath,
-            method: 'PUT',
+            method: 'POST',
             headers: headerParameters,
             query: queryParameters,
             body: DeleteEntityRequestToJSON(requestParameters['deleteEntityRequest']),

@@ -1,0 +1,291 @@
+{
+  "manifestVersion": "1.0",
+  "key": "stripe",
+  "name": "Stripe",
+  "description": "Stripe payments integration providing customers, payment intents, and invoices.",
+  "category": "PAYMENTS",
+  "nangoProviderKey": "",
+  "iconUrl": "/integrations/stripe.svg",
+  "entityTypes": [
+    {
+      "key": "stripe-customer",
+      "name": "Customer",
+      "description": "A Stripe customer record.",
+      "displayName": {
+        "singular": "Customer",
+        "plural": "Customers"
+      },
+      "icon": {
+        "type": "USER",
+        "colour": "BLUE"
+      },
+      "semanticGroup": "CUSTOMER",
+      "identifierKey": "email",
+      "readonly": true,
+      "attributes": {
+        "email": {
+          "key": "EMAIL",
+          "label": "Email",
+          "type": "string",
+          "format": "email",
+          "required": false,
+          "protected": true
+        },
+        "name": {
+          "key": "TEXT",
+          "label": "Name",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "phone": {
+          "key": "PHONE",
+          "label": "Phone",
+          "type": "string",
+          "format": "phone-number",
+          "required": false,
+          "protected": true
+        },
+        "currency": {
+          "key": "TEXT",
+          "label": "Currency",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "created": {
+          "key": "DATETIME",
+          "label": "Created",
+          "type": "string",
+          "format": "date-time",
+          "required": false,
+          "protected": true
+        }
+      }
+    },
+    {
+      "key": "stripe-payment-intent",
+      "name": "Payment Intent",
+      "description": "A Stripe payment intent representing a payment transaction.",
+      "displayName": {
+        "singular": "Payment Intent",
+        "plural": "Payment Intents"
+      },
+      "icon": {
+        "type": "DOLLAR_SIGN",
+        "colour": "GREEN"
+      },
+      "semanticGroup": "TRANSACTION",
+      "identifierKey": "amount",
+      "readonly": true,
+      "attributes": {
+        "amount": {
+          "key": "NUMBER",
+          "label": "Amount",
+          "type": "number",
+          "format": "currency",
+          "required": false,
+          "protected": true
+        },
+        "currency": {
+          "key": "TEXT",
+          "label": "Currency",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "status": {
+          "key": "SELECT",
+          "label": "Status",
+          "type": "string",
+          "required": false,
+          "protected": true,
+          "options": {
+            "enum": ["succeeded", "pending", "failed", "canceled"]
+          }
+        },
+        "payment-method-type": {
+          "key": "TEXT",
+          "label": "Payment Method Type",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "created": {
+          "key": "DATETIME",
+          "label": "Created",
+          "type": "string",
+          "format": "date-time",
+          "required": false,
+          "protected": true
+        }
+      }
+    },
+    {
+      "key": "stripe-invoice",
+      "name": "Invoice",
+      "description": "A Stripe invoice record.",
+      "displayName": {
+        "singular": "Invoice",
+        "plural": "Invoices"
+      },
+      "icon": {
+        "type": "FILE_TEXT",
+        "colour": "ORANGE"
+      },
+      "semanticGroup": "FINANCIAL",
+      "identifierKey": "number",
+      "readonly": true,
+      "attributes": {
+        "number": {
+          "key": "TEXT",
+          "label": "Invoice Number",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "amount-due": {
+          "key": "NUMBER",
+          "label": "Amount Due",
+          "type": "number",
+          "format": "currency",
+          "required": false,
+          "protected": true
+        },
+        "amount-paid": {
+          "key": "NUMBER",
+          "label": "Amount Paid",
+          "type": "number",
+          "format": "currency",
+          "required": false,
+          "protected": true
+        },
+        "status": {
+          "key": "SELECT",
+          "label": "Status",
+          "type": "string",
+          "required": false,
+          "protected": true,
+          "options": {
+            "enum": ["draft", "open", "paid", "void", "uncollectible"]
+          }
+        },
+        "due-date": {
+          "key": "DATE",
+          "label": "Due Date",
+          "type": "string",
+          "format": "date",
+          "required": false,
+          "protected": true
+        },
+        "created": {
+          "key": "DATETIME",
+          "label": "Created",
+          "type": "string",
+          "format": "date-time",
+          "required": false,
+          "protected": true
+        }
+      }
+    }
+  ],
+  "fieldMappings": [
+    {
+      "entityTypeKey": "stripe-customer",
+      "mappings": {
+        "email": {
+          "source": "email",
+          "transform": { "type": "direct" }
+        },
+        "name": {
+          "source": "name",
+          "transform": { "type": "direct" }
+        },
+        "phone": {
+          "source": "phone",
+          "transform": { "type": "direct" }
+        },
+        "currency": {
+          "source": "currency",
+          "transform": { "type": "direct" }
+        },
+        "created": {
+          "source": "created",
+          "transform": { "type": "type_coercion", "targetType": "datetime" }
+        }
+      }
+    },
+    {
+      "entityTypeKey": "stripe-payment-intent",
+      "mappings": {
+        "amount": {
+          "source": "amount",
+          "transform": { "type": "type_coercion", "targetType": "number" }
+        },
+        "currency": {
+          "source": "currency",
+          "transform": { "type": "direct" }
+        },
+        "status": {
+          "source": "status",
+          "transform": { "type": "direct" }
+        },
+        "payment-method-type": {
+          "source": "payment_method_type",
+          "transform": { "type": "direct" }
+        },
+        "created": {
+          "source": "created",
+          "transform": { "type": "type_coercion", "targetType": "datetime" }
+        }
+      }
+    },
+    {
+      "entityTypeKey": "stripe-invoice",
+      "mappings": {
+        "number": {
+          "source": "number",
+          "transform": { "type": "direct" }
+        },
+        "amount-due": {
+          "source": "amount_due",
+          "transform": { "type": "type_coercion", "targetType": "number" }
+        },
+        "amount-paid": {
+          "source": "amount_paid",
+          "transform": { "type": "type_coercion", "targetType": "number" }
+        },
+        "status": {
+          "source": "status",
+          "transform": { "type": "direct" }
+        },
+        "due-date": {
+          "source": "due_date",
+          "transform": { "type": "type_coercion", "targetType": "date" }
+        },
+        "created": {
+          "source": "created",
+          "transform": { "type": "type_coercion", "targetType": "datetime" }
+        }
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "key": "customer-invoices",
+      "sourceEntityTypeKey": "stripe-customer",
+      "name": "Invoices",
+      "cardinality": "ONE_TO_MANY",
+      "targetEntityTypeKey": "stripe-invoice",
+      "protected": true
+    },
+    {
+      "key": "customer-payments",
+      "sourceEntityTypeKey": "stripe-customer",
+      "name": "Payment Intents",
+      "cardinality": "ONE_TO_MANY",
+      "targetEntityTypeKey": "stripe-payment-intent",
+      "protected": true
+    }
+  ]
+}

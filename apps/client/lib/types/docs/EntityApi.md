@@ -6,7 +6,7 @@ All URIs are relative to *http://localhost:8081*
 |------------- | ------------- | -------------|
 | [**addRelationship**](EntityApi.md#addrelationshipoperation) | **POST** /api/v1/entity/workspace/{workspaceId}/entities/{entityId}/relationships | Add a relationship between two entities |
 | [**createEntityType**](EntityApi.md#createentitytypeoperation) | **POST** /api/v1/entity/schema/workspace/{workspaceId} | Create a new entity type |
-| [**deleteEntities**](EntityApi.md#deleteentities) | **PUT** /api/v1/entity/workspace/{workspaceId}/delete | Bulk deletes entities by ID selection or filter-based selection |
+| [**deleteEntities**](EntityApi.md#deleteentities) | **POST** /api/v1/entity/workspace/{workspaceId}/delete | Bulk deletes entities by ID selection or filter-based selection |
 | [**deleteEntityTypeByKey**](EntityApi.md#deleteentitytypebykey) | **DELETE** /api/v1/entity/schema/workspace/{workspaceId}/key/{key} | Delete an entity type by key |
 | [**deleteEntityTypeDefinition**](EntityApi.md#deleteentitytypedefinition) | **DELETE** /api/v1/entity/schema/workspace/{workspaceId}/definition | Removes an attribute or relationship from an entity type |
 | [**getEntityByTypeIdForWorkspace**](EntityApi.md#getentitybytypeidforworkspace) | **GET** /api/v1/entity/workspace/{workspaceId}/type/{id} | Get all entity types for an workspace for a provided entity type |
@@ -245,6 +245,8 @@ example().catch(console.error);
 |-------------|-------------|------------------|
 | **200** | Entities deleted successfully |  -  |
 | **400** | Invalid request |  -  |
+| **401** | Unauthorized |  -  |
+| **404** | No entities found matching selection criteria |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 

@@ -45,6 +45,14 @@
         "$ref": "#/$defs/fieldMapping"
       },
       "description": "Optional array of field mapping entries that map external provider fields to entity type attributes."
+    },
+    "syncModels": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "description": "Entity type key this Nango model maps to."
+      },
+      "description": "Maps Nango sync model names (e.g. 'contacts') to entity type keys (e.g. 'hubspot-contact'). Required for sync webhook dispatch to resolve the correct entity type."
     }
   },
   "$defs": {

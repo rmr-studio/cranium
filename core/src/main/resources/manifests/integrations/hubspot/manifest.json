@@ -3,6 +3,13 @@
   "key": "hubspot",
   "name": "HubSpot",
   "description": "HubSpot CRM integration providing contacts, companies, deals, tickets, and notes with full relationship mapping.",
+  "syncModels": {
+    "contacts": "hubspot-contact",
+    "companies": "hubspot-company",
+    "deals": "hubspot-deal",
+    "tickets": "hubspot-ticket",
+    "notes": "hubspot-note"
+  },
   "entityTypes": [
     {
       "key": "hubspot-contact",

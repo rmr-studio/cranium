@@ -68,6 +68,24 @@ class NangoWebhookService(
      * Extracts workspace context from tags, creates or reconnects the integration connection,
      * creates or restores the installation record, and triggers template materialization.
      * All failures are logged and swallowed — Nango must receive a 200 response.
+     *
+     * ## Nango Tag Field Mapping
+     *
+     * Nango's webhook tags have typed field names (endUserId, organizationId, endUserEmail)
+     * but we repurpose them to carry Riven-specific UUIDs because Nango doesn't support
+     * custom metadata fields. The mapping is:
+     *
+     * | Nango Tag Field   | Riven Value              | Rationale                           |
+     * |-------------------|--------------------------|-------------------------------------|
+     * | endUserId         | userId (UUID)            | Closest semantic match              |
+     * | organizationId    | workspaceId (UUID)       | Org ~ workspace                     |
+     * | endUserEmail      | integrationDefinitionId  | Abused field, no better alternative |
+     *
+     * These tags are set when the frontend calls `nango.openConnectUI()` with the workspace
+     * context. If Nango ever adds custom metadata fields or validates endUserEmail as an
+     * email format, this mapping will need to change.
+     *
+     * @see NangoWebhookPayload.tags for the tag structure
      */
     private fun handleAuthEvent(payload: NangoWebhookPayload) {
         val tags = payload.tags

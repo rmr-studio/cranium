@@ -93,6 +93,17 @@
 **Context:** STALE is already in the ConnectionStatus enum with valid transitions (STALE → SYNCING, STALE → DISCONNECTING, STALE → FAILED). Implementation options: (1) scheduled job that scans connections by lastSyncedAt, (2) check during health evaluation if syncState.updatedAt is older than threshold. The threshold value (e.g., 7 days) should be configurable.
 **Depends on / blocked by:** Phase 4 health service must be complete first.
 
+## Circuit breaker on consecutive sync failures
+
+**What:** Add a guard in `NangoWebhookService.handleSyncEvent()` that checks `consecutiveFailureCount` or `ConnectionStatus == DEGRADED` before dispatching a Temporal workflow. Skip dispatch if threshold exceeded.
+**Why:** Without this, Nango keeps sending sync webhooks and the system keeps spawning Temporal workflows that fail, consuming Temporal capacity and generating noisy logs.
+**Pros:** Prevents unbounded failed workflow execution; surfaces connection issues more clearly.
+**Cons:** Could mask transient failures that would self-resolve; needs a manual "retry" mechanism.
+**Context:** `IntegrationSyncStateEntity.consecutiveFailureCount` and `IntegrationHealthService` DEGRADED threshold (>=3) already exist. The guard checks this state in `handleSyncEvent()` before `WorkflowClient.start()`. A workspace admin "Force Retry" action can reset the counter.
+**Effort:** S
+**Priority:** P1 (implement before production)
+**Depends on:** Integration sync pipeline bug fixes (this branch)
+
 ## SYNC-01 through SYNC-07 traceability cleanup
 
 **What:** Update SYNC-01 through SYNC-07 from "Pending" to "Complete" in the REQUIREMENTS.md traceability table.
@@ -156,31 +167,18 @@
 
 ## Strategic
 
-### Entity Ingestion Pipeline — Classify, Route, Map, Resolve
+### Entity Ingestion Pipeline — Remaining Work
 
-**Priority:** P1
-**Effort:** L (human: ~3 weeks) / L (CC: ~2 hours)
-**Depends on:** Lifecycle Spine (merged), Integration Sync State (merged), Identity Resolution (PR)
+**Priority:** P0 (blocks all integration testing)
+**Effort:** S (human: ~2 days) / S (CC: ~2 hours)
+**Status:** Pipeline implemented, 4 bugs fixed (syncModels mapping, transform parsing,
+key mapping persistence, N+1 relationship definitions). Ready for E2E testing.
 
-**What:** Build the 4-step ingestion pipeline that bridges integration data → core entity hub. This is the critical path to the "single source of truth" vision.
-
-**Why:** Without this pipeline, integration entities and core entities are disconnected populations. Users can't see Zendesk tickets in their Support Ticket table, can't see a unified Customer view, and can't get aggregation columns like "Open Tickets: 3." This pipeline is the missing piece between "integrations connect" and "data is useful."
-
-**Pipeline steps:**
-1. **Classify**: Determine `(LifecycleDomain, SemanticGroup)` from integration manifest metadata
-2. **Route**: Match `ProjectionAcceptRule` to target core entity type
-3. **Map Fields**: Transform source fields → core schema via `CatalogFieldMappingEntity`
-4. **Identity Resolution**: Match incoming data to existing entities (sourceExternalId, then identifier key like email)
-
-**New components:** `FieldMappingService`, `IdentityResolutionService`, `EntityProjectionService`, `IntegrationSyncWorkflow` (Temporal), `IntegrationSyncActivities`
-
-**Key architectural decisions (eng review 2026-03-27):**
-- Hub Model: core entity types are user-facing hub, integration entities are hidden infrastructure
-- Source wins: mapped fields owned by integration, overwritten on sync. Unmapped fields are user-owned.
-- Most recent sync wins: timestamp-based multi-source conflict resolution
-- Field-level audit trail on sync overwrites via activityService
-- Temporal execution with activity-level retry and cursor pagination
-- `SourceType.PROJECTED` + `ProjectionAcceptRule` as `List<ProjectionAcceptRule>`
+**What remains:**
+- E2E testing with real HubSpot dev portal
+- Capture real Nango payload fixtures as test data
+- Manifest schema evolution tests (attribute add/remove/modify)
+- Additional manifests (Stripe, Intercom, PostHog) after HubSpot E2E proven
 
 **Context:** See eng review plan at `.claude/plans/sleepy-doodling-spark.md` and feature design at `docs/system-design/feature-design/1. Planning/Entity Ingestion Pipeline.md`.
 

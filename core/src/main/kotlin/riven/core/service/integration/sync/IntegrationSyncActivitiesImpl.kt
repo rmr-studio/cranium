@@ -11,6 +11,7 @@ import riven.core.entity.entity.EntityRelationshipEntity
 import riven.core.entity.entity.EntityTypeEntity
 import riven.core.entity.integration.IntegrationSyncStateEntity
 import riven.core.enums.common.validation.SchemaType
+import riven.core.enums.integration.CoercionType
 import riven.core.enums.integration.ConnectionStatus
 import riven.core.enums.integration.SourceType
 import riven.core.enums.integration.SyncStatus
@@ -294,12 +295,51 @@ class IntegrationSyncActivitiesImpl(
 
             result[attrKey] = ResolvedFieldMapping(
                 sourcePath = sourcePath,
-                transform = FieldTransform.Direct,
+                transform = parseTransform(def),
                 targetSchemaType = schemaType,
             )
         }
 
         return result
+    }
+
+    /**
+     * Parses a transform block from the raw JSONB field mapping into a FieldTransform.
+     *
+     * Handles all four transform types: direct, type_coercion, default_value, json_path_extraction.
+     * Returns FieldTransform.Direct if the transform block is missing or unrecognised.
+     */
+    @Suppress("UNCHECKED_CAST")
+    private fun parseTransform(rawDef: Map<String, Any>): FieldTransform {
+        val transformMap = rawDef["transform"] as? Map<String, Any> ?: return FieldTransform.Direct
+        val type = transformMap["type"] as? String ?: return FieldTransform.Direct
+
+        return when (type) {
+            "direct" -> FieldTransform.Direct
+            "type_coercion" -> {
+                val targetType = transformMap["targetType"] as? String
+                    ?: return FieldTransform.Direct
+                val coercionType = CoercionType.entries.firstOrNull { it.name.equals(targetType, ignoreCase = true) }
+                if (coercionType == null) {
+                    logger.warn { "Unknown coercion targetType '$targetType' — falling back to Direct" }
+                    return FieldTransform.Direct
+                }
+                FieldTransform.TypeCoercion(coercionType)
+            }
+            "default_value" -> {
+                val value = transformMap["value"]
+                FieldTransform.DefaultValue(value)
+            }
+            "json_path_extraction" -> {
+                val path = transformMap["path"] as? String
+                    ?: return FieldTransform.Direct
+                FieldTransform.JsonPathExtraction(path)
+            }
+            else -> {
+                logger.warn { "Unknown transform type '$type' — falling back to Direct" }
+                FieldTransform.Direct
+            }
+        }
     }
 
     /**

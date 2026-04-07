@@ -8,8 +8,8 @@ Content node containing a block with optional children
 Name | Type
 ------------ | -------------
 `block` | [Block](Block.md)
-`warnings` | Array&lt;string&gt;
 `type` | [NodeType](NodeType.md)
+`warnings` | Array&lt;string&gt;
 `children` | [Array&lt;Node&gt;](Node.md)
 
 ## Example
@@ -20,8 +20,8 @@ import type { ContentNode } from ''
 // TODO: Update the object below with actual values
 const example = {
   "block": null,
-  "warnings": null,
   "type": null,
+  "warnings": null,
   "children": null,
 } satisfies ContentNode
 

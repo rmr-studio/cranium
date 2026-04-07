@@ -7,8 +7,8 @@
 Name | Type
 ------------ | -------------
 `block` | [Block](Block.md)
-`warnings` | Array&lt;string&gt;
 `type` | [NodeType](NodeType.md)
+`warnings` | Array&lt;string&gt;
 `children` | [Array&lt;Node&gt;](Node.md)
 `reference` | [ReferenceNodeAllOfReference1](ReferenceNodeAllOfReference1.md)
 
@@ -20,8 +20,8 @@ import type { UpdateBlockOperationAllOfUpdatedContent } from ''
 // TODO: Update the object below with actual values
 const example = {
   "block": null,
-  "warnings": null,
   "type": null,
+  "warnings": null,
   "children": null,
   "reference": null,
 } satisfies UpdateBlockOperationAllOfUpdatedContent

@@ -1,16 +1,16 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'next/navigation';
 import { Search } from 'lucide-react';
+import { useParams } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 
-import { Input } from '@riven/ui/input';
-import { useIntegrations } from '@/components/feature-modules/integrations/hooks/query/use-integrations';
-import { useIntegrationStatus } from '@/components/feature-modules/integrations/hooks/query/use-integration-status';
 import { IntegrationCard } from '@/components/feature-modules/integrations/components/integration-card';
 import { IntegrationCatalogSkeleton } from '@/components/feature-modules/integrations/components/integration-catalog-skeleton';
-import { cn } from '@/lib/util/utils';
+import { useIntegrationStatus } from '@/components/feature-modules/integrations/hooks/query/use-integration-status';
+import { useIntegrations } from '@/components/feature-modules/integrations/hooks/query/use-integrations';
 import { ConnectionStatus } from '@/lib/types/integration';
+import { cn } from '@/lib/util/utils';
+import { Input } from '@riven/ui/input';
 import { toast } from 'sonner';
 
 const CATEGORY_TABS = [
@@ -29,14 +29,24 @@ export function IntegrationCatalog() {
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<CategoryValue>('ALL');
 
-  const { data: integrations, isLoading: isLoadingIntegrations, isError: isIntegrationsError } = useIntegrations();
-  const { data: connections, isLoading: isLoadingConnections, isError: isConnectionsError } = useIntegrationStatus(workspaceId);
+  const {
+    data: integrations,
+    isLoading: isLoadingIntegrations,
+    isError: isIntegrationsError,
+  } = useIntegrations();
+  const {
+    data: connections,
+    isLoading: isLoadingConnections,
+    isError: isConnectionsError,
+  } = useIntegrationStatus(workspaceId);
 
   const connectedIds = useMemo(() => {
     if (!connections) return new Set<string>();
     return new Set(
       connections
-        .filter((c) => c.status !== ConnectionStatus.Disconnected && c.status !== ConnectionStatus.Failed)
+        .filter(
+          (c) => c.status !== ConnectionStatus.Disconnected && c.status !== ConnectionStatus.Failed,
+        )
         .map((c) => c.integrationId),
     );
   }, [connections]);
@@ -60,7 +70,7 @@ export function IntegrationCatalog() {
   }, [isError]);
 
   return (
-    <div className="space-y-6">
+    <div className="relative space-y-6 overflow-hidden">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Integrations</h1>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -87,7 +97,7 @@ export function IntegrationCatalog() {
         </div>
 
         <div className="relative w-full sm:w-64">
-          <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search integrations..."
             value={search}

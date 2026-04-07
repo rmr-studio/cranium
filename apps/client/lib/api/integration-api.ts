@@ -1,5 +1,5 @@
-import { IntegrationsApi, Configuration } from '@/lib/types';
 import { Session } from '@/lib/auth';
+import { Configuration, IntegrationsApi } from '@/lib/types';
 
 export function createIntegrationApi(session: Session): IntegrationsApi {
   const basePath = process.env.NEXT_PUBLIC_API_URL;

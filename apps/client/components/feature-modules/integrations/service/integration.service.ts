@@ -1,13 +1,16 @@
-import { createIntegrationApi, createPublicIntegrationApi } from '@/lib/api/integration-api';
+import { createIntegrationApi } from '@/lib/api/integration-api';
 import { Session } from '@/lib/auth';
-import { IntegrationDefinitionModel, IntegrationConnectionModel } from '@/lib/types/integration';
+import { IntegrationConnectionModel, IntegrationDefinitionModel } from '@/lib/types/integration';
 import { normalizeApiError } from '@/lib/util/error/error.util';
 import { validateSession, validateUuid } from '@/lib/util/service/service.util';
 
 export class IntegrationService {
-  static async getAvailableIntegrations(): Promise<IntegrationDefinitionModel[]> {
+  static async getAvailableIntegrations(
+    session: Session | null,
+  ): Promise<IntegrationDefinitionModel[]> {
+    validateSession(session);
     try {
-      const api = createPublicIntegrationApi();
+      const api = createIntegrationApi(session);
       return await api.listAvailableIntegrations();
     } catch (error) {
       return await normalizeApiError(error);

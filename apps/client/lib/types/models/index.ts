@@ -142,6 +142,7 @@ export * from './ListConfig';
 export * from './ListDisplayConfig';
 export * from './ListFilterLogicType';
 export * from './Literal';
+export * from './MatchSignalType';
 export * from './MatchSuggestionStatus';
 export * from './Metadata';
 export * from './MoveBlockOperation';

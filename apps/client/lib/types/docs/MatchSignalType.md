@@ -1,28 +1,20 @@
 
-# SaveSemanticMetadataRequest
+# MatchSignalType
 
 
 ## Properties
 
 Name | Type
 ------------ | -------------
-`definition` | string
-`classification` | [SemanticAttributeClassification](SemanticAttributeClassification.md)
-`signalType` | [MatchSignalType](MatchSignalType.md)
-`tags` | Array&lt;string&gt;
 
 ## Example
 
 ```typescript
-import type { SaveSemanticMetadataRequest } from ''
+import type { MatchSignalType } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "definition": null,
-  "classification": null,
-  "signalType": null,
-  "tags": null,
-} satisfies SaveSemanticMetadataRequest
+} satisfies MatchSignalType
 
 console.log(example)
 
@@ -31,7 +23,7 @@ const exampleJSON: string = JSON.stringify(example)
 console.log(exampleJSON)
 
 // Parse the JSON string back to an object
-const exampleParsed = JSON.parse(exampleJSON) as SaveSemanticMetadataRequest
+const exampleParsed = JSON.parse(exampleJSON) as MatchSignalType
 console.log(exampleParsed)
 ```
 

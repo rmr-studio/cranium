@@ -3,7 +3,6 @@
 import { AuthFrame } from '@/components/feature-modules/authentication/components/auth-frame';
 import { BGPattern } from '@/components/ui/background/grids';
 import { cn } from '@riven/utils';
-import Image from 'next/image';
 
 const INSET_VARS =
   '[--auth-ix:2rem] [--auth-iy:2.5rem] sm:[--auth-ix:2.5rem] sm:[--auth-iy:3rem] md:[--auth-ix:3rem] md:[--auth-iy:3.5rem] lg:[--auth-ix:4rem] lg:[--auth-iy:4rem]';
@@ -13,14 +12,7 @@ export function AuthBackground() {
     <div className={cn('pointer-events-none fixed inset-0 overflow-hidden', INSET_VARS)}>
       {/* Cave illustration — full bleed, faded */}
       <div className="absolute inset-0 z-0">
-        <Image
-          src="/cave-coloured.webp"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-center opacity-50 grayscale-75 transition-opacity duration-700 ease-out dark:grayscale-50"
-        />
+    
 
         {/* Radial vignette — darkens edges, keeps centre clear for the form */}
         <div

@@ -67,9 +67,6 @@ All fonts are loaded via `next/font/google` in `app/layout.tsx`.
 ### Dark Mode
 Invert the neutral scale. Reduce shadow opacity, increase shadow spread. Keep semantic colors at the same hue, adjust lightness for contrast.
 
-### Amber Mode
-The amber theme is Riven's creative signature — a warm sepia mode that signals craft. Neutrals shift to `oklch(0.91 0.035 78)` base with subtle hue. Promote as a first-class theme option.
-
 ### Color Rules
 - Color is rare and meaningful. If something has color, it has semantic intent.
 - Badges, tags, and status indicators are the primary carriers of color.
@@ -144,5 +141,5 @@ The dark inverted icon rail is Riven's structural signature. It establishes the 
 | 2026-03-20 | Keep Geist as primary font | Already loaded, matches aesthetic. At display sizes with tight tracking, achieves Midday's editorial feel. |
 | 2026-03-20 | Tighten radius to 0.5rem base | Matches Midday's tighter radius. 4px on interactive, 8px on containers. |
 | 2026-03-20 | Add shadow tokens | Lightfield uses shadows for depth instead of borders. Creates modern floating-card feel. |
-| 2026-03-20 | Amber theme as first-class mode | Creative signature. Most SaaS tools only have light+dark. Amber signals craft and taste. |
+
 | 2026-03-20 | Button radius: 4px (sm) | Compromise between Midday's 0px (too bold for SaaS) and current 10px (too rounded). Sharp but approachable. |

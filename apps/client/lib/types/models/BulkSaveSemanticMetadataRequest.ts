@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { MatchSignalType } from './MatchSignalType';
+import {
+    MatchSignalTypeFromJSON,
+    MatchSignalTypeFromJSONTyped,
+    MatchSignalTypeToJSON,
+    MatchSignalTypeToJSONTyped,
+} from './MatchSignalType';
 import type { SemanticAttributeClassification } from './SemanticAttributeClassification';
 import {
     SemanticAttributeClassificationFromJSON,
@@ -47,6 +54,12 @@ export interface BulkSaveSemanticMetadataRequest {
     classification?: SemanticAttributeClassification;
     /**
      * 
+     * @type {MatchSignalType}
+     * @memberof BulkSaveSemanticMetadataRequest
+     */
+    signalType?: MatchSignalType;
+    /**
+     * 
      * @type {Array<string>}
      * @memberof BulkSaveSemanticMetadataRequest
      */
@@ -77,6 +90,7 @@ export function BulkSaveSemanticMetadataRequestFromJSONTyped(json: any, ignoreDi
         'targetId': json['targetId'],
         'definition': json['definition'] == null ? undefined : json['definition'],
         'classification': json['classification'] == null ? undefined : SemanticAttributeClassificationFromJSON(json['classification']),
+        'signalType': json['signalType'] == null ? undefined : MatchSignalTypeFromJSON(json['signalType']),
         'tags': json['tags'],
     };
 }
@@ -95,6 +109,7 @@ export function BulkSaveSemanticMetadataRequestToJSONTyped(value?: BulkSaveSeman
         'targetId': value['targetId'],
         'definition': value['definition'],
         'classification': SemanticAttributeClassificationToJSON(value['classification']),
+        'signalType': MatchSignalTypeToJSON(value['signalType']),
         'tags': value['tags'],
     };
 }

@@ -26,7 +26,7 @@ Riven's Entity Semantics subdomain stores schema-level metadata (what an attribu
 - Two people in the same workspace can ask the same question and expect different answers
 - There's no trust layer — users can't verify what definition an answer used
 
-The semantic layer market (dbt, Cube, AtScale) solves this for enterprises with data warehouses and data teams. Riven's ICP (15-200 employees, no data team) has no equivalent. See [[Application Overview]] for ICP context.
+The semantic layer market (dbt, Cube, AtScale) solves this for enterprises with data warehouses and data teams. Riven's ICP (15-200 employees, no data team) has no equivalent. See [[1. Application Overview]] for ICP context.
 
 ### Proposed Solution
 
@@ -526,7 +526,7 @@ No backfill needed. Existing workspaces start with empty definitions and receive
 - [[Prompt Construction for Knowledge Model Queries]] — AI prompt pipeline that consumes definitions
 - [[Lifecycle Analytics Views]] — views that consume compiled definition parameters
 - [[Lifecycle-Aware Onboarding Flow]] — onboarding flow gains definition prompt step
-- [[Application Overview]] — problem statement and ICP context
+- [[1. Application Overview]] — problem statement and ICP context
 - [[Launch Scope and Phasing]] — Phase 1 scope includes this feature
 
 **CEO Plan:** `~/.gstack/projects/Dawaad-docs/ceo-plans/2026-04-01-semantic-definition-layer.md`

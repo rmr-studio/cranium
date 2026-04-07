@@ -15,8 +15,7 @@ import { NAV_LINKS_FLAT } from '@/lib/navigation';
 import { scrollToHashOnLoad, scrollToSection } from '@/lib/scroll';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/providers/auth-provider';
-import { Logo } from '@riven/ui/logo';
-import { ThemeToggle } from '@riven/ui/theme-toggle';
+import { LogoBackground } from '@riven/ui/logo';
 import { Menu } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
@@ -75,15 +74,19 @@ export function Navbar() {
       <nav
         data-navbar=""
         {...(isInverted ? { 'data-inverted': '' } : {})}
-        className={`paper-lite flex h-12 w-full items-center justify-between border-y bg-background shadow-lg transition-colors md:h-14`}
+        className={`paper-lite flex h-16 w-full items-center justify-between border-y bg-background shadow-lg md:h-14`}
       >
         {/* Inner content clamped to panel width */}
         <div className="clamp mx-auto flex h-full w-full items-center justify-between border-x">
           {/* Left: Logo + Nav Links */}
           <div className="flex items-center">
             <Link href="/" className="flex shrink-0 gap-1 px-3 md:px-4">
-              <Logo size={32} className="fill-logo-primary" />
-              <div className="mt-1 font-serif text-2xl font-normal text-logo-primary">Riven</div>
+              <LogoBackground
+                size={36}
+                className="mt-0.5 mr-1 rounded-md fill-primary"
+                logoClassname="fill-background"
+              />
+              <div className="mt-1 font-serif text-[2rem] tracking-tighter text-primary">Riven</div>
             </Link>
 
             {/* Nav Links - desktop only */}
@@ -139,9 +142,7 @@ export function Navbar() {
 
           {/* Right: ThemeToggle + CTA + Mobile Menu */}
           <div className="flex items-center gap-1.5 px-2 md:gap-2 md:px-4">
-            <div className="hidden md:block">
-              <ThemeToggle />
-            </div>
+           
             {!loading && user ? (
               <Link href={CLIENT_URL}>
                 <CtaButton size="sm">

@@ -2,8 +2,8 @@ declare namespace NodeJS {
   interface ProcessEnv {
     NODE_ENV: 'development' | 'production' | 'test';
 
-    /** Resend API key — server-only, never expose to client */
-    RESEND_API_KEY: string;
+    /** Slack incoming webhook URL — server-only, never expose to client */
+    SLACK_WEBHOOK_URL: string;
 
     /** Supabase project URL */
     NEXT_PUBLIC_SUPABASE_URL: string;
@@ -27,5 +27,8 @@ declare namespace NodeJS {
 
     /** CDN URL for static assets */
     NEXT_PUBLIC_CDN_URL?: string;
+
+    /** Google Tag Manager container ID (e.g. GTM-XXXXXXX) */
+    NEXT_PUBLIC_GTM_ID?: string;
   }
 }

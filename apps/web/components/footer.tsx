@@ -2,7 +2,10 @@
 
 import { NAV_LINKS } from '@/lib/navigation';
 import { scrollToSection } from '@/lib/scroll';
-import { Logo } from '@riven/ui/logo';
+import { Button } from '@riven/ui/button';
+import { LogoBackground } from '@riven/ui/logo';
+import { Moon, Sun } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import Link from 'next/link';
 
 const footerLinks = {
@@ -23,23 +26,39 @@ const socialLinks = [
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
+  const { theme, setTheme } = useTheme();
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
 
   return (
     <footer className="paper-lite border-t bg-background px-8 pt-14 pb-10 md:px-8 md:pt-20 md:pb-14 lg:px-12">
       <div className="mx-auto max-w-7xl">
         {/* Top: Logo/tagline + link columns */}
         <div className="flex flex-col gap-10 md:flex-row md:justify-between">
-          <div className="flex flex-col gap-5">
+          <div className="mx-auto flex flex-col sm:mx-0">
             <Link href="/" className="flex items-center gap-2.5">
-              <Logo size={64} className="fill-logo-primary" />
-              <span className="mt-2 font-serif text-5xl font-normal tracking-tight text-logo-primary">
+              <LogoBackground
+                size={102}
+                className="scale-80 fill-primary sm:scale-100"
+                logoClassname="fill-background"
+              />
+              <span className="mt-2 font-serif text-6xl font-normal tracking-tight text-primary sm:ml-4 md:text-8xl">
                 Riven
               </span>
             </Link>
-            <div className="max-w-xs text-sm leading-relaxed text-muted-foreground">
-              <p>Powerful Alone.</p>
-              <p>Unstoppable Together.</p>
+            <div className="mx-auto tracking-tight text-muted-foreground sm:mx-0 sm:text-xl">
+              Move fast. Act fast. Grow Fast.
             </div>
+            <Button
+              variant="outline"
+              className="mt-6 hidden w-max border-primary sm:flex"
+              onClick={toggleTheme}
+            >
+              {theme === 'dark' ? <Sun /> : <Moon />}
+              {theme === 'dark' ? 'Light' : 'Dark'} Mode
+            </Button>
           </div>
 
           <div className="flex gap-16 md:gap-20">
@@ -51,6 +70,7 @@ export function Footer() {
                 {socialLinks.map((link) => (
                   <li key={link.label}>
                     <Link
+                      target="_blank"
                       href={link.href}
                       className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >

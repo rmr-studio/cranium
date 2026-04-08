@@ -15,6 +15,9 @@ import riven.core.service.workflow.engine.WorkflowOrchestration
 import riven.core.service.workflow.engine.WorkflowOrchestrationService
 import riven.core.service.workflow.engine.completion.WorkflowCompletionActivityImpl
 import riven.core.service.workflow.engine.coordinator.WorkflowCoordinationService
+import riven.core.service.workflow.enrichment.EnrichmentActivitiesImpl
+import riven.core.service.workflow.enrichment.EnrichmentWorkflow
+import riven.core.service.workflow.enrichment.EnrichmentWorkflowImpl
 import riven.core.service.workflow.identity.IdentityMatchActivitiesImpl
 import riven.core.service.workflow.identity.IdentityMatchWorkflow
 import riven.core.service.workflow.identity.IdentityMatchWorkflowImpl
@@ -53,6 +56,7 @@ class TemporalWorkerConfiguration(
     private val identityMatchActivities: IdentityMatchActivitiesImpl,
     private val logger: KLogger,
     private val integrationSyncActivities: IntegrationSyncActivities,
+    private val enrichmentActivities: EnrichmentActivitiesImpl,
 ) {
 
     companion object {
@@ -89,6 +93,14 @@ class TemporalWorkerConfiguration(
          * the default workflow queue.
          */
         const val INTEGRATION_SYNC_QUEUE = "integration.sync"
+
+        /**
+         * Dedicated task queue for entity embedding enrichment workflows and activities.
+         *
+         * Isolated from other queues so that embedding API latency does not affect
+         * workflow or identity matching workloads.
+         */
+        const val ENRICHMENT_EMBED_QUEUE = "enrichment.embed"
 
         /**
          * Generate task queue name for a workspace.
@@ -164,9 +176,17 @@ class TemporalWorkerConfiguration(
         syncWorker.registerActivitiesImplementations(integrationSyncActivities)
         logger.info { "Registered activities: IntegrationSyncActivities" }
 
+        // Create worker for enrichment embedding pipeline on dedicated queue
+        val enrichmentWorker = factory.newWorker(ENRICHMENT_EMBED_QUEUE)
+        enrichmentWorker.registerWorkflowImplementationFactory(EnrichmentWorkflow::class.java) {
+            EnrichmentWorkflowImpl()
+        }
+        enrichmentWorker.registerActivitiesImplementations(enrichmentActivities)
+        logger.info { "Registered enrichment workflow and activities on task queue: $ENRICHMENT_EMBED_QUEUE" }
+
         // Start workers (non-blocking - workers poll Temporal Service in background)
         factory.start()
-        logger.info { "Temporal WorkerFactory started, listening on task queues: $WORKFLOWS_DEFAULT_QUEUE, $IDENTITY_MATCH_QUEUE, $INTEGRATION_SYNC_QUEUE" }
+        logger.info { "Temporal WorkerFactory started, listening on task queues: $WORKFLOWS_DEFAULT_QUEUE, $IDENTITY_MATCH_QUEUE, $INTEGRATION_SYNC_QUEUE, $ENRICHMENT_EMBED_QUEUE" }
 
         // Store instance for shutdown
         workerFactoryInstance = factory

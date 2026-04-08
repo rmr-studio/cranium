@@ -6,13 +6,15 @@ import { ONBOARD_STEPS } from '@/components/feature-modules/onboarding/config/on
 import { useOnboardStepState } from '@/components/feature-modules/onboarding/hooks/use-onboard-store';
 import { ProfileStepForm } from '@/components/feature-modules/onboarding/components/forms/profile-step-form';
 import { TeamStepForm } from '@/components/feature-modules/onboarding/components/forms/team-step-form';
-import { TemplateStepForm } from '@/components/feature-modules/onboarding/components/forms/template-step-form';
+import { DefinitionsStepForm } from '@/components/feature-modules/onboarding/components/forms/definitions-step-form';
+import { ChannelsStepForm } from '@/components/feature-modules/onboarding/components/forms/channels-step-form';
 import { WorkspaceStepForm } from '@/components/feature-modules/onboarding/components/forms/workspace-step-form';
 
 const STEP_FORMS: Record<string, React.ComponentType> = {
   profile: ProfileStepForm,
   workspace: WorkspaceStepForm,
-  templates: TemplateStepForm,
+  definitions: DefinitionsStepForm,
+  channels: ChannelsStepForm,
   team: TeamStepForm,
 };
 

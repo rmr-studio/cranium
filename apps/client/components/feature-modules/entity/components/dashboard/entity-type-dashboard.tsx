@@ -36,11 +36,7 @@ export const EntityTypeOverviewDashboard = () => {
   }, [isPending, isLoadingAuth, entityType, error, router]);
 
   if (isPending) {
-    return (
-      <div className="px-12 py-6">
-        <div>Loading entity type...</div>
-      </div>
-    );
+    return <div>Loading entity type...</div>;
   }
 
   if (!entityType) return null;
@@ -68,7 +64,7 @@ export const EntityTypeOverviewDashboard = () => {
   ];
 
   return (
-    <div className="px-12 py-6">
+    <>
       <header className="mb-8 flex items-center justify-between">
         <BreadCrumbGroup items={trail} />
       </header>
@@ -77,6 +73,6 @@ export const EntityTypeOverviewDashboard = () => {
           <EntityTypeOverview workspaceId={workspaceId} entityType={entityType} />
         </EntityTypeConfigurationProvider>
       </section>
-    </div>
+    </>
   );
 };

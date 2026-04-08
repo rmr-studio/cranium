@@ -12,6 +12,7 @@ apis/WebhooksApi.ts
 apis/WorkflowApi.ts
 apis/WorkspaceApi.ts
 apis/index.ts
+docs/AcquisitionChannel.md
 docs/AddBlockOperation.md
 docs/AddBlockOperationAllOfBlock.md
 docs/AddClusterMemberRequest.md
@@ -56,6 +57,7 @@ docs/BlockTypeNesting.md
 docs/BreakpointConfig.md
 docs/BulkSaveSemanticMetadataRequest.md
 docs/BulkUpdateErrorHandling.md
+docs/BusinessDefinitionResult.md
 docs/BusinessType.md
 docs/ClusterDetailResponse.md
 docs/ClusterMemberContext.md
@@ -74,6 +76,7 @@ docs/ConnectionStatus.md
 docs/ContentNode.md
 docs/CountMatches.md
 docs/CreateBlockTypeRequest.md
+docs/CreateBusinessDefinitionRequest.md
 docs/CreateEntityTypeRequest.md
 docs/CreateNoteRequest.md
 docs/CreateNotificationRequest.md
@@ -84,6 +87,9 @@ docs/CursorPageWorkspaceNote.md
 docs/DataFormat.md
 docs/DataPath.md
 docs/DataType.md
+docs/DefinitionCategory.md
+docs/DefinitionSource.md
+docs/DefinitionStatus.md
 docs/DeleteAttributeDefinitionRequest.md
 docs/DeleteDefinitionImpact.md
 docs/DeleteEntityRequest.md
@@ -153,6 +159,7 @@ docs/ListConfig.md
 docs/ListDisplayConfig.md
 docs/ListFilterLogicType.md
 docs/Literal.md
+docs/MatchSignalType.md
 docs/MatchSuggestionStatus.md
 docs/Metadata.md
 docs/MoveBlockOperation.md
@@ -172,6 +179,7 @@ docs/NotificationInboxResponse.md
 docs/NotificationReferenceType.md
 docs/NotificationType.md
 docs/OnboardingApi.md
+docs/OnboardingBusinessDefinition.md
 docs/OnboardingInvite.md
 docs/OnboardingProfile.md
 docs/OnboardingWorkspace.md
@@ -273,6 +281,7 @@ docs/TypeBranch.md
 docs/TypeDefinition.md
 docs/UpdateBlockOperation.md
 docs/UpdateBlockOperationAllOfUpdatedContent.md
+docs/UpdateBusinessDefinitionRequest.md
 docs/UpdateEntityTypeConfigurationRequest.md
 docs/UpdateMetadataRequest.md
 docs/UpdateNoteRequest.md
@@ -331,6 +340,7 @@ docs/WorkflowUtilityConfig.md
 docs/WorkflowWebhookTriggerConfig.md
 docs/Workspace.md
 docs/WorkspaceApi.md
+docs/WorkspaceBusinessDefinition.md
 docs/WorkspaceDefaultCurrency.md
 docs/WorkspaceDisplay.md
 docs/WorkspaceInvite.md
@@ -340,6 +350,7 @@ docs/WorkspaceNote.md
 docs/WorkspacePlan.md
 docs/WorkspaceRoles.md
 index.ts
+models/AcquisitionChannel.ts
 models/AddBlockOperation.ts
 models/AddBlockOperationAllOfBlock.ts
 models/AddClusterMemberRequest.ts
@@ -383,6 +394,7 @@ models/BlockTypeNesting.ts
 models/BreakpointConfig.ts
 models/BulkSaveSemanticMetadataRequest.ts
 models/BulkUpdateErrorHandling.ts
+models/BusinessDefinitionResult.ts
 models/BusinessType.ts
 models/ClusterDetailResponse.ts
 models/ClusterMemberContext.ts
@@ -401,6 +413,7 @@ models/ConnectionStatus.ts
 models/ContentNode.ts
 models/CountMatches.ts
 models/CreateBlockTypeRequest.ts
+models/CreateBusinessDefinitionRequest.ts
 models/CreateEntityTypeRequest.ts
 models/CreateNoteRequest.ts
 models/CreateNotificationRequest.ts
@@ -411,6 +424,9 @@ models/CursorPageWorkspaceNote.ts
 models/DataFormat.ts
 models/DataPath.ts
 models/DataType.ts
+models/DefinitionCategory.ts
+models/DefinitionSource.ts
+models/DefinitionStatus.ts
 models/DeleteAttributeDefinitionRequest.ts
 models/DeleteDefinitionImpact.ts
 models/DeleteEntityRequest.ts
@@ -476,6 +492,7 @@ models/ListConfig.ts
 models/ListDisplayConfig.ts
 models/ListFilterLogicType.ts
 models/Literal.ts
+models/MatchSignalType.ts
 models/MatchSuggestionStatus.ts
 models/Metadata.ts
 models/MoveBlockOperation.ts
@@ -492,6 +509,7 @@ models/NotificationInboxItem.ts
 models/NotificationInboxResponse.ts
 models/NotificationReferenceType.ts
 models/NotificationType.ts
+models/OnboardingBusinessDefinition.ts
 models/OnboardingInvite.ts
 models/OnboardingProfile.ts
 models/OnboardingWorkspace.ts
@@ -592,6 +610,7 @@ models/TypeBranch.ts
 models/TypeDefinition.ts
 models/UpdateBlockOperation.ts
 models/UpdateBlockOperationAllOfUpdatedContent.ts
+models/UpdateBusinessDefinitionRequest.ts
 models/UpdateEntityTypeConfigurationRequest.ts
 models/UpdateMetadataRequest.ts
 models/UpdateNoteRequest.ts
@@ -646,6 +665,7 @@ models/WorkflowUtilityActionType.ts
 models/WorkflowUtilityConfig.ts
 models/WorkflowWebhookTriggerConfig.ts
 models/Workspace.ts
+models/WorkspaceBusinessDefinition.ts
 models/WorkspaceDefaultCurrency.ts
 models/WorkspaceDisplay.ts
 models/WorkspaceInvite.ts

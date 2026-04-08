@@ -35,10 +35,6 @@ const defaultShaders: Record<string, ShaderColors> = {
     base: '#75618c',
     colors: ['#1a3a4a', '#2a2a3a', '#1a1a2a'],
   },
-  amber: {
-    base: '#1a1a2a',
-    colors: ['#c6750c', '#1a1a2a', '#1a3a4a'],
-  },
 };
 
 /** Builds a CSS gradient fallback from a ShaderColors config. */

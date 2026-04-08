@@ -14,6 +14,7 @@ Name | Type
 `memberships` | [Array&lt;WorkspaceMember&gt;](WorkspaceMember.md)
 `defaultWorkspace` | [Workspace](Workspace.md)
 `onboardingCompletedAt` | Date
+`acquisitionChannels` | [Array&lt;AcquisitionChannel&gt;](AcquisitionChannel.md)
 
 ## Example
 
@@ -30,6 +31,7 @@ const example = {
   "memberships": null,
   "defaultWorkspace": null,
   "onboardingCompletedAt": null,
+  "acquisitionChannels": null,
 } satisfies User
 
 console.log(example)

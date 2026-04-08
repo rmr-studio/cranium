@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react';
 export function CtaStep({ onStart }: { onStart: () => void }) {
   return (
     <div className="mx-auto flex flex-col items-center py-16 text-center md:py-24">
-      <h2 className="gap-x-3 font-serif text-4xl leading-none tracking-tighter md:text-7xl">
+      <h2 className="gap-x-3 px-2 font-serif text-4xl leading-none tracking-tighter md:text-7xl">
         Your next breakthrough, On Us{' '}
       </h2>
       <div className="mx-auto mt-5 flex max-w-3xl flex-col space-y-6 px-4 leading-tight tracking-tight text-muted-foreground sm:mx-0 sm:text-lg">

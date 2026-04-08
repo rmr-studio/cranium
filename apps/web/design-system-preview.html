@@ -62,19 +62,6 @@
         --shadow-lg: 0px 8px 24px oklch(0 0 0 / 0.4);
       }
 
-      .amber {
-        --bg: oklch(0.91 0.035 78);
-        --bg-elevated: oklch(0.93 0.032 80);
-        --fg: oklch(0.25 0.02 60);
-        --content: oklch(0.45 0.04 65);
-        --heading: oklch(0.38 0.03 65);
-        --muted: oklch(0.88 0.04 75);
-        --muted-fg: oklch(0.45 0.03 65);
-        --border: oklch(0.25 0.02 60 / 0.15);
-        --primary: oklch(0.35 0.04 65);
-        --primary-fg: oklch(0.93 0.032 80);
-      }
-
       * {
         margin: 0;
         padding: 0;
@@ -685,7 +672,6 @@
     <div class="theme-bar">
       <button class="theme-btn active" onclick="setTheme('light')">Light</button>
       <button class="theme-btn" onclick="setTheme('dark')">Dark</button>
-      <button class="theme-btn" onclick="setTheme('amber')">Amber</button>
     </div>
 
     <!-- TYPOGRAPHY -->
@@ -786,7 +772,7 @@
       <div class="section-title">Restrained monochrome</div>
       <div class="section-desc">
         Zero chroma for the core system. Color is earned through semantic meaning, never decoration.
-        Toggle dark and amber modes above.
+        Toggle dark mode above.
       </div>
 
       <div class="palette-grid">

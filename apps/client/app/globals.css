@@ -5,7 +5,7 @@
 @source '../node_modules/@blocknote/shadcn';
 
 @custom-variant dark (&:is(.dark *));
-@custom-variant amber (&:is(.amber *));
+
 
 @theme inline {
   --color-background: var(--background);
@@ -139,44 +139,6 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-.amber {
-  --logo-primary: oklch(0.35 0 0);
-  --background: oklch(0.91 0.035 78);
-  --foreground: oklch(0.25 0.02 60);
-  --content: oklch(0.45 0.04 65);
-  --heading: oklch(0.38 0.03 65);
-  --card: oklch(0.91 0.035 78);
-  --card-foreground: oklch(0.25 0.02 60);
-  --popover: oklch(0.91 0.035 78);
-  --popover-foreground: oklch(0.25 0.02 60);
-  --primary: oklch(0.35 0.04 65);
-  --primary-foreground: oklch(0.93 0.032 80);
-  --secondary: oklch(0.9 0.038 76);
-  --secondary-foreground: oklch(0.25 0.02 60);
-  --muted: oklch(0.88 0.04 75);
-  --muted-foreground: oklch(0.45 0.03 65);
-  --accent: oklch(0.75 0.1 70);
-  --accent-foreground: oklch(0.25 0.02 60);
-  --edit: oklch(0.8366 0.117 66.29);
-  --archive: oklch(0.585 0.204 277.12);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.25 0.02 60 / 15%);
-  --input: oklch(0.25 0.02 60 / 15%);
-  --ring: oklch(0.55 0.06 70);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.91 0.035 78);
-  --sidebar-foreground: oklch(0.25 0.02 60);
-  --sidebar-primary: oklch(0.35 0.04 65);
-  --sidebar-primary-foreground: oklch(0.93 0.032 80);
-  --sidebar-accent: oklch(0.88 0.04 75);
-  --sidebar-accent-foreground: oklch(0.25 0.02 60);
-  --sidebar-border: oklch(0.25 0.02 60 / 15%);
-  --sidebar-ring: oklch(0.55 0.06 70);
-}
 
 @layer base {
   * {
@@ -198,10 +160,7 @@
     background: black;
     opacity: 0.3;
   }
-  :is(.amber) body::after {
-    background: var(--foreground);
-    opacity: 0.1;
-  }
+
   body::before {
     content: '';
     position: fixed;

@@ -6,19 +6,25 @@ import riven.core.models.workspace.Workspace
 data class CompleteOnboardingResponse(
     val workspace: Workspace,
     val user: UserDisplay,
-    val templateResults: List<TemplateInstallResult> = emptyList(),
+    val templateResult: TemplateInstallResult,
     val inviteResults: List<InviteResult> = emptyList(),
+    val definitionResults: List<BusinessDefinitionResult> = emptyList(),
 )
 
 data class TemplateInstallResult(
     val key: String,
-    val success: Boolean,
-    val error: String? = null,
     val entityTypesCreated: Int = 0,
+    val relationshipsCreated: Int = 0,
 )
 
 data class InviteResult(
     val email: String,
+    val success: Boolean,
+    val error: String? = null,
+)
+
+data class BusinessDefinitionResult(
+    val term: String,
     val success: Boolean,
     val error: String? = null,
 )

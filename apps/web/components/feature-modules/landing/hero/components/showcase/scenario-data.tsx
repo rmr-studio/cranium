@@ -212,16 +212,16 @@ export const customerScenario: ShowcaseScenario = {
 
   kbQuery: (
     <>
-      Why are <PlatformChip icon={<BrandInstagram size={11} />} label="Instagram" /> customers
-      churning more than <PlatformChip icon={<BrandGoogle size={11} />} label="Google" /> customers
-      this quarter?
+      What do <PlatformChip icon={<BrandGoogle size={11} />} label="Google" /> customers do
+      differently that makes them retain at 2x the rate of{' '}
+      <PlatformChip icon={<BrandInstagram size={11} />} label="Instagram" /> customers?
     </>
   ),
   kbRetrieved: ['Sarah Chen', 'Marcus Webb', 'Priya Patel', 'Julian Voet', 'Elena Rodriguez'],
   kbAnalysedTitle: (
     <>
-      342 support tickets for <PlatformChip icon={<BrandInstagram size={11} />} label="Instagram" />{' '}
-      cohort
+      Retention patterns for <PlatformChip icon={<BrandGoogle size={11} />} label="Google" /> cohort
+      vs <PlatformChip icon={<BrandInstagram size={11} />} label="Instagram" />
     </>
   ),
   kbAnalysedCards: [
@@ -238,47 +238,43 @@ export const customerScenario: ShowcaseScenario = {
   ],
   kbIdentified: (
     <>
-      Common patterns in <BrandInstagram size={11} /> Instagram Stories acquisition
+      What <BrandGoogle size={11} /> Google Search customers do differently
     </>
   ),
   kbResponse: (
     <>
       <p className="text-sm leading-relaxed text-foreground/80">
-        Analysis of your Q3 dataset indicates a significant variance in retention between
-        acquisition channels. The{' '}
-        <PlatformChip icon={<BrandInstagram size={11} />} label="Instagram" /> cohort shows a churn
-        rate of <strong>14.2%</strong>, whereas the{' '}
-        <PlatformChip icon={<BrandGoogle size={11} />} label="Google Search" /> cohort remains
-        stable at <strong>6.8%</strong>.
+        Your <PlatformChip icon={<BrandGoogle size={11} />} label="Google Search" /> cohort retains
+        at <strong>93.2%</strong> — nearly double the{' '}
+        <PlatformChip icon={<BrandInstagram size={11} />} label="Instagram" /> cohort at{' '}
+        <strong>85.8%</strong>. Here&apos;s what they do differently.
       </p>
 
       <div className="rounded-md border-l-2 border-foreground/20 pl-3">
-        <p className="text-sm font-semibold text-foreground">Expectation Gap</p>
+        <p className="text-sm font-semibold text-foreground">Higher Product-Intent at Entry</p>
         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-          High-intent search users (
-          <PlatformChip icon={<BrandGoogle size={10} />} label="Google" />) align more closely with
-          the product&apos;s core utility, while social-referred users exhibit lower product-market
-          fit post-onboarding.
+          <PlatformChip icon={<BrandGoogle size={10} />} label="Google" /> customers arrive with
+          search intent that aligns with your core utility. They complete onboarding at{' '}
+          <strong>2.4x</strong> the rate and connect integrations within the first 48 hours.
         </p>
       </div>
 
       <div className="rounded-md border-l-2 border-foreground/20 pl-3">
-        <p className="text-sm font-semibold text-foreground">Friction Points</p>
+        <p className="text-sm font-semibold text-foreground">Repeat Purchase Behaviour</p>
         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-          Key individual contributors include{' '}
+          Top retained customers include{' '}
           <span className="rounded bg-muted px-1 text-foreground/70">Sarah Chen</span> ,{' '}
           <span className="rounded bg-muted px-1 text-foreground/70">Marcus Webb</span> ,{' '}
           <span className="rounded bg-muted px-1 text-foreground/70">Priya Patel</span> , and{' '}
-          <span className="rounded bg-muted px-1 text-muted-foreground">+15 more</span> who reported
-          issues with the mobile landing page loading times.
+          <span className="rounded bg-muted px-1 text-muted-foreground">+15 more</span> who average{' '}
+          <strong>3.1 orders/month</strong> with a repeat purchase rate of <strong>68%</strong>.
         </p>
       </div>
 
       <p className="text-sm leading-relaxed text-foreground/80">
-        Specifically, users acquired via{' '}
-        <PlatformChip icon={<BrandInstagram size={11} />} label="Instagram Stories ads" /> accounted
-        for 19 of 23 documented churn events in the last 14 days. These users typically abandon
-        during the &quot;Organization Setup&quot; phase.
+        The Google cohort&apos;s 90-day LTV is <strong>$284</strong> vs <strong>$112</strong> for
+        Instagram — a <strong>2.5x</strong> gap that widens each month. Doubling down on this
+        channel could shift blended retention by 4-6 points.
       </p>
 
       <div className="flex items-center gap-1.5 pt-1 text-sm font-medium text-foreground">

@@ -7,9 +7,8 @@
 Name | Type
 ------------ | -------------
 `key` | string
-`success` | boolean
-`error` | string
 `entityTypesCreated` | number
+`relationshipsCreated` | number
 
 ## Example
 
@@ -19,9 +18,8 @@ import type { TemplateInstallResult } from ''
 // TODO: Update the object below with actual values
 const example = {
   "key": null,
-  "success": null,
-  "error": null,
   "entityTypesCreated": null,
+  "relationshipsCreated": null,
 } satisfies TemplateInstallResult
 
 console.log(example)

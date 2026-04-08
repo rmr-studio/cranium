@@ -3,6 +3,9 @@
   "key": "hubspot",
   "name": "HubSpot",
   "description": "HubSpot CRM integration providing contacts, companies, deals, tickets, and notes with full relationship mapping.",
+  "category": "CRM",
+  "nangoProviderKey": "hubspot",
+  "iconUrl": "/integrations/hubspot.svg",
   "entityTypes": [
     {
       "key": "hubspot-contact",

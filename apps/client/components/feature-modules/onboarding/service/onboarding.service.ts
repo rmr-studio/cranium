@@ -6,7 +6,13 @@ import {
   OnboardingProfile,
   OnboardingWorkspace,
   OnboardingInvite,
+  BusinessType,
+  AcquisitionChannel,
+  DefinitionCategory,
 } from '@/lib/types/models';
+import type { OnboardingBusinessDefinition } from '@/lib/types/models';
+
+
 import { WorkspacePlan, WorkspaceRoles } from '@/lib/types/workspace';
 import { normalizeApiError } from '@/lib/util/error/error.util';
 
@@ -18,12 +24,21 @@ interface ProfileStepShape {
 interface WorkspaceStepShape {
   displayName: string;
   plan: WorkspacePlan;
+  businessType: BusinessType;
 }
 
-interface TemplatesStepShape {
-  selectedBundleKey: string | null;
-  bundles: unknown[];
-  templates: unknown[];
+interface DefinitionsStepShape {
+  definitions: Array<{
+    term: string;
+    definition: string;
+    category: DefinitionCategory;
+    isCustom: boolean;
+    defaultDefinition?: string;
+  }>;
+}
+
+interface ChannelsStepShape {
+  selectedChannels: AcquisitionChannel[];
 }
 
 interface TeamStepShape {
@@ -33,7 +48,8 @@ interface TeamStepShape {
 interface ValidatedStepData {
   profile?: ProfileStepShape;
   workspace?: WorkspaceStepShape;
-  templates?: TemplatesStepShape;
+  definitions?: DefinitionsStepShape;
+  channels?: ChannelsStepShape;
   team?: TeamStepShape;
   [key: string]: unknown;
 }
@@ -64,20 +80,32 @@ export function assemblePayload(data: ValidatedStepData): CompleteOnboardingRequ
     defaultCurrency: 'USD',
   };
 
-  const templatesData = data.templates;
-  const bundleKeys: string[] =
-    templatesData?.selectedBundleKey ? [templatesData.selectedBundleKey] : [];
-  const templateKeys: string[] = [];
-
   const teamData = data.team;
   const invites: OnboardingInvite[] = teamData?.invites ?? [];
+
+  const definitionsData = data.definitions;
+  const businessDefinitions: OnboardingBusinessDefinition[] =
+    definitionsData?.definitions
+      ?.filter((d) => d.definition.trim().length > 0)
+      ?.map((d) => ({
+        term: d.term,
+        definition: d.definition,
+        category: d.category,
+        isCustomized: d.isCustom || d.definition !== (d.defaultDefinition ?? ''),
+      }))
+      ?? [];
+
+  const channelsData = data.channels;
+  const acquisitionChannels: AcquisitionChannel[] =
+    channelsData?.selectedChannels ?? [];
 
   return {
     profile,
     workspace,
-    bundleKeys,
-    templateKeys,
+    businessType: workspaceData.businessType,
     invites,
+    businessDefinitions,
+    acquisitionChannels,
   };
 }
 
@@ -90,7 +118,7 @@ export class OnboardingService {
     request: CompleteOnboardingRequest,
     profileAvatar?: Blob | null,
     workspaceAvatar?: Blob | null,
-  ): Promise<CompleteOnboardingResponse> {
+  ): Promise<CompleteOnboardingResponse | void> {
     if (!session) {
       throw new Error('Session is required');
     }

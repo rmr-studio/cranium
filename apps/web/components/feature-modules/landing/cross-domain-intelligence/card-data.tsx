@@ -30,13 +30,14 @@ export interface InsightCard {
 
 export const INSIGHT_CARDS: InsightCard[] = [
   {
-    title: 'Revenue risk detection',
+    title: 'Retention pattern detection',
     body: (
       <>
-        3 Enterprise accounts representing <b>$68,400 MRR</b> are showing the same pattern —
-        declining usage, increased support volume, and upcoming renewals within{' '}
-        <b>30 days</b>. Historically, accounts matching this pattern churn at{' '}
-        <b style={{ color: '#A83832' }}>4.2x</b> the baseline rate.
+        Your top-performing cohort — <b>organic search signups</b> — retains at{' '}
+        <b style={{ color: '#5BA6A8' }}>93%</b> after 90 days, vs <b style={{ color: '#A83832' }}>71%</b>{' '}
+        for paid social. They complete onboarding <b style={{ color: '#5BA6A8' }}>2.4x</b> faster,
+        file <b>60% fewer</b> support tickets, and average <b>$284 LTV</b> — the signal to double
+        down on.
       </>
     ),
     entities: [
@@ -107,14 +108,14 @@ export const INSIGHT_CARDS: InsightCard[] = [
     ],
   },
   {
-    title: 'Onboarding failure prediction',
+    title: 'Onboarding success signals',
     body: (
       <>
-        Of the 12 accounts onboarded this month, <b>5 have not completed a single integration
-        setup</b> after 10 days. Accounts that don&apos;t connect at least one integration within 14
-        days have historically churned within 60 days at a rate of{' '}
-        <b style={{ color: '#A83832' }}>78%</b>. Two of these are annual contracts worth a combined{' '}
-        <b>$31,200</b>.
+        Accounts that connect <b>at least one integration within 7 days</b> retain at{' '}
+        <b style={{ color: '#5BA6A8' }}>94%</b> after 60 days. Of this month&apos;s 12 new accounts,{' '}
+        <b>7 have already hit this milestone</b>. The remaining 5 haven&apos;t connected yet — two
+        are annual contracts worth a combined <b>$31,200</b>. Nudge them now while the pattern still
+        holds.
       </>
     ),
     entities: [

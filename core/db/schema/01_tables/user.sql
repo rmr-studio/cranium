@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS "users"
     "deleted"              BOOLEAN          NOT NULL DEFAULT FALSE,
     "deleted_at"           TIMESTAMP WITH TIME ZONE  DEFAULT NULL,
 
-    "onboarding_completed_at" TIMESTAMP WITH TIME ZONE DEFAULT NULL
+    "onboarding_completed_at" TIMESTAMP WITH TIME ZONE DEFAULT NULL,
+    "acquisition_channels" JSONB            DEFAULT NULL
 );
 

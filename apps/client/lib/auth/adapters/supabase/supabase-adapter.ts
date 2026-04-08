@@ -140,6 +140,23 @@ export class SupabaseAuthAdapter implements AuthProvider {
         return { unsubscribe: data.subscription.unsubscribe };
     }
 
+    /**
+     * Force-refresh the current session to obtain updated JWT claims.
+     */
+    async refreshSession(): Promise<Session | null> {
+        const { data, error } = await this.client.auth.refreshSession();
+
+        if (error) {
+            throw mapSupabaseError(error);
+        }
+
+        if (!data.session) {
+            return null;
+        }
+
+        return mapSupabaseSession(data.session);
+    }
+
     // ========================================================================
     // Authentication Actions
     // ========================================================================

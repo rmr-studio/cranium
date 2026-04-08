@@ -1,6 +1,8 @@
 package riven.core.repository.user
 
+import jakarta.persistence.LockModeType
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import riven.core.entity.user.UserEntity
@@ -8,6 +10,10 @@ import riven.core.projection.user.UserWorkspaceMembershipProjection
 import java.util.*
 
 interface UserRepository : JpaRepository<UserEntity, UUID> {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT u FROM UserEntity u WHERE u.id = :id")
+    fun findByIdForUpdate(@Param("id") id: UUID): Optional<UserEntity>
 
     /**
      * Fetch all workspace memberships for a user in a single optimized query.

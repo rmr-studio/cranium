@@ -72,7 +72,20 @@ class TemplateInstallationService(
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
     fun installTemplate(workspaceId: UUID, spineKey: String): TemplateInstallationResponse {
         val userId = authTokenService.getUserId()
+        return installTemplateInternal(workspaceId, spineKey, userId)
+    }
 
+    /**
+     * Internal variant of [installTemplate] without @PreAuthorize.
+     *
+     * Used by [riven.core.service.onboarding.OnboardingService] during onboarding when the
+     * workspace was just created and the JWT does not yet contain the new workspace's role
+     * authorities.
+     *
+     * @param userId the user performing the installation (passed explicitly since JWT may not reflect workspace membership)
+     */
+    @Transactional
+    internal fun installTemplateInternal(workspaceId: UUID, spineKey: String, userId: UUID): TemplateInstallationResponse {
         val existingInstallation = installationRepository.findByWorkspaceIdAndManifestKey(workspaceId, spineKey)
         if (existingInstallation != null) {
             val manifest = catalogService.getManifestByKey(spineKey, ManifestType.TEMPLATE)
@@ -88,11 +101,11 @@ class TemplateInstallationService(
         val manifest = catalogService.getManifestByKey(spineKey, ManifestType.TEMPLATE)
 
         val (toCreate, reused) = partitionEntityTypesByExistence(workspaceId, manifest.entityTypes)
-        val newResults = createEntityTypes(workspaceId, toCreate)
+        val newResults = createEntityTypesInternal(workspaceId, toCreate)
         promoteReusedToTemplate(workspaceId, reused, manifest.entityTypes)
         val mergedResults = newResults + reused
 
-        val relationshipsCreated = createRelationships(workspaceId, manifest.relationships, manifest.entityTypes, mergedResults)
+        val relationshipsCreated = createRelationshipsInternal(workspaceId, manifest.relationships, manifest.entityTypes, mergedResults, userId)
         applySemanticMetadata(workspaceId, toCreate, newResults)
         recordTemplateInstallation(workspaceId, spineKey, userId, mergedResults)
         logTemplateActivity(userId, workspaceId, spineKey, manifest, newResults)
@@ -198,6 +211,48 @@ class TemplateInstallationService(
             relationshipService.createFallbackDefinition(workspaceId, savedId)
 
             // Initialize sequences for ID-type attributes
+            entity.schema.properties?.forEach { (attrId, attrSchema) ->
+                if (attrSchema.key == SchemaType.ID) {
+                    sequenceService.initializeSequence(savedId, attrId)
+                }
+            }
+
+            results[catalogType.key] = EntityTypeCreationResult(
+                entityTypeId = savedId,
+                attributeKeyMap = attributeKeyMap,
+                attributeCount = attributeKeyMap.size,
+                displayName = catalogType.displayNameSingular,
+                key = catalogType.key,
+            )
+
+            logger.info { "Created entity type '${catalogType.key}' ($savedId) with ${attributeKeyMap.size} attributes" }
+        }
+
+        return results
+    }
+
+    /**
+     * Internal variant of [createEntityTypes] that uses auth-bypass relationship methods.
+     */
+    private fun createEntityTypesInternal(
+        workspaceId: UUID,
+        catalogEntityTypes: List<CatalogEntityTypeModel>,
+    ): Map<String, EntityTypeCreationResult> {
+        val results = mutableMapOf<String, EntityTypeCreationResult>()
+
+        for (catalogType in catalogEntityTypes) {
+            val (entity, attributeKeyMap) = buildEntityType(workspaceId, catalogType)
+            val saved = entityTypeRepository.save(entity)
+            val savedId = requireNotNull(saved.id)
+
+            semanticMetadataService.initializeForEntityType(
+                entityTypeId = savedId,
+                workspaceId = workspaceId,
+                attributeIds = attributeKeyMap.values.toList(),
+            )
+
+            relationshipService.createFallbackDefinitionInternal(workspaceId, savedId)
+
             entity.schema.properties?.forEach { (attrId, attrSchema) ->
                 if (attrSchema.key == SchemaType.ID) {
                     sequenceService.initializeSequence(savedId, attrId)
@@ -350,6 +405,44 @@ class TemplateInstallationService(
             val request = buildRelationshipRequest(catalogRel, targetRules, semantics)
 
             relationshipService.createRelationshipDefinition(workspaceId, sourceResult.entityTypeId, request)
+            count++
+
+            logger.info { "Created relationship '${catalogRel.name}' from ${catalogRel.sourceEntityTypeKey}" }
+        }
+
+        return count
+    }
+
+    /**
+     * Internal variant of [createRelationships] that uses auth-bypass relationship methods.
+     */
+    private fun createRelationshipsInternal(
+        workspaceId: UUID,
+        catalogRelationships: List<CatalogRelationshipModel>,
+        catalogEntityTypes: List<CatalogEntityTypeModel>,
+        creationResults: Map<String, EntityTypeCreationResult>,
+        userId: UUID,
+    ): Int {
+        val semanticsByEntityTypeKey = catalogEntityTypes.associate { et ->
+            et.key to et.semanticMetadata
+        }
+
+        var count = 0
+        for (catalogRel in catalogRelationships) {
+            val sourceResult = creationResults[catalogRel.sourceEntityTypeKey]
+                ?: throw IllegalArgumentException(
+                    "Relationship '${catalogRel.key}' references source entity type '${catalogRel.sourceEntityTypeKey}' " +
+                        "which is not present in this installation context. This is likely a cross-template dependency — " +
+                        "install the template that provides '${catalogRel.sourceEntityTypeKey}' first, or install via a bundle."
+                )
+
+            val targetRules = resolveRelationshipTargetRules(catalogRel, creationResults)
+            val semantics = findRelationshipSemantics(
+                semanticsByEntityTypeKey[catalogRel.sourceEntityTypeKey], catalogRel.key,
+            )
+            val request = buildRelationshipRequest(catalogRel, targetRules, semantics)
+
+            relationshipService.createRelationshipDefinitionInternal(workspaceId, sourceResult.entityTypeId, request, userId)
             count++
 
             logger.info { "Created relationship '${catalogRel.name}' from ${catalogRel.sourceEntityTypeKey}" }

@@ -12,6 +12,7 @@ Name | Type
 `defaultWorkspaceId` | string
 `onboardingCompletedAt` | Date
 `removeAvatar` | boolean
+`acquisitionChannels` | [Array&lt;AcquisitionChannel&gt;](AcquisitionChannel.md)
 
 ## Example
 
@@ -26,6 +27,7 @@ const example = {
   "defaultWorkspaceId": null,
   "onboardingCompletedAt": null,
   "removeAvatar": null,
+  "acquisitionChannels": null,
 } satisfies SaveUserRequest
 
 console.log(example)

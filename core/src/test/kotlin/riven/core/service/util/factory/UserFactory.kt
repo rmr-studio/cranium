@@ -32,4 +32,18 @@ object UserFactory {
             )
     }
 
+    /**
+     * Creates a UserEntity that has already completed onboarding.
+     */
+    fun createOnboardedUser(
+        id: UUID = UUID.randomUUID(),
+        name: String = "Onboarded User",
+        email: String = "onboarded@email.com",
+        phone: String = "1234567890",
+    ): UserEntity {
+        return createUser(id = id, name = name, email = email, phone = phone).apply {
+            onboardingCompletedAt = java.time.ZonedDateTime.now()
+        }
+    }
+
 }

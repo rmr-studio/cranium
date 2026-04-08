@@ -38,7 +38,7 @@ function TagPill({
   const styles = {
     'at-risk': 'bg-destructive/10 text-destructive border border-destructive/20',
     'high-value': 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20',
-    'follow-up': 'border bg-amber-500/10 text-amber-600 border-amber-500/20',
+    'follow-up': 'border bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
   };
 
   return (

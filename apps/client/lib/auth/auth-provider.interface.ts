@@ -54,6 +54,14 @@ export interface AuthProvider {
         callback: (event: AuthChangeEvent, session: Session | null) => void
     ): AuthSubscription;
 
+    /**
+     * Force-refresh the current session to obtain updated JWT claims.
+     * Useful after server-side changes (e.g., workspace membership) that
+     * aren't reflected in the current token.
+     * @returns The refreshed session, or null if not authenticated
+     */
+    refreshSession(): Promise<Session | null>;
+
     // ========================================================================
     // Authentication Actions
     // ========================================================================

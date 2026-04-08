@@ -15,14 +15,21 @@ const CrossDomainIntelligence = dynamic(() =>
     (m) => m.CrossDomainIntelligence,
   ),
 );
+
+const KnowledgeRuleBase = dynamic(() =>
+  import('@/components/feature-modules/landing/knowledge-rule-base/rule-base-section').then(
+    (m) => m.RuleBaseSection,
+  ),
+);
+
 const TimeSaved = dynamic(() =>
   import('@/components/feature-modules/landing/time-saved/components/time-saved').then(
     (m) => m.TimeSaved,
   ),
 );
-const ChurnRetrospective = dynamic(() =>
-  import('@/components/feature-modules/landing/churn-retrospective/churn-retro').then(
-    (m) => m.ChurnRetrospective,
+const CohortBehaviour = dynamic(() =>
+  import('@/components/feature-modules/landing/valuable-cohorts/valuable-cohorts').then(
+    (m) => m.CohortBehaviour,
   ),
 );
 const DailyActions = dynamic(() =>
@@ -44,10 +51,11 @@ export default async function Home() {
   return (
     <main className="min-h-screen overflow-x-clip">
       <Hero />
+      <KnowledgeRuleBase />
+      <CohortBehaviour />
       <DashboardShowcase />
-      <CrossDomainIntelligence />
       <TimeSaved />
-      <ChurnRetrospective />
+      <CrossDomainIntelligence />
       <DailyActions />
       <FeaturedPosts featured={featured} recent={recent} />
       <Faq preview />

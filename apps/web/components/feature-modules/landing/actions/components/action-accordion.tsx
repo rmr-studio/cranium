@@ -15,10 +15,6 @@ const actionsShaders = {
     base: '#d7cbc6',
     colors: ['#0f2e1e', '#1a2e22', '#0d1e14'] as [string, string, string],
   },
-  amber: {
-    base: '#1a1a2a',
-    colors: ['#2a5e2a', '#4a7a3e', '#72a85a'] as [string, string, string],
-  },
 };
 
 export const DailyActionAccordion = () => {
@@ -27,13 +23,12 @@ export const DailyActionAccordion = () => {
   const gradients: ThemeStaticImages = {
     light: 'images/texture/static-gradient-6.webp',
     dark: 'images/texture/static-gradient-6.webp',
-    amber: 'images/texture/static-gradient-6.webp',
   };
 
   return (
     <div className="mt-20 w-full">
       {/* Desktop */}
-      <div className="hidden lg:flex lg:h-[46rem]">
+      <div className="hidden h-[50rem] lg:flex">
         <div className="z-20 flex w-5/12 shrink-0 flex-col overflow-hidden px-8 py-10 lg:px-12 lg:py-16">
           <h3 className="font-serif text-2xl leading-none tracking-tighter sm:text-4xl md:text-5xl">
             Powerful alone. <br /> Unstoppable together.

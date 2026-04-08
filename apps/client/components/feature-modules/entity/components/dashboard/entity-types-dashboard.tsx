@@ -45,7 +45,7 @@ const EntityTypesDashboard = () => {
   ];
 
   return (
-    <div className="px-12 py-6">
+    <>
       {/* Header */}
       <header className="mb-8 flex items-center justify-between">
         <BreadCrumbGroup items={trail} />
@@ -53,7 +53,7 @@ const EntityTypesDashboard = () => {
       <section>
         <EntityTypesOverview workspaceId={workspace.id} />
       </section>
-    </div>
+    </>
   );
 };
 

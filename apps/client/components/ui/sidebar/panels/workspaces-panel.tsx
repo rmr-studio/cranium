@@ -31,7 +31,7 @@ export function WorkspacesPanel() {
   }
 
   const workspaces = data?.memberships.map((m) => m.workspace).filter(Boolean) as
-    | Workspace[]
+  | Workspace[]
     | undefined;
 
   return (

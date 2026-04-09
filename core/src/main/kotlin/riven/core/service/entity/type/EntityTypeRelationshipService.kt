@@ -63,7 +63,27 @@ class EntityTypeRelationshipService(
         request: SaveRelationshipDefinitionRequest,
     ): RelationshipDefinition {
         val userId = authTokenService.getUserId()
+        return createRelationshipDefinitionInternal(workspaceId, sourceEntityTypeId, request, userId)
+    }
+
+    /**
+     * Internal variant of [createRelationshipDefinition] without @PreAuthorize.
+     *
+     * Used by [riven.core.service.catalog.TemplateInstallationService] during onboarding
+     * when the workspace was just created and the JWT does not yet contain the new
+     * workspace's role authorities.
+     *
+     * @param userId the user performing the operation (passed explicitly since JWT may not reflect workspace membership)
+     */
+    @Transactional
+    internal fun createRelationshipDefinitionInternal(
+        workspaceId: UUID,
+        sourceEntityTypeId: UUID,
+        request: SaveRelationshipDefinitionRequest,
+        userId: UUID,
+    ): RelationshipDefinition {
         val sourceEntityType = ServiceUtil.findOrThrow { entityTypeRepository.findById(sourceEntityTypeId) }
+        require(sourceEntityType.workspaceId == workspaceId) { "Entity type $sourceEntityTypeId not found in workspace $workspaceId" }
         require(!sourceEntityType.readonly) { "Cannot create relationships on a readonly entity type '${sourceEntityType.key}'" }
 
         val entity = RelationshipDefinitionEntity(
@@ -76,6 +96,8 @@ class EntityTypeRelationshipService(
         )
         val savedDefinition = definitionRepository.save(entity)
         val defId = requireNotNull(savedDefinition.id)
+
+        validateTargetEntityTypeWorkspaces(request.targetRules, workspaceId)
 
         val ruleEntities = buildTargetRuleEntities(defId, request.targetRules)
         val savedRules = targetRuleRepository.saveAll(ruleEntities)
@@ -497,6 +519,16 @@ class EntityTypeRelationshipService(
         return targetRuleRepository.saveAll(toSave).map { it.toModel() }
     }
 
+    private fun validateTargetEntityTypeWorkspaces(rules: List<SaveTargetRuleRequest>, workspaceId: UUID) {
+        rules.forEach { rule ->
+            val targetEntityTypeId = requireNotNull(rule.targetEntityTypeId) { "Target rule must specify targetEntityTypeId" }
+            val targetEntityType = ServiceUtil.findOrThrow { entityTypeRepository.findById(targetEntityTypeId) }
+            require(targetEntityType.workspaceId == workspaceId) {
+                "Target entity type $targetEntityTypeId does not belong to workspace $workspaceId"
+            }
+        }
+    }
+
     private fun buildTargetRuleEntities(
         definitionId: UUID,
         rules: List<SaveTargetRuleRequest>,
@@ -522,6 +554,24 @@ class EntityTypeRelationshipService(
      */
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
     fun createFallbackDefinition(workspaceId: UUID, entityTypeId: UUID): RelationshipDefinitionEntity {
+        val userId = authTokenService.getUserId()
+        return createFallbackDefinitionInternal(workspaceId, entityTypeId, userId)
+    }
+
+    /**
+     * Internal variant of [createFallbackDefinition] without @PreAuthorize.
+     *
+     * Used by [riven.core.service.catalog.TemplateInstallationService] during onboarding
+     * when the JWT does not yet contain the new workspace's role authorities.
+     */
+    internal fun createFallbackDefinitionInternal(
+        workspaceId: UUID,
+        entityTypeId: UUID,
+        userId: UUID? = null,
+    ): RelationshipDefinitionEntity {
+        val entityType = ServiceUtil.findOrThrow { entityTypeRepository.findById(entityTypeId) }
+        require(entityType.workspaceId == workspaceId) { "Entity type $entityTypeId not found in workspace $workspaceId" }
+
         val entity = RelationshipDefinitionEntity(
             workspaceId = workspaceId,
             sourceEntityTypeId = entityTypeId,
@@ -533,6 +583,23 @@ class EntityTypeRelationshipService(
             systemType = SystemRelationshipType.CONNECTED_ENTITIES,
         )
         val saved = definitionRepository.save(entity)
+
+        userId?.let { uid ->
+            activityService.logActivity(
+                activity = Activity.ENTITY_RELATIONSHIP,
+                operation = OperationType.CREATE,
+                userId = uid,
+                workspaceId = workspaceId,
+                entityType = ApplicationEntityType.ENTITY_TYPE,
+                entityId = entityTypeId,
+                details = mapOf(
+                    "relationshipId" to requireNotNull(saved.id).toString(),
+                    "relationshipName" to saved.name,
+                    "systemType" to "CONNECTED_ENTITIES",
+                ),
+            )
+        }
+
         logger.info { "Created CONNECTED_ENTITIES fallback definition for entity type $entityTypeId" }
         return saved
     }

@@ -2,14 +2,13 @@
 
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@riven/utils';
-import { Monitor, Moon, Sun } from 'lucide-react';
+import { Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 
 const THEMES = [
   { value: 'light', label: 'Light', icon: Sun },
   { value: 'dark', label: 'Dark', icon: Moon },
-  { value: 'amber', label: 'Amber', icon: Monitor },
 ] as const;
 
 export function AppearanceSection() {
@@ -86,36 +85,12 @@ export function AppearanceSection() {
 }
 
 function ThemePreview({ variant }: { variant: string }) {
-  const bgClass =
-    variant === 'light'
-      ? 'bg-white'
-      : variant === 'dark'
-        ? 'bg-zinc-900'
-        : 'bg-amber-50';
-  const sidebarClass =
-    variant === 'light'
-      ? 'bg-gray-100'
-      : variant === 'dark'
-        ? 'bg-zinc-800'
-        : 'bg-amber-100/80';
-  const cardClass =
-    variant === 'light'
-      ? 'bg-gray-50'
-      : variant === 'dark'
-        ? 'bg-zinc-700/50'
-        : 'bg-amber-100/50';
-  const lineClass =
-    variant === 'light'
-      ? 'bg-gray-200'
-      : variant === 'dark'
-        ? 'bg-zinc-600'
-        : 'bg-amber-200/80';
-  const accentClass =
-    variant === 'light'
-      ? 'bg-blue-500'
-      : variant === 'dark'
-        ? 'bg-blue-500'
-        : 'bg-amber-600';
+  const isLight = variant === 'light';
+  const bgClass = isLight ? 'bg-white' : 'bg-zinc-900';
+  const sidebarClass = isLight ? 'bg-gray-100' : 'bg-zinc-800';
+  const cardClass = isLight ? 'bg-gray-50' : 'bg-zinc-700/50';
+  const lineClass = isLight ? 'bg-gray-200' : 'bg-zinc-600';
+  const accentClass = 'bg-blue-500';
 
   return (
     <div

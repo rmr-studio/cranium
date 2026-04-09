@@ -11,6 +11,8 @@ All URIs are relative to *http://localhost:8081*
 | [**downloadFile**](StorageApi.md#downloadfile) | **GET** /api/v1/storage/download/{token} | Download a file using a signed URL token |
 | [**generateSignedUrl**](StorageApi.md#generatesignedurloperation) | **POST** /api/v1/storage/workspace/{workspaceId}/files/{fileId}/signed-url | Generate a signed download URL for a file |
 | [**getFile**](StorageApi.md#getfile) | **GET** /api/v1/storage/workspace/{workspaceId}/files/{fileId} | Get file metadata |
+| [**getUserAvatar**](StorageApi.md#getuseravatar) | **GET** /api/v1/avatars/user/{userId} | Get user avatar image |
+| [**getWorkspaceAvatar**](StorageApi.md#getworkspaceavatar) | **GET** /api/v1/avatars/workspace/{workspaceId} | Get workspace avatar image |
 | [**listFiles**](StorageApi.md#listfiles) | **GET** /api/v1/storage/workspace/{workspaceId}/files | List files in a workspace |
 | [**requestPresignedUpload**](StorageApi.md#requestpresignedupload) | **POST** /api/v1/storage/workspace/{workspaceId}/presigned-upload | Request a presigned upload URL for direct-to-provider upload |
 | [**updateMetadata**](StorageApi.md#updatemetadataoperation) | **PATCH** /api/v1/storage/workspace/{workspaceId}/files/{fileId}/metadata | Update custom metadata on a file |
@@ -538,6 +540,146 @@ example().catch(console.error);
 | **200** | File metadata retrieved |  -  |
 | **401** | Unauthorized access |  -  |
 | **404** | File not found |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## getUserAvatar
+
+> Blob getUserAvatar(userId)
+
+Get user avatar image
+
+### Example
+
+```ts
+import {
+  Configuration,
+  StorageApi,
+} from '';
+import type { GetUserAvatarRequest } from '';
+
+async function example() {
+  console.log("🚀 Testing  SDK...");
+  const config = new Configuration({ 
+    // Configure HTTP bearer authorization: bearerAuth
+    accessToken: "YOUR BEARER TOKEN",
+  });
+  const api = new StorageApi(config);
+
+  const body = {
+    // string
+    userId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+  } satisfies GetUserAvatarRequest;
+
+  try {
+    const data = await api.getUserAvatar(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **userId** | `string` |  | [Defaults to `undefined`] |
+
+### Return type
+
+**Blob**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `*/*`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Avatar image streamed |  -  |
+| **404** | User not found or no avatar set |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## getWorkspaceAvatar
+
+> Blob getWorkspaceAvatar(workspaceId)
+
+Get workspace avatar image
+
+### Example
+
+```ts
+import {
+  Configuration,
+  StorageApi,
+} from '';
+import type { GetWorkspaceAvatarRequest } from '';
+
+async function example() {
+  console.log("🚀 Testing  SDK...");
+  const config = new Configuration({ 
+    // Configure HTTP bearer authorization: bearerAuth
+    accessToken: "YOUR BEARER TOKEN",
+  });
+  const api = new StorageApi(config);
+
+  const body = {
+    // string
+    workspaceId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+  } satisfies GetWorkspaceAvatarRequest;
+
+  try {
+    const data = await api.getWorkspaceAvatar(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **workspaceId** | `string` |  | [Defaults to `undefined`] |
+
+### Return type
+
+**Blob**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `*/*`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Avatar image streamed |  -  |
+| **404** | Workspace not found or no avatar set |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 

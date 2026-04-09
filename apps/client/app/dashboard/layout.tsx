@@ -1,11 +1,11 @@
 import { AuthGuard } from '@/components/feature-modules/authentication/components/auth-guard';
 import { OnboardWrapper } from '@/components/feature-modules/onboarding/context/onboard-handler';
+import { WebSocketSubscriptionManager } from '@/components/feature-modules/workspace/components/websocket-subscription-manager';
 import { Navbar } from '@/components/ui/nav/navbar';
 import { DashboardContent } from '@/components/ui/sidebar/dashboard-content';
 import { IconRail } from '@/components/ui/sidebar/icon-rail';
 import { IconRailProvider } from '@/components/ui/sidebar/icon-rail-context';
 import { SubPanel } from '@/components/ui/sidebar/sub-panel';
-import { WebSocketSubscriptionManager } from '@/components/feature-modules/workspace/components/websocket-subscription-manager';
 import type { ChildNodeProps } from '@riven/utils';
 import { FC } from 'react';
 
@@ -22,7 +22,7 @@ const layout: FC<ChildNodeProps> = ({ children }) => {
               <header className="relative">
                 <Navbar />
               </header>
-              {children}
+              <section className="px-12 py-6">{children}</section>
             </DashboardContent>
           </div>
         </IconRailProvider>

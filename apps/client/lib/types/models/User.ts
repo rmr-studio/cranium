@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { AcquisitionChannel } from './AcquisitionChannel';
+import {
+    AcquisitionChannelFromJSON,
+    AcquisitionChannelFromJSONTyped,
+    AcquisitionChannelToJSON,
+    AcquisitionChannelToJSONTyped,
+} from './AcquisitionChannel';
 import type { WorkspaceMember } from './WorkspaceMember';
 import {
     WorkspaceMemberFromJSON,
@@ -82,6 +89,12 @@ export interface User {
      * @memberof User
      */
     onboardingCompletedAt?: Date;
+    /**
+     * 
+     * @type {Array<AcquisitionChannel>}
+     * @memberof User
+     */
+    acquisitionChannels?: Array<AcquisitionChannel>;
 }
 
 /**
@@ -113,6 +126,7 @@ export function UserFromJSONTyped(json: any, ignoreDiscriminator: boolean): User
         'memberships': ((json['memberships'] as Array<any>).map(WorkspaceMemberFromJSON)),
         'defaultWorkspace': json['defaultWorkspace'] == null ? undefined : WorkspaceFromJSON(json['defaultWorkspace']),
         'onboardingCompletedAt': json['onboardingCompletedAt'] == null ? undefined : (new Date(json['onboardingCompletedAt'])),
+        'acquisitionChannels': json['acquisitionChannels'] == null ? undefined : ((json['acquisitionChannels'] as Array<any>).map(AcquisitionChannelFromJSON)),
     };
 }
 
@@ -135,6 +149,7 @@ export function UserToJSONTyped(value?: User | null, ignoreDiscriminator: boolea
         'memberships': ((value['memberships'] as Array<any>).map(WorkspaceMemberToJSON)),
         'defaultWorkspace': WorkspaceToJSON(value['defaultWorkspace']),
         'onboardingCompletedAt': value['onboardingCompletedAt'] == null ? value['onboardingCompletedAt'] : value['onboardingCompletedAt'].toISOString(),
+        'acquisitionChannels': value['acquisitionChannels'] == null ? undefined : ((value['acquisitionChannels'] as Array<any>).map(AcquisitionChannelToJSON)),
     };
 }
 

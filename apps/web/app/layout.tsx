@@ -9,6 +9,7 @@ import { ThemeProvider } from '@/providers/theme-provider';
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono, Space_Mono } from 'next/font/google';
 import localFont from 'next/font/local';
+import { GoogleTagManager } from '@next/third-parties/google';
 import { Toaster } from 'sonner';
 import './globals.css';
 
@@ -143,6 +144,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      {process.env.NEXT_PUBLIC_GTM_ID && (
+        <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
+      )}
       <body
         className={`paper-lite ${geistSans.variable} ${redaction.variable} ${geistMono.variable} ${spaceMono.variable} relative min-h-screen antialiased`}
         style={

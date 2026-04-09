@@ -7,8 +7,8 @@
 Name | Type
 ------------ | -------------
 `block` | [Block](Block.md)
-`warnings` | Array&lt;string&gt;
 `type` | [NodeType](NodeType.md)
+`warnings` | Array&lt;string&gt;
 
 ## Example
 
@@ -18,8 +18,8 @@ import type { Node } from ''
 // TODO: Update the object below with actual values
 const example = {
   "block": null,
-  "warnings": null,
   "type": null,
+  "warnings": null,
 } satisfies Node
 
 console.log(example)

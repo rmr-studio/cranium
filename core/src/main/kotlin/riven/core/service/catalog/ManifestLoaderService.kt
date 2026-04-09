@@ -23,6 +23,7 @@ class ManifestLoaderService(
     private val upsertService: ManifestUpsertService,
     private val reconciliationService: ManifestReconciliationService,
     private val integrationDefinitionStaleSyncService: IntegrationDefinitionStaleSyncService,
+    private val integrationDefinitionSeederService: IntegrationDefinitionSeederService,
     private val manifestCatalogRepository: ManifestCatalogRepository,
     private val healthIndicator: ManifestCatalogHealthIndicator,
     private val manifestProperties: ManifestConfigurationProperties,
@@ -62,6 +63,7 @@ class ManifestLoaderService(
 
         reconcileStaleEntries(scannedIntegrations.size, seenManifests)
         integrationDefinitionStaleSyncService.syncStaleFlags()
+        integrationDefinitionSeederService.seedFromManifests(scannedIntegrations)
 
         val staleCount = manifestCatalogRepository.findByStaleTrue().size
         logger.info { "Manifest load complete: ${result.loaded} integrations loaded. $staleCount stale. ${result.skipped} skipped." }

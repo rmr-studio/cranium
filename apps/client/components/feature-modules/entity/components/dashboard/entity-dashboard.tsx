@@ -2,8 +2,8 @@
 
 import { useWorkspace } from '@/components/feature-modules/workspace/hooks/query/use-workspace';
 import { BreadCrumbGroup, BreadCrumbTrail } from '@/components/ui/breadcrumb-group';
-import { TooltipProvider } from '@riven/ui/tooltip';
 import { isResponseError } from '@/lib/util/error/error.util';
+import { TooltipProvider } from '@riven/ui/tooltip';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { EntityTypeConfigurationProvider } from '../../context/configuration-provider';
@@ -57,7 +57,7 @@ export const EntityDashboard = () => {
   ];
 
   return (
-    <div className="relative overflow-hidden px-12 py-6">
+    <div className="relative overflow-hidden">
       <header className="mb-8 flex items-center justify-between">
         <BreadCrumbGroup items={trail} />
       </header>
@@ -65,10 +65,7 @@ export const EntityDashboard = () => {
         <TooltipProvider>
           <EntityTypeConfigurationProvider workspaceId={workspaceId} entityType={entityType}>
             <EntityDraftProvider workspaceId={workspaceId} entityType={entityType}>
-              <EntityDataTable
-                entityType={entityType}
-                workspaceId={workspaceId}
-              />
+              <EntityDataTable entityType={entityType} workspaceId={workspaceId} />
             </EntityDraftProvider>
           </EntityTypeConfigurationProvider>
         </TooltipProvider>

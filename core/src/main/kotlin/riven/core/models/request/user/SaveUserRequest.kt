@@ -1,5 +1,6 @@
 package riven.core.models.request.user
 
+import riven.core.enums.user.AcquisitionChannel
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -10,4 +11,5 @@ data class SaveUserRequest(
     val defaultWorkspaceId: UUID? = null,
     val onboardingCompletedAt: ZonedDateTime? = null,
     val removeAvatar: Boolean = false,
+    val acquisitionChannels: List<AcquisitionChannel>? = null,
 )

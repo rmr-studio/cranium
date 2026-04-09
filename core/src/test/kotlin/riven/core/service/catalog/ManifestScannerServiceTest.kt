@@ -26,6 +26,7 @@ class ManifestScannerServiceTest {
       "manifestVersion": "1.0",
       "key": "hubspot",
       "name": "HubSpot",
+      "category": "CRM",
       "entityTypes": [
         {
           "key": "hubspot-contact",

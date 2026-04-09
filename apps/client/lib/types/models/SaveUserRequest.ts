@@ -13,6 +13,14 @@
  */
 
 import { mapValues } from '../runtime';
+import type { AcquisitionChannel } from './AcquisitionChannel';
+import {
+    AcquisitionChannelFromJSON,
+    AcquisitionChannelFromJSONTyped,
+    AcquisitionChannelToJSON,
+    AcquisitionChannelToJSONTyped,
+} from './AcquisitionChannel';
+
 /**
  * 
  * @export
@@ -55,6 +63,12 @@ export interface SaveUserRequest {
      * @memberof SaveUserRequest
      */
     removeAvatar: boolean;
+    /**
+     * 
+     * @type {Array<AcquisitionChannel>}
+     * @memberof SaveUserRequest
+     */
+    acquisitionChannels?: Array<AcquisitionChannel>;
 }
 
 /**
@@ -83,6 +97,7 @@ export function SaveUserRequestFromJSONTyped(json: any, ignoreDiscriminator: boo
         'defaultWorkspaceId': json['defaultWorkspaceId'] == null ? undefined : json['defaultWorkspaceId'],
         'onboardingCompletedAt': json['onboardingCompletedAt'] == null ? undefined : (new Date(json['onboardingCompletedAt'])),
         'removeAvatar': json['removeAvatar'],
+        'acquisitionChannels': json['acquisitionChannels'] == null ? undefined : ((json['acquisitionChannels'] as Array<any>).map(AcquisitionChannelFromJSON)),
     };
 }
 
@@ -103,6 +118,7 @@ export function SaveUserRequestToJSONTyped(value?: SaveUserRequest | null, ignor
         'defaultWorkspaceId': value['defaultWorkspaceId'],
         'onboardingCompletedAt': value['onboardingCompletedAt'] == null ? value['onboardingCompletedAt'] : value['onboardingCompletedAt'].toISOString(),
         'removeAvatar': value['removeAvatar'],
+        'acquisitionChannels': value['acquisitionChannels'] == null ? undefined : ((value['acquisitionChannels'] as Array<any>).map(AcquisitionChannelToJSON)),
     };
 }
 

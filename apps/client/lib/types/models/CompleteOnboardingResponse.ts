@@ -20,6 +20,13 @@ import {
     TemplateInstallResultToJSON,
     TemplateInstallResultToJSONTyped,
 } from './TemplateInstallResult';
+import type { BusinessDefinitionResult } from './BusinessDefinitionResult';
+import {
+    BusinessDefinitionResultFromJSON,
+    BusinessDefinitionResultFromJSONTyped,
+    BusinessDefinitionResultToJSON,
+    BusinessDefinitionResultToJSONTyped,
+} from './BusinessDefinitionResult';
 import type { UserDisplay } from './UserDisplay';
 import {
     UserDisplayFromJSON,
@@ -62,16 +69,22 @@ export interface CompleteOnboardingResponse {
     user: UserDisplay;
     /**
      * 
-     * @type {Array<TemplateInstallResult>}
+     * @type {TemplateInstallResult}
      * @memberof CompleteOnboardingResponse
      */
-    templateResults: Array<TemplateInstallResult>;
+    templateResult: TemplateInstallResult;
     /**
      * 
      * @type {Array<InviteResult>}
      * @memberof CompleteOnboardingResponse
      */
     inviteResults: Array<InviteResult>;
+    /**
+     * 
+     * @type {Array<BusinessDefinitionResult>}
+     * @memberof CompleteOnboardingResponse
+     */
+    definitionResults: Array<BusinessDefinitionResult>;
 }
 
 /**
@@ -80,8 +93,9 @@ export interface CompleteOnboardingResponse {
 export function instanceOfCompleteOnboardingResponse(value: object): value is CompleteOnboardingResponse {
     if (!('workspace' in value) || value['workspace'] === undefined) return false;
     if (!('user' in value) || value['user'] === undefined) return false;
-    if (!('templateResults' in value) || value['templateResults'] === undefined) return false;
+    if (!('templateResult' in value) || value['templateResult'] === undefined) return false;
     if (!('inviteResults' in value) || value['inviteResults'] === undefined) return false;
+    if (!('definitionResults' in value) || value['definitionResults'] === undefined) return false;
     return true;
 }
 
@@ -97,8 +111,9 @@ export function CompleteOnboardingResponseFromJSONTyped(json: any, ignoreDiscrim
         
         'workspace': WorkspaceFromJSON(json['workspace']),
         'user': UserDisplayFromJSON(json['user']),
-        'templateResults': ((json['templateResults'] as Array<any>).map(TemplateInstallResultFromJSON)),
+        'templateResult': TemplateInstallResultFromJSON(json['templateResult']),
         'inviteResults': ((json['inviteResults'] as Array<any>).map(InviteResultFromJSON)),
+        'definitionResults': ((json['definitionResults'] as Array<any>).map(BusinessDefinitionResultFromJSON)),
     };
 }
 
@@ -115,8 +130,9 @@ export function CompleteOnboardingResponseToJSONTyped(value?: CompleteOnboarding
         
         'workspace': WorkspaceToJSON(value['workspace']),
         'user': UserDisplayToJSON(value['user']),
-        'templateResults': ((value['templateResults'] as Array<any>).map(TemplateInstallResultToJSON)),
+        'templateResult': TemplateInstallResultToJSON(value['templateResult']),
         'inviteResults': ((value['inviteResults'] as Array<any>).map(InviteResultToJSON)),
+        'definitionResults': ((value['definitionResults'] as Array<any>).map(BusinessDefinitionResultToJSON)),
     };
 }
 

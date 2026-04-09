@@ -20,6 +20,13 @@ import {
     SemanticMetadataTargetTypeToJSON,
     SemanticMetadataTargetTypeToJSONTyped,
 } from './SemanticMetadataTargetType';
+import type { MatchSignalType } from './MatchSignalType';
+import {
+    MatchSignalTypeFromJSON,
+    MatchSignalTypeFromJSONTyped,
+    MatchSignalTypeToJSON,
+    MatchSignalTypeToJSONTyped,
+} from './MatchSignalType';
 import type { SemanticAttributeClassification } from './SemanticAttributeClassification';
 import {
     SemanticAttributeClassificationFromJSON,
@@ -76,6 +83,12 @@ export interface EntityTypeSemanticMetadata {
      * @memberof EntityTypeSemanticMetadata
      */
     classification?: SemanticAttributeClassification;
+    /**
+     * 
+     * @type {MatchSignalType}
+     * @memberof EntityTypeSemanticMetadata
+     */
+    signalType?: MatchSignalType;
     /**
      * 
      * @type {Array<string>}
@@ -140,6 +153,7 @@ export function EntityTypeSemanticMetadataFromJSONTyped(json: any, ignoreDiscrim
         'targetId': json['targetId'],
         'definition': json['definition'] == null ? undefined : json['definition'],
         'classification': json['classification'] == null ? undefined : SemanticAttributeClassificationFromJSON(json['classification']),
+        'signalType': json['signalType'] == null ? undefined : MatchSignalTypeFromJSON(json['signalType']),
         'tags': json['tags'],
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
         'updatedAt': json['updatedAt'] == null ? undefined : (new Date(json['updatedAt'])),
@@ -166,6 +180,7 @@ export function EntityTypeSemanticMetadataToJSONTyped(value?: EntityTypeSemantic
         'targetId': value['targetId'],
         'definition': value['definition'],
         'classification': SemanticAttributeClassificationToJSON(value['classification']),
+        'signalType': MatchSignalTypeToJSON(value['signalType']),
         'tags': value['tags'],
         'createdAt': value['createdAt'] == null ? value['createdAt'] : value['createdAt'].toISOString(),
         'updatedAt': value['updatedAt'] == null ? value['updatedAt'] : value['updatedAt'].toISOString(),

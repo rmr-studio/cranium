@@ -28,14 +28,14 @@ export const CohortBehaviour = () => {
 
           <div className="max-w-4xl px-4 sm:px-8 xl:max-w-5xl">
             <h2 className="font-serif text-3xl leading-none tracking-tighter text-primary md:text-4xl lg:text-6xl">
-              Your most valuable segments are telling you something.
+              Your best customers are telling you something.
             </h2>
 
-            <p className="mt-4 max-w-4xl text-sm leading-none tracking-tight text-content/80 md:text-base">
-              The signals of your best cohorts are telling you something. Why they pay more, why
-              they are coming back. Riven shows you what they do differently, stitched together from
-              every tool you&apos;ve connected. The key moments and behaviours. Understand why your
-              best customers stay, and double down on what keeps them around.
+            <p className="mt-4 max-w-4xl text-sm leading-[1.1] tracking-tight text-content/80 md:text-base">
+              They pay more. They stick around. They send their friends. Riven stitches their
+              behaviour together across every connected source and shows you what they actually do
+              differently. The key moments, the shared signals, the interactions they had. All
+              together so you can double down on whatever keeps them coming back.
             </p>
           </div>
         </div>

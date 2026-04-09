@@ -8,6 +8,7 @@ Name | Type
 ------------ | -------------
 `definition` | string
 `classification` | [SemanticAttributeClassification](SemanticAttributeClassification.md)
+`signalType` | [MatchSignalType](MatchSignalType.md)
 `tags` | Array&lt;string&gt;
 
 ## Example
@@ -19,6 +20,7 @@ import type { SaveSemanticMetadataRequest } from ''
 const example = {
   "definition": null,
   "classification": null,
+  "signalType": null,
   "tags": null,
 } satisfies SaveSemanticMetadataRequest
 

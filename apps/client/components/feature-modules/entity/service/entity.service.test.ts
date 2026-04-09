@@ -156,7 +156,7 @@ describe('EntityService.deleteEntities', () => {
     const request: DeleteEntityRequest = {
       type: EntitySelectType.ById,
       entityTypeId,
-      entityIds: ['id-1', 'id-2'],
+      entityIds: ['550e8400-e29b-41d4-a716-446655440010', '550e8400-e29b-41d4-a716-446655440011'],
     };
 
     mockRawDeleteResponse({ deletedCount: 2 });
@@ -183,7 +183,7 @@ describe('EntityService.deleteEntities', () => {
       type: EntitySelectType.All,
       entityTypeId,
       filter,
-      excludeIds: ['exclude-1'],
+      excludeIds: ['550e8400-e29b-41d4-a716-446655440020'],
     };
 
     mockRawDeleteResponse({ deletedCount: 99 });
@@ -204,7 +204,7 @@ describe('EntityService.deleteEntities', () => {
     const request: DeleteEntityRequest = {
       type: EntitySelectType.ById,
       entityTypeId,
-      entityIds: ['id-1'],
+      entityIds: ['550e8400-e29b-41d4-a716-446655440010'],
     };
 
     await expect(
@@ -216,7 +216,7 @@ describe('EntityService.deleteEntities', () => {
     const request: DeleteEntityRequest = {
       type: EntitySelectType.ById,
       entityTypeId,
-      entityIds: ['id-1'],
+      entityIds: ['550e8400-e29b-41d4-a716-446655440010'],
     };
 
     await expect(
@@ -237,7 +237,7 @@ describe('EntityService.deleteEntities', () => {
     const request: DeleteEntityRequest = {
       type: EntitySelectType.ById,
       entityTypeId,
-      entityIds: ['id-1'],
+      entityIds: ['550e8400-e29b-41d4-a716-446655440010'],
     };
 
     await expect(

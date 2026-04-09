@@ -22,8 +22,8 @@ export enum IntegrationCategory {
     Payments = 'PAYMENTS',
     Support = 'SUPPORT',
     Email = 'EMAIL',
-    ProjectManagement = 'PROJECT_MANAGEMENT',
     Communication = 'COMMUNICATION',
+    ProductAnalytics = 'PRODUCT_ANALYTICS',
     Other = 'OTHER'
 }
 

@@ -1,0 +1,183 @@
+{
+  "manifestVersion": "1.0",
+  "key": "slack",
+  "name": "Slack",
+  "description": "Slack communication integration providing channels and users.",
+  "category": "COMMUNICATION",
+  "nangoProviderKey": "",
+  "iconUrl": "/integrations/slack.svg",
+  "entityTypes": [
+    {
+      "key": "slack-channel",
+      "name": "Channel",
+      "description": "A Slack channel.",
+      "displayName": {
+        "singular": "Channel",
+        "plural": "Channels"
+      },
+      "icon": {
+        "type": "HASH",
+        "colour": "PURPLE"
+      },
+      "semanticGroup": "COMMUNICATION",
+      "identifierKey": "name",
+      "readonly": true,
+      "attributes": {
+        "name": {
+          "key": "TEXT",
+          "label": "Name",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "topic": {
+          "key": "TEXT",
+          "label": "Topic",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "purpose": {
+          "key": "TEXT",
+          "label": "Purpose",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "is-private": {
+          "key": "CHECKBOX",
+          "label": "Is Private",
+          "type": "boolean",
+          "required": false,
+          "protected": true
+        },
+        "member-count": {
+          "key": "NUMBER",
+          "label": "Member Count",
+          "type": "number",
+          "required": false,
+          "protected": true
+        },
+        "created": {
+          "key": "DATETIME",
+          "label": "Created",
+          "type": "string",
+          "format": "date-time",
+          "required": false,
+          "protected": true
+        }
+      }
+    },
+    {
+      "key": "slack-user",
+      "name": "User",
+      "description": "A Slack workspace user.",
+      "displayName": {
+        "singular": "User",
+        "plural": "Users"
+      },
+      "icon": {
+        "type": "USER",
+        "colour": "BLUE"
+      },
+      "semanticGroup": "CUSTOMER",
+      "identifierKey": "email",
+      "readonly": true,
+      "attributes": {
+        "display-name": {
+          "key": "TEXT",
+          "label": "Display Name",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "real-name": {
+          "key": "TEXT",
+          "label": "Real Name",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "email": {
+          "key": "EMAIL",
+          "label": "Email",
+          "type": "string",
+          "format": "email",
+          "required": false,
+          "protected": true
+        },
+        "title": {
+          "key": "TEXT",
+          "label": "Title",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "status-text": {
+          "key": "TEXT",
+          "label": "Status Text",
+          "type": "string",
+          "required": false,
+          "protected": true
+        }
+      }
+    }
+  ],
+  "fieldMappings": [
+    {
+      "entityTypeKey": "slack-channel",
+      "mappings": {
+        "name": {
+          "source": "name",
+          "transform": { "type": "direct" }
+        },
+        "topic": {
+          "source": "topic",
+          "transform": { "type": "direct" }
+        },
+        "purpose": {
+          "source": "purpose",
+          "transform": { "type": "direct" }
+        },
+        "is-private": {
+          "source": "is_private",
+          "transform": { "type": "direct" }
+        },
+        "member-count": {
+          "source": "member_count",
+          "transform": { "type": "type_coercion", "targetType": "number" }
+        },
+        "created": {
+          "source": "created",
+          "transform": { "type": "type_coercion", "targetType": "datetime" }
+        }
+      }
+    },
+    {
+      "entityTypeKey": "slack-user",
+      "mappings": {
+        "display-name": {
+          "source": "display_name",
+          "transform": { "type": "direct" }
+        },
+        "real-name": {
+          "source": "real_name",
+          "transform": { "type": "direct" }
+        },
+        "email": {
+          "source": "email",
+          "transform": { "type": "direct" }
+        },
+        "title": {
+          "source": "title",
+          "transform": { "type": "direct" }
+        },
+        "status-text": {
+          "source": "status_text",
+          "transform": { "type": "direct" }
+        }
+      }
+    }
+  ],
+  "relationships": []
+}

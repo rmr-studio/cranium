@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { OnboardingBusinessDefinition } from './OnboardingBusinessDefinition';
+import {
+    OnboardingBusinessDefinitionFromJSON,
+    OnboardingBusinessDefinitionFromJSONTyped,
+    OnboardingBusinessDefinitionToJSON,
+    OnboardingBusinessDefinitionToJSONTyped,
+} from './OnboardingBusinessDefinition';
 import type { OnboardingInvite } from './OnboardingInvite';
 import {
     OnboardingInviteFromJSON,
@@ -34,6 +41,13 @@ import {
     OnboardingWorkspaceToJSON,
     OnboardingWorkspaceToJSONTyped,
 } from './OnboardingWorkspace';
+import type { AcquisitionChannel } from './AcquisitionChannel';
+import {
+    AcquisitionChannelFromJSON,
+    AcquisitionChannelFromJSONTyped,
+    AcquisitionChannelToJSON,
+    AcquisitionChannelToJSONTyped,
+} from './AcquisitionChannel';
 import type { OnboardingProfile } from './OnboardingProfile';
 import {
     OnboardingProfileFromJSON,
@@ -72,6 +86,18 @@ export interface CompleteOnboardingRequest {
      * @memberof CompleteOnboardingRequest
      */
     invites?: Array<OnboardingInvite>;
+    /**
+     * 
+     * @type {Array<OnboardingBusinessDefinition>}
+     * @memberof CompleteOnboardingRequest
+     */
+    businessDefinitions?: Array<OnboardingBusinessDefinition>;
+    /**
+     * 
+     * @type {Array<AcquisitionChannel>}
+     * @memberof CompleteOnboardingRequest
+     */
+    acquisitionChannels?: Array<AcquisitionChannel>;
 }
 
 
@@ -100,6 +126,8 @@ export function CompleteOnboardingRequestFromJSONTyped(json: any, ignoreDiscrimi
         'profile': OnboardingProfileFromJSON(json['profile']),
         'businessType': BusinessTypeFromJSON(json['businessType']),
         'invites': json['invites'] == null ? undefined : ((json['invites'] as Array<any>).map(OnboardingInviteFromJSON)),
+        'businessDefinitions': json['businessDefinitions'] == null ? undefined : ((json['businessDefinitions'] as Array<any>).map(OnboardingBusinessDefinitionFromJSON)),
+        'acquisitionChannels': json['acquisitionChannels'] == null ? undefined : ((json['acquisitionChannels'] as Array<any>).map(AcquisitionChannelFromJSON)),
     };
 }
 
@@ -118,6 +146,8 @@ export function CompleteOnboardingRequestToJSONTyped(value?: CompleteOnboardingR
         'profile': OnboardingProfileToJSON(value['profile']),
         'businessType': BusinessTypeToJSON(value['businessType']),
         'invites': value['invites'] == null ? undefined : ((value['invites'] as Array<any>).map(OnboardingInviteToJSON)),
+        'businessDefinitions': value['businessDefinitions'] == null ? undefined : ((value['businessDefinitions'] as Array<any>).map(OnboardingBusinessDefinitionToJSON)),
+        'acquisitionChannels': value['acquisitionChannels'] == null ? undefined : ((value['acquisitionChannels'] as Array<any>).map(AcquisitionChannelToJSON)),
     };
 }
 

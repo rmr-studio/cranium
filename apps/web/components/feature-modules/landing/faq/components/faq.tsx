@@ -15,10 +15,18 @@ interface Question {
 
 const FAQ: Question[] = [
   {
-    question: 'What is a customer lifecycle intelligence platform?',
+    question: 'What does Riven actually do?',
     answer: `From marketing, to sales, to product usage, to support, and to the moment your customer picks up their stuff and leaves. Each of these tools will only ever see its own slice. Stripe sees payments, Intercom sees tickets, Google Ads sees clicks. Nobody sees the whole customer.
     A customer lifecycle intelligence platform connects all of them so you can follow someone from the ad they clicked
     to the subscription they cancelled. Riven does that, and gives your team a workspace to do something about what it finds.`,
+  },
+  {
+    question: 'Who uses Riven?',
+    answer: `
+    B2C SaaS and DTC e-commerce teams that don't have a data person. Maybe you're the founder who is also somehow the entire analytics department.
+    Maybe you're the head of ops who spends half the week pulling reports instead of acting on them.
+    You've outgrown your starter tools but you're nowhere near a six-figure Looker contract.
+    You just need to know what's going on without it becoming your whole day.`,
   },
   {
     question: 'Does Riven replace my existing tools?',
@@ -34,14 +42,6 @@ const FAQ: Question[] = [
       Intercom knows your support history but has no idea where each customer came from.
       They're all good at their own thing. None of them see the full picture.
       Riven connects them into one shared data layer with an AI that can reason across all of it at once.`,
-  },
-  {
-    question: 'Who uses Riven?',
-    answer: `
-    B2C SaaS and DTC e-commerce teams that don't have a data person. Maybe you're the founder who is also somehow the entire analytics department.
-    Maybe you're the head of ops who spends half the week pulling reports instead of acting on them.
-    You've outgrown your starter tools but you're nowhere near a six-figure Looker contract.
-    You just need to know what's going on without it becoming your whole day.`,
   },
   {
     question: 'How does Riven ensure AI answers are accurate?',
@@ -67,10 +67,10 @@ const FAQ: Question[] = [
   },
   {
     question: 'How is Riven different from just using N8N/Zapier and ChatGPT?',
-    answer: `
-    Automation tools like N8N and Zapier are powerful for collecting current data from many different tools, feeding into an AI model like ChatGPT in order to produce extremely valuable answers. 
-    But it falls short in a few key ways. One of the main differentiators of Riven is its focus of continuous contextual compounding. Our platform get's smarter over time as it builds a shared data model across all of your tools, and continues to build its knowledge base with patterns that arise from trends and changes between current and historic data.
-    We don't just see what's happening right now, we see it in the context of what happened before, and what it means for what happens next. It's a system that learns and evolves with your business, not just a snapshot of the moment you ask.`,
+    answer: `You can absolutely pipe tools into ChatGPT with Zapier and get useful answers. What you can't do is build memory.    
+  Riven learns as it goes — every pattern it finds, every action you take, every outcome that follows — all stays 
+  connected to your data model. By month three it knows things about your business that a one-shot prompt never will.  
+  It doesn't just see what's happening now. It sees it in the context of everything that came before.    `,
   },
   {
     question: 'How is Riven different from other analytics tools?',
@@ -96,7 +96,7 @@ const FAQ: Question[] = [
   },
 ];
 
-const PREVIEW_COUNT = 5;
+const PREVIEW_COUNT = 6;
 
 interface FaqProps {
   preview?: boolean;

@@ -13,6 +13,7 @@ interface AuthContextType {
   signInWithOAuth: IAuthProvider['signInWithOAuth'];
   verifyOtp: IAuthProvider['verifyOtp'];
   resendOtp: IAuthProvider['resendOtp'];
+  refreshSession: IAuthProvider['refreshSession'];
 }
 
 const throwIfOutsideProvider = (): never => {
@@ -29,6 +30,7 @@ const AuthContext = createContext<AuthContextType>({
   signInWithOAuth: throwIfOutsideProvider,
   verifyOtp: throwIfOutsideProvider,
   resendOtp: throwIfOutsideProvider,
+  refreshSession: throwIfOutsideProvider,
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -39,11 +41,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const subscription = provider.onAuthStateChange((_, newSession) => {
       setIsLoading(false);
-      if (!newSession) {
-        setSession(null);
-        return;
-      }
-
       setSession(newSession);
     });
 
@@ -61,6 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signInWithOAuth: provider.signInWithOAuth.bind(provider),
       verifyOtp: provider.verifyOtp.bind(provider),
       resendOtp: provider.resendOtp.bind(provider),
+      refreshSession: provider.refreshSession.bind(provider),
     }),
     [session, isLoading, provider],
   );

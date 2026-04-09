@@ -58,9 +58,9 @@ export const RuleBaseSection: FC = () => {
             <br />
             Action anything about your business.
           </h2>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-content/90 md:text-base">
-            Get instant answers, uncover trends, and set intelligent rules that act on your behalf —
-            all in plain English. No SQL, no code, no waiting.
+          <p className="mt-4 text-sm leading-relaxed text-content/90 md:text-base">
+            Type a question in plain English. Get the answer. Or turn the question into an action
+            that runs while you sleep. No SQL, no code, no waiting.
           </p>
         </div>
       </div>

@@ -1,13 +1,13 @@
 ---
 title: 'How to Track Customer Churn When Your Data Lives in 6 Different Tools'
 description: '52% of subscribers churn in year one, but no single tool shows you why. A cross-tool churn tracking framework for DTC operators.'
-date: '2026-03-20'
+date: '2026-03-25'
 updated: '2026-03-26'
 author: 'Jared Tucker'
 category: 'operational-intelligence'
 coverImage: 'images/blog/25-3-26-blog-churn-tracking.webp'
 tags: ['churn', 'analytics', 'DTC', 'cross-domain', 'retention', 'subscription']
-featured: true
+featured: false
 ---
 
 52% of subscription customers leave within their first year. That number comes from Recurly's 2026 benchmark report, covering 2,200+ brands and 76 million subscriptions. Your Stripe dashboard will show you that number. What it won't show you is the support ticket from two weeks ago, the three unopened emails before that, or the return request that started the whole thing. Those signals live in different tools, and none of them talk to each other.
@@ -40,13 +40,13 @@ The catch? Knowing which intervention to offer requires knowing why the customer
 
 ## What each tool can and can't see
 
-| Tool | What it sees | What it misses | The gap that costs you |
-|---|---|---|---|
-| Stripe | Payment failures, cancellations, MRR | Why anyone cancelled, engagement history | No LTV calculation. Can't distinguish an upgrade from a downgrade. |
-| Shopify | Sessions, orders, returns | Who the customer actually is (85-95% of visitors are anonymous) | Tracks browser sessions, not people. Last-click attribution only. |
-| Klaviyo | Email opens, clicks, campaign revenue | Anything about customers with less than 180 days of history or brands with fewer than 500 customers | Churn risk scoring doesn't activate until 180 days + 500 customers. But 52% of subscribers leave in year one. |
-| Gorgias | Tickets, CSAT scores, resolution time | Revenue impact of support interactions | Limited analytics compared to competitors. No churn risk scoring at all. |
-| Your spreadsheet | Whatever you typed in last week | Everything that happened since then | Takes 5-10 hours a week to maintain, according to ecommerce automation surveys. |
+| Tool             | What it sees                          | What it misses                                                                                      | The gap that costs you                                                                                        |
+| ---------------- | ------------------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Stripe           | Payment failures, cancellations, MRR  | Why anyone cancelled, engagement history                                                            | No LTV calculation. Can't distinguish an upgrade from a downgrade.                                            |
+| Shopify          | Sessions, orders, returns             | Who the customer actually is (85-95% of visitors are anonymous)                                     | Tracks browser sessions, not people. Last-click attribution only.                                             |
+| Klaviyo          | Email opens, clicks, campaign revenue | Anything about customers with less than 180 days of history or brands with fewer than 500 customers | Churn risk scoring doesn't activate until 180 days + 500 customers. But 52% of subscribers leave in year one. |
+| Gorgias          | Tickets, CSAT scores, resolution time | Revenue impact of support interactions                                                              | Limited analytics compared to competitors. No churn risk scoring at all.                                      |
+| Your spreadsheet | Whatever you typed in last week       | Everything that happened since then                                                                 | Takes 5-10 hours a week to maintain, according to ecommerce automation surveys.                               |
 
 Each of these tools is good at its job. Stripe handles billing. Gorgias handles tickets. Klaviyo handles email. The problem is that churn doesn't happen inside one tool. It happens across all of them.
 
@@ -145,4 +145,4 @@ Between 20% and 40% of total churn is involuntary, meaning payment failures rath
 
 Klaviyo has a churn risk scoring feature, but it comes with activation requirements that limit its usefulness for many brands. It requires at least 180 days of customer data and a minimum of 500 customers before it turns on. Given that 52% of subscribers leave within year one (Recurly's data), the feature is dormant during the period when churn risk is highest. If your brand is newer or you recently crossed the 500-customer threshold, you'll need to supplement Klaviyo's scoring with your own cross-tool signals.
 
-*Last updated: March 26, 2026*
+_Last updated: March 26, 2026_

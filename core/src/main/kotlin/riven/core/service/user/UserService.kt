@@ -106,6 +106,7 @@ class UserService(
      * @param avatar Optional new avatar file to upload.
      * @return The updated User model.
      */
+    @Transactional
     @Throws(NotFoundException::class, IllegalArgumentException::class)
     fun updateUserDetails(request: SaveUserRequest, avatar: MultipartFile? = null): User {
         val sessionUserId = authTokenService.getUserId()
@@ -117,6 +118,7 @@ class UserService(
             email = request.email
             phone = request.phone
             onboardingCompletedAt = request.onboardingCompletedAt ?: onboardingCompletedAt
+            acquisitionChannels = request.acquisitionChannels ?: acquisitionChannels
 
             defaultWorkspace = request.defaultWorkspaceId?.let { workspaceId ->
                 findOrThrow { workspaceRepository.findById(workspaceId) }

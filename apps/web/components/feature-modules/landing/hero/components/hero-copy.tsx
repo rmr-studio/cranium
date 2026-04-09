@@ -10,19 +10,21 @@ export const HeroCopy = () => {
   return (
     <div className="relative z-20 mt-10 items-center px-2 pb-4 sm:px-4 sm:pb-6 md:px-8 md:pt-8 md:pb-0 lg:px-0">
       <div>
-        <h1 className="text-center font-serif text-[clamp(1.75rem,8vw,2.75rem)] leading-[1.1] tracking-tighter sm:text-5xl md:text-[4rem]">
-          Scale, grow and expand with contextual customer insights.
+        <h1 className="text-center font-serif text-xl leading-[1.1] tracking-tighter text-primary/90 sm:text-3xl md:text-[3rem] xl:text-[4rem]">
+          Change is happening faster than ever.
           <br />
-          Unlock the ability to act, track and attack immediately.
+          <span className="text-center font-serif text-4xl leading-[1.1] tracking-tighter text-primary sm:text-5xl md:text-[5rem] lg:text-[5.5rem] xl:text-[6.5rem]">
+            Don't get left behind.
+          </span>
         </h1>
       </div>
 
       <h2
-        className={`mx-auto mt-8 max-w-6xl text-center text-base leading-[1.1] tracking-tighter text-heading/85 sm:px-0 md:text-lg lg:mt-3`}
+        className={`mx-auto mt-4 max-w-5xl text-center text-sm leading-[1.1] tracking-tighter text-heading/85 sm:px-0 sm:text-base md:mt-8 md:text-lg lg:mt-3 lg:text-xl`}
       >
-        Unite the customer lifecycle data spread across every tool in your stack your tools. Unlock
-        immediate insights, patterns and trends about your most valuable cohorts. All immediately
-        actionable to double down and expand quickly with confidence.
+        Riven closes the gap between insight and action. A platform where powerful AI meets your
+        entire customer lifecycle stack. Surface the trends, patterns and shifts that matter. All
+        actionable and tracked to expand, pivot or double down in one click.{' '}
       </h2>
 
       <section
@@ -36,10 +38,8 @@ export const HeroCopy = () => {
             scrollToSection('waitlist');
           }}
         >
-          <CtaButton className="paper-lite mx-auto justify-center border bg-background p-6 text-primary hover:bg-accent/40 md:w-64">
-            <div className="font-sans text-lg font-semibold tracking-tight">
-              Unlock early access
-            </div>
+          <CtaButton className="order:1 paper-lite mx-auto justify-center border bg-background p-6 text-primary hover:bg-accent/40 md:w-64">
+            <div className="font-sans text-lg font-semibold tracking-tight">Join the Waitlist</div>
             <ArrowRight className="size-4" />
           </CtaButton>
         </Link>

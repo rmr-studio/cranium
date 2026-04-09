@@ -27,12 +27,11 @@ export function CrossDomainIntelligence() {
 
         <div className="px-4 sm:px-8">
           <h2 className="font-serif text-3xl leading-none tracking-tighter text-primary md:text-4xl lg:text-6xl">
-            Insights that <span className="font-normal">no single tool could see.</span>
+            Insights that no single tool could see.
           </h2>
           <p className="mt-4 max-w-3xl text-sm leading-none text-content/90 md:text-base">
-            Riven connects the dots across every data source you use. Presenting the patterns,
-            risks, and opportunities that only emerge when your entire business is understood as one
-            system.
+            Your CRM sees deals. Stripe sees payments. Intercom sees tickets. Riven sees the
+            connection, and what to do next.
           </p>
         </div>
       </div>

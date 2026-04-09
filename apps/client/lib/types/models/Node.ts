@@ -42,16 +42,16 @@ export interface Node {
     block: Block;
     /**
      * 
-     * @type {Array<string>}
-     * @memberof Node
-     */
-    warnings: Array<string>;
-    /**
-     * 
      * @type {NodeType}
      * @memberof Node
      */
     type: NodeType;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof Node
+     */
+    warnings: Array<string>;
 }
 
 
@@ -61,8 +61,8 @@ export interface Node {
  */
 export function instanceOfNode(value: object): value is Node {
     if (!('block' in value) || value['block'] === undefined) return false;
-    if (!('warnings' in value) || value['warnings'] === undefined) return false;
     if (!('type' in value) || value['type'] === undefined) return false;
+    if (!('warnings' in value) || value['warnings'] === undefined) return false;
     return true;
 }
 
@@ -77,8 +77,8 @@ export function NodeFromJSONTyped(json: any, ignoreDiscriminator: boolean): Node
     return {
         
         'block': BlockFromJSON(json['block']),
-        'warnings': json['warnings'],
         'type': NodeTypeFromJSON(json['type']),
+        'warnings': json['warnings'],
     };
 }
 
@@ -94,8 +94,8 @@ export function NodeToJSONTyped(value?: Node | null, ignoreDiscriminator: boolea
     return {
         
         'block': BlockToJSON(value['block']),
-        'warnings': value['warnings'],
         'type': NodeTypeToJSON(value['type']),
+        'warnings': value['warnings'],
     };
 }
 

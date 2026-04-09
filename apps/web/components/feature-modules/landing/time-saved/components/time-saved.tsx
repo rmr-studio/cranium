@@ -40,8 +40,8 @@ export function TimeSaved() {
             Less stitching. More signal.
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-none tracking-tighter text-content/90">
-            Riven eliminates the manual work caused by disconnected tools. Allowing you to focus on
-            what matters most, growing your business.
+            Riven kills the manual work disconnected tools create, so the hours wasted
+            cross-referencing go back into running the business.
           </p>
         </div>
 

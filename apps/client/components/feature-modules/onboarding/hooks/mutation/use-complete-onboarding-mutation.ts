@@ -11,7 +11,7 @@ import {
 import { toast } from 'sonner';
 
 export function useCompleteOnboardingMutation() {
-  const { session } = useAuth();
+  const { session, refreshSession } = useAuth();
   const queryClient = useQueryClient();
   const storeApi = useOnboardStoreApi();
   const { setSubmissionStatus, setSubmissionResponse } = useOnboardSubmission();
@@ -39,9 +39,10 @@ export function useCompleteOnboardingMutation() {
       setSubmissionStatus('error');
       toast.error(error.message || 'Something went wrong setting up your workspace.');
     },
-    onSuccess: (response) => {
+    onSuccess: async (response) => {
       setSubmissionResponse(response);
       setSubmissionStatus('success');
+      await refreshSession();
       queryClient.invalidateQueries({ queryKey: ['userProfile'] });
     },
   });

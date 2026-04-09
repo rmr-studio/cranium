@@ -8,8 +8,8 @@ describe('onboard-steps', () => {
   });
 
   describe('ONBOARD_STEPS', () => {
-    it('has exactly 4 entries', () => {
-      expect(ONBOARD_STEPS).toHaveLength(4);
+    it('has exactly 5 entries', () => {
+      expect(ONBOARD_STEPS).toHaveLength(5);
     });
 
     it('each entry has all required fields', () => {
@@ -22,11 +22,12 @@ describe('onboard-steps', () => {
       }
     });
 
-    it('step ids are profile, workspace, templates, team in order', () => {
+    it('step ids are profile, workspace, definitions, channels, team in order', () => {
       expect(ONBOARD_STEPS[0].id).toBe('profile');
       expect(ONBOARD_STEPS[1].id).toBe('workspace');
-      expect(ONBOARD_STEPS[2].id).toBe('templates');
-      expect(ONBOARD_STEPS[3].id).toBe('team');
+      expect(ONBOARD_STEPS[2].id).toBe('definitions');
+      expect(ONBOARD_STEPS[3].id).toBe('channels');
+      expect(ONBOARD_STEPS[4].id).toBe('team');
     });
 
     it('profile and workspace are required (optional: false)', () => {
@@ -34,9 +35,10 @@ describe('onboard-steps', () => {
       expect(ONBOARD_STEPS[1].optional).toBe(false);
     });
 
-    it('templates and team are optional (optional: true)', () => {
+    it('definitions, channels, and team are optional (optional: true)', () => {
       expect(ONBOARD_STEPS[2].optional).toBe(true);
       expect(ONBOARD_STEPS[3].optional).toBe(true);
+      expect(ONBOARD_STEPS[4].optional).toBe(true);
     });
 
     it('cameraX values are monotonically increasing', () => {

@@ -18,17 +18,19 @@ const dashboardShaders = {
 
 const FEATURES: FeatureCard[] = [
   {
-    title: 'Real-time insights',
+    title: 'Live Patterns',
     description:
       'See which cohorts retain best and which channels produce them, the moment patterns emerge',
   },
   {
-    title: 'Cross-domain view',
-    description: 'Unified lifecycle data from every connected tool in one glance',
+    title: 'One connected view',
+    description:
+      'Unified lifecycle data from your CRM, product, billing, support and marketing tools, all read and surfaced in one place',
   },
   {
-    title: 'AI-powered briefs',
-    description: 'Your morning brief learns what matters most to your business',
+    title: 'Morning moves',
+    description:
+      'Wake up to the shifts that happened overnight, already sorted and surfaced for you to act on',
   },
 ];
 

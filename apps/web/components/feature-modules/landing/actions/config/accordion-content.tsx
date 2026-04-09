@@ -18,16 +18,17 @@ export const ACTION_CONTENT: KnowledgeLayerSectionContent[] = [
     content: <QueryBuilderGraphic />,
   },
   {
-    title: <div>New data finds its home automatically</div>,
-    description:
-      "When new data syncs, Riven figures out where it belongs. A new Stripe charge gets matched to the right company, linked to their support tickets, ad spend, and everything else. You don't have to map it yourself.",
+    title: <div>We know where it belongs</div>,
+    description: `When a new Stripe charge syncs, Riven already knows which company it belongs to, which support tickets are open on 
+  ▎ that account, and what they cost you in ad spend. No manual mapping`,
     content: (
       <EntityDetailShowcase className="dark absolute -right-12 -bottom-16 sm:-right-48 sm:scale-130 md:bottom-8" />
     ),
   },
   {
     title: <div>Track performance</div>,
-    description: `All actions are tracked and attributed back to the right customers, channels, and cohorts. See which actions correlate with better retention, higher LTV, and more. Keep an eye on how your most important metrics are impacted by the actions you take, experiment and learn what moves the needle for your business without the guesswork.`,
+    description: `Every action you take in Riven is tracked back to the customers, channels and cohorts it touched. See which moves 
+  ▎ correlate with better retention and higher LTV. Experiment, learn, repeat. All without the guesswork.`,
     content: (
       <MockDashboard className="translate-x-12 translate-x-48! translate-y-12 scale-120 sm:translate-x-32 sm:translate-y-24 md:scale-140! lg:translate-y-0 xl:translate-x-64!" />
     ),

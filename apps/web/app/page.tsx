@@ -52,9 +52,9 @@ export default async function Home() {
     <main className="min-h-screen overflow-x-clip">
       <Hero />
       <KnowledgeRuleBase />
+      <TimeSaved />
       <CohortBehaviour />
       <DashboardShowcase />
-      <TimeSaved />
       <CrossDomainIntelligence />
       <DailyActions />
       <FeaturedPosts featured={featured} recent={recent} />

@@ -26,3 +26,10 @@ export {
     WorkspaceRoles,
     WorkspaceInviteStatus,
 };
+
+// Business definition type re-exports
+export type {
+  WorkspaceBusinessDefinition,
+  CreateBusinessDefinitionRequest,
+  UpdateBusinessDefinitionRequest,
+} from '../models';

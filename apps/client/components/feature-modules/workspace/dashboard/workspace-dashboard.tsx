@@ -50,11 +50,11 @@ export const WorkspaceDashboard = () => {
   ];
 
   return (
-    <div className="px-12 py-6">
+    <>
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <BreadCrumbGroup items={trail} />
       </div>
-    </div>
+    </>
   );
 };

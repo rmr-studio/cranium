@@ -8,8 +8,9 @@ Name | Type
 ------------ | -------------
 `workspace` | [Workspace](Workspace.md)
 `user` | [UserDisplay](UserDisplay.md)
-`templateResults` | [Array&lt;TemplateInstallResult&gt;](TemplateInstallResult.md)
+`templateResult` | [TemplateInstallResult](TemplateInstallResult.md)
 `inviteResults` | [Array&lt;InviteResult&gt;](InviteResult.md)
+`definitionResults` | [Array&lt;BusinessDefinitionResult&gt;](BusinessDefinitionResult.md)
 
 ## Example
 
@@ -20,8 +21,9 @@ import type { CompleteOnboardingResponse } from ''
 const example = {
   "workspace": null,
   "user": null,
-  "templateResults": null,
+  "templateResult": null,
   "inviteResults": null,
+  "definitionResults": null,
 } satisfies CompleteOnboardingResponse
 
 console.log(example)

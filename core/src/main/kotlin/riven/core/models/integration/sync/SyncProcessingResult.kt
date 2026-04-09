@@ -16,6 +16,7 @@ import java.util.UUID
  * @property lastErrorMessage Last error message encountered (null if all records succeeded)
  * @property success Whether the sync completed without fatal errors
  * @property syncedEntityIds UUIDs of entities successfully upserted during Pass 1, for downstream projection
+ * @property syncKey Disambiguation key for sync state (e.g. "note-embedding"). Null for standard entity syncs.
  */
 data class SyncProcessingResult(
     val entityTypeId: UUID?,
@@ -25,4 +26,5 @@ data class SyncProcessingResult(
     val lastErrorMessage: String? = null,
     val success: Boolean,
     val syncedEntityIds: List<UUID> = emptyList(),
+    val syncKey: String? = null,
 )

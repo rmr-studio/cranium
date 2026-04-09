@@ -1,5 +1,11 @@
 # Architecture Suggestions
 
+## [2026-04-09] — Note Embedding Pipeline Documentation Updates
+
+**Trigger:** Implemented note embedding pipeline with new cross-domain dependency (Integration → Note)
+**Affected vault notes:** Integration Sync Pipeline, Note Domain, Data Flow diagrams
+**Suggested update:** Document the note embedding routing in the sync pipeline flow (fetchAndProcessRecords now has a pre-check for noteEmbedding config that short-circuits entity creation). Document the entity-spanning notes architecture change. Update Note domain docs to reflect multi-entity attachment model and readonly/source tracking fields.
+
 ## [2026-03-27] — Entity Ingestion Pipeline Documentation Updates
 
 **Trigger:** Engineering review defined the Entity Ingestion Pipeline architecture with 6 confirmed architectural decisions, 3 new services, and cross-domain dependencies.

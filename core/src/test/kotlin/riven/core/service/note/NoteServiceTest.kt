@@ -6,13 +6,16 @@ import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.domain.PageRequest
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import riven.core.configuration.auth.WorkspaceSecurity
 import riven.core.entity.note.NoteEntity
+import riven.core.entity.note.NoteEntityAttachment
+import riven.core.enums.note.NoteSourceType
 import riven.core.exceptions.NotFoundException
 import riven.core.models.note.CreateNoteRequest
 import riven.core.models.note.UpdateNoteRequest
+import riven.core.repository.note.NoteEntityAttachmentRepository
 import riven.core.repository.note.NoteRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.auth.AuthTokenService
@@ -28,6 +31,9 @@ class NoteServiceTest : BaseServiceTest() {
 
     @MockitoBean
     private lateinit var noteRepository: NoteRepository
+
+    @MockitoBean
+    private lateinit var attachmentRepository: NoteEntityAttachmentRepository
 
     @MockitoBean
     private lateinit var activityService: ActivityService
@@ -46,14 +52,16 @@ class NoteServiceTest : BaseServiceTest() {
         val note1 = NoteFactory.createEntity(entityId = entityId, workspaceId = workspaceId, title = "Note 1")
         val note2 = NoteFactory.createEntity(id = UUID.randomUUID(), entityId = entityId, workspaceId = workspaceId, title = "Note 2")
 
-        whenever(noteRepository.findByEntityIdAndWorkspaceIdOrderByCreatedAtDesc(entityId, workspaceId))
+        whenever(noteRepository.findByEntityIdAndWorkspaceId(entityId, workspaceId))
             .thenReturn(listOf(note2, note1))
+        whenever(attachmentRepository.findEntityIdsByNoteId(any())).thenReturn(listOf(entityId))
 
         val result = noteService.getNotesForEntity(workspaceId, entityId)
 
         assertEquals(2, result.size)
         assertEquals("Note 2", result[0].title)
         assertEquals("Note 1", result[1].title)
+        assertTrue(result[0].entityIds.contains(entityId))
     }
 
     @Test
@@ -62,12 +70,13 @@ class NoteServiceTest : BaseServiceTest() {
 
         whenever(noteRepository.searchByEntityIdAndWorkspaceId(entityId, workspaceId, "test"))
             .thenReturn(listOf(note))
+        whenever(attachmentRepository.findEntityIdsByNoteId(any())).thenReturn(listOf(entityId))
 
         val result = noteService.getNotesForEntity(workspaceId, entityId, "test")
 
         assertEquals(1, result.size)
         assertEquals("Found", result[0].title)
-        verify(noteRepository, never()).findByEntityIdAndWorkspaceIdOrderByCreatedAtDesc(any(), any())
+        verify(noteRepository, never()).findByEntityIdAndWorkspaceId(any(), any())
     }
 
     // ------------------------------------------------------------------
@@ -75,7 +84,11 @@ class NoteServiceTest : BaseServiceTest() {
     // ------------------------------------------------------------------
 
     @Test
-    fun `createNote saves entity and logs activity`() {
+    fun `createNote saves entity and attachment row and logs activity`() {
+        /**
+         * Regression test: createNote must create both a NoteEntity AND a
+         * note_entity_attachment row for the target entity.
+         */
         val request = CreateNoteRequest(
             content = listOf(
                 mapOf(
@@ -94,12 +107,16 @@ class NoteServiceTest : BaseServiceTest() {
         )
 
         whenever(noteRepository.save(any<NoteEntity>())).thenReturn(saved)
+        whenever(attachmentRepository.save(any<NoteEntityAttachment>())).thenAnswer { it.arguments[0] }
 
         val result = noteService.createNote(workspaceId, entityId, request)
 
         assertEquals("Hello world", result.title)
-        assertEquals(entityId, result.entityId)
+        assertTrue(result.entityIds.contains(entityId))
         verify(noteRepository).save(any<NoteEntity>())
+        verify(attachmentRepository).save(argThat<NoteEntityAttachment> {
+            this.noteId == NoteFactory.DEFAULT_NOTE_ID && this.entityId == entityId
+        })
         verify(activityService).logActivity(any(), any(), any(), any(), any(), any(), any(), any())
     }
 
@@ -114,9 +131,6 @@ class NoteServiceTest : BaseServiceTest() {
             )
         )
 
-        whenever(noteRepository.save(any<NoteEntity>())).thenAnswer { it.arguments[0] as NoteEntity }
-
-        // ID will be null from factory default if not set, so we use a saved entity
         val saved = NoteFactory.createEntity(
             entityId = entityId,
             workspaceId = workspaceId,
@@ -124,6 +138,7 @@ class NoteServiceTest : BaseServiceTest() {
             content = request.content,
         )
         whenever(noteRepository.save(any<NoteEntity>())).thenReturn(saved)
+        whenever(attachmentRepository.save(any<NoteEntityAttachment>())).thenAnswer { it.arguments[0] }
 
         val result = noteService.createNote(workspaceId, entityId, request)
         assertEquals("Auto title", result.title)
@@ -139,6 +154,7 @@ class NoteServiceTest : BaseServiceTest() {
 
         whenever(noteRepository.findById(NoteFactory.DEFAULT_NOTE_ID)).thenReturn(Optional.of(existing))
         whenever(noteRepository.save(any<NoteEntity>())).thenAnswer { it.arguments[0] as NoteEntity }
+        whenever(attachmentRepository.findEntityIdsByNoteId(NoteFactory.DEFAULT_NOTE_ID)).thenReturn(listOf(entityId))
 
         val newContent = listOf(
             mapOf<String, Any>(
@@ -174,6 +190,26 @@ class NoteServiceTest : BaseServiceTest() {
         }
     }
 
+    @Test
+    fun `updateNote throws AccessDeniedException for readonly note`() {
+        /**
+         * Bug prevention: readonly notes (from integration sync) must not be
+         * modifiable via the user-facing update endpoint.
+         */
+        val existing = NoteFactory.createEntity(
+            entityId = entityId,
+            workspaceId = workspaceId,
+            readonly = true,
+            sourceType = NoteSourceType.INTEGRATION,
+        )
+
+        whenever(noteRepository.findById(NoteFactory.DEFAULT_NOTE_ID)).thenReturn(Optional.of(existing))
+
+        assertThrows<AccessDeniedException> {
+            noteService.updateNote(workspaceId, NoteFactory.DEFAULT_NOTE_ID, UpdateNoteRequest(title = "x"))
+        }
+    }
+
     // ------------------------------------------------------------------
     // deleteNote
     // ------------------------------------------------------------------
@@ -199,6 +235,26 @@ class NoteServiceTest : BaseServiceTest() {
         }
     }
 
+    @Test
+    fun `deleteNote throws AccessDeniedException for readonly note`() {
+        /**
+         * Bug prevention: readonly notes (from integration sync) must not be
+         * deletable via the user-facing delete endpoint.
+         */
+        val existing = NoteFactory.createEntity(
+            entityId = entityId,
+            workspaceId = workspaceId,
+            readonly = true,
+            sourceType = NoteSourceType.INTEGRATION,
+        )
+
+        whenever(noteRepository.findById(NoteFactory.DEFAULT_NOTE_ID)).thenReturn(Optional.of(existing))
+
+        assertThrows<AccessDeniedException> {
+            noteService.deleteNote(workspaceId, NoteFactory.DEFAULT_NOTE_ID)
+        }
+    }
+
     // ------------------------------------------------------------------
     // getWorkspaceNotes
     // ------------------------------------------------------------------
@@ -213,6 +269,8 @@ class NoteServiceTest : BaseServiceTest() {
         whenever(noteRepository.findByWorkspaceId(eq(workspaceId), any(), any(), any()))
             .thenReturn(listOf(note1, note2))
         whenever(noteRepository.countByWorkspaceId(workspaceId)).thenReturn(5L)
+        whenever(attachmentRepository.findByNoteId(any()))
+            .thenReturn(listOf(NoteFactory.createAttachment(entityId = entityId)))
         whenever(noteRepository.findEntityContext(any()))
             .thenReturn(listOf(
                 arrayOf<Any?>(entityId, "Acme Corp", "company", "BUILDING", "BLUE")
@@ -223,10 +281,12 @@ class NoteServiceTest : BaseServiceTest() {
         assertEquals(2, result.items.size)
         assertEquals(5L, result.totalCount)
         assertNotNull(result.nextCursor)
-        assertEquals("Acme Corp", result.items[0].entityDisplayName)
-        assertEquals("company", result.items[0].entityTypeKey)
-        assertEquals("BUILDING", result.items[0].entityTypeIcon)
-        assertEquals("BLUE", result.items[0].entityTypeColour)
+
+        val firstContext = result.items[0].entityContexts.first()
+        assertEquals("Acme Corp", firstContext.entityDisplayName)
+        assertEquals("company", firstContext.entityTypeKey)
+        assertEquals("BUILDING", firstContext.entityTypeIcon)
+        assertEquals("BLUE", firstContext.entityTypeColour)
     }
 
     @Test
@@ -236,6 +296,8 @@ class NoteServiceTest : BaseServiceTest() {
         whenever(noteRepository.findByWorkspaceId(eq(workspaceId), any(), any(), any()))
             .thenReturn(listOf(note))
         whenever(noteRepository.countByWorkspaceId(workspaceId)).thenReturn(1L)
+        whenever(attachmentRepository.findByNoteId(any()))
+            .thenReturn(listOf(NoteFactory.createAttachment(entityId = entityId)))
         whenever(noteRepository.findEntityContext(any()))
             .thenReturn(listOf(arrayOf<Any?>(entityId, "Acme", "company", "BUILDING", "BLUE")))
 
@@ -303,20 +365,23 @@ class NoteServiceTest : BaseServiceTest() {
         whenever(noteRepository.findByWorkspaceId(eq(workspaceId), any(), any(), any()))
             .thenReturn(listOf(note))
         whenever(noteRepository.countByWorkspaceId(workspaceId)).thenReturn(1L)
+        whenever(attachmentRepository.findByNoteId(any()))
+            .thenReturn(listOf(NoteFactory.createAttachment(entityId = entityId)))
         whenever(noteRepository.findEntityContext(any()))
             .thenReturn(listOf(arrayOf<Any?>(entityId, null, "company", "BUILDING", "BLUE")))
 
         val result = noteService.getWorkspaceNotes(workspaceId, limit = 20)
 
-        assertNull(result.items[0].entityDisplayName)
-        assertEquals("company", result.items[0].entityTypeKey)
+        val firstContext = result.items[0].entityContexts.first()
+        assertNull(firstContext.entityDisplayName)
+        assertEquals("company", firstContext.entityTypeKey)
     }
 
     @Test
     fun `getWorkspaceNotes handles entity with soft-deleted parent gracefully`() {
         /**
          * When an entity is soft-deleted, findEntityContext excludes it (WHERE e.deleted = false).
-         * Notes referencing deleted entities should still be mapped but with empty entity context.
+         * Notes referencing deleted entities should still return but with empty entity contexts.
          */
         val deletedEntityId = UUID.randomUUID()
         val note = NoteFactory.createEntity(workspaceId = workspaceId, entityId = deletedEntityId)
@@ -324,14 +389,14 @@ class NoteServiceTest : BaseServiceTest() {
         whenever(noteRepository.findByWorkspaceId(eq(workspaceId), any(), any(), any()))
             .thenReturn(listOf(note))
         whenever(noteRepository.countByWorkspaceId(workspaceId)).thenReturn(1L)
-        // Entity context returns empty — deleted entity not found
+        whenever(attachmentRepository.findByNoteId(any()))
+            .thenReturn(listOf(NoteFactory.createAttachment(entityId = deletedEntityId)))
         whenever(noteRepository.findEntityContext(any())).thenReturn(emptyList())
 
         val result = noteService.getWorkspaceNotes(workspaceId, limit = 20)
 
         assertEquals(1, result.items.size)
-        assertNull(result.items[0].entityDisplayName)
-        assertEquals("", result.items[0].entityTypeKey)
+        assertTrue(result.items[0].entityContexts.isEmpty())
     }
 
     // ------------------------------------------------------------------
@@ -344,13 +409,15 @@ class NoteServiceTest : BaseServiceTest() {
 
         whenever(noteRepository.findByIdAndWorkspaceId(NoteFactory.DEFAULT_NOTE_ID, workspaceId))
             .thenReturn(note)
+        whenever(attachmentRepository.findByNoteId(NoteFactory.DEFAULT_NOTE_ID))
+            .thenReturn(listOf(NoteFactory.createAttachment(entityId = entityId)))
         whenever(noteRepository.findEntityContext(any()))
             .thenReturn(listOf(arrayOf<Any?>(entityId, "Acme Corp", "company", "BUILDING", "BLUE")))
 
         val result = noteService.getWorkspaceNote(workspaceId, NoteFactory.DEFAULT_NOTE_ID)
 
         assertEquals(NoteFactory.DEFAULT_NOTE_ID, result.id)
-        assertEquals("Acme Corp", result.entityDisplayName)
+        assertEquals("Acme Corp", result.entityContexts.first().entityDisplayName)
     }
 
     @Test
@@ -364,15 +431,36 @@ class NoteServiceTest : BaseServiceTest() {
 
     @Test
     fun `getWorkspaceNote returns not found for note in different workspace`() {
-        /**
-         * The repository query filters by workspace_id, so a note belonging to
-         * a different workspace returns null, which triggers NotFoundException.
-         */
         val noteId = UUID.randomUUID()
         whenever(noteRepository.findByIdAndWorkspaceId(noteId, workspaceId)).thenReturn(null)
 
         assertThrows<NotFoundException> {
             noteService.getWorkspaceNote(workspaceId, noteId)
         }
+    }
+
+    // ------------------------------------------------------------------
+    // Regression: getNotesForEntity queries via join table
+    // ------------------------------------------------------------------
+
+    @Test
+    fun `getNotesForEntity queries via join table and returns correct entityIds`() {
+        /**
+         * Regression test: entity-scoped note queries must go through the
+         * note_entity_attachments join table, not the denormalized entity_id column.
+         */
+        val secondEntityId = UUID.randomUUID()
+        val note = NoteFactory.createEntity(entityId = entityId, workspaceId = workspaceId)
+
+        whenever(noteRepository.findByEntityIdAndWorkspaceId(entityId, workspaceId))
+            .thenReturn(listOf(note))
+        whenever(attachmentRepository.findEntityIdsByNoteId(NoteFactory.DEFAULT_NOTE_ID))
+            .thenReturn(listOf(entityId, secondEntityId))
+
+        val result = noteService.getNotesForEntity(workspaceId, entityId)
+
+        assertEquals(1, result.size)
+        assertEquals(2, result[0].entityIds.size)
+        assertTrue(result[0].entityIds.containsAll(listOf(entityId, secondEntityId)))
     }
 }

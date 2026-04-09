@@ -53,6 +53,21 @@
         "description": "Entity type key this Nango model maps to."
       },
       "description": "Maps Nango sync model names (e.g. 'contacts') to entity type keys (e.g. 'hubspot-contact'). Required for sync webhook dispatch to resolve the correct entity type."
+    },
+    "noteEmbedding": {
+      "type": "object",
+      "properties": {
+        "syncModel": { "type": "string", "description": "Nango model name that triggers note embedding" },
+        "bodyField": { "type": "string", "description": "Source payload field containing note content" },
+        "contentFormat": { "type": "string", "enum": ["html", "plaintext"] },
+        "timestampField": { "type": "string", "description": "Source field for note timestamp" },
+        "associations": {
+          "type": "object",
+          "description": "Maps association type names to target entity type keys",
+          "additionalProperties": { "type": "string" }
+        }
+      },
+      "required": ["syncModel", "bodyField", "contentFormat", "associations"]
     }
   },
   "$defs": {

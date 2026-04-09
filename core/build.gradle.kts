@@ -99,6 +99,9 @@ dependencies {
     // Schema Validation
     implementation("com.networknt:json-schema-validator:1.0.83")
 
+    // HTML Parsing
+    implementation("org.jsoup:jsoup:1.18.3")
+
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     // Testing
     testImplementation("org.mockito:mockito-core:5.20.0")

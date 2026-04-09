@@ -1,5 +1,32 @@
 # Architecture Changelog
 
+## [2026-04-09] — Note Embedding Pipeline + Entity-Spanning Notes
+
+**Domains affected:** Note, Integration, Catalog
+**What changed:**
+
+- Notes now support multi-entity attachment via `note_entity_attachments` join table — one note can be attached to multiple entities
+- `NoteEntity.entityId` is now nullable (denormalized primary kept for backward compat); authoritative source of truth is the join table
+- Added source tracking to notes: `source_type` (USER/INTEGRATION), `source_integration_id`, `source_external_id`, `readonly`, `pending_associations`
+- Note model breaking change: `Note.entityId: UUID` → `Note.entityIds: List<UUID>`, `WorkspaceNote` now uses `entityContexts: List<NoteEntityContext>` instead of single entity context fields
+- New `NoteEmbeddingService` routes integration note records directly to `NoteEntity` creation, bypassing the entity creation pipeline entirely
+- Sync pipeline routing: `fetchAndProcessRecords()` checks for `noteEmbedding` manifest config before entity model resolution; matching models are routed to note embedding
+- HubSpot manifest: removed `hubspot-note` entity type, field mappings, and relationships; replaced with `noteEmbedding` config block
+- Added `sync_key` column to `integration_sync_state` for disambiguating note embedding sync state from entity sync state
+- Post-sync reconciliation: unattached notes (whose target entities hadn't synced yet) are automatically resolved after subsequent model syncs
+- `note_count` trigger moved from `notes` table to `note_entity_attachments` table — correctly counts notes per entity when notes span multiple entities
+- Added `HtmlToBlockConverter` (Jsoup-based) for converting integration HTML content to BlockNote blocks
+- Readonly enforcement: PUT/DELETE on readonly notes throws `AccessDeniedException` (403)
+- System user seed (`00000000-...`) for `createdBy`/`updatedBy` on integration-managed records
+
+**New cross-domain dependencies:** yes — Integration → Note via NoteEmbeddingService (sync pipeline routes note models to note domain instead of entity domain)
+**New components introduced:**
+- `NoteEmbeddingService` — processes integration note records into NoteEntity with BlockNote content and entity attachments
+- `HtmlToBlockConverter` / `PlaintextToBlockConverter` — content format converters for note embedding
+- `NoteEntityAttachment` / `NoteEntityAttachmentRepository` — join table entity and repository for multi-entity note attachments
+- `NoteEmbeddingConfig` / `NoteContentFormat` — manifest config models for note embedding
+- `NoteSourceType` enum — USER or INTEGRATION source type for notes
+
 ## [2026-03-29] — Entity Projection Pipeline Implementation
 
 **Domains affected:** Entity, Integration, Ingestion (new), Identity, Lifecycle

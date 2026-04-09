@@ -21,8 +21,8 @@ import java.util.*
     name = "integration_sync_state",
     uniqueConstraints = [
         UniqueConstraint(
-            name = "uq_sync_state_connection_entity_type",
-            columnNames = ["integration_connection_id", "entity_type_id"]
+            name = "uq_sync_state_connection_entity_type_key",
+            columnNames = ["integration_connection_id", "entity_type_id", "sync_key"]
         )
     ]
 )
@@ -63,6 +63,9 @@ data class IntegrationSyncStateEntity(
     @Type(JsonBinaryType::class)
     @Column(name = "projection_result", columnDefinition = "jsonb")
     var projectionResult: Map<String, Any>? = null,
+
+    @Column(name = "sync_key", length = 100)
+    val syncKey: String? = null,
 
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: ZonedDateTime = ZonedDateTime.now(),

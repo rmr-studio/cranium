@@ -2,7 +2,8 @@
 -- NOTES FUNCTIONS
 -- =====================================================
 
--- Function to update entity note_count on note INSERT/DELETE
+-- Function to update entity note_count based on note_entity_attachments changes.
+-- One note attached to 3 entities = each entity gets +1 note_count.
 CREATE OR REPLACE FUNCTION update_entity_note_count() RETURNS TRIGGER AS $$
 BEGIN
     IF TG_OP = 'INSERT' THEN

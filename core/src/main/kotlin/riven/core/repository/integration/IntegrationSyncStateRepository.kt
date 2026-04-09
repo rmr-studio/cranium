@@ -13,9 +13,16 @@ interface IntegrationSyncStateRepository : JpaRepository<IntegrationSyncStateEnt
     @Query("SELECT s FROM IntegrationSyncStateEntity s WHERE s.integrationConnectionId = :connectionId")
     fun findByIntegrationConnectionId(connectionId: UUID): List<IntegrationSyncStateEntity>
 
-    @Query("SELECT s FROM IntegrationSyncStateEntity s WHERE s.integrationConnectionId = :connectionId AND s.entityTypeId = :entityTypeId")
+    @Query("SELECT s FROM IntegrationSyncStateEntity s WHERE s.integrationConnectionId = :connectionId AND s.entityTypeId = :entityTypeId AND (s.syncKey IS NULL)")
     fun findByIntegrationConnectionIdAndEntityTypeId(
         connectionId: UUID,
         entityTypeId: UUID
+    ): IntegrationSyncStateEntity?
+
+    @Query("SELECT s FROM IntegrationSyncStateEntity s WHERE s.integrationConnectionId = :connectionId AND s.entityTypeId = :entityTypeId AND s.syncKey = :syncKey")
+    fun findByIntegrationConnectionIdAndEntityTypeIdAndSyncKey(
+        connectionId: UUID,
+        entityTypeId: UUID,
+        syncKey: String,
     ): IntegrationSyncStateEntity?
 }

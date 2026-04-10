@@ -2,6 +2,7 @@
 
 import { NAV_LINKS } from '@/lib/navigation';
 import { scrollToSection } from '@/lib/scroll';
+import { useMounted } from '@riven/hooks';
 import { Button } from '@riven/ui/button';
 import { LogoBackground } from '@riven/ui/logo';
 import { Moon, Sun } from 'lucide-react';
@@ -27,9 +28,16 @@ const socialLinks = [
 export function Footer() {
   const currentYear = new Date().getFullYear();
   const { theme, setTheme } = useTheme();
+  const mounted = useMounted();
+
+  // Until next-themes resolves on the client, render as if dark (matches
+  // ThemeProvider's defaultTheme="dark"). Without this gate the toggle's
+  // icon and label flip after hydration, causing a structural mismatch
+  // and a footer subtree re-render.
+  const resolvedTheme = mounted ? theme : 'dark';
 
   const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
+    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
   };
 
   return (
@@ -56,8 +64,8 @@ export function Footer() {
               className="mt-6 hidden w-max border-primary sm:flex"
               onClick={toggleTheme}
             >
-              {theme === 'dark' ? <Sun /> : <Moon />}
-              {theme === 'dark' ? 'Light' : 'Dark'} Mode
+              {resolvedTheme === 'dark' ? <Sun /> : <Moon />}
+              {resolvedTheme === 'dark' ? 'Light' : 'Dark'} Mode
             </Button>
           </div>
 

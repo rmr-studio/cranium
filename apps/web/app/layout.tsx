@@ -2,14 +2,13 @@ import { Footer } from '@/components/footer';
 import { Navbar } from '@/components/navbar';
 import { getCdnUrl } from '@/lib/cdn-image-loader';
 import { AuthProvider } from '@/providers/auth-provider';
-import { LazyQueryProvider as QueryProvider } from '@/providers/lazy-query-provider';
+import { QueryProvider } from '@/providers/query-provider';
 
-import { PageStage } from '@/components/page-stage';
 import { ThemeProvider } from '@/providers/theme-provider';
+import { GoogleTagManager } from '@next/third-parties/google';
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono, Space_Mono } from 'next/font/google';
 import localFont from 'next/font/local';
-import { GoogleTagManager } from '@next/third-parties/google';
 import { Toaster } from 'sonner';
 import './globals.css';
 
@@ -164,7 +163,9 @@ export default function RootLayout({
           <QueryProvider>
             <AuthProvider>
               <Navbar />
-              <PageStage>{children}</PageStage>
+              <section className="relative mx-auto w-full lg:max-w-[min(100dvw,var(--breakpoint-3xl))]">
+                {children}
+              </section>
               <Footer />
             </AuthProvider>
           </QueryProvider>

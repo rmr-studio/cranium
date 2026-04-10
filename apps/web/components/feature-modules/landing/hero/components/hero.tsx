@@ -21,13 +21,24 @@ export function Hero() {
     dark: 'images/texture/static-gradient-4.webp',
   };
 
-  const dashboardShaders = {
+  const shader1 = {
     light: {
-      base: '#f4a462',
-      colors: ['#f4a462', '#9c2b2b', '#ffffff'] as [string, string, string],
+      base: '#6aad9b',
+      colors: ['#ffffff', '#f4a462', '#9c2b2b'] as [string, string, string],
     },
     dark: {
-      base: '#274754',
+      base: '#6aad9b',
+      colors: ['#ffffff', '#f4a462', '#9c2b2b'] as [string, string, string],
+    },
+  };
+
+  const shader2 = {
+    light: {
+      base: '#2c4045',
+      colors: ['#ffffff', '#f4a462', '#9c2b2b'] as [string, string, string],
+    },
+    dark: {
+      base: '#2c4045',
       colors: ['#ffffff', '#f4a462', '#9c2b2b'] as [string, string, string],
     },
   };
@@ -35,7 +46,6 @@ export function Hero() {
   return (
     <StarsBackground starColor={theme === 'light' ? 'black' : 'white'} factor={0.01}>
       {' '}
-      --- IGNORE ---
       <section className="relative h-fit w-full py-16 pt-20! lg:py-32">
         {/* Dot pattern — visible at top, fades out toward middle */}
 
@@ -59,6 +69,8 @@ export function Hero() {
         </section>
         <section className="relative flex flex-col space-x-4 xl:flex-row 3xl:px-3">
           <ShaderContainer
+            shaders={shader1}
+            staticOnly
             priority
             staticImages={gradients}
             className="z-50 mx-0! w-full rounded-l-none! rounded-r-none! p-0 shadow-lg shadow-foreground/30 lg:mr-4! lg:ml-0! xl:w-2/3 xl:rounded-r-lg! 3xl:rounded-l-lg! dark:shadow-none"
@@ -71,9 +83,10 @@ export function Hero() {
             </section>
           </ShaderContainer>
           <ShaderContainer
+            staticOnly
             rotation={130}
             priority
-            shaders={dashboardShaders}
+            shaders={shader2}
             staticImages={gradients2}
             className="z-50 mx-0! hidden rounded-l-none rounded-r-none! p-0 shadow-lg shadow-foreground/40 sm:block lg:mr-0! lg:ml-4! lg:rounded-l-lg xl:w-1/3 3xl:rounded-r-lg! dark:shadow-none"
           >

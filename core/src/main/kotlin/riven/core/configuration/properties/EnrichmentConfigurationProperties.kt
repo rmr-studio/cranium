@@ -1,11 +1,13 @@
 package riven.core.configuration.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
+import riven.core.enums.enrichment.EmbeddingProvider
 
 @ConfigurationProperties(prefix = "riven.enrichment")
 data class EnrichmentConfigurationProperties(
-    val provider: String = "openai",
+    val provider: EmbeddingProvider = EmbeddingProvider.OPENAI,
     val vectorDimensions: Int = 1536,
+    val requestTimeoutSeconds: Long = 30,
     val openai: OpenAiProperties = OpenAiProperties(),
     val ollama: OllamaProperties = OllamaProperties()
 ) {

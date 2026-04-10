@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import riven.core.configuration.properties.EnrichmentConfigurationProperties
+import java.time.Duration
 
 /**
  * OpenAI implementation of [EmbeddingProvider].
@@ -39,6 +40,7 @@ class OpenAiEmbeddingProvider(
             .bodyValue(request)
             .retrieve()
             .bodyToMono(OpenAiEmbeddingResponse::class.java)
+            .timeout(Duration.ofSeconds(properties.requestTimeoutSeconds))
             .block()
 
         val embedding = response?.data?.firstOrNull()?.embedding

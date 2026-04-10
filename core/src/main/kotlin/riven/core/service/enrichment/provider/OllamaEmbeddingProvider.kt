@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import riven.core.configuration.properties.EnrichmentConfigurationProperties
+import java.time.Duration
 
 /**
  * Ollama implementation of [EmbeddingProvider].
@@ -38,6 +39,7 @@ class OllamaEmbeddingProvider(
             .bodyValue(request)
             .retrieve()
             .bodyToMono(OllamaEmbeddingResponse::class.java)
+            .timeout(Duration.ofSeconds(properties.requestTimeoutSeconds))
             .block()
 
         val embedding = response?.embeddings?.firstOrNull()

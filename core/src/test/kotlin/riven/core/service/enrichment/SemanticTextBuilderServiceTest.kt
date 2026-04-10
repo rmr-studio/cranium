@@ -250,6 +250,59 @@ class SemanticTextBuilderServiceTest {
             assertContains(result.text, "Founded Year: 2020")
         }
 
+        /**
+         * Regression for PR #174 (r3056654650): future TEMPORAL values used to render as
+         * "N days ago" because relativeDate took the absolute value before formatting.
+         * Future dates must render as "in N …".
+         */
+        @Test
+        fun `buildText renders future TEMPORAL values with 'in N' prefix not 'ago' suffix`() {
+            val futureDate = java.time.ZonedDateTime.now().plusDays(45)
+            val context = EnrichmentFactory.enrichmentContext(
+                attributes = listOf(
+                    EnrichmentFactory.enrichmentAttributeContext(
+                        semanticLabel = "Renewal Date",
+                        value = futureDate.format(java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME),
+                        classification = SemanticAttributeClassification.TEMPORAL
+                    )
+                )
+            )
+
+            val result = service.buildText(context)
+
+            assertContains(result.text, "Renewal Date:")
+            assertTrue(result.text.contains("in 1 months") || result.text.contains("in 6 weeks"),
+                "Future date should render with 'in N' prefix, got: ${result.text}")
+            assertFalse(result.text.contains("Renewal Date: ${futureDate.format(java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME)} (1 months ago)"),
+                "Future date should not use 'ago' suffix")
+        }
+
+        /**
+         * Regression for PR #174 (r3056654650): pin the past-date "ago" suffix to ensure
+         * the future-date fix did not regress past-date rendering.
+         */
+        @Test
+        fun `buildText renders past TEMPORAL values with 'ago' suffix`() {
+            val pastDate = java.time.ZonedDateTime.now().minusDays(45)
+            val context = EnrichmentFactory.enrichmentContext(
+                attributes = listOf(
+                    EnrichmentFactory.enrichmentAttributeContext(
+                        semanticLabel = "Closed Date",
+                        value = pastDate.format(java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME),
+                        classification = SemanticAttributeClassification.TEMPORAL
+                    )
+                )
+            )
+
+            val result = service.buildText(context)
+
+            assertContains(result.text, "Closed Date:")
+            assertTrue(result.text.contains("ago"),
+                "Past date should render with 'ago' suffix, got: ${result.text}")
+            assertFalse(result.text.contains("in "),
+                "Past date should not use 'in N' prefix")
+        }
+
         @Test
         fun `buildText formats FREETEXT attribute verbatim when under 500 chars`() {
             val shortText = "Brief description of the entity."

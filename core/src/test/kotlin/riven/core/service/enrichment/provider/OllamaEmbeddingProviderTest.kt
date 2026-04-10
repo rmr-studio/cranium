@@ -31,7 +31,7 @@ class OllamaEmbeddingProviderTest {
     private val responseSpec: WebClient.ResponseSpec = mock(WebClient.ResponseSpec::class.java)
 
     private val properties = EnrichmentConfigurationProperties(
-        provider = "ollama",
+        provider = riven.core.enums.enrichment.EmbeddingProvider.OLLAMA,
         vectorDimensions = 4,
         ollama = EnrichmentConfigurationProperties.OllamaProperties(
             baseUrl = "http://localhost:11434",
@@ -63,12 +63,7 @@ class OllamaEmbeddingProviderTest {
         @Test
         fun `returns FloatArray from valid Ollama response`() {
             val expectedEmbedding = listOf(0.5f, 0.6f, 0.7f, 0.8f)
-            val response = OllamaEmbeddingResponse(
-                embeddings = listOf(expectedEmbedding)
-            )
-            val mono = mock(Mono::class.java) as Mono<OllamaEmbeddingResponse>
-            whenever(responseSpec.bodyToMono(OllamaEmbeddingResponse::class.java)).thenReturn(mono)
-            whenever(mono.block()).thenReturn(response)
+            stubMono(OllamaEmbeddingResponse(embeddings = listOf(expectedEmbedding)))
 
             val result = provider.generateEmbedding("test text")
 
@@ -77,9 +72,7 @@ class OllamaEmbeddingProviderTest {
 
         @Test
         fun `throws IllegalStateException when response is null`() {
-            val mono = mock(Mono::class.java) as Mono<OllamaEmbeddingResponse>
-            whenever(responseSpec.bodyToMono(OllamaEmbeddingResponse::class.java)).thenReturn(mono)
-            whenever(mono.block()).thenReturn(null)
+            stubMono(null)
 
             assertThrows<IllegalStateException> {
                 provider.generateEmbedding("test text")
@@ -88,15 +81,25 @@ class OllamaEmbeddingProviderTest {
 
         @Test
         fun `throws IllegalStateException when embeddings list is empty`() {
-            val response = OllamaEmbeddingResponse(embeddings = emptyList())
-            val mono = mock(Mono::class.java) as Mono<OllamaEmbeddingResponse>
-            whenever(responseSpec.bodyToMono(OllamaEmbeddingResponse::class.java)).thenReturn(mono)
-            whenever(mono.block()).thenReturn(response)
+            stubMono(OllamaEmbeddingResponse(embeddings = emptyList()))
 
             assertThrows<IllegalStateException> {
                 provider.generateEmbedding("test text")
             }
         }
+    }
+
+    /**
+     * Wires the WebClient → bodyToMono → timeout → block chain so tests can supply
+     * the resolved value. Mocking [Mono.timeout] to return the same mono is required
+     * because the production call now chains `.timeout(Duration)` before `.block()`.
+     */
+    private fun stubMono(value: OllamaEmbeddingResponse?): Mono<OllamaEmbeddingResponse> {
+        val mono = mock(Mono::class.java) as Mono<OllamaEmbeddingResponse>
+        whenever(responseSpec.bodyToMono(OllamaEmbeddingResponse::class.java)).thenReturn(mono)
+        whenever(mono.timeout(any<java.time.Duration>())).thenReturn(mono)
+        whenever(mono.block()).thenReturn(value)
+        return mono
     }
 
     // ------ getModelName ------

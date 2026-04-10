@@ -51,7 +51,7 @@ data class EntityEmbeddingEntity(
     val truncated: Boolean = false
 ) {
     fun toModel(): EntityEmbeddingModel {
-        val id = requireNotNull(this.id)
+        val id = requireNotNull(this.id) { "EntityEmbeddingEntity must have an ID when mapping to model" }
         return EntityEmbeddingModel(
             id = id,
             workspaceId = workspaceId,

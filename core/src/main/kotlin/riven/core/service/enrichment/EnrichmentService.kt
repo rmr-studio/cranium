@@ -3,8 +3,11 @@ package riven.core.service.enrichment
 import io.github.oshai.kotlinlogging.KLogger
 import io.temporal.client.WorkflowClient
 import io.temporal.client.WorkflowOptions
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.support.TransactionSynchronization
+import org.springframework.transaction.support.TransactionSynchronizationManager
 import riven.core.configuration.workflow.TemporalWorkerConfiguration
 import riven.core.entity.enrichment.EntityEmbeddingEntity
 import riven.core.entity.entity.EntityTypeSemanticMetadataEntity
@@ -78,9 +81,10 @@ class EnrichmentService(
      * @param entityId The entity to enrich
      * @param workspaceId The workspace the entity belongs to
      */
+    @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
     @Transactional
     fun enqueueAndProcess(entityId: UUID, workspaceId: UUID) {
-        val entity = ServiceUtil.findOrThrow { entityRepository.findById(entityId) }
+        val entity = ServiceUtil.findOrThrow { entityRepository.findByIdAndWorkspaceId(entityId, workspaceId) }
 
         if (!isEmbeddable(entity)) {
             logger.debug { "Skipping enrichment for INTEGRATION entity $entityId" }
@@ -98,17 +102,42 @@ class EnrichmentService(
 
         val queueItemId = requireNotNull(queueItem.id) { "Persisted ExecutionQueueEntity must have an ID" }
 
-        val stub = workflowClient.newWorkflowStub(
-            EnrichmentWorkflow::class.java,
-            WorkflowOptions.newBuilder()
-                .setTaskQueue(TemporalWorkerConfiguration.ENRICHMENT_EMBED_QUEUE)
-                .setWorkflowId(EnrichmentWorkflow.workflowId(queueItemId))
-                .build()
-        )
-
-        WorkflowClient.start { stub.embed(queueItemId) }
+        startEnrichmentWorkflowAfterCommit(queueItemId)
 
         logger.info { "Enqueued entity $entityId for enrichment, queue item: $queueItemId" }
+    }
+
+    /**
+     * Registers a post-commit callback to dispatch the Temporal enrichment workflow.
+     *
+     * Defers workflow start until after the surrounding DB transaction commits, so the
+     * queue row is guaranteed to exist before the workflow activity queries it. Prevents
+     * orphaned workflows when the transaction rolls back after Temporal dispatch. When no
+     * transaction is active (e.g. unit tests without a real tx), dispatches immediately
+     * as a fallback — matching the pattern in
+     * [riven.core.service.entity.EntityTypeSemanticMetadataService].
+     */
+    private fun startEnrichmentWorkflowAfterCommit(queueItemId: UUID) {
+        val dispatch: () -> Unit = {
+            val stub = workflowClient.newWorkflowStub(
+                EnrichmentWorkflow::class.java,
+                WorkflowOptions.newBuilder()
+                    .setTaskQueue(TemporalWorkerConfiguration.ENRICHMENT_EMBED_QUEUE)
+                    .setWorkflowId(EnrichmentWorkflow.workflowId(queueItemId))
+                    .build()
+            )
+            WorkflowClient.start { stub.embed(queueItemId) }
+        }
+
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
+                override fun afterCommit() {
+                    dispatch()
+                }
+            })
+        } else {
+            dispatch()
+        }
     }
 
     // ------ Activity-Called Methods ------

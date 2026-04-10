@@ -9,8 +9,7 @@ package riven.core.models.enrichment
  *
  * Temporal-serializable: uses only primitive types for Jackson compatibility.
  *
- * Phase 3 Plan 03 introduces real truncation logic — until then, [truncated] is
- * always false and [estimatedTokens] uses a simple char/4 approximation.
+ * [estimatedTokens] uses a simple char/4 approximation (~4 chars per token).
  */
 data class EnrichedTextResult(
     /** The constructed enriched text ready for embedding generation. */

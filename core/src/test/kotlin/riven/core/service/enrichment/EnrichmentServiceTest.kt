@@ -19,12 +19,8 @@ import riven.core.entity.entity.RelationshipDefinitionEntity
 import riven.core.entity.entity.EntityRelationshipEntity
 import riven.core.entity.entity.RelationshipTargetRuleEntity
 import riven.core.entity.identity.IdentityClusterMemberEntity
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.workflow.ExecutionQueueStatus
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
@@ -48,6 +44,8 @@ import riven.core.service.util.BaseServiceTest
 import riven.core.service.workflow.enrichment.EnrichmentWorkflow
 import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.factory.enrichment.EnrichmentFactory
+import riven.core.service.util.factory.entity.EntityFactory
+import riven.core.service.util.factory.identity.IdentityFactory
 import riven.core.service.util.factory.workflow.ExecutionQueueFactory
 import java.time.ZonedDateTime
 import java.util.*
@@ -109,7 +107,7 @@ class EnrichmentServiceTest : BaseServiceTest() {
     fun `enqueueAndProcess skips INTEGRATION entities silently`() {
         val entityId = UUID.randomUUID()
         val entity = buildEntityEntity(entityId, sourceType = SourceType.INTEGRATION)
-        whenever(entityRepository.findById(entityId)).thenReturn(Optional.of(entity))
+        whenever(entityRepository.findByIdAndWorkspaceId(entityId, workspaceId)).thenReturn(Optional.of(entity))
 
         enrichmentService.enqueueAndProcess(entityId, workspaceId)
 
@@ -124,7 +122,7 @@ class EnrichmentServiceTest : BaseServiceTest() {
         val entity = buildEntityEntity(entityId, sourceType = SourceType.USER_CREATED)
         val savedQueueItem = ExecutionQueueFactory.createEnrichmentJob(id = queueItemId, entityId = entityId, workspaceId = workspaceId)
 
-        whenever(entityRepository.findById(entityId)).thenReturn(Optional.of(entity))
+        whenever(entityRepository.findByIdAndWorkspaceId(entityId, workspaceId)).thenReturn(Optional.of(entity))
         whenever(executionQueueRepository.save(any<ExecutionQueueEntity>())).thenReturn(savedQueueItem)
 
         val workflowStub = mock<EnrichmentWorkflow>()
@@ -143,7 +141,7 @@ class EnrichmentServiceTest : BaseServiceTest() {
         val entity = buildEntityEntity(entityId, sourceType = SourceType.IMPORT)
         val savedQueueItem = ExecutionQueueFactory.createEnrichmentJob(id = queueItemId, entityId = entityId, workspaceId = workspaceId)
 
-        whenever(entityRepository.findById(entityId)).thenReturn(Optional.of(entity))
+        whenever(entityRepository.findByIdAndWorkspaceId(entityId, workspaceId)).thenReturn(Optional.of(entity))
         whenever(executionQueueRepository.save(any<ExecutionQueueEntity>())).thenReturn(savedQueueItem)
 
         val workflowStub = mock<EnrichmentWorkflow>()
@@ -152,6 +150,25 @@ class EnrichmentServiceTest : BaseServiceTest() {
         enrichmentService.enqueueAndProcess(entityId, workspaceId)
 
         verify(executionQueueRepository).save(any())
+    }
+
+    /**
+     * Regression test for PR #174 (r3056654527 / r3056654536): enqueueAndProcess must
+     * verify workspace ownership. When the entity belongs to a different workspace,
+     * findByIdAndWorkspaceId returns empty and ServiceUtil.findOrThrow raises
+     * NotFoundException — which does not leak entity existence across tenants.
+     */
+    @Test
+    fun `enqueueAndProcess throws NotFoundException when entity belongs to a different workspace`() {
+        val entityId = UUID.randomUUID()
+        whenever(entityRepository.findByIdAndWorkspaceId(entityId, workspaceId)).thenReturn(Optional.empty())
+
+        assertThrows(NotFoundException::class.java) {
+            enrichmentService.enqueueAndProcess(entityId, workspaceId)
+        }
+
+        verify(executionQueueRepository, never()).save(any())
+        verify(workflowClient, never()).newWorkflowStub(any<Class<*>>(), any<WorkflowOptions>())
     }
 
     // ------------------------------------------------------------------
@@ -865,18 +882,21 @@ class EnrichmentServiceTest : BaseServiceTest() {
         whenever(entityTypeRepository.findById(typeId)).thenReturn(Optional.of(entityType))
     }
 
+    // ------------------------------------------------------------------
+    // Test fixture helpers — thin wrappers over shared factories so each
+    // test can express only the parameters it cares about. JPA entity
+    // construction itself lives in the factory classes per CLAUDE.md.
+    // ------------------------------------------------------------------
+
     private fun buildEntityEntity(
         id: UUID,
         sourceType: SourceType = SourceType.USER_CREATED,
         typeId: UUID = UUID.randomUUID(),
-    ): EntityEntity = EntityEntity(
+    ): EntityEntity = EntityFactory.createEntityEntity(
         id = id,
         workspaceId = workspaceId,
         typeId = typeId,
         typeKey = "test_type",
-        identifierKey = UUID.randomUUID(),
-        iconColour = IconColour.NEUTRAL,
-        iconType = IconType.FILE,
         sourceType = sourceType,
     )
 
@@ -884,16 +904,15 @@ class EnrichmentServiceTest : BaseServiceTest() {
         id: UUID,
         version: Int = 1,
         displayName: String = "Test Entity",
-    ): EntityTypeEntity = EntityTypeEntity(
+    ): EntityTypeEntity = EntityFactory.createEntityType(
         id = id,
         key = "test_type",
         displayNameSingular = displayName,
         displayNamePlural = "${displayName}s",
-        identifierKey = UUID.randomUUID(),
-        semanticGroup = SemanticGroup.UNCATEGORIZED,
-        lifecycleDomain = LifecycleDomain.UNCATEGORIZED,
-        version = version,
+        workspaceId = workspaceId,
         schema = Schema(key = SchemaType.TEXT),
+        version = version,
+        semanticGroup = SemanticGroup.UNCATEGORIZED,
     )
 
     private fun buildSemanticMetadata(
@@ -902,8 +921,7 @@ class EnrichmentServiceTest : BaseServiceTest() {
         targetId: UUID,
         definition: String? = null,
         classification: SemanticAttributeClassification? = null,
-    ): EntityTypeSemanticMetadataEntity = EntityTypeSemanticMetadataEntity(
-        id = UUID.randomUUID(),
+    ): EntityTypeSemanticMetadataEntity = IdentityFactory.createEntityTypeSemanticMetadataEntity(
         workspaceId = workspaceId,
         entityTypeId = entityTypeId,
         targetType = targetType,
@@ -918,46 +936,38 @@ class EnrichmentServiceTest : BaseServiceTest() {
         definitionId: UUID,
         workspaceId: UUID,
         createdAt: ZonedDateTime = ZonedDateTime.now(),
-    ): EntityRelationshipEntity {
-        val rel = EntityRelationshipEntity(
-            id = UUID.randomUUID(),
-            workspaceId = workspaceId,
-            sourceId = sourceId,
-            targetId = targetId,
-            definitionId = definitionId,
-        )
-        rel.createdAt = createdAt
-        return rel
-    }
+    ): EntityRelationshipEntity = EntityFactory.createRelationshipEntity(
+        workspaceId = workspaceId,
+        sourceId = sourceId,
+        targetId = targetId,
+        definitionId = definitionId,
+        createdAt = createdAt,
+    )
 
     private fun buildRelationshipDefinition(
         id: UUID,
         sourceEntityTypeId: UUID,
         name: String,
         workspaceId: UUID,
-    ): RelationshipDefinitionEntity = RelationshipDefinitionEntity(
+    ): RelationshipDefinitionEntity = EntityFactory.createRelationshipDefinitionEntity(
         id = id,
         workspaceId = workspaceId,
         sourceEntityTypeId = sourceEntityTypeId,
         name = name,
-        cardinalityDefault = EntityRelationshipCardinality.MANY_TO_MANY,
     )
 
     private fun buildRelationshipTargetRule(
         definitionId: UUID,
         targetEntityTypeId: UUID,
-    ): RelationshipTargetRuleEntity = RelationshipTargetRuleEntity(
-        id = UUID.randomUUID(),
+    ): RelationshipTargetRuleEntity = EntityFactory.createTargetRuleEntity(
         relationshipDefinitionId = definitionId,
         targetEntityTypeId = targetEntityTypeId,
-        inverseName = "Inverse",
     )
 
     private fun buildClusterMember(
         entityId: UUID,
         clusterId: UUID,
-    ): IdentityClusterMemberEntity = IdentityClusterMemberEntity(
-        id = UUID.randomUUID(),
+    ): IdentityClusterMemberEntity = IdentityFactory.createIdentityClusterMemberEntity(
         clusterId = clusterId,
         entityId = entityId,
     )

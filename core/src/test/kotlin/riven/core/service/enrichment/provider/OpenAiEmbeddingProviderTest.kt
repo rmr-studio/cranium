@@ -31,7 +31,7 @@ class OpenAiEmbeddingProviderTest {
     private val responseSpec: WebClient.ResponseSpec = mock(WebClient.ResponseSpec::class.java)
 
     private val properties = EnrichmentConfigurationProperties(
-        provider = "openai",
+        provider = riven.core.enums.enrichment.EmbeddingProvider.OPENAI,
         vectorDimensions = 4,
         openai = EnrichmentConfigurationProperties.OpenAiProperties(
             apiKey = "test-key",
@@ -67,9 +67,7 @@ class OpenAiEmbeddingProviderTest {
             val response = OpenAiEmbeddingResponse(
                 data = listOf(OpenAiEmbeddingData(embedding = expectedEmbedding))
             )
-            val mono = mock(Mono::class.java) as Mono<OpenAiEmbeddingResponse>
-            whenever(responseSpec.bodyToMono(OpenAiEmbeddingResponse::class.java)).thenReturn(mono)
-            whenever(mono.block()).thenReturn(response)
+            val mono = stubMono(response)
 
             val result = provider.generateEmbedding("test text")
 
@@ -78,9 +76,7 @@ class OpenAiEmbeddingProviderTest {
 
         @Test
         fun `throws IllegalStateException when response is null`() {
-            val mono = mock(Mono::class.java) as Mono<OpenAiEmbeddingResponse>
-            whenever(responseSpec.bodyToMono(OpenAiEmbeddingResponse::class.java)).thenReturn(mono)
-            whenever(mono.block()).thenReturn(null)
+            stubMono(null)
 
             assertThrows<IllegalStateException> {
                 provider.generateEmbedding("test text")
@@ -89,15 +85,25 @@ class OpenAiEmbeddingProviderTest {
 
         @Test
         fun `throws IllegalStateException when data list is empty`() {
-            val response = OpenAiEmbeddingResponse(data = emptyList())
-            val mono = mock(Mono::class.java) as Mono<OpenAiEmbeddingResponse>
-            whenever(responseSpec.bodyToMono(OpenAiEmbeddingResponse::class.java)).thenReturn(mono)
-            whenever(mono.block()).thenReturn(response)
+            stubMono(OpenAiEmbeddingResponse(data = emptyList()))
 
             assertThrows<IllegalStateException> {
                 provider.generateEmbedding("test text")
             }
         }
+    }
+
+    /**
+     * Wires the WebClient → bodyToMono → timeout → block chain so tests can supply
+     * the resolved value. Mocking [Mono.timeout] to return the same mono is required
+     * because the production call now chains `.timeout(Duration)` before `.block()`.
+     */
+    private fun stubMono(value: OpenAiEmbeddingResponse?): Mono<OpenAiEmbeddingResponse> {
+        val mono = mock(Mono::class.java) as Mono<OpenAiEmbeddingResponse>
+        whenever(responseSpec.bodyToMono(OpenAiEmbeddingResponse::class.java)).thenReturn(mono)
+        whenever(mono.timeout(any<java.time.Duration>())).thenReturn(mono)
+        whenever(mono.block()).thenReturn(value)
+        return mono
     }
 
     // ------ getModelName ------

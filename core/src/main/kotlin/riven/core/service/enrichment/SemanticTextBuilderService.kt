@@ -8,8 +8,10 @@ import riven.core.models.enrichment.EnrichmentAttributeContext
 import riven.core.models.enrichment.EnrichmentContext
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
 import java.util.UUID
+import kotlin.math.abs
 
 /**
  * Constructs enriched text from an [EnrichmentContext] snapshot using a section-based architecture.
@@ -301,24 +303,34 @@ class SemanticTextBuilderService(
             val formatted = dt.format(DATE_FORMATTER)
             val relative = relativeDate(dt)
             "$formatted ($relative)"
-        } catch (e: Exception) {
+        } catch (e: DateTimeParseException) {
+            logger.debug { "Failed to parse temporal value '$raw' — falling back to raw: ${e.message}" }
             raw
         }
     }
 
     /**
      * Produces a human-readable relative date expression from a [ZonedDateTime] to now.
+     *
+     * Past dates render as "N units ago"; future dates as "in N units". Dates within
+     * the current day render as "today" regardless of direction.
      */
     private fun relativeDate(dt: ZonedDateTime): String {
         val now = ZonedDateTime.now()
-        val days = ChronoUnit.DAYS.between(dt, now).let { if (it < 0) -it else it }
-        return when {
-            days < 1 -> "today"
-            days < 7 -> "$days days ago"
-            days < 30 -> "${days / 7} weeks ago"
-            days < 365 -> "${days / 30} months ago"
-            else -> "${days / 365} years ago"
+        val rawDays = ChronoUnit.DAYS.between(dt, now)
+        val days = abs(rawDays)
+        val isFuture = rawDays < 0
+
+        if (days < 1) return "today"
+
+        val expression = when {
+            days < 7 -> "$days days"
+            days < 30 -> "${days / 7} weeks"
+            days < 365 -> "${days / 30} months"
+            else -> "${days / 365} years"
         }
+
+        return if (isFuture) "in $expression" else "$expression ago"
     }
 
     /**

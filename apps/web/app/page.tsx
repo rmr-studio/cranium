@@ -2,9 +2,7 @@ import { FeaturedPosts } from '@/components/feature-modules/blogs/components/fea
 import { getAllPosts, getFeaturedPost } from '@/lib/blog';
 import dynamic from 'next/dynamic';
 
-const Hero = dynamic(() =>
-  import('@/components/feature-modules/landing/hero/components/hero').then((m) => m.Hero),
-);
+import { Hero } from '@/components/feature-modules/landing/hero/components/hero';
 const DashboardShowcase = dynamic(() =>
   import('@/components/feature-modules/landing/dashboard/components/dashboard-showcase').then(
     (m) => m.DashboardShowcase,

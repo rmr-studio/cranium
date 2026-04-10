@@ -1,7 +1,8 @@
 'use client';
 
-import * as React from 'react';
 import { cn } from '@/lib/utils';
+import { motion } from 'motion/react';
+import * as React from 'react';
 
 type StarLayerProps = React.ComponentProps<'div'> & {
   count: number;
@@ -37,7 +38,7 @@ function StarLayer({
   return (
     <div
       data-slot="star-layer"
-      className={cn('absolute top-0 left-0 h-[2000px] w-full animate-stars', className)}
+      className={cn('animate-stars absolute top-0 left-0 h-[2000px] w-full', className)}
       style={{ animationDuration: `${duration}s` }}
       {...props}
     >
@@ -99,7 +100,9 @@ function StarsBackground({
       onMouseMove={handleMouseMove}
       {...props}
     >
-      <div
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         ref={wrapperRef}
         className={cn('transition-transform duration-300 ease-out', {
           'pointer-events-none': !pointerEvents,
@@ -108,7 +111,7 @@ function StarsBackground({
         <StarLayer count={1000} size={1} duration={speed} starColor={starColor} />
         <StarLayer count={400} size={2} duration={speed * 2} starColor={starColor} />
         <StarLayer count={200} size={3} duration={speed * 3} starColor={starColor} />
-      </div>
+      </motion.div>
       {children}
     </div>
   );

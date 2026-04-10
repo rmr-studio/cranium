@@ -27,8 +27,7 @@ export const ACTION_CONTENT: KnowledgeLayerSectionContent[] = [
   },
   {
     title: <div>Track performance</div>,
-    description: `Every action you take in Riven is tracked back to the customers, channels and cohorts it touched. See which moves 
-  ▎ correlate with better retention and higher LTV. Experiment, learn, repeat. All without the guesswork.`,
+    description: `Every action you take in Riven is tracked back to the customers, channels and cohorts it touched. See which moves correlate with better retention and higher LTV. Experiment, learn, repeat. All without the guesswork.`,
     content: (
       <MockDashboard className="translate-x-12 translate-x-48! translate-y-12 scale-120 sm:translate-x-32 sm:translate-y-24 md:scale-140! lg:translate-y-0 xl:translate-x-64!" />
     ),

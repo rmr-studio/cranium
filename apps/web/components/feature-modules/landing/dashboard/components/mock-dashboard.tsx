@@ -114,7 +114,7 @@ const ActionPill: React.FC<ChildNodeProps> = ({ children }) => {
 
 // ── Main Dashboard Component ────────────────────────────────────────
 
-export function MockDashboard() {
+export const MockDashboard: FC<ClassNameProps> = ({ className }) => {
   const DESKTOP_WIDTH = 1720;
   const DESKTOP_HEIGHT = 1050;
   const MOBILE_WIDTH = 1000;
@@ -128,7 +128,10 @@ export function MockDashboard() {
   return (
     <div
       ref={containerRef}
-      className="relative z-30 w-full -translate-x-24 scale-70 p-6 px-0 sm:translate-x-8 sm:scale-100 md:px-12 lg:translate-x-0 lg:translate-y-0"
+      className={cn(
+        'relative z-30 w-full -translate-x-24 scale-70 p-6 px-0 sm:translate-x-8 sm:scale-100 md:px-12 lg:translate-x-0 lg:translate-y-0',
+        className,
+      )}
     >
       <div
         className="origin-top-left"
@@ -147,7 +150,7 @@ export function MockDashboard() {
       </div>
     </div>
   );
-}
+};
 
 export const DashboardContent: FC<ClassNameProps> = ({ className }) => {
   return (

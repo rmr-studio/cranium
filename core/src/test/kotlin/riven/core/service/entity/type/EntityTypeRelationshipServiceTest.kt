@@ -111,7 +111,9 @@ class EntityTypeRelationshipServiceTest : BaseServiceTest() {
         )
 
         val sourceEntityType = EntityFactory.createEntityType(id = sourceEntityTypeId, workspaceId = workspaceId)
+        val targetEntityType = EntityFactory.createEntityType(id = targetTypeId, workspaceId = workspaceId)
         whenever(entityTypeRepository.findById(sourceEntityTypeId)).thenReturn(Optional.of(sourceEntityType))
+        whenever(entityTypeRepository.findById(targetTypeId)).thenReturn(Optional.of(targetEntityType))
         whenever(definitionRepository.save(any<RelationshipDefinitionEntity>())).thenAnswer { invocation ->
             val entity = invocation.arguments[0] as RelationshipDefinitionEntity
             if (entity.id == null) entity.copy(id = UUID.randomUUID()) else entity
@@ -156,7 +158,11 @@ class EntityTypeRelationshipServiceTest : BaseServiceTest() {
         )
 
         val sourceEntityType = EntityFactory.createEntityType(id = sourceEntityTypeId, workspaceId = workspaceId)
+        val targetEntity1 = EntityFactory.createEntityType(id = targetTypeId1, workspaceId = workspaceId)
+        val targetEntity2 = EntityFactory.createEntityType(id = targetTypeId2, workspaceId = workspaceId)
         whenever(entityTypeRepository.findById(sourceEntityTypeId)).thenReturn(Optional.of(sourceEntityType))
+        whenever(entityTypeRepository.findById(targetTypeId1)).thenReturn(Optional.of(targetEntity1))
+        whenever(entityTypeRepository.findById(targetTypeId2)).thenReturn(Optional.of(targetEntity2))
         whenever(definitionRepository.save(any<RelationshipDefinitionEntity>())).thenAnswer { invocation ->
             val entity = invocation.arguments[0] as RelationshipDefinitionEntity
             if (entity.id == null) entity.copy(id = UUID.randomUUID()) else entity

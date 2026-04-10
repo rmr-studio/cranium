@@ -17,6 +17,7 @@ import * as runtime from '../runtime';
 import type {
   AddRelationshipRequest,
   CreateEntityTypeRequest,
+  DeleteEntityRequest,
   DeleteEntityResponse,
   DeleteTypeDefinitionRequest,
   Entity,
@@ -36,6 +37,8 @@ import {
     AddRelationshipRequestToJSON,
     CreateEntityTypeRequestFromJSON,
     CreateEntityTypeRequestToJSON,
+    DeleteEntityRequestFromJSON,
+    DeleteEntityRequestToJSON,
     DeleteEntityResponseFromJSON,
     DeleteEntityResponseToJSON,
     DeleteTypeDefinitionRequestFromJSON,
@@ -75,9 +78,9 @@ export interface CreateEntityTypeOperationRequest {
     createEntityTypeRequest: CreateEntityTypeRequest;
 }
 
-export interface DeleteEntityRequest {
+export interface DeleteEntitiesRequest {
     workspaceId: string;
-    requestBody: Array<string>;
+    deleteEntityRequest: DeleteEntityRequest;
 }
 
 export interface DeleteEntityTypeByKeyRequest {
@@ -277,21 +280,20 @@ export class EntityApi extends runtime.BaseAPI {
     }
 
     /**
-     * Deleted the specified entity instance within the workspace.
-     * Deletes an entity instance
+     * Bulk deletes entities by ID selection or filter-based selection
      */
-    async deleteEntityRaw(requestParameters: DeleteEntityRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DeleteEntityResponse>> {
+    async deleteEntitiesRaw(requestParameters: DeleteEntitiesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DeleteEntityResponse>> {
         if (requestParameters['workspaceId'] == null) {
             throw new runtime.RequiredError(
                 'workspaceId',
-                'Required parameter "workspaceId" was null or undefined when calling deleteEntity().'
+                'Required parameter "workspaceId" was null or undefined when calling deleteEntities().'
             );
         }
 
-        if (requestParameters['requestBody'] == null) {
+        if (requestParameters['deleteEntityRequest'] == null) {
             throw new runtime.RequiredError(
-                'requestBody',
-                'Required parameter "requestBody" was null or undefined when calling deleteEntity().'
+                'deleteEntityRequest',
+                'Required parameter "deleteEntityRequest" was null or undefined when calling deleteEntities().'
             );
         }
 
@@ -310,26 +312,25 @@ export class EntityApi extends runtime.BaseAPI {
             }
         }
 
-        let urlPath = `/api/v1/entity/workspace/{workspaceId}`;
+        let urlPath = `/api/v1/entity/workspace/{workspaceId}/delete`;
         urlPath = urlPath.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId'])));
 
         const response = await this.request({
             path: urlPath,
-            method: 'DELETE',
+            method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: requestParameters['requestBody'],
+            body: DeleteEntityRequestToJSON(requestParameters['deleteEntityRequest']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => DeleteEntityResponseFromJSON(jsonValue));
     }
 
     /**
-     * Deleted the specified entity instance within the workspace.
-     * Deletes an entity instance
+     * Bulk deletes entities by ID selection or filter-based selection
      */
-    async deleteEntity(requestParameters: DeleteEntityRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeleteEntityResponse> {
-        const response = await this.deleteEntityRaw(requestParameters, initOverrides);
+    async deleteEntities(requestParameters: DeleteEntitiesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeleteEntityResponse> {
+        const response = await this.deleteEntitiesRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -622,7 +623,7 @@ export class EntityApi extends runtime.BaseAPI {
     }
 
     /**
-     * Retrieves all entity types associated with the specified workspace, including relationship definitions and semantic metadata bundles.
+     * Retrieves all entity types associated with the specified workspace, including relationship definitions and semantic metadata bundles. 
      * Get all entity types for a workspace
      */
     async getEntityTypesForWorkspaceRaw(requestParameters: GetEntityTypesForWorkspaceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<EntityType>>> {
@@ -660,7 +661,7 @@ export class EntityApi extends runtime.BaseAPI {
     }
 
     /**
-     * Retrieves all entity types associated with the specified workspace, including relationship definitions and semantic metadata bundles.
+     * Retrieves all entity types associated with the specified workspace, including relationship definitions and semantic metadata bundles. 
      * Get all entity types for a workspace
      */
     async getEntityTypesForWorkspace(requestParameters: GetEntityTypesForWorkspaceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<EntityType>> {

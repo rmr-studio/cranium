@@ -7,7 +7,7 @@ import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
-import riven.core.lifecycle.AttributeOptions
+import riven.core.models.common.validation.SchemaOptions
 import riven.core.lifecycle.AttributeSemantics
 import riven.core.lifecycle.CoreModelAttribute
 import riven.core.lifecycle.CoreModelDefinition
@@ -39,7 +39,7 @@ object SaasCommunicationModel : CoreModelDefinition(
     attributes = CommunicationBase.attributes + mapOf(
         "type" to CoreModelAttribute(
             schemaType = SchemaType.SELECT, label = "Type", dataType = DataType.STRING,
-            options = AttributeOptions(enum = listOf("meeting", "call", "email", "demo", "presentation")),
+            options = SchemaOptions(enum = listOf("meeting", "call", "email", "demo", "presentation")),
             semantics = AttributeSemantics(
                 definition = "The format or medium of this communication.",
                 classification = SemanticAttributeClassification.CATEGORICAL,

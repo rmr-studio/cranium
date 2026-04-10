@@ -90,6 +90,8 @@ class EntityTypeRelationshipServiceFallbackTest : BaseServiceTest() {
 
     @Test
     fun `createFallbackDefinition - creates with correct properties`() {
+        val entityType = EntityFactory.createEntityType(id = entityTypeId, workspaceId = workspaceId)
+        whenever(entityTypeRepository.findById(entityTypeId)).thenReturn(Optional.of(entityType))
         whenever(definitionRepository.save(any<RelationshipDefinitionEntity>())).thenAnswer { invocation ->
             val entity = invocation.arguments[0] as RelationshipDefinitionEntity
             if (entity.id == null) entity.copy(id = UUID.randomUUID()) else entity
@@ -110,6 +112,25 @@ class EntityTypeRelationshipServiceFallbackTest : BaseServiceTest() {
                 cardinalityDefault == EntityRelationshipCardinality.MANY_TO_MANY &&
                 systemType == SystemRelationshipType.CONNECTED_ENTITIES
         })
+    }
+
+    /**
+     * Regression test: verifies that createFallbackDefinition rejects an entity type
+     * whose workspaceId does not match the requested workspaceId. Without the workspace
+     * ownership check in createFallbackDefinitionInternal, a caller could create fallback
+     * definitions for entity types belonging to other workspaces.
+     */
+    @Test
+    fun `createFallbackDefinition - rejects entity type from different workspace`() {
+        val otherWorkspaceId = UUID.randomUUID()
+        val entityType = EntityFactory.createEntityType(id = entityTypeId, workspaceId = otherWorkspaceId)
+        whenever(entityTypeRepository.findById(entityTypeId)).thenReturn(Optional.of(entityType))
+
+        assertThrows(IllegalArgumentException::class.java) {
+            service.createFallbackDefinition(workspaceId, entityTypeId)
+        }
+
+        verify(definitionRepository, never()).save(any())
     }
 
     // ------ getOrCreateFallbackDefinition ------
@@ -138,6 +159,9 @@ class EntityTypeRelationshipServiceFallbackTest : BaseServiceTest() {
 
     @Test
     fun `getOrCreateFallbackDefinition - handles concurrent creation with retry`() {
+        val entityType = EntityFactory.createEntityType(id = entityTypeId, workspaceId = workspaceId)
+        whenever(entityTypeRepository.findById(entityTypeId)).thenReturn(Optional.of(entityType))
+
         // First call: no existing definition
         whenever(
             definitionRepository.findBySourceEntityTypeIdAndSystemType(

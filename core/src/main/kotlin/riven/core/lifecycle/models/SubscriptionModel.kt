@@ -7,7 +7,9 @@ import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
-import riven.core.lifecycle.AttributeOptions
+import riven.core.enums.core.DynamicDefaultFunction
+import riven.core.models.common.validation.DefaultValue
+import riven.core.models.common.validation.SchemaOptions
 import riven.core.lifecycle.AttributeSemantics
 import riven.core.lifecycle.CoreModelAttribute
 import riven.core.lifecycle.CoreModelDefinition
@@ -46,7 +48,7 @@ object SubscriptionModel : CoreModelDefinition(
         ),
         "status" to CoreModelAttribute(
             schemaType = SchemaType.SELECT, label = "Status", dataType = DataType.STRING,
-            options = AttributeOptions(enum = listOf("trialing", "active", "past-due", "cancelled", "paused"), default = "trialing"),
+            options = SchemaOptions(enum = listOf("trialing", "active", "past-due", "cancelled", "paused"), defaultValue = DefaultValue.Static("trialing")),
             semantics = AttributeSemantics(
                 definition = "Current subscription status.",
                 classification = SemanticAttributeClassification.CATEGORICAL,
@@ -64,7 +66,7 @@ object SubscriptionModel : CoreModelDefinition(
         ),
         "billing-interval" to CoreModelAttribute(
             schemaType = SchemaType.SELECT, label = "Billing Interval", dataType = DataType.STRING,
-            options = AttributeOptions(enum = listOf("monthly", "quarterly", "annual")),
+            options = SchemaOptions(enum = listOf("monthly", "quarterly", "annual")),
             semantics = AttributeSemantics(
                 definition = "How frequently the subscription is billed.",
                 classification = SemanticAttributeClassification.CATEGORICAL,
@@ -74,6 +76,7 @@ object SubscriptionModel : CoreModelDefinition(
         "start-date" to CoreModelAttribute(
             schemaType = SchemaType.DATE, label = "Start Date", dataType = DataType.STRING,
             format = "date",
+            options = SchemaOptions(defaultValue = DefaultValue.Dynamic(DynamicDefaultFunction.CURRENT_DATE)),
             semantics = AttributeSemantics(
                 definition = "Date the subscription started.",
                 classification = SemanticAttributeClassification.TEMPORAL,

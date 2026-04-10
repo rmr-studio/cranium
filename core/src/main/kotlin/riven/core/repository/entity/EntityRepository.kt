@@ -14,6 +14,9 @@ interface EntityRepository : JpaRepository<EntityEntity, UUID> {
     @Query("SELECT e FROM EntityEntity e WHERE e.id in :ids")
     fun findByIdIn(ids: Collection<UUID>): List<EntityEntity>
 
+    @Query("SELECT e FROM EntityEntity e WHERE e.id IN :ids AND e.workspaceId = :workspaceId")
+    fun findByIdInAndWorkspaceId(ids: Collection<UUID>, workspaceId: UUID): List<EntityEntity>
+
     /**
      * Find all entities for an workspace.
      */

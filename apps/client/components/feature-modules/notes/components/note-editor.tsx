@@ -2,7 +2,9 @@
 
 import { useDeleteNoteMutation } from '@/components/feature-modules/entity/hooks/mutation/use-delete-note-mutation';
 import { useSaveNoteMutation } from '@/components/feature-modules/entity/hooks/mutation/use-save-note-mutation';
+import { useEntityTypeByKey } from '@/components/feature-modules/entity/hooks/query/type/use-entity-types';
 import { useNote } from '@/components/feature-modules/entity/hooks/query/use-note';
+import { useWorkspace } from '@/components/feature-modules/workspace/hooks/query/use-workspace';
 import { BreadCrumbGroup, BreadCrumbTrail } from '@/components/ui/breadcrumb-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { extractNoteTitle, formatNoteTimestamp } from '@/lib/types/entity';
@@ -15,8 +17,6 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { Component, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { useEntityTypeByKey } from '@/components/feature-modules/entity/hooks/query/type/use-entity-types';
-import { useWorkspace } from '@/components/feature-modules/workspace/hooks/query/use-workspace';
 
 const BlockEditor = dynamic(
   () => import('@/components/ui/block-editor').then((m) => m.BlockEditor),
@@ -187,7 +187,7 @@ export function NoteEditor() {
         : '';
 
   return (
-    <div className="mx-auto px-12 py-6">
+    <div className="mx-auto">
       {/* Header */}
       <div className="mb-6">
         {/* Breadcrumb + Delete */}

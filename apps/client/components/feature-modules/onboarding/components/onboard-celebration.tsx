@@ -16,18 +16,24 @@ import {
 const REDIRECT_SECONDS = 3;
 
 function buildSetupSummary(
-  templateResults: Array<{ success: boolean }>,
+  templateResult: { success: boolean } | undefined,
   inviteResults: Array<{ success: boolean }>,
+  definitionResults: Array<{ success: boolean }>,
 ): string {
-  const succeededTemplates = templateResults.filter((r) => r.success).length;
-  const succeededInvites = inviteResults.filter((r) => r.success).length;
-
   const parts: string[] = [];
-  if (succeededTemplates > 0) {
+
+  if (templateResult?.success) {
+    parts.push('Templates installed');
+  }
+
+  const succeededDefinitions = definitionResults.filter((r) => r.success).length;
+  if (succeededDefinitions > 0) {
     parts.push(
-      `${succeededTemplates} template${succeededTemplates === 1 ? '' : 's'} installed`,
+      `${succeededDefinitions} definition${succeededDefinitions === 1 ? '' : 's'} created`,
     );
   }
+
+  const succeededInvites = inviteResults.filter((r) => r.success).length;
   if (succeededInvites > 0) {
     parts.push(
       `${succeededInvites} invite${succeededInvites === 1 ? '' : 's'} sent`,
@@ -80,16 +86,17 @@ export const OnboardCelebration: FC<Propless> = () => {
 
   if (!submissionResponse) return null;
 
-  const { templateResults, inviteResults } = submissionResponse;
+  const { templateResult, inviteResults, definitionResults } = submissionResponse;
 
   const initials = getInitials(workspaceName);
   const paletteColor = getPaletteColor(workspaceName);
 
-  const failedTemplates = templateResults.filter((r) => !r.success);
+  const templateFailed = templateResult && !templateResult.success;
   const failedInvites = inviteResults.filter((r) => !r.success);
-  const hasPartialFailure = failedTemplates.length > 0 || failedInvites.length > 0;
+  const failedDefinitions = definitionResults.filter((r) => !r.success);
+  const hasPartialFailure = templateFailed || failedInvites.length > 0 || failedDefinitions.length > 0;
 
-  const setupSummary = buildSetupSummary(templateResults, inviteResults);
+  const setupSummary = buildSetupSummary(templateResult, inviteResults, definitionResults);
 
   const navigateToWorkspace = () => {
     router.push(`/dashboard/workspace/${workspaceId}`);
@@ -131,11 +138,16 @@ export const OnboardCelebration: FC<Propless> = () => {
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription className="flex items-start justify-between gap-2">
               <span>
-                {failedTemplates.length > 0 && (
+                {templateFailed && (
                   <span className="block">
-                    {failedTemplates.length} template
-                    {failedTemplates.length === 1 ? '' : 's'} could not be
-                    installed.
+                    Templates could not be installed.
+                  </span>
+                )}
+                {failedDefinitions.length > 0 && (
+                  <span className="block">
+                    {failedDefinitions.length} definition
+                    {failedDefinitions.length === 1 ? '' : 's'} could not be
+                    created.
                   </span>
                 )}
                 {failedInvites.length > 0 && (

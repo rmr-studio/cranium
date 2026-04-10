@@ -7,7 +7,6 @@ export const Story = () => {
   const gradients: ThemeStaticImages = {
     light: 'images/texture/static-gradient-4.webp',
     dark: 'images/texture/static-gradient-4.webp',
-    amber: 'images/texture/static-gradient-4.webp',
   };
 
   const shaders = {
@@ -18,10 +17,6 @@ export const Story = () => {
     dark: {
       base: '#7d1441',
       colors: ['#0f3d5c', '#1a2a3f', '#0d1f2d'] as [string, string, string],
-    },
-    amber: {
-      base: '#7d1441',
-      colors: ['#2a6878', '#4a8a8e', '#7ab0a8'] as [string, string, string],
     },
   };
 

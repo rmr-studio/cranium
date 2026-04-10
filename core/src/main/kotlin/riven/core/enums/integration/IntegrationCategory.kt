@@ -5,7 +5,8 @@ enum class IntegrationCategory {
     PAYMENTS,
     SUPPORT,
     EMAIL,
-    PROJECT_MANAGEMENT,
+
     COMMUNICATION,
+    PRODUCT_ANALYTICS,
     OTHER
 }

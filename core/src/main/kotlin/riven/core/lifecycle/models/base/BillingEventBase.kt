@@ -3,6 +3,9 @@ package riven.core.lifecycle.models.base
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
+import riven.core.enums.core.DynamicDefaultFunction
+import riven.core.models.common.validation.DefaultValue
+import riven.core.models.common.validation.SchemaOptions
 import riven.core.lifecycle.AttributeSemantics
 import riven.core.lifecycle.CoreModelAttribute
 
@@ -33,6 +36,7 @@ object BillingEventBase {
         "date" to CoreModelAttribute(
             schemaType = SchemaType.DATE, label = "Date", dataType = DataType.STRING,
             format = "date",
+            options = SchemaOptions(defaultValue = DefaultValue.Dynamic(DynamicDefaultFunction.CURRENT_DATE)),
             semantics = AttributeSemantics(
                 definition = "Date the billing event occurred.",
                 classification = SemanticAttributeClassification.TEMPORAL,

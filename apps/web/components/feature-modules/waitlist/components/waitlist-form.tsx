@@ -25,7 +25,7 @@ import {
   TOTAL_FORM_STEPS,
 } from '@/components/feature-modules/waitlist/config/steps';
 import posthog from 'posthog-js';
-import { sendConfirmationEmail } from '@/app/actions/send-confirmation-email';
+import { sendSlackNotification } from '@/app/actions/send-slack-notification';
 import { useWaitlistJoinMutation, useWaitlistUpdateMutation } from '@/hooks/use-waitlist-mutation';
 import { cn } from '@/lib/utils';
 import { waitlistFormSchema, type WaitlistMultiStepFormData } from '@/lib/validations';
@@ -102,9 +102,9 @@ export function WaitlistForm({ className }: { className?: string }) {
         onSuccess: () => {
           posthog.capture('waitlist_joined', { email });
 
-          // Non-blocking email send — failure is silent to user, captured in PostHog
-          sendConfirmationEmail(name, email).catch((err: Error) => {
-            posthog.capture('email_send_failed', { error: err.message });
+          // Non-blocking Slack notification — failure is silent to user, captured in PostHog
+          sendSlackNotification({ type: 'join', name, email }).catch((err: Error) => {
+            posthog.capture('slack_notification_failed', { error: err.message });
           });
 
           setDirection(1);
@@ -152,6 +152,22 @@ export function WaitlistForm({ className }: { className?: string }) {
             integrations,
             involvement,
           });
+
+          // Non-blocking Slack notification with full survey details
+          const name = form.getValues('name');
+          sendSlackNotification({
+            type: 'survey',
+            name,
+            email,
+            businessOverview: businessOverview || undefined,
+            painPoints,
+            painPointsOther: painPointsOther || undefined,
+            integrations,
+            involvement,
+          }).catch((err: Error) => {
+            posthog.capture('slack_notification_failed', { error: err.message });
+          });
+
           setCompletedSurvey(true);
           setDirection(1);
           setCurrentStep(Step.SUCCESS);

@@ -1,0 +1,271 @@
+{
+  "manifestVersion": "1.0",
+  "key": "zendesk",
+  "name": "Zendesk",
+  "description": "Zendesk support integration providing tickets, users, and organizations.",
+  "category": "SUPPORT",
+  "nangoProviderKey": "",
+  "iconUrl": "/integrations/zendesk.svg",
+  "entityTypes": [
+    {
+      "key": "zendesk-ticket",
+      "name": "Ticket",
+      "description": "A Zendesk support ticket.",
+      "displayName": {
+        "singular": "Ticket",
+        "plural": "Tickets"
+      },
+      "icon": {
+        "type": "TICKET",
+        "colour": "RED"
+      },
+      "semanticGroup": "SUPPORT",
+      "identifierKey": "subject",
+      "readonly": true,
+      "attributes": {
+        "subject": {
+          "key": "TEXT",
+          "label": "Subject",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "description": {
+          "key": "TEXT",
+          "label": "Description",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "status": {
+          "key": "SELECT",
+          "label": "Status",
+          "type": "string",
+          "required": false,
+          "protected": true,
+          "options": {
+            "enum": ["new", "open", "pending", "hold", "solved", "closed"]
+          }
+        },
+        "priority": {
+          "key": "SELECT",
+          "label": "Priority",
+          "type": "string",
+          "required": false,
+          "protected": true,
+          "options": {
+            "enum": ["low", "normal", "high", "urgent"]
+          }
+        },
+        "type": {
+          "key": "SELECT",
+          "label": "Type",
+          "type": "string",
+          "required": false,
+          "protected": true,
+          "options": {
+            "enum": ["question", "incident", "problem", "task"]
+          }
+        },
+        "created-at": {
+          "key": "DATETIME",
+          "label": "Created At",
+          "type": "string",
+          "format": "date-time",
+          "required": false,
+          "protected": true
+        }
+      }
+    },
+    {
+      "key": "zendesk-user",
+      "name": "User",
+      "description": "A Zendesk user record.",
+      "displayName": {
+        "singular": "User",
+        "plural": "Users"
+      },
+      "icon": {
+        "type": "USER",
+        "colour": "BLUE"
+      },
+      "semanticGroup": "CUSTOMER",
+      "identifierKey": "email",
+      "readonly": true,
+      "attributes": {
+        "name": {
+          "key": "TEXT",
+          "label": "Name",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "email": {
+          "key": "EMAIL",
+          "label": "Email",
+          "type": "string",
+          "format": "email",
+          "required": false,
+          "protected": true
+        },
+        "phone": {
+          "key": "PHONE",
+          "label": "Phone",
+          "type": "string",
+          "format": "phone-number",
+          "required": false,
+          "protected": true
+        },
+        "role": {
+          "key": "SELECT",
+          "label": "Role",
+          "type": "string",
+          "required": false,
+          "protected": true,
+          "options": {
+            "enum": ["end-user", "agent", "admin"]
+          }
+        },
+        "created-at": {
+          "key": "DATETIME",
+          "label": "Created At",
+          "type": "string",
+          "format": "date-time",
+          "required": false,
+          "protected": true
+        }
+      }
+    },
+    {
+      "key": "zendesk-organization",
+      "name": "Organization",
+      "description": "A Zendesk organization record.",
+      "displayName": {
+        "singular": "Organization",
+        "plural": "Organizations"
+      },
+      "icon": {
+        "type": "BUILDING",
+        "colour": "GREEN"
+      },
+      "semanticGroup": "OPERATIONAL",
+      "identifierKey": "name",
+      "readonly": true,
+      "attributes": {
+        "name": {
+          "key": "TEXT",
+          "label": "Name",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "domain-names": {
+          "key": "TEXT",
+          "label": "Domain Names",
+          "type": "string",
+          "required": false,
+          "protected": true
+        },
+        "created-at": {
+          "key": "DATETIME",
+          "label": "Created At",
+          "type": "string",
+          "format": "date-time",
+          "required": false,
+          "protected": true
+        }
+      }
+    }
+  ],
+  "fieldMappings": [
+    {
+      "entityTypeKey": "zendesk-ticket",
+      "mappings": {
+        "subject": {
+          "source": "subject",
+          "transform": { "type": "direct" }
+        },
+        "description": {
+          "source": "description",
+          "transform": { "type": "direct" }
+        },
+        "status": {
+          "source": "status",
+          "transform": { "type": "direct" }
+        },
+        "priority": {
+          "source": "priority",
+          "transform": { "type": "direct" }
+        },
+        "type": {
+          "source": "type",
+          "transform": { "type": "direct" }
+        },
+        "created-at": {
+          "source": "created_at",
+          "transform": { "type": "type_coercion", "targetType": "datetime" }
+        }
+      }
+    },
+    {
+      "entityTypeKey": "zendesk-user",
+      "mappings": {
+        "name": {
+          "source": "name",
+          "transform": { "type": "direct" }
+        },
+        "email": {
+          "source": "email",
+          "transform": { "type": "direct" }
+        },
+        "phone": {
+          "source": "phone",
+          "transform": { "type": "direct" }
+        },
+        "role": {
+          "source": "role",
+          "transform": { "type": "direct" }
+        },
+        "created-at": {
+          "source": "created_at",
+          "transform": { "type": "type_coercion", "targetType": "datetime" }
+        }
+      }
+    },
+    {
+      "entityTypeKey": "zendesk-organization",
+      "mappings": {
+        "name": {
+          "source": "name",
+          "transform": { "type": "direct" }
+        },
+        "domain-names": {
+          "source": "domain_names",
+          "transform": { "type": "direct" }
+        },
+        "created-at": {
+          "source": "created_at",
+          "transform": { "type": "type_coercion", "targetType": "datetime" }
+        }
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "key": "ticket-requester",
+      "sourceEntityTypeKey": "zendesk-ticket",
+      "name": "Requester",
+      "cardinality": "MANY_TO_ONE",
+      "targetEntityTypeKey": "zendesk-user",
+      "protected": true
+    },
+    {
+      "key": "user-organization",
+      "sourceEntityTypeKey": "zendesk-user",
+      "name": "Organization",
+      "cardinality": "MANY_TO_ONE",
+      "targetEntityTypeKey": "zendesk-organization",
+      "protected": true
+    }
+  ]
+}

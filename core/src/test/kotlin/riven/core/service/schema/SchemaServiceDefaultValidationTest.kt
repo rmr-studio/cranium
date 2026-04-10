@@ -10,6 +10,7 @@ import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataFormat
 import riven.core.enums.core.DataType
 import riven.core.models.common.validation.Schema
+import riven.core.models.common.validation.SchemaOptions
 import riven.core.service.auth.AuthTokenService
 import riven.core.service.util.BaseServiceTest
 import java.util.*
@@ -54,7 +55,7 @@ class SchemaServiceDefaultValidationTest : BaseServiceTest() {
     fun `validateDefault accepts valid enum value for SELECT`() {
         val schema = Schema<UUID>(
             key = SchemaType.SELECT, type = DataType.STRING,
-            options = Schema.SchemaOptions(enum = listOf("draft", "active", "done")),
+            options = SchemaOptions(enum = listOf("draft", "active", "done")),
         )
         val errors = schemaService.validateDefault(schema, "draft")
         assertTrue(errors.isEmpty())
@@ -71,7 +72,7 @@ class SchemaServiceDefaultValidationTest : BaseServiceTest() {
     fun `validateDefault accepts number within min max range`() {
         val schema = Schema<UUID>(
             key = SchemaType.NUMBER, type = DataType.NUMBER,
-            options = Schema.SchemaOptions(minimum = 0.0, maximum = 100.0),
+            options = SchemaOptions(minimum = 0.0, maximum = 100.0),
         )
         val errors = schemaService.validateDefault(schema, 50)
         assertTrue(errors.isEmpty())
@@ -97,7 +98,7 @@ class SchemaServiceDefaultValidationTest : BaseServiceTest() {
     fun `validateDefault rejects invalid enum value for SELECT`() {
         val schema = Schema<UUID>(
             key = SchemaType.SELECT, type = DataType.STRING,
-            options = Schema.SchemaOptions(enum = listOf("draft", "active", "done")),
+            options = SchemaOptions(enum = listOf("draft", "active", "done")),
         )
         val errors = schemaService.validateDefault(schema, "invalid_status")
         assertTrue(errors.isNotEmpty())
@@ -114,7 +115,7 @@ class SchemaServiceDefaultValidationTest : BaseServiceTest() {
     fun `validateDefault rejects number below minimum`() {
         val schema = Schema<UUID>(
             key = SchemaType.NUMBER, type = DataType.NUMBER,
-            options = Schema.SchemaOptions(minimum = 0.0, maximum = 100.0),
+            options = SchemaOptions(minimum = 0.0, maximum = 100.0),
         )
         val errors = schemaService.validateDefault(schema, -5)
         assertTrue(errors.isNotEmpty())
@@ -124,7 +125,7 @@ class SchemaServiceDefaultValidationTest : BaseServiceTest() {
     fun `validateDefault rejects string shorter than minLength`() {
         val schema = Schema<UUID>(
             key = SchemaType.TEXT, type = DataType.STRING,
-            options = Schema.SchemaOptions(minLength = 5),
+            options = SchemaOptions(minLength = 5),
         )
         val errors = schemaService.validateDefault(schema, "hi")
         assertTrue(errors.isNotEmpty())
@@ -136,7 +137,7 @@ class SchemaServiceDefaultValidationTest : BaseServiceTest() {
     fun `validateDefault rejects any default value for ID type`() {
         val schema = Schema<UUID>(
             key = SchemaType.ID, type = DataType.STRING,
-            options = Schema.SchemaOptions(prefix = "PKR"),
+            options = SchemaOptions(prefix = "PKR"),
         )
         val errors = schemaService.validateDefault(schema, "PKR-1")
         assertTrue(errors.isNotEmpty(), "ID attributes should not accept default values since they are auto-generated")
@@ -146,7 +147,7 @@ class SchemaServiceDefaultValidationTest : BaseServiceTest() {
     fun `validateDefault accepts null default for ID type`() {
         val schema = Schema<UUID>(
             key = SchemaType.ID, type = DataType.STRING,
-            options = Schema.SchemaOptions(prefix = "PKR"),
+            options = SchemaOptions(prefix = "PKR"),
         )
         val errors = schemaService.validateDefault(schema, null)
         assertTrue(errors.isEmpty())

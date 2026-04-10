@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { MatchSignalType } from './MatchSignalType';
+import {
+    MatchSignalTypeFromJSON,
+    MatchSignalTypeFromJSONTyped,
+    MatchSignalTypeToJSON,
+    MatchSignalTypeToJSONTyped,
+} from './MatchSignalType';
 import type { SemanticAttributeClassification } from './SemanticAttributeClassification';
 import {
     SemanticAttributeClassificationFromJSON,
@@ -39,6 +46,12 @@ export interface SaveSemanticMetadataRequest {
      * @memberof SaveSemanticMetadataRequest
      */
     classification?: SemanticAttributeClassification;
+    /**
+     * 
+     * @type {MatchSignalType}
+     * @memberof SaveSemanticMetadataRequest
+     */
+    signalType?: MatchSignalType;
     /**
      * 
      * @type {Array<string>}
@@ -69,6 +82,7 @@ export function SaveSemanticMetadataRequestFromJSONTyped(json: any, ignoreDiscri
         
         'definition': json['definition'] == null ? undefined : json['definition'],
         'classification': json['classification'] == null ? undefined : SemanticAttributeClassificationFromJSON(json['classification']),
+        'signalType': json['signalType'] == null ? undefined : MatchSignalTypeFromJSON(json['signalType']),
         'tags': json['tags'],
     };
 }
@@ -86,6 +100,7 @@ export function SaveSemanticMetadataRequestToJSONTyped(value?: SaveSemanticMetad
         
         'definition': value['definition'],
         'classification': SemanticAttributeClassificationToJSON(value['classification']),
+        'signalType': MatchSignalTypeToJSON(value['signalType']),
         'tags': value['tags'],
     };
 }

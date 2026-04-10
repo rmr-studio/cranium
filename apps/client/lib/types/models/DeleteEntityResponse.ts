@@ -29,12 +29,6 @@ import {
 export interface DeleteEntityResponse {
     /**
      * 
-     * @type {string}
-     * @memberof DeleteEntityResponse
-     */
-    error?: string;
-    /**
-     * 
      * @type {number}
      * @memberof DeleteEntityResponse
      */
@@ -65,7 +59,6 @@ export function DeleteEntityResponseFromJSONTyped(json: any, ignoreDiscriminator
     }
     return {
         
-        'error': json['error'] == null ? undefined : json['error'],
         'deletedCount': json['deletedCount'],
         'updatedEntities': json['updatedEntities'] == null ? undefined : json['updatedEntities'],
     };
@@ -82,7 +75,6 @@ export function DeleteEntityResponseToJSONTyped(value?: DeleteEntityResponse | n
 
     return {
         
-        'error': value['error'],
         'deletedCount': value['deletedCount'],
         'updatedEntities': value['updatedEntities'],
     };

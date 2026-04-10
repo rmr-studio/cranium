@@ -70,6 +70,18 @@ Add Notes entry to mobile navigation menu. Descoped from the Workspace Notes Hub
 
 ---
 
+### Server-Side Suggested Definitions Endpoint
+
+**Priority:** P2 | **Effort:** M (human) / S (CC) | **Depends on:** Phase 3 of Business Definition Layer (template manifests)
+
+Build a `GET /api/v1/knowledge/definitions/suggestions?businessType=DTC_ECOMMERCE` endpoint that returns default definitions from the template manifest's `suggestedDefinitions` field. The frontend onboarding form would query this instead of using the local `definition-defaults.ts` config. This turns the frontend into a consumer, enabling: A/B testing different defaults, adding new business types without frontend deploys, and reuse by the definition discovery service.
+
+**Why:** Currently defaults are hardcoded in the frontend config file (`definition-defaults.ts`). When template manifests ship with `suggestedDefinitions` (Phase 3 of the Business Definition Layer design doc), the backend should be the source of truth for defaults. This decouples default management from frontend deployments.
+
+**How to apply:** Add a new endpoint to `KnowledgeController`. Load suggested definitions from the catalog manifest matching the business type. Return as `DefaultDefinition[]` shape. Update `definitions-step-form.tsx` to fetch from this endpoint instead of importing from config. Keep the config file as a fallback for offline/error scenarios.
+
+---
+
 ### DataTable Row Grouping Pattern
 
 **Priority:** P3 | **Effort:** M (human) / S (CC) | **Depends on:** Workspace Notes Hub shipped

@@ -1,5 +1,26 @@
 # Architecture Changelog
 
+## [2026-04-01] — Business Definition Layer (Phase 1: CRUD Foundation)
+
+**Domains affected:** Knowledge (new subdomain: Business Definitions)
+**What changed:**
+
+- Added `workspace_business_definitions` table for workspace-scoped natural language business definitions (e.g., "retention", "active customer")
+- Created `WorkspaceBusinessDefinitionEntity` (JPA) and `WorkspaceBusinessDefinition` (domain model) in `entity.knowledge` / `models.knowledge`
+- Created `WorkspaceBusinessDefinitionService` with CRUD operations, term normalization, optimistic locking (`@Version`), and soft-delete
+- Created `WorkspaceBusinessDefinitionRepository` with workspace-scoped queries
+- Created `TermNormalizationUtil` for normalizing business terms (lowercase, trim, strip trailing 's')
+- Added 6 REST endpoints to `KnowledgeController`: list, get, create, update, delete, export — under `/workspace/{workspaceId}/definitions`
+- Added 3 new enums: `DefinitionCategory`, `DefinitionStatus`, `DefinitionSource` in `enums.knowledge`
+- Added `BUSINESS_DEFINITION` to `Activity` and `ApplicationEntityType` enums
+- Admin-only mutations via `@PreAuthorize` with `hasWorkspaceRoleOrHigher(..., 'ADMIN')`
+
+**New cross-domain dependencies:** no — Knowledge domain is self-contained for Phase 1
+**New components introduced:**
+- `WorkspaceBusinessDefinitionService` — CRUD lifecycle for workspace business definitions
+- `WorkspaceBusinessDefinitionRepository` — persistence layer for business definitions
+- `TermNormalizationUtil` — pure function for business term normalization
+
 ## [2026-03-29] — Entity Projection Pipeline Implementation
 
 **Domains affected:** Entity, Integration, Ingestion (new), Identity, Lifecycle

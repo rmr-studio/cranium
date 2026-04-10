@@ -7,7 +7,7 @@ import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
-import riven.core.lifecycle.AttributeOptions
+import riven.core.models.common.validation.SchemaOptions
 import riven.core.lifecycle.AttributeSemantics
 import riven.core.lifecycle.CoreModelAttribute
 import riven.core.lifecycle.CoreModelDefinition
@@ -64,7 +64,7 @@ object ProductModel : CoreModelDefinition(
         ),
         "category" to CoreModelAttribute(
             schemaType = SchemaType.SELECT, label = "Category", dataType = DataType.STRING,
-            options = AttributeOptions(enum = listOf("apparel", "electronics", "home", "beauty", "food", "accessories", "other")),
+            options = SchemaOptions(enum = listOf("apparel", "electronics", "home", "beauty", "food", "accessories", "other")),
             semantics = AttributeSemantics(
                 definition = "Product category for organisation and reporting.",
                 classification = SemanticAttributeClassification.CATEGORICAL,

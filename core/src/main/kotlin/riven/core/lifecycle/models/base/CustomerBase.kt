@@ -4,7 +4,9 @@ import riven.core.enums.entity.EntityRelationshipCardinality
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
-import riven.core.lifecycle.AttributeOptions
+import riven.core.enums.core.DynamicDefaultFunction
+import riven.core.models.common.validation.DefaultValue
+import riven.core.models.common.validation.SchemaOptions
 import riven.core.lifecycle.AttributeSemantics
 import riven.core.lifecycle.CoreModelAttribute
 import riven.core.lifecycle.CoreModelRelationship
@@ -47,7 +49,7 @@ object CustomerBase {
         "status" to CoreModelAttribute(
             schemaType = SchemaType.SELECT, label = "Status", dataType = DataType.STRING,
             required = true,
-            options = AttributeOptions(enum = listOf("active", "inactive", "churned"), default = "active"),
+            options = SchemaOptions(enum = listOf("active", "inactive", "churned"), defaultValue = DefaultValue.Static("active")),
             semantics = AttributeSemantics(
                 definition = "The current lifecycle status of the customer, indicating whether they are actively engaged, dormant, or have left.",
                 classification = SemanticAttributeClassification.CATEGORICAL,
@@ -57,20 +59,13 @@ object CustomerBase {
         "created-date" to CoreModelAttribute(
             schemaType = SchemaType.DATE, label = "Created Date", dataType = DataType.STRING,
             format = "date",
+            options = SchemaOptions(defaultValue = DefaultValue.Dynamic(DynamicDefaultFunction.CURRENT_DATE)),
             semantics = AttributeSemantics(
                 definition = "The date the customer record was first created, marking the start of the business relationship.",
                 classification = SemanticAttributeClassification.TEMPORAL,
                 tags = listOf("lifecycle", "onboarding"),
             ),
-        ),
-        "notes" to CoreModelAttribute(
-            schemaType = SchemaType.TEXT, label = "Notes", dataType = DataType.STRING,
-            semantics = AttributeSemantics(
-                definition = "Free-form notes about the customer, capturing context, preferences, or history that does not fit structured fields.",
-                classification = SemanticAttributeClassification.FREETEXT,
-                tags = listOf("context", "internal"),
-            ),
-        ),
+        )
     )
 
     val relationships = listOf(

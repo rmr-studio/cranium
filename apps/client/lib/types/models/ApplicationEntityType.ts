@@ -33,7 +33,8 @@ export enum ApplicationEntityType {
     IntegrationInstallation = 'INTEGRATION_INSTALLATION',
     MatchSuggestion = 'MATCH_SUGGESTION',
     IdentityCluster = 'IDENTITY_CLUSTER',
-    Note = 'NOTE'
+    Note = 'NOTE',
+    BusinessDefinition = 'BUSINESS_DEFINITION'
 }
 
 

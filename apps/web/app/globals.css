@@ -2,8 +2,6 @@
 @import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
-@custom-variant amber (&:is(.amber *));
-
 @theme inline {
   --breakpoint-3xl: 120rem;
   --color-background: var(--background);
@@ -198,64 +196,6 @@
   --nav-inv-logo-primary: oklch(0.35 0 0);
 }
 
-.amber {
-  --wash-opacity: 0.7;
-  --logo-primary: oklch(0.35 0 0);
-  --background: oklch(0.93 0.032 80);
-  --foreground: oklch(0.25 0.02 60);
-  --card: oklch(0.91 0.035 78);
-  --card-foreground: oklch(0.25 0.02 60);
-  --popover: oklch(0.91 0.035 78);
-  --popover-foreground: oklch(0.25 0.02 60);
-  --primary: oklch(0.35 0.04 65);
-  --content: oklch(0.45 0.04 65);
-  --heading: oklch(0.38 0.03 65);
-  --primary-foreground: oklch(0.93 0.032 80);
-  --secondary: oklch(0.9 0.038 76);
-  --secondary-foreground: oklch(0.25 0.02 60);
-  --muted: oklch(0.88 0.04 75);
-  --muted-foreground: oklch(0.45 0.03 65);
-  --accent: oklch(0.75 0.1 70);
-  --accent-foreground: oklch(0.25 0.02 60);
-  --edit: oklch(0.8366 0.117 66.29);
-  --archive: oklch(0.585 0.204 277.12);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.25 0.02 60 / 15%);
-  --input: oklch(0.25 0.02 60 / 15%);
-  --ring: oklch(0.55 0.06 70);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.91 0.035 78);
-  --sidebar-foreground: oklch(0.25 0.02 60);
-  --sidebar-primary: oklch(0.35 0.04 65);
-  --sidebar-primary-foreground: oklch(0.93 0.032 80);
-  --sidebar-accent: oklch(0.88 0.04 75);
-  --sidebar-accent-foreground: oklch(0.25 0.02 60);
-  --sidebar-border: oklch(0.25 0.02 60 / 15%);
-  --sidebar-ring: oklch(0.55 0.06 70);
-  --inverse-card: var(--foreground);
-
-  /* CTA gradient stops — warm gold → copper → terracotta */
-  --cta-g1: oklch(0.75 0.13 80);
-  --cta-g2: oklch(0.62 0.15 50);
-  --cta-g3: oklch(0.65 0.12 25);
-  --cta-muted: oklch(0.45 0.03 65 / 0.2);
-
-  --paper-texture-opacity: 0.35;
-
-  /* Navbar inverse values (amber bg/fg swapped) */
-  --nav-inv-background: oklch(0.25 0.02 60);
-  --nav-inv-foreground: oklch(0.93 0.032 80);
-  --nav-inv-muted-foreground: oklch(0.75 0.06 70);
-  --nav-inv-border: oklch(0.93 0.032 80 / 15%);
-  --nav-inv-muted: oklch(0.35 0.04 65);
-  --nav-inv-primary: oklch(0.93 0.032 80);
-  --nav-inv-logo-primary: oklch(0.85 0 0);
-}
-
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 5rem;
@@ -313,10 +253,6 @@ html {
   :is(.dark) body::after {
     background: black;
     opacity: 0.3;
-  }
-  :is(.amber) body::after {
-    background: var(--foreground);
-    opacity: 0.1;
   }
   body::before {
     content: '';

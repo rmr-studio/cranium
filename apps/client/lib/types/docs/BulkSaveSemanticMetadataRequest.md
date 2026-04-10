@@ -9,6 +9,7 @@ Name | Type
 `targetId` | string
 `definition` | string
 `classification` | [SemanticAttributeClassification](SemanticAttributeClassification.md)
+`signalType` | [MatchSignalType](MatchSignalType.md)
 `tags` | Array&lt;string&gt;
 
 ## Example
@@ -21,6 +22,7 @@ const example = {
   "targetId": null,
   "definition": null,
   "classification": null,
+  "signalType": null,
   "tags": null,
 } satisfies BulkSaveSemanticMetadataRequest
 

@@ -27,22 +27,16 @@ export interface TemplateInstallResult {
     key: string;
     /**
      * 
-     * @type {boolean}
+     * @type {number}
      * @memberof TemplateInstallResult
      */
-    success: boolean;
-    /**
-     * 
-     * @type {string}
-     * @memberof TemplateInstallResult
-     */
-    error?: string;
+    entityTypesCreated: number;
     /**
      * 
      * @type {number}
      * @memberof TemplateInstallResult
      */
-    entityTypesCreated: number;
+    relationshipsCreated: number;
 }
 
 /**
@@ -50,8 +44,8 @@ export interface TemplateInstallResult {
  */
 export function instanceOfTemplateInstallResult(value: object): value is TemplateInstallResult {
     if (!('key' in value) || value['key'] === undefined) return false;
-    if (!('success' in value) || value['success'] === undefined) return false;
     if (!('entityTypesCreated' in value) || value['entityTypesCreated'] === undefined) return false;
+    if (!('relationshipsCreated' in value) || value['relationshipsCreated'] === undefined) return false;
     return true;
 }
 
@@ -66,9 +60,8 @@ export function TemplateInstallResultFromJSONTyped(json: any, ignoreDiscriminato
     return {
         
         'key': json['key'],
-        'success': json['success'],
-        'error': json['error'] == null ? undefined : json['error'],
         'entityTypesCreated': json['entityTypesCreated'],
+        'relationshipsCreated': json['relationshipsCreated'],
     };
 }
 
@@ -84,9 +77,8 @@ export function TemplateInstallResultToJSONTyped(value?: TemplateInstallResult |
     return {
         
         'key': value['key'],
-        'success': value['success'],
-        'error': value['error'],
         'entityTypesCreated': value['entityTypesCreated'],
+        'relationshipsCreated': value['relationshipsCreated'],
     };
 }
 

@@ -16,25 +16,50 @@
 import * as runtime from '../runtime';
 import type {
   BulkSaveSemanticMetadataRequest,
+  CreateBusinessDefinitionRequest,
+  DefinitionCategory,
+  DefinitionStatus,
   EntityTypeSemanticMetadata,
   SaveSemanticMetadataRequest,
   SemanticMetadataBundle,
+  UpdateBusinessDefinitionRequest,
+  WorkspaceBusinessDefinition,
 } from '../models/index';
 import {
     BulkSaveSemanticMetadataRequestFromJSON,
     BulkSaveSemanticMetadataRequestToJSON,
+    CreateBusinessDefinitionRequestFromJSON,
+    CreateBusinessDefinitionRequestToJSON,
+    DefinitionCategoryFromJSON,
+    DefinitionCategoryToJSON,
+    DefinitionStatusFromJSON,
+    DefinitionStatusToJSON,
     EntityTypeSemanticMetadataFromJSON,
     EntityTypeSemanticMetadataToJSON,
     SaveSemanticMetadataRequestFromJSON,
     SaveSemanticMetadataRequestToJSON,
     SemanticMetadataBundleFromJSON,
     SemanticMetadataBundleToJSON,
+    UpdateBusinessDefinitionRequestFromJSON,
+    UpdateBusinessDefinitionRequestToJSON,
+    WorkspaceBusinessDefinitionFromJSON,
+    WorkspaceBusinessDefinitionToJSON,
 } from '../models/index';
 
 export interface BulkSetAttributeMetadataRequest {
     workspaceId: string;
     entityTypeId: string;
     bulkSaveSemanticMetadataRequest: Array<BulkSaveSemanticMetadataRequest>;
+}
+
+export interface CreateDefinitionRequest {
+    workspaceId: string;
+    createBusinessDefinitionRequest: CreateBusinessDefinitionRequest;
+}
+
+export interface DeleteDefinitionRequest {
+    workspaceId: string;
+    id: string;
 }
 
 export interface GetAllMetadataRequest {
@@ -47,6 +72,11 @@ export interface GetAttributeMetadataRequest {
     entityTypeId: string;
 }
 
+export interface GetDefinitionRequest {
+    workspaceId: string;
+    id: string;
+}
+
 export interface GetEntityTypeMetadataRequest {
     workspaceId: string;
     entityTypeId: string;
@@ -55,6 +85,12 @@ export interface GetEntityTypeMetadataRequest {
 export interface GetRelationshipMetadataRequest {
     workspaceId: string;
     entityTypeId: string;
+}
+
+export interface ListDefinitionsRequest {
+    workspaceId: string;
+    status?: DefinitionStatus;
+    category?: DefinitionCategory;
 }
 
 export interface SetAttributeMetadataRequest {
@@ -75,6 +111,12 @@ export interface SetRelationshipMetadataRequest {
     entityTypeId: string;
     relationshipId: string;
     saveSemanticMetadataRequest: SaveSemanticMetadataRequest;
+}
+
+export interface UpdateDefinitionRequest {
+    workspaceId: string;
+    id: string;
+    updateBusinessDefinitionRequest: UpdateBusinessDefinitionRequest;
 }
 
 /**
@@ -145,6 +187,117 @@ export class KnowledgeApi extends runtime.BaseAPI {
     async bulkSetAttributeMetadata(requestParameters: BulkSetAttributeMetadataRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<EntityTypeSemanticMetadata>> {
         const response = await this.bulkSetAttributeMetadataRaw(requestParameters, initOverrides);
         return await response.value();
+    }
+
+    /**
+     * Creates a workspace-scoped business definition. Requires workspace ADMIN role.
+     * Create a new business definition
+     */
+    async createDefinitionRaw(requestParameters: CreateDefinitionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<WorkspaceBusinessDefinition>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling createDefinition().'
+            );
+        }
+
+        if (requestParameters['createBusinessDefinitionRequest'] == null) {
+            throw new runtime.RequiredError(
+                'createBusinessDefinitionRequest',
+                'Required parameter "createBusinessDefinitionRequest" was null or undefined when calling createDefinition().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/v1/knowledge/workspace/{workspaceId}/definitions`;
+        urlPath = urlPath.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: CreateBusinessDefinitionRequestToJSON(requestParameters['createBusinessDefinitionRequest']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => WorkspaceBusinessDefinitionFromJSON(jsonValue));
+    }
+
+    /**
+     * Creates a workspace-scoped business definition. Requires workspace ADMIN role.
+     * Create a new business definition
+     */
+    async createDefinition(requestParameters: CreateDefinitionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<WorkspaceBusinessDefinition> {
+        const response = await this.createDefinitionRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Marks a business definition as deleted. Requires workspace ADMIN role.
+     * Soft-delete a business definition
+     */
+    async deleteDefinitionRaw(requestParameters: DeleteDefinitionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling deleteDefinition().'
+            );
+        }
+
+        if (requestParameters['id'] == null) {
+            throw new runtime.RequiredError(
+                'id',
+                'Required parameter "id" was null or undefined when calling deleteDefinition().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/v1/knowledge/workspace/{workspaceId}/definitions/{id}`;
+        urlPath = urlPath.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId'])));
+        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'DELETE',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Marks a business definition as deleted. Requires workspace ADMIN role.
+     * Soft-delete a business definition
+     */
+    async deleteDefinition(requestParameters: DeleteDefinitionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.deleteDefinitionRaw(requestParameters, initOverrides);
     }
 
     /**
@@ -258,6 +411,61 @@ export class KnowledgeApi extends runtime.BaseAPI {
     }
 
     /**
+     * Retrieves a specific business definition within the workspace.
+     * Get a single business definition by ID
+     */
+    async getDefinitionRaw(requestParameters: GetDefinitionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<WorkspaceBusinessDefinition>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling getDefinition().'
+            );
+        }
+
+        if (requestParameters['id'] == null) {
+            throw new runtime.RequiredError(
+                'id',
+                'Required parameter "id" was null or undefined when calling getDefinition().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/v1/knowledge/workspace/{workspaceId}/definitions/{id}`;
+        urlPath = urlPath.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId'])));
+        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => WorkspaceBusinessDefinitionFromJSON(jsonValue));
+    }
+
+    /**
+     * Retrieves a specific business definition within the workspace.
+     * Get a single business definition by ID
+     */
+    async getDefinition(requestParameters: GetDefinitionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<WorkspaceBusinessDefinition> {
+        const response = await this.getDefinitionRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Retrieves the semantic metadata record for the entity type itself (not its attributes or relationships).
      * Get semantic metadata for an entity type
      */
@@ -364,6 +572,61 @@ export class KnowledgeApi extends runtime.BaseAPI {
      */
     async getRelationshipMetadata(requestParameters: GetRelationshipMetadataRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<EntityTypeSemanticMetadata>> {
         const response = await this.getRelationshipMetadataRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Retrieves all active business definitions, optionally filtered by status and/or category.
+     * List all business definitions for a workspace
+     */
+    async listDefinitionsRaw(requestParameters: ListDefinitionsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<WorkspaceBusinessDefinition>>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling listDefinitions().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['status'] != null) {
+            queryParameters['status'] = requestParameters['status'];
+        }
+
+        if (requestParameters['category'] != null) {
+            queryParameters['category'] = requestParameters['category'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/v1/knowledge/workspace/{workspaceId}/definitions`;
+        urlPath = urlPath.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(WorkspaceBusinessDefinitionFromJSON));
+    }
+
+    /**
+     * Retrieves all active business definitions, optionally filtered by status and/or category.
+     * List all business definitions for a workspace
+     */
+    async listDefinitions(requestParameters: ListDefinitionsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<WorkspaceBusinessDefinition>> {
+        const response = await this.listDefinitionsRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -575,6 +838,71 @@ export class KnowledgeApi extends runtime.BaseAPI {
      */
     async setRelationshipMetadata(requestParameters: SetRelationshipMetadataRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EntityTypeSemanticMetadata> {
         const response = await this.setRelationshipMetadataRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Full replacement update with optimistic locking. Requires workspace ADMIN role.
+     * Update a business definition
+     */
+    async updateDefinitionRaw(requestParameters: UpdateDefinitionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<WorkspaceBusinessDefinition>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling updateDefinition().'
+            );
+        }
+
+        if (requestParameters['id'] == null) {
+            throw new runtime.RequiredError(
+                'id',
+                'Required parameter "id" was null or undefined when calling updateDefinition().'
+            );
+        }
+
+        if (requestParameters['updateBusinessDefinitionRequest'] == null) {
+            throw new runtime.RequiredError(
+                'updateBusinessDefinitionRequest',
+                'Required parameter "updateBusinessDefinitionRequest" was null or undefined when calling updateDefinition().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/v1/knowledge/workspace/{workspaceId}/definitions/{id}`;
+        urlPath = urlPath.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId'])));
+        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: UpdateBusinessDefinitionRequestToJSON(requestParameters['updateBusinessDefinitionRequest']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => WorkspaceBusinessDefinitionFromJSON(jsonValue));
+    }
+
+    /**
+     * Full replacement update with optimistic locking. Requires workspace ADMIN role.
+     * Update a business definition
+     */
+    async updateDefinition(requestParameters: UpdateDefinitionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<WorkspaceBusinessDefinition> {
+        const response = await this.updateDefinitionRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

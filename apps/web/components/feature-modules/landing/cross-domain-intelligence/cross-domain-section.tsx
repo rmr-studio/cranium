@@ -13,16 +13,11 @@ export function CrossDomainIntelligence() {
       base: '#8dbaa4',
       colors: ['#0f3d5c', '#1a2a3f', '#0d1f2d'] as [string, string, string],
     },
-    amber: {
-      base: '#0a0d12',
-      colors: ['#2a6878', '#0d1f2d', '#7ab0a8'] as [string, string, string],
-    },
   };
 
   const gradients: ThemeStaticImages = {
     light: 'images/texture/static-gradient-4.webp',
     dark: 'images/texture/static-gradient-4.webp',
-    amber: 'images/texture/static-gradient-4.webp',
   };
 
   return (

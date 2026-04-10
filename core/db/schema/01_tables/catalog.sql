@@ -139,7 +139,7 @@ CREATE TABLE IF NOT EXISTS catalog_semantic_metadata (
 
 CREATE TABLE IF NOT EXISTS workspace_template_installations (
     id                 UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    workspace_id       UUID NOT NULL REFERENCES workspaces(id),
+    workspace_id       UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
     manifest_key       VARCHAR(255) NOT NULL,
     installed_by       UUID NOT NULL REFERENCES users(id),
     installed_at       TIMESTAMPTZ NOT NULL DEFAULT now(),

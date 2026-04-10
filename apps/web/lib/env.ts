@@ -5,7 +5,7 @@ const envSchema = z
     NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 
     // ── Server-only vars ──
-    RESEND_API_KEY: z.string().min(1, 'RESEND_API_KEY is required'),
+    SLACK_WEBHOOK_URL: z.string().url('SLACK_WEBHOOK_URL must be a valid URL'),
 
     NEXT_PUBLIC_AUTH_ENABLED: z.string().optional(),
     NEXT_PUBLIC_SUPABASE_URL: z.string().url({ message: 'NEXT_PUBLIC_SUPABASE_URL is required' }),

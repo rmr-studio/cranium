@@ -10,6 +10,7 @@ import riven.core.entity.entity.EntityTypeEntity
 import riven.core.enums.activity.Activity
 import riven.core.enums.core.ApplicationEntityType
 import riven.core.enums.util.OperationType
+import riven.core.exceptions.NotFoundException
 import riven.core.exceptions.SchemaValidationException
 import riven.core.models.common.Icon
 import riven.core.models.common.validation.Schema
@@ -18,14 +19,22 @@ import riven.core.models.entity.EntityLink
 import riven.core.models.entity.payload.EntityAttributePrimitivePayload
 import riven.core.models.entity.payload.EntityAttributeRelationPayloadReference
 import riven.core.models.entity.payload.EntityAttributeRequest
+import riven.core.models.entity.query.EntityQuery
+import riven.core.models.entity.query.pagination.QueryPagination
+import riven.core.models.request.entity.DeleteEntityRequest
 import riven.core.models.request.entity.SaveEntityRequest
 import riven.core.models.response.entity.DeleteEntityResponse
 import riven.core.models.response.entity.SaveEntityResponse
+import riven.core.enums.entity.EntitySelectType
+import riven.core.service.entity.query.EntityQueryService
+import kotlinx.coroutines.runBlocking
 import riven.core.repository.entity.EntityRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.activity.log
 import riven.core.service.auth.AuthTokenService
 import riven.core.enums.common.validation.SchemaType
+import riven.core.enums.core.DynamicDefaultFunction
+import riven.core.models.common.validation.DefaultValue
 import riven.core.service.entity.type.EntityTypeAttributeService
 import riven.core.service.entity.type.EntityTypeRelationshipService
 import riven.core.service.entity.type.EntityTypeSequenceService
@@ -36,6 +45,8 @@ import riven.core.service.identity.EntityTypeClassificationService
 import riven.core.util.ServiceUtil.findManyResults
 import riven.core.util.ServiceUtil.findOrThrow
 import org.springframework.context.ApplicationEventPublisher
+import java.time.LocalDate
+import java.time.ZonedDateTime
 import java.util.*
 
 /**
@@ -54,6 +65,7 @@ class EntityService(
     private val activityService: ActivityService,
     private val sequenceService: EntityTypeSequenceService,
     private val applicationEventPublisher: ApplicationEventPublisher,
+    private val entityQueryService: EntityQueryService,
     private val entityTypeClassificationService: EntityTypeClassificationService,
 ) {
 
@@ -344,17 +356,38 @@ class EntityService(
                     // Carry forward existing ID on update
                     previousAttributes[attrId]?.let { enriched[attrId] = it }
                 }
-            } else if (isCreate && !enriched.containsKey(attrId) && attrSchema.options?.default != null) {
+            } else if (isCreate && !enriched.containsKey(attrId)) {
                 // Inject default value for attributes not provided on create
-                enriched[attrId] = EntityAttributePrimitivePayload(
-                    value = attrSchema.options!!.default!!,
-                    schemaType = attrSchema.key,
-                )
+                resolveDefault(attrSchema)?.let { resolved ->
+                    enriched[attrId] = EntityAttributePrimitivePayload(
+                        value = resolved,
+                        schemaType = attrSchema.key,
+                    )
+                }
             }
         }
 
         return enriched
     }
+
+    /**
+     * Resolves the effective default value for an attribute schema.
+     *
+     * @return The resolved default value, or null if no default is configured.
+     */
+    private fun resolveDefault(attrSchema: Schema<UUID>): Any? {
+        val dv = attrSchema.options?.defaultValue ?: return null
+        return when (dv) {
+            is DefaultValue.Static -> dv.value
+            is DefaultValue.Dynamic -> resolveDynamicFunction(dv.function)
+        }
+    }
+
+    private fun resolveDynamicFunction(function: DynamicDefaultFunction): String =
+        when (function) {
+            DynamicDefaultFunction.CURRENT_DATE -> LocalDate.now().toString()
+            DynamicDefaultFunction.CURRENT_DATETIME -> ZonedDateTime.now().toString()
+        }
 
     /**
      * Publishes an IdentityMatchTriggerEvent for the saved entity.
@@ -428,55 +461,29 @@ class EntityService(
     }
 
 
-    @Transactional
-    @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
-    fun deleteEntities(workspaceId: UUID, ids: List<UUID>): DeleteEntityResponse {
-        val userId = authTokenService.getUserId()
-        if (ids.isEmpty()) {
-            return DeleteEntityResponse(
-                error = "No entity IDs provided for deletion"
-            )
-        }
-
-        // Find all relationships where deleted entities are targets (to identify impacted entities)
-        val impactedEntityIds: List<UUID> = entityRelationshipService.findByTargetIdIn(ids).flatMap { it.value }
-            .map { it.sourceId }
-            .toSet()
-            .filter { !ids.contains(it) } // Exclude entities being deleted
-
-
-        // Archive entities, their unique values, and relationships
+    /**
+     * Executes the core soft-delete cascade for a batch of entity IDs:
+     * soft-deletes entities, their unique constraint values, attributes, and relationships.
+     *
+     * @return the list of EntityEntity rows that were actually soft-deleted by the database
+     */
+    private fun executeCascadeDelete(ids: Collection<UUID>, workspaceId: UUID): List<EntityEntity> {
         val deletedEntities = entityRepository.deleteByIds(ids.toTypedArray(), workspaceId)
         val deletedRowIds = deletedEntities.mapNotNull { it.id }.toSet()
 
-        if (deletedRowIds.isEmpty()) {
-            return DeleteEntityResponse(
-                error = "No entities were deleted. Please check the provided IDs."
-            )
+        if (deletedRowIds.isNotEmpty()) {
+            entityTypeAttributeService.deleteEntities(workspaceId, deletedRowIds)
+            entityAttributeService.softDeleteByEntityIds(workspaceId, deletedRowIds)
+            entityRelationshipService.archiveEntities(deletedRowIds, workspaceId)
         }
 
-        entityTypeAttributeService.deleteEntities(workspaceId, deletedRowIds)
-        entityAttributeService.softDeleteByEntityIds(workspaceId, deletedRowIds)
-        entityRelationshipService.archiveEntities(deletedRowIds, workspaceId)
+        return deletedEntities
+    }
 
-        // Log activity for each deleted entity
-        activityService.logActivities(
-            deletedEntities.map { entity ->
-                ActivityLogEntity(
-                    activity = Activity.ENTITY,
-                    operation = OperationType.DELETE,
-                    userId = userId,
-                    workspaceId = workspaceId,
-                    entityId = entity.id,
-                    entityType = ApplicationEntityType.ENTITY,
-                    details = mapOf(
-                        "typeId" to entity.typeId.toString(),
-                        "typeKey" to entity.typeKey
-                    )
-                )
-            }
-        )
-
+    /**
+     * Publishes EntityEvent for each entity type group in the deleted entities.
+     */
+    private fun publishDeleteEvents(deletedEntities: List<EntityEntity>, workspaceId: UUID, userId: UUID) {
         deletedEntities
             .groupBy { it.typeId to it.typeKey }
             .forEach { (typeInfo, entities) ->
@@ -497,35 +504,136 @@ class EntityService(
                     )
                 )
             }
+    }
 
-        // Fetch impacted entities with their updated relationships
-        val updatedEntities: Map<UUID, List<Entity>>? = if (impactedEntityIds.isNotEmpty()) {
-            val impactedEntityEntities = entityRepository.findAllById(impactedEntityIds)
-            val impactedRelationships = entityRelationshipService.findRelatedEntities(
-                entityIds = impactedEntityIds.toSet(),
-                workspaceId = workspaceId
-            )
-            val impactedAttributes = entityAttributeService.getAttributesForEntities(impactedEntityIds.toSet())
-            impactedEntityEntities
-                .map { impactedEntity ->
-                    val impactedId = requireNotNull(impactedEntity.id)
-                    impactedEntity.toModel(
-                        audit = true,
-                        relationships = impactedRelationships[impactedId] ?: emptyMap(),
-                        attributes = impactedAttributes[impactedId] ?: emptyMap(),
-                    )
-                }
-                .groupBy { it.typeId }
-        } else {
-            null
+    /**
+     * Fetches entities that lost relationships due to deletions, grouped by type ID.
+     * Returns null if no entities were impacted.
+     */
+    private fun fetchImpactedEntities(impactedEntityIds: List<UUID>, workspaceId: UUID): Map<UUID, List<Entity>>? {
+        if (impactedEntityIds.isEmpty()) return null
+
+        // Run on the current transaction thread to preserve @Transactional context
+        val impactedEntityEntities = entityRepository.findByIdInAndWorkspaceId(impactedEntityIds, workspaceId)
+        val impactedRelationships = entityRelationshipService.findRelatedEntities(
+            entityIds = impactedEntityIds.toSet(),
+            workspaceId = workspaceId,
+        )
+        val impactedAttributes = entityAttributeService.getAttributesForEntities(impactedEntityIds.toSet())
+
+        return impactedEntityEntities
+            .map { impactedEntity ->
+                val impactedId = requireNotNull(impactedEntity.id) { "Impacted entity ID must not be null" }
+                impactedEntity.toModel(
+                    audit = true,
+                    relationships = impactedRelationships[impactedId] ?: emptyMap(),
+                    attributes = impactedAttributes[impactedId] ?: emptyMap(),
+                )
+            }
+            .groupBy { it.typeId }
+    }
+
+
+    // ------ Bulk Delete ------
+
+    /**
+     * Bulk deletes entities by explicit IDs or filter-based selection.
+     * Processes deletes in batches of 500. Logs one activity entry per bulk operation.
+     */
+    @Transactional
+    @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
+    fun deleteEntities(workspaceId: UUID, request: DeleteEntityRequest): DeleteEntityResponse {
+        val userId = authTokenService.getUserId()
+
+        val idsToDelete = resolveEntityIds(request, workspaceId)
+        if (idsToDelete.isEmpty()) {
+            throw NotFoundException("No entities matched the selection criteria")
         }
 
+        // Detect impacted entities before any deletes
+        val impactedEntityIds = entityRelationshipService.findByTargetIdIn(idsToDelete)
+            .flatMap { it.value }
+            .map { it.sourceId }
+            .toSet()
+            .filter { it !in idsToDelete }
+
+        // Batch cascade delete
+        val allDeletedEntities = idsToDelete.chunked(BULK_DELETE_BATCH_SIZE).flatMap { batch ->
+            executeCascadeDelete(batch, workspaceId)
+        }
+        val deletedCount = allDeletedEntities.mapNotNull { it.id }.toSet().size
+
+        if (deletedCount == 0) {
+            throw NotFoundException("No entities were deleted. Please check the selection criteria.")
+        }
+
+        // Log one bulk activity entry
+        activityService.logActivities(
+            listOf(
+                ActivityLogEntity(
+                    activity = Activity.ENTITY,
+                    operation = OperationType.DELETE,
+                    userId = userId,
+                    workspaceId = workspaceId,
+                    entityId = null,
+                    entityType = ApplicationEntityType.ENTITY,
+                    details = mapOf(
+                        "deletedCount" to deletedCount,
+                        "deletedIds" to allDeletedEntities.mapNotNull { it.id },
+                        "selectionType" to request.type.name,
+                    )
+                )
+            )
+        )
+
+        publishDeleteEvents(allDeletedEntities, workspaceId, userId)
+
+        val updatedEntities = fetchImpactedEntities(impactedEntityIds, workspaceId)
+
         return DeleteEntityResponse(
-            deletedCount = deletedRowIds.size,
+            deletedCount = deletedCount,
             updatedEntities = updatedEntities
         )
     }
 
+    /**
+     * Resolves entity IDs to delete based on the request type.
+     * For BY_ID: returns entityIds directly.
+     * For ALL: queries via EntityQueryService with pagination, removes excludeIds.
+     */
+    private fun resolveEntityIds(request: DeleteEntityRequest, workspaceId: UUID): List<UUID> {
+        return when (request.type) {
+            EntitySelectType.BY_ID -> requireNotNull(request.entityIds) { "entityIds required for BY_ID" }
+
+            EntitySelectType.ALL -> {
+                val entityTypeId = requireNotNull(request.entityTypeId) { "entityTypeId required for ALL" }
+                val query = EntityQuery(entityTypeId = entityTypeId, filter = request.filter)
+                val excludeIds = request.excludeIds?.toSet() ?: emptySet()
+
+                val allIds = mutableListOf<UUID>()
+                var offset = 0
+
+                do {
+                    val result = runBlocking {
+                        entityQueryService.execute(
+                            query = query,
+                            workspaceId = workspaceId,
+                            pagination = QueryPagination(limit = BULK_DELETE_BATCH_SIZE, offset = offset),
+                            includeCount = false,
+                        )
+                    }
+                    allIds.addAll(result.entities.map { it.id })
+                    offset += BULK_DELETE_BATCH_SIZE
+                } while (result.hasNextPage)
+
+                if (excludeIds.isNotEmpty()) {
+                    allIds.filter { it !in excludeIds }
+                } else {
+                    allIds
+                }
+            }
+        }
+    }
 
     /**
      * Get all entities for an workspace.
@@ -544,5 +652,7 @@ class EntityService(
         }
     }
 
-
+    companion object {
+        const val BULK_DELETE_BATCH_SIZE = 500
+    }
 }

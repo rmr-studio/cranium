@@ -1,11 +1,15 @@
 'use client';
 
-import { TableBody, TableCell, TableRow } from '@riven/ui/table';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { TableBody, TableCell, TableRow } from '@riven/ui/table';
 import { Row, Table as TanStackTable } from '@tanstack/react-table';
 import React, { ReactNode, useMemo } from 'react';
 import { useDataTableStore } from '../data-table-provider';
-import type { ActionColumnConfig, ColumnResizingConfig, RowActionsConfig } from '../data-table.types';
+import type {
+  ActionColumnConfig,
+  ColumnResizingConfig,
+  RowActionsConfig,
+} from '../data-table.types';
 import { DraggableRow } from './draggable-row';
 
 interface DataTableBodyProps<TData> {
@@ -27,6 +31,10 @@ interface DataTableBodyProps<TData> {
   hasEndOfHeaderContent?: boolean;
   /** Whether the header has a row actions column (needs matching td) */
   hasRowActions?: boolean;
+  /** External selection override: determines if a row is selected */
+  getIsRowSelected?: (rowId: string) => boolean;
+  /** External selection override: called when a row's selection is toggled */
+  onRowToggle?: (rowId: string) => void;
 }
 
 function DataTableBodyComponent<TData>({
@@ -46,6 +54,8 @@ function DataTableBodyComponent<TData>({
   actionColumnConfig,
   hasEndOfHeaderContent = false,
   hasRowActions = false,
+  getIsRowSelected,
+  onRowToggle,
 }: DataTableBodyProps<TData>) {
   const tableData = useDataTableStore<TData, TData[]>((state) => state.tableData);
 
@@ -67,7 +77,8 @@ function DataTableBodyComponent<TData>({
   const rows = table.getRowModel().rows;
 
   // Total columns including extra header-only columns (for colSpan on empty state)
-  const totalColSpan = finalColumnsCount + (hasRowActions ? 1 : 0) + (hasEndOfHeaderContent ? 1 : 0);
+  const totalColSpan =
+    finalColumnsCount + (hasRowActions ? 1 : 0) + (hasEndOfHeaderContent ? 1 : 0);
 
   if (!rows?.length) {
     return (
@@ -91,6 +102,8 @@ function DataTableBodyComponent<TData>({
         }
 
         // Default rendering
+        const isSelected = getIsRowSelected ? getIsRowSelected(row.id) : row.getIsSelected();
+
         return (
           <DraggableRow
             key={row.id}
@@ -102,6 +115,10 @@ function DataTableBodyComponent<TData>({
             disabled={addingNewEntry}
             disableDragForRow={disableDragForRow}
             isSelectionEnabled={isSelectionEnabled}
+            isSelected={isSelected}
+            onToggleSelected={
+              onRowToggle ? () => onRowToggle(row.id) : (value) => row.toggleSelected(value)
+            }
             enableInlineEdit={enableInlineEdit}
             focusedCell={focusedCell}
             actionColumnConfig={actionColumnConfig}

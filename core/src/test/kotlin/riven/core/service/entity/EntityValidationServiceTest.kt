@@ -18,6 +18,7 @@ import riven.core.enums.core.DataType
 import riven.core.enums.entity.validation.EntityTypeChangeType
 import riven.core.enums.workspace.WorkspaceRoles
 import riven.core.models.common.validation.Schema
+import riven.core.models.common.validation.SchemaOptions
 import riven.core.models.entity.EntityTypeSchema
 import riven.core.models.entity.payload.EntityAttributePrimitivePayload
 import riven.core.models.entity.payload.EntityAttributeRelationPayloadReference
@@ -390,7 +391,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
                         label = "Price",
                         type = DataType.NUMBER,
                         required = true,
-                        options = Schema.SchemaOptions(
+                        options = SchemaOptions(
                             minimum = 0.0
                         )
                     )
@@ -434,7 +435,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
                         label = "Percentage",
                         type = DataType.NUMBER,
                         required = true,
-                        options = Schema.SchemaOptions(
+                        options = SchemaOptions(
                             minimum = 0.0,
                             maximum = 100.0
                         )
@@ -561,7 +562,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
                         label = "Password",
                         type = DataType.STRING,
                         required = true,
-                        options = Schema.SchemaOptions(
+                        options = SchemaOptions(
                             minLength = 8
                         )
                     )
@@ -605,7 +606,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
                         label = "Bio",
                         type = DataType.STRING,
                         required = true,
-                        options = Schema.SchemaOptions(
+                        options = SchemaOptions(
                             maxLength = 100
                         )
                     )
@@ -651,7 +652,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
                         label = "Status",
                         type = DataType.STRING,
                         required = true,
-                        options = Schema.SchemaOptions(
+                        options = SchemaOptions(
                             enum = listOf("ACTIVE", "INACTIVE", "PENDING")
                         )
                     )
@@ -691,7 +692,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
                         label = "Status",
                         type = DataType.STRING,
                         required = true,
-                        options = Schema.SchemaOptions(
+                        options = SchemaOptions(
                             enum = listOf("ACTIVE", "INACTIVE", "PENDING")
                         )
                     )
@@ -737,7 +738,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
                         label = "Product Code",
                         type = DataType.STRING,
                         required = true,
-                        options = Schema.SchemaOptions(
+                        options = SchemaOptions(
                             regex = "^[A-Z]{3}-\\d{4}$"
                         )
                     )
@@ -777,7 +778,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
                         label = "Product Code",
                         type = DataType.STRING,
                         required = true,
-                        options = Schema.SchemaOptions(
+                        options = SchemaOptions(
                             regex = "^[A-Z]{3}-\\d{4}$"
                         )
                     )
@@ -1627,7 +1628,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
                 ),
                 idAttrKey to Schema(
                     key = SchemaType.ID, type = DataType.STRING, label = "Reference",
-                    options = Schema.SchemaOptions(prefix = "TSK"),
+                    options = SchemaOptions(prefix = "TSK"),
                 ),
             ),
         )

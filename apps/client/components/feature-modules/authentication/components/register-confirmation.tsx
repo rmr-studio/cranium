@@ -95,20 +95,23 @@ const RegisterConfirmation: FC<RegisterConfirmationProps> = ({
   return (
     <>
       <CardHeader className="pb-0">
-        <h1 className="text-xl font-bold lg:text-2xl">Welcome aboard!</h1>
-        <h2 className="max-w-sm font-semibold text-neutral-500 dark:text-neutral-400">
+        <h1 className="text-xl font-semibold lg:text-2xl">Welcome aboard!</h1>
+        <h2 className="text-neutral-500 dark:text-neutral-400">
           Confirm your email to get your account started
         </h2>
       </CardHeader>
-      <CardContent className="flex flex-col">
+      <CardContent>
         <Form {...userDetailsForm}>
-          <form onSubmit={userDetailsForm.handleSubmit(handleSubmission)}>
+          <form
+            className="md:w-96"
+            onSubmit={userDetailsForm.handleSubmit(handleSubmission)}
+          >
             <FormField
               control={userDetailsForm.control}
               name="otp"
               render={({ field }) => (
-                <FormItem className="mt-4">
-                  <div className="my-2 pb-2">
+                <FormItem className="mt-6 flex flex-col items-center text-center">
+                  <div className="my-2">
                     <FormOTPInput
                       className={otpVerifyError ? 'border-red-500' : 'border-secondary-foreground'}
                       regex="numeric"
@@ -118,30 +121,30 @@ const RegisterConfirmation: FC<RegisterConfirmationProps> = ({
                     />
                   </div>
                   <FormMessage className="font-semibold" />
-                  <div className="w-full text-sm text-neutral-500 dark:text-neutral-400">
-                    Please enter your 6 digit OTP sent to{' '}
+                  <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                    Please enter your 6-digit OTP sent to{' '}
                     <span className="font-semibold text-secondary-foreground">
                       {formDetails.email}
                     </span>
-                  </div>
+                  </p>
                   <Button
                     type="button"
                     onClick={handleTokenResend}
                     variant={'link'}
                     className="cursor-pointer p-0 text-sm text-muted-foreground underline underline-offset-4 hover:text-primary"
                   >
-                    Didn't Receive an Email?
+                    Didn&apos;t Receive an Email?
                   </Button>
                 </FormItem>
               )}
             />
-            <Separator className="my-4" />
-            <footer className="mt-4 flex justify-between">
+            <Separator className="my-6" />
+            <footer className="flex justify-between">
               <Button type="button" variant={'outline'} onClick={handleCancel}>
                 <ArrowLeft className="h-4 w-4" />
                 <span className="font-semibold">Back</span>
               </Button>
-              <Button type="submit" className="px-8">
+              <Button type="submit" className="px-8 font-semibold">
                 Submit
               </Button>
             </footer>

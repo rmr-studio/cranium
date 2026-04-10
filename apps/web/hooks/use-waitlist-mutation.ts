@@ -59,7 +59,6 @@ export function useWaitlistUpdateMutation() {
         .upsert(
           {
             email: data.email,
-            name: data.email,
             business_overview: data.businessOverview || null,
             pain_points: data.painPoints,
             pain_points_other: data.painPointsOther || null,

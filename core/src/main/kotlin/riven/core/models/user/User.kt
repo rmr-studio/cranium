@@ -1,5 +1,6 @@
 package riven.core.models.user
 
+import riven.core.enums.user.AcquisitionChannel
 import riven.core.models.workspace.Workspace
 import riven.core.models.workspace.WorkspaceMember
 import java.time.ZonedDateTime
@@ -13,7 +14,8 @@ data class User(
     var avatarUrl: String? = null,
     val memberships: List<WorkspaceMember> = listOf(),
     var defaultWorkspace: Workspace? = null,
-    var onboardingCompletedAt: ZonedDateTime? = null
+    var onboardingCompletedAt: ZonedDateTime? = null,
+    var acquisitionChannels: List<AcquisitionChannel>? = null,
 ) {
     /**
      * Convert User to UserDisplay (lightweight representation).

@@ -1,20 +1,16 @@
 import { useAuth } from '@/components/provider/auth-context';
 import {
   EntityQueryResponse,
-  FilterOperator,
-  FilterValueKind,
   OrderByClause,
   QueryFilter,
-  QueryFilterType,
   SortDirection,
 } from '@/lib/types/entity';
-import {
-  keepPreviousData,
-  useInfiniteQuery,
-} from '@tanstack/react-query';
+import { buildCompositeFilter } from '@/lib/util/query/filter.util';
+import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
 import { SortingState } from '@tanstack/react-table';
 import { EntityService } from '../../service/entity.service';
 import { entityKeys } from './entity-query-keys';
+
 
 export const ENTITY_PAGE_SIZE = 50;
 const MAX_PAGES = 10;
@@ -42,55 +38,6 @@ export function sortingStateToOrderBy(sorting: SortingState): OrderByClause[] | 
     attributeId: sort.id,
     direction: sort.desc ? SortDirection.Desc : SortDirection.Asc,
   }));
-}
-
-/**
- * Builds a composite QueryFilter from search term and/or query builder filter.
- *
- * - Search only → OR filter across searchable attributes with CONTAINS
- * - Filter only → use as-is
- * - Both → AND(search OR-group, filter)
- */
-export function buildCompositeFilter(
-  debouncedSearch?: string,
-  searchableAttributeIds?: string[],
-  queryFilter?: QueryFilter,
-): QueryFilter | undefined {
-  const searchFilter = buildSearchFilter(debouncedSearch, searchableAttributeIds);
-
-  if (searchFilter && queryFilter) {
-    return {
-      type: QueryFilterType.And,
-      conditions: [searchFilter, queryFilter],
-    } as QueryFilter;
-  }
-
-  return searchFilter ?? queryFilter;
-}
-
-function buildSearchFilter(
-  search?: string,
-  attributeIds?: string[],
-): QueryFilter | undefined {
-  if (!search || !attributeIds || attributeIds.length === 0) {
-    return undefined;
-  }
-
-  const conditions: QueryFilter[] = attributeIds.map((attributeId) => ({
-    type: QueryFilterType.Attribute,
-    attributeId,
-    operator: FilterOperator.Contains,
-    value: { kind: FilterValueKind.Literal, value: search },
-  }));
-
-  if (conditions.length === 1) {
-    return conditions[0];
-  }
-
-  return {
-    type: QueryFilterType.Or,
-    conditions,
-  } as QueryFilter;
 }
 
 /**
@@ -146,6 +93,7 @@ export function useEntityQuery({
         entityTypeId!,
         { limit: ENTITY_PAGE_SIZE, offset: pageParam, orderBy },
         compositeFilter,
+        pageParam === 0, // includeCount only on first page
       ),
     initialPageParam: 0,
     getNextPageParam,

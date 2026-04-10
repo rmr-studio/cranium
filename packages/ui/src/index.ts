@@ -6,7 +6,7 @@ export { Command, CommandDialog, CommandInput, CommandList, CommandEmpty, Comman
 export { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogOverlay, DialogPortal, DialogTitle, DialogTrigger } from "./dialog";
 export { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "./dropdown-menu";
 export { Input } from "./input";
-export { Logo } from "./logo";
+export { Logo, LogoBackground } from "./logo";
 export { Label } from "./label";
 export { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "./popover";
 export { ScrollArea, ScrollBar } from "./scroll-area";

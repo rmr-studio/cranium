@@ -48,17 +48,17 @@ describe('onboard.store', () => {
     });
 
     it('does not exceed max step index', () => {
-      // Go to last step (index 3)
-      store.setState({ currentStep: 3 });
+      // Go to last step (index 4)
+      store.setState({ currentStep: 4 });
       store.getState().goNext();
-      expect(store.getState().currentStep).toBe(3);
+      expect(store.getState().currentStep).toBe(4);
     });
 
     it('clamps at ONBOARD_STEPS.length - 1', () => {
       store.setState({ currentStep: 100 });
       store.getState().goNext();
-      // After goNext from 100, clamped to 3 (max index)
-      expect(store.getState().currentStep).toBe(3);
+      // After goNext from 100, clamped to 4 (max index)
+      expect(store.getState().currentStep).toBe(4);
     });
   });
 
@@ -82,7 +82,7 @@ describe('onboard.store', () => {
   });
 
   describe('skip', () => {
-    it('advances when current step is optional (templates = index 2)', () => {
+    it('advances when current step is optional (definitions = index 2)', () => {
       store.setState({ currentStep: 2 });
       store.getState().skip();
       expect(store.getState().currentStep).toBe(3);
@@ -105,11 +105,11 @@ describe('onboard.store', () => {
       expect(store.getState().currentStep).toBe(1);
     });
 
-    it('advances when current step is optional (team = index 3)', () => {
-      store.setState({ currentStep: 3 });
+    it('advances when current step is optional (team = index 4)', () => {
+      store.setState({ currentStep: 4 });
       store.getState().skip();
       // Clamped at last step
-      expect(store.getState().currentStep).toBe(3);
+      expect(store.getState().currentStep).toBe(4);
     });
   });
 

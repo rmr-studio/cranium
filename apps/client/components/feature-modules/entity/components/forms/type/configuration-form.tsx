@@ -24,6 +24,7 @@ import { Info } from 'lucide-react';
 import { FC, useEffect, useMemo } from 'react';
 import { useWatch } from 'react-hook-form';
 import { useConfigCurrentType, useConfigForm } from '@/components/feature-modules/entity/context/configuration-provider';
+import { LinkedDefinitionsSection } from '@/components/feature-modules/knowledge/components/linked-definitions-section';
 
 const CATEGORY_LABELS: Record<SemanticGroup, string> = {
   [SemanticGroup.Customer]: 'Customer',
@@ -238,6 +239,13 @@ export const ConfigurationForm: FC<Props> = ({ availableIdentifiers }) => {
           />
         </div>
       </div>
+
+      {entityType?.id && (
+        <>
+          <Separator />
+          <LinkedDefinitionsSection entityTypeId={entityType.id} />
+        </>
+      )}
 
       {idAttribute && (
         <>

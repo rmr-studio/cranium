@@ -44,12 +44,10 @@ export const Navbar = () => {
           </motion.div>
         )}
       </AnimatePresence>
-      <div className="mr-2 flex w-auto grow justify-end">
-        <NavbarUserProfile />
-      </div>
-      <div className="flex items-center gap-3">
+      <div className="flex w-auto grow items-center justify-end space-x-2">
         <ConnectionStatus />
         <ThemeToggle />
+        <NavbarUserProfile />
       </div>
     </nav>
   );
@@ -57,7 +55,7 @@ export const Navbar = () => {
 
 export const NavbarUserProfile: FC = () => {
   const { isLoadingAuth, isLoading, data: user } = useProfile();
-  if (isLoadingAuth || isLoading) return <Skeleton className="size-8 rounded-md" />;
+  if (isLoadingAuth || isLoading) return <Skeleton className="size-9 rounded-sm" />;
   if (!user)
     return (
       <div className="flex">

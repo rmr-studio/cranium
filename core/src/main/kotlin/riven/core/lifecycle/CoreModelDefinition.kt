@@ -7,6 +7,7 @@ import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.models.catalog.NormalizedRelationship
 import riven.core.models.catalog.ResolvedEntityType
 import riven.core.models.catalog.ResolvedSemantics
+import riven.core.models.common.validation.DefaultValue
 
 /**
  * Abstract base for all core lifecycle model definitions.
@@ -80,7 +81,12 @@ abstract class CoreModelDefinition(
         attr.format?.let { map["format"] = it }
         attr.options?.let { opts ->
             val optsMap = mutableMapOf<String, Any>()
-            opts.default?.let { optsMap["default"] = it }
+            opts.defaultValue?.let { dv ->
+                optsMap["defaultValue"] = when (dv) {
+                    is DefaultValue.Static -> mapOf("type" to "static", "value" to dv.value)
+                    is DefaultValue.Dynamic -> mapOf("type" to "dynamic", "function" to dv.function.name)
+                }
+            }
             opts.prefix?.let { optsMap["prefix"] = it }
             opts.regex?.let { optsMap["regex"] = it }
             opts.enum?.let { optsMap["enum"] = it }

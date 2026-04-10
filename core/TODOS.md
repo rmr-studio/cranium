@@ -233,3 +233,37 @@ core model code.
 **Documentation tasks:**
 - [ ] After each structural change, append an entry to `docs/architecture-changelog.md` (owner: implementer)
 - [ ] When new inter-domain dependencies or responsibility changes are introduced, append suggestions to `docs/architecture-suggestions.md` with affected domains and link to the change PR (owner: implementer)
+
+---
+
+## Schema Reconciliation — Follow-Up Work
+
+### TODO-SR-001: Relationship Reconciliation
+**What:** When core models add or remove relationship definitions, propagate changes to existing workspaces.
+**Why:** Same drift problem as attribute schema changes but for RelationshipDefinitionEntity. Currently, only attribute schemas are reconciled.
+**Pros:** Completes the reconciliation story. Without this, workspaces miss new cross-type relationships added in future core model updates.
+**Cons:** Different mechanics than attribute reconciliation (separate entity, separate materialization path). Needs its own diff/apply logic.
+**Context:** Attribute reconciliation (SchemaReconciliationService) proves the pattern. Relationship reconciliation uses the same hash-and-compare approach but operates on RelationshipDefinitionEntity rows rather than JSONB schema fields. Flagged during CEO review temporal interrogation (2026-04-08).
+**Effort:** M (human ~1 week) / S (CC ~30 min)
+**Priority:** P2
+**Depends on:** Schema reconciliation (attribute-level) must be implemented first
+
+### TODO-SR-002: Schema Health Admin UI
+**What:** Frontend page in workspace settings showing per-entity-type reconciliation status, pending changes, and "Apply Updates" button for breaking changes.
+**Why:** Without a UI, breaking changes are invisible unless an admin proactively calls the schema-health API endpoint.
+**Pros:** Workspace admins can see and act on pending schema updates. Surfaces the value of the reconciliation system.
+**Cons:** Requires a new page in workspace settings + TanStack Query hooks for the two new endpoints.
+**Context:** The backend API endpoints (GET /api/v1/workspace/{workspaceId}/schema-health, POST /api/v1/workspace/{workspaceId}/schema-reconcile) are built as part of schema reconciliation. This TODO covers the frontend only. CEO plan: ~/.gstack/projects/rmr-studio-riven/ceo-plans/2026-04-08-schema-reconciliation.md
+**Effort:** S (human ~2 days) / S (CC ~15 min)
+**Priority:** P3
+**Depends on:** Schema reconciliation API endpoints
+
+### TODO-SR-003: Admin Notification for Pending Breaking Changes
+**What:** When reconciliation detects breaking changes, send a notification to workspace admins via the notification system.
+**Why:** Breaking changes set pendingSchemaUpdate=true on the entity type but the admin has no way to learn about this without checking the health endpoint.
+**Pros:** Proactive visibility. Admins act on pending updates faster.
+**Cons:** Requires notification system to be implemented first.
+**Context:** The notification system is being built in a separate worktree. Once that ships, this TODO wires reconciliation events to workspace admin notifications. Could use an in-app notification or email depending on notification system capabilities.
+**Effort:** S (human ~1 day) / S (CC ~10 min)
+**Priority:** P2
+**Depends on:** Schema reconciliation + notification system

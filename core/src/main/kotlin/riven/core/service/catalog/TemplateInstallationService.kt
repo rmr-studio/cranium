@@ -11,6 +11,8 @@ import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.ApplicationEntityType
 import riven.core.enums.core.DataFormat
 import riven.core.enums.core.DataType
+import riven.core.enums.core.DynamicDefaultFunction
+import riven.core.models.common.validation.DefaultValue
 import riven.core.enums.integration.SourceType
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.enums.util.OperationType
@@ -19,6 +21,7 @@ import riven.core.models.catalog.CatalogRelationshipModel
 import riven.core.models.catalog.CatalogSemanticMetadataModel
 import riven.core.models.catalog.ManifestDetail
 import riven.core.models.common.validation.Schema
+import riven.core.models.common.validation.SchemaOptions
 import riven.core.models.entity.configuration.ColumnConfiguration
 import riven.core.models.request.entity.type.SaveRelationshipDefinitionRequest
 import riven.core.models.request.entity.type.SaveSemanticMetadataRequest
@@ -72,7 +75,20 @@ class TemplateInstallationService(
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
     fun installTemplate(workspaceId: UUID, spineKey: String): TemplateInstallationResponse {
         val userId = authTokenService.getUserId()
+        return installTemplateInternal(workspaceId, spineKey, userId)
+    }
 
+    /**
+     * Internal variant of [installTemplate] without @PreAuthorize.
+     *
+     * Used by [riven.core.service.onboarding.OnboardingService] during onboarding when the
+     * workspace was just created and the JWT does not yet contain the new workspace's role
+     * authorities.
+     *
+     * @param userId the user performing the installation (passed explicitly since JWT may not reflect workspace membership)
+     */
+    @Transactional
+    internal fun installTemplateInternal(workspaceId: UUID, spineKey: String, userId: UUID): TemplateInstallationResponse {
         val existingInstallation = installationRepository.findByWorkspaceIdAndManifestKey(workspaceId, spineKey)
         if (existingInstallation != null) {
             val manifest = catalogService.getManifestByKey(spineKey, ManifestType.TEMPLATE)
@@ -88,11 +104,11 @@ class TemplateInstallationService(
         val manifest = catalogService.getManifestByKey(spineKey, ManifestType.TEMPLATE)
 
         val (toCreate, reused) = partitionEntityTypesByExistence(workspaceId, manifest.entityTypes)
-        val newResults = createEntityTypes(workspaceId, toCreate)
+        val newResults = createEntityTypesInternal(workspaceId, toCreate)
         promoteReusedToTemplate(workspaceId, reused, manifest.entityTypes)
         val mergedResults = newResults + reused
 
-        val relationshipsCreated = createRelationships(workspaceId, manifest.relationships, manifest.entityTypes, mergedResults)
+        val relationshipsCreated = createRelationshipsInternal(workspaceId, manifest.relationships, manifest.entityTypes, mergedResults, userId)
         applySemanticMetadata(workspaceId, toCreate, newResults)
         recordTemplateInstallation(workspaceId, spineKey, userId, mergedResults)
         logTemplateActivity(userId, workspaceId, spineKey, manifest, newResults)
@@ -219,6 +235,48 @@ class TemplateInstallationService(
     }
 
     /**
+     * Internal variant of [createEntityTypes] that uses auth-bypass relationship methods.
+     */
+    private fun createEntityTypesInternal(
+        workspaceId: UUID,
+        catalogEntityTypes: List<CatalogEntityTypeModel>,
+    ): Map<String, EntityTypeCreationResult> {
+        val results = mutableMapOf<String, EntityTypeCreationResult>()
+
+        for (catalogType in catalogEntityTypes) {
+            val (entity, attributeKeyMap) = buildEntityType(workspaceId, catalogType)
+            val saved = entityTypeRepository.save(entity)
+            val savedId = requireNotNull(saved.id)
+
+            semanticMetadataService.initializeForEntityType(
+                entityTypeId = savedId,
+                workspaceId = workspaceId,
+                attributeIds = attributeKeyMap.values.toList(),
+            )
+
+            relationshipService.createFallbackDefinitionInternal(workspaceId, savedId)
+
+            entity.schema.properties?.forEach { (attrId, attrSchema) ->
+                if (attrSchema.key == SchemaType.ID) {
+                    sequenceService.initializeSequence(savedId, attrId)
+                }
+            }
+
+            results[catalogType.key] = EntityTypeCreationResult(
+                entityTypeId = savedId,
+                attributeKeyMap = attributeKeyMap,
+                attributeCount = attributeKeyMap.size,
+                displayName = catalogType.displayNameSingular,
+                key = catalogType.key,
+            )
+
+            logger.info { "Created entity type '${catalogType.key}' ($savedId) with ${attributeKeyMap.size} attributes" }
+        }
+
+        return results
+    }
+
+    /**
      * Builds an EntityTypeEntity from a catalog entity type model, translating the string-keyed
      * manifest schema into a UUID-keyed Schema<UUID> with proper DataType and DataFormat mapping.
      *
@@ -293,8 +351,9 @@ class TemplateInstallationService(
 
             // Validate default value if present
             val attrSchema = properties[attrId]!!
-            attrSchema.options?.default?.let { defaultValue ->
-                val defaultErrors = schemaService.validateDefault(attrSchema, defaultValue)
+            val staticDefault = attrSchema.options?.extractStaticDefault()
+            if (staticDefault != null) {
+                val defaultErrors = schemaService.validateDefault(attrSchema, staticDefault)
                 if (defaultErrors.isNotEmpty()) {
                     throw SchemaValidationException(
                         defaultErrors.map { "Attribute '$attrKey': $it" }
@@ -350,6 +409,44 @@ class TemplateInstallationService(
             val request = buildRelationshipRequest(catalogRel, targetRules, semantics)
 
             relationshipService.createRelationshipDefinition(workspaceId, sourceResult.entityTypeId, request)
+            count++
+
+            logger.info { "Created relationship '${catalogRel.name}' from ${catalogRel.sourceEntityTypeKey}" }
+        }
+
+        return count
+    }
+
+    /**
+     * Internal variant of [createRelationships] that uses auth-bypass relationship methods.
+     */
+    private fun createRelationshipsInternal(
+        workspaceId: UUID,
+        catalogRelationships: List<CatalogRelationshipModel>,
+        catalogEntityTypes: List<CatalogEntityTypeModel>,
+        creationResults: Map<String, EntityTypeCreationResult>,
+        userId: UUID,
+    ): Int {
+        val semanticsByEntityTypeKey = catalogEntityTypes.associate { et ->
+            et.key to et.semanticMetadata
+        }
+
+        var count = 0
+        for (catalogRel in catalogRelationships) {
+            val sourceResult = creationResults[catalogRel.sourceEntityTypeKey]
+                ?: throw IllegalArgumentException(
+                    "Relationship '${catalogRel.key}' references source entity type '${catalogRel.sourceEntityTypeKey}' " +
+                        "which is not present in this installation context. This is likely a cross-template dependency — " +
+                        "install the template that provides '${catalogRel.sourceEntityTypeKey}' first, or install via a bundle."
+                )
+
+            val targetRules = resolveRelationshipTargetRules(catalogRel, creationResults)
+            val semantics = findRelationshipSemantics(
+                semanticsByEntityTypeKey[catalogRel.sourceEntityTypeKey], catalogRel.key,
+            )
+            val request = buildRelationshipRequest(catalogRel, targetRules, semantics)
+
+            relationshipService.createRelationshipDefinitionInternal(workspaceId, sourceResult.entityTypeId, request, userId)
             count++
 
             logger.info { "Created relationship '${catalogRel.name}' from ${catalogRel.sourceEntityTypeKey}" }
@@ -557,12 +654,12 @@ class TemplateInstallationService(
      * Parses a manifest options map into SchemaOptions.
      */
     @Suppress("UNCHECKED_CAST")
-    private fun parseSchemaOptions(optionsRaw: Any?): Schema.SchemaOptions? {
+    private fun parseSchemaOptions(optionsRaw: Any?): SchemaOptions? {
         if (optionsRaw == null) return null
         val opts = optionsRaw as? Map<String, Any> ?: return null
 
-        return Schema.SchemaOptions(
-            default = opts["default"],
+        return SchemaOptions(
+            defaultValue = parseDefaultValue(opts),
             prefix = opts["prefix"] as? String,
             regex = opts["regex"] as? String,
             enum = (opts["enum"] as? List<*>)?.map { it.toString() },
@@ -571,6 +668,24 @@ class TemplateInstallationService(
             minimum = (opts["minimum"] as? Number)?.toDouble(),
             maximum = (opts["maximum"] as? Number)?.toDouble(),
         )
+    }
+
+    /**
+     * Parses the defaultValue from a manifest options map.
+     */
+    @Suppress("UNCHECKED_CAST")
+    private fun parseDefaultValue(opts: Map<String, Any>): DefaultValue? {
+        (opts["defaultValue"] as? Map<String, Any>)?.let { dvMap ->
+            return when (dvMap["type"]) {
+                "static" -> DefaultValue.Static(dvMap["value"])
+                "dynamic" -> DefaultValue.Dynamic(
+                    DynamicDefaultFunction.valueOf(dvMap["function"] as String)
+                )
+                else -> null
+            }
+        }
+
+        return null
     }
 
     companion object {

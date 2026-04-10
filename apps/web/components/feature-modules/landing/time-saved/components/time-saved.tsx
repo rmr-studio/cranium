@@ -32,7 +32,7 @@ const items = [
 
 export function TimeSaved() {
   return (
-    <Section id="time-saved" navbarInverse size={24} mask="none" className="pb-20">
+    <Section id="time-saved" size={24} mask="none" className="pb-20">
       <div className="clamp relative z-10 px-4 sm:px-8">
         {/* Heading */}
         <div className="mb-14 md:mb-20">

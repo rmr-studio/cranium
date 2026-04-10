@@ -1,9 +1,12 @@
 package riven.core.entity.user
 
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.SQLRestriction
+import org.hibernate.annotations.Type
 import riven.core.entity.util.AuditableSoftDeletableEntity
 import riven.core.entity.workspace.WorkspaceEntity
+import riven.core.enums.user.AcquisitionChannel
 import riven.core.models.user.User
 import riven.core.models.user.UserDisplay
 import riven.core.models.workspace.WorkspaceMember
@@ -42,6 +45,10 @@ data class UserEntity(
     @Column(name = "onboarding_completed_at", nullable = true)
     var onboardingCompletedAt: ZonedDateTime? = null,
 
+    @Type(JsonBinaryType::class)
+    @Column(name = "acquisition_channels", columnDefinition = "jsonb")
+    var acquisitionChannels: List<AcquisitionChannel>? = null,
+
     ) : AuditableSoftDeletableEntity() {
 
 
@@ -59,6 +66,7 @@ data class UserEntity(
                 memberships = memberships,
                 defaultWorkspace = this.defaultWorkspace?.toModel(),
                 onboardingCompletedAt = this.onboardingCompletedAt,
+                acquisitionChannels = this.acquisitionChannels,
             )
         }
     }

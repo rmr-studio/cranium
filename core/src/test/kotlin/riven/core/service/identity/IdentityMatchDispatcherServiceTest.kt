@@ -10,6 +10,7 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
+import riven.core.enums.workflow.ExecutionJobType
 import riven.core.entity.workflow.ExecutionQueueEntity
 import riven.core.repository.workflow.ExecutionQueueRepository
 import riven.core.service.util.factory.workflow.ExecutionQueueFactory
@@ -68,7 +69,7 @@ class IdentityMatchDispatcherServiceTest {
     fun `recoverStaleItems releases each stale item back to pending`() {
         val stale1 = ExecutionQueueFactory.createIdentityMatchJob(workspaceId = workspaceId, entityId = entityId)
         val stale2 = ExecutionQueueFactory.createIdentityMatchJob(workspaceId = workspaceId, entityId = UUID.randomUUID())
-        whenever(executionQueueRepository.findStaleClaimedIdentityMatchItems(any())).thenReturn(listOf(stale1, stale2))
+        whenever(executionQueueRepository.findStaleClaimedByJobType(any(), any())).thenReturn(listOf(stale1, stale2))
 
         service.recoverStaleItems()
 
@@ -78,7 +79,7 @@ class IdentityMatchDispatcherServiceTest {
 
     @Test
     fun `recoverStaleItems returns early when no stale items exist`() {
-        whenever(executionQueueRepository.findStaleClaimedIdentityMatchItems(any())).thenReturn(emptyList())
+        whenever(executionQueueRepository.findStaleClaimedByJobType(any(), any())).thenReturn(emptyList())
 
         service.recoverStaleItems()
 

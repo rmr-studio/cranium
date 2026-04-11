@@ -61,6 +61,27 @@ riven:
         initial-interval-seconds: 30
         backoff-coefficient: 2.0
         max-interval-seconds: 120
+      http-action:
+        max-attempts: 3
+        initial-interval-seconds: 2
+        backoff-coefficient: 2.0
+        max-interval-seconds: 60
+        non-retryable-status-codes: [400, 401, 403, 404, 422]
+      crud-action:
+        max-attempts: 2
+        initial-interval-seconds: 1
+        backoff-coefficient: 2.0
+        max-interval-seconds: 10
+  enrichment:
+    provider: ${ENRICHMENT_PROVIDER:openai}
+    vector-dimensions: ${ENRICHMENT_VECTOR_DIMENSIONS:1536}
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      base-url: ${OPENAI_BASE_URL:https://api.openai.com/v1}
+      model: ${OPENAI_EMBEDDING_MODEL:text-embedding-3-small}
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
   websocket:
     endpoint: /ws
     server-heartbeat-ms: 10000

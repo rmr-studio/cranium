@@ -16,6 +16,7 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
+import riven.core.enums.workflow.ExecutionJobType
 import riven.core.repository.workflow.ExecutionQueueRepository
 import riven.core.service.util.factory.workflow.ExecutionQueueFactory
 import riven.core.service.workflow.identity.IdentityMatchWorkflow
@@ -54,12 +55,12 @@ class IdentityMatchQueueProcessorServiceTest {
     @Test
     fun `claimBatch delegates to executionQueueRepository`() {
         val items = listOf(ExecutionQueueFactory.createIdentityMatchJob(workspaceId = workspaceId, entityId = entityId))
-        whenever(executionQueueRepository.claimPendingIdentityMatchJobs(10)).thenReturn(items)
+        whenever(executionQueueRepository.claimPendingByJobType(ExecutionJobType.IDENTITY_MATCH, 10)).thenReturn(items)
 
         val result = service.claimBatch(10)
 
         assertEquals(items, result)
-        verify(executionQueueRepository).claimPendingIdentityMatchJobs(10)
+        verify(executionQueueRepository).claimPendingByJobType(ExecutionJobType.IDENTITY_MATCH, 10)
     }
 
     @Test

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import riven.core.configuration.workflow.TemporalWorkerConfiguration
+import riven.core.enums.workflow.ExecutionJobType
 import riven.core.entity.workflow.ExecutionQueueEntity
 import riven.core.repository.workflow.ExecutionQueueRepository
 import riven.core.service.workflow.identity.IdentityMatchWorkflow
@@ -54,7 +55,7 @@ class IdentityMatchQueueProcessorService(
      */
     @Transactional
     fun claimBatch(size: Int): List<ExecutionQueueEntity> {
-        return executionQueueRepository.claimPendingIdentityMatchJobs(size)
+        return executionQueueRepository.claimPendingByJobType(ExecutionJobType.IDENTITY_MATCH, size)
     }
 
     // ------ Public mutations ------

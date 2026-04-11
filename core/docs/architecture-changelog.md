@@ -1,5 +1,41 @@
 # Architecture Changelog
 
+## [2026-04-10] — Enrichment Pipeline (Knowledge Subdomain Activation)
+
+**Domains affected:** Knowledge (new subdomain populated: Enrichment Pipeline), Workflows (TemporalWorkerConfiguration extended), Entities (read-only consumer of Entity-domain repositories)
+
+**What changed:**
+
+- Added `entity_embeddings` table with pgvector `vector(1536)` column, HNSW cosine index (`m = 16`, `ef_construction = 64`), and workspace-scoped RLS policies — first pgvector usage in the system
+- Added `EntityEmbeddingEntity` (JPA, system-managed — no audit, no soft-delete) and `EntityEmbeddingModel` in `entity.enrichment` / `models.enrichment`
+- Added `EntityEmbeddingRepository` with `findByEntityId`, `findByWorkspaceId`, `deleteByEntityId` (no similarity-search query yet)
+- Created `EnrichmentService` orchestrating the pipeline lifecycle: queue claim, batched context assembly, embedding storage. Injects 10 Entity-domain repositories directly to assemble the snapshot
+- Created `SemanticTextBuilderService` rendering `EnrichmentContext` into 6-section Markdown text with a 4-step progressive truncation algorithm under a 27 k character budget
+- Added `EmbeddingProvider` interface plus `OpenAiEmbeddingProvider` (default, `matchIfMissing=true`) and `OllamaEmbeddingProvider` (explicit `riven.enrichment.provider=ollama`); both blocking, both `@ConditionalOnProperty`-gated
+- Added `EnrichmentClientConfiguration` (`@Configuration` exposing two qualified `WebClient` beans) and `EnrichmentConfigurationProperties` (`@ConfigurationProperties(prefix = "riven.enrichment")`)
+- Added Temporal `EnrichmentWorkflow` interface and `EnrichmentWorkflowImpl` (NOT a Spring bean — Temporal-managed lifecycle, uses `Workflow.getLogger()` for determinism, 60s `startToCloseTimeout`, 3-attempt exponential backoff)
+- Added Temporal `EnrichmentActivities` interface and `EnrichmentActivitiesImpl` (`@Component`, thin delegation to services)
+- Added `ENRICHMENT_EMBED_QUEUE = "enrichment.embed"` constant to `TemporalWorkerConfiguration` and registered enrichment workflow + activities on the dedicated worker
+- Extended `ExecutionJobType` enum with `ENRICHMENT` and `ExecutionQueueStatus` enum with `COMPLETED`
+- Added `claimPendingEnrichmentJobs` and `findStaleClaimedEnrichmentItems` queries to `ExecutionQueueRepository`
+- Added `riven.enrichment.*` configuration block to `application.yml` with env-var defaults
+
+**New cross-domain dependencies:** yes
+- Knowledge → Entities: `EnrichmentService` injects 10 Entity-domain repositories (entities, types, attributes, relationships, identity cluster members, semantic metadata) for batched context assembly. Previously the Knowledge domain delegated everything via `EntityTypeSemanticMetadataService` — this is the first time it touches Entity repositories directly.
+- Knowledge → Workflows: Worker registration for `enrichment.embed` happens in `TemporalWorkerConfiguration`, which now constructor-injects `EnrichmentActivitiesImpl`.
+- Knowledge → External: First-time HTTP integrations with OpenAI Embeddings API and Ollama (alternative).
+
+**New components introduced:**
+
+- `EnrichmentService` — Pipeline orchestration: queue lifecycle, batched context assembly, embedding storage
+- `SemanticTextBuilderService` — Renders entity context into 6-section enriched text with progressive truncation
+- `EnrichmentWorkflow` / `EnrichmentWorkflowImpl` — Temporal workflow orchestrating the 4-step pipeline with retry
+- `EnrichmentActivities` / `EnrichmentActivitiesImpl` — Spring-managed activity layer registered on `enrichment.embed`
+- `EmbeddingProvider` / `OpenAiEmbeddingProvider` / `OllamaEmbeddingProvider` — Pluggable embedding API client abstraction
+- `EnrichmentClientConfiguration` — `@Configuration` wiring qualified `WebClient` beans
+- `EnrichmentConfigurationProperties` — Typed properties for `riven.enrichment.*`
+- `EntityEmbeddingEntity` / `EntityEmbeddingModel` / `EntityEmbeddingRepository` — Persistence trio for vector embeddings
+
 ## [2026-04-01] — Business Definition Layer (Phase 1: CRUD Foundation)
 
 **Domains affected:** Knowledge (new subdomain: Business Definitions)

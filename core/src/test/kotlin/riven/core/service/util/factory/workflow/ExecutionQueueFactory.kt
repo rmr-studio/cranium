@@ -66,4 +66,31 @@ object ExecutionQueueFactory {
         attemptCount = attemptCount,
         lastError = lastError
     )
+
+    /**
+     * Create an ExecutionQueueEntity for an ENRICHMENT job.
+     */
+    fun createEnrichmentJob(
+        id: UUID = UUID.randomUUID(),
+        workspaceId: UUID,
+        entityId: UUID = UUID.randomUUID(),
+        status: ExecutionQueueStatus = ExecutionQueueStatus.PENDING,
+        createdAt: ZonedDateTime = ZonedDateTime.now(),
+        claimedAt: ZonedDateTime? = null,
+        attemptCount: Int = 0,
+        lastError: String? = null
+    ): ExecutionQueueEntity = ExecutionQueueEntity(
+        id = id,
+        workspaceId = workspaceId,
+        jobType = ExecutionJobType.ENRICHMENT,
+        entityId = entityId,
+        workflowDefinitionId = null,
+        executionId = null,
+        status = status,
+        createdAt = createdAt,
+        claimedAt = claimedAt,
+        dispatchedAt = null,
+        attemptCount = attemptCount,
+        lastError = lastError
+    )
 }

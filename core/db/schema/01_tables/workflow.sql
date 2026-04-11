@@ -101,6 +101,7 @@ CREATE TABLE IF NOT EXISTS "execution_queue"
 
     CONSTRAINT chk_job_type_fields CHECK (
         (job_type = 'IDENTITY_MATCH' AND entity_id IS NOT NULL AND workflow_definition_id IS NULL) OR
+        (job_type = 'ENRICHMENT' AND entity_id IS NOT NULL AND workflow_definition_id IS NULL) OR
         (job_type = 'WORKFLOW_EXECUTION' AND workflow_definition_id IS NOT NULL)
     )
 );

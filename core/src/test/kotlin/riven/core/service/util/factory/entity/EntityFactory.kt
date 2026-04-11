@@ -92,6 +92,9 @@ object EntityFactory {
 
     /**
      * Creates an EntityRelationshipEntity (relationship instance) with the given parameters.
+     *
+     * Pass [createdAt] to override the audit timestamp set by JPA — useful for tests
+     * that assert on relative recency (e.g. enrichment context "latestActivityAt").
      */
     fun createRelationshipEntity(
         id: UUID? = UUID.randomUUID(),
@@ -101,8 +104,9 @@ object EntityFactory {
         definitionId: UUID = UUID.randomUUID(),
         semanticContext: String? = null,
         linkSource: riven.core.enums.integration.SourceType = riven.core.enums.integration.SourceType.USER_CREATED,
+        createdAt: java.time.ZonedDateTime? = null,
     ): EntityRelationshipEntity {
-        return EntityRelationshipEntity(
+        val rel = EntityRelationshipEntity(
             id = id,
             workspaceId = workspaceId,
             sourceId = sourceId,
@@ -111,6 +115,10 @@ object EntityFactory {
             semanticContext = semanticContext,
             linkSource = linkSource,
         )
+        if (createdAt != null) {
+            rel.createdAt = createdAt
+        }
+        return rel
     }
 
     /**

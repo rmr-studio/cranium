@@ -180,7 +180,7 @@ class WorkflowExecutionQueueService(
      */
     @Transactional
     fun recoverStaleItems(timeoutMinutes: Int = 5): Int {
-        val staleItems = executionQueueRepository.findStaleClaimedItems(timeoutMinutes)
+        val staleItems = executionQueueRepository.findStaleClaimedByJobType(ExecutionJobType.WORKFLOW_EXECUTION, timeoutMinutes)
 
         if (staleItems.isEmpty()) {
             return 0

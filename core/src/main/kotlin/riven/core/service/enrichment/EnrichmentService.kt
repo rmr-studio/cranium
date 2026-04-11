@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.support.TransactionSynchronization
 import org.springframework.transaction.support.TransactionSynchronizationManager
+import riven.core.configuration.properties.EnrichmentConfigurationProperties
 import riven.core.configuration.workflow.TemporalWorkerConfiguration
 import riven.core.entity.enrichment.EntityEmbeddingEntity
 import riven.core.entity.entity.EntityTypeSemanticMetadataEntity
@@ -66,6 +67,7 @@ class EnrichmentService(
     private val identityClusterMemberRepository: IdentityClusterMemberRepository,
     private val relationshipTargetRuleRepository: RelationshipTargetRuleRepository,
     private val embeddingProvider: EmbeddingProvider,
+    private val enrichmentProperties: EnrichmentConfigurationProperties,
     private val workflowClient: WorkflowClient,
     private val logger: KLogger,
 ) {
@@ -209,6 +211,10 @@ class EnrichmentService(
      */
     @Transactional
     fun storeEmbedding(queueItemId: UUID, context: EnrichmentContext, embedding: FloatArray, truncated: Boolean) {
+        require(embedding.size == enrichmentProperties.vectorDimensions) {
+            "Embedding size ${embedding.size} does not match configured vector dimensions ${enrichmentProperties.vectorDimensions}"
+        }
+
         entityEmbeddingRepository.deleteByEntityId(context.entityId)
 
         entityEmbeddingRepository.save(

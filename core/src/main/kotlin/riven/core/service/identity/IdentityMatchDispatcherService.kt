@@ -2,6 +2,7 @@ package riven.core.service.identity
 
 import io.github.oshai.kotlinlogging.KLogger
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
+import riven.core.enums.workflow.ExecutionJobType
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import riven.core.repository.workflow.ExecutionQueueRepository
@@ -88,7 +89,7 @@ class IdentityMatchDispatcherService(
         lockAtLeastFor = "30s",
     )
     fun recoverStaleItems() {
-        val staleItems = executionQueueRepository.findStaleClaimedIdentityMatchItems(5)
+        val staleItems = executionQueueRepository.findStaleClaimedByJobType(ExecutionJobType.IDENTITY_MATCH, 5)
 
         if (staleItems.isEmpty()) {
             return

@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional
 import riven.core.configuration.workflow.TemporalWorkerConfiguration
 import riven.core.entity.workflow.ExecutionQueueEntity
 import riven.core.entity.workflow.execution.WorkflowExecutionEntity
+import riven.core.enums.workflow.ExecutionJobType
 import riven.core.enums.workflow.WorkflowStatus
 import riven.core.enums.workflow.WorkflowTriggerType
 import riven.core.enums.workspace.WorkspaceTier
@@ -52,7 +53,7 @@ class WorkflowExecutionQueueProcessorService(
      */
     @Transactional
     fun claimBatch(size: Int): List<ExecutionQueueEntity> {
-        return executionQueueRepository.claimPendingExecutions(size)
+        return executionQueueRepository.claimPendingByJobType(ExecutionJobType.WORKFLOW_EXECUTION, size)
     }
 
     companion object {

@@ -39,6 +39,7 @@ import riven.core.repository.entity.RelationshipTargetRuleRepository
 import riven.core.repository.identity.IdentityClusterMemberRepository
 import riven.core.service.auth.AuthTokenService
 import riven.core.service.entity.EntityAttributeService
+import riven.core.configuration.properties.EnrichmentConfigurationProperties
 import riven.core.service.enrichment.provider.EmbeddingProvider
 import riven.core.service.util.BaseServiceTest
 import riven.core.service.workflow.enrichment.EnrichmentWorkflow
@@ -47,6 +48,7 @@ import riven.core.service.util.factory.enrichment.EnrichmentFactory
 import riven.core.service.util.factory.entity.EntityFactory
 import riven.core.service.util.factory.identity.IdentityFactory
 import riven.core.service.util.factory.workflow.ExecutionQueueFactory
+import org.junit.jupiter.api.BeforeEach
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -94,10 +96,18 @@ class EnrichmentServiceTest : BaseServiceTest() {
     private lateinit var embeddingProvider: EmbeddingProvider
 
     @MockitoBean
+    private lateinit var enrichmentProperties: EnrichmentConfigurationProperties
+
+    @MockitoBean
     private lateinit var workflowClient: WorkflowClient
 
     @Autowired
     private lateinit var enrichmentService: EnrichmentService
+
+    @BeforeEach
+    fun setUp() {
+        whenever(enrichmentProperties.vectorDimensions).thenReturn(1536)
+    }
 
     // ------------------------------------------------------------------
     // enqueueAndProcess: embeddability gating
@@ -132,6 +142,7 @@ class EnrichmentServiceTest : BaseServiceTest() {
 
         verify(executionQueueRepository).save(any())
         verify(workflowClient).newWorkflowStub(eq(EnrichmentWorkflow::class.java), any<WorkflowOptions>())
+        verify(workflowStub).embed(queueItemId)
     }
 
     @Test
@@ -169,6 +180,23 @@ class EnrichmentServiceTest : BaseServiceTest() {
 
         verify(executionQueueRepository, never()).save(any())
         verify(workflowClient, never()).newWorkflowStub(any<Class<*>>(), any<WorkflowOptions>())
+    }
+
+    /**
+     * Validates @PreAuthorize workspace access control on enqueueAndProcess.
+     * Calling with a workspaceId not in the test persona's workspace roles
+     * must trigger AccessDeniedException from the security annotation.
+     */
+    @Test
+    fun `enqueueAndProcess throws AccessDeniedException for unauthorized workspace`() {
+        val entityId = UUID.randomUUID()
+        val unauthorizedWorkspaceId = UUID.randomUUID()
+
+        assertThrows(org.springframework.security.access.AccessDeniedException::class.java) {
+            enrichmentService.enqueueAndProcess(entityId, unauthorizedWorkspaceId)
+        }
+
+        verify(entityRepository, never()).findByIdAndWorkspaceId(any(), any())
     }
 
     // ------------------------------------------------------------------
@@ -842,6 +870,23 @@ class EnrichmentServiceTest : BaseServiceTest() {
         val captor = ArgumentCaptor.forClass(EntityEmbeddingEntity::class.java)
         verify(entityEmbeddingRepository).save(captor.capture())
         assertTrue(captor.value.truncated, "EntityEmbeddingEntity.truncated should be true when truncated=true was passed")
+    }
+
+    /**
+     * Validates that storeEmbedding rejects embeddings whose size doesn't match
+     * the configured vector dimensions, preventing schema mismatch at the database level.
+     */
+    @Test
+    fun `storeEmbedding throws when embedding size does not match configured dimensions`() {
+        val queueItemId = UUID.randomUUID()
+        val context = EnrichmentFactory.enrichmentContext(workspaceId = workspaceId)
+        val wrongSizedEmbedding = FloatArray(768) { 0.1f }
+
+        assertThrows(IllegalArgumentException::class.java) {
+            enrichmentService.storeEmbedding(queueItemId, context, wrongSizedEmbedding, truncated = false)
+        }
+
+        verify(entityEmbeddingRepository, never()).save(any())
     }
 
     @Test

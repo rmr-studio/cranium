@@ -2,9 +2,12 @@ package riven.core.service.util.factory
 
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.entity.LifecycleDomain
+import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.models.enrichment.EnrichmentAttributeContext
+import riven.core.models.enrichment.EnrichmentClusterMemberContext
 import riven.core.models.enrichment.EnrichmentContext
+import riven.core.models.enrichment.EnrichmentRelationshipDefinitionContext
 import riven.core.models.enrichment.EnrichmentRelationshipSummary
 import java.util.UUID
 
@@ -22,6 +25,9 @@ object EnrichmentFactory {
         lifecycleDomain: LifecycleDomain = LifecycleDomain.ACQUISITION,
         attributes: List<EnrichmentAttributeContext> = emptyList(),
         relationshipSummaries: List<EnrichmentRelationshipSummary> = emptyList(),
+        clusterMembers: List<EnrichmentClusterMemberContext> = emptyList(),
+        referencedEntityIdentifiers: Map<UUID, String> = emptyMap(),
+        relationshipDefinitions: List<EnrichmentRelationshipDefinitionContext> = emptyList(),
     ) = EnrichmentContext(
         queueItemId = queueItemId,
         entityId = entityId,
@@ -34,6 +40,9 @@ object EnrichmentFactory {
         lifecycleDomain = lifecycleDomain,
         attributes = attributes,
         relationshipSummaries = relationshipSummaries,
+        clusterMembers = clusterMembers,
+        referencedEntityIdentifiers = referencedEntityIdentifiers,
+        relationshipDefinitions = relationshipDefinitions,
     )
 
     fun createEnrichmentAttributeContext(
@@ -41,11 +50,13 @@ object EnrichmentFactory {
         semanticLabel: String = "Company Name",
         value: String? = "Acme Corp",
         schemaType: SchemaType = SchemaType.TEXT,
+        classification: SemanticAttributeClassification? = null,
     ) = EnrichmentAttributeContext(
         attributeId = attributeId,
         semanticLabel = semanticLabel,
         value = value,
         schemaType = schemaType,
+        classification = classification,
     )
 
     fun createEnrichmentRelationshipSummary(

@@ -34,7 +34,7 @@ data class EntityEmbeddingEntity(
     val entityTypeId: UUID,
 
     @JdbcTypeCode(SqlTypes.VECTOR)
-    @Array(length = 1536)
+    @Array(length = 1536) // Must match EnrichmentConfigurationProperties.vectorDimensions and the SQL column definition. Runtime validation in EnrichmentService.storeEmbedding guards against mismatches.
     @Column(name = "embedding", nullable = false)
     val embedding: FloatArray,
 

@@ -503,7 +503,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
         }
 
         @Test
-        fun `does not apply any changes when breaking changes are present`() {
+        fun `applies non-breaking changes even when breaking changes are present`() {
             val (workspaceSchema, mapping) = buildWorkspaceSchema(
                 mapOf(
                     "email" to SchemaAttrDef(label = "Email", required = false),
@@ -537,12 +537,19 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
 
             val captor = argumentCaptor<riven.core.entity.entity.EntityTypeEntity>()
             verify(entityTypeRepository).save(captor.capture())
-            // When breaking changes exist, schema is NOT updated (only pendingSchemaUpdate flag is set)
-            val savedProps = captor.firstValue.schema.properties!!
+            val saved = captor.firstValue
+            val savedProps = saved.schema.properties!!
             val emailUuid = UUID.fromString(mapping["email"])
-            assertEquals("Email", savedProps[emailUuid]?.label, "Label should NOT be updated when breaking changes present")
-            assertNull(captor.firstValue.sourceSchemaHash?.takeIf { it == "new-hash" },
-                "Hash should NOT be updated when breaking changes present")
+            // Non-breaking metadata change applied despite breaking changes
+            assertEquals("Updated Email", savedProps[emailUuid]?.label,
+                "Non-breaking label change should be applied even when breaking changes are present")
+            // New field added despite breaking changes
+            assertNotNull(saved.attributeKeyMapping!!["phone"],
+                "Non-breaking field addition should be applied even when breaking changes are present")
+            // Breaking state is set, hash is NOT updated
+            assertTrue(saved.pendingSchemaUpdate)
+            assertNotEquals("new-hash", saved.sourceSchemaHash,
+                "Hash should NOT be updated when breaking changes are present")
         }
 
         @Test
@@ -717,6 +724,155 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
 
             // Only one save: first call applies changes; second call sees up-to-date hash and skips
             verify(entityTypeRepository, times(1)).save(any())
+        }
+
+        /**
+         * Bug fix: when pendingSchemaUpdate is already true and the same breaking diff is
+         * re-detected on subsequent workspace access, activity should NOT be logged again.
+         * Previously, every access re-logged BREAKING_DETECTED.
+         */
+        @Test
+        fun `does not re-log activity when pendingSchemaUpdate is already true`() {
+            val (workspaceSchema, mapping) = buildWorkspaceSchema(
+                mapOf("email" to SchemaAttrDef(required = false))
+            )
+            val catalogSchema = buildCatalogSchema(
+                mapOf("email" to CatalogAttrDef(required = true))
+            )
+            val entityType = EntityFactory.createEntityType(
+                workspaceId = workspaceId,
+                sourceManifestId = manifestId,
+                attributeKeyMapping = mapping,
+                schema = workspaceSchema,
+                sourceSchemaHash = "old-hash",
+                pendingSchemaUpdate = true,
+            )
+            val catalogEntry = CatalogFactory.createEntityTypeEntity(
+                manifestId = manifestId,
+                key = entityType.key,
+                schema = catalogSchema,
+                schemaHash = "new-hash",
+            )
+
+            whenever(catalogEntityTypeRepository.findByManifestIdAndKey(manifestId, entityType.key))
+                .thenReturn(catalogEntry)
+            whenever(entityTypeRepository.save(any())).thenAnswer { it.arguments[0] }
+
+            service.reconcileIfNeeded(workspaceId, listOf(entityType))
+
+            // Entity saved (to persist any non-breaking changes) but no activity logged
+            verify(entityTypeRepository).save(any())
+            verify(activityService, never()).logActivity(
+                activity = any(),
+                operation = any(),
+                userId = any(),
+                workspaceId = any(),
+                entityType = any(),
+                entityId = any(),
+                timestamp = any(),
+                details = any(),
+            )
+        }
+
+        /**
+         * Bug fix: when a subsequent catalog update reverses the breaking change (only
+         * non-breaking diffs remain), pendingSchemaUpdate should be cleared automatically
+         * and sourceSchemaHash updated.
+         */
+        @Test
+        fun `clears pendingSchemaUpdate when breaking changes are resolved by catalog update`() {
+            val (workspaceSchema, mapping) = buildWorkspaceSchema(
+                mapOf("email" to SchemaAttrDef(label = "Old Label"))
+            )
+            val catalogSchema = buildCatalogSchema(
+                mapOf("email" to CatalogAttrDef(label = "New Label"))
+            )
+            val entityType = EntityFactory.createEntityType(
+                workspaceId = workspaceId,
+                sourceManifestId = manifestId,
+                attributeKeyMapping = mapping,
+                schema = workspaceSchema,
+                sourceSchemaHash = "old-hash",
+                pendingSchemaUpdate = true,
+            )
+            val catalogEntry = CatalogFactory.createEntityTypeEntity(
+                manifestId = manifestId,
+                key = entityType.key,
+                schema = catalogSchema,
+                schemaHash = "new-hash",
+            )
+
+            whenever(catalogEntityTypeRepository.findByManifestIdAndKey(manifestId, entityType.key))
+                .thenReturn(catalogEntry)
+            whenever(entityTypeRepository.save(any())).thenAnswer { it.arguments[0] }
+
+            service.reconcileIfNeeded(workspaceId, listOf(entityType))
+
+            val captor = argumentCaptor<riven.core.entity.entity.EntityTypeEntity>()
+            verify(entityTypeRepository).save(captor.capture())
+            val saved = captor.firstValue
+            assertFalse(saved.pendingSchemaUpdate, "Flag should be cleared when no breaking changes remain")
+            assertEquals("new-hash", saved.sourceSchemaHash, "Hash should be updated after resolution")
+            assertEquals("New Label", saved.schema.properties!![UUID.fromString(mapping["email"])]?.label,
+                "Non-breaking changes should be applied")
+
+            verify(activityService).logActivity(
+                activity = eq(Activity.ENTITY_TYPE),
+                operation = eq(OperationType.UPDATE),
+                userId = eq(userId),
+                workspaceId = eq(workspaceId),
+                entityType = eq(ApplicationEntityType.ENTITY_TYPE),
+                entityId = eq(entityType.id),
+                timestamp = any(),
+                details = argThat<Map<String, Any?>> { this["action"] == "BREAKING_RESOLVED" },
+            )
+        }
+
+        /**
+         * Bug fix: when hashes match but pendingSchemaUpdate is still true (stale flag),
+         * the flag should be cleared. This can happen when a catalog update reverses changes
+         * to produce an identical schema.
+         */
+        @Test
+        fun `clears stale pendingSchemaUpdate when hashes already match`() {
+            val (workspaceSchema, mapping) = buildWorkspaceSchema(
+                mapOf("email" to SchemaAttrDef(label = "Email"))
+            )
+            val entityType = EntityFactory.createEntityType(
+                workspaceId = workspaceId,
+                sourceManifestId = manifestId,
+                attributeKeyMapping = mapping,
+                schema = workspaceSchema,
+                sourceSchemaHash = "matching-hash",
+                pendingSchemaUpdate = true,
+            )
+            val catalogEntry = CatalogFactory.createEntityTypeEntity(
+                manifestId = manifestId,
+                key = entityType.key,
+                schemaHash = "matching-hash",
+            )
+
+            whenever(catalogEntityTypeRepository.findByManifestIdAndKey(manifestId, entityType.key))
+                .thenReturn(catalogEntry)
+            whenever(entityTypeRepository.save(any())).thenAnswer { it.arguments[0] }
+
+            service.reconcileIfNeeded(workspaceId, listOf(entityType))
+
+            val captor = argumentCaptor<riven.core.entity.entity.EntityTypeEntity>()
+            verify(entityTypeRepository).save(captor.capture())
+            assertFalse(captor.firstValue.pendingSchemaUpdate,
+                "Stale pending flag should be cleared when hashes match")
+
+            verify(activityService).logActivity(
+                activity = eq(Activity.ENTITY_TYPE),
+                operation = eq(OperationType.UPDATE),
+                userId = eq(userId),
+                workspaceId = eq(workspaceId),
+                entityType = eq(ApplicationEntityType.ENTITY_TYPE),
+                entityId = eq(entityType.id),
+                timestamp = any(),
+                details = argThat<Map<String, Any?>> { this["action"] == "BREAKING_RESOLVED" },
+            )
         }
     }
 

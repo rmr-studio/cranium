@@ -133,7 +133,11 @@ class SchemaReconciliationService(
 
         try {
             val catalogEntry = lookupCatalogEntry(entityType) ?: return
-            if (isUpToDate(entityType, catalogEntry)) return
+
+            if (isUpToDate(entityType, catalogEntry)) {
+                clearStalePendingFlag(entityType, userId, workspaceId)
+                return
+            }
 
             stampHashIfLegacy(entityType, catalogEntry)
 
@@ -143,18 +147,21 @@ class SchemaReconciliationService(
                 attributeKeyMapping = entityType.attributeKeyMapping!!,
             )
 
-            if (changes.isEmpty()) {
-                entityType.sourceSchemaHash = catalogEntry.schemaHash
-                entityTypeRepository.save(entityType)
-                return
+            val breakingChanges = changes.filter { it.breaking }
+            val nonBreakingChanges = changes.filter { !it.breaking }
+
+            if (nonBreakingChanges.isNotEmpty()) {
+                applyNonBreakingChanges(entityType, nonBreakingChanges, catalogEntry.schema)
             }
 
-            val hasBreaking = changes.any { it.breaking }
-
-            if (hasBreaking) {
-                handleBreakingDetected(entityType, changes, userId, workspaceId)
+            if (breakingChanges.isNotEmpty()) {
+                handleBreakingWithNonBreakingApplied(
+                    entityType, breakingChanges, nonBreakingChanges, userId, workspaceId,
+                )
             } else {
-                handleNonBreakingAutoApply(entityType, changes, catalogEntry, userId, workspaceId)
+                handleNoBreakingChanges(
+                    entityType, catalogEntry, nonBreakingChanges, userId, workspaceId,
+                )
             }
         } finally {
             reconciliationLocks.remove(entityTypeId)
@@ -364,17 +371,111 @@ class SchemaReconciliationService(
         }
     }
 
-    // ------ Non-Breaking Auto-Apply ------
+    // ------ Reconciliation Outcome Handlers ------
 
-    private fun handleNonBreakingAutoApply(
+    /**
+     * Handles the case where breaking changes exist alongside (already-applied) non-breaking ones.
+     * Only logs activity on first detection — skips re-logging if [pendingSchemaUpdate] is already set.
+     * Does NOT update [sourceSchemaHash] because the workspace hasn't accepted the breaking changes.
+     */
+    private fun handleBreakingWithNonBreakingApplied(
         entityType: EntityTypeEntity,
-        changes: List<SchemaChange>,
-        catalogEntry: CatalogEntityTypeEntity,
+        breakingChanges: List<SchemaChange>,
+        nonBreakingChanges: List<SchemaChange>,
         userId: UUID,
         workspaceId: UUID,
     ) {
-        applyNonBreakingChanges(entityType, changes, catalogEntry.schema)
+        val alreadyPending = entityType.pendingSchemaUpdate
+
+        entityType.pendingSchemaUpdate = true
+        entityTypeRepository.save(entityType)
+
+        if (!alreadyPending) {
+            logReconciliationActivity(
+                entityType = entityType,
+                operation = OperationType.UPDATE,
+                userId = userId,
+                workspaceId = workspaceId,
+                details = mapOf(
+                    "action" to "BREAKING_DETECTED",
+                    "breakingChanges" to breakingChanges.map { it.attributeKey },
+                    "nonBreakingApplied" to nonBreakingChanges.size,
+                    "totalChanges" to breakingChanges.size + nonBreakingChanges.size,
+                ),
+            )
+
+            logger.info {
+                "Breaking changes detected for entity type ${entityType.id}: " +
+                    breakingChanges.joinToString { it.attributeKey }
+            }
+        } else {
+            if (nonBreakingChanges.isNotEmpty()) {
+                logger.info {
+                    "Auto-applied ${nonBreakingChanges.size} non-breaking changes for entity type ${entityType.id} " +
+                        "(breaking changes still pending)"
+                }
+            }
+        }
+    }
+
+    /**
+     * Handles the case where no breaking changes remain. If [pendingSchemaUpdate] was previously
+     * set (a prior breaking change was resolved by a subsequent catalog update), clears the flag
+     * and logs the resolution. Updates [sourceSchemaHash] to mark the workspace as current.
+     */
+    private fun handleNoBreakingChanges(
+        entityType: EntityTypeEntity,
+        catalogEntry: CatalogEntityTypeEntity,
+        nonBreakingChanges: List<SchemaChange>,
+        userId: UUID,
+        workspaceId: UUID,
+    ) {
+        val wasBreakingPending = entityType.pendingSchemaUpdate
+
+        if (wasBreakingPending) {
+            entityType.pendingSchemaUpdate = false
+        }
+
         entityType.sourceSchemaHash = catalogEntry.schemaHash
+        entityTypeRepository.save(entityType)
+
+        if (wasBreakingPending) {
+            logReconciliationActivity(
+                entityType = entityType,
+                operation = OperationType.UPDATE,
+                userId = userId,
+                workspaceId = workspaceId,
+                details = mapOf(
+                    "action" to "BREAKING_RESOLVED",
+                    "nonBreakingApplied" to nonBreakingChanges.size,
+                ),
+            )
+            logger.info { "Breaking changes resolved for entity type ${entityType.id} by catalog update" }
+        } else if (nonBreakingChanges.isNotEmpty()) {
+            logReconciliationActivity(
+                entityType = entityType,
+                operation = OperationType.UPDATE,
+                userId = userId,
+                workspaceId = workspaceId,
+                details = mapOf(
+                    "action" to "AUTO_APPLY",
+                    "changesApplied" to nonBreakingChanges.size,
+                    "changeTypes" to nonBreakingChanges.map { it.type.name }.distinct(),
+                ),
+            )
+            logger.info { "Auto-applied ${nonBreakingChanges.size} non-breaking changes to entity type ${entityType.id}" }
+        }
+    }
+
+    /**
+     * Clears a stale [pendingSchemaUpdate] flag when the workspace schema hash already matches
+     * the catalog. This happens when a breaking change is reversed by a subsequent catalog update
+     * that produces an identical schema to what the workspace already has.
+     */
+    private fun clearStalePendingFlag(entityType: EntityTypeEntity, userId: UUID, workspaceId: UUID) {
+        if (!entityType.pendingSchemaUpdate) return
+
+        entityType.pendingSchemaUpdate = false
         entityTypeRepository.save(entityType)
 
         logReconciliationActivity(
@@ -382,14 +483,9 @@ class SchemaReconciliationService(
             operation = OperationType.UPDATE,
             userId = userId,
             workspaceId = workspaceId,
-            details = mapOf(
-                "action" to "AUTO_APPLY",
-                "changesApplied" to changes.size,
-                "changeTypes" to changes.map { it.type.name }.distinct(),
-            ),
+            details = mapOf("action" to "BREAKING_RESOLVED"),
         )
-
-        logger.info { "Auto-applied ${changes.size} non-breaking changes to entity type ${entityType.id}" }
+        logger.info { "Cleared stale pendingSchemaUpdate for entity type ${entityType.id} (hashes match)" }
     }
 
     /**
@@ -453,34 +549,7 @@ class SchemaReconciliationService(
         )
     }
 
-    // ------ Breaking Change Handling ------
-
-    private fun handleBreakingDetected(
-        entityType: EntityTypeEntity,
-        changes: List<SchemaChange>,
-        userId: UUID,
-        workspaceId: UUID,
-    ) {
-        entityType.pendingSchemaUpdate = true
-        entityTypeRepository.save(entityType)
-
-        logReconciliationActivity(
-            entityType = entityType,
-            operation = OperationType.UPDATE,
-            userId = userId,
-            workspaceId = workspaceId,
-            details = mapOf(
-                "action" to "BREAKING_DETECTED",
-                "breakingChanges" to changes.filter { it.breaking }.map { it.attributeKey },
-                "totalChanges" to changes.size,
-            ),
-        )
-
-        logger.info {
-            "Breaking changes detected for entity type ${entityType.id}: " +
-                changes.filter { it.breaking }.joinToString { it.attributeKey }
-        }
-    }
+    // ------ Breaking Change Application ------
 
     private fun buildImpactAnalysis(entityTypes: List<EntityTypeEntity>): ReconciliationImpact {
         val impacts = entityTypes.associate { entityType ->

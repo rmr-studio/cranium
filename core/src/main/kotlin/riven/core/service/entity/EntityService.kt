@@ -46,7 +46,7 @@ import riven.core.util.ServiceUtil.findManyResults
 import riven.core.util.ServiceUtil.findOrThrow
 import org.springframework.context.ApplicationEventPublisher
 import java.time.LocalDate
-import java.time.ZonedDateTime
+import java.time.OffsetDateTime
 import java.util.*
 
 /**
@@ -386,7 +386,7 @@ class EntityService(
     private fun resolveDynamicFunction(function: DynamicDefaultFunction): String =
         when (function) {
             DynamicDefaultFunction.CURRENT_DATE -> LocalDate.now().toString()
-            DynamicDefaultFunction.CURRENT_DATETIME -> ZonedDateTime.now().toString()
+            DynamicDefaultFunction.CURRENT_DATETIME -> OffsetDateTime.now().toString()
         }
 
     /**

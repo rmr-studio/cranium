@@ -148,7 +148,7 @@ class EntityServiceTest : BaseServiceTest() {
         whenever(entityRelationshipService.findRelatedEntities(any<UUID>(), any())).thenReturn(emptyMap())
     }
 
-        @Test
+    @Test
     fun `saveEntity injects default value for attribute not provided in payload`() {
         val type = buildEntityType(
             properties = mapOf(
@@ -192,7 +192,7 @@ class EntityServiceTest : BaseServiceTest() {
         assertEquals(SchemaType.SELECT, savedAttrs[statusAttrId]?.schemaType)
     }
 
-        @Test
+    @Test
     fun `saveEntity does not override user-provided value with default`() {
         val type = buildEntityType(
             properties = mapOf(
@@ -280,6 +280,58 @@ class EntityServiceTest : BaseServiceTest() {
         // Should be an ISO-8601 date (yyyy-MM-dd)
         assertTrue(dateValue.matches(Regex("\\d{4}-\\d{2}-\\d{2}")), "Expected ISO date, got: $dateValue")
         assertEquals(SchemaType.DATE, savedAttrs[dateAttrId]?.schemaType)
+    }
+
+    /**
+     * Regression test: ZonedDateTime.now().toString() produced zone ID suffix (e.g. "[Europe/Paris]")
+     * that FormatValidator's OffsetDateTime.parse() could not parse. Fix: use OffsetDateTime.now().toString().
+     * Verifies the CURRENT_DATETIME dynamic default produces an OffsetDateTime-parseable value.
+     */
+    @Test
+    fun `saveEntity resolves dynamic CURRENT_DATETIME default with OffsetDateTime-compatible format`() {
+        val datetimeAttrId = UUID.randomUUID()
+        val type = buildEntityType(
+            properties = mapOf(
+                nameAttrId to Schema(key = SchemaType.TEXT, type = DataType.STRING, label = "Name", required = true),
+                datetimeAttrId to Schema(
+                    key = SchemaType.DATETIME, type = DataType.STRING, label = "Created At",
+                    options = SchemaOptions(
+                        defaultValue = DefaultValue.Dynamic(DynamicDefaultFunction.CURRENT_DATETIME),
+                    ),
+                ),
+            ),
+        )
+
+        whenever(entityTypeService.getById(entityTypeId)).thenReturn(type)
+        whenever(entityRepository.save(any<EntityEntity>())).thenAnswer {
+            (it.arguments[0] as EntityEntity).copy(id = entityId)
+        }
+
+        val request = SaveEntityRequest(
+            payload = mapOf(
+                nameAttrId to EntityAttributeRequest(
+                    payload = EntityAttributePrimitivePayload(value = "My Task", schemaType = SchemaType.TEXT)
+                ),
+            ),
+        )
+
+        service.saveEntity(workspaceId, entityTypeId, request)
+
+        val captor = argumentCaptor<Map<UUID, EntityAttributePrimitivePayload>>()
+        verify(entityAttributeService).saveAttributes(
+            entityId = eq(entityId),
+            workspaceId = eq(workspaceId),
+            typeId = eq(entityTypeId),
+            attributes = captor.capture(),
+        )
+
+        val savedAttrs = captor.firstValue
+        assertTrue(savedAttrs.containsKey(datetimeAttrId), "Dynamic CURRENT_DATETIME default should be present")
+        val datetimeValue = savedAttrs[datetimeAttrId]?.value as String
+        // Must be parseable by OffsetDateTime.parse() — no zone ID suffix allowed
+        val parsed = java.time.OffsetDateTime.parse(datetimeValue)
+        assertNotNull(parsed, "Value should parse as OffsetDateTime")
+        assertEquals(SchemaType.DATETIME, savedAttrs[datetimeAttrId]?.schemaType)
     }
 
     @Test

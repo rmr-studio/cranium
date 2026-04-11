@@ -16,6 +16,7 @@ import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.models.catalog.*
 import riven.core.repository.catalog.*
+import riven.core.service.util.factory.catalog.CatalogFactory
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -227,6 +228,50 @@ class ManifestUpsertServiceEvolutionTest {
                 "Expected MANY_TO_MANY but got ${captor.firstValue.cardinalityDefault}"
             }
         }
+        /**
+         * Regression test: computeContentHash omitted syncModels, so a syncModels-only change
+         * would produce the same hash and skip child reconciliation. Fix: include syncModels in hash.
+         * Verifies that changing only syncModels triggers deleteChildren and re-insertion.
+         */
+        @Test
+        fun `syncModels change triggers child re-insertion`() {
+            val v1 = createManifest(syncModels = mapOf("NangoContact" to "customer"))
+            val v2 = createManifest(syncModels = mapOf("NangoContactV2" to "customer"))
+
+            upsertAsNew(v1)
+            service.upsertManifest(v1)
+
+            reset(catalogEntityTypeRepository, catalogRelationshipRepository,
+                catalogRelationshipTargetRuleRepository, catalogFieldMappingRepository,
+                catalogSemanticMetadataRepository)
+
+            upsertAsExisting(v2)
+            service.upsertManifest(v2)
+
+            // If syncModels is in the hash, V2 will have a different hash and trigger re-insert
+            verify(catalogEntityTypeRepository).saveAll(any<List<CatalogEntityTypeEntity>>())
+        }
+
+        /**
+         * Regression test: reversing syncModels via .associate silently dropped entries when
+         * multiple nango models mapped to the same entity type key. Fix: require() guard rejects duplicates.
+         * Verifies that duplicate entityTypeKey values in syncModels throw IllegalArgumentException.
+         */
+        @Test
+        fun `duplicate syncModel entity type keys throw IllegalArgumentException`() {
+            val manifest = createManifest(
+                syncModels = mapOf(
+                    "NangoContact" to "customer",
+                    "NangoPerson" to "customer"
+                )
+            )
+
+            upsertAsNew(manifest)
+
+            org.junit.jupiter.api.assertThrows<IllegalArgumentException> {
+                service.upsertManifest(manifest)
+            }
+        }
     }
 
     // ------ Mock Setup Helpers ------
@@ -276,12 +321,9 @@ class ManifestUpsertServiceEvolutionTest {
     }
 
     private fun mockExistingChildren() {
-        val existingRelId = UUID.randomUUID()
-        val existingEntityTypeId = UUID.randomUUID()
         whenever(catalogRelationshipRepository.findByManifestId(manifestId))
             .thenReturn(listOf(
-                CatalogRelationshipEntity(
-                    id = existingRelId,
+                CatalogFactory.createRelationshipEntity(
                     manifestId = manifestId,
                     key = "old-rel",
                     sourceEntityTypeKey = "old-source",
@@ -291,8 +333,7 @@ class ManifestUpsertServiceEvolutionTest {
             ))
         whenever(catalogEntityTypeRepository.findByManifestId(manifestId))
             .thenReturn(listOf(
-                CatalogEntityTypeEntity(
-                    id = existingEntityTypeId,
+                CatalogFactory.createEntityTypeEntity(
                     manifestId = manifestId,
                     key = "old-entity",
                     displayNameSingular = "Old",
@@ -324,7 +365,8 @@ class ManifestUpsertServiceEvolutionTest {
     private fun createManifest(
         entityTypes: List<ResolvedEntityType> = listOf(createEntityType()),
         relationships: List<NormalizedRelationship> = listOf(createRelationship()),
-        fieldMappings: List<ResolvedFieldMapping> = listOf(createFieldMapping())
+        fieldMappings: List<ResolvedFieldMapping> = listOf(createFieldMapping()),
+        syncModels: Map<String, String> = emptyMap()
     ) = ResolvedManifest(
         key = "evolution-test",
         name = "Evolution Test Manifest",
@@ -334,6 +376,7 @@ class ManifestUpsertServiceEvolutionTest {
         entityTypes = entityTypes,
         relationships = relationships,
         fieldMappings = fieldMappings,
+        syncModels = syncModels,
         stale = false
     )
 

@@ -89,6 +89,15 @@ Idempotent persistence layer for resolved manifests. Upserts the catalog entry k
 3. For each saved entity type that has semantics: create a `CatalogSemanticMetadataEntity` with `targetType = ENTITY_TYPE`
 4. Batch save semantic metadata
 
+**Field mapping insertion with syncModel correlation:**
+
+When inserting field mappings, the service cross-references the resolved `syncModels` map to denormalize the Nango model name onto each `CatalogFieldMappingEntity`. For each field mapping entry:
+1. Look up the entity type key in the `syncModels` map to find the corresponding Nango model name
+2. Set `nangoModel` on the entity — this enables the sync pipeline to query field mappings by Nango model name directly via `CatalogFieldMappingRepository.findByManifestIdAndNangoModel()`
+3. Validate 1:1 mapping: each entity type key should map to exactly one Nango model
+
+This denormalization avoids a join at sync time — the sync pipeline can resolve field mappings in a single query by Nango model name.
+
 ---
 
 ## Public Methods
@@ -111,7 +120,7 @@ Persists a resolved bundle to the catalog. Bundles have no child rows — only t
 - `CatalogEntityTypeEntity` — entity type definitions with schema and columns
 - `CatalogRelationshipEntity` — relationship definitions with source entity type key
 - `CatalogRelationshipTargetRuleEntity` — target rules with cardinality overrides and semantic constraints
-- `CatalogFieldMappingEntity` — field mappings per entity type
+- `CatalogFieldMappingEntity` — field mappings per entity type (now includes `nangoModel` for sync pipeline routing)
 - `CatalogSemanticMetadataEntity` — semantic metadata for entity types that declare semantics
 - `ManifestCatalogEntity` — bundle catalog entries (with `templateKeys` JSONB, `manifestType = BUNDLE`)
 
@@ -134,6 +143,7 @@ Persists a resolved bundle to the catalog. Bundles have no child rows — only t
 | Date | Change | Feature/ADR |
 | ---- | ------ | ----------- |
 | 2026-03-26 | Added as shared persistence target for both JSON manifest pipeline and Kotlin core model pipeline | Lifecycle Spine |
+| 2026-04-11 | Field mapping insertion now denormalizes `nangoModel` from resolved `syncModels` map onto `CatalogFieldMappingEntity` for sync pipeline routing | Integration Definitions |
 
 ---
 

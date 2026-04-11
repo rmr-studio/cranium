@@ -11,6 +11,8 @@ import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.ApplicationEntityType
 import riven.core.enums.core.DataFormat
 import riven.core.enums.core.DataType
+import riven.core.enums.core.DynamicDefaultFunction
+import riven.core.models.common.validation.DefaultValue
 import riven.core.enums.integration.SourceType
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.enums.util.OperationType
@@ -19,6 +21,7 @@ import riven.core.models.catalog.CatalogRelationshipModel
 import riven.core.models.catalog.CatalogSemanticMetadataModel
 import riven.core.models.catalog.ManifestDetail
 import riven.core.models.common.validation.Schema
+import riven.core.models.common.validation.SchemaOptions
 import riven.core.models.entity.configuration.ColumnConfiguration
 import riven.core.models.request.entity.type.SaveRelationshipDefinitionRequest
 import riven.core.models.request.entity.type.SaveSemanticMetadataRequest
@@ -348,8 +351,9 @@ class TemplateInstallationService(
 
             // Validate default value if present
             val attrSchema = properties[attrId]!!
-            attrSchema.options?.default?.let { defaultValue ->
-                val defaultErrors = schemaService.validateDefault(attrSchema, defaultValue)
+            val staticDefault = attrSchema.options?.extractStaticDefault()
+            if (staticDefault != null) {
+                val defaultErrors = schemaService.validateDefault(attrSchema, staticDefault)
                 if (defaultErrors.isNotEmpty()) {
                     throw SchemaValidationException(
                         defaultErrors.map { "Attribute '$attrKey': $it" }
@@ -650,12 +654,12 @@ class TemplateInstallationService(
      * Parses a manifest options map into SchemaOptions.
      */
     @Suppress("UNCHECKED_CAST")
-    private fun parseSchemaOptions(optionsRaw: Any?): Schema.SchemaOptions? {
+    private fun parseSchemaOptions(optionsRaw: Any?): SchemaOptions? {
         if (optionsRaw == null) return null
         val opts = optionsRaw as? Map<String, Any> ?: return null
 
-        return Schema.SchemaOptions(
-            default = opts["default"],
+        return SchemaOptions(
+            defaultValue = parseDefaultValue(opts),
             prefix = opts["prefix"] as? String,
             regex = opts["regex"] as? String,
             enum = (opts["enum"] as? List<*>)?.map { it.toString() },
@@ -664,6 +668,24 @@ class TemplateInstallationService(
             minimum = (opts["minimum"] as? Number)?.toDouble(),
             maximum = (opts["maximum"] as? Number)?.toDouble(),
         )
+    }
+
+    /**
+     * Parses the defaultValue from a manifest options map.
+     */
+    @Suppress("UNCHECKED_CAST")
+    private fun parseDefaultValue(opts: Map<String, Any>): DefaultValue? {
+        (opts["defaultValue"] as? Map<String, Any>)?.let { dvMap ->
+            return when (dvMap["type"]) {
+                "static" -> DefaultValue.Static(dvMap["value"])
+                "dynamic" -> DefaultValue.Dynamic(
+                    DynamicDefaultFunction.valueOf(dvMap["function"] as String)
+                )
+                else -> null
+            }
+        }
+
+        return null
     }
 
     companion object {

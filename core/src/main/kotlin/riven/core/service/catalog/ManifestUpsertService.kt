@@ -64,7 +64,7 @@ class ManifestUpsertService(
         deleteChildren(manifestId)
         insertEntityTypes(manifestId, resolved.entityTypes)
         insertRelationships(manifestId, resolved.relationships)
-        insertFieldMappings(manifestId, resolved.fieldMappings)
+        insertFieldMappings(manifestId, resolved.fieldMappings, resolved.syncModels)
     }
 
     // ------ Private Helpers ------
@@ -107,7 +107,8 @@ class ManifestUpsertService(
                 "manifestVersion" to resolved.manifestVersion,
                 "entityTypes" to resolved.entityTypes,
                 "relationships" to resolved.relationships,
-                "fieldMappings" to resolved.fieldMappings
+                "fieldMappings" to resolved.fieldMappings,
+                "syncModels" to resolved.syncModels
             )
         )
         return MessageDigest.getInstance("SHA-256")
@@ -218,11 +219,26 @@ class ManifestUpsertService(
             }
     }
 
-    private fun insertFieldMappings(manifestId: UUID, fieldMappings: List<ResolvedFieldMapping>) {
+    private fun insertFieldMappings(
+        manifestId: UUID,
+        fieldMappings: List<ResolvedFieldMapping>,
+        syncModels: Map<String, String>
+    ) {
+        val groupedByEntityTypeKey = syncModels.entries.groupBy { it.value }
+        val duplicates = groupedByEntityTypeKey.filter { it.value.size > 1 }
+        require(duplicates.isEmpty()) {
+            "Multiple nango models map to the same entity type key: ${
+                duplicates.map { (key, entries) -> "$key <- [${entries.joinToString { it.key }}]" }
+            }"
+        }
+        val entityTypeKeyToNangoModel = syncModels.entries
+            .associate { (nangoModel, entityTypeKey) -> entityTypeKey to nangoModel }
+
         val entities = fieldMappings.map { fm ->
             CatalogFieldMappingEntity(
                 manifestId = manifestId,
                 entityTypeKey = fm.entityTypeKey,
+                nangoModel = entityTypeKeyToNangoModel[fm.entityTypeKey],
                 mappings = fm.mappings
             )
         }

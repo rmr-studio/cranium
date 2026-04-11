@@ -165,6 +165,7 @@ class TemplateMaterializationService(
         val schema = buildWorkspaceSchema(catalogType.schema, integrationSlug, catalogType.key)
         val identifierKey = resolveIdentifierKey(catalogType.identifierKey, integrationSlug, catalogType.key)
         val columnConfiguration = buildColumnConfigurationFromSchema(schema, catalogType.columns, integrationSlug, catalogType.key)
+        val attributeKeyMapping = buildAttributeKeyMapping(catalogType.schema, integrationSlug, catalogType.key)
 
         val entity = EntityTypeEntity(
             key = catalogType.key,
@@ -180,7 +181,8 @@ class TemplateMaterializationService(
             identifierKey = identifierKey,
             workspaceId = workspaceId,
             schema = schema,
-            columnConfiguration = columnConfiguration
+            columnConfiguration = columnConfiguration,
+            attributeKeyMapping = attributeKeyMapping,
         )
 
         val savedEntity = entityTypeRepository.save(entity)
@@ -540,6 +542,21 @@ class TemplateMaterializationService(
      */
     private fun generateAttributeUuid(integrationSlug: String, entityTypeKey: String, attributeKey: String): UUID {
         return UUID.nameUUIDFromBytes("$integrationSlug:$entityTypeKey:$attributeKey".toByteArray())
+    }
+
+    /**
+     * Builds an explicit mapping from manifest attribute string keys to their deterministic UUIDs.
+     * Stored on EntityTypeEntity so the sync pipeline can resolve attribute UUIDs without
+     * relying on fragile insertion-order zip between catalog and entity type.
+     */
+    private fun buildAttributeKeyMapping(
+        catalogSchema: Map<String, Any>,
+        integrationSlug: String,
+        entityTypeKey: String,
+    ): Map<String, String> {
+        return catalogSchema.keys.associateWith { attrKey ->
+            generateAttributeUuid(integrationSlug, entityTypeKey, attrKey).toString()
+        }
     }
 
     // ------ Parsing Helpers ------

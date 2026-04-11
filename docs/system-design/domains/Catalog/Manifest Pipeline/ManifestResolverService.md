@@ -26,6 +26,7 @@ Pure in-memory transformation service that resolves scanned manifests into fully
 - Validate relationship source/target keys against the manifest's entity type set
 - Detect duplicate relationship keys
 - Validate field mapping attribute keys against resolved entity type schemas
+- Resolve `syncModels` mapping from integration manifests (Nango model name → entity type key)
 - Degrade gracefully to stale manifests on any resolution failure
 - Resolve bundle manifests into lightweight `ResolvedBundle` objects (template key list extraction, no entity type resolution)
 
@@ -79,6 +80,10 @@ Pure in-memory transformation service that resolves scanned manifests into fully
 - Each mapping key is validated against the target entity type's attribute key set
 - Invalid keys are skipped with a WARN log rather than failing the manifest
 
+**SyncModel resolution:**
+
+Extracts the `syncModels` object from integration manifest JSON, producing a `Map<String, String>` mapping Nango sync model names (e.g. `"HubSpotContact"`) to entity type keys (e.g. `"contact"`). Returns an empty map if the field is absent. Only meaningful for INTEGRATION manifests — template and model manifests do not declare sync models.
+
 **Graceful degradation:**
 
 Any resolution failure (unresolved `$ref`, mutual exclusivity violation, invalid relationship keys) returns a `ResolvedManifest` with `stale=true` and empty entity types, relationships, and field mappings.
@@ -89,7 +94,7 @@ Any resolution failure (unresolved `$ref`, mutual exclusivity violation, invalid
 
 ### `resolveManifest(scanned: ScannedManifest, modelIndex: Map<String, JsonNode>): ResolvedManifest`
 
-Resolves a single scanned manifest through all four phases: entity type resolution, relationship normalization, relationship validation, and field mapping resolution. Returns a manifest with `stale=true` if any phase fails.
+Resolves a single scanned manifest through all four phases: entity type resolution, relationship normalization, relationship validation, and field mapping resolution. Includes syncModel resolution for integration manifests. Returns a manifest with `stale=true` if any phase fails.
 
 ### `resolveBundle(scanned: ScannedManifest): ResolvedBundle`
 

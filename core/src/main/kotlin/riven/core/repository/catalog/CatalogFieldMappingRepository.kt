@@ -22,6 +22,12 @@ interface CatalogFieldMappingRepository : JpaRepository<CatalogFieldMappingEntit
     fun findByManifestIdAndEntityTypeKey(manifestId: UUID, entityTypeKey: String): CatalogFieldMappingEntity?
 
     /**
+     * Find a specific field mapping within a manifest by Nango sync model name.
+     * Used by the sync pipeline to resolve which field mapping applies when Nango sends a webhook.
+     */
+    fun findByManifestIdAndNangoModel(manifestId: UUID, nangoModel: String): CatalogFieldMappingEntity?
+
+    /**
      * Delete all field mappings belonging to a manifest. Used for delete-reinsert reconciliation.
      */
     fun deleteByManifestId(manifestId: UUID)

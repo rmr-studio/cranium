@@ -62,8 +62,9 @@ class EntityTypeAttributeService(
         }
 
         // Validate default value if present
-        attribute.options?.default?.let { defaultValue ->
-            val defaultErrors = schemaService.validateDefault(attribute, defaultValue)
+        val staticDefault = attribute.options?.extractStaticDefault()
+        if (staticDefault != null) {
+            val defaultErrors = schemaService.validateDefault(attribute, staticDefault)
             if (defaultErrors.isNotEmpty()) {
                 throw SchemaValidationException(
                     defaultErrors.map { "Attribute '${id}': $it" }

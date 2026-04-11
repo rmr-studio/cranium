@@ -110,11 +110,13 @@ object CatalogFactory {
         manifestId: UUID,
         id: UUID = UUID.randomUUID(),
         entityTypeKey: String = "test-entity-type",
+        nangoModel: String? = null,
         mappings: Map<String, Any> = mapOf("externalField" to "internalField")
     ) = CatalogFieldMappingEntity(
         id = id,
         manifestId = manifestId,
         entityTypeKey = entityTypeKey,
+        nangoModel = nangoModel,
         mappings = mappings
     )
 }

@@ -45,6 +45,7 @@ class ManifestResolverService(
 
         val entityTypeAttributeIndex = entityTypes.associate { it.key to it.schema.keys }
         val fieldMappings = resolveFieldMappings(json, entityTypeAttributeIndex)
+        val syncModels = resolveSyncModels(json)
 
         return ResolvedManifest(
             key = scanned.key,
@@ -55,6 +56,7 @@ class ManifestResolverService(
             entityTypes = entityTypes,
             relationships = relationships,
             fieldMappings = fieldMappings,
+            syncModels = syncModels,
             stale = false
         )
     }
@@ -308,6 +310,18 @@ class ManifestResolverService(
             }
         }
         return result
+    }
+
+    // ------ Sync Model Resolution ------
+
+    /** Extracts the syncModels map (Nango model name -> entity type key) from the manifest JSON. */
+    private fun resolveSyncModels(json: JsonNode): Map<String, String> {
+        val node = json.get("syncModels") ?: return emptyMap()
+        val map = mutableMapOf<String, String>()
+        node.fields().forEach { (nangoModel, entityTypeKeyNode) ->
+            map[nangoModel] = entityTypeKeyNode.asText()
+        }
+        return map.toMap()
     }
 
     // ------ Helpers ------

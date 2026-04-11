@@ -2,14 +2,11 @@ package riven.core.models.common.validation
 
 import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
-import riven.core.enums.common.OptionSortingType
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataFormat
 import riven.core.enums.core.DataType
 import riven.core.models.common.Icon
 import riven.core.models.common.json.JsonObject
-import riven.core.models.common.json.JsonValue
-import java.time.ZonedDateTime
 
 /**
  * The Schema defines the structure and data storage requirements for a given object.
@@ -54,20 +51,6 @@ data class Schema<T>(
     val options: SchemaOptions? = null
 
 ) {
-    data class SchemaOptions(
-        val default: JsonValue? = null,
-        val prefix: String? = null,
-        val regex: String? = null,
-        val enum: List<String>? = null,
-        val enumSorting: OptionSortingType? = null,
-        val minLength: Int? = null,
-        val maxLength: Int? = null,
-        val minimum: Double? = null,
-        val maximum: Double? = null,
-        val minDate: ZonedDateTime? = null,
-        val maxDate: ZonedDateTime? = null
-    )
-
     fun toJsonSchema(
         allowAdditionalProperties: Boolean
     ): JsonObject {

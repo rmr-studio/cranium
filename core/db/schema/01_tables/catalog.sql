@@ -101,6 +101,7 @@ CREATE TABLE IF NOT EXISTS catalog_field_mappings (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     manifest_id UUID NOT NULL REFERENCES manifest_catalog(id) ON DELETE CASCADE,
     entity_type_key VARCHAR(255) NOT NULL,
+    nango_model TEXT,
     mappings JSONB NOT NULL DEFAULT '{}'::jsonb,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),

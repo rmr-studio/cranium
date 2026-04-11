@@ -17,6 +17,9 @@ Validates entity instances against their type schemas before persistence. Ensure
 | Component | Purpose | Type |
 | --------- | ------- | ---- |
 | [[EntityValidationService]] | Schema validation for entity save operations | Service |
+| [[DefaultValue]] | Sealed interface for typed default values — `Static` (literal) and `Dynamic` (runtime-computed via `DynamicDefaultFunction`) | Model |
+| [[DynamicDefaultFunction]] | Enum of functions producing default values at entity creation time — `CURRENT_DATE`, `CURRENT_DATETIME` | Enum |
+| [[SchemaOptions]] | Attribute configuration options — default values, prefix, regex, enum, range constraints. Replaces `AttributeOptions` | Model |
 
 ## Technical Debt
 
@@ -31,3 +34,4 @@ Validates entity instances against their type schemas before persistence. Ensure
 | Date | Change | Feature/ADR |
 | ---- | ------ | ----------- |
 | 2026-02-08 | Subdomain overview created | [[02-01-PLAN]] |
+| 2026-04-11 | Added DefaultValue sealed interface, DynamicDefaultFunction enum, and SchemaOptions model for typed default value support | Integration Definitions |

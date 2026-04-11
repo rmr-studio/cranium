@@ -55,6 +55,7 @@ CRUD service for entity instances with validation, relationship hydration, and u
 
 1. Determine if create (no ID) or update (ID provided)
 2. Split payload into attributes vs. relationships
+2b. Enrich attributes with default values — for each attribute in the schema that has a `defaultValue` configured and is not present in the payload (create only): resolve `DefaultValue.Static` to its literal value, or `DefaultValue.Dynamic` to a runtime-computed value (e.g. `CURRENT_DATE` → today's date string)
 3. Validate attribute payload against type schema via [[EntityValidationService]]
 4. Save entity to database
 5. Save attributes to normalized `entity_attributes` table via [[EntityAttributeService]] (delete-all + re-insert)
@@ -178,3 +179,9 @@ Retrieves all entities in workspace (across all types). Relationships NOT hydrat
 - Added `EntityTypeClassificationService` as a constructor dependency for filtering IDENTIFIER-classified attributes.
 - `saveEntity` now publishes `IdentityMatchTriggerEvent` after entity save with previous and new IDENTIFIER attribute values.
 - Event consumed by [[IdentityMatchTriggerListener]] after transaction commit to trigger identity matching pipeline.
+
+### 2026-04-11 — Typed default value injection
+
+- Default value injection in `enrichAttributes()` now uses the `DefaultValue` sealed class instead of raw string defaults.
+- New private methods: `resolveDefault(attrSchema)` dispatches to `Static` or `Dynamic` resolution; `resolveDynamicFunction(function)` evaluates `CURRENT_DATE` and `CURRENT_DATETIME` at entity creation time.
+- Imports: `DefaultValue`, `DynamicDefaultFunction`, `LocalDate`, `OffsetDateTime`.

@@ -95,6 +95,10 @@ data class EntityTypeEntity(
     @Column(name = "column_configuration", columnDefinition = "jsonb", nullable = true)
     var columnConfiguration: ColumnConfiguration? = null,
 
+    @Type(JsonBinaryType::class)
+    @Column(name = "attribute_key_mapping", columnDefinition = "jsonb")
+    var attributeKeyMapping: Map<String, String>? = null,
+
     // Number of entities of this type, calculated via trigger on entities table
     @Column(name = "count", nullable = false)
     var entitiesCount: Long = 0L,

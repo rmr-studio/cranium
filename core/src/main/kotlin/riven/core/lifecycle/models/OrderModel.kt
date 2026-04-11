@@ -7,7 +7,9 @@ import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
-import riven.core.lifecycle.AttributeOptions
+import riven.core.enums.core.DynamicDefaultFunction
+import riven.core.models.common.validation.DefaultValue
+import riven.core.models.common.validation.SchemaOptions
 import riven.core.lifecycle.AttributeSemantics
 import riven.core.lifecycle.CoreModelAttribute
 import riven.core.lifecycle.CoreModelDefinition
@@ -55,7 +57,7 @@ object OrderModel : CoreModelDefinition(
         ),
         "status" to CoreModelAttribute(
             schemaType = SchemaType.SELECT, label = "Status", dataType = DataType.STRING,
-            options = AttributeOptions(enum = listOf("pending", "confirmed", "shipped", "delivered", "cancelled", "returned"), default = "pending"),
+            options = SchemaOptions(enum = listOf("pending", "confirmed", "shipped", "delivered", "cancelled", "returned"), defaultValue = DefaultValue.Static("pending")),
             semantics = AttributeSemantics(
                 definition = "Current fulfilment status of the order.",
                 classification = SemanticAttributeClassification.CATEGORICAL,
@@ -65,6 +67,7 @@ object OrderModel : CoreModelDefinition(
         "order-date" to CoreModelAttribute(
             schemaType = SchemaType.DATE, label = "Order Date", dataType = DataType.STRING,
             format = "date",
+            options = SchemaOptions(defaultValue = DefaultValue.Dynamic(DynamicDefaultFunction.CURRENT_DATE)),
             semantics = AttributeSemantics(
                 definition = "Date the order was placed.",
                 classification = SemanticAttributeClassification.TEMPORAL,
@@ -73,7 +76,7 @@ object OrderModel : CoreModelDefinition(
         ),
         "payment-status" to CoreModelAttribute(
             schemaType = SchemaType.SELECT, label = "Payment Status", dataType = DataType.STRING,
-            options = AttributeOptions(enum = listOf("pending", "paid", "refunded", "failed"), default = "pending"),
+            options = SchemaOptions(enum = listOf("pending", "paid", "refunded", "failed"), defaultValue = DefaultValue.Static("pending")),
             semantics = AttributeSemantics(
                 definition = "Current payment state for this order.",
                 classification = SemanticAttributeClassification.CATEGORICAL,

@@ -331,7 +331,8 @@ class ManifestUpsertServiceTest {
                 "manifestVersion" to resolved.manifestVersion,
                 "entityTypes" to resolved.entityTypes,
                 "relationships" to resolved.relationships,
-                "fieldMappings" to resolved.fieldMappings
+                "fieldMappings" to resolved.fieldMappings,
+                "syncModels" to resolved.syncModels
             )
         )
         return MessageDigest.getInstance("SHA-256")

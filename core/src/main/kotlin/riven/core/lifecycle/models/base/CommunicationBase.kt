@@ -3,7 +3,9 @@ package riven.core.lifecycle.models.base
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
-import riven.core.lifecycle.AttributeOptions
+import riven.core.enums.core.DynamicDefaultFunction
+import riven.core.models.common.validation.DefaultValue
+import riven.core.models.common.validation.SchemaOptions
 import riven.core.lifecycle.AttributeSemantics
 import riven.core.lifecycle.CoreModelAttribute
 
@@ -24,7 +26,7 @@ object CommunicationBase {
         ),
         "direction" to CoreModelAttribute(
             schemaType = SchemaType.SELECT, label = "Direction", dataType = DataType.STRING,
-            options = AttributeOptions(enum = listOf("inbound", "outbound")),
+            options = SchemaOptions(enum = listOf("inbound", "outbound")),
             semantics = AttributeSemantics(
                 definition = "Whether this communication was initiated by the client or by the team.",
                 classification = SemanticAttributeClassification.CATEGORICAL,
@@ -34,6 +36,7 @@ object CommunicationBase {
         "date" to CoreModelAttribute(
             schemaType = SchemaType.DATE, label = "Date", dataType = DataType.STRING,
             format = "date",
+            options = SchemaOptions(defaultValue = DefaultValue.Dynamic(DynamicDefaultFunction.CURRENT_DATE)),
             semantics = AttributeSemantics(
                 definition = "The date of the communication.",
                 classification = SemanticAttributeClassification.TEMPORAL,
@@ -50,7 +53,7 @@ object CommunicationBase {
         ),
         "outcome" to CoreModelAttribute(
             schemaType = SchemaType.SELECT, label = "Outcome", dataType = DataType.STRING,
-            options = AttributeOptions(enum = listOf("positive", "neutral", "needs-action", "escalated")),
+            options = SchemaOptions(enum = listOf("positive", "neutral", "needs-action", "escalated")),
             semantics = AttributeSemantics(
                 definition = "The outcome or disposition of this communication.",
                 classification = SemanticAttributeClassification.CATEGORICAL,
@@ -59,7 +62,7 @@ object CommunicationBase {
         ),
         "channel" to CoreModelAttribute(
             schemaType = SchemaType.SELECT, label = "Channel", dataType = DataType.STRING,
-            options = AttributeOptions(enum = listOf("phone", "video", "in-person", "email", "chat")),
+            options = SchemaOptions(enum = listOf("phone", "video", "in-person", "email", "chat")),
             semantics = AttributeSemantics(
                 definition = "The specific channel used for this communication.",
                 classification = SemanticAttributeClassification.CATEGORICAL,

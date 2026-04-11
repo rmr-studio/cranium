@@ -752,5 +752,12 @@
       ],
       "protected": true
     }
-  ]
+  ],
+  "syncModels": {
+    "contacts": "hubspot-contact",
+    "companies": "hubspot-company",
+    "deals": "hubspot-deal",
+    "tickets": "hubspot-ticket",
+    "notes": "hubspot-note"
+  }
 }

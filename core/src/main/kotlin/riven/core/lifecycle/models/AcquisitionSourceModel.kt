@@ -7,7 +7,7 @@ import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
-import riven.core.lifecycle.AttributeOptions
+import riven.core.models.common.validation.SchemaOptions
 import riven.core.lifecycle.AttributeSemantics
 import riven.core.lifecycle.CoreModelAttribute
 import riven.core.lifecycle.CoreModelDefinition
@@ -45,7 +45,7 @@ object AcquisitionSourceModel : CoreModelDefinition(
         ),
         "type" to CoreModelAttribute(
             schemaType = SchemaType.SELECT, label = "Type", dataType = DataType.STRING,
-            options = AttributeOptions(enum = listOf("paid-search", "paid-social", "organic", "email", "referral", "affiliate", "direct", "product-hunt", "content")),
+            options = SchemaOptions(enum = listOf("paid-search", "paid-social", "organic", "email", "referral", "affiliate", "direct", "product-hunt", "content")),
             semantics = AttributeSemantics(
                 definition = "Category of acquisition channel.",
                 classification = SemanticAttributeClassification.CATEGORICAL,

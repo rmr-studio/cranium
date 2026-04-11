@@ -3,6 +3,7 @@
   "key": "hubspot",
   "name": "HubSpot",
   "description": "HubSpot CRM integration providing contacts and deals from the HubSpot API.",
+  "category": "CRM",
   "entityTypes": [
     {
       "key": "hubspot-contact",

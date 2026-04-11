@@ -33,6 +33,9 @@ data class CatalogFieldMappingEntity(
     @Column(name = "entity_type_key", nullable = false)
     val entityTypeKey: String,
 
+    @Column(name = "nango_model")
+    val nangoModel: String? = null,
+
     @Type(JsonBinaryType::class)
     @Column(name = "mappings", columnDefinition = "jsonb", nullable = false)
     var mappings: Map<String, Any> = emptyMap(),

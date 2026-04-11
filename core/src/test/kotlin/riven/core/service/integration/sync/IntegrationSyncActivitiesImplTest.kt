@@ -234,6 +234,7 @@ class IntegrationSyncActivitiesImplTest {
             )
         ),
         columnConfiguration = ColumnConfiguration(order = listOf(attributeId)),
+        attributeKeyMapping = mapOf("email" to attributeId.toString()),
     )
 
     private fun buildDefinition() = IntegrationFactory.createIntegrationDefinition(
@@ -276,10 +277,11 @@ class IntegrationSyncActivitiesImplTest {
                 key = "hubspot",
                 name = "HubSpot",
             )))
-        whenever(catalogFieldMappingRepository.findByManifestIdAndEntityTypeKey(manifestId, model))
+        whenever(catalogFieldMappingRepository.findByManifestIdAndNangoModel(manifestId, model))
             .thenReturn(CatalogFactory.createFieldMappingEntity(
                 manifestId = manifestId,
                 entityTypeKey = model,
+                nangoModel = model,
                 mappings = mapOf(
                     "email" to mapOf<String, Any>("source" to "email", "transform" to mapOf("type" to "direct"))
                 ),

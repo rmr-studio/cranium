@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS public.entity_types
     "protected"             BOOLEAN     NOT NULL     DEFAULT FALSE,
     "schema"                JSONB       NOT NULL,
     "column_configuration"  JSONB,
+    "attribute_key_mapping"  JSONB,
     "semantic_group"        TEXT        NOT NULL     DEFAULT 'UNCATEGORIZED',
     "lifecycle_domain"      TEXT        NOT NULL     DEFAULT 'UNCATEGORIZED',
     -- Source discriminator fields for integration entity types

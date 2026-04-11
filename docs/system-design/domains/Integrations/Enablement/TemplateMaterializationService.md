@@ -29,6 +29,7 @@ Creates workspace-scoped entity types and relationships from global catalog defi
 - Deduplicate relationships on reconnect (skip existing, restore soft-deleted)
 - Initialize semantic metadata for newly created entity types
 - Create fallback CONNECTED_ENTITIES relationship definitions for each materialized entity type
+- Persist `attributeKeyMapping` (string key → UUID) on materialized entity types for downstream sync pipeline consumption
 - Initialize ID sequences for attributes with `SchemaType.ID`
 - Build column configurations from catalog column definitions or schema property ordering
 - Resolve catalog identifier keys to deterministic UUIDs
@@ -82,7 +83,8 @@ Catalog schemas are stored as `Map<String, Any>` with string attribute keys and 
 2. Generates a deterministic UUID v3 for the attribute key (see below)
 3. Parses the attribute definition map to extract `SchemaType`, `DataType`, `DataFormat`, label, required/unique/protected flags
 4. Builds a `Schema<UUID>` for each attribute
-5. Wraps all attributes in an `EntityTypeSchema` (a `Schema<UUID>` with `key = SchemaType.OBJECT`)
+5. Builds an `attributeKeyMapping: Map<String, String>` recording the string→UUID mapping for every attribute, and persists it on the `EntityTypeEntity`. This allows the sync pipeline to resolve Nango field names to attribute UUIDs without re-deriving deterministic UUIDs at runtime.
+6. Wraps all attributes in an `EntityTypeSchema` (a `Schema<UUID>` with `key = SchemaType.OBJECT`)
 
 Unknown or null schema types fall back to `SchemaType.TEXT` / `DataType.STRING`. Data format is nullable and returns null if unrecognized.
 
@@ -219,3 +221,7 @@ Materializes all entity types and relationships for an integration into a worksp
 - Added projection rule installation during materialization — installs `ProjectionRuleEntity` rows linking integration entity types to core lifecycle types based on `CoreModelRegistry.findModelsAccepting()` routing
 - New dependency on `ProjectionRuleRepository` and `CoreModelRegistry`
 - Creates "source-data" relationship definitions (MANY_TO_ONE, protected) for each projection link
+
+### 2026-04-11
+
+- Materialization now persists `attributeKeyMapping` JSONB on `EntityTypeEntity` — maps string attribute keys to their deterministic UUID attribute IDs. Consumed by the sync pipeline (`IntegrationSyncActivitiesImpl`) to resolve Nango field names to entity attribute UUIDs without re-derivation.

@@ -33,6 +33,8 @@ import riven.core.service.activity.ActivityService
 import riven.core.service.activity.log
 import riven.core.service.auth.AuthTokenService
 import riven.core.enums.common.validation.SchemaType
+import riven.core.enums.core.DynamicDefaultFunction
+import riven.core.models.common.validation.DefaultValue
 import riven.core.service.entity.type.EntityTypeAttributeService
 import riven.core.service.entity.type.EntityTypeRelationshipService
 import riven.core.service.entity.type.EntityTypeSequenceService
@@ -43,6 +45,8 @@ import riven.core.service.identity.EntityTypeClassificationService
 import riven.core.util.ServiceUtil.findManyResults
 import riven.core.util.ServiceUtil.findOrThrow
 import org.springframework.context.ApplicationEventPublisher
+import java.time.LocalDate
+import java.time.OffsetDateTime
 import java.util.*
 
 /**
@@ -352,17 +356,38 @@ class EntityService(
                     // Carry forward existing ID on update
                     previousAttributes[attrId]?.let { enriched[attrId] = it }
                 }
-            } else if (isCreate && !enriched.containsKey(attrId) && attrSchema.options?.default != null) {
+            } else if (isCreate && !enriched.containsKey(attrId)) {
                 // Inject default value for attributes not provided on create
-                enriched[attrId] = EntityAttributePrimitivePayload(
-                    value = attrSchema.options!!.default!!,
-                    schemaType = attrSchema.key,
-                )
+                resolveDefault(attrSchema)?.let { resolved ->
+                    enriched[attrId] = EntityAttributePrimitivePayload(
+                        value = resolved,
+                        schemaType = attrSchema.key,
+                    )
+                }
             }
         }
 
         return enriched
     }
+
+    /**
+     * Resolves the effective default value for an attribute schema.
+     *
+     * @return The resolved default value, or null if no default is configured.
+     */
+    private fun resolveDefault(attrSchema: Schema<UUID>): Any? {
+        val dv = attrSchema.options?.defaultValue ?: return null
+        return when (dv) {
+            is DefaultValue.Static -> dv.value
+            is DefaultValue.Dynamic -> resolveDynamicFunction(dv.function)
+        }
+    }
+
+    private fun resolveDynamicFunction(function: DynamicDefaultFunction): String =
+        when (function) {
+            DynamicDefaultFunction.CURRENT_DATE -> LocalDate.now().toString()
+            DynamicDefaultFunction.CURRENT_DATETIME -> OffsetDateTime.now().toString()
+        }
 
     /**
      * Publishes an IdentityMatchTriggerEvent for the saved entity.

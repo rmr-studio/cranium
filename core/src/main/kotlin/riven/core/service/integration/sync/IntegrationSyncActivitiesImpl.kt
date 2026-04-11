@@ -11,6 +11,7 @@ import riven.core.entity.entity.EntityRelationshipEntity
 import riven.core.entity.entity.EntityTypeEntity
 import riven.core.entity.integration.IntegrationSyncStateEntity
 import riven.core.enums.common.validation.SchemaType
+import riven.core.enums.integration.CoercionType
 import riven.core.enums.integration.ConnectionStatus
 import riven.core.enums.integration.SourceType
 import riven.core.enums.integration.SyncStatus
@@ -213,31 +214,41 @@ class IntegrationSyncActivitiesImpl(
 
         val manifestId = requireNotNull(manifest.id) { "ManifestCatalogEntity.id must not be null" }
 
-        val fieldMappingEntity = catalogFieldMappingRepository.findByManifestIdAndEntityTypeKey(manifestId, input.model)
+        // Resolve Nango model name -> entity type key via nangoModel on field mapping
+        val fieldMappingEntity = catalogFieldMappingRepository.findByManifestIdAndNangoModel(manifestId, input.model)
         if (fieldMappingEntity == null) {
-            logger.error { "CatalogFieldMapping not found for manifestId=$manifestId model=${input.model}" }
+            logger.error { "CatalogFieldMapping not found for manifestId=$manifestId nangoModel=${input.model}" }
             return null
         }
+        val entityTypeKey = fieldMappingEntity.entityTypeKey
 
         val entityType = entityTypeRepository
             .findBySourceIntegrationIdAndWorkspaceId(input.integrationId, input.workspaceId)
-            .firstOrNull { it.key == input.model }
+            .firstOrNull { it.key == entityTypeKey }
         if (entityType == null) {
-            logger.error { "EntityType not found for integrationId=${input.integrationId} workspaceId=${input.workspaceId} model=${input.model}" }
+            logger.error { "EntityType not found for integrationId=${input.integrationId} workspaceId=${input.workspaceId} entityTypeKey=$entityTypeKey" }
             return null
         }
 
         val entityTypeId = requireNotNull(entityType.id) { "EntityTypeEntity.id must not be null" }
 
-        val catalogEntityType = catalogEntityTypeRepository.findByManifestIdAndKey(manifestId, input.model)
+        val catalogEntityType = catalogEntityTypeRepository.findByManifestIdAndKey(manifestId, entityTypeKey)
         if (catalogEntityType == null) {
-            logger.error { "CatalogEntityType not found for manifestId=$manifestId model=${input.model}" }
+            logger.error { "CatalogEntityType not found for manifestId=$manifestId entityTypeKey=$entityTypeKey" }
             return null
         }
 
-        val keyMapping = buildKeyMapping(catalogEntityType, entityType)
+        val keyMapping = entityType.attributeKeyMapping
+            ?.mapValues { (_, uuidString) -> UUID.fromString(uuidString) }
+        if (keyMapping == null) {
+            logger.error { "EntityType ${entityType.key} has no attributeKeyMapping — was it materialized before this fix?" }
+            return null
+        }
+
         val fieldMappings = resolveFieldMappings(fieldMappingEntity.mappings, keyMapping, entityType)
         val externalIdField = resolveExternalIdField(fieldMappingEntity.mappings)
+        val relationshipDefinitions = relationshipDefinitionRepository
+            .findByWorkspaceIdAndSourceEntityTypeId(input.workspaceId, entityTypeId)
 
         return ModelContext(
             entityTypeId = entityTypeId,
@@ -246,23 +257,8 @@ class IntegrationSyncActivitiesImpl(
             fieldMappings = fieldMappings,
             keyMapping = keyMapping,
             externalIdField = externalIdField,
+            relationshipDefinitions = relationshipDefinitions,
         )
-    }
-
-    /**
-     * Builds the attribute string-key-to-UUID mapping by zipping the ordered catalog schema
-     * string keys with the installed entity type's column order (UUIDs).
-     *
-     * Both lists are in the same insertion order from the original manifest, so zipping
-     * them produces the correct string-key-to-UUID map.
-     */
-    private fun buildKeyMapping(
-        catalogEntityType: CatalogEntityTypeEntity,
-        entityType: EntityTypeEntity,
-    ): Map<String, UUID> {
-        val stringKeys = catalogEntityType.schema.keys.toList()
-        val uuidKeys = entityType.columnConfiguration?.order ?: emptyList()
-        return stringKeys.zip(uuidKeys).associate { (stringKey, uuid) -> stringKey to uuid }
     }
 
     /**
@@ -292,12 +288,51 @@ class IntegrationSyncActivitiesImpl(
 
             result[attrKey] = ResolvedFieldMapping(
                 sourcePath = sourcePath,
-                transform = FieldTransform.Direct,
+                transform = parseTransform(def),
                 targetSchemaType = schemaType,
             )
         }
 
         return result
+    }
+
+    /**
+     * Parses a transform block from the raw JSONB field mapping into a FieldTransform.
+     *
+     * Handles all four transform types: direct, type_coercion, default_value, json_path_extraction.
+     * Returns FieldTransform.Direct if the transform block is missing or unrecognised.
+     */
+    @Suppress("UNCHECKED_CAST")
+    private fun parseTransform(rawDef: Map<String, Any>): FieldTransform {
+        val transformMap = rawDef["transform"] as? Map<String, Any> ?: return FieldTransform.Direct
+        val type = transformMap["type"] as? String ?: return FieldTransform.Direct
+
+        return when (type) {
+            "direct" -> FieldTransform.Direct
+            "type_coercion" -> {
+                val targetType = transformMap["targetType"] as? String
+                    ?: return FieldTransform.Direct
+                val coercionType = CoercionType.entries.firstOrNull { it.name.equals(targetType, ignoreCase = true) }
+                if (coercionType == null) {
+                    logger.warn { "Unknown coercion targetType '$targetType' — falling back to Direct" }
+                    return FieldTransform.Direct
+                }
+                FieldTransform.TypeCoercion(coercionType)
+            }
+            "default_value" -> {
+                val value = transformMap["value"]
+                FieldTransform.DefaultValue(value)
+            }
+            "json_path_extraction" -> {
+                val path = transformMap["path"] as? String
+                    ?: return FieldTransform.Direct
+                FieldTransform.JsonPathExtraction(path)
+            }
+            else -> {
+                logger.warn { "Unknown transform type '$type' — falling back to Direct" }
+                FieldTransform.Direct
+            }
+        }
     }
 
     /**
@@ -577,7 +612,7 @@ class IntegrationSyncActivitiesImpl(
         val uuidKeyedAttributes = mappingResult.attributes.mapKeys { (key, _) -> UUID.fromString(key) }
         entityAttributeService.saveAttributes(entityId, workspaceId, context.entityTypeId, uuidKeyedAttributes)
 
-        collectRelationshipPending(record.payload, entityId, context.entityTypeId, workspaceId, relationshipPending)
+        collectRelationshipPending(record.payload, entityId, context.relationshipDefinitions, relationshipPending)
 
         return entityId
     }
@@ -594,14 +629,10 @@ class IntegrationSyncActivitiesImpl(
     private fun collectRelationshipPending(
         payload: Map<String, Any?>,
         entityId: UUID,
-        entityTypeId: UUID,
-        workspaceId: UUID,
+        relationshipDefinitions: List<riven.core.entity.entity.RelationshipDefinitionEntity>,
         relationshipPending: MutableList<RelationshipPending>,
     ) {
-        val definitions = relationshipDefinitionRepository
-            .findByWorkspaceIdAndSourceEntityTypeId(workspaceId, entityTypeId)
-
-        for (definition in definitions) {
+        for (definition in relationshipDefinitions) {
             val definitionKey = definition.name
             @Suppress("UNCHECKED_CAST")
             val targetIds = payload[definitionKey] as? List<String> ?: continue
@@ -752,6 +783,7 @@ class IntegrationSyncActivitiesImpl(
         val fieldMappings: Map<String, ResolvedFieldMapping>,
         val keyMapping: Map<String, UUID>,
         val externalIdField: String,
+        val relationshipDefinitions: List<riven.core.entity.entity.RelationshipDefinitionEntity>,
     )
 
     /** Aggregated result of processing a single batch of records. */

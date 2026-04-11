@@ -22,6 +22,7 @@ data class ResolvedManifest(
     val entityTypes: List<ResolvedEntityType>,
     val relationships: List<NormalizedRelationship>,
     val fieldMappings: List<ResolvedFieldMapping>,
+    val syncModels: Map<String, String> = emptyMap(),
     val stale: Boolean = false
 )
 

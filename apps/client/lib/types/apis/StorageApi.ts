@@ -98,14 +98,6 @@ export interface GetFileRequest {
     fileId: string;
 }
 
-export interface GetUserAvatarRequest {
-    userId: string;
-}
-
-export interface GetWorkspaceAvatarRequest {
-    workspaceId: string;
-}
-
 export interface ListFilesRequest {
     workspaceId: string;
     domain?: StorageDomain;
@@ -518,96 +510,6 @@ export class StorageApi extends runtime.BaseAPI {
      */
     async getFile(requestParameters: GetFileRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FileMetadata> {
         const response = await this.getFileRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Get user avatar image
-     */
-    async getUserAvatarRaw(requestParameters: GetUserAvatarRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>> {
-        if (requestParameters['userId'] == null) {
-            throw new runtime.RequiredError(
-                'userId',
-                'Required parameter "userId" was null or undefined when calling getUserAvatar().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("bearerAuth", []);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-
-        let urlPath = `/api/v1/avatars/user/{userId}`;
-        urlPath = urlPath.replace(`{${"userId"}}`, encodeURIComponent(String(requestParameters['userId'])));
-
-        const response = await this.request({
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.BlobApiResponse(response);
-    }
-
-    /**
-     * Get user avatar image
-     */
-    async getUserAvatar(requestParameters: GetUserAvatarRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob> {
-        const response = await this.getUserAvatarRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Get workspace avatar image
-     */
-    async getWorkspaceAvatarRaw(requestParameters: GetWorkspaceAvatarRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>> {
-        if (requestParameters['workspaceId'] == null) {
-            throw new runtime.RequiredError(
-                'workspaceId',
-                'Required parameter "workspaceId" was null or undefined when calling getWorkspaceAvatar().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("bearerAuth", []);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-
-        let urlPath = `/api/v1/avatars/workspace/{workspaceId}`;
-        urlPath = urlPath.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId'])));
-
-        const response = await this.request({
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.BlobApiResponse(response);
-    }
-
-    /**
-     * Get workspace avatar image
-     */
-    async getWorkspaceAvatar(requestParameters: GetWorkspaceAvatarRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob> {
-        const response = await this.getWorkspaceAvatarRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

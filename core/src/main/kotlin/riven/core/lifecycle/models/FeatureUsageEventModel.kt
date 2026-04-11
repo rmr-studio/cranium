@@ -7,7 +7,9 @@ import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
-import riven.core.lifecycle.AttributeOptions
+import riven.core.enums.core.DynamicDefaultFunction
+import riven.core.models.common.validation.DefaultValue
+import riven.core.models.common.validation.SchemaOptions
 import riven.core.lifecycle.AttributeSemantics
 import riven.core.lifecycle.CoreModelAttribute
 import riven.core.lifecycle.CoreModelDefinition
@@ -45,7 +47,7 @@ object FeatureUsageEventModel : CoreModelDefinition(
         ),
         "action" to CoreModelAttribute(
             schemaType = SchemaType.SELECT, label = "Action", dataType = DataType.STRING,
-            options = AttributeOptions(enum = listOf("viewed", "used", "completed", "error")),
+            options = SchemaOptions(enum = listOf("viewed", "used", "completed", "error")),
             semantics = AttributeSemantics(
                 definition = "What the user did with the feature.",
                 classification = SemanticAttributeClassification.CATEGORICAL,
@@ -55,6 +57,7 @@ object FeatureUsageEventModel : CoreModelDefinition(
         "date" to CoreModelAttribute(
             schemaType = SchemaType.DATE, label = "Date", dataType = DataType.STRING,
             format = "date",
+            options = SchemaOptions(defaultValue = DefaultValue.Dynamic(DynamicDefaultFunction.CURRENT_DATE)),
             semantics = AttributeSemantics(
                 definition = "When the usage event occurred.",
                 classification = SemanticAttributeClassification.TEMPORAL,

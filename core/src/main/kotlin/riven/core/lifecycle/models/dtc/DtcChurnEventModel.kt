@@ -7,7 +7,7 @@ import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
-import riven.core.lifecycle.AttributeOptions
+import riven.core.models.common.validation.SchemaOptions
 import riven.core.lifecycle.AttributeSemantics
 import riven.core.lifecycle.CoreModelAttribute
 import riven.core.lifecycle.CoreModelDefinition
@@ -40,7 +40,7 @@ object DtcChurnEventModel : CoreModelDefinition(
         "reason" to CoreModelAttribute(
             schemaType = SchemaType.SELECT, label = "Reason", dataType = DataType.STRING,
             required = true,
-            options = AttributeOptions(enum = listOf("price", "competitor", "no-longer-needed", "poor-experience", "product-quality", "shipping-issues", "sizing-issues", "unknown")),
+            options = SchemaOptions(enum = listOf("price", "competitor", "no-longer-needed", "poor-experience", "product-quality", "shipping-issues", "sizing-issues", "unknown")),
             semantics = AttributeSemantics(
                 definition = "The stated or inferred reason for the customer stopping purchases.",
                 classification = SemanticAttributeClassification.CATEGORICAL,

@@ -11,6 +11,7 @@ import riven.core.enums.core.DataFormat
 import riven.core.enums.core.DataType
 import riven.core.exceptions.SchemaValidationException
 import riven.core.models.common.validation.Schema
+import riven.core.models.common.validation.SchemaOptions
 import riven.core.service.util.TestObjectMapper
 
 class SchemaServiceTest {
@@ -46,7 +47,7 @@ class SchemaServiceTest {
                 "username", Schema(
                     key = SchemaType.TEXT,
                     type = DataType.STRING,
-                    options = Schema.SchemaOptions(minLength = 3)
+                    options = SchemaOptions(minLength = 3)
                 )
             )
             val payload = mapOf("username" to "john")
@@ -62,7 +63,7 @@ class SchemaServiceTest {
                 "username", Schema(
                     key = SchemaType.TEXT,
                     type = DataType.STRING,
-                    options = Schema.SchemaOptions(minLength = 5)
+                    options = SchemaOptions(minLength = 5)
                 )
             )
             val payload = mapOf("username" to "abc")
@@ -78,7 +79,7 @@ class SchemaServiceTest {
                 "code", Schema(
                     key = SchemaType.TEXT,
                     type = DataType.STRING,
-                    options = Schema.SchemaOptions(maxLength = 10)
+                    options = SchemaOptions(maxLength = 10)
                 )
             )
             val payload = mapOf("code" to "ABC123")
@@ -94,7 +95,7 @@ class SchemaServiceTest {
                 "code", Schema(
                     key = SchemaType.TEXT,
                     type = DataType.STRING,
-                    options = Schema.SchemaOptions(maxLength = 5)
+                    options = SchemaOptions(maxLength = 5)
                 )
             )
             val payload = mapOf("code" to "ABCDEFGH")
@@ -110,7 +111,7 @@ class SchemaServiceTest {
                 "code", Schema(
                     key = SchemaType.TEXT,
                     type = DataType.STRING,
-                    options = Schema.SchemaOptions(regex = "^[A-Z]{3}\\d{3}$")
+                    options = SchemaOptions(regex = "^[A-Z]{3}\\d{3}$")
                 )
             )
             val payload = mapOf("code" to "ABC123")
@@ -126,7 +127,7 @@ class SchemaServiceTest {
                 "code", Schema(
                     key = SchemaType.TEXT,
                     type = DataType.STRING,
-                    options = Schema.SchemaOptions(regex = "^[A-Z]{3}\\d{3}$")
+                    options = SchemaOptions(regex = "^[A-Z]{3}\\d{3}$")
                 )
             )
             val payload = mapOf("code" to "abc123")
@@ -142,7 +143,7 @@ class SchemaServiceTest {
                 "status", Schema(
                     key = SchemaType.SELECT,
                     type = DataType.STRING,
-                    options = Schema.SchemaOptions(enum = listOf("active", "inactive", "pending"))
+                    options = SchemaOptions(enum = listOf("active", "inactive", "pending"))
                 )
             )
             val payload = mapOf("status" to "active")
@@ -158,7 +159,7 @@ class SchemaServiceTest {
                 "status", Schema(
                     key = SchemaType.SELECT,
                     type = DataType.STRING,
-                    options = Schema.SchemaOptions(enum = listOf("active", "inactive", "pending"))
+                    options = SchemaOptions(enum = listOf("active", "inactive", "pending"))
                 )
             )
             val payload = mapOf("status" to "deleted")
@@ -278,7 +279,7 @@ class SchemaServiceTest {
                 "age", Schema(
                     key = SchemaType.NUMBER,
                     type = DataType.NUMBER,
-                    options = Schema.SchemaOptions(minimum = 18.0)
+                    options = SchemaOptions(minimum = 18.0)
                 )
             )
             val payload = mapOf("age" to 25)
@@ -294,7 +295,7 @@ class SchemaServiceTest {
                 "age", Schema(
                     key = SchemaType.NUMBER,
                     type = DataType.NUMBER,
-                    options = Schema.SchemaOptions(minimum = 18.0)
+                    options = SchemaOptions(minimum = 18.0)
                 )
             )
             val payload = mapOf("age" to 16)
@@ -310,7 +311,7 @@ class SchemaServiceTest {
                 "rating", Schema(
                     key = SchemaType.RATING,
                     type = DataType.NUMBER,
-                    options = Schema.SchemaOptions(maximum = 5.0)
+                    options = SchemaOptions(maximum = 5.0)
                 )
             )
             val payload = mapOf("rating" to 4.5)
@@ -326,7 +327,7 @@ class SchemaServiceTest {
                 "rating", Schema(
                     key = SchemaType.RATING,
                     type = DataType.NUMBER,
-                    options = Schema.SchemaOptions(maximum = 5.0)
+                    options = SchemaOptions(maximum = 5.0)
                 )
             )
             val payload = mapOf("rating" to 6)
@@ -342,7 +343,7 @@ class SchemaServiceTest {
                 "score", Schema(
                     key = SchemaType.NUMBER,
                     type = DataType.NUMBER,
-                    options = Schema.SchemaOptions(minimum = 0.0, maximum = 100.0)
+                    options = SchemaOptions(minimum = 0.0, maximum = 100.0)
                 )
             )
             val payload = mapOf("score" to 75)
@@ -533,7 +534,7 @@ class SchemaServiceTest {
                         items = Schema(
                             key = SchemaType.SELECT,
                             type = DataType.STRING,
-                            options = Schema.SchemaOptions(
+                            options = SchemaOptions(
                                 enum = listOf("pending", "active", "completed")
                             )
                         )
@@ -555,7 +556,7 @@ class SchemaServiceTest {
                         items = Schema(
                             key = SchemaType.SELECT,
                             type = DataType.STRING,
-                            options = Schema.SchemaOptions(
+                            options = SchemaOptions(
                                 enum = listOf("pending", "active", "completed")
                             )
                         )
@@ -624,13 +625,13 @@ class SchemaServiceTest {
                                 key = SchemaType.NUMBER,
                                 type = DataType.NUMBER,
                                 required = true,
-                                options = Schema.SchemaOptions(minimum = -90.0, maximum = 90.0)
+                                options = SchemaOptions(minimum = -90.0, maximum = 90.0)
                             ),
                             "longitude" to Schema(
                                 key = SchemaType.NUMBER,
                                 type = DataType.NUMBER,
                                 required = true,
-                                options = Schema.SchemaOptions(minimum = -180.0, maximum = 180.0)
+                                options = SchemaOptions(minimum = -180.0, maximum = 180.0)
                             ),
                             "address" to Schema(
                                 key = SchemaType.TEXT,
@@ -661,7 +662,7 @@ class SchemaServiceTest {
                         items = Schema(
                             key = SchemaType.SELECT,
                             type = DataType.STRING,
-                            options = Schema.SchemaOptions(
+                            options = SchemaOptions(
                                 enum = listOf("bug", "feature", "enhancement", "documentation")
                             )
                         )
@@ -680,7 +681,7 @@ class SchemaServiceTest {
                     "rating", Schema(
                         key = SchemaType.RATING,
                         type = DataType.NUMBER,
-                        options = Schema.SchemaOptions(minimum = 0.0, maximum = 5.0)
+                        options = SchemaOptions(minimum = 0.0, maximum = 5.0)
                     )
                 )
                 val payload = mapOf("rating" to 4.5)
@@ -736,7 +737,7 @@ class SchemaServiceTest {
                     "age", Schema(
                         key = SchemaType.NUMBER,
                         type = DataType.NUMBER,
-                        options = Schema.SchemaOptions(minimum = 18.0)
+                        options = SchemaOptions(minimum = 18.0)
                     )
                 )
                 val payload = mapOf("age" to 16)
@@ -752,7 +753,7 @@ class SchemaServiceTest {
                     "age", Schema(
                         key = SchemaType.NUMBER,
                         type = DataType.NUMBER,
-                        options = Schema.SchemaOptions(minimum = 18.0)
+                        options = SchemaOptions(minimum = 18.0)
                     )
                 )
                 val payload = mapOf("age" to 16)
@@ -799,7 +800,7 @@ class SchemaServiceTest {
                     "name", Schema<String>(
                         key = SchemaType.TEXT,
                         type = DataType.STRING,
-                        options = Schema.SchemaOptions(minLength = 1)
+                        options = SchemaOptions(minLength = 1)
                     )
                 )
                 val payload = mapOf("name" to "")
@@ -815,7 +816,7 @@ class SchemaServiceTest {
                     "percentage", Schema(
                         key = SchemaType.NUMBER,
                         type = DataType.NUMBER,
-                        options = Schema.SchemaOptions(minimum = 0.0, maximum = 100.0)
+                        options = SchemaOptions(minimum = 0.0, maximum = 100.0)
                     )
                 )
 

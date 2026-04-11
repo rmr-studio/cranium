@@ -50,6 +50,7 @@ Utility service for attribute schema operations including definition save/remove
 **Save attribute definition:**
 
 1. Validate attribute constraints (unique requires STRING or NUMBER type)
+1b. Validate static default values — if the attribute has a `DefaultValue.Static`, the literal value is validated against the attribute's schema via `SchemaService`. `DefaultValue.Dynamic` defaults skip literal validation (they are resolved at entity creation time, not at definition time).
 2. Upsert attribute into type's schema properties
 3. Detect breaking changes via [[riven/docs/system-design/domains/Entities/Validation/EntityValidationService]]
 4. If breaking changes exist:
@@ -147,3 +148,8 @@ Deletes all unique values for entity type. Returns count of deleted rows.
 ### 2025-07-17 — Readonly guards for integration-sourced entity types
 
 - Added readonly guards on `saveAttributeDefinition` and `removeAttributeDefinition` to protect integration-sourced entity types.
+
+### 2026-04-11 — Default value validation
+
+- `saveAttributeDefinition` now validates `DefaultValue.Static` values against the attribute schema via SchemaService.
+- `DefaultValue.Dynamic` defaults are not validated at definition time — they produce values at entity creation time.

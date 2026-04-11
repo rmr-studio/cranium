@@ -3,6 +3,7 @@
   "key": "zendesk",
   "name": "Zendesk",
   "description": "Zendesk support integration providing contacts and tickets.",
+  "category": "SUPPORT",
   "entityTypes": [
     {
       "key": "zendesk-contact",

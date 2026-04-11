@@ -7,7 +7,9 @@ import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
-import riven.core.lifecycle.AttributeOptions
+import riven.core.enums.core.DynamicDefaultFunction
+import riven.core.models.common.validation.DefaultValue
+import riven.core.models.common.validation.SchemaOptions
 import riven.core.lifecycle.AttributeSemantics
 import riven.core.lifecycle.CoreModelAttribute
 import riven.core.lifecycle.CoreModelDefinition
@@ -55,7 +57,7 @@ object SupportTicketModel : CoreModelDefinition(
         "priority" to CoreModelAttribute(
             schemaType = SchemaType.SELECT, label = "Priority", dataType = DataType.STRING,
             required = true,
-            options = AttributeOptions(enum = listOf("low", "medium", "high", "critical"), default = "medium"),
+            options = SchemaOptions(enum = listOf("low", "medium", "high", "critical"), defaultValue = DefaultValue.Static("medium")),
             semantics = AttributeSemantics(
                 definition = "The urgency level of the support request, determining SLA targets and queue ordering.",
                 classification = SemanticAttributeClassification.CATEGORICAL,
@@ -65,7 +67,7 @@ object SupportTicketModel : CoreModelDefinition(
         "status" to CoreModelAttribute(
             schemaType = SchemaType.SELECT, label = "Status", dataType = DataType.STRING,
             required = true,
-            options = AttributeOptions(enum = listOf("open", "in-progress", "resolved", "closed"), default = "open"),
+            options = SchemaOptions(enum = listOf("open", "in-progress", "resolved", "closed"), defaultValue = DefaultValue.Static("open")),
             semantics = AttributeSemantics(
                 definition = "The current resolution state of the ticket, tracking progress from initial report through to closure.",
                 classification = SemanticAttributeClassification.CATEGORICAL,
@@ -74,7 +76,7 @@ object SupportTicketModel : CoreModelDefinition(
         ),
         "channel" to CoreModelAttribute(
             schemaType = SchemaType.SELECT, label = "Channel", dataType = DataType.STRING,
-            options = AttributeOptions(enum = listOf("email", "chat", "phone", "web")),
+            options = SchemaOptions(enum = listOf("email", "chat", "phone", "web")),
             semantics = AttributeSemantics(
                 definition = "The communication channel through which the support request was initially received.",
                 classification = SemanticAttributeClassification.CATEGORICAL,
@@ -84,6 +86,7 @@ object SupportTicketModel : CoreModelDefinition(
         "created-date" to CoreModelAttribute(
             schemaType = SchemaType.DATE, label = "Created Date", dataType = DataType.STRING,
             format = "date",
+            options = SchemaOptions(defaultValue = DefaultValue.Dynamic(DynamicDefaultFunction.CURRENT_DATE)),
             semantics = AttributeSemantics(
                 definition = "The date the support ticket was created, marking the start of the SLA clock.",
                 classification = SemanticAttributeClassification.TEMPORAL,
@@ -101,7 +104,7 @@ object SupportTicketModel : CoreModelDefinition(
         ),
         "category" to CoreModelAttribute(
             schemaType = SchemaType.SELECT, label = "Category", dataType = DataType.STRING,
-            options = AttributeOptions(enum = listOf("billing", "technical", "general", "feature-request")),
+            options = SchemaOptions(enum = listOf("billing", "technical", "general", "feature-request")),
             semantics = AttributeSemantics(
                 definition = "The type of issue or request, used for routing, trend analysis, and workload distribution.",
                 classification = SemanticAttributeClassification.CATEGORICAL,

@@ -33,9 +33,9 @@ The Catalog domain provides a startup-time pipeline that scans classpath manifes
 ### This Domain Does NOT Own
 
 - Workspace-scoped data — the catalog is global, not tenant-specific
-- Integration runtime behavior — owned by [[Integrations]] domain
-- Entity type definitions created by users — owned by [[Entities]] domain
-- Enum definitions (IconType, IconColour, SemanticGroup, etc.) — shared from [[Entities]] domain
+- Integration runtime behavior — owned by [[riven/docs/system-design/domains/Integrations/Integrations]] domain
+- Entity type definitions created by users — owned by [[riven/docs/system-design/domains/Entities/Entities]] domain
+- Enum definitions (IconType, IconColour, SemanticGroup, etc.) — shared from [[riven/docs/system-design/domains/Entities/Entities]] domain
 
 ---
 
@@ -43,9 +43,9 @@ The Catalog domain provides a startup-time pipeline that scans classpath manifes
 
 | Sub-Domain | Purpose |
 |---|---|
-| [[Manifest Pipeline]] | Startup-time pipeline: discovery, validation, resolution, persistence, reconciliation |
-| [[Catalog Query]] | Read-only query surface for loaded manifest data |
-| [[Template Installation]] | Workspace-scoped installation of catalog templates and bundles via REST API |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/Manifest Pipeline]] | Startup-time pipeline: discovery, validation, resolution, persistence, reconciliation |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Catalog Query/Catalog Query]] | Read-only query surface for loaded manifest data |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Template Installation/Template Installation]] | Workspace-scoped installation of catalog templates and bundles via REST API |
 | [[Core Model Definitions]] | Compile-time Kotlin entity type definitions with boot-time catalog population |
 
 ---
@@ -54,7 +54,7 @@ The Catalog domain provides a startup-time pipeline that scans classpath manifes
 
 | Flow | Type | Description |
 |---|---|---|
-| [[Flow - Manifest Loading Pipeline]] | Background | ApplicationReadyEvent -> scan -> resolve -> upsert -> reconcile -> stale sync |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/Flow - Manifest Loading Pipeline]] | Background | ApplicationReadyEvent -> scan -> resolve -> upsert -> reconcile -> stale sync |
 
 ---
 
@@ -92,15 +92,15 @@ The Catalog domain provides a startup-time pipeline that scans classpath manifes
 
 | Domain | What We Consume | Via Component | Related Flow |
 |--------|----------------|---------------|--------------|
-| [[Entities]] | Shared enums: IconType, IconColour, SemanticGroup, EntityRelationshipCardinality, SemanticMetadataTargetType, SemanticAttributeClassification | Enum imports | [[Flow - Manifest Loading Pipeline]] |
-| [[Entities]] | Entity type creation, relationship definitions, semantic metadata initialization | [[TemplateInstallationService]] | Template/bundle installation |
+| [[riven/docs/system-design/domains/Entities/Entities]] | Shared enums: IconType, IconColour, SemanticGroup, EntityRelationshipCardinality, SemanticMetadataTargetType, SemanticAttributeClassification | Enum imports | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/Flow - Manifest Loading Pipeline]] |
+| [[riven/docs/system-design/domains/Entities/Entities]] | Entity type creation, relationship definitions, semantic metadata initialization | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Template Installation/TemplateInstallationService]] | Template/bundle installation |
 
 ### Consumed By
 
 | Consumer | What They Consume | Via Component | Related Flow |
 |----------|------------------|---------------|--------------|
-| [[Integrations]] | Stale flag propagation from catalog to integration_definitions | [[IntegrationDefinitionStaleSyncService]] | [[Flow - Manifest Loading Pipeline]] |
-| Downstream services | Manifest summaries, entity type definitions, relationship schemas | [[ManifestCatalogService]] | Direct service injection |
+| [[riven/docs/system-design/domains/Integrations/Integrations]] | Stale flag propagation from catalog to integration_definitions | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/IntegrationDefinitionStaleSyncService]] | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/Flow - Manifest Loading Pipeline]] |
+| Downstream services | Manifest summaries, entity type definitions, relationship schemas | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Catalog Query/ManifestCatalogService]] | Direct service injection |
 | Workspace users | Template installation via REST API | WorkspaceController | Template installation |
 
 ---
@@ -135,8 +135,8 @@ The Catalog domain provides a startup-time pipeline that scans classpath manifes
 
 `CatalogFieldMappingEntity` is consumed by the new `FieldMappingService` during data ingestion. Field mappings transform integration source fields into the core entity type schema, bridging the gap between external data models and workspace-scoped entity types.
 
-The generic mapping engine (documented under [[Catalog Query]]) handles type coercion, value mapping, and JSONPath extraction. The `FieldMappingService` applies these mappings at runtime as Step 3 (Map) of the ingestion pipeline.
+The generic mapping engine (documented under [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Catalog Query/Catalog Query]]) handles type coercion, value mapping, and JSONPath extraction. The `FieldMappingService` applies these mappings at runtime as Step 3 (Map) of the ingestion pipeline.
 
 ### References
 
-- [[Entity Ingestion Pipeline]]
+- [[2. Areas/2.1 Startup & Content/Riven/7. Todo/Entity Ingestion Pipeline]]

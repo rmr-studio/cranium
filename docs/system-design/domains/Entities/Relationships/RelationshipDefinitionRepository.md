@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-02-21
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # RelationshipDefinitionRepository
 
-Part of [[Relationships]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Relationships/Relationships]]
 
 ## Purpose
 
@@ -35,19 +35,19 @@ JPA repository for `RelationshipDefinitionEntity` persistence. Provides workspac
 
 | Component | Purpose |
 | --------- | ------- |
-| [[EntityTypeRelationshipService]] | Primary CRUD operations |
-| [[EntityTypeService]] | Check definition existence during save, load definitions during delete |
-| [[EntityQueryService]] | Load definitions for filter validation and direction resolution |
-| [[EntityContextService]] | Load definitions for context building |
-| [[EntityRelationshipService]] | Validate connection belongs to CONNECTED_ENTITIES definition |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Relationships/EntityTypeRelationshipService]] | Primary CRUD operations |
+| [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] | Check definition existence during save, load definitions during delete |
+| [[riven/docs/system-design/domains/Entities/Querying/EntityQueryService]] | Load definitions for filter validation and direction resolution |
+| [[riven/docs/system-design/domains/Workflows/State Management/EntityContextService]] | Load definitions for context building |
+| [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] | Validate connection belongs to CONNECTED_ENTITIES definition |
 
 ---
 
 ## Related
 
-- [[RelationshipTargetRuleRepository]] — Companion repository for target rules
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Relationships/RelationshipTargetRuleRepository]] — Companion repository for target rules
 - `RelationshipDefinitionEntity` — JPA entity
-- [[Relationships]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Relationships/Relationships]] — Parent subdomain
 
 ---
 

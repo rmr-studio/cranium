@@ -6,9 +6,9 @@ tags:
   - domain/identity-resolution
 Created: 2026-03-19
 Domains:
-  - "[[Identity Resolution]]"
+  - "[[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]]"
 Sub-Domains:
-  - "[[Clusters]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Clusters/Clusters]]"
 ---
 
 # IdentityController
@@ -71,8 +71,8 @@ REST API controller for identity resolution — exposes endpoints for suggestion
 
 ## Related
 
-- [[Clusters]]
-- [[Matching Pipeline]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Clusters/Clusters]]
+- [[riven/docs/system-design/domains/Identity Resolution/Matching Pipeline/Matching Pipeline]]
 - [[IdentityReadService]]
 - [[IdentityConfirmationService]]
 - [[IdentityClusterService]]

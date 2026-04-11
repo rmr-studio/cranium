@@ -10,12 +10,12 @@ tags:
 Created: 2026-03-19
 Updated:
 Domains:
-  - "[[Entities]]"
-  - "[[Integrations]]"
-  - "[[Notifications]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
+  - "[[riven/docs/system-design/feature-design/4. Completed/Notifications]]"
 blocked by:
-  - "[[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]]"
-  - "[[Identity Resolution System]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]]"
+  - "[[riven/docs/system-design/feature-design/2. Planned/Identity Resolution System]]"
 ---
 # Feature: Action Primitives — Tags, Segments, Alerts, Write-back
 
@@ -123,7 +123,7 @@ Four action primitives that close the insight-to-action gap. These are NOT workf
 
 - If `segmentId` is set, the alert monitors that segment. If `queryFilter` is set directly, the alert runs an ad-hoc query.
 - Evaluation job runs via existing scheduled job infrastructure (ShedLock for distributed locking, same pattern as workflow queue dispatch)
-- Notifications delivered via the [[Notifications]] domain (in-app + email)
+- Notifications delivered via the [[riven/docs/system-design/feature-design/4. Completed/Notifications]] domain (in-app + email)
 
 ---
 
@@ -219,13 +219,13 @@ The operator went from insight (channel performance) to action (tagged, alerted,
 
 ## Related Documents
 
-- [[Lifecycle Analytics Views]] — primary surface where actions are triggered from
-- [[Churn Retrospective Timeline]] — tag/flag customers directly from the retrospective
-- [[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]] — entity types being tagged and segmented
-- [[Identity Resolution System]] — cross-tool entity linking for segment scoping
-- [[Integrations]] — Nango write-back capability
-- [[Notifications]] — alert delivery
-- [[Querying]] — existing query pipeline reused for segment evaluation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Lifecycle Analytics Views]] — primary surface where actions are triggered from
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Churn Retrospective Timeline]] — tag/flag customers directly from the retrospective
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]] — entity types being tagged and segmented
+- [[riven/docs/system-design/feature-design/2. Planned/Identity Resolution System]] — cross-tool entity linking for segment scoping
+- [[riven/docs/system-design/domains/Integrations/Integrations]] — Nango write-back capability
+- [[riven/docs/system-design/feature-design/4. Completed/Notifications]] — alert delivery
+- [[riven/docs/system-design/domains/Entities/Querying/Querying]] — existing query pipeline reused for segment evaluation
 - [[Launch Scope and Phasing]] — Layer 1 MVP component
 - CEO Plan: Day 1 Value — Layer 1 MVP (2026-03-19)
 

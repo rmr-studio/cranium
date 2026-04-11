@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-16
 Domains:
-  - "[[Storage]]"
+  - "[[riven/docs/system-design/domains/Storage/Storage]]"
 ---
 # AvatarUrlResolver
 
-Part of [[File Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/File Management]]
 
 ## Purpose
 
@@ -45,13 +45,13 @@ Returns `/api/v1/avatars/user/{userId}` if `storageKey` is non-null, `null` othe
 
 ## Gotchas
 
-- **Storage keys never leak to API consumers** — the resolver deliberately discards the storage key value and returns only the entity ID-based path. The actual storage key is resolved again at download time by [[AvatarService]].
+- **Storage keys never leak to API consumers** — the resolver deliberately discards the storage key value and returns only the entity ID-based path. The actual storage key is resolved again at download time by [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/AvatarService]].
 - **Object, not class** — declared as a Kotlin `object` (singleton). No Spring bean registration needed; called via static-style invocation.
 
 ---
 
 ## Related
 
-- [[AvatarService]] — Resolves the entity ID back to a storage key and streams the file
-- [[AvatarController]] — Serves the avatar images at the URLs this resolver generates
-- [[File Management]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/AvatarService]] — Resolves the entity ID back to a storage key and streams the file
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/AvatarController]] — Serves the avatar images at the URLs this resolver generates
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/File Management]] — Parent subdomain

@@ -228,7 +228,7 @@ declare module '@tanstack/react-table' {
 | `@dnd-kit/core` + `@dnd-kit/sortable` | Drag-drop for row reordering and column reordering |
 | Zustand (DataTable store) | Cross-component state — table instance, selection, search value, edit state |
 | `useInfiniteQuery` (TanStack Query) | Consumers use this for paginated data; DataTable consumes the flattened result via `InfiniteScrollConfig` |
-| [[Entity Data Table]] | Primary consumer of infinite scroll, server-side search, and server-side sorting |
+| [[riven/docs/frontend-design/workspace/Entity Data Table]] | Primary consumer of infinite scroll, server-side search, and server-side sorting |
 | `SchemaDataTable` / `EnhancedSchemaDataTable` | Schema-driven consumers that auto-generate client-side config |
 
 ---
@@ -250,7 +250,7 @@ declare module '@tanstack/react-table' {
 
 | Date | Change | Feature/ADR |
 | ---- | ------ | ----------- |
-| 2026-03-18 | Added `InfiniteScrollConfig` type and sentinel-based IntersectionObserver | [[Entity Data Table]] |
-| 2026-03-18 | Added `ServerSideSortingConfig` type and controlled sorting mode | [[Entity Data Table]] |
-| 2026-03-18 | Added `serverSide` flag to `SearchConfig` | [[Entity Data Table]] |
-| 2026-03-18 | Added "Loading more..." indicator for infinite scroll | [[Entity Data Table]] |
+| 2026-03-18 | Added `InfiniteScrollConfig` type and sentinel-based IntersectionObserver | [[riven/docs/frontend-design/workspace/Entity Data Table]] |
+| 2026-03-18 | Added `ServerSideSortingConfig` type and controlled sorting mode | [[riven/docs/frontend-design/workspace/Entity Data Table]] |
+| 2026-03-18 | Added `serverSide` flag to `SearchConfig` | [[riven/docs/frontend-design/workspace/Entity Data Table]] |
+| 2026-03-18 | Added "Loading more..." indicator for infinite scroll | [[riven/docs/frontend-design/workspace/Entity Data Table]] |

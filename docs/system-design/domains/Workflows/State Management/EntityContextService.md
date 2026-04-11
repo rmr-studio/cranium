@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-21
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # EntityContextService
 
-Part of [[State Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/State Management]]
 
 ## Purpose
 
@@ -113,6 +113,6 @@ Builds context with recursive relationship traversal. Returns map with nested ob
 
 ## Related
 
-- [[WorkflowNodeExpressionEvaluatorService]] — Evaluates expressions against these contexts
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/WorkflowNodeExpressionEvaluatorService]] — Evaluates expressions against these contexts
 - Entity domain — Source of entity data
-- [[State Management]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/State Management]] — Parent subdomain

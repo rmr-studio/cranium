@@ -9,7 +9,7 @@ tags:
 Created: 2026-02-06
 Updated:
 Domains:
-  - "[[Knowledge]]"
+  - "[[riven/docs/system-design/domains/Knowledge/Knowledge]]"
 blocked by:
   - "[[Semantically Imbued Entity Attributes]]"
 ---
@@ -36,7 +36,7 @@ Data needs to be processed into embeddable chunks, enriched with schema context 
 	- Entity created
 	- Entity updated (attributes or relationships changed)
 	- Related entity updated (if relationship is semantically significant)
-	- Schema change affecting entity type [[Schema Change Handling]]
+	- Schema change affecting entity type [[riven/docs/system-design/domains/Knowledge/Schema Change Handling/Schema Change Handling]]
 	- Integration sync completes for entity
 	- Manual re-embedding requested
 

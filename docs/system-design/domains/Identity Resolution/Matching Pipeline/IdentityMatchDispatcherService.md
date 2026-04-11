@@ -6,9 +6,9 @@ tags:
   - domain/identity-resolution
 Created: 2026-03-19
 Domains:
-  - "[[Identity Resolution]]"
+  - "[[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]]"
 Sub-Domains:
-  - "[[Matching Pipeline]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Matching Pipeline/Matching Pipeline]]"
 ---
 
 # IdentityMatchDispatcherService
@@ -28,8 +28,8 @@ Scheduled dispatcher for the IDENTITY_MATCH execution queue, using ShedLock for 
 ## Dependencies
 
 - [[IdentityMatchQueueProcessorService]] — batch claiming and per-item processing
-- [[ExecutionQueueRepository]] — stale item recovery queries
-- [[WorkflowExecutionQueueService]] — releasing stale items back to PENDING
+- [[riven/docs/system-design/domains/Workflows/Queue Management/ExecutionQueueRepository]] — stale item recovery queries
+- [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueService]] — releasing stale items back to PENDING
 - KLogger — structured logging
 
 ## Used By
@@ -64,11 +64,11 @@ Finds items stuck in CLAIMED state beyond a staleness threshold and releases the
 
 ## Flows Involved
 
-- [[Flow - Identity Match Pipeline]]
+- [[riven/docs/system-design/domains/Identity Resolution/Flow - Identity Match Pipeline]]
 
 ---
 
 ## Related
 
-- [[Matching Pipeline]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Matching Pipeline/Matching Pipeline]]
 - [[IdentityMatchQueueProcessorService]]

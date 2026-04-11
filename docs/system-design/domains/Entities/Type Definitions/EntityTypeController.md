@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-09
 Updated: 2026-03-01
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # EntityTypeController
 
-Part of [[Type Definitions]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Type Definitions/Type Definitions]]
 
 ## Purpose
 
@@ -21,7 +21,7 @@ REST controller for entity type schema management — exposes endpoints for type
 ## Responsibilities
 
 - Expose entity type CRUD endpoints at `/api/v1/entity/schema/`
-- Delegate all business logic to [[EntityTypeService]]
+- Delegate all business logic to [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Type Definitions/EntityTypeService]]
 - Return enriched `EntityType` models with relationship definitions and semantic metadata bundles embedded
 - Swagger documentation via `@Operation` and `@ApiResponses` annotations
 
@@ -29,8 +29,8 @@ REST controller for entity type schema management — exposes endpoints for type
 
 ## Dependencies
 
-- [[EntityTypeService]] — all entity type business logic
-- [[EntityTypeSemanticMetadataService]] — semantic metadata bundle construction (accessed via EntityTypeService)
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Type Definitions/EntityTypeService]] — all entity type business logic
+- [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]] — semantic metadata bundle construction (accessed via EntityTypeService)
 
 ## Used By
 
@@ -96,6 +96,6 @@ Deletes entity type with cascade handling.
 
 ## Related
 
-- [[EntityTypeService]] — business logic
-- [[EntityTypeSemanticMetadataService]] — semantic metadata operations
-- [[Type Definitions]] — parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Type Definitions/EntityTypeService]] — business logic
+- [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]] — semantic metadata operations
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Type Definitions/Type Definitions]] — parent subdomain

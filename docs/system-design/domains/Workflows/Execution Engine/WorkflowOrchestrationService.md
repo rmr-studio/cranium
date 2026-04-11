@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-08
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # WorkflowOrchestrationService
 
-Part of [[Execution Engine]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/Execution Engine]]
 
 ---
 
@@ -45,8 +45,8 @@ The Temporal Workflow implementation that orchestrates DAG-based workflow execut
 
 | Component | Purpose | Coupling |
 |---|---|---|
-| [[WorkflowCoordinationService]] | Activity that executes DAG nodes | High |
-| [[WorkflowCompletionActivityImpl]] | Activity that records final status | Medium |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowCoordinationService]] | Activity that executes DAG nodes | High |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowCompletionActivityImpl]] | Activity that records final status | Medium |
 | RetryConfig | Frozen retry configuration from application.yml | Low |
 
 ### External Dependencies
@@ -72,7 +72,7 @@ class WorkflowOrchestrationService(
 
 | Component | How It Uses This | Notes |
 |---|---|---|
-| [[WorkflowExecutionQueueProcessorService]] | Starts workflow via Temporal WorkflowClient | Creates workflow with ID format `execution-{uuid}` |
+| [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueProcessorService]] | Starts workflow via Temporal WorkflowClient | Creates workflow with ID format `execution-{uuid}` |
 | Temporal Server | Invokes execute() method when workflow starts | Temporal manages lifecycle |
 
 ---
@@ -386,11 +386,11 @@ Temporal workflows require the Temporal Test Server or mocking framework for int
 
 ## Related
 
-- [[WorkflowCoordinationService]] - Main activity for DAG execution
-- [[WorkflowCompletionActivityImpl]] - Completion recording activity
-- [[WorkflowExecutionQueueProcessorService]] - Dispatches workflows to Temporal
-- [[Execution Engine]] - Parent subdomain
-- [[TemporalWorkerConfiguration]] - Worker registration and factory setup
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowCoordinationService]] - Main activity for DAG execution
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowCompletionActivityImpl]] - Completion recording activity
+- [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueProcessorService]] - Dispatches workflows to Temporal
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/Execution Engine]] - Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/TemporalWorkerConfiguration]] - Worker registration and factory setup
 
 ---
 

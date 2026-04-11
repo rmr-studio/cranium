@@ -9,7 +9,7 @@ Updated: 2026-02-09
 
 ## Overview
 
-This document maps all cross-domain interactions in Riven Core. Three domains are currently documented: [[Workflows]], [[Entities]], and [[Workspaces & Users]]. The Workspaces & Users domain serves as the foundational infrastructure layer, providing workspace scoping and authorization capabilities that both Workflows and Entities depend upon.
+This document maps all cross-domain interactions in Riven Core. Three domains are currently documented: [[riven/docs/system-design/domains/Workflows/Workflows]], [[riven/docs/system-design/domains/Entities/Entities]], and [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]. The Workspaces & Users domain serves as the foundational infrastructure layer, providing workspace scoping and authorization capabilities that both Workflows and Entities depend upon.
 
 ## System Dependency Diagram
 
@@ -36,32 +36,32 @@ flowchart TD
 
 | # | Source | Target | Interaction | Mechanism | Related Flow |
 |---|--------|--------|------------|-----------|--------------|
-| 1 | [[Workflows]] | [[Entities]] | Node actions execute entity CRUD | [[EntityService]], [[EntityContextService]] (direct service call) | [[Workflow Execution]] |
-| 2 | [[Workflows]] | [[Workspaces & Users]] | Workspace scoping for all queries | PostgreSQL RLS via workspace_members | [[Auth & Authorization]] |
-| 3 | [[Workflows]] | [[Workspaces & Users]] | Authorization for API endpoints | [[WorkspaceSecurity]] (@PreAuthorize) | [[Auth & Authorization]] |
-| 4 | [[Workflows]] | [[Workspaces & Users]] | Capacity tier check before dispatch | [[WorkspaceService]] (direct service call) | [[Queue Processing]] |
-| 5 | [[Entities]] | [[Workspaces & Users]] | Workspace scoping for all queries | PostgreSQL RLS via workspace_members | [[Auth & Authorization]] |
-| 6 | [[Entities]] | [[Workspaces & Users]] | Authorization for API endpoints | [[WorkspaceSecurity]] (@PreAuthorize) | [[Auth & Authorization]] |
-| 7 | [[Entities]] | [[Workspaces & Users]] | User context for activity logging | [[AuthTokenService]] (direct service call) | [[Entity CRUD]] |
+| 1 | [[riven/docs/system-design/domains/Workflows/Workflows]] | [[riven/docs/system-design/domains/Entities/Entities]] | Node actions execute entity CRUD | [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]], [[riven/docs/system-design/domains/Workflows/State Management/EntityContextService]] (direct service call) | [[riven/docs/system-design/flows/Workflow Execution]] |
+| 2 | [[riven/docs/system-design/domains/Workflows/Workflows]] | [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] | Workspace scoping for all queries | PostgreSQL RLS via workspace_members | [[riven/docs/system-design/flows/Auth & Authorization]] |
+| 3 | [[riven/docs/system-design/domains/Workflows/Workflows]] | [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] | Authorization for API endpoints | [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]] (@PreAuthorize) | [[riven/docs/system-design/flows/Auth & Authorization]] |
+| 4 | [[riven/docs/system-design/domains/Workflows/Workflows]] | [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] | Capacity tier check before dispatch | [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceService]] (direct service call) | [[riven/docs/system-design/flows/Queue Processing]] |
+| 5 | [[riven/docs/system-design/domains/Entities/Entities]] | [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] | Workspace scoping for all queries | PostgreSQL RLS via workspace_members | [[riven/docs/system-design/flows/Auth & Authorization]] |
+| 6 | [[riven/docs/system-design/domains/Entities/Entities]] | [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] | Authorization for API endpoints | [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]] (@PreAuthorize) | [[riven/docs/system-design/flows/Auth & Authorization]] |
+| 7 | [[riven/docs/system-design/domains/Entities/Entities]] | [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] | User context for activity logging | [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]] (direct service call) | [[riven/docs/system-design/flows/Entity CRUD]] |
 
 ## Key Integration Patterns
 
 ### Pattern 1: RLS-Based Workspace Isolation
 
-All domains rely on PostgreSQL Row-Level Security via the `workspace_members` table. [[WorkspaceSecurity]] activates RLS context. See [[Auth & Authorization]] for the full flow.
+All domains rely on PostgreSQL Row-Level Security via the `workspace_members` table. [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]] activates RLS context. See [[riven/docs/system-design/flows/Auth & Authorization]] for the full flow.
 
 ### Pattern 2: @PreAuthorize Authorization
 
-Both [[Workflows]] and [[Entities]] use `@PreAuthorize` expressions that delegate to [[WorkspaceSecurity]] bean methods. The authority format `ROLE_{workspaceId}_{ROLE}` is the critical coupling point.
+Both [[riven/docs/system-design/domains/Workflows/Workflows]] and [[riven/docs/system-design/domains/Entities/Entities]] use `@PreAuthorize` expressions that delegate to [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]] bean methods. The authority format `ROLE_{workspaceId}_{ROLE}` is the critical coupling point.
 
 ### Pattern 3: Direct Service Calls (Workflows → Entities)
 
-Workflow node actions call [[EntityService]] and [[EntityContextService]] directly. This is the primary cross-domain data dependency.
+Workflow node actions call [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]] and [[riven/docs/system-design/domains/Workflows/State Management/EntityContextService]] directly. This is the primary cross-domain data dependency.
 
 ## Gotchas
 
 > [!warning] Authority Format Coupling
-> The `ROLE_{workspaceId}_{ROLE}` format is embedded in [[TokenDecoder]], [[WorkspaceSecurity]], and all `@PreAuthorize` annotations. Changing this format requires coordinated updates across all three domains.
+> The `ROLE_{workspaceId}_{ROLE}` format is embedded in [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/TokenDecoder]], [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]], and all `@PreAuthorize` annotations. Changing this format requires coordinated updates across all three domains.
 
 > [!warning] RLS Silent Filtering
-> RLS does not throw errors — it silently filters results. A misconfigured workspace context returns empty data, not a 403. See [[Auth & Authorization]] for details.
+> RLS does not throw errors — it silently filters results. A misconfigured workspace context returns empty data, not a 403. See [[riven/docs/system-design/flows/Auth & Authorization]] for details.

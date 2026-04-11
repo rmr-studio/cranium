@@ -118,7 +118,7 @@ Store files in a publicly accessible location (e.g., public S3 bucket, public Su
 
 ## Related
 
-- [[Provider-Agnostic File Storage]] -- Feature design using this signed URL mechanism
-- [[ADR-005 Strategy Pattern with Conditional Bean Selection for Storage Providers]] -- Storage provider abstraction that this decision complements
-- [[File Storage]] -- Sub-domain plan for the Storage domain
-- [[Flow - Signed URL Download]] -- Detailed flow for the download path
+- [[riven/docs/system-design/feature-design/2. Planned/Provider-Agnostic File Storage]] -- Feature design using this signed URL mechanism
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-005 Strategy Pattern with Conditional Bean Selection for Storage Providers]] -- Storage provider abstraction that this decision complements
+- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/File Storage]] -- Sub-domain plan for the Storage domain
+- [[riven/docs/system-design/flows/Flow - Signed URL Download]] -- Detailed flow for the download path

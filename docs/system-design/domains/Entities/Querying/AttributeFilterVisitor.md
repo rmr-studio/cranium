@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-21
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # AttributeFilterVisitor
 
-Part of [[Querying]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/Querying]]
 
 ## Purpose
 
@@ -34,17 +34,17 @@ Visitor that traverses QueryFilter trees and produces SqlFragment output, dispat
 
 ## Dependencies
 
-- [[AttributeSqlGenerator]] — Generate SQL for attribute filters
-- [[RelationshipSqlGenerator]] — Generate SQL for relationship filters with EXISTS subqueries
-- [[SqlFragment]] — Immutable SQL + parameters container
-- [[ParameterNameGenerator]] — Unique parameter naming
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/AttributeSqlGenerator]] — Generate SQL for attribute filters
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/RelationshipSqlGenerator]] — Generate SQL for relationship filters with EXISTS subqueries
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/SqlFragment]] — Immutable SQL + parameters container
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/ParameterNameGenerator]] — Unique parameter naming
 - Entity models: `QueryFilter`, `FilterValue`
 - Exception types: `FilterNestingDepthExceededException`, `RelationshipDepthExceededException`
 
 ## Used By
 
-- [[EntityQueryAssembler]] — Root visitor entry point
-- [[RelationshipSqlGenerator]] — Passes nested visitor callback for recursive filtering
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/EntityQueryAssembler]] — Root visitor entry point
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/RelationshipSqlGenerator]] — Passes nested visitor callback for recursive filtering
 
 ---
 
@@ -122,11 +122,11 @@ Entry point for filter tree traversal. Returns SQL fragment with parameterized S
 
 ## Related
 
-- [[EntityQueryAssembler]] — Entry point for visitor
-- [[RelationshipSqlGenerator]] — Receives nested visitor callback
-- [[AttributeSqlGenerator]] — Attribute filter delegation
-- [[SqlFragment]] — Returned fragment type
-- [[Querying]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/EntityQueryAssembler]] — Entry point for visitor
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/RelationshipSqlGenerator]] — Receives nested visitor callback
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/AttributeSqlGenerator]] — Attribute filter delegation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/SqlFragment]] — Returned fragment type
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/Querying]] — Parent subdomain
 
 ---
 

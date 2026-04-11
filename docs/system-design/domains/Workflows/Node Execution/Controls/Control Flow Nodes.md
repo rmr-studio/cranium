@@ -1,6 +1,6 @@
 ---
 Created:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
   - architecture/subdomain
 Updated: 2026-02-09
 ---
@@ -19,7 +19,7 @@ Each control flow node implements `WorkflowControlConfig` with a specific `Workf
 
 | Node | Description | Status |
 |------|-------------|--------|
-| [[WorkflowConditionControlConfig]] | Branches workflow based on a boolean condition | Implemented |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Controls/WorkflowConditionControlConfig]] | Branches workflow based on a boolean condition | Implemented |
 
 ## Unimplemented Control Types
 

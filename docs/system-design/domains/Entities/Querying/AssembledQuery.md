@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-08
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # AssembledQuery
 
-Part of [[Querying]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/Querying]]
 
 ## Purpose
 
@@ -28,12 +28,12 @@ Value object holding paired data and count SQL queries sharing the same WHERE cl
 
 ## Dependencies
 
-- [[SqlFragment]] — Both queries are SqlFragment instances
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/SqlFragment]] — Both queries are SqlFragment instances
 
 ## Used By
 
-- [[EntityQueryAssembler]] — Produces AssembledQuery from filter
-- [[EntityQueryService]] — Executes both queries (potentially in parallel)
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/EntityQueryAssembler]] — Produces AssembledQuery from filter
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/EntityQueryService]] — Executes both queries (potentially in parallel)
 
 ---
 
@@ -67,7 +67,7 @@ Data class with no methods beyond constructor and property accessors.
 
 ## Related
 
-- [[EntityQueryAssembler]] — Assembles this structure
-- [[EntityQueryService]] — Executes both queries
-- [[SqlFragment]] — Component type
-- [[Querying]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/EntityQueryAssembler]] — Assembles this structure
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/EntityQueryService]] — Executes both queries
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/SqlFragment]] — Component type
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/Querying]] — Parent subdomain

@@ -1,7 +1,7 @@
 ---
 Created: 2026-02-08
 Domains:
-  - "[[Workspaces & Users]]"
+  - "[[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]"
 tags:
   - architecture/subdomain
   - domain/workspace
@@ -22,7 +22,7 @@ WorkspaceInviteService enforces invitation business rules and updates invitation
 
 | Component | Purpose | Type |
 | --------- | ------- | ---- |
-| [[WorkspaceInviteService]] | Invitation CRUD, acceptance/rejection flow, conflict validation | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Team Management/WorkspaceInviteService]] | Invitation CRUD, acceptance/rejection flow, conflict validation | Service |
 | InviteController | REST endpoints for invitation operations | Controller |
 | WorkspaceInviteRepository | Invitation data access | Repository |
 
@@ -56,4 +56,4 @@ WorkspaceInviteService enforces invitation business rules and updates invitation
 | Date | Change | Feature/ADR |
 | ---- | ------ | ----------- |
 | 2026-02-08 | Subdomain overview created | [[03-01-PLAN]] |
-| 2026-03-12 | Added `createWorkspaceInvitationInternal` method to [[WorkspaceInviteService]] — bypasses `@PreAuthorize` for system-initiated invitations during onboarding | [[2. Areas/2.1 Startup & Business/Riven/2. System Design/domains/Workspaces & Users/Onboarding 1/Onboarding]] |
+| 2026-03-12 | Added `createWorkspaceInvitationInternal` method to [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Team Management/WorkspaceInviteService]] — bypasses `@PreAuthorize` for system-initiated invitations during onboarding | [[2. Areas/2.1 Startup & Business/Riven/2. System Design/domains/Workspaces & Users/Onboarding 1/Onboarding]] |

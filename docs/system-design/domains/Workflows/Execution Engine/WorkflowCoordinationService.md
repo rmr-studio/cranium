@@ -6,15 +6,15 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-08
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # WorkflowCoordinationService
 
-Part of [[Execution Engine]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/Execution Engine]]
 
 ## Purpose
 
-Temporal activity bridge between the deterministic workflow orchestrator and Spring-managed services, coordinating individual workflow node execution by delegating to [[WorkflowGraphCoordinationService]] for DAG orchestration.
+Temporal activity bridge between the deterministic workflow orchestrator and Spring-managed services, coordinating individual workflow node execution by delegating to [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowGraphCoordinationService]] for DAG orchestration.
 
 ---
 
@@ -24,7 +24,7 @@ Temporal activity bridge between the deterministic workflow orchestrator and Spr
 - Create `WorkflowDataStore` with execution metadata and initial state
 - Provide `NodeServiceProvider` callback for on-demand Spring service access during node execution
 - Execute batch of ready nodes via callback passed to graph coordinator
-- Resolve node input templates against `WorkflowDataStore` via [[WorkflowNodeInputResolverService]]
+- Resolve node input templates against `WorkflowDataStore` via [[riven/docs/system-design/domains/Workflows/State Management/WorkflowNodeInputResolverService]]
 - Execute nodes polymorphically via `node.execute(store, inputs, services)`
 - Persist node execution records to `workflow_execution_node` table
 - Classify and throw `ApplicationFailure` for Temporal retry handling
@@ -34,15 +34,15 @@ Temporal activity bridge between the deterministic workflow orchestrator and Spr
 
 ## Dependencies
 
-- [[WorkflowGraphCoordinationService]] — DAG orchestration and batch scheduling
-- [[WorkflowNodeInputResolverService]] — Template resolution
-- [[WorkflowErrorClassifier]] — Exception classification for retry behavior
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowGraphCoordinationService]] — DAG orchestration and batch scheduling
+- [[riven/docs/system-design/domains/Workflows/State Management/WorkflowNodeInputResolverService]] — Template resolution
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowErrorClassifier]] — Exception classification for retry behavior
 - `WorkflowExecutionNodeRepository` — Persistence for node execution state
 - `NodeServiceProvider` — On-demand service injection for nodes
 
 ## Used By
 
-- [[WorkflowOrchestrationService]] — Invokes as Temporal activity for node coordination
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowOrchestrationService]] — Invokes as Temporal activity for node coordination
 
 ---
 
@@ -59,7 +59,7 @@ Temporal activity bridge between the deterministic workflow orchestrator and Spr
 
 **Error classification:**
 
-Uses [[WorkflowErrorClassifier]] to categorize exceptions:
+Uses [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowErrorClassifier]] to categorize exceptions:
 - HTTP 4xx → `HTTP_CLIENT_ERROR` (non-retryable)
 - HTTP 5xx → `HTTP_SERVER_ERROR` (retryable)
 - CONTROL_FLOW nodes → `CONTROL_FLOW_ERROR` (deterministic, non-retryable)
@@ -99,6 +99,6 @@ Executes workflow DAG by coordinating with graph coordinator. Fetches nodes/edge
 
 ## Related
 
-- [[WorkflowOrchestrationService]] — Parent workflow
-- [[WorkflowGraphCoordinationService]] — DAG orchestration
-- [[WorkflowErrorClassifier]] — Error classification utility
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowOrchestrationService]] — Parent workflow
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowGraphCoordinationService]] — DAG orchestration
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowErrorClassifier]] — Error classification utility

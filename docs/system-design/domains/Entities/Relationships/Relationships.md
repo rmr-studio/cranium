@@ -4,7 +4,7 @@ tags:
   - domain/entity
 Created: 2026-02-08
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # Subdomain: Relationships
 
@@ -30,15 +30,15 @@ The exclusion flow is triggered through the `deleteEntityTypeDefinition` endpoin
 
 ### Relationship Instances
 
-Entity-level data stored in `entity_relationships` linking source entities to targets via `definition_id`. Write-time cardinality enforcement validates relationship limits at insert. Instance management is handled by [[EntityRelationshipService]] in the [[Entity Management]] subdomain.
+Entity-level data stored in `entity_relationships` linking source entities to targets via `definition_id`. Write-time cardinality enforcement validates relationship limits at insert. Instance management is handled by [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] in the [[riven/docs/system-design/domains/Entities/Entity Management/Entity Management]] subdomain.
 
 ## Components
 
 | Component | Purpose | Type |
 | --------- | ------- | ---- |
-| [[EntityTypeRelationshipService]] | Relationship definition CRUD with target rule management, target-side exclusion via rule deletion, and two-pass impact deletion | Service |
-| [[RelationshipDefinitionRepository]] | JPA repository for relationship definition persistence | Repository |
-| [[RelationshipTargetRuleRepository]] | JPA repository for target rule persistence | Repository |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Relationships/EntityTypeRelationshipService]] | Relationship definition CRUD with target rule management, target-side exclusion via rule deletion, and two-pass impact deletion | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Relationships/RelationshipDefinitionRepository]] | JPA repository for relationship definition persistence | Repository |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Relationships/RelationshipTargetRuleRepository]] | JPA repository for target rule persistence | Repository |
 
 ## Technical Debt
 

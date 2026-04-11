@@ -6,11 +6,11 @@ tags:
 Created: 2026-03-07
 Updated: 2026-03-07
 Domains:
-  - "[[Storage]]"
+  - "[[riven/docs/system-design/domains/Storage/Storage]]"
 ---
 # FileMetadataEntity
 
-Part of [[File Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/File Management]]
 
 ## Purpose
 
@@ -57,12 +57,12 @@ JPA entity representing a stored file's metadata. Extends `AuditableSoftDeletabl
 
 ## Used By
 
-- [[FileMetadataRepository]] -- Persistence layer
-- [[StorageService]] -- Creates, updates, and soft-deletes entities
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/FileMetadataRepository]] -- Persistence layer
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/StorageService]] -- Creates, updates, and soft-deletes entities
 
 ---
 
 ## Related
 
-- [[FileMetadataRepository]] -- Repository interface
-- [[File Management]] -- Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/FileMetadataRepository]] -- Repository interface
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/File Management]] -- Parent subdomain

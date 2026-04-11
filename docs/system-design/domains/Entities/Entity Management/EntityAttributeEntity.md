@@ -6,11 +6,11 @@ tags:
 Created: 2026-03-09
 Updated: 2026-03-09
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # EntityAttributeEntity
 
-Part of [[Entity Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/Entity Management]]
 
 ## Purpose
 
@@ -35,8 +35,8 @@ JPA entity representing a single normalized attribute value for an entity instan
 
 ## Used By
 
-- [[EntityAttributeRepository]] — Persistence layer
-- [[EntityAttributeService]] — Service layer
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityAttributeRepository]] — Persistence layer
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityAttributeService]] — Service layer
 
 ---
 
@@ -83,6 +83,6 @@ Each attribute value for an entity instance is stored as a separate row. This en
 
 ## Related
 
-- [[EntityAttributeRepository]] — Repository for persistence
-- [[EntityAttributeService]] — Service for CRUD operations
-- [[Entity Management]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityAttributeRepository]] — Repository for persistence
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityAttributeService]] — Service for CRUD operations
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/Entity Management]] — Parent subdomain

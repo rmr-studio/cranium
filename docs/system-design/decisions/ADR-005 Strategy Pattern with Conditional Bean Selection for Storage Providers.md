@@ -123,6 +123,6 @@ Store the active provider in a database configuration table, allowing workspace-
 
 ## Related
 
-- [[Provider-Agnostic File Storage]] -- Feature design using this pattern
-- [[File Storage]] -- Sub-domain plan for the Storage domain
-- [[ADR-006 HMAC-Signed Download Tokens for File Access]] -- Signed URL mechanism that complements the provider abstraction
+- [[riven/docs/system-design/feature-design/2. Planned/Provider-Agnostic File Storage]] -- Feature design using this pattern
+- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/File Storage]] -- Sub-domain plan for the Storage domain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-006 HMAC-Signed Download Tokens for File Access]] -- Signed URL mechanism that complements the provider abstraction

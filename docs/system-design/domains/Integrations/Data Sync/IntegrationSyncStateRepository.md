@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-17
 Domains:
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 # IntegrationSyncStateRepository
 
-Part of [[Data Sync]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Data Sync/Data Sync]]
 
 ## Purpose
 
@@ -55,5 +55,5 @@ Finds the sync state for a specific connection + entity type pair. Returns `null
 
 ## Related
 
-- [[IntegrationSyncStateEntity]] — JPA entity
-- [[Data Sync]] — parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Data Sync/IntegrationSyncStateEntity]] — JPA entity
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Data Sync/Data Sync]] — parent subdomain

@@ -106,7 +106,7 @@ A standard unique constraint on `(workspace_id, source_integration_id, source_ex
 
 ## Related
 
-- [[Integration Data Sync Pipeline]] — Feature design for the sync pipeline that uses this dedup mechanism
-- [[Entity Integration Sync]] — Sub-domain plan for entity sync processing
+- [[riven/docs/system-design/flows/Integration Data Sync Pipeline]] — Feature design for the sync pipeline that uses this dedup mechanism
+- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]] — Sub-domain plan for entity sync processing
 - [[Entity Provenance Tracking]] — Feature that introduced the `source_integration_id` and `source_external_id` columns
-- [[Entities]] — Domain containing the entities table and repository
+- [[riven/docs/system-design/domains/Entities/Entities]] — Domain containing the entities table and repository

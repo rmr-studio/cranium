@@ -6,9 +6,9 @@ tags:
   - domain/identity-resolution
 Created: 2026-03-17
 Domains:
-  - "[[Identity Resolution]]"
+  - "[[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]]"
 Sub-Domains:
-  - "[[Matching Pipeline]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Matching Pipeline/Matching Pipeline]]"
 ---
 
 # IdentityMatchScoringService

@@ -5,7 +5,7 @@ tags:
 Created: 2026-02-09
 Updated: 2026-02-21
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # EntityTypeRelationshipDataLossWarning
 
@@ -14,4 +14,4 @@ Domains:
 
 ## Replaced By
 
-- `DeleteDefinitionImpact.impactedLinkCount` — Single count field in [[EntityTypeRelationshipService]] indicating how many relationship links will be affected
+- `DeleteDefinitionImpact.impactedLinkCount` — Single count field in [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Relationships/EntityTypeRelationshipService]] indicating how many relationship links will be affected

@@ -5,14 +5,14 @@ tags:
   - architecture/component
 Created: 2026-03-09
 Domains:
-  - "[[Catalog]]"
+  - "[[riven/docs/system-design/domains/Catalog/Catalog]]"
 ---
 # TemplateController
 
 > [!warning] Removed in Lifecycle Spine (2026-03-26)
-> This controller was deleted. Template installation is now handled by `WorkspaceController` in the [[Workspaces & Users]] domain via `POST /api/v1/workspace/{workspaceId}/install-template`. Bundle endpoints were removed entirely.
+> This controller was deleted. Template installation is now handled by `WorkspaceController` in the [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] domain via `POST /api/v1/workspace/{workspaceId}/install-template`. Bundle endpoints were removed entirely.
 
-Part of [[Template Installation]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Template Installation/Template Installation]]
 
 ## Purpose
 
@@ -26,14 +26,14 @@ REST controller providing the Catalog domain's only HTTP API surface — four en
 - Expose `POST /api/v1/templates/{workspaceId}/install` for installing a template
 - Expose `GET /api/v1/templates/bundles` for listing available bundles
 - Expose `POST /api/v1/templates/{workspaceId}/install-bundle` for installing a bundle
-- Delegate all business logic to [[ManifestCatalogService]] (reads) and [[TemplateInstallationService]] (writes)
+- Delegate all business logic to [[riven/docs/system-design/domains/Catalog/Catalog Query/ManifestCatalogService]] (reads) and [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Template Installation/TemplateInstallationService]] (writes)
 
 ---
 
 ## Dependencies
 
-- [[ManifestCatalogService]] — template and bundle listing queries
-- [[TemplateInstallationService]] — template and bundle installation orchestration
+- [[riven/docs/system-design/domains/Catalog/Catalog Query/ManifestCatalogService]] — template and bundle listing queries
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Template Installation/TemplateInstallationService]] — template and bundle installation orchestration
 
 ## Used By
 
@@ -61,6 +61,6 @@ REST controller providing the Catalog domain's only HTTP API surface — four en
 
 ## Related
 
-- [[TemplateInstallationService]] — business logic for installation
-- [[ManifestCatalogService]] — catalog query surface
-- [[Template Installation]] — parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Template Installation/TemplateInstallationService]] — business logic for installation
+- [[riven/docs/system-design/domains/Catalog/Catalog Query/ManifestCatalogService]] — catalog query surface
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Template Installation/Template Installation]] — parent subdomain

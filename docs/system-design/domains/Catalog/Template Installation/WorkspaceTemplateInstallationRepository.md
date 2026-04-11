@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-09
 Domains:
-  - "[[Catalog]]"
+  - "[[riven/docs/system-design/domains/Catalog/Catalog]]"
 ---
 # WorkspaceTemplateInstallationRepository
 
-Part of [[Template Installation]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Template Installation/Template Installation]]
 
 ## Purpose
 
@@ -29,11 +29,11 @@ Spring Data JPA repository for `WorkspaceTemplateInstallationEntity`. Provides w
 
 ## Used By
 
-- [[TemplateInstallationService]] — idempotency checks and installation recording
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Template Installation/TemplateInstallationService]] — idempotency checks and installation recording
 
 ---
 
 ## Related
 
-- [[WorkspaceTemplateInstallationEntity]] — managed entity
-- [[Template Installation]] — parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Template Installation/WorkspaceTemplateInstallationEntity]] — managed entity
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Template Installation/Template Installation]] — parent subdomain

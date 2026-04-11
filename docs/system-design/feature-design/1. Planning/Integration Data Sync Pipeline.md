@@ -6,9 +6,9 @@ tags:
 Created: 2026-03-16
 Updated: 2026-03-16
 Domains:
-  - "[[Integrations]]"
-  - "[[Entities]]"
-Sub-Domain: "[[Entity Integration Sync]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
+Sub-Domain: "[[riven/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]]"
 ---
 
 # Feature: Integration Data Sync Pipeline
@@ -19,7 +19,7 @@ Sub-Domain: "[[Entity Integration Sync]]"
 
 ### Problem Statement
 
-The integration infrastructure has three layers in place: a global catalog ([[Integration Access Layer|IntegrationDefinitionEntity]]), workspace connections ([[Integration Access Layer|IntegrationConnectionEntity]]), and installation tracking (WorkspaceIntegrationInstallationEntity). Schema mapping ([[Integration Schema Mapping|SchemaMappingService]]) and template materialization (TemplateMaterializationService) are built. What is missing is the **data sync pipeline** — the mechanism that receives Nango webhook notifications, fetches synced records, maps them to entities, and persists them with deduplication and relationship resolution.
+The integration infrastructure has three layers in place: a global catalog ([[riven/docs/system-design/feature-design/3. Active/Integration Access Layer|IntegrationDefinitionEntity]]), workspace connections ([[riven/docs/system-design/feature-design/3. Active/Integration Access Layer|IntegrationConnectionEntity]]), and installation tracking (WorkspaceIntegrationInstallationEntity). Schema mapping ([[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Integration Schema Mapping|SchemaMappingService]]) and template materialization (TemplateMaterializationService) are built. What is missing is the **data sync pipeline** — the mechanism that receives Nango webhook notifications, fetches synced records, maps them to entities, and persists them with deduplication and relationship resolution.
 
 Additionally, the current auth flow creates connections pre-emptively in `PENDING_AUTHORIZATION` state during enablement. This is deprecated dead code — Nango handles authentication entirely via its Connect UI, and the backend should only create connections in response to Nango's auth webhook. The `ConnectionStatus` enum needs simplification to reflect this webhook-driven reality.
 
@@ -151,7 +151,7 @@ erDiagram
 #### NangoWebhookService
 
 - **Responsibility:** Handles auth and sync webhook payloads. Auth webhooks: validates tags, creates connection via `IntegrationConnectionService`, triggers materialization, updates installation status. Sync webhooks: resolves connection by `nangoConnectionId`, starts `IntegrationSyncWorkflow` via Temporal client with deterministic workflow ID.
-- **Dependencies:** [[Integration Access Layer|IntegrationConnectionService]], `TemplateMaterializationService`, `IntegrationEnablementService`, `WorkflowClient` (Temporal), `IntegrationConnectionRepository`, `ActivityService`
+- **Dependencies:** [[riven/docs/system-design/feature-design/3. Active/Integration Access Layer|IntegrationConnectionService]], `TemplateMaterializationService`, `IntegrationEnablementService`, `WorkflowClient` (Temporal), `IntegrationConnectionRepository`, `ActivityService`
 - **Exposes to:** `NangoWebhookController`
 
 #### IntegrationSyncWorkflow / IntegrationSyncWorkflowImpl
@@ -163,13 +163,13 @@ erDiagram
 #### IntegrationSyncActivities / IntegrationSyncActivitiesImpl
 
 - **Responsibility:** Temporal activity implementations for each pipeline step. `fetchRecords` — paginated Nango record fetching with heartbeating. `processRecordBatch` — batch dedup lookup + per-record upsert/delete with error isolation. `resolveRelationships` — two-pass relationship resolution by `source_external_id`. `updateSyncState` — write per-entity-type metrics.
-- **Dependencies:** `NangoClientWrapper`, [[Integration Schema Mapping|SchemaMappingService]], `EntityService`, `EntityRepository`, `EntityRelationshipService`, `IntegrationSyncStateRepository`, `IntegrationConnectionHealthService`
+- **Dependencies:** `NangoClientWrapper`, [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Integration Schema Mapping|SchemaMappingService]], `EntityService`, `EntityRepository`, `EntityRelationshipService`, `IntegrationSyncStateRepository`, `IntegrationConnectionHealthService`
 - **Exposes to:** `IntegrationSyncWorkflowImpl` (via Temporal)
 
 #### IntegrationConnectionHealthService
 
 - **Responsibility:** Aggregates per-entity-type sync state into an overall connection health status. All types SUCCESS = HEALTHY. Any type with 3+ consecutive failures = DEGRADED. All types FAILED = FAILED.
-- **Dependencies:** `IntegrationSyncStateRepository`, [[Integration Access Layer|IntegrationConnectionService]]
+- **Dependencies:** `IntegrationSyncStateRepository`, [[riven/docs/system-design/feature-design/3. Active/Integration Access Layer|IntegrationConnectionService]]
 - **Exposes to:** `IntegrationSyncActivitiesImpl`
 
 #### IntegrationSyncTemporalConfiguration
@@ -188,7 +188,7 @@ erDiagram
 
 | Component | Change Required | Impact |
 |-----------|----------------|--------|
-| [[Integration Access Layer\|IntegrationConnectionService]] | Extract `createOrReconnectConnection()` private method from `enableConnection()`. Deprecate `enableConnection()` as public API — connections are now only created via webhook handler. | Auth webhook handler reuses connection creation logic without duplicating it. |
+| [[riven/docs/system-design/feature-design/3. Active/Integration Access Layer\|IntegrationConnectionService]] | Extract `createOrReconnectConnection()` private method from `enableConnection()`. Deprecate `enableConnection()` as public API — connections are now only created via webhook handler. | Auth webhook handler reuses connection creation logic without duplicating it. |
 | `IntegrationEnablementService` | `enableIntegration()` no longer creates a connection or triggers materialization. Creates installation in `PENDING_CONNECTION` status only. | Materialization and initial sync are triggered by the auth webhook, not enablement. |
 | `NangoClientWrapper` | Add `fetchRecords(connectionId, model, modifiedAfter, cursor, limit)` and `triggerSync(connectionId, syncName, fullResync)` methods. | Enables the sync workflow to pull delta records from Nango's records API. |
 | `IntegrationConnectionRepository` | Add `findByNangoConnectionId(nangoConnectionId: String)` query. | Required by sync webhook handler to resolve Nango's connection ID to internal entity. |
@@ -596,9 +596,9 @@ require(computed == request.getHeader("X-Nango-Hmac-Sha256")) { "Invalid webhook
 
 | Date | Decision | Rationale | Alternatives Considered |
 |------|----------|-----------|------------------------|
-| 2026-03-16 | Temporal for all sync orchestration | Durable execution, built-in retry with backoff, workflow visibility UI, native dedup via deterministic workflow IDs. See [[ADR-008 Temporal for Integration Sync Orchestration]]. | Spring Scheduler + custom retry; message queue (RabbitMQ/Kafka); synchronous processing in webhook handler |
-| 2026-03-16 | Unique partial index on `entities` table for dedup (no separate mapping table) | Entities already have `source_external_id` + `source_integration_id` columns. A separate `integration_entity_map` table would duplicate data and add join overhead. See [[ADR-009 Unique Index Deduplication over Mapping Table]]. | Separate `integration_entity_map` table; application-level dedup only |
-| 2026-03-16 | Webhook-driven connection creation (no pre-creation) | `PENDING_AUTHORIZATION` and `AUTHORIZING` are dead code — Nango handles auth entirely in its frontend. Pre-creating connections adds complexity with no benefit. See [[ADR-010 Webhook-Driven Connection Creation]]. | Keep pre-creation flow; hybrid (pre-create + webhook update) |
+| 2026-03-16 | Temporal for all sync orchestration | Durable execution, built-in retry with backoff, workflow visibility UI, native dedup via deterministic workflow IDs. See [[riven/docs/system-design/decisions/ADR-008 Temporal for Integration Sync Orchestration]]. | Spring Scheduler + custom retry; message queue (RabbitMQ/Kafka); synchronous processing in webhook handler |
+| 2026-03-16 | Unique partial index on `entities` table for dedup (no separate mapping table) | Entities already have `source_external_id` + `source_integration_id` columns. A separate `integration_entity_map` table would duplicate data and add join overhead. See [[riven/docs/system-design/decisions/ADR-009 Unique Index Deduplication over Mapping Table]]. | Separate `integration_entity_map` table; application-level dedup only |
+| 2026-03-16 | Webhook-driven connection creation (no pre-creation) | `PENDING_AUTHORIZATION` and `AUTHORIZING` are dead code — Nango handles auth entirely in its frontend. Pre-creating connections adds complexity with no benefit. See [[riven/docs/system-design/decisions/ADR-010 Webhook-Driven Connection Creation]]. | Keep pre-creation flow; hybrid (pre-create + webhook update) |
 | 2026-03-16 | Dedicated `integration.sync` Temporal task queue | Isolates sync load from user-triggered workflow execution. Prevents sync backfills from starving interactive workflows. | Shared queue with priority; separate worker deployment |
 | 2026-03-16 | Per-record try-catch with error aggregation | One bad record (malformed data, mapping failure) should not fail the entire batch. Matches `SchemaMappingService`'s resilient per-field error handling pattern. | Fail-fast (entire batch fails on first error); skip-and-log without aggregation |
 | 2026-03-16 | Full replace of all mapped attributes on UPDATE | Integration entity types are readonly — the external system is the source of truth. No user-added attributes exist to protect. | Merge strategy (keep existing, add new); field-level diff and selective update |
@@ -680,27 +680,27 @@ require(computed == request.getHeader("X-Nango-Hmac-Sha256")) { "Invalid webhook
 
 ### Phase 10: Documentation
 
-- [ ] Create ADR stubs: [[ADR-008 Temporal for Integration Sync Orchestration]], [[ADR-009 Unique Index Deduplication over Mapping Table]], [[ADR-010 Webhook-Driven Connection Creation]]
+- [ ] Create ADR stubs: [[riven/docs/system-design/decisions/ADR-008 Temporal for Integration Sync Orchestration]], [[riven/docs/system-design/decisions/ADR-009 Unique Index Deduplication over Mapping Table]], [[riven/docs/system-design/decisions/ADR-010 Webhook-Driven Connection Creation]]
 
 ---
 
 ## Related Documents
 
-- [[ADR-001 Nango as Integration Infrastructure]]
-- [[ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]
-- [[ADR-008 Temporal for Integration Sync Orchestration]]
-- [[ADR-009 Unique Index Deduplication over Mapping Table]]
-- [[ADR-010 Webhook-Driven Connection Creation]]
-- [[Integration Access Layer]]
-- [[Integration Schema Mapping]]
+- [[riven/docs/system-design/decisions/ADR-001 Nango as Integration Infrastructure]]
+- [[riven/docs/system-design/decisions/ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]
+- [[riven/docs/system-design/decisions/ADR-008 Temporal for Integration Sync Orchestration]]
+- [[riven/docs/system-design/decisions/ADR-009 Unique Index Deduplication over Mapping Table]]
+- [[riven/docs/system-design/decisions/ADR-010 Webhook-Driven Connection Creation]]
+- [[riven/docs/system-design/feature-design/3. Active/Integration Access Layer]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Integration Schema Mapping]]
 - [[Entity Provenance Tracking]]
-- [[Entity Integration Sync]]
+- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]]
 - [[Integration Identity Resolution System]]
-- [[Predefined Integration Entity Types]]
-- [[Integration Connection Lifecycle]]
-- [[Integrations]]
-- [[Entities]]
-- [[Workflows]]
+- [[riven/docs/system-design/feature-design/3. Active/Predefined Integration Entity Types]]
+- [[riven/docs/system-design/flows/Integration Connection Lifecycle]]
+- [[riven/docs/system-design/domains/Integrations/Integrations]]
+- [[riven/docs/system-design/domains/Entities/Entities]]
+- [[riven/docs/system-design/domains/Workflows/Workflows]]
 
 ---
 

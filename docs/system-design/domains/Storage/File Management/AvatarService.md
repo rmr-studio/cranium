@@ -5,28 +5,28 @@ tags:
   - architecture/component
 Created: 2026-03-16
 Domains:
-  - "[[Storage]]"
+  - "[[riven/docs/system-design/domains/Storage/Storage]]"
 ---
 # AvatarService
 
-Part of [[File Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/File Management]]
 
 ## Purpose
 
-Resolves avatar images for workspaces and users by looking up the entity's stored storage key and delegating the download to the [[StorageProvider]]. Provides a read-only serving path that complements the upload path handled by [[StorageService]].
+Resolves avatar images for workspaces and users by looking up the entity's stored storage key and delegating the download to the [[riven/docs/system-design/domains/Storage/Provider Adapters/StorageProvider]]. Provides a read-only serving path that complements the upload path handled by [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/StorageService]].
 
 ---
 
 ## Dependencies
 
 - `KLogger` — Structured logging
-- [[StorageProvider]] — Physical file download
+- [[riven/docs/system-design/domains/Storage/Provider Adapters/StorageProvider]] — Physical file download
 - `WorkspaceRepository` — Workspace entity lookup (reads `avatarUrl` storage key)
 - `UserRepository` — User entity lookup (reads `avatarUrl` storage key)
 
 ## Used By
 
-- [[AvatarController]] — REST endpoints for avatar serving
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/AvatarController]] — REST endpoints for avatar serving
 
 ---
 
@@ -63,16 +63,16 @@ Downloads the avatar for a user by resolving their stored storage key.
 
 ## Gotchas
 
-- **No `@PreAuthorize`** — avatar endpoints are public (added to `permitAll` in [[SecurityConfig]]). The entity ID in the URL is the only lookup key, matching the pattern used by signed URL downloads.
-- **Cross-domain read** — this service reads from `WorkspaceRepository` and `UserRepository` (owned by [[Workspaces & Users]]). This is a narrow, read-only dependency — it only extracts the `avatarUrl` field.
-- **No metadata persistence** — unlike [[StorageService]], this service does not interact with [[FileMetadataEntity]] or log activity. It is a pure read path.
+- **No `@PreAuthorize`** — avatar endpoints are public (added to `permitAll` in [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/SecurityConfig]]). The entity ID in the URL is the only lookup key, matching the pattern used by signed URL downloads.
+- **Cross-domain read** — this service reads from `WorkspaceRepository` and `UserRepository` (owned by [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]). This is a narrow, read-only dependency — it only extracts the `avatarUrl` field.
+- **No metadata persistence** — unlike [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/StorageService]], this service does not interact with [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/FileMetadataEntity]] or log activity. It is a pure read path.
 
 ---
 
 ## Related
 
-- [[AvatarController]] — REST endpoint layer
-- [[AvatarUrlResolver]] — Generates the URLs that route to this service
-- [[StorageProvider]] — Provider interface for physical file download
-- [[StorageService]] — Handles the upload side of avatar files
-- [[File Management]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/AvatarController]] — REST endpoint layer
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/AvatarUrlResolver]] — Generates the URLs that route to this service
+- [[riven/docs/system-design/domains/Storage/Provider Adapters/StorageProvider]] — Provider interface for physical file download
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/StorageService]] — Handles the upload side of avatar files
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/File Management]] — Parent subdomain

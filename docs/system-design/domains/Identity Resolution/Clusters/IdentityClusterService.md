@@ -6,9 +6,9 @@ tags:
   - domain/identity-resolution
 Created: 2026-03-19
 Domains:
-  - "[[Identity Resolution]]"
+  - "[[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]]"
 Sub-Domains:
-  - "[[Clusters]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Clusters/Clusters]]"
 ---
 
 # IdentityClusterService
@@ -93,7 +93,7 @@ Renames an identity cluster. Looks up the cluster by ID scoped to the workspace,
 2. Verify entity exists and belongs to the workspace — returns 404 for both missing and wrong-workspace to prevent information leakage
 3. Check entity is not already in any cluster (throws ConflictException if duplicate)
 4. Verify target member exists in the specified cluster (throws NotFoundException if missing)
-5. Create CONNECTED_ENTITIES relationship via [[EntityRelationshipService]] with `linkSource = SourceType.IDENTITY_MATCH`
+5. Create CONNECTED_ENTITIES relationship via [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] with `linkSource = SourceType.IDENTITY_MATCH`
 6. Save new `IdentityClusterMemberEntity` with `joinedBy` = current user
 7. Increment cluster `memberCount` and save
 8. Log activity with `action = "member_added"`
@@ -116,8 +116,8 @@ Renames an identity cluster. Looks up the cluster by ID scoped to the workspace,
 
 | Domain | Service | Direction | Purpose |
 |---|---|---|---|
-| Entities | [[EntityRelationshipService]] | Outbound | Creates CONNECTED_ENTITIES relationship on member addition |
-| Entities | [[EntityService]] | Outbound | Verifies entity existence and workspace ownership |
+| Entities | [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] | Outbound | Creates CONNECTED_ENTITIES relationship on member addition |
+| Entities | [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]] | Outbound | Verifies entity existence and workspace ownership |
 
 ## Error Handling
 

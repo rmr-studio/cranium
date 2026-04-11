@@ -5,14 +5,14 @@ tags:
   - architecture/component
 Created: 2026-03-29
 Domains:
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 
 # IdentityResolutionService
 
 ## Purpose
 
-Batch identity resolution for the projection pipeline. Resolves integration entities to existing core lifecycle entities using a two-query strategy: fast `sourceExternalId` match, then IDENTIFIER attribute value fallback. Architecturally distinct from the [[Identity Resolution]] domain's async matching pipeline — this service does deterministic, synchronous matching at ingestion time.
+Batch identity resolution for the projection pipeline. Resolves integration entities to existing core lifecycle entities using a two-query strategy: fast `sourceExternalId` match, then IDENTIFIER attribute value fallback. Architecturally distinct from the [[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]] domain's async matching pipeline — this service does deterministic, synchronous matching at ingestion time.
 
 ## Responsibilities
 
@@ -65,7 +65,7 @@ Gets IDENTIFIER attribute IDs from [[EntityTypeClassificationService]] via `getI
 
 ## Gotchas
 
-- **Not the same as the Identity Resolution domain.** This service does deterministic, synchronous matching at ingestion time. The [[Identity Resolution]] domain does probabilistic, async matching with pg_trgm fuzzy scoring and human review.
+- **Not the same as the Identity Resolution domain.** This service does deterministic, synchronous matching at ingestion time. The [[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]] domain does probabilistic, async matching with pg_trgm fuzzy scoring and human review.
 - **Cross-integration matching.** Check 1 intentionally matches across integration boundaries by entity type only (not by `source_integration_id`). This is by design — a projected entity created from one integration can be matched by a different integration's entity if they share the same `sourceExternalId`.
 - **JSONB extraction.** Check 2 uses native SQL `ea.value ->> 'value'` to extract text values from the JSONB attribute column. This is specific to the normalized attribute storage format where each attribute value is `{"value": "..."}`.
 - **Ambiguous matches silently downgrade.** Multiple core entities sharing an identifier value do not cause an error — they produce a `NewEntity` result with a warnings list, which may lead to duplicate entity creation. The warning is logged at WARN level.
@@ -83,5 +83,5 @@ Gets IDENTIFIER attribute IDs from [[EntityTypeClassificationService]] via `getI
 
 - [[EntityProjectionService]] — Primary consumer
 - [[EntityTypeClassificationService]] — Provides IDENTIFIER attribute IDs
-- [[Identity Resolution]] — The async matching domain (distinct from this service)
+- [[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]] — The async matching domain (distinct from this service)
 - [[Entity Projection]] — Parent subdomain

@@ -5,7 +5,7 @@ tags:
 Created: 2026-03-06
 Updated: 2026-03-06
 Domains:
-  - "[[Storage]]"
+  - "[[riven/docs/system-design/domains/Storage/Storage]]"
 ---
 # Flow: File Upload
 
@@ -13,7 +13,7 @@ Domains:
 
 ## Overview
 
-Uploads a file to a workspace-scoped storage domain, validates content type and file size via magic byte detection, sanitizes SVGs, persists file metadata, and returns a signed download URL. This is the primary write path for the [[File Storage]] sub-domain.
+Uploads a file to a workspace-scoped storage domain, validates content type and file size via magic byte detection, sanitizes SVGs, persists file metadata, and returns a signed download URL. This is the primary write path for the [[riven/docs/system-design/feature-design/_Sub-Domain Plans/File Storage]] sub-domain.
 
 ---
 
@@ -43,7 +43,7 @@ Uploads a file to a workspace-scoped storage domain, validates content type and 
 |Actor|Role in Flow|
 |---|---|
 |User|Initiates file upload via UI or API|
-|[[WorkspaceSecurity]]|Cross-domain validation of workspace access|
+|[[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]]|Cross-domain validation of workspace access|
 |`StorageController`|API entry point, delegates to StorageService|
 |`StorageService`|Orchestrates validation, storage, metadata persistence, and signed URL generation|
 |`ContentValidationService`|Detects content type via Tika, validates against domain rules, sanitizes SVGs, generates storage key|
@@ -126,7 +126,7 @@ sequenceDiagram
 
 #### 2. Workspace Authorization
 
-- **Component:** [[WorkspaceSecurity]]
+- **Component:** [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]]
 - **Action:** `@PreAuthorize` evaluates `@workspaceSecurity.hasWorkspace(#workspaceId)`
 - **Input:** Workspace ID from request path
 - **Output:** Authorization granted or `AccessDeniedException` thrown
@@ -257,12 +257,12 @@ sequenceDiagram
 
 ## Related
 
-- [[Provider-Agnostic File Storage]] -- Feature design for the storage system
-- [[Flow - Signed URL Download]] -- Download flow using signed URLs generated here
-- [[ADR-005 Strategy Pattern with Conditional Bean Selection for Storage Providers]] -- Provider abstraction
-- [[ADR-006 HMAC-Signed Download Tokens for File Access]] -- Signed URL mechanism
-- [[ADR-007 Magic Byte Content Validation via Apache Tika]] -- Content type detection
-- [[File Storage]] -- Sub-domain plan
+- [[riven/docs/system-design/feature-design/2. Planned/Provider-Agnostic File Storage]] -- Feature design for the storage system
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/flows/Flow - Signed URL Download]] -- Download flow using signed URLs generated here
+- [[riven/docs/system-design/decisions/ADR-005 Strategy Pattern with Conditional Bean Selection for Storage Providers]] -- Provider abstraction
+- [[riven/docs/system-design/decisions/ADR-006 HMAC-Signed Download Tokens for File Access]] -- Signed URL mechanism
+- [[riven/docs/system-design/decisions/ADR-007 Magic Byte Content Validation via Apache Tika]] -- Content type detection
+- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/File Storage]] -- Sub-domain plan
 
 ---
 

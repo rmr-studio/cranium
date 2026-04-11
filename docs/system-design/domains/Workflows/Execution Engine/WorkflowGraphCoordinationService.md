@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-08
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # WorkflowGraphCoordinationService
 
-Part of [[Execution Engine]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/Execution Engine]]
 
 ---
 
@@ -47,9 +47,9 @@ The DAG execution orchestrator that coordinates workflow node execution using a 
 
 | Component | Purpose | Coupling |
 |---|---|---|
-| [[WorkflowGraphValidationService]] | Validates DAG structure (cycles, edges, connectivity) | High |
-| [[WorkflowGraphTopologicalSorterService]] | Verifies topological order exists | Medium |
-| [[WorkflowGraphQueueManagementService]] | Manages in-degree tracking and ready queue | High |
+| [[riven/docs/system-design/domains/Workflows/Graph Coordination/WorkflowGraphValidationService]] | Validates DAG structure (cycles, edges, connectivity) | High |
+| [[riven/docs/system-design/domains/Workflows/Graph Coordination/WorkflowGraphTopologicalSorterService]] | Verifies topological order exists | Medium |
+| [[riven/docs/system-design/domains/Workflows/Graph Coordination/WorkflowGraphQueueManagementService]] | Manages in-degree tracking and ready queue | High |
 
 ### External Dependencies
 
@@ -74,7 +74,7 @@ class WorkflowGraphCoordinationService(
 
 | Component | How It Uses This | Notes |
 |---|---|---|
-| [[WorkflowCoordinationService]] | Invokes executeWorkflow() to orchestrate DAG execution | Provides nodeExecutor lambda for actual execution |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowCoordinationService]] | Invokes executeWorkflow() to orchestrate DAG execution | Provides nodeExecutor lambda for actual execution |
 
 ---
 
@@ -327,7 +327,7 @@ This service is a Spring singleton but is NOT thread-safe. Each workflow executi
 | Sequential batch execution | No true parallelism for ready nodes | High | TODO at line 105 |
 | No loop support | Cannot iterate over collections | High | TODO at line 17 |
 | No partial failure recovery | Failed node fails entire workflow | High | Design gap |
-| [[WorkflowGraphQueueManagementService]] singleton | Thread safety issue for concurrent executions | High | Architecture issue |
+| [[riven/docs/system-design/domains/Workflows/Graph Coordination/WorkflowGraphQueueManagementService]] singleton | Thread safety issue for concurrent executions | High | Architecture issue |
 
 ---
 
@@ -366,11 +366,11 @@ Integration tests should verify:
 
 ## Related
 
-- [[WorkflowCoordinationService]] - Caller that provides nodeExecutor implementation
-- [[WorkflowGraphValidationService]] - DAG structure validation
-- [[WorkflowGraphTopologicalSorterService]] - Topological order verification
-- [[WorkflowGraphQueueManagementService]] - In-degree tracking and ready queue
-- [[Execution Engine]] - Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowCoordinationService]] - Caller that provides nodeExecutor implementation
+- [[riven/docs/system-design/domains/Workflows/Graph Coordination/WorkflowGraphValidationService]] - DAG structure validation
+- [[riven/docs/system-design/domains/Workflows/Graph Coordination/WorkflowGraphTopologicalSorterService]] - Topological order verification
+- [[riven/docs/system-design/domains/Workflows/Graph Coordination/WorkflowGraphQueueManagementService]] - In-degree tracking and ready queue
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/Execution Engine]] - Parent subdomain
 
 ---
 

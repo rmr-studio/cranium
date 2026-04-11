@@ -6,8 +6,8 @@ tags:
   - architecture/feature
 Created: 2026-03-06
 Domains:
-  - "[[Storage]]"
-Sub-Domain: "[[File Storage]]"
+  - "[[riven/docs/system-design/domains/Storage/Storage]]"
+Sub-Domain: "[[riven/docs/system-design/feature-design/_Sub-Domain Plans/File Storage]]"
 ---
 # Feature: Provider-Agnostic File Storage
 
@@ -546,9 +546,9 @@ None needed. This is a purely additive change:
 
 | Date | Decision | Rationale | Reference |
 |------|----------|-----------|-----------|
-| 2026-03-06 | Strategy pattern with `@ConditionalOnProperty` for provider selection | Only one provider active per deployment, avoids runtime switching complexity, clean interface dependency | [[ADR-005 Strategy Pattern with Conditional Bean Selection for Storage Providers]] |
-| 2026-03-06 | HMAC-signed download tokens instead of JWT-based file tokens | Decouples file access from user session lifecycle, self-contained tokens require no DB lookup per download | [[ADR-006 HMAC-Signed Download Tokens for File Access]] |
-| 2026-03-06 | Apache Tika for content type detection | Magic byte detection is reliable and not spoofable, Tika maintains comprehensive detection database | [[ADR-007 Magic Byte Content Validation via Apache Tika]] |
+| 2026-03-06 | Strategy pattern with `@ConditionalOnProperty` for provider selection | Only one provider active per deployment, avoids runtime switching complexity, clean interface dependency | [[riven/docs/system-design/decisions/ADR-005 Strategy Pattern with Conditional Bean Selection for Storage Providers]] |
+| 2026-03-06 | HMAC-signed download tokens instead of JWT-based file tokens | Decouples file access from user session lifecycle, self-contained tokens require no DB lookup per download | [[riven/docs/system-design/decisions/ADR-006 HMAC-Signed Download Tokens for File Access]] |
+| 2026-03-06 | Apache Tika for content type detection | Magic byte detection is reliable and not spoofable, Tika maintains comprehensive detection database | [[riven/docs/system-design/decisions/ADR-007 Magic Byte Content Validation via Apache Tika]] |
 | 2026-03-06 | Separate HMAC secret from JWT secret | File access tokens have different security scope and lifecycle than user auth tokens, separate secret limits blast radius | |
 | 2026-03-06 | StorageProvider interface is blocking (non-suspend) | Matches synchronous Spring MVC architecture, avoids coroutine complexity for I/O-bound file operations | |
 | 2026-03-06 | Tika extension includes leading dot | Used directly in storage key generation (e.g., `.png`), avoids string manipulation at call sites | |
@@ -606,12 +606,12 @@ Implementation is split into four sequential plans, each building on the artifac
 
 ## Related Documents
 
-- [[ADR-005 Strategy Pattern with Conditional Bean Selection for Storage Providers]] -- Architecture decision for pluggable storage backends
-- [[ADR-006 HMAC-Signed Download Tokens for File Access]] -- Architecture decision for signed URL authentication
-- [[ADR-007 Magic Byte Content Validation via Apache Tika]] -- Architecture decision for content type detection
-- [[Flow - File Upload]] -- Detailed flow documentation for file upload
-- [[Flow - Signed URL Download]] -- Detailed flow documentation for signed URL download
-- [[File Storage]] -- Sub-domain plan covering all phases of the File Storage sub-domain
+- [[riven/docs/system-design/decisions/ADR-005 Strategy Pattern with Conditional Bean Selection for Storage Providers]] -- Architecture decision for pluggable storage backends
+- [[riven/docs/system-design/decisions/ADR-006 HMAC-Signed Download Tokens for File Access]] -- Architecture decision for signed URL authentication
+- [[riven/docs/system-design/decisions/ADR-007 Magic Byte Content Validation via Apache Tika]] -- Architecture decision for content type detection
+- [[riven/docs/system-design/flows/Flow - File Upload]] -- Detailed flow documentation for file upload
+- [[riven/docs/system-design/flows/Flow - Signed URL Download]] -- Detailed flow documentation for signed URL download
+- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/File Storage]] -- Sub-domain plan covering all phases of the File Storage sub-domain
 
 ---
 

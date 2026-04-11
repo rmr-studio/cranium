@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-03-09
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # EntityTypeAttributeService
 
-Part of [[Type Definitions]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Type Definitions/Type Definitions]]
 
 ## Purpose
 
@@ -32,16 +32,16 @@ Utility service for attribute schema operations including definition save/remove
 
 ## Dependencies
 
-- [[EntityValidationService]] — Breaking change detection and bulk entity validation
+- [[riven/docs/system-design/domains/Entities/Validation/EntityValidationService]] — Breaking change detection and bulk entity validation
 - `EntityRepository` — Fetch existing entities for validation
 - `EntityUniqueValuesRepository` — Normalized unique constraint table
-- [[EntityTypeSemanticMetadataService]] — Lifecycle hooks for attribute semantic metadata
-- [[EntityAttributeService]] — Loading entity attributes during breaking change validation
+- [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]] — Lifecycle hooks for attribute semantic metadata
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityAttributeService]] — Loading entity attributes during breaking change validation
 
 ## Used By
 
-- [[EntityTypeService]] — Attribute definition management
-- [[EntityService]] — Unique constraint enforcement during entity save
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Type Definitions/EntityTypeService]] — Attribute definition management
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]] — Unique constraint enforcement during entity save
 
 ---
 
@@ -51,10 +51,10 @@ Utility service for attribute schema operations including definition save/remove
 
 1. Validate attribute constraints (unique requires STRING or NUMBER type)
 2. Upsert attribute into type's schema properties
-3. Detect breaking changes via [[EntityValidationService]]
+3. Detect breaking changes via [[riven/docs/system-design/domains/Entities/Validation/EntityValidationService]]
 4. If breaking changes exist:
    - Fetch all existing entities of this type
-   - Batch-load attributes via [[EntityAttributeService]].getAttributesForEntities()
+   - Batch-load attributes via [[riven/docs/system-design/domains/Entities/Entity Management/EntityAttributeService]].getAttributesForEntities()
    - Validate each against new schema using pre-loaded attributes
    - If any invalid: throw `SchemaValidationException` with sample errors
 5. Apply schema update to type (caller saves entity)
@@ -129,10 +129,10 @@ Deletes all unique values for entity type. Returns count of deleted rows.
 
 ## Related
 
-- [[EntityTypeService]] — Primary consumer for definition management
-- [[EntityService]] — Uses for unique constraint checks during save
-- [[EntityValidationService]] — Breaking change detection
-- [[Type Definitions]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Type Definitions/EntityTypeService]] — Primary consumer for definition management
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]] — Uses for unique constraint checks during save
+- [[riven/docs/system-design/domains/Entities/Validation/EntityValidationService]] — Breaking change detection
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Type Definitions/Type Definitions]] — Parent subdomain
 
 ---
 

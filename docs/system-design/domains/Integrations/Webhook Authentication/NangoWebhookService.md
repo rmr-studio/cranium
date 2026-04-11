@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-18
 Domains:
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 # NangoWebhookService
 
-Part of [[Webhook Authentication]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/Webhook Authentication]]
 
 ## Purpose
 
@@ -35,14 +35,14 @@ Routes and processes inbound Nango webhook events. Auth events (successful OAuth
 - `IntegrationConnectionRepository` — Connection persistence and lookup
 - `IntegrationDefinitionRepository` — Integration definition validation
 - `WorkspaceIntegrationInstallationRepository` — Installation persistence, soft-delete queries
-- [[TemplateMaterializationService]] — Creates workspace-scoped entity types from catalog templates
+- [[riven/docs/system-design/domains/Integrations/Enablement/TemplateMaterializationService]] — Creates workspace-scoped entity types from catalog templates
 - `ActivityService` — Audit logging
 - `TransactionTemplate` — Programmatic transaction management (Spring AOP cannot intercept private methods)
 - `KLogger` — Structured logging
 
 ## Used By
 
-- [[NangoWebhookController]] — Delegates all webhook processing to this service
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookController]] — Delegates all webhook processing to this service
 
 ---
 
@@ -116,7 +116,7 @@ The `endUserEmail` field is pragmatically repurposed because Nango only provides
 
 ### `handleWebhook(payload: NangoWebhookPayload)`
 
-Routes an inbound Nango webhook payload to the correct handler. Swallows all exceptions to guarantee the caller (controller) can return 200. Called by [[NangoWebhookController]].
+Routes an inbound Nango webhook payload to the correct handler. Swallows all exceptions to guarantee the caller (controller) can return 200. Called by [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookController]].
 
 ---
 
@@ -136,11 +136,11 @@ Routes an inbound Nango webhook payload to the correct handler. Swallows all exc
 
 ## Related
 
-- [[NangoWebhookController]] — REST endpoint
-- [[NangoWebhookHmacFilter]] — HMAC signature verification
-- [[IntegrationConnectionService]] — Also manages connections; `createOrReconnect` is the internal (webhook-only) creation path
-- [[TemplateMaterializationService]] — Materialization engine
-- [[Webhook Authentication]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookController]] — REST endpoint
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookHmacFilter]] — HMAC signature verification
+- [[riven/docs/system-design/domains/Integrations/Connection Management/IntegrationConnectionService]] — Also manages connections; `createOrReconnect` is the internal (webhook-only) creation path
+- [[riven/docs/system-design/domains/Integrations/Enablement/TemplateMaterializationService]] — Materialization engine
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/Webhook Authentication]] — Parent subdomain
 
 ---
 

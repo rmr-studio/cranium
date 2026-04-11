@@ -1,8 +1,8 @@
 ---
 Created: 2026-02-06
 Domains:
-  - "[[Entities]]"
-  - "[[Knowledge]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
+  - "[[riven/docs/system-design/domains/Knowledge/Knowledge]]"
 tags:
 ---
 # Subdomain: Entity Semantics
@@ -15,14 +15,14 @@ Entity types, attributes, and relationships carry semantic metadata that defines
 - Each relationship carries semantic context (the nature of the connection, e.g., "customer purchased product" vs "customer viewed product")
 - Semantic metadata is inherited from templates but user-editable
 - Changes to semantic metadata trigger re-enrichment of affected entities 
-	- [[Schema Change Handling]]
+	- [[riven/docs/system-design/domains/Knowledge/Schema Change Handling/Schema Change Handling]]
 ## Components
 
 | Component | Purpose | Type |
 | --------- | ------- | ---- |
-| [[EntityTypeSemanticMetadataService]] | CRUD operations and lifecycle hooks for semantic metadata | Service |
-| [[EntityTypeSemanticMetadataRepository]] | Data access with custom JPQL for hard-delete and cascade soft-delete | Repository |
-| [[KnowledgeController]] | 8 REST endpoints at `/api/v1/knowledge/` for semantic metadata management | Controller |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]] | CRUD operations and lifecycle hooks for semantic metadata | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataRepository]] | Data access with custom JPQL for hard-delete and cascade soft-delete | Repository |
+| [[riven/docs/system-design/domains/Knowledge/KnowledgeController]] | 8 REST endpoints at `/api/v1/knowledge/` for semantic metadata management | Controller |
 | EntityTypeSemanticMetadataEntity | Database mapping for `entity_type_semantic_metadata` table | JPA Entity |
 | EntityTypeSemanticMetadata | Immutable domain model for semantic metadata | Model |
 | SemanticMetadataTargetType | Discriminator enum: ENTITY_TYPE, ATTRIBUTE, RELATIONSHIP | Enum |

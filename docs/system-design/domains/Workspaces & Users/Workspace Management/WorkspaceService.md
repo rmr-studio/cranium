@@ -4,13 +4,13 @@ tags:
   - component/active
   - architecture/component
 Domains:
-  - "[[Workspaces & Users]]"
+  - "[[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]"
 Created: 2026-02-08
 Updated: 2026-03-12
 ---
 # WorkspaceService
 
-Part of [[Workspace Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Workspace Management/Workspace Management]]
 
 ## Purpose
 
@@ -34,17 +34,17 @@ Manages workspace lifecycle (CRUD) and workspace membership. On workspace creati
 
 - `WorkspaceRepository` — workspace data persistence
 - `WorkspaceMemberRepository` — membership data persistence
-- [[UserService]] — retrieve user for default workspace assignment
-- [[AuthTokenService]] — get current user ID from JWT
+- [[riven/docs/system-design/domains/Workspaces & Users/User Management/UserService]] — retrieve user for default workspace assignment
+- [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]] — get current user ID from JWT
 - `ActivityService` — audit logging
-- [[StorageService]] — avatar file upload for workspace creation/update
-- [[WorkspaceSecurity]] — used indirectly via @PreAuthorize on methods
+- [[riven/docs/system-design/domains/Storage/File Management/StorageService]] — avatar file upload for workspace creation/update
+- [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]] — used indirectly via @PreAuthorize on methods
 
 ## Used By
 
 - `WorkspaceController` — REST API layer
-- [[WorkspaceInviteService]] — calls addMemberToWorkspace on invitation acceptance
-- [[OnboardingService]] — creates workspace during onboarding flow
+- [[riven/docs/system-design/domains/Workspaces & Users/Team Management/WorkspaceInviteService]] — calls addMemberToWorkspace on invitation acceptance
+- [[riven/docs/system-design/domains/Workspaces & Users/Onboarding/OnboardingService]] — creates workspace during onboarding flow
 
 ---
 
@@ -129,10 +129,10 @@ Updates member's role. Cannot assign or remove OWNER role.
 
 ## Related
 
-- [[WorkspaceSecurity]] — Authorization component
-- [[WorkspaceInviteService]] — Invitation workflow
-- [[StorageService]] — File storage for avatars
-- [[UserService]] — User profile management
+- [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]] — Authorization component
+- [[riven/docs/system-design/domains/Workspaces & Users/Team Management/WorkspaceInviteService]] — Invitation workflow
+- [[riven/docs/system-design/domains/Storage/File Management/StorageService]] — File storage for avatars
+- [[riven/docs/system-design/domains/Workspaces & Users/User Management/UserService]] — User profile management
 
 ---
 
@@ -142,4 +142,4 @@ Updates member's role. Cannot assign or remove OWNER role.
 
 - `saveWorkspaceTransactional` now publishes `WorkspaceChangeEvent` alongside existing analytics events.
 - Event includes workspace ID, user ID, operation type (CREATE/UPDATE), and workspace name in summary.
-- Consumed by [[WebSocketEventListener]] and broadcast to `/topic/workspace/{workspaceId}/workspace` after transaction commit.
+- Consumed by [[riven/docs/system-design/domains/Workspaces & Users/Real-time Events/WebSocketEventListener]] and broadcast to `/topic/workspace/{workspaceId}/workspace` after transaction commit.

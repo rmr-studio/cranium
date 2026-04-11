@@ -15,12 +15,12 @@ Action nodes are the primary mechanism for workflows to interact with the entity
 
 | Node | Description | Status |
 |------|-------------|--------|
-| [[WorkflowCreateEntityActionConfig]] | Creates a new entity instance | Implemented |
-| [[WorkflowDeleteEntityActionConfig]] | Deletes an entity instance | Implemented |
-| [[WorkflowUpdateEntityActionConfig]] | Updates an existing entity instance | Implemented |
-| [[WorkflowHttpRequestActionConfig]] | Makes an HTTP request to an external URL | Implemented |
-| [[WorkflowQueryEntityActionConfig]] | Searches and retrieves entity instances | Implemented |
-| [[WorkflowBulkUpdateEntityActionConfig]] | Queries entities and applies batch updates with configurable error handling (FAIL_FAST/BEST_EFFORT) | Implemented |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Actions/WorkflowCreateEntityActionConfig]] | Creates a new entity instance | Implemented |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Actions/WorkflowDeleteEntityActionConfig]] | Deletes an entity instance | Implemented |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Actions/WorkflowUpdateEntityActionConfig]] | Updates an existing entity instance | Implemented |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Actions/WorkflowHttpRequestActionConfig]] | Makes an HTTP request to an external URL | Implemented |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Actions/WorkflowQueryEntityActionConfig]] | Searches and retrieves entity instances | Implemented |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Actions/WorkflowBulkUpdateEntityActionConfig]] | Queries entities and applies batch updates with configurable error handling (FAIL_FAST/BEST_EFFORT) | Implemented |
 
 ## Unimplemented Action Types
 

@@ -3,8 +3,8 @@ tags:
   - flow/active
   - architecture/flow
 Domains:
-  - "[[Entities]]"
-  - "[[Knowledge]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
+  - "[[riven/docs/system-design/domains/Knowledge/Knowledge]]"
 Created: 2026-02-18
 ---
 # Flow: Semantic Metadata Lifecycle Sync
@@ -13,7 +13,7 @@ Created: 2026-02-18
 
 ## Overview
 
-Semantic metadata records in `entity_type_semantic_metadata` must stay synchronized with entity type, attribute, and relationship lifecycle events. The `EntityTypeSemanticMetadataService` does not own its own creation triggers -- metadata records are created and destroyed as side effects of operations in [[EntityTypeService]], [[EntityTypeAttributeService]], and [[EntityTypeRelationshipService]]. This flow documents every lifecycle event that creates, hard-deletes, or soft-deletes metadata, the transaction boundaries that guarantee atomicity, and the failure modes when synchronization breaks down.
+Semantic metadata records in `entity_type_semantic_metadata` must stay synchronized with entity type, attribute, and relationship lifecycle events. The `EntityTypeSemanticMetadataService` does not own its own creation triggers -- metadata records are created and destroyed as side effects of operations in [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]], [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]], and [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]]. This flow documents every lifecycle event that creates, hard-deletes, or soft-deletes metadata, the transaction boundaries that guarantee atomicity, and the failure modes when synchronization breaks down.
 
 **Business value:** Ensures every entity type component has a corresponding semantic metadata record from the moment it exists, so users never encounter a "no metadata" state when they navigate to the Knowledge Layer UI. Also ensures orphaned metadata never accumulates when components are removed.
 
@@ -27,14 +27,14 @@ Semantic metadata records in `entity_type_semantic_metadata` must stay synchroni
 
 | Trigger Type | Source | Condition |
 |---|---|---|
-| Entity Type Publish | [[EntityTypeService]].publishEntityType | New entity type created and saved |
-| Attribute Addition | [[EntityTypeAttributeService]].saveAttributeDefinition | New attribute UUID not present in existing schema.properties |
-| Attribute Removal | [[EntityTypeAttributeService]].removeAttributeDefinition | Attribute removed from entity type schema |
-| Relationship Addition | [[EntityTypeRelationshipService]] | New relationship definition added |
-| Relationship Removal | [[EntityTypeRelationshipService]] | Relationship definition removed |
-| Entity Type Soft-Delete | [[EntityTypeService]].deleteEntityType | Entity type soft-deleted |
+| Entity Type Publish | [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]].publishEntityType | New entity type created and saved |
+| Attribute Addition | [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]].saveAttributeDefinition | New attribute UUID not present in existing schema.properties |
+| Attribute Removal | [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]].removeAttributeDefinition | Attribute removed from entity type schema |
+| Relationship Addition | [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] | New relationship definition added |
+| Relationship Removal | [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] | Relationship definition removed |
+| Entity Type Soft-Delete | [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]].deleteEntityType | Entity type soft-deleted |
 
-**Entry Points:** [[EntityTypeController]] (user-initiated), internal service calls (cascade operations)
+**Entry Points:** [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeController]] (user-initiated), internal service calls (cascade operations)
 
 ---
 
@@ -164,9 +164,9 @@ sequenceDiagram
 
 ### 1. Entity Type Publish -- Initialize All Metadata
 
-**Subdomain:** [[Type Definitions]]
+**Subdomain:** [[riven/docs/system-design/domains/Entities/Type Definitions/Type Definitions]]
 
-- **Component:** [[EntityTypeService]] -> [[EntityTypeSemanticMetadataService]]
+- **Component:** [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] -> [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]]
 - **Action:** After entity type is saved, create empty metadata records for the entity type itself and its initial identifier attribute
 - **Input:** `entityTypeId: UUID`, `workspaceId: UUID`, `attributeIds: List<UUID>` (contains the primaryId of the identifier attribute)
 - **Output:** Batch-saved metadata entities (no return value used by caller)
@@ -178,9 +178,9 @@ sequenceDiagram
 
 ### 2. Attribute Addition -- Initialize Single Attribute Metadata
 
-**Subdomain:** [[Type Definitions]]
+**Subdomain:** [[riven/docs/system-design/domains/Entities/Type Definitions/Type Definitions]]
 
-- **Component:** [[EntityTypeAttributeService]] -> [[EntityTypeSemanticMetadataService]]
+- **Component:** [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]] -> [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]]
 - **Action:** When a new attribute is added to an entity type schema (detected by checking `schema.properties` before the update), create an empty metadata record
 - **Input:** `entityTypeId: UUID`, `workspaceId: UUID`, `targetType: ATTRIBUTE`, `targetId: UUID` (the attribute UUID from the request)
 - **Output:** Single saved metadata entity
@@ -191,9 +191,9 @@ sequenceDiagram
 
 ### 3. Attribute Removal -- Hard-Delete Attribute Metadata
 
-**Subdomain:** [[Type Definitions]]
+**Subdomain:** [[riven/docs/system-design/domains/Entities/Type Definitions/Type Definitions]]
 
-- **Component:** [[EntityTypeAttributeService]] -> [[EntityTypeSemanticMetadataService]]
+- **Component:** [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]] -> [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]]
 - **Action:** When an attribute is removed from schema, permanently delete its metadata record
 - **Input:** `entityTypeId: UUID`, `targetType: ATTRIBUTE`, `targetId: UUID`
 - **Output:** None (void operation)
@@ -203,9 +203,9 @@ sequenceDiagram
 
 ### 4. Relationship Addition -- Initialize Single Relationship Metadata
 
-**Subdomain:** [[Relationships]]
+**Subdomain:** [[riven/docs/system-design/domains/Entities/Relationships/Relationships]]
 
-- **Component:** [[EntityTypeRelationshipService]] -> [[EntityTypeSemanticMetadataService]]
+- **Component:** [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] -> [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]]
 - **Action:** When a new relationship definition is added to an entity type, create an empty metadata record
 - **Input:** `entityTypeId: UUID`, `workspaceId: UUID`, `targetType: RELATIONSHIP`, `targetId: UUID` (the relationship definition UUID)
 - **Output:** Single saved metadata entity
@@ -213,9 +213,9 @@ sequenceDiagram
 
 ### 5. Relationship Removal -- Hard-Delete Relationship Metadata
 
-**Subdomain:** [[Relationships]]
+**Subdomain:** [[riven/docs/system-design/domains/Entities/Relationships/Relationships]]
 
-- **Component:** [[EntityTypeRelationshipService]] -> [[EntityTypeSemanticMetadataService]]
+- **Component:** [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] -> [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]]
 - **Action:** When a relationship definition is removed, permanently delete its metadata record
 - **Input:** `entityTypeId: UUID`, `targetType: RELATIONSHIP`, `targetId: UUID`
 - **Output:** None (void operation)
@@ -223,9 +223,9 @@ sequenceDiagram
 
 ### 6. Entity Type Soft-Delete -- Cascade Soft-Delete All Metadata
 
-**Subdomain:** [[Type Definitions]]
+**Subdomain:** [[riven/docs/system-design/domains/Entities/Type Definitions/Type Definitions]]
 
-- **Component:** [[EntityTypeService]] -> [[EntityTypeSemanticMetadataService]]
+- **Component:** [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] -> [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]]
 - **Action:** When an entity type is soft-deleted, soft-delete ALL of its metadata records (entity type, attributes, relationships)
 - **Input:** `entityTypeId: UUID`
 - **Output:** `Int` (count of rows updated)
@@ -300,9 +300,9 @@ All metadata lifecycle operations execute within the same `@Transactional` bound
 
 | Component | Role | Can Block Flow |
 |---|---|---|
-| [[EntityTypeService]] | Triggers metadata initialization on publish and soft-delete on entity type deletion | Yes (orchestrator) |
-| [[EntityTypeAttributeService]] | Triggers metadata creation for new attributes and hard-deletion on attribute removal | Yes (detects new vs. existing attributes) |
-| [[EntityTypeRelationshipService]] | Triggers metadata creation for new relationships and hard-deletion on relationship removal | Yes (manages relationship JSONB) |
+| [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] | Triggers metadata initialization on publish and soft-delete on entity type deletion | Yes (orchestrator) |
+| [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]] | Triggers metadata creation for new attributes and hard-deletion on attribute removal | Yes (detects new vs. existing attributes) |
+| [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] | Triggers metadata creation for new relationships and hard-deletion on relationship removal | Yes (manages relationship JSONB) |
 | EntityTypeSemanticMetadataService | Executes all metadata CRUD operations; no `@PreAuthorize` on lifecycle hooks (called within existing secured context) | Yes (database I/O) |
 | EntityTypeSemanticMetadataRepository | Data access layer; provides `hardDeleteByTarget` and `softDeleteByEntityTypeId` custom queries | Yes (database I/O) |
 | EntityTypeRepository | Used by metadata service for workspace ownership verification on public-facing methods (not lifecycle hooks) | No (not involved in lifecycle hooks) |
@@ -315,7 +315,7 @@ All metadata lifecycle operations execute within the same `@Transactional` bound
 > If an entity type is restored from soft-delete via direct database intervention, its semantic metadata remains invisible due to `@SQLRestriction("deleted = false")` on `AuditableSoftDeletableEntity`. A `restoreForEntityType` method exists as a placeholder in `EntityTypeSemanticMetadataService` but logs a warning and does nothing. Restoring metadata requires a native SQL query that bypasses JPA restrictions. This is deferred beyond Phase 1.
 
 > [!warning] Attribute and Relationship target_id References Are Not FK-Constrained
-> The `target_id` column in `entity_type_semantic_metadata` stores UUID keys that reference entries inside JSONB columns on `entity_types` -- specifically, keys in `schema.properties` for attributes and `id` fields within the `relationships` array for relationship definitions. These are NOT foreign keys to separate tables. Orphan detection depends entirely on the lifecycle hooks in [[EntityTypeAttributeService]] and [[EntityTypeRelationshipService]] being wired correctly. If a code path removes an attribute or relationship without going through these services, metadata orphans will accumulate silently.
+> The `target_id` column in `entity_type_semantic_metadata` stores UUID keys that reference entries inside JSONB columns on `entity_types` -- specifically, keys in `schema.properties` for attributes and `id` fields within the `relationships` array for relationship definitions. These are NOT foreign keys to separate tables. Orphan detection depends entirely on the lifecycle hooks in [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]] and [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] being wired correctly. If a code path removes an attribute or relationship without going through these services, metadata orphans will accumulate silently.
 
 > [!warning] Hard-Delete vs. Soft-Delete Asymmetry
 > Attribute and relationship metadata is **hard-deleted** when the parent component is removed (physical row deletion). Entity type metadata is **soft-deleted** when the parent entity type is soft-deleted (sets `deleted=true`). This asymmetry exists because attribute/relationship removal is permanent (those JSONB entries are gone), while entity type soft-delete is potentially reversible. The hard-delete uses a `@Modifying @Query` JPQL DELETE statement on the repository.
@@ -333,16 +333,16 @@ All metadata lifecycle operations execute within the same `@Transactional` bound
 
 ## Related
 
-- [[Semantic Metadata Foundation]] -- Phase 1 feature scope and plan
-- [[ADR-002 Separate Table for Semantic Metadata]] -- Decision to store metadata in a dedicated table
-- [[ADR-003 Single Discriminator Table for Metadata Targets]] -- Decision to use a single table with `target_type` discriminator rather than separate tables per target
-- [[Entity Semantics]] -- Subdomain within Entities that owns semantic metadata concepts
-- [[Type Definitions]] -- Subdomain that owns entity type publish, attribute, and schema operations
-- [[EntityTypeService]] -- Triggers metadata init on publish and soft-delete cascade
-- [[EntityTypeAttributeService]] -- Triggers metadata init on attribute add and hard-delete on attribute remove
-- [[EntityTypeRelationshipService]] -- Triggers metadata init on relationship add and hard-delete on relationship remove
-- [[EntityTypeController]] -- Entry point for all entity type lifecycle mutations
-- [[Knowledge Layer]] -- Parent feature area that semantic metadata serves
+- [[riven/docs/system-design/feature-design/2. Planned/Semantic Metadata Foundation]] -- Phase 1 feature scope and plan
+- [[riven/docs/system-design/decisions/ADR-002 Separate Table for Semantic Metadata]] -- Decision to store metadata in a dedicated table
+- [[riven/docs/system-design/decisions/ADR-003 Single Discriminator Table for Metadata Targets]] -- Decision to use a single table with `target_type` discriminator rather than separate tables per target
+- [[riven/docs/system-design/domains/Entities/Entity Semantics/Entity Semantics]] -- Subdomain within Entities that owns semantic metadata concepts
+- [[riven/docs/system-design/domains/Entities/Type Definitions/Type Definitions]] -- Subdomain that owns entity type publish, attribute, and schema operations
+- [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] -- Triggers metadata init on publish and soft-delete cascade
+- [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]] -- Triggers metadata init on attribute add and hard-delete on attribute remove
+- [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] -- Triggers metadata init on relationship add and hard-delete on relationship remove
+- [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeController]] -- Entry point for all entity type lifecycle mutations
+- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Knowledge Layer]] -- Parent feature area that semantic metadata serves
 
 ---
 

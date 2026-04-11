@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-08
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # WorkflowErrorClassifier
 
-Part of [[Execution Engine]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/Execution Engine]]
 
 ## Purpose
 
@@ -34,7 +34,7 @@ None (stateless utility object, no Spring injection needed)
 
 ## Used By
 
-- [[WorkflowCoordinationService]] — Classifies exceptions during node execution
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowCoordinationService]] — Classifies exceptions during node execution
 
 ---
 
@@ -77,5 +77,5 @@ Classifies exception and returns both error type and formatted message with cont
 
 ## Related
 
-- [[WorkflowCoordinationService]] — Primary consumer
-- [[WorkflowOrchestrationService]] — Configures Temporal retry policy using these error types
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowCoordinationService]] — Primary consumer
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowOrchestrationService]] — Configures Temporal retry policy using these error types

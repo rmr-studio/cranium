@@ -1,6 +1,6 @@
 ---
 Created:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
   - architecture/subdomain
 Updated: 2026-02-09
 ---
@@ -16,9 +16,9 @@ Each trigger node implements `WorkflowTriggerConfig` with a specific `WorkflowTr
 
 | Node | Description | Status |
 |------|-------------|--------|
-| [[WorkflowEntityEventTriggerConfig]] | Triggers when an entity is created, updated, or deleted | Implemented |
-| [[WorkflowScheduleTriggerConfig]] | Triggers on a recurring schedule or cron expression | Implemented |
-| [[WorkflowWebhookTriggerConfig]] | Triggers when an HTTP request is received | Implemented |
-| [[WorkflowFunctionTriggerConfig]] | Triggers when called programmatically | Implemented |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Triggers/WorkflowEntityEventTriggerConfig]] | Triggers when an entity is created, updated, or deleted | Implemented |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Triggers/WorkflowScheduleTriggerConfig]] | Triggers on a recurring schedule or cron expression | Implemented |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Triggers/WorkflowWebhookTriggerConfig]] | Triggers when an HTTP request is received | Implemented |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Triggers/WorkflowFunctionTriggerConfig]] | Triggers when called programmatically | Implemented |
 
 All trigger types defined in `WorkflowTriggerType` enum have implementations.

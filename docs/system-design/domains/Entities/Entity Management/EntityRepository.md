@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-02-09
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # EntityRepository
 
-Part of [[Entity Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/Entity Management]]
 
 ## Purpose
 
@@ -32,7 +32,7 @@ JPA repository for `EntityEntity` persistence — provides workspace-scoped enti
 
 ## Used By
 
-- [[EntityService]] — entity instance CRUD
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityService]] — entity instance CRUD
 - [[EntityProjectionService]] — cross-integration identity resolution during projection
 - [[IdentityResolutionService]] — batch sourceExternalId match (Check 1)
 
@@ -110,5 +110,5 @@ Batch sourceExternalId match on a specific entity type within a workspace. Used 
 
 ## Related
 
-- [[EntityService]] — primary consumer for entity CRUD
-- [[Entity Management]] — parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityService]] — primary consumer for entity CRUD
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/Entity Management]] — parent subdomain

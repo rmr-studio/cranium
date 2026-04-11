@@ -5,7 +5,7 @@ tags:
   - architecture/component
 Created: 2026-03-29
 Domains:
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 
 # ProjectionRuleRepository
@@ -27,7 +27,7 @@ JPA repository for projection rule queries — lookups by source entity type wit
 | Consumer | Context |
 |----------|---------|
 | [[EntityProjectionService]] | Loads rules by source type and workspace during projection |
-| [[TemplateMaterializationService]] | Checks existence before creating new rules during enablement |
+| [[riven/docs/system-design/domains/Integrations/Enablement/TemplateMaterializationService]] | Checks existence before creating new rules during enablement |
 
 ## Public Methods
 
@@ -51,5 +51,5 @@ Idempotency check during rule installation. Returns `COUNT(r) > 0` for matching 
 
 - [[ProjectionRuleEntity]]
 - [[EntityProjectionService]]
-- [[TemplateMaterializationService]]
+- [[riven/docs/system-design/domains/Integrations/Enablement/TemplateMaterializationService]]
 - [[Entity Projection]]

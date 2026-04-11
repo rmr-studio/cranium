@@ -52,7 +52,7 @@ Semantic metadata is stored in the `entity_type_semantic_metadata` table using a
 
 Each record can have a `definition` (text description), `classification` (enum: IDENTIFIER, CATEGORICAL, QUANTITATIVE, etc.), and `tags` (JSONB array). Metadata is initialized when definitions are created and cleaned up when they are deleted, managed by `EntityTypeSemanticMetadataService`.
 
-### How are [[Integrations]] connected into the entity ecosystem
+### How are [[riven/docs/system-design/domains/Integrations/Integrations]] connected into the entity ecosystem
 
 Entities track their source through fields on the `entities` table: `source_type` (USER_CREATED, INTEGRATION, etc.), `source_integration_id` (FK to `integration_definitions`), `source_external_id`, `source_url`, `first_synced_at`, `last_synced_at`, and `sync_version`.
 

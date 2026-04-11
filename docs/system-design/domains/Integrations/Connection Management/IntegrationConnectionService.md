@@ -6,15 +6,15 @@ tags:
 Created: 2025-07-17
 Updated: 2026-03-18
 Domains:
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 # IntegrationConnectionService
 
-Part of [[Connection Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Connection Management/Connection Management]]
 
 ## Purpose
 
-Manages the lifecycle of integration connections between workspaces and external services. Enforces an 8-state connection state machine with validated transitions, coordinates with [[NangoClientWrapper]] for external OAuth connection management, and triggers [[TemplateMaterializationService]] when connections become active. Connections are created exclusively by the webhook handler (via `createOrReconnect`) after successful OAuth completion — there is no public connection creation endpoint.
+Manages the lifecycle of integration connections between workspaces and external services. Enforces an 8-state connection state machine with validated transitions, coordinates with [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Connection Management/NangoClientWrapper]] for external OAuth connection management, and triggers [[riven/docs/system-design/domains/Integrations/Enablement/TemplateMaterializationService]] when connections become active. Connections are created exclusively by the webhook handler (via `createOrReconnect`) after successful OAuth completion — there is no public connection creation endpoint.
 
 ---
 
@@ -33,17 +33,17 @@ Manages the lifecycle of integration connections between workspaces and external
 
 - `IntegrationConnectionRepository` -- Connection persistence
 - `IntegrationDefinitionRepository` -- Validates integration definitions exist, provides Nango provider keys
-- [[NangoClientWrapper]] -- External Nango API calls for connection deletion
-- [[TemplateMaterializationService]] -- Materializes entity type templates when a connection becomes CONNECTED
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Connection Management/NangoClientWrapper]] -- External Nango API calls for connection deletion
+- [[riven/docs/system-design/domains/Integrations/Enablement/TemplateMaterializationService]] -- Materializes entity type templates when a connection becomes CONNECTED
 - `AuthTokenService` -- JWT user extraction
 - `ActivityService` -- Audit logging
 - `TransactionTemplate` -- Programmatic transaction management for the disconnect flow
 
 ## Used By
 
-- [[NangoWebhookService]] — Calls `createOrReconnect` for connection creation after OAuth
-- [[IntegrationEnablementService]] — Calls `getConnection` and `disconnectConnection` during disable flow
-- [[IntegrationController]] — REST endpoints for status queries
+- [[riven/docs/system-design/domains/Integrations/Webhook Authentication/NangoWebhookService]] — Calls `createOrReconnect` for connection creation after OAuth
+- [[riven/docs/system-design/domains/Integrations/Enablement/IntegrationEnablementService]] — Calls `getConnection` and `disconnectConnection` during disable flow
+- [[riven/docs/system-design/domains/Integrations/Enablement/IntegrationController]] — REST endpoints for status queries
 
 ---
 
@@ -70,7 +70,7 @@ Terminal-ish states: `DISCONNECTED` can only re-enter the lifecycle via `CONNECT
 
 ### createOrReconnect (internal)
 
-Internal method called by [[NangoWebhookService]] after Nango confirms successful OAuth. Handles 4 scenarios:
+Internal method called by [[riven/docs/system-design/domains/Integrations/Webhook Authentication/NangoWebhookService]] after Nango confirms successful OAuth. Handles 4 scenarios:
 
 1. No existing connection → create new with `CONNECTED` status, log CREATE activity
 2. Existing with `DISCONNECTED` or `FAILED` status → validate state transition, set to `CONNECTED`, update `nangoConnectionId`, log UPDATE activity
@@ -87,7 +87,7 @@ The service never sets status directly without checking transitions, except in `
 
 ### Nango integration
 
-The service interacts with Nango exclusively through [[NangoClientWrapper]]:
+The service interacts with Nango exclusively through [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Connection Management/NangoClientWrapper]]:
 
 - **Disconnect flow**: Calls `nangoClientWrapper.deleteConnection(providerConfigKey, connectionId)` to remove the external OAuth connection
 - **Error handling**: All Nango exceptions (`NangoApiException`, `RateLimitException`, `TransientNangoException`, and generic `Exception`) are caught and logged -- Nango failures do NOT prevent the local connection from being marked `DISCONNECTED`
@@ -129,7 +129,7 @@ Disconnects a connection using a three-phase flow: transition to `DISCONNECTING`
 
 ### `createOrReconnect(workspaceId: UUID, integrationId: UUID, nangoConnectionId: String, userId: UUID): IntegrationConnectionEntity` *(internal)*
 
-Creates or reconnects a connection after webhook-confirmed OAuth. Called by [[NangoWebhookService]] only. Not exposed as a public API method — `internal` visibility.
+Creates or reconnects a connection after webhook-confirmed OAuth. Called by [[riven/docs/system-design/domains/Integrations/Webhook Authentication/NangoWebhookService]] only. Not exposed as a public API method — `internal` visibility.
 
 ---
 
@@ -147,11 +147,11 @@ Creates or reconnects a connection after webhook-confirmed OAuth. Called by [[Na
 
 ## Related
 
-- [[NangoClientWrapper]] -- External API client for Nango connection management
-- [[TemplateMaterializationService]] -- Materializes integration templates on connection
-- [[IntegrationController]] -- REST endpoints consuming this service
-- [[NangoWebhookService]] — Creates connections via `createOrReconnect` after webhook-confirmed OAuth
-- [[Connection Management]] -- Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Connection Management/NangoClientWrapper]] -- External API client for Nango connection management
+- [[riven/docs/system-design/domains/Integrations/Enablement/TemplateMaterializationService]] -- Materializes integration templates on connection
+- [[riven/docs/system-design/domains/Integrations/Enablement/IntegrationController]] -- REST endpoints consuming this service
+- [[riven/docs/system-design/domains/Integrations/Webhook Authentication/NangoWebhookService]] — Creates connections via `createOrReconnect` after webhook-confirmed OAuth
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Connection Management/Connection Management]] -- Parent subdomain
 - `ConnectionStatus` — Enum defining the 8-state machine
 
 ---

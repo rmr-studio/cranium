@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-02-21
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # RelationshipTargetRuleRepository
 
-Part of [[Relationships]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Relationships/Relationships]]
 
 ## Purpose
 
@@ -34,17 +34,17 @@ JPA repository for `RelationshipTargetRuleEntity` persistence. Provides queries 
 
 | Component | Purpose |
 | --------- | ------- |
-| [[EntityTypeRelationshipService]] | Primary CRUD operations, target rule diff |
-| [[EntityQueryService]] | Load inverse-visible rules for direction resolution |
-| [[EntityContextService]] | Load inverse-visible rules for context building |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Relationships/EntityTypeRelationshipService]] | Primary CRUD operations, target rule diff |
+| [[riven/docs/system-design/domains/Entities/Querying/EntityQueryService]] | Load inverse-visible rules for direction resolution |
+| [[riven/docs/system-design/domains/Workflows/State Management/EntityContextService]] | Load inverse-visible rules for context building |
 
 ---
 
 ## Related
 
-- [[RelationshipDefinitionRepository]] — Companion repository for definitions
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Relationships/RelationshipDefinitionRepository]] — Companion repository for definitions
 - `RelationshipTargetRuleEntity` — JPA entity
-- [[Relationships]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Relationships/Relationships]] — Parent subdomain
 
 ---
 

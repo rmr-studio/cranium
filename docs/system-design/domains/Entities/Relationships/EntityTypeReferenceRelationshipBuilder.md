@@ -5,7 +5,7 @@ tags:
 Created: 2026-02-09
 Updated: 2026-02-21
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # EntityTypeReferenceRelationshipBuilder
 

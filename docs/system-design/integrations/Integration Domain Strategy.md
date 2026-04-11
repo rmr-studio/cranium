@@ -13,9 +13,9 @@ Strategic reference for integration domain prioritization and how each domain ma
 
 **Scope:** Domain analysis, entity type blueprints (read-only integration types), strategic alignment with intelligence outcomes.
 
-**Not covered:** API design, data flows, technical integration patterns. See [[Domain Integration]] for cross-domain interaction mechanics.
+**Not covered:** API design, data flows, technical integration patterns. See [[2. Areas/2.1 Startup & Content/Riven/2. System Design/integrations/Domain Integration]] for cross-domain interaction mechanics.
 
-**Related:** [[Nango]], [[Knowledge Layer Sub-Agents]], [[Domain Integration]], [[Entities]], [[Knowledge]]
+**Related:** [[3. Resources/3.1 Software Architecture/Nango]], [[riven/docs/system-design/feature-design/1. Planning/Knowledge Layer Sub-Agents]], [[2. Areas/2.1 Startup & Content/Riven/2. System Design/integrations/Domain Integration]], [[riven/docs/system-design/domains/Entities/Entities]], [[riven/docs/system-design/domains/Knowledge/Knowledge]]
 
 ---
 
@@ -196,8 +196,8 @@ Enables meeting signal enrichment (cancelled QBRs, onboarding no-shows, declinin
 
 ## References
 
-- [[Domain Integration]] — Cross-domain interaction mechanics in Riven Core
-- [[Entities]] — Entity type system, attributes, relationships, and validation
-- [[Knowledge]] — Knowledge layer and semantic reasoning
-- [[Knowledge Layer Sub-Agents]] — Proactive intelligence agents
-- [[Nango]] — Integration infrastructure (ADR-001)
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/integrations/Domain Integration]] — Cross-domain interaction mechanics in Riven Core
+- [[riven/docs/system-design/domains/Entities/Entities]] — Entity type system, attributes, relationships, and validation
+- [[riven/docs/system-design/domains/Knowledge/Knowledge]] — Knowledge layer and semantic reasoning
+- [[riven/docs/system-design/feature-design/1. Planning/Knowledge Layer Sub-Agents]] — Proactive intelligence agents
+- [[3. Resources/3.1 Software Architecture/Nango]] — Integration infrastructure (ADR-001)

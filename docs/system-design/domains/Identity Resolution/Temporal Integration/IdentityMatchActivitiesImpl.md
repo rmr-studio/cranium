@@ -1,14 +1,14 @@
 ---
 Created: 2026-03-17
 Domains:
-  - "[[Identity Resolution]]"
+  - "[[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]]"
 tags:
   - component/active
   - layer/service
   - architecture/component
 ---
 
-Part of [[Temporal Integration]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Temporal Integration/Temporal Integration]]
 
 # IdentityMatchActivitiesImpl
 
@@ -50,8 +50,8 @@ Registered on `identity.match` task queue via `TemporalWorkerConfiguration` — 
 
 ## Related
 
-- [[IdentityMatchWorkflow]]
-- [[IdentityMatchCandidateService]]
-- [[IdentityMatchScoringService]]
-- [[IdentityMatchSuggestionService]]
-- [[TemporalWorkerConfiguration]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Temporal Integration/IdentityMatchWorkflow]]
+- [[riven/docs/system-design/domains/Identity Resolution/Matching Pipeline/IdentityMatchCandidateService]]
+- [[riven/docs/system-design/domains/Identity Resolution/Matching Pipeline/IdentityMatchScoringService]]
+- [[riven/docs/system-design/domains/Identity Resolution/Matching Pipeline/IdentityMatchSuggestionService]]
+- [[riven/docs/system-design/domains/Workflows/Execution Engine/TemporalWorkerConfiguration]]

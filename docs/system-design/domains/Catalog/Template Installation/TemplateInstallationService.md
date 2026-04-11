@@ -6,11 +6,11 @@ tags:
 Created: 2026-03-09
 Updated: 2026-03-12
 Domains:
-  - "[[Catalog]]"
+  - "[[riven/docs/system-design/domains/Catalog/Catalog]]"
 ---
 # TemplateInstallationService
 
-Part of [[Template Installation]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Template Installation/Template Installation]]
 
 ## Purpose
 
@@ -32,19 +32,19 @@ Orchestrates template and bundle installation into workspaces — reads fully-re
 
 ## Dependencies
 
-- [[ManifestCatalogService]] — reads fully-hydrated template/bundle definitions from the catalog
-- `EntityTypeRepository` — persists workspace-scoped entity type entities (cross-domain: [[Entities]])
-- [[WorkspaceTemplateInstallationRepository]] — tracks template installation state per workspace
-- `EntityTypeRelationshipService` — creates relationship definitions and fallback definitions (cross-domain: [[Entities]])
-- `EntityTypeSemanticMetadataService` — initializes and upserts semantic metadata (cross-domain: [[Entities]])
+- [[riven/docs/system-design/domains/Catalog/Catalog Query/ManifestCatalogService]] — reads fully-hydrated template/bundle definitions from the catalog
+- `EntityTypeRepository` — persists workspace-scoped entity type entities (cross-domain: [[riven/docs/system-design/domains/Entities/Entities]])
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Template Installation/WorkspaceTemplateInstallationRepository]] — tracks template installation state per workspace
+- `EntityTypeRelationshipService` — creates relationship definitions and fallback definitions (cross-domain: [[riven/docs/system-design/domains/Entities/Entities]])
+- `EntityTypeSemanticMetadataService` — initializes and upserts semantic metadata (cross-domain: [[riven/docs/system-design/domains/Entities/Entities]])
 - `AuthTokenService` — retrieves authenticated user ID for activity logging
 - `ActivityService` — logs template/bundle installation activity
 - `KLogger` — structured logging
 
 ## Used By
 
-- `WorkspaceController` ([[Workspaces & Users]] domain) — delegates template installation via `POST /api/v1/workspace/{workspaceId}/install-template`
-- [[OnboardingService]] — installs templates and bundles during onboarding via `installTemplateInternal` and `installBundleInternal`
+- `WorkspaceController` ([[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] domain) — delegates template installation via `POST /api/v1/workspace/{workspaceId}/install-template`
+- [[riven/docs/system-design/domains/Workspaces & Users/Onboarding/OnboardingService]] — installs templates and bundles during onboarding via `installTemplateInternal` and `installBundleInternal`
 
 ---
 
@@ -102,7 +102,7 @@ Installs a single template into a workspace atomically. Returns early with zero 
 
 ### `installTemplateInternal(workspaceId: UUID, templateKey: String): TemplateInstallationResponse`
 
-Internal method without `@PreAuthorize` — used by [[OnboardingService]] when the workspace role is not yet in the JWT. Contains the full template installation logic (identical to `installTemplate` but bypasses workspace access check). Annotated with `@Transactional`.
+Internal method without `@PreAuthorize` — used by [[riven/docs/system-design/domains/Workspaces & Users/Onboarding/OnboardingService]] when the workspace role is not yet in the JWT. Contains the full template installation logic (identical to `installTemplate` but bypasses workspace access check). Annotated with `@Transactional`.
 
 ### `installBundle(workspaceId: UUID, bundleKey: String): BundleInstallationResponse`
 
@@ -110,7 +110,7 @@ Installs all templates in a bundle, skipping already-installed ones. Deduplicate
 
 ### `installBundleInternal(workspaceId: UUID, bundleKey: String): BundleInstallationResponse`
 
-Internal method without `@PreAuthorize` — used by [[OnboardingService]] when the workspace role is not yet in the JWT. Contains the full bundle installation logic (identical to `installBundle` but bypasses workspace access check). Annotated with `@Transactional`.
+Internal method without `@PreAuthorize` — used by [[riven/docs/system-design/domains/Workspaces & Users/Onboarding/OnboardingService]] when the workspace role is not yet in the JWT. Contains the full bundle installation logic (identical to `installBundle` but bypasses workspace access check). Annotated with `@Transactional`.
 
 ---
 
@@ -144,9 +144,9 @@ Internal method without `@PreAuthorize` — used by [[OnboardingService]] when t
 
 ## Related
 
-- [[ManifestCatalogService]] — provides the fully-hydrated template/bundle definitions
-- `WorkspaceController` ([[Workspaces & Users]]) — REST endpoint delegation
-- [[WorkspaceTemplateInstallationEntity]] — installation tracking entity
+- [[riven/docs/system-design/domains/Catalog/Catalog Query/ManifestCatalogService]] — provides the fully-hydrated template/bundle definitions
+- `WorkspaceController` ([[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]) — REST endpoint delegation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Template Installation/WorkspaceTemplateInstallationEntity]] — installation tracking entity
 ---
 
 ## Recent Changes
@@ -157,4 +157,4 @@ Internal method without `@PreAuthorize` — used by [[OnboardingService]] when t
 
 ---
 
-- [[Template Installation]] — parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Template Installation/Template Installation]] — parent subdomain

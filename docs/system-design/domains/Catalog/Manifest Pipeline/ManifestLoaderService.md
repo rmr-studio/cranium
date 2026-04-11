@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-06
 Domains:
-  - "[[Catalog]]"
+  - "[[riven/docs/system-design/domains/Catalog/Catalog]]"
 ---
 # ManifestLoaderService
 
-Part of [[Manifest Pipeline]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/Manifest Pipeline]]
 
 ## Purpose
 
@@ -23,21 +23,21 @@ Top-level orchestrator for the manifest loading pipeline — scans, resolves, an
 - Fire on `ApplicationReadyEvent` in a dedicated background thread to avoid blocking startup
 - Build an in-memory model index during model loading for template `$ref` resolution
 - Isolate individual manifest failures (log and skip) to prevent one bad manifest from aborting the pipeline
-- Track pipeline health state transitions via [[ManifestCatalogHealthIndicator]]
-- Trigger post-load stale reconciliation via [[ManifestReconciliationService]]
-- Trigger cross-domain stale flag sync via [[IntegrationDefinitionStaleSyncService]]
+- Track pipeline health state transitions via [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestCatalogHealthIndicator]]
+- Trigger post-load stale reconciliation via [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestReconciliationService]]
+- Trigger cross-domain stale flag sync via [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/IntegrationDefinitionStaleSyncService]]
 
 ---
 
 ## Dependencies
 
-- [[ManifestScannerService]] — classpath scanning for model, template, and integration manifests
-- [[ManifestResolverService]] — manifest resolution including `$ref` expansion and schema validation
-- [[ManifestUpsertService]] — individual manifest persistence (insert or update)
-- [[ManifestReconciliationService]] — marks catalog entries not seen in the current scan as stale
-- [[IntegrationDefinitionStaleSyncService]] — propagates stale flags from catalog to integration definitions
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestScannerService]] — classpath scanning for model, template, and integration manifests
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestResolverService]] — manifest resolution including `$ref` expansion and schema validation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestUpsertService]] — individual manifest persistence (insert or update)
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestReconciliationService]] — marks catalog entries not seen in the current scan as stale
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/IntegrationDefinitionStaleSyncService]] — propagates stale flags from catalog to integration definitions
 - [[ManifestCatalogRepository]] — post-load stale count query
-- [[ManifestCatalogHealthIndicator]] — health state reporting for readiness probes
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestCatalogHealthIndicator]] — health state reporting for readiness probes
 
 ## Used By
 
@@ -95,7 +95,7 @@ Executes the full pipeline: scan all manifest types, resolve and upsert each, re
 
 ## Gotchas
 
-- **No `@Transactional`:** The main method is deliberately non-transactional. Each manifest is upserted individually by [[ManifestUpsertService]], so a failure mid-pipeline does not roll back previously loaded manifests.
+- **No `@Transactional`:** The main method is deliberately non-transactional. Each manifest is upserted individually by [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestUpsertService]], so a failure mid-pipeline does not roll back previously loaded manifests.
 - **Background thread, not async:** Uses a raw `Thread("manifest-loader")` rather than `@Async` or a thread pool. This means there is no timeout or retry mechanism — if the thread hangs, the health indicator stays in LOADING indefinitely.
 - **Model ordering is load-bearing:** Models MUST load before templates. The `modelIndex` built during model loading is passed to template resolution. Bundles and integrations have no ordering dependency on other phases.
 - **Empty classpath guard:** If zero manifests are scanned across all three types, stale reconciliation is skipped. This prevents a classpath misconfiguration from marking the entire catalog stale.
@@ -105,9 +105,9 @@ Executes the full pipeline: scan all manifest types, resolve and upsert each, re
 
 ## Related
 
-- [[Flow - Manifest Loading Pipeline]] — end-to-end flow documentation
-- [[ManifestScannerService]] — phase 1: classpath scanning
-- [[ManifestResolverService]] — phase 2: resolution and validation
-- [[ManifestUpsertService]] — phase 3: persistence
-- [[ManifestReconciliationService]] — post-load stale cleanup
-- [[Manifest Pipeline]] — parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/Flow - Manifest Loading Pipeline]] — end-to-end flow documentation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestScannerService]] — phase 1: classpath scanning
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestResolverService]] — phase 2: resolution and validation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestUpsertService]] — phase 3: persistence
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestReconciliationService]] — post-load stale cleanup
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/Manifest Pipeline]] — parent subdomain

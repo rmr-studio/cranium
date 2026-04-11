@@ -4,7 +4,7 @@ tags:
   - domain/identity-resolution
 Created: 2026-03-17
 Domains:
-  - "[[Identity Resolution]]"
+  - "[[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]]"
 ---
 
 # Matching Pipeline
@@ -17,9 +17,9 @@ Core pipeline for identity resolution. Implements three-phase matching: candidat
 
 | Component | Purpose | Type |
 |---|---|---|
-| [[IdentityMatchCandidateService]] | Two-phase pg_trgm blocking — GIN index leverage with `%` operator + similarity threshold for finding candidate matches | Service |
-| [[IdentityMatchScoringService]] | Pure computation — weighted average scoring with configurable per-signal-type weights | Service |
-| [[IdentityMatchSuggestionService]] | Suggestion persistence — idempotent creation, re-suggestion on improved score, rejection with signal snapshot | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Matching Pipeline/IdentityMatchCandidateService]] | Two-phase pg_trgm blocking — GIN index leverage with `%` operator + similarity threshold for finding candidate matches | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Matching Pipeline/IdentityMatchScoringService]] | Pure computation — weighted average scoring with configurable per-signal-type weights | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Matching Pipeline/IdentityMatchSuggestionService]] | Suggestion persistence — idempotent creation, re-suggestion on improved score, rejection with signal snapshot | Service |
 | [[EntityTypeClassificationService]] | Cached IDENTIFIER attribute lookup for entity types using ConcurrentHashMap | Service |
 | [[IdentityMatchQueueService]] | Enqueues IDENTITY_MATCH jobs with deduplication via partial unique index | Service |
 | [[IdentityMatchDispatcherService]] | Scheduled queue polling (every 5s) with ShedLock distributed locking | Service |

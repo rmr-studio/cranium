@@ -133,7 +133,7 @@ Keep physical separation but create database views that join integration entitie
 
 - The `SourceType` enum (`USER_CREATED`, `INTEGRATION`, `IMPORT`, `API`, `WORKFLOW`) serves as the universal discriminator for entity origin across both entity types and entity instances. It remains unchanged by this decision.
 - Entity-level source fields (`sourceType`, `sourceIntegrationId`, `sourceExternalId`, `sourceUrl`, `firstSyncedAt`, `lastSyncedAt`, `syncVersion`) on `EntityEntity` are actively used by the sync pipeline and are not affected by the removal of attribute-level provenance.
-- Integration entity type schemas are defined in declarative JSON manifests (see [[ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]) and materialized into workspaces by `TemplateMaterializationService`. This materialization path is unchanged.
+- Integration entity type schemas are defined in declarative JSON manifests (see [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]) and materialized into workspaces by `TemplateMaterializationService`. This materialization path is unchanged.
 
 ---
 
@@ -149,10 +149,10 @@ Keep physical separation but create database views that join integration entitie
 
 ## Related
 
-- [[ADR-001 Nango as Integration Infrastructure]]
-- [[ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]
-- [[Integration Domain Strategy]]
-- [[Entity Integration Sync]]
-- [[Integration Access Layer]]
-- [[Integration Connection Lifecycle]]
-- [[Predefined Integration Entity Types]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-001 Nango as Integration Infrastructure]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]
+- [[riven/docs/system-design/integrations/Integration Domain Strategy]]
+- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]]
+- [[riven/docs/system-design/feature-design/3. Active/Integration Access Layer]]
+- [[riven/docs/system-design/flows/Integration Connection Lifecycle]]
+- [[riven/docs/system-design/feature-design/3. Active/Predefined Integration Entity Types]]

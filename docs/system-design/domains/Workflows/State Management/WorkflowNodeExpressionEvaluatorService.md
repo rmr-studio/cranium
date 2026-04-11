@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-08
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # WorkflowNodeExpressionEvaluatorService
 
-Part of [[State Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/State Management]]
 
 ## Purpose
 
@@ -87,6 +87,6 @@ Evaluates expression AST against context. Returns Boolean for comparisons/logica
 
 ## Related
 
-- [[WorkflowNodeExpressionParserService]] — Parses string expressions into AST (separate service)
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/WorkflowNodeExpressionParserService]] — Parses string expressions into AST (separate service)
 - CONDITION node config — Primary consumer
-- [[State Management]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/State Management]] — Parent subdomain

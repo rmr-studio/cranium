@@ -6,7 +6,7 @@ Created: 2026-02-09
 Updated: 2026-02-09
 Critical: false
 Domains:
-  - "[[Workspaces & Users]]"
+  - "[[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]"
 ---
 # Flow: Invitation Acceptance
 
@@ -20,7 +20,7 @@ Workspace invitation flow enabling admins/owners to invite users by email, gener
 
 Admin or Owner initiates workspace invitation via REST API.
 
-**Entry Point:** [[WorkspaceController]] → `POST /api/v1/workspace/{workspaceId}/invite`
+**Entry Point:** [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceController]] → `POST /api/v1/workspace/{workspaceId}/invite`
 
 ---
 
@@ -71,18 +71,18 @@ sequenceDiagram
 
 ### Create Invitation (Team Management)
 
-1. **[[WorkspaceInviteService]]** — Validates request (role not OWNER, email not already member, no pending invite exists)
-2. **[[WorkspaceInviteService]]** — Creates `WorkspaceInviteEntity` with PENDING status and secure token
-3. **[[WorkspaceInviteService]]** — Logs `WORKSPACE_MEMBER_INVITE` activity via [[ActivityService]]
-4. **[[WorkspaceInviteService]]** — Returns invite model (email sending marked TODO)
+1. **[[riven/docs/system-design/domains/Workspaces & Users/Team Management/WorkspaceInviteService]]** — Validates request (role not OWNER, email not already member, no pending invite exists)
+2. **[[riven/docs/system-design/domains/Workspaces & Users/Team Management/WorkspaceInviteService]]** — Creates `WorkspaceInviteEntity` with PENDING status and secure token
+3. **[[riven/docs/system-design/domains/Workspaces & Users/Team Management/WorkspaceInviteService]]** — Logs `WORKSPACE_MEMBER_INVITE` activity via [[riven/docs/system-design/domains/Workspaces & Users/User Management/ActivityService]]
+4. **[[riven/docs/system-design/domains/Workspaces & Users/Team Management/WorkspaceInviteService]]** — Returns invite model (email sending marked TODO)
 
 ### Accept Invitation (Team Management → Workspace Management)
 
-5. **[[WorkspaceInviteService]]** — Validates token exists and invitation is PENDING
-6. **[[WorkspaceInviteService]]** — Validates authenticated user email matches invitation email
-7. **[[WorkspaceInviteService]]** — Updates invite status to ACCEPTED
-8. **[[WorkspaceService]]** — Creates `WorkspaceMemberEntity` with invited role
-9. **[[WorkspaceService]]** — Persists workspace membership
+5. **[[riven/docs/system-design/domains/Workspaces & Users/Team Management/WorkspaceInviteService]]** — Validates token exists and invitation is PENDING
+6. **[[riven/docs/system-design/domains/Workspaces & Users/Team Management/WorkspaceInviteService]]** — Validates authenticated user email matches invitation email
+7. **[[riven/docs/system-design/domains/Workspaces & Users/Team Management/WorkspaceInviteService]]** — Updates invite status to ACCEPTED
+8. **[[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceService]]** — Creates `WorkspaceMemberEntity` with invited role
+9. **[[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceService]]** — Persists workspace membership
 
 ---
 
@@ -102,20 +102,20 @@ sequenceDiagram
 ## Components Involved
 
 **Team Management Subdomain:**
-- [[WorkspaceInviteService]] — Create, validate, accept/decline invitations
-- [[WorkspaceInviteRepository]] — Persist invitation records with tokens
-- [[WorkspaceInviteController]] — REST API endpoints for invitation operations
+- [[riven/docs/system-design/domains/Workspaces & Users/Team Management/WorkspaceInviteService]] — Create, validate, accept/decline invitations
+- [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceInviteRepository]] — Persist invitation records with tokens
+- [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceInviteController]] — REST API endpoints for invitation operations
 
 **Workspace Management Subdomain:**
-- [[WorkspaceService]] — Add member to workspace upon acceptance
-- [[WorkspaceMemberRepository]] — Persist workspace membership
+- [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceService]] — Add member to workspace upon acceptance
+- [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceMemberRepository]] — Persist workspace membership
 
 **User Management Subdomain:**
-- [[UserService]] — Retrieve user details (indirectly via [[AuthTokenService]])
+- [[riven/docs/system-design/domains/Workspaces & Users/User Management/UserService]] — Retrieve user details (indirectly via [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]])
 
 **Cross-cutting:**
-- [[ActivityService]] — Log invitation and membership events
-- [[AuthTokenService]] — Extract authenticated user email/ID
+- [[riven/docs/system-design/domains/Workspaces & Users/User Management/ActivityService]] — Log invitation and membership events
+- [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]] — Extract authenticated user email/ID
 
 ---
 
@@ -144,6 +144,6 @@ sequenceDiagram
 
 ## Related
 
-- [[Team Management]] — Parent subdomain containing invitation logic
-- [[WorkspaceSecurity]] — Authorization enforcement for workspace operations
-- [[Workspace Management]] — Membership management after acceptance
+- [[riven/docs/system-design/domains/Workspaces & Users/Team Management/Team Management]] — Parent subdomain containing invitation logic
+- [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]] — Authorization enforcement for workspace operations
+- [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/Workspace Management]] — Membership management after acceptance

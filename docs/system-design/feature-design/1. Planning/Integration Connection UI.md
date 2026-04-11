@@ -10,8 +10,8 @@ tags:
 Created:
 Updated:
 Domains:
-  - "[[Integrations]]"
-Backend-Feature: "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
+Backend-Feature: "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 Pages:
   - "[[]]"
 ---

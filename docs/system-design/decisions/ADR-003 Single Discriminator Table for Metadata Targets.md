@@ -10,7 +10,7 @@ Created: 2026-02-18
 
 ## Context
 
-[[ADR-002 Separate Table for Semantic Metadata]] establishes that semantic metadata lives in a dedicated table, separate from the existing `entity_types` table. Semantic metadata must be attached to three distinct target types:
+[[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-002 Separate Table for Semantic Metadata]] establishes that semantic metadata lives in a dedicated table, separate from the existing `entity_types` table. Semantic metadata must be attached to three distinct target types:
 
 1. **Entity types** -- a natural-language definition describing what the entity type represents in the workspace's domain.
 2. **Attributes** -- a description and classification (e.g., IDENTIFIER, DESCRIPTIVE, TEMPORAL) for each attribute defined in the entity type's `schema.properties` JSONB map.
@@ -78,7 +78,7 @@ Store all semantic metadata for an entity type in a single JSONB column on a lig
 ### Negative
 
 - The `classification` column is semantically meaningful only for ATTRIBUTE targets. Entity type and relationship metadata records leave this column NULL. This is a minor schema impurity -- the column exists on rows where it has no meaning -- but the cost is negligible (nullable TEXT column, no storage overhead for NULL).
-- `target_id` is not a true foreign key. For ATTRIBUTE targets, it references a UUID key inside the `entity_types.schema` JSONB map. For RELATIONSHIP targets, it references a UUID inside the `entity_types.relationships` JSONB array. Referential integrity cannot be enforced at the database level -- it is enforced by the service layer during lifecycle sync. If an attribute or relationship UUID is removed from the JSONB without the corresponding metadata being soft-deleted, orphaned metadata rows result. The [[Flow - Semantic Metadata Lifecycle Sync]] design addresses this.
+- `target_id` is not a true foreign key. For ATTRIBUTE targets, it references a UUID key inside the `entity_types.schema` JSONB map. For RELATIONSHIP targets, it references a UUID inside the `entity_types.relationships` JSONB array. Referential integrity cannot be enforced at the database level -- it is enforced by the service layer during lifecycle sync. If an attribute or relationship UUID is removed from the JSONB without the corresponding metadata being soft-deleted, orphaned metadata rows result. The [[riven/docs/system-design/flows/Flow - Semantic Metadata Lifecycle Sync]] design addresses this.
 - Queries for a specific target type must always include `WHERE target_type = ?` to be efficient. Omitting the discriminator filter returns mixed results across all target types, which is correct for the `?include=semantics` batch read but requires filtering for single-target operations.
 
 ### Neutral
@@ -106,9 +106,9 @@ Store all semantic metadata for an entity type in a single JSONB column on a lig
 
 ## Related
 
-- [[ADR-002 Separate Table for Semantic Metadata]]
-- [[Semantic Metadata Foundation]]
-- [[Knowledge Layer]]
-- [[Entity Semantics]]
-- [[Entities]]
-- [[Type Definitions]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-002 Separate Table for Semantic Metadata]]
+- [[riven/docs/system-design/feature-design/2. Planned/Semantic Metadata Foundation]]
+- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Knowledge Layer]]
+- [[riven/docs/system-design/domains/Entities/Entity Semantics/Entity Semantics]]
+- [[riven/docs/system-design/domains/Entities/Entities]]
+- [[riven/docs/system-design/domains/Entities/Type Definitions/Type Definitions]]

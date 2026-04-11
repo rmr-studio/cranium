@@ -5,14 +5,14 @@ tags:
 Created:
 Updated: 2026-02-28
 Domains:
-  - "[[Knowledge]]"
-  - "[[Entities]]"
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Knowledge/Knowledge]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 # Quick Design: Entity Type Polymorphic Relationship Support for Semantic Categories
 
 > [!important] Superseded
-> This quick design has been superseded by the full feature design: [[Semantic Entity Groups]]
+> This quick design has been superseded by the full feature design: [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/3. Active/Semantic Entity Groups]]
 > That document covers the complete scope — semantic group enum, relationship target rule constraints (array-based matching), knowledge layer integration, `allowPolymorphic` bypass behavior, and re-enrichment triggers.
 
 ## Original Context

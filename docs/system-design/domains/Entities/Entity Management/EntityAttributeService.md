@@ -6,11 +6,11 @@ tags:
 Created: 2026-03-09
 Updated: 2026-03-09
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # EntityAttributeService
 
-Part of [[Entity Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/Entity Management]]
 
 ## Purpose
 
@@ -34,9 +34,9 @@ Service for managing normalized entity attribute values in the `entity_attribute
 
 ## Used By
 
-- [[EntityService]] — Attribute persistence during entity save and batch-loading during retrieval
-- [[EntityTypeAttributeService]] — Loading attributes during breaking change validation
-- [[EntityQueryService]] — Hydrating query results with attribute data
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityService]] — Attribute persistence during entity save and batch-loading during retrieval
+- [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]] — Loading attributes during breaking change validation
+- [[riven/docs/system-design/domains/Entities/Querying/EntityQueryService]] — Hydrating query results with attribute data
 - `BlockReferenceHydrationService` (Knowledge domain) — Loading attributes for block reference hydration
 - `EntityContextService` (Workflows domain) — Loading attributes for workflow entity context
 
@@ -95,7 +95,7 @@ Batch-loads attributes for multiple entities in a single query. Returns nested m
 
 ## Related
 
-- [[EntityAttributeRepository]] — Repository for attribute persistence
-- [[EntityAttributeEntity]] — JPA entity for attribute rows
-- [[EntityService]] — Primary consumer
-- [[Entity Management]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityAttributeRepository]] — Repository for attribute persistence
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityAttributeEntity]] — JPA entity for attribute rows
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityService]] — Primary consumer
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/Entity Management]] — Parent subdomain

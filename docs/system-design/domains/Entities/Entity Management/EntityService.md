@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-21
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # EntityService
 
-Part of [[Entity Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/Entity Management]]
 
 ## Purpose
 
@@ -32,15 +32,15 @@ CRUD service for entity instances with validation, relationship hydration, and u
 ## Dependencies
 
 - `EntityRepository` — Entity instance persistence
-- [[EntityTypeService]] — Type schema retrieval
-- [[EntityRelationshipService]] — Instance relationship management
-- [[EntityTypeRelationshipService]] — Loads relationship definitions for entity type during save operations
-- [[EntityValidationService]] — Schema validation
-- [[EntityTypeAttributeService]] — Unique constraint handling
-- [[EntityAttributeService]] — Normalized attribute persistence and batch-loading
+- [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] — Type schema retrieval
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityRelationshipService]] — Instance relationship management
+- [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] — Loads relationship definitions for entity type during save operations
+- [[riven/docs/system-design/domains/Entities/Validation/EntityValidationService]] — Schema validation
+- [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]] — Unique constraint handling
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityAttributeService]] — Normalized attribute persistence and batch-loading
 - `AuthTokenService` — JWT user extraction
 - `ActivityService` — Audit logging
-- `ApplicationEventPublisher` — Publishes `EntityEvent` for WebSocket broadcasting via [[WebSocketEventListener]]
+- `ApplicationEventPublisher` — Publishes `EntityEvent` for WebSocket broadcasting via [[riven/docs/system-design/domains/Workspaces & Users/Real-time Events/WebSocketEventListener]]
 - `EntityTypeClassificationService` — Provides IDENTIFIER-classified attribute IDs to filter identity match trigger events (used indirectly — EntityService publishes `IdentityMatchTriggerEvent` which is consumed by [[IdentityMatchTriggerListener]])
 
 ## Used By
@@ -55,11 +55,11 @@ CRUD service for entity instances with validation, relationship hydration, and u
 
 1. Determine if create (no ID) or update (ID provided)
 2. Split payload into attributes vs. relationships
-3. Validate attribute payload against type schema via [[EntityValidationService]]
+3. Validate attribute payload against type schema via [[riven/docs/system-design/domains/Entities/Validation/EntityValidationService]]
 4. Save entity to database
-5. Save attributes to normalized `entity_attributes` table via [[EntityAttributeService]] (delete-all + re-insert)
-6. Check and save unique constraints via [[EntityTypeAttributeService]]
-7. Save relationships via `saveRelationshipsPerDefinition()`: extract `relationshipPayload: Map<UUID, List<UUID>>` (keyed by definition ID → target entity IDs); load definitions via [[EntityTypeRelationshipService]]; for each definition in the payload, delegate to [[EntityRelationshipService]] with the resolved definition
+5. Save attributes to normalized `entity_attributes` table via [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityAttributeService]] (delete-all + re-insert)
+6. Check and save unique constraints via [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]]
+7. Save relationships via `saveRelationshipsPerDefinition()`: extract `relationshipPayload: Map<UUID, List<UUID>>` (keyed by definition ID → target entity IDs); load definitions via [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]]; for each definition in the payload, delegate to [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityRelationshipService]] with the resolved definition
 8. Log activity with CREATE or UPDATE operation
 9. Publish `EntityEvent` via `ApplicationEventPublisher` with operation type, entity type context, and summary
 10. Publish `IdentityMatchTriggerEvent` via `ApplicationEventPublisher` with entity ID, workspace ID, entity type ID, and IDENTIFIER-classified attribute values (both previous and new). Consumed by [[IdentityMatchTriggerListener]] after transaction commit.
@@ -75,7 +75,7 @@ CRUD service for entity instances with validation, relationship hydration, and u
 **Delete entities:**
 
 1. Find all entities that link TO the deleted entities (impacted sources)
-2. Delete entity rows, unique values, attributes (via [[EntityAttributeService]]), and relationships
+2. Delete entity rows, unique values, attributes (via [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityAttributeService]]), and relationships
 3. Log activity for each deleted entity
 4. Publish `EntityEvent` per entity type group with DELETE operation, including deleted IDs and count in summary
 5. Return impacted entities with updated relationship data
@@ -138,12 +138,12 @@ Retrieves all entities in workspace (across all types). Relationships NOT hydrat
 
 ## Related
 
-- [[EntityRelationshipService]] — Manages instance relationships
-- [[EntityTypeRelationshipService]] — Provides relationship definitions during save
-- [[EntityValidationService]] — Schema validation
-- [[EntityTypeAttributeService]] — Unique constraint operations
-- [[EntityAttributeService]] — Normalized attribute CRUD
-- [[Entity Management]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityRelationshipService]] — Manages instance relationships
+- [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] — Provides relationship definitions during save
+- [[riven/docs/system-design/domains/Entities/Validation/EntityValidationService]] — Schema validation
+- [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]] — Unique constraint operations
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityAttributeService]] — Normalized attribute CRUD
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/Entity Management]] — Parent subdomain
 - [[IdentityMatchTriggerListener]] — Consumes IdentityMatchTriggerEvent to trigger identity matching pipeline
 
 ---
@@ -171,7 +171,7 @@ Retrieves all entities in workspace (across all types). Relationships NOT hydrat
 - Added `ApplicationEventPublisher` as a constructor dependency.
 - `saveEntity` publishes `EntityEvent` after activity logging with CREATE or UPDATE operation, entity type context, and entity type name in summary.
 - `deleteEntities` publishes `EntityEvent` grouped by entity type with DELETE operation, including deleted entity IDs and count in summary.
-- Events are consumed by [[WebSocketEventListener]] and broadcast to `/topic/workspace/{workspaceId}/entities` after transaction commit.
+- Events are consumed by [[riven/docs/system-design/domains/Workspaces & Users/Real-time Events/WebSocketEventListener]] and broadcast to `/topic/workspace/{workspaceId}/entities` after transaction commit.
 
 ### 2026-03-19 — Identity match event publishing
 

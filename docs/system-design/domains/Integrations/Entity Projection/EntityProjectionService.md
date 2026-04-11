@@ -5,7 +5,7 @@ tags:
   - architecture/component
 Created: 2026-03-29
 Domains:
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 
 # EntityProjectionService
@@ -26,7 +26,7 @@ Core projection pipeline that transforms integration entities into core lifecycl
 - Add integration + core entity pairs to identity clusters (best-effort)
 - Track per-entity projection outcomes for result reporting
 
-**NOT responsible for:** Rule installation (owned by [[TemplateMaterializationService]]), sync orchestration (owned by Temporal workflows), schema mapping (owned by SchemaMappingService).
+**NOT responsible for:** Rule installation (owned by [[riven/docs/system-design/domains/Integrations/Enablement/TemplateMaterializationService]]), sync orchestration (owned by Temporal workflows), schema mapping (owned by SchemaMappingService).
 
 ## Dependencies
 
@@ -35,7 +35,7 @@ Core projection pipeline that transforms integration entities into core lifecycl
 | `EntityRepository` | Core entity persistence and workspace-scoped lookups |
 | `EntityTypeRepository` | Fetches target entity type for projected entity creation |
 | `EntityAttributeRepository` | Reads source attributes for transfer/copy |
-| [[EntityAttributeService]] | Saves merged attributes via delete-all + re-insert pattern |
+| [[riven/docs/system-design/domains/Entities/Entity Management/EntityAttributeService]] | Saves merged attributes via delete-all + re-insert pattern |
 | `EntityRelationshipRepository` | Creates and checks relationship links |
 | [[ProjectionRuleRepository]] | Loads projection rules by source type and workspace |
 | [[IdentityResolutionService]] | Batch identity resolution for each chunk |
@@ -116,7 +116,7 @@ Calls `identityClusterService.resolveClusterMembership()` with system userId `UU
 
 - [[IdentityResolutionService]] — Identity resolution for projection
 - [[ProjectionRuleEntity]] — Routing configuration
-- [[TemplateMaterializationService]] — Installs projection rules during materialization
+- [[riven/docs/system-design/domains/Integrations/Enablement/TemplateMaterializationService]] — Installs projection rules during materialization
 - [[Entity Projection]] — Parent subdomain
 
 ## Changelog

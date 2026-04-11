@@ -10,11 +10,11 @@ tags:
 Created: 2026-02-28
 Updated:
 Domains:
-  - "[[Entities]]"
-  - "[[Knowledge]]"
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
+  - "[[riven/docs/system-design/domains/Knowledge/Knowledge]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 blocked by:
-  - "[[Semantic Metadata Foundation]]"
+  - "[[riven/docs/system-design/feature-design/2. Planned/Semantic Metadata Foundation]]"
 ---
 # Feature: Connected Entities and Per-Instance Relationship Semantics
 
@@ -26,13 +26,13 @@ blocked by:
 
 The current relationship system requires every entity-to-entity link to be assigned to a typed `relationship_definition`. This works well for user-defined schemas but breaks down in three scenarios:
 
-1. **Integration-synced entity types are READONLY.** Their schemas cannot be modified to add new relationship definitions. When [[Identity Resolution System]] detects that a Stripe customer and an Intercom user are the same person, there is no relationship definition on either entity type to assign the link to.
+1. **Integration-synced entity types are READONLY.** Their schemas cannot be modified to add new relationship definitions. When [[riven/docs/system-design/feature-design/2. Planned/Identity Resolution System]] detects that a Stripe customer and an Intercom user are the same person, there is no relationship definition on either entity type to assign the link to.
 
 2. **Identity resolution produces links that don't fit existing definitions.** A match between entities may be detected (via email, phone, name + company) but no appropriate typed relationship exists. The system currently has no fallback — the link is either lost or requires the user to manually create a relationship definition first.
 
 3. **No unified view of all connections.** Each entity's relationships are grouped by definition. There is no way to ask "show me everything connected to this entity" across all definitions as a single flat view.
 
-Additionally, the current semantic metadata system ([[Entity Semantics]]) operates only at the **definition level** — one semantic description per relationship definition. When the [[Enrichment Pipeline]] constructs text for vector embeddings, every link under a definition shares the same generic description. A "Customer → Order" link and a "Customer → Refund" link under the same "Transactions" definition produce identical semantic context, degrading embedding quality.
+Additionally, the current semantic metadata system ([[riven/docs/system-design/domains/Entities/Entity Semantics/Entity Semantics]]) operates only at the **definition level** — one semantic description per relationship definition. When the [[riven/docs/system-design/domains/Knowledge/Enrichment Pipeline/Enrichment Pipeline]] constructs text for vector embeddings, every link under a definition shares the same generic description. A "Customer → Order" link and a "Customer → Refund" link under the same "Transactions" definition produce identical semantic context, degrading embedding quality.
 
 ### Proposed Solution
 
@@ -40,9 +40,9 @@ Introduce two complementary capabilities:
 
 **1. System-managed "Connected Entities" fallback definition per entity type.** When an entity type is published, auto-create a `protected = true`, `allowPolymorphic = true`, `MANY_TO_MANY` relationship definition. This definition accepts any entity type as a target and serves as the catch-all bucket for identity resolution links, cross-integration connections, and manual ad-hoc links. It reuses the existing `entity_relationships` table and relationship infrastructure entirely.
 
-**2. Per-instance semantic context on relationship rows.** Extend `entity_relationships` with `semantic_context`, `link_source`, and `confidence` columns. For typed relationship instances, `semantic_context` is auto-populated from the definition's semantic metadata at write time (snapshot). For fallback "Connected Entities" instances, `semantic_context` is populated case-by-case by the creating system (identity resolution, manual user input, integration sync). This gives the [[Enrichment Pipeline]] per-row meaning for embedding construction without requiring queryable metadata.
+**2. Per-instance semantic context on relationship rows.** Extend `entity_relationships` with `semantic_context`, `link_source`, and `confidence` columns. For typed relationship instances, `semantic_context` is auto-populated from the definition's semantic metadata at write time (snapshot). For fallback "Connected Entities" instances, `semantic_context` is populated case-by-case by the creating system (identity resolution, manual user input, integration sync). This gives the [[riven/docs/system-design/domains/Knowledge/Enrichment Pipeline/Enrichment Pipeline]] per-row meaning for embedding construction without requiring queryable metadata.
 
-**3. Catch-all query filter.** Add an `IsRelatedTo` variant to [[RelationshipFilter]] that omits the `definitionId` predicate, enabling "show me all entities related to X" queries across all definitions including the fallback.
+**3. Catch-all query filter.** Add an `IsRelatedTo` variant to [[riven/apps/client/lib/types/docs/RelationshipFilter]] that omits the `definitionId` predicate, enabling "show me all entities related to X" queries across all definitions including the fallback.
 
 ### Success Criteria
 
@@ -87,9 +87,9 @@ In `riven.core.enums.entity`:
 | Value | Meaning |
 |-------|---------|
 | `USER_CREATED` | Manually linked by a user via the API or UI |
-| `IDENTITY_RESOLUTION` | Created by the [[Identity Resolution System]] |
+| `IDENTITY_RESOLUTION` | Created by the [[riven/docs/system-design/feature-design/2. Planned/Identity Resolution System]] |
 | `INTEGRATION_SYNC` | Created during integration data sync |
-| `WORKFLOW` | Created by a [[Workflows]] automation |
+| `WORKFLOW` | Created by a [[riven/docs/system-design/domains/Workflows/Workflows]] automation |
 | `SYSTEM` | Created by internal system processes |
 
 #### `SystemRelationshipType`
@@ -102,9 +102,9 @@ In `riven.core.enums.entity`:
 
 ### Data Ownership
 
-- [[EntityTypeService]] owns the auto-creation of the fallback definition during `publishEntityType`
-- [[EntityRelationshipService]] owns the `semantic_context` population logic during `saveRelationships`
-- [[EntityTypeSemanticMetadataService]] provides the definition-level semantic text used as the baseline for typed relationship instances
+- [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] owns the auto-creation of the fallback definition during `publishEntityType`
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] owns the `semantic_context` population logic during `saveRelationships`
+- [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]] provides the definition-level semantic text used as the baseline for typed relationship instances
 - Identity resolution, integration sync, and workflow services own the population of fallback links with their respective `link_source` values
 
 ### Relationships
@@ -121,12 +121,12 @@ entity_relationships ---(semantic_context)---> entity_type_semantic_metadata [in
   - Typed relationship instances: `semantic_context` populated from definition's semantic metadata during `saveRelationships`
   - Fallback instances: created via dedicated API endpoint, identity resolution, integration sync, or workflow with explicit `semantic_context`
 - **Updates:**
-  - `semantic_context` on existing typed relationship rows is NOT retroactively updated when the definition's semantic metadata changes (snapshot at write time). Re-enrichment handled by [[Schema Change Handling]] when needed.
+  - `semantic_context` on existing typed relationship rows is NOT retroactively updated when the definition's semantic metadata changes (snapshot at write time). Re-enrichment handled by [[riven/docs/system-design/domains/Knowledge/Schema Change Handling/Schema Change Handling]] when needed.
   - Fallback link `semantic_context` can be updated via the API
 - **Deletion:**
   - Fallback definition: cannot be deleted (`protected = true`)
   - Individual fallback links: soft-deleted like any other relationship instance
-  - When entity type is deleted: fallback definition soft-deleted alongside other definitions via existing cascade in [[EntityTypeRelationshipService]]
+  - When entity type is deleted: fallback definition soft-deleted alongside other definitions via existing cascade in [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]]
 
 ### Consistency Requirements
 
@@ -142,20 +142,20 @@ entity_relationships ---(semantic_context)---> entity_type_semantic_metadata [in
 
 #### ConnectedEntityService
 
-- **Responsibility:** Manages CRUD for fallback "Connected Entities" links. Provides a dedicated interface for creating, updating, and removing ad-hoc connections with semantic context. Delegates to [[EntityRelationshipService]] for the actual persistence but handles the fallback-specific concerns: resolving the fallback definition for an entity type, validating semantic context, and setting `link_source`.
-- **Dependencies:** [[EntityRelationshipService]], [[EntityTypeRelationshipService]], `RelationshipDefinitionRepository`
-- **Exposes to:** REST API controllers, [[Identity Resolution System]], integration sync services, [[Workflows]]
+- **Responsibility:** Manages CRUD for fallback "Connected Entities" links. Provides a dedicated interface for creating, updating, and removing ad-hoc connections with semantic context. Delegates to [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] for the actual persistence but handles the fallback-specific concerns: resolving the fallback definition for an entity type, validating semantic context, and setting `link_source`.
+- **Dependencies:** [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]], [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]], `RelationshipDefinitionRepository`
+- **Exposes to:** REST API controllers, [[riven/docs/system-design/feature-design/2. Planned/Identity Resolution System]], integration sync services, [[riven/docs/system-design/domains/Workflows/Workflows]]
 
 ### Affected Existing Components
 
 | Component | Change Required | Impact |
 |-----------|----------------|--------|
-| [[EntityTypeService]] | Add fallback definition auto-creation in `publishEntityType` after semantic metadata initialization | Low — additive hook, same pattern as `semanticMetadataService.initializeForEntityType()` |
-| [[EntityRelationshipService]] | Populate `semantic_context` from definition semantic metadata during `saveRelationships` for typed relationships. Accept `semantic_context`, `link_source`, `confidence` as optional parameters. | Medium — core save path gains optional semantic population |
-| [[EntityTypeSemanticMetadataService]] | New method `getDefinitionSemanticText(entityTypeId, definitionId)` to retrieve the semantic definition text for a relationship definition | Low — read-only convenience method |
-| [[EntityTypeRelationshipService]] | Handle fallback definition in `getDefinitionsForEntityType` — include it in results but mark it as system-managed. Skip it during user-facing schema diffs. | Low — filter by `system_type` |
-| [[RelationshipSqlGenerator]] | New `IsRelatedTo` condition handler that generates EXISTS subquery without `relationship_definition_id` predicate | Medium — new filter variant |
-| [[QueryFilterValidator]] | Accept `IsRelatedTo` filter variant | Low — validation rule addition |
+| [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] | Add fallback definition auto-creation in `publishEntityType` after semantic metadata initialization | Low — additive hook, same pattern as `semanticMetadataService.initializeForEntityType()` |
+| [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] | Populate `semantic_context` from definition semantic metadata during `saveRelationships` for typed relationships. Accept `semantic_context`, `link_source`, `confidence` as optional parameters. | Medium — core save path gains optional semantic population |
+| [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]] | New method `getDefinitionSemanticText(entityTypeId, definitionId)` to retrieve the semantic definition text for a relationship definition | Low — read-only convenience method |
+| [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] | Handle fallback definition in `getDefinitionsForEntityType` — include it in results but mark it as system-managed. Skip it during user-facing schema diffs. | Low — filter by `system_type` |
+| [[riven/docs/system-design/domains/Entities/Querying/RelationshipSqlGenerator]] | New `IsRelatedTo` condition handler that generates EXISTS subquery without `relationship_definition_id` predicate | Medium — new filter variant |
+| [[riven/docs/system-design/domains/Entities/Querying/QueryFilterValidator]] | Accept `IsRelatedTo` filter variant | Low — validation rule addition |
 | `EntityRelationshipEntity` (JPA) | Add `semanticContext`, `linkSource`, `confidence` fields with defaults | Low — additive columns |
 | `RelationshipDefinitionEntity` (JPA) | Add `systemType` field | Low — nullable additive column |
 
@@ -283,7 +283,7 @@ sequenceDiagram
 
 Existing entity relationship save endpoints (`saveEntity` relationship payload) are unchanged. The `semantic_context` auto-population for typed relationships is transparent — no client changes required.
 
-The existing `findRelatedEntities` response shape in [[EntityService]] gains optional `semanticContext`, `linkSource`, and `confidence` fields on each `EntityLink` projection. Clients that don't read these fields are unaffected.
+The existing `findRelatedEntities` response shape in [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]] gains optional `semanticContext`, `linkSource`, and `confidence` fields on each `EntityLink` projection. Clients that don't read these fields are unaffected.
 
 ---
 
@@ -293,7 +293,7 @@ The existing `findRelatedEntities` response shape in [[EntityService]] gains opt
 |---------|-------|----------------|----------|
 | Fallback definition missing for entity type | Entity type published before this feature deployed, or auto-creation failed | `ConnectedEntityService` checks for existence and creates on-demand if missing | Self-healing — lazy creation as fallback |
 | Semantic metadata not found for definition | Definition has no semantic metadata record yet | `semantic_context` on the relationship row is set to `NULL` | Acceptable — metadata can be populated later |
-| Duplicate fallback link | Same source+target via fallback definition | Existing cardinality enforcement in [[EntityRelationshipService]] handles this — `MANY_TO_MANY` allows duplicates by design | Application-level dedup in `ConnectedEntityService` if exact duplicate targets should be prevented |
+| Duplicate fallback link | Same source+target via fallback definition | Existing cardinality enforcement in [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] handles this — `MANY_TO_MANY` allows duplicates by design | Application-level dedup in `ConnectedEntityService` if exact duplicate targets should be prevented |
 | Confidence score out of range | Identity resolution provides value outside 0.0–1.0 | Validation in `ConnectedEntityService` rejects invalid values | `400 Bad Request` |
 
 ### Rollback Strategy
@@ -304,7 +304,7 @@ The existing `findRelatedEntities` response shape in [[EntityService]] gains opt
 
 ### Blast Radius
 
-If `ConnectedEntityService` fails, only fallback link management is affected. Typed relationship CRUD via [[EntityRelationshipService]] is unaffected. The fallback definition auto-creation in `publishEntityType` executes in the same transaction — if it fails, entity type publishing also fails. This is acceptable because the fallback definition is lightweight (one INSERT) and failure indicates a database-level issue that would affect other operations anyway.
+If `ConnectedEntityService` fails, only fallback link management is affected. Typed relationship CRUD via [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] is unaffected. The fallback definition auto-creation in `publishEntityType` executes in the same transaction — if it fails, entity type publishing also fails. This is acceptable because the fallback definition is lightweight (one INSERT) and failure indicates a database-level issue that would affect other operations anyway.
 
 ---
 
@@ -420,8 +420,8 @@ If `ConnectedEntityService` fails, only fallback link management is affected. Ty
 | Date | Decision | Rationale | Alternatives Considered |
 |------|----------|-----------|------------------------|
 | 2026-02-28 | System-managed fallback definition per entity type (Path A) | Reuses existing `entity_relationships` infrastructure entirely — cardinality, query pipeline, inverse visibility, soft-delete all work without modification. Avoids a parallel link table. | Path B: nullable `definitionId` on `entity_relationships` — rejected because it breaks the current contract across `EntityRelationshipService`, cardinality enforcement, and `RelationshipSqlGenerator` |
-| 2026-02-28 | Per-instance `semantic_context` as snapshot, not live reference | Avoids JOIN back to semantic metadata table during embedding construction. Definition-level semantics may change but existing relationship embeddings should reflect the meaning at time of creation. Re-enrichment handled by [[Schema Change Handling]] when needed. | Live reference via JOIN — rejected for embedding pipeline performance |
-| 2026-02-28 | `semantic_context` / `link_source` / `confidence` are NOT queryable in the filter pipeline | These columns serve the [[Enrichment Pipeline]] and knowledge layer only. Adding them as filterable fields adds complexity to [[RelationshipSqlGenerator]] without clear user-facing value. | Making them queryable — deferred, can be added later if needed |
+| 2026-02-28 | Per-instance `semantic_context` as snapshot, not live reference | Avoids JOIN back to semantic metadata table during embedding construction. Definition-level semantics may change but existing relationship embeddings should reflect the meaning at time of creation. Re-enrichment handled by [[riven/docs/system-design/domains/Knowledge/Schema Change Handling/Schema Change Handling]] when needed. | Live reference via JOIN — rejected for embedding pipeline performance |
+| 2026-02-28 | `semantic_context` / `link_source` / `confidence` are NOT queryable in the filter pipeline | These columns serve the [[riven/docs/system-design/domains/Knowledge/Enrichment Pipeline/Enrichment Pipeline]] and knowledge layer only. Adding them as filterable fields adds complexity to [[riven/docs/system-design/domains/Entities/Querying/RelationshipSqlGenerator]] without clear user-facing value. | Making them queryable — deferred, can be added later if needed |
 | 2026-02-28 | `IsRelatedTo` filter omits `definitionId` entirely | Simplest catch-all — "is this entity connected to X through any relationship". Matches both typed and fallback links. | Per-definition-type filter variants — over-engineered for the use case |
 | 2026-02-28 | Lazy creation of fallback definitions for pre-existing entity types | Avoids a data migration that creates definitions for all existing entity types. Self-healing on first access. | Batch migration — more complete but adds deployment complexity and risk |
 
@@ -453,7 +453,7 @@ If `ConnectedEntityService` fails, only fallback link management is affected. Ty
 - [ ] Update `AttributeFilterVisitor` to dispatch `IsRelatedTo` to `RelationshipSqlGenerator`
 
 ### Phase 4: Identity Resolution + Integration Sync Integration
-- [ ] Extend [[Identity Resolution System]] to create fallback links with confidence scores and match-reason semantic context
+- [ ] Extend [[riven/docs/system-design/feature-design/2. Planned/Identity Resolution System]] to create fallback links with confidence scores and match-reason semantic context
 - [ ] Extend integration sync pipeline to create fallback links between READONLY entity types
 - [ ] Add workflow action node support for creating fallback links
 
@@ -462,18 +462,18 @@ If `ConnectedEntityService` fails, only fallback link management is affected. Ty
 ## Related Documents
 
 - [[Connected Entities for READONLY Entity Types]] — Original quick design (superseded by this document)
-- [[Entity Type Polymorphic Relationship Support for Semantic Categories]] — Related: semantic category matching for target rules
-- [[Identity Resolution System]] — Primary consumer of fallback links
-- [[Semantic Metadata Foundation]] — Provides definition-level semantic text inherited by relationship instances
-- [[Entity Semantics]] — Subdomain owning semantic metadata
-- [[Enrichment Pipeline]] — Consumes `semantic_context` for embedding construction
-- [[Schema Change Handling]] — Handles re-enrichment when definition semantics change
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/3. Active/Entity Type Polymorphic Relationship Support for Semantic Categories]] — Related: semantic category matching for target rules
+- [[riven/docs/system-design/feature-design/2. Planned/Identity Resolution System]] — Primary consumer of fallback links
+- [[riven/docs/system-design/feature-design/2. Planned/Semantic Metadata Foundation]] — Provides definition-level semantic text inherited by relationship instances
+- [[riven/docs/system-design/domains/Entities/Entity Semantics/Entity Semantics]] — Subdomain owning semantic metadata
+- [[riven/docs/system-design/domains/Knowledge/Enrichment Pipeline/Enrichment Pipeline]] — Consumes `semantic_context` for embedding construction
+- [[riven/docs/system-design/domains/Knowledge/Schema Change Handling/Schema Change Handling]] — Handles re-enrichment when definition semantics change
 - [[Entity Provenance Tracking]] — Complementary: entity-level source tracking, relationship-level `link_source`
-- [[Relationships]] — Relationship subdomain architecture
-- [[EntityRelationshipService]] — Core relationship instance management
-- [[EntityTypeRelationshipService]] — Relationship definition lifecycle
-- [[RelationshipSqlGenerator]] — Query pipeline for relationship filters
-- [[Entities]] — Parent domain
+- [[riven/docs/system-design/domains/Entities/Relationships/Relationships]] — Relationship subdomain architecture
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] — Core relationship instance management
+- [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] — Relationship definition lifecycle
+- [[riven/docs/system-design/domains/Entities/Querying/RelationshipSqlGenerator]] — Query pipeline for relationship filters
+- [[riven/docs/system-design/domains/Entities/Entities]] — Parent domain
 
 ---
 

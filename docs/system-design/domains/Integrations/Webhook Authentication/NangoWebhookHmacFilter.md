@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-18
 Domains:
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 # NangoWebhookHmacFilter
 
-Part of [[Webhook Authentication]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/Webhook Authentication]]
 
 ## Purpose
 
@@ -68,11 +68,11 @@ Inner class that wraps `HttpServletRequest` with a cached byte array. Overrides 
 
 ## Related
 
-- [[NangoWebhookController]] — Protected by this filter
-- [[NangoWebhookService]] — Processes the validated webhook payload
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookController]] — Protected by this filter
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookService]] — Processes the validated webhook payload
 - `NangoConfigurationProperties` — Secret key and body size configuration
 - `NangoWebhookFilterConfiguration` — Filter registration bean
-- [[Webhook Authentication]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/Webhook Authentication]] — Parent subdomain
 
 ---
 

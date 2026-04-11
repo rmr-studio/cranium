@@ -7,7 +7,7 @@ tags:
 Created: 2026-03-08
 Updated:
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # Feature: Entity Data Table Performance
 

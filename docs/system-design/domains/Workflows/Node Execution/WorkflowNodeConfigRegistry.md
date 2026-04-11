@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-08
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # WorkflowNodeConfigRegistry
 
-Part of [[Node Execution]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Node Execution]]
 
 ## Purpose
 
@@ -116,4 +116,4 @@ Returns schema fields for node key (e.g., "ACTION.CREATE_ENTITY"). Null if not f
 ## Related
 
 - Node config classes — WorkflowCreateEntityActionConfig, WorkflowConditionControlConfig, etc.
-- [[Node Execution]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Node Execution]] — Parent subdomain

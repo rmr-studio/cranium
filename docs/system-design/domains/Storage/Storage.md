@@ -29,7 +29,7 @@ The Storage domain provides provider-agnostic file storage capabilities for the 
 
 ### This Domain Does NOT Own
 
-- User avatar assignment (owned by [[Workspaces & Users]], which calls StorageService)
+- User avatar assignment (owned by [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]], which calls StorageService)
 - Workspace-specific business logic around files
 - Database-level RLS policies
 - External storage provider infrastructure
@@ -40,15 +40,15 @@ The Storage domain provides provider-agnostic file storage capabilities for the 
 
 | Sub-Domain | Purpose |
 |---|---|
-| [[File Management]] | Upload, download, delete, list operations with validation, metadata, and signed URLs |
-| [[Provider Adapters]] | Pluggable storage backends (Local, S3, Supabase) with configuration |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/File Management]] | Upload, download, delete, list operations with validation, metadata, and signed URLs |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/Provider Adapters]] | Pluggable storage backends (Local, S3, Supabase) with configuration |
 
 ### Integrations
 
 | Component | External System |
 |---|---|
-| [[SupabaseStorageProvider]] | Supabase Storage API |
-| [[S3StorageProvider]] | AWS S3 / S3-compatible services |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/SupabaseStorageProvider]] | Supabase Storage API |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/S3StorageProvider]] | AWS S3 / S3-compatible services |
 
 ---
 
@@ -56,8 +56,8 @@ The Storage domain provides provider-agnostic file storage capabilities for the 
 
 | Flow | Type | Description |
 |---|---|---|
-| [[Flow - File Upload]] | User-facing | Multipart upload -> validation -> storage -> metadata persistence |
-| [[Flow - Signed URL Download]] | User-facing | Token-authorized download bypassing JWT authentication |
+| [[riven/docs/system-design/flows/Flow - File Upload]] | User-facing | Multipart upload -> validation -> storage -> metadata persistence |
+| [[riven/docs/system-design/flows/Flow - Signed URL Download]] | User-facing | Token-authorized download bypassing JWT authentication |
 | Avatar Serving | User-facing | Entity ID -> storage key lookup -> provider download -> streamed response (unauthenticated) |
 
 ---
@@ -68,13 +68,13 @@ The Storage domain provides provider-agnostic file storage capabilities for the 
 
 | Entity | Purpose | Key Fields |
 |---|---|---|
-| [[FileMetadataEntity]] | Workspace-scoped file metadata with JSONB custom metadata | id, workspaceId, domain, storageKey, originalFilename, contentType, fileSize, uploadedBy, metadata |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/FileMetadataEntity]] | Workspace-scoped file metadata with JSONB custom metadata | id, workspaceId, domain, storageKey, originalFilename, contentType, fileSize, uploadedBy, metadata |
 
 ### Database Tables
 
 | Table | Entity | Notes |
 |---|---|---|
-| file_metadata | [[FileMetadataEntity]] | Indexed on workspace_id, (workspace_id, domain), storage_key (unique) |
+| file_metadata | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/FileMetadataEntity]] | Indexed on workspace_id, (workspace_id, domain), storage_key (unique) |
 
 ---
 
@@ -94,16 +94,16 @@ The Storage domain provides provider-agnostic file storage capabilities for the 
 
 | Domain | What We Consume | Via Component | Related Flow |
 |--------|----------------|---------------|--------------|
-| [[Workspaces & Users]] | User identity (JWT extraction) | [[AuthTokenService]] | [[Flow - File Upload]] |
-| [[Workspaces & Users]] | Workspace authorization | [[WorkspaceSecurity]] | All workspace-scoped operations |
-| [[Workspaces & Users]] | Audit trail logging | [[ActivityService]] | [[Flow - File Upload]], delete, metadata update |
+| [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] | User identity (JWT extraction) | [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]] | [[riven/docs/system-design/flows/Flow - File Upload]] |
+| [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] | Workspace authorization | [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]] | All workspace-scoped operations |
+| [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] | Audit trail logging | [[riven/docs/system-design/domains/Workspaces & Users/User Management/ActivityService]] | [[riven/docs/system-design/flows/Flow - File Upload]], delete, metadata update |
 
 ### Consumed By
 
 | Consumer | What They Consume | Via Component | Related Flow |
 |----------|------------------|---------------|--------------|
-| [[Workspaces & Users]] | File upload for workspace and user avatars | [[StorageService]] (direct injection from UserService, WorkspaceService) | Avatar upload |
-| Self (Storage) | Workspace and user entity lookups for avatar serving | [[AvatarService]] reads from WorkspaceRepository and UserRepository ([[Workspaces & Users]]) | Avatar serving |
+| [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] | File upload for workspace and user avatars | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/StorageService]] (direct injection from UserService, WorkspaceService) | Avatar upload |
+| Self (Storage) | Workspace and user entity lookups for avatar serving | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/AvatarService]] reads from WorkspaceRepository and UserRepository ([[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]) | Avatar serving |
 
 ---
 
@@ -111,19 +111,19 @@ The Storage domain provides provider-agnostic file storage capabilities for the 
 
 | Subdomain | Service | Purpose |
 |---|---|---|
-| File Management | [[StorageService]] | Orchestrates upload, download, delete, list, batch, and presigned flows |
-| File Management | [[StorageController]] | REST endpoints for all file operations |
-| File Management | [[AvatarService]] | Resolves and serves avatar images for workspaces and users |
-| File Management | [[AvatarController]] | Unauthenticated REST endpoints for avatar image serving |
-| File Management | [[AvatarUrlResolver]] | Converts stored avatar storage keys to API-relative URLs at read time |
-| File Management | [[ContentValidationService]] | Tika-based MIME detection, content type/size validation, SVG sanitization |
-| File Management | [[SignedUrlService]] | HMAC-based signed URL generation and validation for local provider |
-| Provider Adapters | [[StorageProvider]] | Interface defining the storage backend contract |
-| Provider Adapters | [[LocalStorageProvider]] | Filesystem-based storage with path traversal prevention |
-| Provider Adapters | [[S3StorageProvider]] | AWS S3 / S3-compatible storage with presigned URL support |
-| Provider Adapters | [[SupabaseStorageProvider]] | Supabase Storage API implementation |
-| Provider Adapters | [[StorageConfigurationProperties]] | Typed configuration for all providers |
-| Provider Adapters | [[S3Configuration]] | Conditional S3Client bean creation |
+| File Management | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/StorageService]] | Orchestrates upload, download, delete, list, batch, and presigned flows |
+| File Management | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/StorageController]] | REST endpoints for all file operations |
+| File Management | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/AvatarService]] | Resolves and serves avatar images for workspaces and users |
+| File Management | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/AvatarController]] | Unauthenticated REST endpoints for avatar image serving |
+| File Management | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/AvatarUrlResolver]] | Converts stored avatar storage keys to API-relative URLs at read time |
+| File Management | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/ContentValidationService]] | Tika-based MIME detection, content type/size validation, SVG sanitization |
+| File Management | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/SignedUrlService]] | HMAC-based signed URL generation and validation for local provider |
+| Provider Adapters | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/StorageProvider]] | Interface defining the storage backend contract |
+| Provider Adapters | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/LocalStorageProvider]] | Filesystem-based storage with path traversal prevention |
+| Provider Adapters | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/S3StorageProvider]] | AWS S3 / S3-compatible storage with presigned URL support |
+| Provider Adapters | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/SupabaseStorageProvider]] | Supabase Storage API implementation |
+| Provider Adapters | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/StorageConfigurationProperties]] | Typed configuration for all providers |
+| Provider Adapters | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/S3Configuration]] | Conditional S3Client bean creation |
 
 ---
 
@@ -131,7 +131,7 @@ The Storage domain provides provider-agnostic file storage capabilities for the 
 
 | Decision | Summary |
 |---|---|
-| Strategy pattern for providers | `@ConditionalOnProperty` activates exactly one [[StorageProvider]] at runtime |
+| Strategy pattern for providers | `@ConditionalOnProperty` activates exactly one [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/StorageProvider]] at runtime |
 | HMAC-signed download URLs | Downloads bypass JWT auth — signed token IS the authorization |
 | Content validation via Tika | MIME type detected from magic bytes, not file extension — prevents spoofing |
 | Soft-delete before physical delete | Metadata marked deleted first; physical deletion failure is tolerated |

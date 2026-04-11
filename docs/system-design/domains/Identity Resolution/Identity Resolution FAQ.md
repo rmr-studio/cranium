@@ -4,7 +4,7 @@ tags:
   - domain/identity-resolution
 Created: 2026-03-18
 Domains:
-  - "[[Identity Resolution]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Identity Resolution]]"
 ---
 
 # Identity Resolution — FAQ

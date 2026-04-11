@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-07
 Domains:
-  - "[[Storage]]"
+  - "[[riven/docs/system-design/domains/Storage/Storage]]"
 ---
 # StorageConfigurationProperties
 
-Part of [[Provider Adapters]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/Provider Adapters]]
 
 ## Purpose
 
@@ -31,12 +31,12 @@ Typed `@ConfigurationProperties(prefix = "storage")` binding for all storage pro
 
 ## Used By
 
-- [[StorageService]] — presigned upload expiry
-- [[SignedUrlService]] — signed URL secret and expiry settings
-- [[LocalStorageProvider]] — `local.basePath`
-- [[S3StorageProvider]] — `s3.bucket`
-- [[SupabaseStorageProvider]] — `supabase.bucket`
-- [[S3Configuration]] — `s3.region`, `s3.accessKeyId`, `s3.secretAccessKey`, `s3.endpointUrl`
+- [[riven/docs/system-design/domains/Storage/File Management/StorageService]] — presigned upload expiry
+- [[riven/docs/system-design/domains/Storage/File Management/SignedUrlService]] — signed URL secret and expiry settings
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/LocalStorageProvider]] — `local.basePath`
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/S3StorageProvider]] — `s3.bucket`
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/SupabaseStorageProvider]] — `supabase.bucket`
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/S3Configuration]] — `s3.region`, `s3.accessKeyId`, `s3.secretAccessKey`, `s3.endpointUrl`
 
 ---
 
@@ -72,14 +72,14 @@ storage:
 ## Gotchas
 
 - **Secret in dev config:** `signed-url.secret` defaults to `"dev-secret-change-in-production"`. This must be overridden via environment variable in production deployments.
-- **S3 endpoint-url:** When set, [[S3Configuration]] forces path-style access (`forcePathStyle = true`). This is required for S3-compatible services like MinIO, Cloudflare R2, and DigitalOcean Spaces.
+- **S3 endpoint-url:** When set, [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/S3Configuration]] forces path-style access (`forcePathStyle = true`). This is required for S3-compatible services like MinIO, Cloudflare R2, and DigitalOcean Spaces.
 - **S3 credentials default to empty strings:** `accessKeyId` and `secretAccessKey` default to `""`. If the S3 provider is active without these set, authentication will fail at runtime.
 
 ---
 
 ## Related
 
-- [[S3Configuration]]
-- [[LocalStorageProvider]]
-- [[S3StorageProvider]]
-- [[SupabaseStorageProvider]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/S3Configuration]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/LocalStorageProvider]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/S3StorageProvider]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/SupabaseStorageProvider]]

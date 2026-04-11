@@ -8,8 +8,8 @@ tags:
 Created: 2026-03-18
 Updated:
 Domains:
-  - "[[Identity Resolution]]"
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # Feature: Identity Cluster Confirmation and Union-Find Management
 
@@ -27,7 +27,7 @@ Confirmation needs to do more than flip a status flag:
 
 2. **Clusters must merge when two groups converge.** If A-B and C-D are separate clusters and then B↔C is confirmed, all four entities should end up in a single cluster. Without merge logic, the system would need manual re-clustering or create contradictory state.
 
-3. **Confirmed relationships must be materialised.** Confirmation should create a CONNECTED_ENTITIES relationship between the two entities via [[EntityRelationshipService]], making the link visible in the entity graph, query pipeline, and enrichment layer. Without this, confirmation is invisible to the rest of the platform.
+3. **Confirmed relationships must be materialised.** Confirmation should create a CONNECTED_ENTITIES relationship between the two entities via [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]], making the link visible in the entity graph, query pipeline, and enrichment layer. Without this, confirmation is invisible to the rest of the platform.
 
 4. **Rejections must be safe.** Rejecting A↔C when A is already clustered with B must not affect the A-B cluster. Rejection operates on individual suggestions, not clusters.
 
@@ -47,7 +47,7 @@ On confirmation, the flow is:
 5. Publish a notification to all workspace members
 6. Log activity for audit trail
 
-On rejection, the flow mirrors the existing `rejectSuggestion` logic (moved from [[IdentityMatchSuggestionService]]):
+On rejection, the flow mirrors the existing `rejectSuggestion` logic (moved from [[riven/docs/system-design/domains/Identity Resolution/Matching Pipeline/IdentityMatchSuggestionService]]):
 1. Validate the suggestion is PENDING (ConflictException otherwise)
 2. Transition to REJECTED with signal snapshot
 3. Soft-delete the suggestion row
@@ -152,7 +152,7 @@ Auto-generated from member entity NAME-signal attributes:
 #### `IdentityConfirmationService`
 
 - **Package:** `riven.core.service.identity`
-- **Responsibility:** State machine for confirm and reject transitions. The single orchestration point for the full confirmation flow — suggestion state change, cluster assignment, relationship creation, notification, and activity logging. Also owns rejection (moved from [[IdentityMatchSuggestionService]]).
+- **Responsibility:** State machine for confirm and reject transitions. The single orchestration point for the full confirmation flow — suggestion state change, cluster assignment, relationship creation, notification, and activity logging. Also owns rejection (moved from [[riven/docs/system-design/domains/Identity Resolution/Matching Pipeline/IdentityMatchSuggestionService]]).
 - **Dependencies:** `MatchSuggestionRepository`, `IdentityClusterService`, `EntityRelationshipService`, `EntityTypeRelationshipService`, `NotificationService`, `ActivityService`, `AuthTokenService`, `KLogger`
 - **Security:** `@PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")` on public methods
 
@@ -265,8 +265,8 @@ fun findAllByWorkspaceIdAndDeletedFalse(workspaceId: UUID): List<IdentityCluster
 
 | Component | Change | Impact |
 |-----------|--------|--------|
-| [[IdentityMatchSuggestionService]] | Remove `rejectSuggestion()` and all rejection-related private methods — moved to `IdentityConfirmationService` | Medium — method extraction, callers updated |
-| [[IdentityMatchSuggestionService]] | Add cluster membership check in `persistSuggestions()` — skip if both entities already in the same cluster | Low — single check before suggestion creation |
+| [[riven/docs/system-design/domains/Identity Resolution/Matching Pipeline/IdentityMatchSuggestionService]] | Remove `rejectSuggestion()` and all rejection-related private methods — moved to `IdentityConfirmationService` | Medium — method extraction, callers updated |
+| [[riven/docs/system-design/domains/Identity Resolution/Matching Pipeline/IdentityMatchSuggestionService]] | Add cluster membership check in `persistSuggestions()` — skip if both entities already in the same cluster | Low — single check before suggestion creation |
 | `Activity` enum | Add `IDENTITY_CLUSTER` value for cluster-specific activity logging | Low — additive |
 | `ApplicationEntityType` enum | Add `IDENTITY_CLUSTER` value for activity entity type reference | Low — additive |
 
@@ -560,18 +560,18 @@ CreateNotificationRequest(
 
 ## Related Documents
 
-- [[Identity Resolution]] — Parent domain
-- [[Clusters]] — Subdomain architecture
-- [[Matching Pipeline]] — Upstream: produces match suggestions consumed by this feature
-- [[Flow - Identity Match Pipeline]] — Async pipeline flow that creates the suggestions this feature resolves
-- [[IdentityMatchSuggestionService]] — Upstream: owns suggestion persistence; rejection moves to confirmation service
-- [[IdentityMatchCandidateService]] — Upstream: candidate finding
-- [[IdentityMatchScoringService]] — Upstream: confidence scoring
-- [[EntityRelationshipService]] — Downstream: creates CONNECTED_ENTITIES relationships on confirmation
-- [[EntityService]] — Downstream: entity lookup for cluster naming
+- [[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]] — Parent domain
+- [[riven/docs/system-design/domains/Identity Resolution/Clusters/Clusters]] — Subdomain architecture
+- [[riven/docs/system-design/domains/Identity Resolution/Matching Pipeline/Matching Pipeline]] — Upstream: produces match suggestions consumed by this feature
+- [[riven/docs/system-design/domains/Identity Resolution/Flow - Identity Match Pipeline]] — Async pipeline flow that creates the suggestions this feature resolves
+- [[riven/docs/system-design/domains/Identity Resolution/Matching Pipeline/IdentityMatchSuggestionService]] — Upstream: owns suggestion persistence; rejection moves to confirmation service
+- [[riven/docs/system-design/domains/Identity Resolution/Matching Pipeline/IdentityMatchCandidateService]] — Upstream: candidate finding
+- [[riven/docs/system-design/domains/Identity Resolution/Matching Pipeline/IdentityMatchScoringService]] — Upstream: confidence scoring
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] — Downstream: creates CONNECTED_ENTITIES relationships on confirmation
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]] — Downstream: entity lookup for cluster naming
 - [[Integration Identity Resolution System]] — System-level overview
-- [[Temporal Integration]] — Async pipeline orchestration (upstream of this feature)
-- [[Connected Entities and Per-Instance Relationship Semantics]] — CONNECTED_ENTITIES relationship infrastructure this feature consumes
+- [[riven/docs/system-design/domains/Identity Resolution/Temporal Integration/Temporal Integration]] — Async pipeline orchestration (upstream of this feature)
+- [[riven/docs/system-design/feature-design/3. Active/Connected Entities and Per-Instance Relationship Semantics]] — CONNECTED_ENTITIES relationship infrastructure this feature consumes
 
 ---
 

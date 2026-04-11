@@ -1,7 +1,7 @@
 ---
 Created: 2026-02-08
 Domains:
-  - "[[Workspaces & Users]]"
+  - "[[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]"
 tags:
   - architecture/subdomain
   - domain/auth
@@ -23,9 +23,9 @@ Handles the full authentication and authorization pipeline for the application. 
 
 | Component | Purpose | Type |
 | --------- | ------- | ---- |
-| [[WorkspaceSecurity]] | Role-based authorization checks for @PreAuthorize expressions | Security Bean |
-| [[AuthTokenService]] | JWT claim extraction (userId, email, authorities) | Service |
-| [[TokenDecoder]] | JWT-to-Spring-Security authority conversion | Configuration |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]] | Role-based authorization checks for @PreAuthorize expressions | Security Bean |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]] | JWT claim extraction (userId, email, authorities) | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/TokenDecoder]] | JWT-to-Spring-Security authority conversion | Configuration |
 | SecurityConfig | Security filter chain, JWT decoder, CORS configuration | Configuration |
 | SecurityAuditorAware | JPA audit field population from JWT subject | Configuration |
 | SecurityConfigurationProperties | JWT secret, issuer, allowed origins | Properties |
@@ -63,4 +63,4 @@ No controller endpoints in this subdomain — these are cross-cutting infrastruc
 | Date | Change | Feature/ADR |
 | ---- | ------ | ----------- |
 | 2026-02-08 | Subdomain overview created | [[03-01-PLAN]] |
-| 2026-03-14 | SecurityConfig: `/ws/**` added to `permitAll` — WebSocket upgrade handled by STOMP-level [[WebSocketSecurityInterceptor]], not HTTP filter chain | WebSocket Notifications |
+| 2026-03-14 | SecurityConfig: `/ws/**` added to `permitAll` — WebSocket upgrade handled by STOMP-level [[riven/docs/system-design/domains/Workspaces & Users/Real-time Events/WebSocketSecurityInterceptor]], not HTTP filter chain | WebSocket Notifications |

@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-06
 Domains:
-  - "[[Catalog]]"
+  - "[[riven/docs/system-design/domains/Catalog/Catalog]]"
 ---
 # ManifestUpsertService
 
-Part of [[Manifest Pipeline]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/Manifest Pipeline]]
 
 ## Purpose
 
@@ -41,8 +41,8 @@ Idempotent persistence layer for resolved manifests. Upserts the catalog entry k
 
 ## Used By
 
-- [[ManifestLoaderService]] — calls `upsertManifest()` for each resolved manifest during the loading pipeline
-- [[ManifestLoaderService]] — calls `upsertBundle()` for each resolved bundle during the loading pipeline
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestLoaderService]] — calls `upsertManifest()` for each resolved manifest during the loading pipeline
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestLoaderService]] — calls `upsertBundle()` for each resolved bundle during the loading pipeline
 - [[CoreModelCatalogService]] — calls `upsertManifest()` for each Kotlin-defined core model set during boot-time catalog population
 
 ---
@@ -139,7 +139,7 @@ Persists a resolved bundle to the catalog. Bundles have no child rows — only t
 
 ## Related
 
-- [[ManifestLoaderService]] — orchestrates the manifest loading pipeline
-- [[ManifestCatalogService]] — read-side queries for catalog data
-- [[Flow - Manifest Loading Pipeline]] — end-to-end pipeline documentation
-- [[Manifest Pipeline]] — parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestLoaderService]] — orchestrates the manifest loading pipeline
+- [[riven/docs/system-design/domains/Catalog/Catalog Query/ManifestCatalogService]] — read-side queries for catalog data
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/Flow - Manifest Loading Pipeline]] — end-to-end pipeline documentation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/Manifest Pipeline]] — parent subdomain

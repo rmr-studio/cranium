@@ -8,11 +8,11 @@ tags:
 Created: 2026-02-06
 Updated:
 Domains:
-  - "[[Knowledge]]"
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Knowledge/Knowledge]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 blocked by:
   - "[[Semantically Imbued Entity Attributes]]"
-  - "[[Knowledge Layer Sub-Agents]]"
+  - "[[riven/docs/system-design/feature-design/1. Planning/Knowledge Layer Sub-Agents]]"
 ---
 # Feature: Semantic Metadata Baked Entity Data Model Templates
 
@@ -30,7 +30,7 @@ There needs to be a way to get a user set up with an example template, that matc
 Your template semantic definitions feed directly into this. When a template defines that an entity type "Customer" with field "source" means acquisition channel, that semantic mapping is what tells the embedding pipeline how to enrich the context. Without it, you're just embedding raw field values with no meaning.
 ```
 
-Per [[ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]], data model templates are defined as **JSON manifest files** stored in the application repository under a `templates/` directory (e.g., `templates/saas-startup/manifest.json`). This uses the same declarative-first storage pattern as integration manifests — manifest files are version-controlled, loaded into the database on application startup by the manifest loader, and queryable via standard JPA repositories at runtime.
+Per [[riven/docs/system-design/decisions/ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]], data model templates are defined as **JSON manifest files** stored in the application repository under a `templates/` directory (e.g., `templates/saas-startup/manifest.json`). This uses the same declarative-first storage pattern as integration manifests — manifest files are version-controlled, loaded into the database on application startup by the manifest loader, and queryable via standard JPA repositories at runtime.
 
 #### Shared Models + Template Composition
 
@@ -88,13 +88,13 @@ Shared models do **not** declare relationships — they don't know what other en
 - `source` and `target` reference entity type keys — from either `$ref` models or inline definitions
 - The manifest loader validates that both ends of every relationship exist in the resolved entity type set
 - Relationship semantic metadata (natural language definition of the connection) is declared inline alongside the relationship, not in the shared model
-- This is the same pattern used by integration manifests for their internal relationships (see [[ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]])
+- This is the same pattern used by integration manifests for their internal relationships (see [[riven/docs/system-design/decisions/ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]])
 
 #### What a Template Manifest Defines
 
 - **Entity type schemas** — via `$ref` to shared models (with optional `extend`) or inline for template-specific types
 - **Relationship definitions** — how entity types within the template interconnect, declared at the template level with `source`/`target` referencing entity type keys. Relationships can reference both shared and template-specific entity types. Each relationship carries its own semantic metadata.
-- **Complete semantic metadata** — natural language definitions, attribute classifications, and tags for every entity type and attribute per [[Semantic Metadata Foundation]]. Shared models carry their own base semantic metadata; `extend` can add or override. Relationship semantics are declared alongside the relationship definition.
+- **Complete semantic metadata** — natural language definitions, attribute classifications, and tags for every entity type and attribute per [[riven/docs/system-design/feature-design/2. Planned/Semantic Metadata Foundation]]. Shared models carry their own base semantic metadata; `extend` can add or override. Relationship semantics are declared alongside the relationship definition.
 - **Pre-configured analytical briefs** (3-5 per template) that demonstrate cross-domain querying
 - **Example queries** scoped narrowly enough to be useful with <50 records
 
@@ -115,7 +115,7 @@ _How do we know this feature is working correctly?_
 
 - [ ] A user is able to pre-configure an entire ready to go entity ecosystem within 10 minutes of setup
 - [ ] A user is able to modify the template and the [[Semantically Imbued Entity Attributes]] without breaking existing embeddings
-- [ ] Templates contain pre-configured [[Sub-Agents (Proactive Intelligence)]] that are able to produce useful insights once the ecosystem begins to become populated with meaningful data
+- [ ] Templates contain pre-configured [[riven/docs/system-design/domains/Knowledge/Sub-Agents (Proactive Intelligence)/Sub-Agents (Proactive Intelligence)]] that are able to produce useful insights once the ecosystem begins to become populated with meaningful data
 
 ---
 
@@ -432,12 +432,12 @@ _Is existing data affected? How will it be migrated?_
 
 ## Related Documents
 
-- [[ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]
-- [[Semantic Metadata Foundation]]
-- [[Entity Semantics]]
-- [[Predefined Integration Entity Types]] — uses the same manifest format for integration entity types
-- [[Integration Schema Mapping]] — parallel manifest structure for integration-specific definitions
-- [[Knowledge Layer]]
+- [[riven/docs/system-design/decisions/ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]
+- [[riven/docs/system-design/feature-design/2. Planned/Semantic Metadata Foundation]]
+- [[riven/docs/system-design/domains/Entities/Entity Semantics/Entity Semantics]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/3. Active/Predefined Integration Entity Types]] — uses the same manifest format for integration entity types
+- [[riven/docs/system-design/feature-design/1. Planning/Integration Schema Mapping]] — parallel manifest structure for integration-specific definitions
+- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Knowledge Layer]]
 
 ---
 

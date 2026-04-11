@@ -5,15 +5,15 @@ tags:
   - architecture/component
 Created: 2026-03-06
 Domains:
-  - "[[Catalog]]"
+  - "[[riven/docs/system-design/domains/Catalog/Catalog]]"
 ---
 # IntegrationDefinitionStaleSyncService
 
-Part of [[Manifest Pipeline]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/Manifest Pipeline]]
 
 ## Purpose
 
-Cross-domain service that propagates stale flags from `manifest_catalog` (INTEGRATION type entries) to the `integration_definitions` table, keeping the [[Integrations]] domain in sync with catalog lifecycle state.
+Cross-domain service that propagates stale flags from `manifest_catalog` (INTEGRATION type entries) to the `integration_definitions` table, keeping the [[riven/docs/system-design/domains/Integrations/Integrations]] domain in sync with catalog lifecycle state.
 
 ---
 
@@ -33,14 +33,14 @@ Cross-domain service that propagates stale flags from `manifest_catalog` (INTEGR
 
 ## Used By
 
-- [[ManifestLoaderService]] — called after reconciliation to propagate stale flags cross-domain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestLoaderService]] — called after reconciliation to propagate stale flags cross-domain
 
 ---
 
 ## Key Logic
 
 **Why this is a separate service:**
-Extracted from [[ManifestLoaderService]] to ensure `@Transactional` works correctly via Spring AOP proxy. Self-invocation within ManifestLoaderService would bypass the proxy and run without transaction boundaries.
+Extracted from [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestLoaderService]] to ensure `@Transactional` works correctly via Spring AOP proxy. Self-invocation within ManifestLoaderService would bypass the proxy and run without transaction boundaries.
 
 **Matching logic:**
 Catalog entries are matched to integration definitions by their key/slug. The stale flag from the catalog entry is written directly to the integration definition row.
@@ -57,6 +57,6 @@ Transactional. Reads all INTEGRATION-type catalog entries, matches them to integ
 
 ## Related
 
-- [[ManifestReconciliationService]] — Runs before this service to set catalog stale flags
-- [[ManifestLoaderService]] — Orchestrates the pipeline and invokes this service
-- [[Manifest Pipeline]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestReconciliationService]] — Runs before this service to set catalog stale flags
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestLoaderService]] — Orchestrates the pipeline and invokes this service
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/Manifest Pipeline]] — Parent subdomain

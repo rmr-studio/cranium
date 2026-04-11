@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-07
 Domains:
-  - "[[Storage]]"
+  - "[[riven/docs/system-design/domains/Storage/Storage]]"
 ---
 # SupabaseStorageProvider
 
-Part of [[Provider Adapters]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/Provider Adapters]]
 
 ## Purpose
 
@@ -32,11 +32,11 @@ Supabase Storage API implementation using supabase-kt client. Active when `stora
 
 - `KLogger` — structured logging
 - `SupabaseClient` — supabase-kt client
-- [[StorageConfigurationProperties]] — `supabase.bucket` config
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/StorageConfigurationProperties]] — `supabase.bucket` config
 
 ## Used By
 
-- [[StorageService]] — via [[StorageProvider]] interface
+- [[riven/docs/system-design/domains/Storage/File Management/StorageService]] — via [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/StorageProvider]] interface
 
 ---
 
@@ -83,8 +83,8 @@ Verify bucket exists, auto-create as private if missing.
 
 ## Gotchas
 
-- **Content type lost on download:** `downloadAuthenticated()` does not return content type. All downloads report `application/octet-stream`. The actual content type is available from [[FileMetadataEntity]] metadata.
-- **`runBlocking` on servlet threads:** Same thread-blocking concern as [[S3StorageProvider]].
+- **Content type lost on download:** `downloadAuthenticated()` does not return content type. All downloads report `application/octet-stream`. The actual content type is available from [[riven/docs/system-design/domains/Storage/File Management/FileMetadataEntity]] metadata.
+- **`runBlocking` on servlet threads:** Same thread-blocking concern as [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/S3StorageProvider]].
 - **`storagePlugin()` is `protected open`:** This exists solely for testability. The supabase-kt `storage` extension is a static call that cannot be mocked directly.
 - **Not-found detection is message-based:** Checks for `"not found"`, `"404"`, and `"object not found"` in exception messages. Fragile if Supabase changes error messages.
 
@@ -92,5 +92,5 @@ Verify bucket exists, auto-create as private if missing.
 
 ## Related
 
-- [[StorageProvider]]
-- [[StorageConfigurationProperties]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/StorageProvider]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/StorageConfigurationProperties]]

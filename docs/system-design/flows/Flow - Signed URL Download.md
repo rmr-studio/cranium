@@ -5,7 +5,7 @@ tags:
 Created: 2026-03-06
 Updated: 2026-03-06
 Domains:
-  - "[[Storage]]"
+  - "[[riven/docs/system-design/domains/Storage/Storage]]"
 ---
 # Flow: Signed URL Download
 
@@ -182,7 +182,7 @@ sequenceDiagram
 
 ## Security Considerations
 
-- **No JWT authentication on this endpoint** — this is intentional and by design. The signed token IS the authorization. See [[ADR-006 HMAC-Signed Download Tokens for File Access]].
+- **No JWT authentication on this endpoint** — this is intentional and by design. The signed token IS the authorization. See [[riven/docs/system-design/decisions/ADR-006 HMAC-Signed Download Tokens for File Access]].
 - **Constant-time signature comparison** — `MessageDigest.isEqual()` prevents timing attacks that could be used to forge valid signatures incrementally.
 - **Separate HMAC secret** — the signing secret (`storage.signed-url.secret`) is separate from the JWT secret. Compromising one does not compromise the other.
 - **Time-limited access** — tokens expire after the configured duration (default 1 hour, max 24 hours). Leaked URLs have a bounded window of exposure.
@@ -193,11 +193,11 @@ sequenceDiagram
 
 ## Related
 
-- [[Provider-Agnostic File Storage]] -- Feature design for the storage system
-- [[Flow - File Upload]] -- Upload flow that generates the signed URLs consumed here
-- [[ADR-006 HMAC-Signed Download Tokens for File Access]] -- Architecture decision for this mechanism
-- [[ADR-005 Strategy Pattern with Conditional Bean Selection for Storage Providers]] -- Provider abstraction
-- [[File Storage]] -- Sub-domain plan
+- [[riven/docs/system-design/feature-design/2. Planned/Provider-Agnostic File Storage]] -- Feature design for the storage system
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/flows/Flow - File Upload]] -- Upload flow that generates the signed URLs consumed here
+- [[riven/docs/system-design/decisions/ADR-006 HMAC-Signed Download Tokens for File Access]] -- Architecture decision for this mechanism
+- [[riven/docs/system-design/decisions/ADR-005 Strategy Pattern with Conditional Bean Selection for Storage Providers]] -- Provider abstraction
+- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/File Storage]] -- Sub-domain plan
 
 ---
 

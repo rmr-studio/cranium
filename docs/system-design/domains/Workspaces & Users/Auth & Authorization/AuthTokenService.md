@@ -4,13 +4,13 @@ tags:
   - component/active
   - architecture/component
 Domains:
-  - "[[Workspaces & Users]]"
+  - "[[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]"
 Created: 2026-02-08
 Updated: 2026-02-08
 ---
 # AuthTokenService
 
-Part of [[Auth & Authorization]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/Auth & Authorization]]
 
 ## Purpose
 
@@ -35,10 +35,10 @@ Provides convenient JWT claim extraction for services that need the current user
 
 ## Used By
 
-- [[WorkspaceService]] — getUserId for workspace operations
-- [[WorkspaceInviteService]] — getUserId and getUserEmail for invitation operations
-- [[UserService]] — getUserId for session-based user retrieval
-- [[WorkspaceSecurity]] — (indirectly, both read from SecurityContextHolder)
+- [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceService]] — getUserId for workspace operations
+- [[riven/docs/system-design/domains/Workspaces & Users/Team Management/WorkspaceInviteService]] — getUserId and getUserEmail for invitation operations
+- [[riven/docs/system-design/domains/Workspaces & Users/User Management/UserService]] — getUserId for session-based user retrieval
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]] — (indirectly, both read from SecurityContextHolder)
 
 ---
 
@@ -102,12 +102,12 @@ Returns list of authority strings from current authentication. Empty list if not
 - **No caching:** Every call goes through SecurityContextHolder — acceptable since SecurityContext is thread-local and request-scoped
 - **String to UUID conversion:** getUserId uses UUID.fromString which throws IllegalArgumentException for malformed UUIDs — caller must handle
 - **Null vs missing principal:** getJwt throws same AccessDeniedException whether authentication is null OR principal is not a Jwt — cannot distinguish between unauthenticated and wrong token type
-- **Authority format dependency:** getCurrentUserAuthorities returns raw authority strings in ROLE_* and SCOPE_* format established by [[TokenDecoder]] — coupling to authority naming convention
+- **Authority format dependency:** getCurrentUserAuthorities returns raw authority strings in ROLE_* and SCOPE_* format established by [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/TokenDecoder]] — coupling to authority naming convention
 
 ---
 
 ## Related
 
-- [[TokenDecoder]] — Converts JWT to authorities
-- [[WorkspaceSecurity]] — Authorization logic consumer
-- [[Auth & Authorization]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/TokenDecoder]] — Converts JWT to authorities
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]] — Authorization logic consumer
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/Auth & Authorization]] — Parent subdomain

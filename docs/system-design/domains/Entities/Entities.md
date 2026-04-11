@@ -15,7 +15,7 @@ The Entities domain provides a flexible, schema-driven data management system. E
 
 ---
 
-# [[2. Areas/2.1 Startup & Business/Riven/2. System Design/domains/Entities/FAQ|FAQ]]
+# [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/FAQ|FAQ]]
 
 ## Boundaries
 
@@ -41,12 +41,12 @@ The Entities domain provides a flexible, schema-driven data management system. E
 
 | Component | Purpose |
 | --------- | ------- |
-| [[Type Definitions]] | Entity type schema management — attributes, relationships, publishing |
-| [[Entity Management]] | Entity instance lifecycle — CRUD with validation and relationship hydration |
-| [[Relationships]] | Relationship definitions (type-level) and instance data (entity-level) with table-based architecture |
-| [[Querying]] | Query pipeline for filtered entity retrieval with EXISTS-based attribute filters and relationship traversal |
-| [[Validation]] | Schema validation for entity instances before persistence |
-| [[Entity Semantics]] | Semantic metadata for entity types, attributes, and relationships — definitions, classifications, and tags |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Type Definitions/Type Definitions]] | Entity type schema management — attributes, relationships, publishing |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/Entity Management]] | Entity instance lifecycle — CRUD with validation and relationship hydration |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Relationships/Relationships]] | Relationship definitions (type-level) and instance data (entity-level) with table-based architecture |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/Querying]] | Query pipeline for filtered entity retrieval with EXISTS-based attribute filters and relationship traversal |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Validation/Validation]] | Schema validation for entity instances before persistence |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Semantics/Entity Semantics]] | Semantic metadata for entity types, attributes, and relationships — definitions, classifications, and tags |
 
 ---
 
@@ -54,8 +54,8 @@ The Entities domain provides a flexible, schema-driven data management system. E
 
 | Flow        | Type                     | Description |
 | ----------- | ------------------------ | ----------- |
-| [[Entity CRUD]] | User-facing | Entity creation, update, and deletion flow (Phase 4) |
-| [[Entity Type Definition]] | User-facing | Entity type schema definition and modification flow (Phase 4) |
+| [[riven/docs/system-design/flows/Entity CRUD]] | User-facing | Entity creation, update, and deletion flow (Phase 4) |
+| [[riven/docs/system-design/flows/Entity Type Definition]] | User-facing | Entity type schema definition and modification flow (Phase 4) |
 
 ---
 
@@ -101,17 +101,17 @@ None. The Entities domain operates entirely within the application database (Pos
 
 | Domain | What We Consume | Via Component | Related Flow |
 |--------|----------------|---------------|--------------|
-| [[Workspaces & Users]] | Workspace scoping via RLS | PostgreSQL RLS policies | [[Auth & Authorization]] |
-| [[Workspaces & Users]] | @PreAuthorize authorization checks | [[WorkspaceSecurity]] | [[Auth & Authorization]] |
-| [[Workspaces & Users]] | User context for activity logging | [[AuthTokenService]] | [[Entity CRUD]] |
+| [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] | Workspace scoping via RLS | PostgreSQL RLS policies | [[riven/docs/system-design/flows/Auth & Authorization]] |
+| [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] | @PreAuthorize authorization checks | [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]] | [[riven/docs/system-design/flows/Auth & Authorization]] |
+| [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] | User context for activity logging | [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]] | [[riven/docs/system-design/flows/Entity CRUD]] |
 
 ### Consumed By
 
 | Consumer | What They Consume | Via Component | Related Flow |
 |----------|------------------|---------------|--------------|
-| [[Workflows]] | Entity CRUD for workflow node actions | [[EntityService]], [[EntityContextService]] | [[Workflow Execution]] |
-| REST API | Entity and entity type management | EntityController, EntityTypeController | [[Entity CRUD]], [[Entity Type Definition]] |
-| [[Knowledge]] | Semantic metadata CRUD endpoints | [[EntityTypeSemanticMetadataService]] via [[KnowledgeController]] | |
+| [[riven/docs/system-design/domains/Workflows/Workflows]] | Entity CRUD for workflow node actions | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityService]], [[riven/docs/system-design/domains/Workflows/State Management/EntityContextService]] | [[riven/docs/system-design/flows/Workflow Execution]] |
+| REST API | Entity and entity type management | EntityController, EntityTypeController | [[riven/docs/system-design/flows/Entity CRUD]], [[riven/docs/system-design/flows/Entity Type Definition]] |
+| [[riven/docs/system-design/domains/Knowledge/Knowledge]] | Semantic metadata CRUD endpoints | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]] via [[riven/docs/system-design/domains/Knowledge/KnowledgeController]] | |
 
 ---
 
@@ -187,5 +187,5 @@ Field-level change logging via `activityService` tracks when sync overwrites use
 
 ### References
 
-- [[Entity Ingestion Pipeline]]
-- [[Smart Projection Architecture]]
+- [[2. Areas/2.1 Startup & Content/Riven/7. Todo/Entity Ingestion Pipeline]]
+- [[riven/docs/system-design/feature-design/1. Planning/Smart Projection Architecture]]

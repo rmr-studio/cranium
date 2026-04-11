@@ -5,7 +5,7 @@ tags:
   - architecture/component
 Created: 2026-03-29
 Domains:
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 
 # ProjectionRuleEntity
@@ -59,5 +59,5 @@ Converts to domain model. Uses `requireNotNull(id) { "ProjectionRuleEntity.id mu
 
 - [[ProjectionRuleRepository]]
 - [[EntityProjectionService]]
-- [[TemplateMaterializationService]]
+- [[riven/docs/system-design/domains/Integrations/Enablement/TemplateMaterializationService]]
 - [[Entity Projection]]

@@ -1,7 +1,7 @@
 ---
 Created: 2026-02-08
 Domains:
-  - "[[Workspaces & Users]]"
+  - "[[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]"
 tags:
   - architecture/subdomain
   - domain/user
@@ -18,7 +18,7 @@ UserService provides session-based user retrieval (extracting user ID from JWT) 
 
 | Component | Purpose | Type |
 | --------- | ------- | ---- |
-| [[UserService]] | User CRUD, session-based retrieval, workspace membership loading | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/User Management/UserService]] | User CRUD, session-based retrieval, workspace membership loading | Service |
 | UserController | REST endpoints for user profile operations | Controller |
 | UserRepository | User data access with custom membership query | Repository |
 

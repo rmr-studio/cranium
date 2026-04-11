@@ -6,7 +6,7 @@ tags:
 Created: 2025-07-17
 Updated: 2026-03-18
 Domains:
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 # Subdomain: Connection Management
 
@@ -18,10 +18,10 @@ Manages the Nango connection lifecycle for workspace integrations. Enforces an 8
 
 | Component | Purpose | Type |
 | --------- | ------- | ---- |
-| [[IntegrationConnectionService]] | Manages connection state machine, Nango API interaction, connect/disconnect lifecycle | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Connection Management/IntegrationConnectionService]] | Manages connection state machine, Nango API interaction, connect/disconnect lifecycle | Service |
 | [[IntegrationConnectionEntity]] | Per-workspace Nango connection with status, metadata, and provider key | Entity |
 | [[IntegrationConnectionRepository]] | Queries connections by workspace and integration, state-based lookups | Repository |
-| [[NangoClientWrapper]] | HTTP client wrapper for Nango REST API — connection management, record fetching, and sync triggering with retry logic and error handling | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Connection Management/NangoClientWrapper]] | HTTP client wrapper for Nango REST API — connection management, record fetching, and sync triggering with retry logic and error handling | Service |
 
 ---
 

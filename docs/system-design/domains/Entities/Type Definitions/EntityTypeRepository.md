@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-09
 Updated: 2026-03-01
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # EntityTypeRepository
 
-Part of [[Type Definitions]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Type Definitions/Type Definitions]]
 
 ## Purpose
 
@@ -32,12 +32,12 @@ JPA repository for `EntityTypeEntity` persistence — provides workspace-scoped 
 
 ## Used By
 
-- [[EntityTypeService]] — type CRUD, workspace listing, key-based lookups
-- [[EntityRelationshipService]] — `findSemanticGroupsByIds` for batch semantic group resolution during relationship validation
-- [[EntityTypeRelationshipService]] — entity type lookups during relationship definition management
-- [[EntityTypeAttributeService]] — entity type lookups during attribute schema operations
-- [[IntegrationEnablementService]] — integration-scoped entity type queries for lifecycle operations
-- [[TemplateMaterializationService]] — entity type lookups during template materialization
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Type Definitions/EntityTypeService]] — type CRUD, workspace listing, key-based lookups
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] — `findSemanticGroupsByIds` for batch semantic group resolution during relationship validation
+- [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] — entity type lookups during relationship definition management
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Type Definitions/EntityTypeAttributeService]] — entity type lookups during attribute schema operations
+- [[riven/docs/system-design/domains/Integrations/Enablement/IntegrationEnablementService]] — integration-scoped entity type queries for lifecycle operations
+- [[riven/docs/system-design/domains/Integrations/Enablement/TemplateMaterializationService]] — entity type lookups during template materialization
 
 ---
 
@@ -95,9 +95,9 @@ Native SQL query (`nativeQuery = true`) returning soft-deleted entity types for 
 
 ## Related
 
-- [[EntityTypeService]] — primary consumer for type CRUD
-- [[EntityRelationshipService]] — consumes `findSemanticGroupsByIds` for semantic group resolution
-- [[Type Definitions]] — parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Type Definitions/EntityTypeService]] — primary consumer for type CRUD
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] — consumes `findSemanticGroupsByIds` for semantic group resolution
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Type Definitions/Type Definitions]] — parent subdomain
 
 ---
 

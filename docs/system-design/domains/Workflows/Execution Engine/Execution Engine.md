@@ -4,7 +4,7 @@ tags:
   - domain/workflow
 Created: 2026-02-08
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # Subdomain: Execution Engine
 
@@ -16,11 +16,11 @@ The Execution Engine subdomain integrates with Temporal.io to provide durable wo
 
 | Component | Purpose | Type |
 | --------- | ------- | ------------------------------- |
-| [[WorkflowOrchestrationService]] | Temporal workflow — orchestrates DAG execution lifecycle, delegates all I/O to activities via `sideEffect()` for config snapshot | Temporal Workflow |
-| [[WorkflowCoordinationService]] | Temporal activity — coordinates node execution, manages graph state, persists results. Entry point for all non-deterministic work. | Temporal Activity / Service |
-| [[WorkflowGraphCoordinationService]] | DAG execution loop — validates graph, sorts topologically, iterates ready nodes in batches | Service |
-| [[WorkflowCompletionActivityImpl]] | Records final workflow execution status, updates/deletes queue entries | Temporal Activity / Service |
-| [[TemporalWorkerConfiguration]] | Registers Temporal workers for multiple task queues — default workflows, external API activities, and identity matching | Configuration |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowOrchestrationService]] | Temporal workflow — orchestrates DAG execution lifecycle, delegates all I/O to activities via `sideEffect()` for config snapshot | Temporal Workflow |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowCoordinationService]] | Temporal activity — coordinates node execution, manages graph state, persists results. Entry point for all non-deterministic work. | Temporal Activity / Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowGraphCoordinationService]] | DAG execution loop — validates graph, sorts topologically, iterates ready nodes in batches | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowCompletionActivityImpl]] | Records final workflow execution status, updates/deletes queue entries | Temporal Activity / Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/TemporalWorkerConfiguration]] | Registers Temporal workers for multiple task queues — default workflows, external API activities, and identity matching | Configuration |
 
 > [!warning] Sequential batch execution
 > Nodes in the same batch execute sequentially, not truly parallel. This is a WorkflowCoordinationService limitation marked as TODO in the code.

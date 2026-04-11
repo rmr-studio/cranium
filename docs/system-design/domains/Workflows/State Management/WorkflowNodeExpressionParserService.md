@@ -4,13 +4,13 @@ tags:
   - component/active
   - architecture/component
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 Created: 2026-02-08
 Updated: 2026-02-08
 ---
 # WorkflowNodeExpressionParserService
 
-Part of [[State Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/State Management]]
 
 ## Purpose
 
@@ -37,7 +37,7 @@ Recursive descent parser that converts SQL-like expression strings into an Expre
 
 ## Used By
 
-- [[WorkflowNodeExpressionEvaluatorService]] — Consumes the AST output for evaluation against workflow data store
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/WorkflowNodeExpressionEvaluatorService]] — Consumes the AST output for evaluation against workflow data store
 
 ---
 
@@ -124,5 +124,5 @@ parse("steps.node1.output.status = 'completed'")
 
 ## Related
 
-- [[WorkflowNodeExpressionEvaluatorService]] — Evaluates the parsed AST
-- [[State Management]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/WorkflowNodeExpressionEvaluatorService]] — Evaluates the parsed AST
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/State Management]] — Parent subdomain

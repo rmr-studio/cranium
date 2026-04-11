@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-03-09
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # EntityQueryService
 
-Part of [[Querying]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/Querying]]
 
 ## Purpose
 
@@ -34,13 +34,13 @@ Entry point for entity queries, orchestrating validation → assembly → execut
 
 - `EntityTypeRepository` — Load entity type schema for validation
 - `EntityRepository` — Batch-load entities by IDs
-- [[EntityQueryAssembler]] — Convert filters to SQL
-- [[QueryFilterValidator]] — Pre-validate filter structure
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/EntityQueryAssembler]] — Convert filters to SQL
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/QueryFilterValidator]] — Pre-validate filter structure
 - `RelationshipDefinitionRepository` — Load relationship definitions for filter validation and direction resolution
 - `RelationshipTargetRuleRepository` — Load relationship definitions for filter validation and direction resolution
 - `NamedParameterJdbcTemplate` — Execute parameterized SQL with configured timeout
-- [[EntityAttributeService]] — Batch-load attributes for query result hydration
-- [[ParameterNameGenerator]] — Unique parameter naming
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityAttributeService]] — Batch-load attributes for query result hydration
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/ParameterNameGenerator]] — Unique parameter naming
 
 ## Used By
 
@@ -112,9 +112,9 @@ Executes entity query with optional filters and pagination. Returns matching ent
 
 ## Related
 
-- [[EntityQueryAssembler]] — SQL assembly
-- [[QueryFilterValidator]] — Filter validation
-- [[Querying]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/EntityQueryAssembler]] — SQL assembly
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/QueryFilterValidator]] — Filter validation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/Querying]] — Parent subdomain
 
 ---
 

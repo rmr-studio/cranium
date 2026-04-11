@@ -6,9 +6,9 @@ tags:
 Created: 2026-02-08
 Updated: 2026-03-09
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
-Part of [[Querying]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/Querying]]
 
 # AttributeSqlGenerator
 
@@ -45,8 +45,8 @@ Generates parameterized SQL fragments for filtering entities by attribute values
 
 |Component|Purpose|Coupling|
 |---|---|---|
-|[[SqlFragment]]|Immutable container for SQL with parameters|High|
-|[[ParameterNameGenerator]]|Generates unique parameter names|High|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/SqlFragment]]|Immutable container for SQL with parameters|High|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/ParameterNameGenerator]]|Generates unique parameter names|High|
 
 ### External Dependencies
 
@@ -67,8 +67,8 @@ No constructor dependencies. Stateless component.
 
 |Component|How It Uses This|Notes|
 |---|---|---|
-|[[AttributeFilterVisitor]]|Calls generate() for each ATTRIBUTE filter node|Main consumer - delegates all attribute SQL generation|
-|[[RelationshipSqlGenerator]]|Calls generate() for nested attribute filters in TargetMatches|Passes custom entityAlias for target entity table|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/AttributeFilterVisitor]]|Calls generate() for each ATTRIBUTE filter node|Main consumer - delegates all attribute SQL generation|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/RelationshipSqlGenerator]]|Calls generate() for nested attribute filters in TargetMatches|Passes custom entityAlias for target entity table|
 
 ---
 
@@ -590,11 +590,11 @@ None - all operators are supported and invalid inputs produce safe SQL.
 
 ## Related
 
-- [[Querying]] - Parent subdomain
-- [[AttributeFilterVisitor]] - Main consumer
-- [[RelationshipSqlGenerator]] - Sibling generator for relationships
-- [[SqlFragment]] - Immutable SQL container
-- [[ParameterNameGenerator]] - Unique parameter name generation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/Querying]] - Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/AttributeFilterVisitor]] - Main consumer
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/RelationshipSqlGenerator]] - Sibling generator for relationships
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/SqlFragment]] - Immutable SQL container
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/ParameterNameGenerator]] - Unique parameter name generation
 
 ---
 

@@ -6,21 +6,21 @@ tags:
 Created: 2026-03-07
 Updated: 2026-03-07
 Domains:
-  - "[[Storage]]"
+  - "[[riven/docs/system-design/domains/Storage/Storage]]"
 ---
 # StorageController
 
-Part of [[File Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/File Management]]
 
 ## Purpose
 
-Thin REST controller exposing 11 endpoints under `/api/v1/storage`. Delegates all business logic to [[StorageService]] and returns `ResponseEntity` with appropriate HTTP status codes.
+Thin REST controller exposing 11 endpoints under `/api/v1/storage`. Delegates all business logic to [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/StorageService]] and returns `ResponseEntity` with appropriate HTTP status codes.
 
 ---
 
 ## Dependencies
 
-- [[StorageService]] -- All storage operations
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/StorageService]] -- All storage operations
 - `ObjectMapper` -- Parses metadata JSON string from multipart upload form parameter
 
 ## Used By
@@ -57,6 +57,6 @@ Thin REST controller exposing 11 endpoints under `/api/v1/storage`. Delegates al
 
 ## Related
 
-- [[StorageService]] -- Delegated business logic
-- [[AvatarController]] -- Sibling controller serving avatar images at `/api/v1/avatars` (unauthenticated)
-- [[File Management]] -- Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/StorageService]] -- Delegated business logic
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/AvatarController]] -- Sibling controller serving avatar images at `/api/v1/avatars` (unauthenticated)
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/File Management]] -- Parent subdomain

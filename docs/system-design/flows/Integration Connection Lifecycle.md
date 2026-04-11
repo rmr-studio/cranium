@@ -5,7 +5,7 @@ tags:
   - architecture/flow
 Created: 2026-02-13
 Domains:
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 # Flow: Integration Connection Lifecycle
 
@@ -32,7 +32,7 @@ The connection lifecycle manages how workspace admins connect third-party integr
 | Admin action | Workspace admin | Initiates disconnection of an existing connection |
 | Reconnection | Workspace admin | Re-initiates authorization for a failed or disconnected connection |
 
-**Entry Point:** [[IntegrationConnectionService]]
+**Entry Point:** [[riven/docs/system-design/domains/Integrations/Connection Management/IntegrationConnectionService]]
 
 ---
 
@@ -182,7 +182,7 @@ sequenceDiagram
 
 #### 1. Admin Creates Connection
 
-- **Component:** [[IntegrationConnectionService]]
+- **Component:** [[riven/docs/system-design/domains/Integrations/Connection Management/IntegrationConnectionService]]
 - **Action:** `createConnection(workspaceId, integrationId, nangoConnectionId)` validates admin role, verifies integration definition exists, checks no duplicate connection, creates entity with PENDING_AUTHORIZATION status.
 - **Input:** workspaceId (UUID), integrationId (UUID from integration_definitions catalog), nangoConnectionId (string identifier from Nango)
 - **Output:** `IntegrationConnectionEntity` with status PENDING_AUTHORIZATION
@@ -200,7 +200,7 @@ sequenceDiagram
 
 #### 3. Token Exchange and Connection Established
 
-- **Component:** [[IntegrationConnectionService]]
+- **Component:** [[riven/docs/system-design/domains/Integrations/Connection Management/IntegrationConnectionService]]
 - **Action:** Status transitions through AUTHORIZING to CONNECTED as the OAuth flow completes. Each transition is validated by `ConnectionStatus.canTransitionTo()`.
 - **Input:** connectionId, new status
 - **Output:** Updated `IntegrationConnectionEntity`
@@ -332,8 +332,8 @@ A DISCONNECTED or FAILED connection can be reconnected by transitioning back to 
 
 | Component | Role | Can Block Flow |
 |---|---|---|
-| [[IntegrationConnectionService]] | Manages connection lifecycle, enforces state transitions, coordinates disconnect with Nango | Yes (state transition validation, Nango API call on disconnect) |
-| [[NangoClientWrapper]] | REST API client for Nango -- `getConnection()`, `listConnections()`, `deleteConnection()` | Yes (Nango API availability, rate limits) |
+| [[riven/docs/system-design/domains/Integrations/Connection Management/IntegrationConnectionService]] | Manages connection lifecycle, enforces state transitions, coordinates disconnect with Nango | Yes (state transition validation, Nango API call on disconnect) |
+| [[riven/docs/system-design/domains/Integrations/Connection Management/NangoClientWrapper]] | REST API client for Nango -- `getConnection()`, `listConnections()`, `deleteConnection()` | Yes (Nango API availability, rate limits) |
 | [[IntegrationDefinitionService]] | Provides integration catalog metadata (provider key, capabilities) | Yes (NotFoundException if integration not in catalog) |
 | ConnectionStatus enum | 10-state machine with `canTransitionTo()` validation | No (pure function, always returns boolean) |
 | IntegrationConnectionRepository | JPA repository for `integration_connections` table | Yes (database availability) |
@@ -343,10 +343,10 @@ A DISCONNECTED or FAILED connection can be reconnected by transitioning back to 
 
 ## Related
 
-- [[Integration Access Layer]]
-- [[Entity Integration Sync]]
-- [[ADR-001 Nango as Integration Infrastructure]]
-- [[Integrations]]
+- [[riven/docs/system-design/feature-design/3. Active/Integration Access Layer]]
+- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]]
+- [[riven/docs/system-design/decisions/ADR-001 Nango as Integration Infrastructure]]
+- [[riven/docs/system-design/domains/Integrations/Integrations]]
 
 ---
 

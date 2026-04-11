@@ -8,12 +8,12 @@ tags:
 Created: 2026-03-18
 Updated:
 Domains:
-  - "[[Knowledge]]"
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Knowledge/Knowledge]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 blocked by:
-  - "[[Lifecycle Domain Model]]"
-  - "[[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]]"
-  - "[[Data Chunking and Enrichment Pipeline]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Lifecycle Domain Model]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Data Chunking and Enrichment Pipeline]]"
 ---
 # Feature: Lifecycle Operations Dashboard
 
@@ -58,11 +58,11 @@ A default workspace view that shows operational metrics grouped by lifecycle dom
 
 ## Related Documents
 
-- [[Lifecycle Domain Model]] — metrics grouped by lifecycle domain
-- [[Knowledge Layer Sub-Agents]] — signals surfaced on dashboard
-- [[Lifecycle Domain Coverage Indicator]] — shows connectivity gaps
-- [[Churn Retrospective Timeline]] — drill-in diagnostic from churn signals
-- [[Dashboard Metrics Pre-computation Layer]] — TODO for performance at scale
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Lifecycle Domain Model]] — metrics grouped by lifecycle domain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Knowledge Layer Sub-Agents]] — signals surfaced on dashboard
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Lifecycle Domain Coverage Indicator]] — shows connectivity gaps
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Churn Retrospective Timeline]] — drill-in diagnostic from churn signals
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Dashboard Metrics Pre-computation Layer]] — TODO for performance at scale
 - CEO Plan: Lifecycle Vertical Scoping (2026-03-18)
 
 ---

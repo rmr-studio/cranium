@@ -6,7 +6,7 @@ Created: 2026-02-09
 Updated: 2026-02-09
 Critical: true
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # Flow: Workflow Execution
 
@@ -28,7 +28,7 @@ Workflow execution traces the complete path from API trigger through asynchronou
 |---|---|---|
 |API Call|Client application|POST to `/api/v1/workflow/executions/start`|
 
-**Entry Point:** [[WorkflowExecutionController]]
+**Entry Point:** [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowExecutionController]]
 
 ---
 
@@ -218,7 +218,7 @@ sequenceDiagram
 
 #### 1. API Request Received
 
-- **Component:** [[WorkflowExecutionController]]
+- **Component:** [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowExecutionController]]
 - **Action:** Receives POST to `/api/v1/workflow/executions/start`
 - **Input:** `StartWorkflowExecutionRequest` (workflowDefinitionId, workspaceId)
 - **Output:** HTTP 202 Accepted with `ExecutionQueueRequest` (queueId, status)
@@ -226,8 +226,8 @@ sequenceDiagram
 
 #### 2. Execution Enqueued
 
-- **Component:** [[WorkflowExecutionService]]
-- **Action:** Delegates to [[WorkflowExecutionQueueService]] to enqueue execution
+- **Component:** [[riven/docs/system-design/domains/Workflows/Definition Management/WorkflowExecutionService]]
+- **Action:** Delegates to [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueService]] to enqueue execution
 - **Input:** workspaceId, workflowDefinitionId
 - **Output:** `ExecutionQueueEntity` with generated queueId
 - **Side Effects:**
@@ -236,7 +236,7 @@ sequenceDiagram
 
 #### 3. Queue Processing Scheduled (ASYNC BOUNDARY)
 
-- **Component:** [[WorkflowExecutionDispatcherService]]
+- **Component:** [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionDispatcherService]]
 - **Action:** `@Scheduled(fixedDelay=5000)` triggers `processQueue()`
 - **Input:** None (scheduled)
 - **Output:** None (void)
@@ -244,7 +244,7 @@ sequenceDiagram
 
 #### 4. Batch Claim
 
-- **Component:** [[WorkflowExecutionQueueProcessorService]]
+- **Component:** [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueProcessorService]]
 - **Action:** Claims up to 10 pending items via `SELECT FOR UPDATE SKIP LOCKED`
 - **Input:** BATCH_SIZE=10
 - **Output:** `List<ExecutionQueueEntity>`
@@ -252,7 +252,7 @@ sequenceDiagram
 
 #### 5. Process Individual Queue Item
 
-- **Component:** [[WorkflowExecutionQueueProcessorService]]
+- **Component:** [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueProcessorService]]
 - **Action:** Each item processed in isolated transaction (REQUIRES_NEW)
 - **Input:** Single `ExecutionQueueEntity`
 - **Output:** None
@@ -263,7 +263,7 @@ sequenceDiagram
 
 #### 6a. Capacity Available - Dispatch to Temporal
 
-- **Component:** [[WorkflowExecutionQueueProcessorService]]
+- **Component:** [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueProcessorService]]
 - **Action:** Creates/reuses WorkflowExecutionEntity, starts Temporal workflow
 - **Input:** Queue item, workflow definition, version
 - **Output:** Temporal workflow ID
@@ -275,7 +275,7 @@ sequenceDiagram
 
 #### 6b. At Capacity - Release to Pending
 
-- **Component:** [[WorkflowExecutionQueueProcessorService]]
+- **Component:** [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueProcessorService]]
 - **Action:** Releases queue item back to PENDING status
 - **Input:** Queue item
 - **Output:** None
@@ -283,7 +283,7 @@ sequenceDiagram
 
 #### 7. Workflow Orchestration (ASYNC BOUNDARY)
 
-- **Component:** [[WorkflowOrchestrationService]]
+- **Component:** [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowOrchestrationService]]
 - **Action:** Temporal worker invokes `execute(WorkflowExecutionInput)` on worker thread
 - **Input:** WorkflowExecutionInput (workflowDefinitionId, nodeIds, workspaceId)
 - **Output:** WorkflowExecutionResult
@@ -291,7 +291,7 @@ sequenceDiagram
 
 #### 8. Configuration Snapshot
 
-- **Component:** [[WorkflowOrchestrationService]]
+- **Component:** [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowOrchestrationService]]
 - **Action:** Uses `Workflow.sideEffect()` to snapshot retry configuration
 - **Input:** RetryConfig from application.yml
 - **Output:** Frozen RetryConfig (deterministic for replay)
@@ -299,7 +299,7 @@ sequenceDiagram
 
 #### 9. Coordination Activity Invoked
 
-- **Component:** [[WorkflowCoordinationService]]
+- **Component:** [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowCoordinationService]]
 - **Action:** Activity executes workflow DAG coordination
 - **Input:** workflowDefinitionId, nodeIds, workspaceId
 - **Output:** WorkflowDataStore (final state with all outputs)
@@ -310,7 +310,7 @@ sequenceDiagram
 
 #### 10. DAG Validation
 
-- **Component:** [[WorkflowGraphCoordinationService]]
+- **Component:** [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowGraphCoordinationService]]
 - **Action:** Validates DAG structure and topological order
 - **Input:** nodes, edges
 - **Output:** None (throws on invalid)
@@ -326,7 +326,7 @@ sequenceDiagram
 
 #### 12. Pull-Based Node Execution Loop
 
-- **Component:** [[WorkflowGraphCoordinationService]]
+- **Component:** [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowGraphCoordinationService]]
 - **Action:** Repeatedly gets ready nodes (in-degree=0), executes, marks complete
 - **Input:** nodeExecutor lambda
 - **Output:** None (updates WorkflowDataStore in-place)
@@ -334,7 +334,7 @@ sequenceDiagram
 
 #### 13. Individual Node Execution
 
-- **Component:** [[WorkflowCoordinationService]]
+- **Component:** [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowCoordinationService]]
 - **Action:** Executes single node via polymorphic dispatch
 - **Input:** WorkflowNode, WorkflowDataStore
 - **Output:** NodeExecutionResult (status, output)
@@ -347,7 +347,7 @@ sequenceDiagram
 
 #### 14. Completion Callback
 
-- **Component:** [[WorkflowCompletionActivityImpl]]
+- **Component:** [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowCompletionActivityImpl]]
 - **Action:** Records final workflow status
 - **Input:** executionId, status, error
 - **Output:** None
@@ -357,7 +357,7 @@ sequenceDiagram
 
 #### 15. Workflow Result Returned
 
-- **Component:** [[WorkflowOrchestrationService]]
+- **Component:** [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowOrchestrationService]]
 - **Action:** Returns WorkflowExecutionResult to Temporal
 - **Input:** Final datastore state
 - **Output:** WorkflowExecutionResult (executionId, status, nodeResults)
@@ -465,26 +465,26 @@ sequenceDiagram
 
 |Component|Role|Can Block Flow|
 |---|---|---|
-|[[WorkflowExecutionController]]|API entry point, request validation|Yes (HTTP timeout)|
-|[[WorkflowExecutionService]]|Orchestrates enqueue + activity logging|Yes (database failure)|
-|[[WorkflowExecutionQueueService]]|Queue CRUD operations|Yes (database failure)|
-|[[WorkflowExecutionDispatcherService]]|Scheduled queue processor with ShedLock|No (scheduled, processes batches)|
-|[[WorkflowExecutionQueueProcessorService]]|Claims and dispatches individual items|No (per-item transactions)|
-|[[WorkflowOrchestrationService]]|Temporal workflow implementation (deterministic)|Yes (activity timeout)|
-|[[WorkflowCoordinationService]]|Temporal activity for DAG coordination|Yes (database failure, node execution failure)|
-|[[WorkflowGraphCoordinationService]]|DAG traversal and state machine|Yes (validation failure, deadlock)|
+|[[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowExecutionController]]|API entry point, request validation|Yes (HTTP timeout)|
+|[[riven/docs/system-design/domains/Workflows/Definition Management/WorkflowExecutionService]]|Orchestrates enqueue + activity logging|Yes (database failure)|
+|[[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueService]]|Queue CRUD operations|Yes (database failure)|
+|[[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionDispatcherService]]|Scheduled queue processor with ShedLock|No (scheduled, processes batches)|
+|[[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueProcessorService]]|Claims and dispatches individual items|No (per-item transactions)|
+|[[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowOrchestrationService]]|Temporal workflow implementation (deterministic)|Yes (activity timeout)|
+|[[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowCoordinationService]]|Temporal activity for DAG coordination|Yes (database failure, node execution failure)|
+|[[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowGraphCoordinationService]]|DAG traversal and state machine|Yes (validation failure, deadlock)|
 |WorkflowGraphQueueManagementService|In-degree tracking and ready node queueing|Yes (thread safety issue with singleton state)|
-|[[WorkflowNodeInputResolverService]]|Template resolution against datastore|No (pure function)|
-|[[WorkflowCompletionActivityImpl]]|Records final execution status|No (best-effort, logs warnings on failure)|
+|[[riven/docs/system-design/domains/Workflows/State Management/WorkflowNodeInputResolverService]]|Template resolution against datastore|No (pure function)|
+|[[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowCompletionActivityImpl]]|Records final execution status|No (best-effort, logs warnings on failure)|
 
 ---
 
 ## Related
 
-- [[WorkflowOrchestrationService]] - Temporal workflow implementation
-- [[WorkflowGraphCoordinationService]] - DAG execution coordination
-- [[WorkflowExecutionQueueService]] - Queue management
-- [[Workflows]] - Domain overview
+- [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowOrchestrationService]] - Temporal workflow implementation
+- [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowGraphCoordinationService]] - DAG execution coordination
+- [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueService]] - Queue management
+- [[riven/docs/system-design/domains/Workflows/Workflows]] - Domain overview
 
 ---
 

@@ -12,7 +12,7 @@ Domains:
   - "[[Workspace]]"
 Backend-Feature: "[[]]"
 Pages:
-  - "[[Onboarding Flow]]"
+  - "[[riven/docs/frontend-design/dashboard/Onboarding Flow]]"
 ---
 # Quick Frontend Design: Avatar Uploader
 

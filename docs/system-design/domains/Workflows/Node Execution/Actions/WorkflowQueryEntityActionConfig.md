@@ -1,6 +1,6 @@
 ---
 Created:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 Updated: 2026-02-09
 ---
 # WorkflowQueryEntityActionConfig
@@ -18,7 +18,7 @@ Queries entities by type with attribute and relationship filtering, supporting c
 - Configure query parameters (entity type, filters, pagination, projection)
 - Validate recursive filter structure with compound AND/OR and nested relationships
 - Validate template syntax in filter values
-- Execute entity queries via [[EntityQueryService]] with template-resolved filter trees
+- Execute entity queries via [[riven/docs/system-design/domains/Entities/Querying/EntityQueryService]] with template-resolved filter trees
 
 ---
 
@@ -28,23 +28,23 @@ Queries entities by type with attribute and relationship filtering, supporting c
 
 | Component | Purpose | Coupling |
 |---|---|---|
-| [[WorkflowNodeConfigValidationService]] | Validates template syntax and config fields | Medium |
-| [[WorkflowNodeConfig]] | Sealed parent class for all node configurations | High |
+| [[riven/docs/system-design/domains/Workflows/Node Execution/WorkflowNodeConfigValidationService]] | Validates template syntax and config fields | Medium |
+| [[riven/apps/client/lib/types/docs/WorkflowNodeConfig]] | Sealed parent class for all node configurations | High |
 
 ### Cross-Domain Dependencies
 
 | Component | Purpose | Coupling |
 |---|---|---|
-| [[EntityQuery]] (Entities domain) | Query model with filter definitions | High |
-| [[QueryFilter]] (Entities domain) | Sealed class for attribute/relationship filters | High |
-| [[RelationshipFilter]] (Entities domain) | Relationship condition types | High |
+| [[riven/apps/client/lib/types/docs/EntityQuery]] (Entities domain) | Query model with filter definitions | High |
+| [[riven/apps/client/lib/types/docs/QueryFilter]] (Entities domain) | Sealed class for attribute/relationship filters | High |
+| [[riven/apps/client/lib/types/docs/RelationshipFilter]] (Entities domain) | Relationship condition types | High |
 
 ### Runtime Execution Dependencies
 
 | Component | Purpose | Coupling |
 |---|---|---|
-| [[EntityQueryService]] (Entities domain) | Executes resolved entity queries | High |
-| [[WorkflowNodeInputResolverService]] | Resolves template values in inputs | Medium |
+| [[riven/docs/system-design/domains/Entities/Querying/EntityQueryService]] (Entities domain) | Executes resolved entity queries | High |
+| [[riven/docs/system-design/domains/Workflows/State Management/WorkflowNodeInputResolverService]] | Resolves template values in inputs | Medium |
 | WorkflowFilterTemplateUtils | Resolves template values within filter trees | Medium |
 
 ---
@@ -53,8 +53,8 @@ Queries entities by type with attribute and relationship filtering, supporting c
 
 | Component | How It Uses This | Notes |
 |---|---|---|
-| [[WorkflowNodeConfigRegistry]] | Discovers at startup via classpath scan | Auto-registration |
-| [[WorkflowNode]] | Executes via `execute()` method | Executes query via EntityQueryService at runtime |
+| [[riven/docs/system-design/domains/Workflows/Node Execution/WorkflowNodeConfigRegistry]] | Discovers at startup via classpath scan | Auto-registration |
+| [[riven/apps/client/lib/types/docs/WorkflowNode]] | Executes via `execute()` method | Executes query via EntityQueryService at runtime |
 
 ---
 
@@ -273,7 +273,7 @@ Validates relationship condition based on `RelationshipFilter` sealed class type
 ## Gotchas & Edge Cases
 
 > [!info] System Query Limit
-> All queries enforce `DEFAULT_QUERY_LIMIT = 100`. Even if more entities match, only 100 are returned per execution. The `hasMore` output field indicates whether additional results exist. Workflows requiring all matching entities should use [[WorkflowBulkUpdateEntityActionConfig]] which handles internal pagination.
+> All queries enforce `DEFAULT_QUERY_LIMIT = 100`. Even if more entities match, only 100 are returned per execution. The `hasMore` output field indicates whether additional results exist. Workflows requiring all matching entities should use [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Actions/WorkflowBulkUpdateEntityActionConfig]] which handles internal pagination.
 
 > [!info] runBlocking Usage
 > The execute method uses `runBlocking` to bridge suspend functions from EntityQueryService into the synchronous workflow execution context. This is acceptable within Temporal activity threads but should not be used in coroutine contexts.
@@ -302,13 +302,13 @@ AND → OR → AND → RELATIONSHIP(TARGET_MATCHES) → AND → ...
 
 Could cause stack overflow during validation or execution.
 
-**Mitigation:** The Entities domain's [[AttributeFilterVisitor]] documents separate depth limits for AND/OR nesting vs relationship traversal, but this config validator doesn't enforce them.
+**Mitigation:** The Entities domain's [[riven/docs/system-design/domains/Entities/Querying/AttributeFilterVisitor]] documents separate depth limits for AND/OR nesting vs relationship traversal, but this config validator doesn't enforce them.
 
 ---
 
 ## Related
 
-- [[Action Nodes]] — category-level overview of all action node types
-- [[WorkflowNodeConfig]] — sealed parent class defining node configuration contract
-- [[Entity Querying]] — Entities domain querying subsystem with execution logic
-- [[AttributeFilterVisitor]] — Entities domain visitor with depth limit documentation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Actions/Action Nodes]] — category-level overview of all action node types
+- [[riven/apps/client/lib/types/docs/WorkflowNodeConfig]] — sealed parent class defining node configuration contract
+- [[riven/docs/system-design/feature-design/4. Completed/Entity Querying]] — Entities domain querying subsystem with execution logic
+- [[riven/docs/system-design/domains/Entities/Querying/AttributeFilterVisitor]] — Entities domain visitor with depth limit documentation

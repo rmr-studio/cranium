@@ -9,7 +9,7 @@ Updated:
 Domains:
   - "[[Domain]]"
 blocked by:
-  - "[[Entity Querying]]"
+  - "[[riven/docs/system-design/feature-design/4. Completed/Entity Querying]]"
 ---
 # Quick Design: Entity Filtering Visual Overhaul
 

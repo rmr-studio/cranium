@@ -4,13 +4,13 @@ tags:
   - component/active
   - architecture/component
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 Created: 2026-02-08
 Updated: 2026-02-08
 ---
 # WorkflowNode
 
-Part of [[Node Execution]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Node Execution]]
 
 ## Purpose
 
@@ -30,15 +30,15 @@ Runtime DTO that wraps `WorkflowNodeConfig` with entity metadata (id, workspaceI
 
 ## Dependencies
 
-- [[WorkflowNodeConfig]] — Wraps the config for execution delegation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/WorkflowNodeConfig]] — Wraps the config for execution delegation
 - `WorkflowDataStore` — Passed through to config execution
 - `NodeServiceProvider` — Passed through to config execution
 
 ## Used By
 
-- [[WorkflowGraphCoordinationService]] — Executes nodes via `execute()` during DAG traversal
-- [[WorkflowGraphTopologicalSorterService]] — Sorts nodes for execution order
-- [[WorkflowGraphQueueManagementService]] — Tracks node readiness in queue system
+- [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowGraphCoordinationService]] — Executes nodes via `execute()` during DAG traversal
+- [[riven/docs/system-design/domains/Workflows/Graph Coordination/WorkflowGraphTopologicalSorterService]] — Sorts nodes for execution order
+- [[riven/docs/system-design/domains/Workflows/Graph Coordination/WorkflowGraphQueueManagementService]] — Tracks node readiness in queue system
 
 ---
 
@@ -125,6 +125,6 @@ Execute this node with given datastore and resolved inputs. Delegates to underly
 
 ## Related
 
-- [[WorkflowNodeConfig]] — Underlying configuration interface
-- [[WorkflowNodeEntity]] — JPA entity for persistence
-- [[Node Execution]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/WorkflowNodeConfig]] — Underlying configuration interface
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/WorkflowNodeEntity]] — JPA entity for persistence
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Node Execution]] — Parent subdomain

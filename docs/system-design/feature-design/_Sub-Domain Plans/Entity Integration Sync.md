@@ -4,8 +4,8 @@ tags:
 Created: 13-02-2026
 Updated:
 Domains:
-  - "[[Integrations]]"
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # Sub-Domain Plan: Syncing Integrations into Entity Ecosystem
 
@@ -28,7 +28,7 @@ Integration sync is a cohesive sub-domain because all its components form a sing
 ### Boundaries
 
 - **Owns:** Integration connection management, Nango API communication, schema mapping definitions and transformation, webhook ingestion with HMAC verification, Temporal sync workflow orchestration, batch deduplication, connection health aggregation, installation status lifecycle
-- **Does NOT own:** Entity type definitions and schema ([[Entities]] domain), entity CRUD operations (EntityService), workflow execution engine ([[Workflows]] domain), user authentication (Workspaces & Users domain), file storage, UI components
+- **Does NOT own:** Entity type definitions and schema ([[riven/docs/system-design/domains/Entities/Entities]] domain), entity CRUD operations (EntityService), workflow execution engine ([[riven/docs/system-design/domains/Workflows/Workflows]] domain), user authentication (Workspaces & Users domain), file storage, UI components
 
 ---
 
@@ -77,12 +77,12 @@ graph TD
 
 | Decision | Rationale | Alternatives Rejected |
 |----------|-----------|----------------------|
-| Nango as integration infrastructure | Handles OAuth, token refresh, rate limits for 600+ providers — avoids building integration plumbing. See [[ADR-001 Nango as Integration Infrastructure]]. | Custom OAuth, Merge.dev unified API, Paragon |
-| Declarative-first storage for mappings and entity types | Integration entity type schemas and field mappings are defined in JSON manifest files, loaded into DB on startup, interpreted by a generic mapping engine. No per-integration Kotlin classes for standard mappings. See [[ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]. | Per-integration code (class per integration), database-only with SQL seeds, runtime admin API |
-| Unique index dedup over mapping table | Entities already have `source_external_id` + `source_integration_id` — partial unique index replaces separate mapping table. See [[ADR-009 Unique Index Deduplication over Mapping Table]]. | Separate integration_entity_map table |
+| Nango as integration infrastructure | Handles OAuth, token refresh, rate limits for 600+ providers — avoids building integration plumbing. See [[riven/docs/system-design/decisions/ADR-001 Nango as Integration Infrastructure]]. | Custom OAuth, Merge.dev unified API, Paragon |
+| Declarative-first storage for mappings and entity types | Integration entity type schemas and field mappings are defined in JSON manifest files, loaded into DB on startup, interpreted by a generic mapping engine. No per-integration Kotlin classes for standard mappings. See [[riven/docs/system-design/decisions/ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]. | Per-integration code (class per integration), database-only with SQL seeds, runtime admin API |
+| Unique index dedup over mapping table | Entities already have `source_external_id` + `source_integration_id` — partial unique index replaces separate mapping table. See [[riven/docs/system-design/decisions/ADR-009 Unique Index Deduplication over Mapping Table]]. | Separate integration_entity_map table |
 | Full-replace update strategy | Integration entity types are readonly — external system is source of truth, no user attributes to protect | Attribute-level merge, conflict resolution |
-| Webhook-driven connection creation | PENDING_AUTHORIZATION and AUTHORIZING removed — connections created in CONNECTED state from auth webhook. See [[ADR-010 Webhook-Driven Connection Creation]]. | Pre-creation in PENDING_AUTHORIZATION state |
-| Temporal for sync orchestration | Durable execution, built-in retry, deterministic workflow IDs for webhook dedup, activity heartbeating. See [[ADR-008 Temporal for Integration Sync Orchestration]]. | Spring @Async, message queue |
+| Webhook-driven connection creation | PENDING_AUTHORIZATION and AUTHORIZING removed — connections created in CONNECTED state from auth webhook. See [[riven/docs/system-design/decisions/ADR-010 Webhook-Driven Connection Creation]]. | Pre-creation in PENDING_AUTHORIZATION state |
+| Temporal for sync orchestration | Durable execution, built-in retry, deterministic workflow IDs for webhook dedup, activity heartbeating. See [[riven/docs/system-design/decisions/ADR-008 Temporal for Integration Sync Orchestration]]. | Spring @Async, message queue |
 | Two-pass in-workflow relationship resolution | Integrations only relate their own entity types — all targets in same sync batch. No persistent queue needed. | Persistent relationship queue table |
 | Per-record error isolation | One bad record must not fail thousands of valid records; matches SchemaMappingService's resilient pattern | Batch-level fail-all |
 
@@ -181,9 +181,9 @@ graph LR
 
 | Phase | Features | Rationale |
 |-------|----------|-----------|
-| 1 | [[Entity Provenance Tracking]], [[Integration Access Layer]] | Foundation — provenance columns and integration infrastructure unblock everything |
-| 2 | [[Integration Schema Mapping]] | Core capability — transform external data into entity payloads |
-| 3 | [[Integration Data Sync Pipeline]] | End-to-end pipeline: webhook ingestion, Temporal sync, batch dedup, health aggregation |
+| 1 | [[Entity Provenance Tracking]], [[riven/docs/system-design/feature-design/3. Active/Integration Access Layer]] | Foundation — provenance columns and integration infrastructure unblock everything |
+| 2 | [[riven/docs/system-design/feature-design/1. Planning/Integration Schema Mapping]] | Core capability — transform external data into entity payloads |
+| 3 | [[riven/docs/system-design/flows/Integration Data Sync Pipeline]] | End-to-end pipeline: webhook ingestion, Temporal sync, batch dedup, health aggregation |
 | 4 | [[Integration Identity Resolution System]] | Enhanced matching beyond source_external_id (deterministic + probabilistic) |
 | 5 | User-Facing Provenance + Conflict Management | UI for match review, provenance transparency |
 
@@ -195,8 +195,8 @@ graph LR
 
 | Domain / Sub-Domain | What We Need | Integration Point |
 |---------------------|-------------|-------------------|
-| [[Entities]] | Entity storage, type definitions, schema validation, relationships | Direct service calls (EntityService, EntityTypeService) |
-| [[Workflows]] | Temporal workflow orchestration for async sync pipeline | Temporal SDK — dedicated task queue for sync workflows |
+| [[riven/docs/system-design/domains/Entities/Entities]] | Entity storage, type definitions, schema validation, relationships | Direct service calls (EntityService, EntityTypeService) |
+| [[riven/docs/system-design/domains/Workflows/Workflows]] | Temporal workflow orchestration for async sync pipeline | Temporal SDK — dedicated task queue for sync workflows |
 | Workspaces & Users | Workspace scoping, user authentication, role-based authorization | JWT auth, @PreAuthorize, workspace_members for RLS |
 
 ### Consumed By
@@ -204,7 +204,7 @@ graph LR
 | Domain / Sub-Domain | What They Need | Integration Point |
 |---------------------|---------------|-------------------|
 | Frontend UI | Connection status, match review interface | REST API (controllers in later phases) |
-| [[Workflows]] | Integration actions — trigger syncs, query integration data | WorkflowActionType.INTEGRATION_REQUEST (existing enum, not yet implemented) |
+| [[riven/docs/system-design/domains/Workflows/Workflows]] | Integration actions — trigger syncs, query integration data | WorkflowActionType.INTEGRATION_REQUEST (existing enum, not yet implemented) |
 
 ### Cross-Cutting Concerns
 
@@ -243,7 +243,7 @@ graph LR
 | 2026-02-13 | Database-stored integration catalog | Enables future admin management without code deployments | Code-defined enum, config files |
 | 2026-02-13 | 10-state connection lifecycle | Precise UX feedback for connection health visibility | 3-state or 5-state simplified models |
 | 2026-02-13 | Five fixed source types (enum) | Clean taxonomy covers all entity creation paths | Extensible string-based types, per-integration types |
-| 2026-02-28 | Declarative-first storage for integration mappings and entity types | JSON manifest files in repo, loaded into DB on startup. Generic mapping engine interprets declarative definitions — no per-integration code for standard mappings. Lowers community contribution barrier and enables self-hoster extensibility. See [[ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]. | Per-integration Kotlin classes, SQL-only seeds, runtime admin API |
+| 2026-02-28 | Declarative-first storage for integration mappings and entity types | JSON manifest files in repo, loaded into DB on startup. Generic mapping engine interprets declarative definitions — no per-integration code for standard mappings. Lowers community contribution barrier and enables self-hoster extensibility. See [[riven/docs/system-design/decisions/ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]. | Per-integration Kotlin classes, SQL-only seeds, runtime admin API |
 | 2026-03-16 | Temporal for sync orchestration | Durable execution, built-in retry, deterministic IDs for webhook dedup | Spring @Async, message queue, synchronous |
 | 2026-03-16 | Unique index dedup over mapping table | Entities already have source columns; eliminates separate table | integration_entity_map table |
 | 2026-03-16 | Webhook-driven connection creation | Simplifies state machine, connections only exist after successful auth | Pre-creation in PENDING_AUTHORIZATION |
@@ -255,19 +255,19 @@ graph LR
 
 ## 10. Related Documents
 
-- [[Integration Access Layer]]
-- [[Integration Schema Mapping]]
-- [[Identity Resolution System]]
-- [[Predefined Integration Entity Types]]
-- [[ADR-001 Nango as Integration Infrastructure]]
-- [[ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]
+- [[riven/docs/system-design/feature-design/3. Active/Integration Access Layer]]
+- [[riven/docs/system-design/feature-design/1. Planning/Integration Schema Mapping]]
+- [[riven/docs/system-design/feature-design/2. Planned/Identity Resolution System]]
+- [[riven/docs/system-design/feature-design/3. Active/Predefined Integration Entity Types]]
+- [[riven/docs/system-design/decisions/ADR-001 Nango as Integration Infrastructure]]
+- [[riven/docs/system-design/decisions/ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]
 - [[Flow Integration Connection Lifecycle]]
-- [[Integration Data Sync Pipeline]]
-- [[ADR-008 Temporal for Integration Sync Orchestration]]
-- [[ADR-009 Unique Index Deduplication over Mapping Table]]
-- [[ADR-010 Webhook-Driven Connection Creation]]
-- [[Entities]]
-- [[Workflows]]
+- [[riven/docs/system-design/flows/Integration Data Sync Pipeline]]
+- [[riven/docs/system-design/decisions/ADR-008 Temporal for Integration Sync Orchestration]]
+- [[riven/docs/system-design/decisions/ADR-009 Unique Index Deduplication over Mapping Table]]
+- [[riven/docs/system-design/decisions/ADR-010 Webhook-Driven Connection Creation]]
+- [[riven/docs/system-design/domains/Entities/Entities]]
+- [[riven/docs/system-design/domains/Workflows/Workflows]]
 
 ---
 

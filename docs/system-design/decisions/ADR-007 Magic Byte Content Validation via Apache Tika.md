@@ -103,6 +103,6 @@ Trust the `Content-Type` header from the multipart upload request.
 
 ## Related
 
-- [[Provider-Agnostic File Storage]] -- Feature design using this content validation approach
-- [[ADR-005 Strategy Pattern with Conditional Bean Selection for Storage Providers]] -- Storage provider abstraction
-- [[File Storage]] -- Sub-domain plan for the Storage domain
+- [[riven/docs/system-design/feature-design/2. Planned/Provider-Agnostic File Storage]] -- Feature design using this content validation approach
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-005 Strategy Pattern with Conditional Bean Selection for Storage Providers]] -- Storage provider abstraction
+- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/File Storage]] -- Sub-domain plan for the Storage domain

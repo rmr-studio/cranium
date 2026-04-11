@@ -7,7 +7,7 @@ Created: 2026-02-09
 Updated: 2026-02-09
 Critical: true
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # Flow: Queue Processing
 
@@ -27,9 +27,9 @@ The Queue Processing flow is a scheduled background process that continuously po
 |---|---|---|
 |Schedule|Spring @Scheduled|Every 5 seconds (fixed delay)|
 
-**Entry Point:** [[WorkflowExecutionDispatcherService]].processQueue()
+**Entry Point:** [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionDispatcherService]].processQueue()
 
-**Stale Recovery Entry Point:** [[WorkflowExecutionDispatcherService]].recoverStaleItems() (every 60 seconds)
+**Stale Recovery Entry Point:** [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionDispatcherService]].recoverStaleItems() (every 60 seconds)
 
 ---
 
@@ -51,9 +51,9 @@ _What must be true before this flow can execute?_
 |---|---|
 |Spring Scheduler|Triggers processQueue() every 5 seconds|
 |ShedLock|Provides distributed lock across multiple app instances|
-|[[WorkflowExecutionDispatcherService]]|Orchestrates batch processing loop|
-|[[WorkflowExecutionQueueProcessorService]]|Claims batches and processes individual items|
-|[[WorkflowExecutionQueueService]]|Manages queue state transitions|
+|[[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionDispatcherService]]|Orchestrates batch processing loop|
+|[[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueProcessorService]]|Claims batches and processes individual items|
+|[[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueService]]|Manages queue state transitions|
 |Temporal WorkflowClient|Starts workflow executions|
 |PostgreSQL|Stores queue items with FOR UPDATE SKIP LOCKED|
 
@@ -125,7 +125,7 @@ sequenceDiagram
 - **Component:** Spring Scheduler
 - **Action:** Invokes processQueue() after fixed 5-second delay from previous execution
 - **Input:** None (scheduled trigger)
-- **Output:** Method invocation on [[WorkflowExecutionDispatcherService]]
+- **Output:** Method invocation on [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionDispatcherService]]
 - **Side Effects:** None
 
 #### 2. Acquire Distributed Lock
@@ -143,7 +143,7 @@ sequenceDiagram
 
 #### 3. Claim Batch (Short Transaction)
 
-- **Component:** [[WorkflowExecutionQueueProcessorService]].claimBatch()
+- **Component:** [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueProcessorService]].claimBatch()
 - **Action:** Execute `SELECT...FOR UPDATE SKIP LOCKED` query to claim pending items
 - **Input:** Batch size (constant: 10)
 - **Output:** List of up to 10 ExecutionQueueEntity (status=PENDING)
@@ -162,7 +162,7 @@ FOR UPDATE SKIP LOCKED
 
 #### 4. Early Return Check
 
-- **Component:** [[WorkflowExecutionDispatcherService]]
+- **Component:** [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionDispatcherService]]
 - **Action:** Check if claimed batch is empty
 - **Input:** Claimed items list
 - **Output:** Return early if empty, continue if items found
@@ -172,11 +172,11 @@ If queue empty: Release lock and wait for next scheduled execution.
 
 #### 5. Process Each Item (Loop)
 
-For each claimed item, [[WorkflowExecutionDispatcherService]] calls [[WorkflowExecutionQueueProcessorService]].processItem(). Each iteration runs in an **independent REQUIRES_NEW transaction**.
+For each claimed item, [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionDispatcherService]] calls [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueProcessorService]].processItem(). Each iteration runs in an **independent REQUIRES_NEW transaction**.
 
 ##### 5a. Mark Claimed
 
-- **Component:** [[WorkflowExecutionQueueService]].markClaimed()
+- **Component:** [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueService]].markClaimed()
 - **Action:** Update item status to CLAIMED, record claimedAt timestamp
 - **Input:** ExecutionQueueEntity
 - **Output:** Updated entity with status=CLAIMED
@@ -184,7 +184,7 @@ For each claimed item, [[WorkflowExecutionDispatcherService]] calls [[WorkflowEx
 
 ##### 5b. Load Workspace and Check Capacity
 
-- **Component:** [[WorkflowExecutionQueueProcessorService]]
+- **Component:** [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueProcessorService]]
 - **Action:** Load workspace entity, derive tier, count active executions
 - **Input:** item.workspaceId
 - **Output:** Workspace entity, active execution count
@@ -207,7 +207,7 @@ if (activeCount >= tier.maxConcurrentWorkflows) {
 
 ##### 5c. Branch: At Capacity
 
-- **Component:** [[WorkflowExecutionQueueService]].releaseToPending()
+- **Component:** [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueService]].releaseToPending()
 - **Action:** Reset status to PENDING, increment attemptCount, clear claimedAt
 - **Input:** ExecutionQueueEntity
 - **Output:** Updated entity with status=PENDING
@@ -217,7 +217,7 @@ if (activeCount >= tier.maxConcurrentWorkflows) {
 
 ##### 5d. Branch: Capacity Available - Dispatch
 
-- **Component:** [[WorkflowExecutionQueueProcessorService]].dispatchToTemporal()
+- **Component:** [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueProcessorService]].dispatchToTemporal()
 - **Action:** Create/reuse execution entity, start Temporal workflow
 - **Input:** ExecutionQueueEntity
 - **Output:** Temporal workflow started
@@ -236,7 +236,7 @@ if (activeCount >= tier.maxConcurrentWorkflows) {
 
 ##### 5e. Mark Dispatched
 
-- **Component:** [[WorkflowExecutionQueueService]].markDispatched()
+- **Component:** [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueService]].markDispatched()
 - **Action:** Update item status to DISPATCHED, record dispatchedAt timestamp
 - **Input:** ExecutionQueueEntity
 - **Output:** Updated entity with status=DISPATCHED
@@ -341,7 +341,7 @@ if (activeCount >= tier.maxConcurrentWorkflows) {
 
 1. Acquire ShedLock (name: "recoverStaleQueueItems", lockAtMostFor: 2m)
 2. Query items with status=CLAIMED and claimedAt < (NOW - 5 minutes)
-3. For each stale item: [[WorkflowExecutionQueueService]].releaseToPending()
+3. For each stale item: [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueService]].releaseToPending()
 4. Log count of recovered items
 5. Release lock
 
@@ -357,7 +357,7 @@ if (activeCount >= tier.maxConcurrentWorkflows) {
 
 1. Check: activeCount >= tier.maxConcurrentWorkflows
 2. Log: "Workspace at capacity"
-3. Call [[WorkflowExecutionQueueService]].releaseToPending(item)
+3. Call [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueService]].releaseToPending(item)
 4. Increment attemptCount (not counted against MAX_ATTEMPTS)
 5. Continue to next item in batch
 
@@ -577,13 +577,13 @@ flow:queue_processing
 
 |Component|Role|Can Block Flow|
 |---|---|---|
-|[[WorkflowExecutionDispatcherService]]|Orchestrates batch loop, acquires lock|No (delegates to processor)|
-|[[WorkflowExecutionQueueProcessorService]]|Claims batch, processes items|Yes (REQUIRES_NEW transactions block per item)|
-|[[WorkflowExecutionQueueService]]|State transitions (markClaimed, markDispatched, etc)|Yes (database writes)|
-|[[ExecutionQueueRepository]]|SKIP LOCKED queries, persistence|Yes (database queries)|
-|[[WorkspaceRepository]]|Load workspace for tier check|Yes (database queries)|
-|[[WorkflowDefinitionRepository]]|Load workflow definition|Yes (database queries)|
-|[[WorkflowExecutionRepository]]|Create execution entities, count active|Yes (database writes/queries)|
+|[[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionDispatcherService]]|Orchestrates batch loop, acquires lock|No (delegates to processor)|
+|[[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueProcessorService]]|Claims batch, processes items|Yes (REQUIRES_NEW transactions block per item)|
+|[[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueService]]|State transitions (markClaimed, markDispatched, etc)|Yes (database writes)|
+|[[riven/docs/system-design/domains/Workflows/Queue Management/ExecutionQueueRepository]]|SKIP LOCKED queries, persistence|Yes (database queries)|
+|[[riven/docs/system-design/domains/Workflows/Queue Management/WorkspaceRepository]]|Load workspace for tier check|Yes (database queries)|
+|[[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowDefinitionRepository]]|Load workflow definition|Yes (database queries)|
+|[[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionRepository]]|Create execution entities, count active|Yes (database writes/queries)|
 |Temporal WorkflowClient|Start workflows|Yes (network call to Temporal)|
 |ShedLock|Distributed locking|Yes (lock table writes)|
 
@@ -601,11 +601,11 @@ flow:queue_processing
 
 ## Related
 
-- [[WorkflowExecutionDispatcherService]] - Entry point for scheduled processing
-- [[WorkflowExecutionQueueProcessorService]] - Core processing logic
-- [[WorkflowExecutionQueueService]] - Queue state management
-- [[Workflow Execution]] - What happens after dispatch
-- [[Queue Management]] - Subdomain overview
+- [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionDispatcherService]] - Entry point for scheduled processing
+- [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueProcessorService]] - Core processing logic
+- [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionQueueService]] - Queue state management
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/flows/Workflow Execution]] - What happens after dispatch
+- [[riven/docs/system-design/domains/Workflows/Queue Management/Queue Management]] - Subdomain overview
 
 ---
 

@@ -6,8 +6,8 @@ tags:
 Created: 2026-02-11
 Updated: 2026-03-16
 Domains:
-  - "[[Integrations]]"
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # Feature: Integration Identity Resolution System
 
@@ -33,7 +33,7 @@ The system:
 - Compares IDENTIFIER-classified attributes (email, phone, name, company) using pg_trgm fuzzy matching with a two-phase candidate query
 - Computes weighted confidence scores with per-signal breakdown
 - Persists match suggestions with a PENDING → CONFIRMED / REJECTED / EXPIRED state machine
-- On confirmation, creates a CONNECTED_ENTITIES relationship via the existing [[EntityRelationshipService]] and assigns both entities to an identity cluster
+- On confirmation, creates a CONNECTED_ENTITIES relationship via the existing [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] and assigns both entities to an identity cluster
 - On rejection, stores the signal snapshot and re-suggests only when new or stronger signals appear
 
 Integration entities remain readonly and separate — confirming a match creates a relationship, not a merge. This keeps integration data pristine and traceable to its source while giving workspace members a unified view across all connected tools.
@@ -268,7 +268,7 @@ erDiagram
 
 | Component | Change Required | Impact |
 |-----------|-----------------|--------|
-| [[EntityService]] | Publish `EntitySavedEvent` on entity save/update | One event publish call added |
+| [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]] | Publish `EntitySavedEvent` on entity save/update | One event publish call added |
 | Queue dispatcher | Route based on `job_type` — WORKFLOW vs IDENTITY_MATCH | Dispatcher logic branching |
 | `SourceType` enum | Add `IDENTITY_MATCH` value | One enum constant |
 | `execution_queue` table | Rename + add `job_type` column + rename `workflow_definition_id` → `reference_id` | Schema migration, existing workflow code adapts to new column names |
@@ -564,7 +564,7 @@ If the identity resolution domain fails completely:
 - **Authorization model:** Workspace-scoped via `@PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")`
 - **Required permissions:** Workspace membership (existing `WorkspaceSecurity` check)
 
-Standard Supabase JWT authentication via [[AuthTokenService]]. No changes to the authentication flow.
+Standard Supabase JWT authentication via [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]]. No changes to the authentication flow.
 
 ### Data Sensitivity
 
@@ -679,7 +679,7 @@ All create, confirm, and reject operations log activity via `ActivityService` wi
 - Entity save triggers match event → Temporal workflow → suggestion created (full flow)
 - pg_trgm fuzzy query with real PostgreSQL (Testcontainers) — verifies `(value->>'value')` index expression returns correct results
 - Idempotent upsert with DB constraints (canonical ordering CHECK)
-- Relationship created on confirmation via [[EntityRelationshipService]]
+- Relationship created on confirmation via [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]]
 
 ### Engineering Review Test Additions
 
@@ -793,7 +793,7 @@ Implementation follows a 5-phase bottom-up roadmap. Each phase is fully testable
 ### Phase 3: Trigger and Dispatch
 **Requirements:** MATCH-01
 
-- [ ] `EntitySavedEvent` published from [[EntityService]] on entity save/update
+- [ ] `EntitySavedEvent` published from [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]] on entity save/update
 - [ ] `IdentityMatchTriggerService` with `@TransactionalEventListener` and `REQUIRES_NEW`
 - [ ] Queue dispatcher routing for `IDENTITY_MATCH` job type
 - [ ] Queue deduplication (skip if PENDING job exists for same entity)
@@ -803,7 +803,7 @@ Implementation follows a 5-phase bottom-up roadmap. Each phase is fully testable
 
 - [ ] `IdentityMatchConfirmationService` with confirm/reject flows
 - [ ] Cluster management (5 cases including merge)
-- [ ] Relationship creation via [[EntityRelationshipService]] with `IDENTITY_MATCH` source
+- [ ] Relationship creation via [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] with `IDENTITY_MATCH` source
 - [ ] Activity logging for all state transitions
 - [ ] Notification stub for match events
 
@@ -821,12 +821,12 @@ Implementation follows a 5-phase bottom-up roadmap. Each phase is fully testable
 
 ## Related Documents
 
-- [[Integrations]] — Parent domain for integration data flow
-- [[Entities]] — Entity domain providing entity types, attributes, relationships
-- [[Entity Semantics]] — Semantic metadata providing IDENTIFIER classification for signal detection
-- [[EntityRelationshipService]] — Creates CONNECTED_ENTITIES relationships on match confirmation
-- [[EntityService]] — Modified to publish `EntitySavedEvent` on save/update
-- [[Execution Engine]] — Temporal workflow infrastructure for async matching
+- [[riven/docs/system-design/domains/Integrations/Integrations]] — Parent domain for integration data flow
+- [[riven/docs/system-design/domains/Entities/Entities]] — Entity domain providing entity types, attributes, relationships
+- [[riven/docs/system-design/domains/Entities/Entity Semantics/Entity Semantics]] — Semantic metadata providing IDENTIFIER classification for signal detection
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] — Creates CONNECTED_ENTITIES relationships on match confirmation
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]] — Modified to publish `EntitySavedEvent` on save/update
+- [[riven/docs/system-design/domains/Workflows/Execution Engine/Execution Engine]] — Temporal workflow infrastructure for async matching
 
 ---
 

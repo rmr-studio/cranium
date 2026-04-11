@@ -92,13 +92,13 @@ No official Java/Kotlin SDK exists for Nango -- integration is via direct REST A
 - **Retry logic:** 3 retries with exponential backoff (2-second base interval), filtered on `RateLimitException`. Non-rate-limit errors (4xx, 5xx) are not retried -- they are mapped to `NangoApiException` with the HTTP status code for upstream error classification.
 - **Runtime validation** of secret key via `ensureConfigured()` rather than startup validation. This allows the application to start without Nango configured (for existing deployments or environments where integration features are not yet enabled). The first actual API call will fail with a clear error message if the key is missing.
 - **Custom exceptions:** `RateLimitException` (for 429 responses, triggers retry), `NangoApiException` (for other API errors, includes HTTP status code), `InvalidStateTransitionException` (for connection state machine violations, maps to 409 Conflict).
-- **Connection lifecycle** managed by `IntegrationConnectionService` with a 10-state `ConnectionStatus` enum. State transitions validated via `canTransitionTo()` before any status update. See [[Integration Connection Lifecycle]] for the full state machine.
+- **Connection lifecycle** managed by `IntegrationConnectionService` with a 10-state `ConnectionStatus` enum. State transitions validated via `canTransitionTo()` before any status update. See [[riven/docs/system-design/flows/Integration Connection Lifecycle]] for the full state machine.
 
 ---
 
 ## Related
 
-- [[Integration Access Layer]]
-- [[Entity Integration Sync]]
-- [[Integration Schema Mapping]]
-- [[Integration Connection Lifecycle]]
+- [[riven/docs/system-design/feature-design/3. Active/Integration Access Layer]]
+- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]]
+- [[riven/docs/system-design/feature-design/1. Planning/Integration Schema Mapping]]
+- [[riven/docs/system-design/flows/Integration Connection Lifecycle]]

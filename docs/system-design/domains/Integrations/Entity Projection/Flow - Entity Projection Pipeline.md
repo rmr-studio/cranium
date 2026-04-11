@@ -5,9 +5,9 @@ tags:
   - architecture/flow
 Created: 2026-03-29
 Domains:
-  - "[[Integrations]]"
-  - "[[Entities]]"
-  - "[[Identity Resolution]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
+  - "[[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]]"
 ---
 
 # Flow - Entity Projection Pipeline
@@ -84,10 +84,10 @@ sequenceDiagram
 
 | What Fails | User Sees | Recovery |
 |---|---|---|
-| No projection rules for source type | All entities skipped (`result.skipped = N`) | Install rules via template materialization ([[Enablement]]) |
+| No projection rules for source type | All entities skipped (`result.skipped = N`) | Install rules via template materialization ([[riven/docs/system-design/domains/Integrations/Enablement/Enablement]]) |
 | Identity resolution query fails | Entire batch errors | Temporal retry on next sync |
 | Single entity projection fails | Error count incremented, other entities continue | Investigate via projection result details |
-| Identity cluster assignment fails | Warning logged, projection succeeds | Cluster repaired by async matching pipeline ([[Identity Resolution]]) |
+| Identity cluster assignment fails | Warning logged, projection succeeds | Cluster repaired by async matching pipeline ([[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]]) |
 | Stale syncVersion detected | Entity skipped (`SKIPPED_STALE_VERSION`) | Expected behavior — newer data already present |
 
 ## Components Involved
@@ -95,14 +95,14 @@ sequenceDiagram
 - [[IntegrationSyncActivitiesImpl]]
 - [[EntityProjectionService]]
 - [[IdentityResolutionService]]
-- [[EntityRepository]]
-- [[EntityAttributeRepository]]
-- [[EntityAttributeService]]
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityRepository]]
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityAttributeRepository]]
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityAttributeService]]
 - [[IdentityClusterService]]
 - [[ProjectionRuleRepository]]
 
 ## Related
 
-- [[Data Sync]] — Passes 1-2 of sync pipeline
-- [[Enablement]] — Projection rule installation during template materialization
-- [[Identity Resolution]] — Async matching (distinct from ingestion-time resolution)
+- [[riven/docs/system-design/domains/Integrations/Data Sync/Data Sync]] — Passes 1-2 of sync pipeline
+- [[riven/docs/system-design/domains/Integrations/Enablement/Enablement]] — Projection rule installation during template materialization
+- [[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]] — Async matching (distinct from ingestion-time resolution)

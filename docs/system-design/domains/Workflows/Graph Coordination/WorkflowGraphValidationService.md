@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-08
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # WorkflowGraphValidationService
 
-Part of [[Graph Coordination]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Graph Coordination/Graph Coordination]]
 
 ---
 
@@ -45,7 +45,7 @@ Validates the structural integrity of workflow DAGs before execution, ensuring t
 
 | Component | Purpose | Coupling |
 |---|---|---|
-| [[WorkflowGraphTopologicalSorterService]] | Cycle detection via topological sort | High |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Graph Coordination/WorkflowGraphTopologicalSorterService]] | Cycle detection via topological sort | High |
 
 ### External Dependencies
 
@@ -68,7 +68,7 @@ class WorkflowGraphValidationService(
 
 | Component | How It Uses This | Notes |
 |---|---|---|
-| [[WorkflowGraphCoordinationService]] | Validates DAG before execution | Throws WorkflowValidationException if invalid |
+| [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowGraphCoordinationService]] | Validates DAG before execution | Throws WorkflowValidationException if invalid |
 
 ---
 
@@ -422,9 +422,9 @@ Integration tests should verify:
 
 ## Related
 
-- [[WorkflowGraphCoordinationService]] - Main consumer of validation
-- [[WorkflowGraphTopologicalSorterService]] - Used for cycle detection
-- [[Graph Coordination]] - Parent subdomain
+- [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowGraphCoordinationService]] - Main consumer of validation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Graph Coordination/WorkflowGraphTopologicalSorterService]] - Used for cycle detection
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Graph Coordination/Graph Coordination]] - Parent subdomain
 
 ---
 

@@ -4,7 +4,7 @@ tags:
 Created: 2026-02-17
 Updated: 2026-02-18
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 an# Sub-Domain Plan: Knowledge Layer Ingestion
 
@@ -285,9 +285,9 @@ graph LR
 | Phase | Features | Rationale |
 | ----- | -------- | --------- |
 | 1 | [[Semantically Imbued Entity Attributes]] | Foundation — semantic metadata model that all downstream features depend on. New table, service, controller, pgvector extension registration. |
-| 2 | [[Semantic Metadata Baked Entity Data Model Templates]] | Fastest path to user value — complete entity schema with semantic metadata in one action. Ships before enrichment; when Phase 3 deploys, template-created types are immediately ready. |
-| 3 | [[Data Chunking and Enrichment Pipeline]] | Core capability — queue-based trigger system, Temporal workflow, OpenAI integration, pgvector storage. Transforms semantic metadata into computational vectors. |
-| 4 | [[Knowledge Base Adaption to Schema Customisation]] | Reconciliation — schema changes trigger scoped re-embedding so vectors stay consistent with the current data model. |
+| 2 | [[riven/docs/system-design/feature-design/3. Active/Semantic Metadata Baked Entity Data Model Templates]] | Fastest path to user value — complete entity schema with semantic metadata in one action. Ships before enrichment; when Phase 3 deploys, template-created types are immediately ready. |
+| 3 | [[riven/docs/system-design/feature-design/1. Planning/Data Chunking and Enrichment Pipeline]] | Core capability — queue-based trigger system, Temporal workflow, OpenAI integration, pgvector storage. Transforms semantic metadata into computational vectors. |
+| 4 | [[riven/docs/system-design/feature-design/1. Planning/Knowledge Base Adaption to Schema Customisation]] | Reconciliation — schema changes trigger scoped re-embedding so vectors stay consistent with the current data model. |
 
 ---
 
@@ -366,12 +366,12 @@ graph LR
 
 - [[Entity]] — Parent domain; provides entity types, attributes, relationships
 - [[Semantically Imbued Entity Attributes]] — Phase 1 feature design
-- [[Semantic Metadata Baked Entity Data Model Templates]] — Phase 2 feature design
-- [[Data Chunking and Enrichment Pipeline]] — Phase 3 feature design
-- [[Knowledge Base Adaption to Schema Customisation]] — Phase 4 feature design
-- [[Schema Change Handler]] — Supporting feature design for re-embedding triggers
-- [[Data Extraction and Retrieval from Queries]] — Future: first feature of the second half
-- [[Knowledge Layer Sub-Agents]] — Future: agentic reasoning over embedded data
+- [[riven/docs/system-design/feature-design/3. Active/Semantic Metadata Baked Entity Data Model Templates]] — Phase 2 feature design
+- [[riven/docs/system-design/feature-design/1. Planning/Data Chunking and Enrichment Pipeline]] — Phase 3 feature design
+- [[riven/docs/system-design/feature-design/1. Planning/Knowledge Base Adaption to Schema Customisation]] — Phase 4 feature design
+- [[riven/docs/system-design/feature-design/1. Planning/Schema Change Handler]] — Supporting feature design for re-embedding triggers
+- [[riven/docs/system-design/feature-design/1. Planning/Data Extraction and Retrieval from Queries]] — Future: first feature of the second half
+- [[riven/docs/system-design/feature-design/1. Planning/Knowledge Layer Sub-Agents]] — Future: agentic reasoning over embedded data
 
 ---
 

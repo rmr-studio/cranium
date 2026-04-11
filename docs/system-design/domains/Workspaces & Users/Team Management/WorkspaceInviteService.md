@@ -4,13 +4,13 @@ tags:
   - component/active
   - architecture/component
 Domains:
-  - "[[Workspaces & Users]]"
+  - "[[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]"
 Created: 2026-02-08
 Updated: 2026-03-12
 ---
 # WorkspaceInviteService
 
-Part of [[Team Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Team Management/Team Management]]
 
 ## Purpose
 
@@ -33,16 +33,16 @@ Manages the workspace invitation workflow — creating invitations, handling acc
 
 ## Dependencies
 
-- [[WorkspaceService]] — addMemberToWorkspace on acceptance
+- [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceService]] — addMemberToWorkspace on acceptance
 - `WorkspaceInviteRepository` — invitation data access
 - `WorkspaceMemberRepository` — check existing membership
-- [[AuthTokenService]] — get current user ID and email
+- [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]] — get current user ID and email
 - `ActivityService` — audit logging
 
 ## Used By
 
 - `InviteController` — REST API layer
-- [[OnboardingService]] — sends workspace invitations during onboarding flow
+- [[riven/docs/system-design/domains/Workspaces & Users/Onboarding/OnboardingService]] — sends workspace invitations during onboarding flow
 
 ---
 
@@ -54,7 +54,7 @@ Manages the workspace invitation workflow — creating invitations, handling acc
 - Delegates to `createWorkspaceInvitationInternal(workspaceId, email, role, userId)`
 
 **createWorkspaceInvitationInternal:**
-- Internal method without `@PreAuthorize` — used by [[OnboardingService]] when workspace role is not yet in the JWT
+- Internal method without `@PreAuthorize` — used by [[riven/docs/system-design/domains/Workspaces & Users/Onboarding/OnboardingService]] when workspace role is not yet in the JWT
 - Accepts explicit `invitedBy` UUID parameter instead of extracting from auth token
 - Validates role != OWNER (throws IllegalArgumentException — directs to "transfer ownership methods")
 - Checks no existing member with target email via WorkspaceMemberRepository join to user table (throws ConflictException if already member)
@@ -94,7 +94,7 @@ Creates pending invitation. ADMIN+ required via `@PreAuthorize`. Delegates to `c
 
 ### `createWorkspaceInvitationInternal(workspaceId, email, role, invitedBy): WorkspaceInvite`
 
-Creates pending invitation without workspace access check. Validates role != OWNER, no existing member, no duplicate pending invite. Used by [[OnboardingService]] when workspace role is not yet in the JWT.
+Creates pending invitation without workspace access check. Validates role != OWNER, no existing member, no duplicate pending invite. Used by [[riven/docs/system-design/domains/Workspaces & Users/Onboarding/OnboardingService]] when workspace role is not yet in the JWT.
 
 ### `handleInvitationResponse(token, accepted: Boolean)`
 
@@ -126,6 +126,6 @@ Revokes pending invitation. ADMIN+ required. Only works on PENDING invitations.
 
 ## Related
 
-- [[WorkspaceService]] — Workspace and member management
-- [[AuthTokenService]] — JWT claim extraction
-- [[Team Management]] — Parent subdomain
+- [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceService]] — Workspace and member management
+- [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]] — JWT claim extraction
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Team Management/Team Management]] — Parent subdomain

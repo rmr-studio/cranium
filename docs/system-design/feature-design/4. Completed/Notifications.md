@@ -8,8 +8,8 @@ tags:
 Created: 2026-02-06
 Updated:
 Domains:
-  - "[[Knowledge]]"
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Knowledge/Knowledge]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # Feature: Notifications
 
@@ -23,7 +23,7 @@ Domains:
 	- Displaying information
 		- Knowledge agents who have been instructed to create a report xx every 7 days would sent a notification when the report is ready
 	- Requiring Action
-		- A workflow that triggers a [[Workflow Human in the Loop]] intervention would require manual action by a member of the workspace
+		- A workflow that triggers a [[riven/docs/system-design/feature-design/5. Backlog/Workflow Human in the Loop]] intervention would require manual action by a member of the workspace
 			- It could be a select set of individuals, or any one within the workspace
 			- A notification would be sent informing them that there is actions to be performed
 

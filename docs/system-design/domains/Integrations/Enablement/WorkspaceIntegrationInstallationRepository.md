@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2025-07-17
 Domains:
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 # WorkspaceIntegrationInstallationRepository
 
-Part of [[Enablement]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/Enablement]]
 
 ## Purpose
 
@@ -32,7 +32,7 @@ JPA repository for `WorkspaceIntegrationInstallationEntity` persistence — prov
 
 ## Used By
 
-- [[IntegrationEnablementService]] — installation CRUD during enable/disable lifecycle
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/IntegrationEnablementService]] — installation CRUD during enable/disable lifecycle
 
 ---
 
@@ -88,6 +88,6 @@ fun findSoftDeletedByWorkspaceIdAndIntegrationDefinitionId(
 
 ## Related
 
-- [[WorkspaceIntegrationInstallationEntity]] — JPA entity
-- [[IntegrationEnablementService]] — primary consumer for installation lifecycle
-- [[Enablement]] — parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/WorkspaceIntegrationInstallationEntity]] — JPA entity
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/IntegrationEnablementService]] — primary consumer for installation lifecycle
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/Enablement]] — parent subdomain

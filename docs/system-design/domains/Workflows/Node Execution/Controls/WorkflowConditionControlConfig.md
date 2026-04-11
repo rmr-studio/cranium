@@ -1,6 +1,6 @@
 ---
 Created:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 Updated: 2026-02-09
 ---
 # WorkflowConditionControlConfig
@@ -16,15 +16,15 @@ Evaluates a SQL-like boolean expression to branch workflow execution, optionally
 ## Responsibilities
 
 - Configure condition expression and optional entity context for evaluation
-- Validate expression syntax via [[WorkflowNodeExpressionParserService]]
-- Execute expression evaluation via [[WorkflowNodeExpressionEvaluatorService]]
-- Load entity context via [[EntityContextService]] when contextEntityId provided
+- Validate expression syntax via [[riven/docs/system-design/domains/Workflows/State Management/WorkflowNodeExpressionParserService]]
+- Execute expression evaluation via [[riven/docs/system-design/domains/Workflows/State Management/WorkflowNodeExpressionEvaluatorService]]
+- Load entity context via [[riven/docs/system-design/domains/Workflows/State Management/EntityContextService]] when contextEntityId provided
 - Return ConditionOutput with boolean result for DAG branching decisions
 
 **Explicitly NOT responsible for:**
-- Graph traversal or edge activation (handled by [[WorkflowGraphCoordinationService]])
-- Expression parsing implementation (delegated to [[WorkflowNodeExpressionParserService]])
-- Entity data retrieval (delegated to [[EntityContextService]])
+- Graph traversal or edge activation (handled by [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowGraphCoordinationService]])
+- Expression parsing implementation (delegated to [[riven/docs/system-design/domains/Workflows/State Management/WorkflowNodeExpressionParserService]])
+- Entity data retrieval (delegated to [[riven/docs/system-design/domains/Workflows/State Management/EntityContextService]])
 
 ---
 
@@ -34,10 +34,10 @@ Evaluates a SQL-like boolean expression to branch workflow execution, optionally
 
 | Component | Purpose | Coupling |
 |-----------|---------|----------|
-| [[WorkflowNodeExpressionParserService]] | Parses SQL-like expression into AST for validation and execution | High |
-| [[WorkflowNodeExpressionEvaluatorService]] | Evaluates parsed AST against context data | High |
-| [[EntityContextService]] | Builds entity data map for expression evaluation context | Medium |
-| [[WorkflowNodeConfigValidationService]] | Validates config fields (required strings, UUIDs, durations) | Low |
+| [[riven/docs/system-design/domains/Workflows/State Management/WorkflowNodeExpressionParserService]] | Parses SQL-like expression into AST for validation and execution | High |
+| [[riven/docs/system-design/domains/Workflows/State Management/WorkflowNodeExpressionEvaluatorService]] | Evaluates parsed AST against context data | High |
+| [[riven/docs/system-design/domains/Workflows/State Management/EntityContextService]] | Builds entity data map for expression evaluation context | Medium |
+| [[riven/docs/system-design/domains/Workflows/Node Execution/WorkflowNodeConfigValidationService]] | Validates config fields (required strings, UUIDs, durations) | Low |
 
 ---
 
@@ -45,8 +45,8 @@ Evaluates a SQL-like boolean expression to branch workflow execution, optionally
 
 | Component | How It Uses This | Notes |
 |-----------|------------------|-------|
-| [[WorkflowGraphCoordinationService]] | Reads ConditionOutput.result to determine branch activation | DAG coordinator uses boolean result to decide which edges to follow |
-| [[WorkflowNodeConfigRegistry]] | Discovers and registers at startup | Via reflection on sealed class hierarchy |
+| [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowGraphCoordinationService]] | Reads ConditionOutput.result to determine branch activation | DAG coordinator uses boolean result to decide which edges to follow |
+| [[riven/docs/system-design/domains/Workflows/Node Execution/WorkflowNodeConfigRegistry]] | Discovers and registers at startup | Via reflection on sealed class hierarchy |
 
 ---
 
@@ -149,7 +149,7 @@ Supports SQL-like syntax for boolean expressions:
 
 ### DAG Coordination
 
-The `result` boolean in ConditionOutput is consumed by [[WorkflowGraphCoordinationService]] to determine which branch edges to activate:
+The `result` boolean in ConditionOutput is consumed by [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowGraphCoordinationService]] to determine which branch edges to activate:
 
 1. Condition node executes and returns ConditionOutput
 2. DAG coordinator reads ConditionOutput.result
@@ -171,7 +171,7 @@ This is the primary integration point between condition evaluation and workflow 
 
 **Validation process:**
 1. Check expression not blank
-2. Attempt to parse expression with [[WorkflowNodeExpressionParserService]]
+2. Attempt to parse expression with [[riven/docs/system-design/domains/Workflows/State Management/WorkflowNodeExpressionParserService]]
 3. Validate contextEntityId format (UUID or template syntax)
 4. Validate timeout is non-negative
 
@@ -199,10 +199,10 @@ This is the primary integration point between condition evaluation and workflow 
 
 ## Related
 
-- [[Control Flow Nodes]] — category-level overview of all control types
-- [[WorkflowNodeConfig]] — sealed parent class
-- [[WorkflowControlConfig]] — parent sealed interface
-- [[WorkflowNodeExpressionParserService]] — expression syntax parser
-- [[WorkflowNodeExpressionEvaluatorService]] — expression evaluator
-- [[WorkflowGraphCoordinationService]] — DAG coordinator that consumes ConditionOutput
-- [[EntityContextService]] — entity data loader
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Controls/Control Flow Nodes]] — category-level overview of all control types
+- [[riven/apps/client/lib/types/docs/WorkflowNodeConfig]] — sealed parent class
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Controls/WorkflowControlConfig]] — parent sealed interface
+- [[riven/docs/system-design/domains/Workflows/State Management/WorkflowNodeExpressionParserService]] — expression syntax parser
+- [[riven/docs/system-design/domains/Workflows/State Management/WorkflowNodeExpressionEvaluatorService]] — expression evaluator
+- [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowGraphCoordinationService]] — DAG coordinator that consumes ConditionOutput
+- [[riven/docs/system-design/domains/Workflows/State Management/EntityContextService]] — entity data loader

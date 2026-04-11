@@ -6,9 +6,9 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-21
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
-Part of [[Querying]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/Querying]]
 
 # RelationshipSqlGenerator
 
@@ -47,9 +47,9 @@ Generates parameterized EXISTS/NOT EXISTS subqueries for filtering entities by t
 
 |Component|Purpose|Coupling|
 |---|---|---|
-|[[SqlFragment]]|Immutable container for SQL with parameters|High|
-|[[ParameterNameGenerator]]|Generates unique parameter names and alias counters|High|
-|[[QueryFilter]]|Filter model for nested filter processing|Medium|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/SqlFragment]]|Immutable container for SQL with parameters|High|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/ParameterNameGenerator]]|Generates unique parameter names and alias counters|High|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/QueryFilter]]|Filter model for nested filter processing|Medium|
 
 ### External Dependencies
 
@@ -71,7 +71,7 @@ class RelationshipSqlGenerator
 
 |Component|How It Uses This|Notes|
 |---|---|---|
-|[[AttributeFilterVisitor]]|Calls generate() for each RELATIONSHIP filter node|Main consumer - provides nestedFilterVisitor callback|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/AttributeFilterVisitor]]|Calls generate() for each RELATIONSHIP filter node|Main consumer - provides nestedFilterVisitor callback|
 
 ---
 
@@ -731,11 +731,11 @@ EXISTS (
 
 ## Related
 
-- [[Querying]] - Parent subdomain
-- [[AttributeFilterVisitor]] - Main consumer, provides callback
-- [[AttributeSqlGenerator]] - Sibling generator for attributes
-- [[SqlFragment]] - Immutable SQL container
-- [[ParameterNameGenerator]] - Unique parameter name and alias generation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/Querying]] - Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/AttributeFilterVisitor]] - Main consumer, provides callback
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/AttributeSqlGenerator]] - Sibling generator for attributes
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/SqlFragment]] - Immutable SQL container
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/ParameterNameGenerator]] - Unique parameter name and alias generation
 
 ---
 

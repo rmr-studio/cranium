@@ -5,7 +5,7 @@ tags:
   - architecture/component
 Created: 2026-03-26
 Domains:
-  - "[[Catalog]]"
+  - "[[riven/docs/system-design/domains/Catalog/Catalog]]"
 ---
 # CoreModelDefinition
 
@@ -52,7 +52,7 @@ Each concrete model is a Kotlin `object` extending `CoreModelDefinition`. Proper
 
 **Projection accept rules:**
 
-Each core model can declare `projectionAccepts` — a list of `ProjectionAcceptRule` entries specifying which integration entity types should project into this core model. Rules match on `(LifecycleDomain, SemanticGroup)` pairs, making them source-agnostic — the same rule applies regardless of which integration the data came from. During template materialization, [[TemplateMaterializationService]] reads these rules and installs corresponding [[ProjectionRuleEntity]] rows. The `relationshipName` field (typically `"source-data"`) specifies the name of the relationship definition linking integration → core entity types.
+Each core model can declare `projectionAccepts` — a list of `ProjectionAcceptRule` entries specifying which integration entity types should project into this core model. Rules match on `(LifecycleDomain, SemanticGroup)` pairs, making them source-agnostic — the same rule applies regardless of which integration the data came from. During template materialization, [[riven/docs/system-design/domains/Integrations/Enablement/TemplateMaterializationService]] reads these rules and installs corresponding [[ProjectionRuleEntity]] rows. The `relationshipName` field (typically `"source-data"`) specifies the name of the relationship definition linking integration → core entity types.
 
 ---
 
@@ -81,9 +81,9 @@ Converts the model's relationship definitions to `NormalizedRelationship` object
 
 - [[CoreModelRegistry]] -- registry that collects and validates all definitions
 - [[CoreModelCatalogService]] -- service that triggers catalog population from these definitions
-- [[ManifestUpsertService]] -- downstream persistence layer that receives the resolved output
+- [[riven/docs/system-design/domains/Catalog/Manifest Pipeline/ManifestUpsertService]] -- downstream persistence layer that receives the resolved output
 - [[EntityProjectionService]] — Consumes projection rules at runtime
-- [[TemplateMaterializationService]] — Installs projection rules from these declarations
+- [[riven/docs/system-design/domains/Integrations/Enablement/TemplateMaterializationService]] — Installs projection rules from these declarations
 - [[Core Model Definitions]] -- parent subdomain
 
 ---

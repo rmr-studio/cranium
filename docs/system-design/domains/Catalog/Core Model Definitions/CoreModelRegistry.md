@@ -5,7 +5,7 @@ tags:
   - architecture/component
 Created: 2026-03-26
 Domains:
-  - "[[Catalog]]"
+  - "[[riven/docs/system-design/domains/Catalog/Catalog]]"
 ---
 # CoreModelRegistry
 
@@ -22,7 +22,7 @@ Kotlin `object` singleton that serves as the central registry for all core model
 - Maintain the canonical list of all registered `CoreModelSet` instances
 - Validate all models lazily on first access -- check for duplicate keys, invalid relationship cross-references, and missing target models
 - Provide lookup methods for individual model sets and model definitions by key
-- Convert model sets to `ResolvedManifest` objects for consumption by [[ManifestUpsertService]]
+- Convert model sets to `ResolvedManifest` objects for consumption by [[riven/docs/system-design/domains/Catalog/Manifest Pipeline/ManifestUpsertService]]
 
 ---
 
@@ -73,7 +73,7 @@ Convert all registered model sets to resolved manifests. This is the primary ent
 
 ### `findModelsAccepting(domain: LifecycleDomain, group: SemanticGroup): List<Pair<CoreModelDefinition, ProjectionAcceptRule>>`
 
-Find all core models whose `projectionAccepts` includes a rule matching the given (domain, group) pair. Returns the matching models along with the specific accept rule that matched. Used by [[TemplateMaterializationService]] during projection rule installation.
+Find all core models whose `projectionAccepts` includes a rule matching the given (domain, group) pair. Returns the matching models along with the specific accept rule that matched. Used by [[riven/docs/system-design/domains/Integrations/Enablement/TemplateMaterializationService]] during projection rule installation.
 
 ### `validate()`
 
@@ -93,6 +93,6 @@ Check all registered models for duplicate keys, invalid relationship references,
 
 - [[CoreModelDefinition]] -- the base class for individual model definitions
 - [[CoreModelCatalogService]] -- the Spring service that consumes this registry at boot time
-- [[ManifestUpsertService]] -- downstream persistence for resolved manifests
-- [[TemplateMaterializationService]] — finds target core models for projection rule installation via `findModelsAccepting()`
+- [[riven/docs/system-design/domains/Catalog/Manifest Pipeline/ManifestUpsertService]] -- downstream persistence for resolved manifests
+- [[riven/docs/system-design/domains/Integrations/Enablement/TemplateMaterializationService]] — finds target core models for projection rule installation via `findModelsAccepting()`
 - [[Core Model Definitions]] -- parent subdomain

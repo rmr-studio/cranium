@@ -6,11 +6,11 @@ tags:
 Created: 2026-03-07
 Updated: 2026-03-12
 Domains:
-  - "[[Storage]]"
+  - "[[riven/docs/system-design/domains/Storage/Storage]]"
 ---
 # StorageService
 
-Part of [[File Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/File Management]]
 
 ## Purpose
 
@@ -35,20 +35,20 @@ Central orchestrator for all file storage operations. Coordinates content valida
 
 ## Dependencies
 
-- [[ContentValidationService]] -- MIME detection, content type/size validation, SVG sanitization, storage key generation
-- [[SignedUrlService]] -- HMAC token generation/validation, download URL construction
-- [[StorageProvider]] -- Pluggable provider interface for physical file I/O (upload, download, delete, exists, signed URLs)
-- [[StorageConfigurationProperties]] -- Presigned upload expiry, signed URL secret and expiry config
-- [[FileMetadataRepository]] -- File metadata persistence
-- [[ActivityService]] -- Audit trail logging
-- [[AuthTokenService]] -- JWT user ID extraction
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/ContentValidationService]] -- MIME detection, content type/size validation, SVG sanitization, storage key generation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/SignedUrlService]] -- HMAC token generation/validation, download URL construction
+- [[riven/docs/system-design/domains/Storage/Provider Adapters/StorageProvider]] -- Pluggable provider interface for physical file I/O (upload, download, delete, exists, signed URLs)
+- [[riven/docs/system-design/domains/Storage/Provider Adapters/StorageConfigurationProperties]] -- Presigned upload expiry, signed URL secret and expiry config
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/FileMetadataRepository]] -- File metadata persistence
+- [[riven/docs/system-design/domains/Workspaces & Users/User Management/ActivityService]] -- Audit trail logging
+- [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]] -- JWT user ID extraction
 
 ## Used By
 
-- [[StorageController]] -- REST endpoints for all storage operations
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/StorageController]] -- REST endpoints for all storage operations
 - `UserService` -- Avatar uploads via `uploadUserFile`
-- [[WorkspaceService]] -- Workspace avatar upload during creation via `uploadFileInternal`
-- [[OnboardingService]] -- File uploads during onboarding flow via `uploadFileInternal`
+- [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceService]] -- Workspace avatar upload during creation via `uploadFileInternal`
+- [[riven/docs/system-design/domains/Workspaces & Users/Onboarding/OnboardingService]] -- File uploads during onboarding flow via `uploadFileInternal`
 
 ---
 
@@ -81,7 +81,7 @@ Two-phase flow for direct-to-provider upload:
 
 ### Signed URL generation
 
-`generateProviderSignedUrl()` tries the provider's native signed URL first. On `UnsupportedOperationException` (e.g. local filesystem), falls back to [[SignedUrlService]] HMAC-based tokens routed through the download endpoint.
+`generateProviderSignedUrl()` tries the provider's native signed URL first. On `UnsupportedOperationException` (e.g. local filesystem), falls back to [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/SignedUrlService]] HMAC-based tokens routed through the download endpoint.
 
 ### Download (token-authorized)
 
@@ -109,7 +109,7 @@ Upload a file with full validation, storage, metadata persistence, and activity 
 
 ### `uploadFileInternal(workspaceId, domain, file, metadata?): UploadFileResponse`
 
-Internal method without `@PreAuthorize` -- used by [[WorkspaceService]] for avatar uploads during workspace creation and by [[OnboardingService]] when the workspace role is not yet in the JWT. Contains the full upload logic (identical to `uploadFile` but bypasses workspace access check).
+Internal method without `@PreAuthorize` -- used by [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceService]] for avatar uploads during workspace creation and by [[riven/docs/system-design/domains/Workspaces & Users/Onboarding/OnboardingService]] when the workspace role is not yet in the JWT. Contains the full upload logic (identical to `uploadFile` but bypasses workspace access check).
 
 ### `uploadUserFile(userId, domain, file): String`
 
@@ -183,10 +183,10 @@ Download a file using a signed URL token. No `@PreAuthorize` -- the token is the
 
 ## Related
 
-- [[ContentValidationService]] -- MIME detection and validation
-- [[SignedUrlService]] -- HMAC token generation
-- [[StorageProvider]] -- Provider interface for physical I/O
-- [[StorageController]] -- REST endpoint layer
-- [[File Management]] -- Parent subdomain
-- [[Flow - File Upload]] -- End-to-end upload flow
-- [[Flow - Signed URL Download]] -- End-to-end download flow
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/ContentValidationService]] -- MIME detection and validation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/SignedUrlService]] -- HMAC token generation
+- [[riven/docs/system-design/domains/Storage/Provider Adapters/StorageProvider]] -- Provider interface for physical I/O
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/StorageController]] -- REST endpoint layer
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/File Management]] -- Parent subdomain
+- [[riven/docs/system-design/flows/Flow - File Upload]] -- End-to-end upload flow
+- [[riven/docs/system-design/flows/Flow - Signed URL Download]] -- End-to-end download flow

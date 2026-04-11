@@ -10,7 +10,7 @@ Updated: 2026-03-15
 Domains:
   - "[[Workspace]]"
   - "[[User]]"
-Backend-Feature: "[[Declarative Manifest Catalog and Consumption Pipeline]]"
+Backend-Feature: "[[riven/docs/system-design/feature-design/3. Active/Declarative Manifest Catalog and Consumption Pipeline]]"
 Pages:
   - "[[Dashboard Layout]]"
 ---
@@ -379,9 +379,9 @@ None.
 
 ## Related Documents
 
-- [[Auth Guard & App Shell]] — Dashboard auth flow that gates onboarding
-- [[Avatar Uploader]] — Shared crop dialog used by profile and workspace steps
-- [[Declarative Manifest Catalog and Consumption Pipeline]] — Backend template/bundle system consumed in step 3
+- [[riven/docs/frontend-design/architecture/Auth Guard & App Shell]] — Dashboard auth flow that gates onboarding
+- [[riven/docs/frontend-design/architecture/Avatar Uploader]] — Shared crop dialog used by profile and workspace steps
+- [[riven/docs/system-design/feature-design/3. Active/Declarative Manifest Catalog and Consumption Pipeline]] — Backend template/bundle system consumed in step 3
 
 ---
 

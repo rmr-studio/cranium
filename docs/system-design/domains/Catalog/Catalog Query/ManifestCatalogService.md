@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-06
 Domains:
-  - "[[Catalog]]"
+  - "[[riven/docs/system-design/domains/Catalog/Catalog]]"
 ---
 # ManifestCatalogService
 
-Part of [[Catalog Query]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Catalog Query/Catalog Query]]
 
 ## Purpose
 
@@ -42,7 +42,7 @@ Read-only query service for the manifest catalog. Provides downstream services w
 ## Used By
 
 - Downstream services — consumed via direct service injection (no REST controllers)
-- [[TemplateInstallationService]] — queries template manifests and bundles for workspace installation
+- [[riven/docs/system-design/domains/Catalog/Template Installation/TemplateInstallationService]] — queries template manifests and bundles for workspace installation
 
 ---
 
@@ -87,12 +87,12 @@ Returns all entity types belonging to the specified manifest.
 ## Gotchas
 
 - **No workspace scoping:** This is a global catalog — no `workspaceId` parameter on any method. No `@PreAuthorize` annotations.
-- **No write operations:** This service is strictly read-only. All writes go through [[ManifestUpsertService]] and [[ManifestReconciliationService]].
+- **No write operations:** This service is strictly read-only. All writes go through [[riven/docs/system-design/domains/Catalog/Manifest Pipeline/ManifestUpsertService]] and [[riven/docs/system-design/domains/Catalog/Manifest Pipeline/ManifestReconciliationService]].
 
 ---
 
 ## Related
 
-- [[ManifestUpsertService]] — Writes the data this service reads
-- [[ManifestReconciliationService]] — Sets stale flags that affect query results
-- [[Catalog Query]] — Parent subdomain
+- [[riven/docs/system-design/domains/Catalog/Manifest Pipeline/ManifestUpsertService]] — Writes the data this service reads
+- [[riven/docs/system-design/domains/Catalog/Manifest Pipeline/ManifestReconciliationService]] — Sets stale flags that affect query results
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Catalog Query/Catalog Query]] — Parent subdomain

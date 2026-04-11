@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-08
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # SqlFragment
 
-Part of [[Querying]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/Querying]]
 
 ## Purpose
 
@@ -34,11 +34,11 @@ None (pure data class)
 
 ## Used By
 
-- [[AttributeFilterVisitor]] — Combines fragments with AND/OR logic
-- [[AttributeSqlGenerator]] — Returns fragments for attribute filters
-- [[RelationshipSqlGenerator]] — Returns fragments for relationship subqueries
-- [[EntityQueryAssembler]] — Final query assembly
-- [[EntityQueryService]] — Executes assembled fragments
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/AttributeFilterVisitor]] — Combines fragments with AND/OR logic
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/AttributeSqlGenerator]] — Returns fragments for attribute filters
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/RelationshipSqlGenerator]] — Returns fragments for relationship subqueries
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/EntityQueryAssembler]] — Final query assembly
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/EntityQueryService]] — Executes assembled fragments
 
 ---
 
@@ -87,6 +87,6 @@ Wraps SQL with prefix and suffix. Useful for EXISTS subqueries. Parameters uncha
 
 ## Related
 
-- [[ParameterNameGenerator]] — Ensures parameter names are unique
-- [[AttributeFilterVisitor]] — Uses fragments for composition
-- [[Querying]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/ParameterNameGenerator]] — Ensures parameter names are unique
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/AttributeFilterVisitor]] — Uses fragments for composition
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/Querying]] — Parent subdomain

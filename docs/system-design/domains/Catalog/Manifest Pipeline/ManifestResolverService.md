@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-06
 Domains:
-  - "[[Catalog]]"
+  - "[[riven/docs/system-design/domains/Catalog/Catalog]]"
 ---
 # ManifestResolverService
 
-Part of [[Manifest Pipeline]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/Manifest Pipeline]]
 
 ## Purpose
 
@@ -38,7 +38,7 @@ Pure in-memory transformation service that resolves scanned manifests into fully
 
 ## Used By
 
-- [[ManifestLoaderService]] — Invokes resolver as part of the [[Flow - Manifest Loading Pipeline|manifest loading pipeline]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestLoaderService]] — Invokes resolver as part of the [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/Flow - Manifest Loading Pipeline|manifest loading pipeline]]
 
 ---
 
@@ -93,7 +93,7 @@ Resolves a single scanned manifest through all four phases: entity type resoluti
 
 ### `resolveBundle(scanned: ScannedManifest): ResolvedBundle`
 
-Resolves a bundle manifest into a `ResolvedBundle`. Lightweight — extracts key, name, description, manifestVersion, and templateKeys list from the JSON. No entity type resolution; that happens at installation time via [[TemplateInstallationService]]. Requires `scanned.type == BUNDLE`.
+Resolves a bundle manifest into a `ResolvedBundle`. Lightweight — extracts key, name, description, manifestVersion, and templateKeys list from the JSON. No entity type resolution; that happens at installation time via [[riven/docs/system-design/domains/Catalog/Template Installation/TemplateInstallationService]]. Requires `scanned.type == BUNDLE`.
 
 ---
 
@@ -104,14 +104,14 @@ Resolves a bundle manifest into a `ResolvedBundle`. Lightweight — extracts key
 - **Field mappings are lenient:** Unlike entity types and relationships, invalid field mapping keys do not mark the manifest stale — they are silently skipped with a warning. This allows partial field mappings to succeed
 - **Full format cardinality:** Relationships using the full `targetRules` format always default to `ONE_TO_MANY`. Per-rule overrides are specified via `cardinalityOverride` on individual target rules
 - **Shorthand requires both fields:** A shorthand relationship must have both `targetEntityTypeKey` and `cardinality` present. Missing either returns null for that relationship
-- **Bundle resolution is trivial:** `resolveBundle()` does pure field extraction with no validation beyond the `require(type == BUNDLE)` check. Schema validation happens upstream in [[ManifestScannerService]]. Entity type resolution happens downstream at installation time.
+- **Bundle resolution is trivial:** `resolveBundle()` does pure field extraction with no validation beyond the `require(type == BUNDLE)` check. Schema validation happens upstream in [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestScannerService]]. Entity type resolution happens downstream at installation time.
 
 ---
 
 ## Related
 
-- [[ManifestScannerService]] — Produces the `ScannedManifest` input
-- [[ManifestUpsertService]] — Consumes the `ResolvedManifest` output for persistence
-- [[ManifestLoaderService]] — Orchestrates the full pipeline
-- [[Flow - Manifest Loading Pipeline]] — End-to-end flow
-- [[Manifest Pipeline]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestScannerService]] — Produces the `ScannedManifest` input
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestUpsertService]] — Consumes the `ResolvedManifest` output for persistence
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestLoaderService]] — Orchestrates the full pipeline
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/Flow - Manifest Loading Pipeline]] — End-to-end flow
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/Manifest Pipeline]] — Parent subdomain

@@ -1,7 +1,7 @@
 ---
 Created: 2026-02-08
 Domains:
-  - "[[Workspaces & Users]]"
+  - "[[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]"
 tags:
   - architecture/subdomain
   - domain/workspace
@@ -18,12 +18,12 @@ WorkspaceService is the single service here, enforcing authorization rules via W
 
 | Component | Purpose | Type |
 | --------- | ------- | ---- |
-| [[WorkspaceService]] | Workspace CRUD, member management, activity logging | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Workspace Management/WorkspaceService]] | Workspace CRUD, member management, activity logging | Service |
 | WorkspaceController | REST endpoints for workspace operations | Controller |
 | WorkspaceRepository | Workspace data access | Repository |
 | WorkspaceMemberRepository | Membership data access | Repository |
 
-Cross-references: [[WorkspaceSecurity]] (from Auth & Authorization subdomain) — used by WorkspaceService via @PreAuthorize for authorization checks.
+Cross-references: [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]] (from Auth & Authorization subdomain) — used by WorkspaceService via @PreAuthorize for authorization checks.
 
 ## Endpoints
 

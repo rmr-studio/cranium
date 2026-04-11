@@ -6,8 +6,8 @@ Created: 2026-02-09
 Updated: 2026-02-09
 Critical: true
 Domains:
-  - "[[Entities]]"
-  - "[[Workspaces & Users]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
+  - "[[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]"
 ---
 # Flow: Entity CRUD
 
@@ -15,7 +15,7 @@ Domains:
 
 ## Overview
 
-Creates, updates, retrieves, and deletes entity instances within a workspace. This flow validates entity payloads against type schemas, manages relationships (including bidirectional sync), enforces unique constraints, and logs all operations for audit. It represents the core user-facing CRUD operations for the [[Entities]] domain with workspace-scoped data isolation via [[Workspaces & Users]].
+Creates, updates, retrieves, and deletes entity instances within a workspace. This flow validates entity payloads against type schemas, manages relationships (including bidirectional sync), enforces unique constraints, and logs all operations for audit. It represents the core user-facing CRUD operations for the [[riven/docs/system-design/domains/Entities/Entities]] domain with workspace-scoped data isolation via [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]].
 
 ---
 
@@ -45,10 +45,10 @@ Creates, updates, retrieves, and deletes entity instances within a workspace. Th
 |Actor|Role in Flow|
 |---|---|
 |User|Initiates CRUD operation via UI or API|
-|[[WorkspaceSecurity]]|Cross-domain validation of workspace access|
-|[[EntityService]]|Orchestrates CRUD operations|
-|[[EntityValidationService]]|Validates payload against schema|
-|[[EntityRelationshipService]]|Manages instance relationships and bidirectional sync|
+|[[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]]|Cross-domain validation of workspace access|
+|[[riven/docs/system-design/domains/Entities/Entity Management/EntityService]]|Orchestrates CRUD operations|
+|[[riven/docs/system-design/domains/Entities/Validation/EntityValidationService]]|Validates payload against schema|
+|[[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]]|Manages instance relationships and bidirectional sync|
 |`ActivityService`|Logs operations for audit trail|
 
 ---
@@ -110,12 +110,12 @@ sequenceDiagram
 - **Component:** `EntityController`
 - **Action:** Receives POST request with workspace ID, entity type ID, and payload
 - **Input:** `SaveEntityRequest` with optional entity ID (update), attribute payload, relationship payload, icon
-- **Output:** Passes to [[EntityService]]
+- **Output:** Passes to [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]]
 - **Side Effects:** None (authorization not yet checked)
 
 #### 2. Workspace Authorization
 
-- **Component:** [[WorkspaceSecurity]] (cross-domain)
+- **Component:** [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]] (cross-domain)
 - **Action:** `@PreAuthorize` evaluates `@workspaceSecurity.hasWorkspace(#workspaceId)`
 - **Input:** Workspace ID from request path
 - **Output:** Authorization granted or exception thrown
@@ -123,7 +123,7 @@ sequenceDiagram
 
 #### 3. Determine Operation Type
 
-- **Component:** [[EntityService]]
+- **Component:** [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]]
 - **Action:** Checks if `request.id` is present to determine create vs. update
 - **Input:** `SaveEntityRequest.id`
 - **Output:** Decision: new `EntityEntity` or copy of existing
@@ -131,7 +131,7 @@ sequenceDiagram
 
 #### 4. Split Payload
 
-- **Component:** [[EntityService]]
+- **Component:** [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]]
 - **Action:** Separates payload into primitive attributes and relationship references
 - **Input:** `Map<UUID, EntityAttributeRequest>` from request
 - **Output:**
@@ -141,15 +141,15 @@ sequenceDiagram
 
 #### 5. Fetch Entity Type Schema
 
-- **Component:** [[EntityService]]
-- **Action:** Retrieves entity type definition from [[EntityTypeService]]
+- **Component:** [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]]
+- **Action:** Retrieves entity type definition from [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]]
 - **Input:** Entity type ID
 - **Output:** `EntityTypeEntity` with schema
 - **Side Effects:** Throws exception if type not found
 
 #### 6. Validate Payload
 
-- **Component:** [[EntityValidationService]]
+- **Component:** [[riven/docs/system-design/domains/Entities/Validation/EntityValidationService]]
 - **Action:** Validates attribute payload against type schema
 - **Input:** `EntityEntity`, `EntityTypeEntity`
 - **Output:** `List<String>` of validation errors (empty if valid)
@@ -157,7 +157,7 @@ sequenceDiagram
 
 #### 7. Persist Entity
 
-- **Component:** [[EntityService]]
+- **Component:** [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]]
 - **Action:** Saves entity to database (INSERT for create, UPDATE for update)
 - **Input:** `EntityEntity` with validated payload
 - **Output:** Saved `EntityEntity` with generated ID
@@ -165,7 +165,7 @@ sequenceDiagram
 
 #### 8. Enforce Unique Constraints
 
-- **Component:** [[EntityService]] via [[EntityTypeAttributeService]]
+- **Component:** [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]] via [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]]
 - **Action:**
   - Extracts unique attributes from type schema
   - Checks uniqueness (excluding current entity for updates)
@@ -176,7 +176,7 @@ sequenceDiagram
 
 #### 9. Save Relationships
 
-- **Component:** [[EntityRelationshipService]]
+- **Component:** [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]]
 - **Action:**
   - Compares previous vs. current relationships
   - Adds new relationships, removes old ones
@@ -196,7 +196,7 @@ sequenceDiagram
 
 #### 11. Fetch Impacted Entities
 
-- **Component:** [[EntityService]]
+- **Component:** [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]]
 - **Action:** If relationships created inverse links, fetches those entities with updated relationships hydrated
 - **Input:** Set of impacted entity IDs
 - **Output:** `Map<UUID, List<Entity>>` grouped by type ID
@@ -242,10 +242,10 @@ sequenceDiagram
 
 #### Key Steps
 
-1. **[[WorkspaceSecurity]]** — Validates workspace access (cross-domain check)
-2. **[[EntityService]]** — Queries entities by type ID, validates workspace ownership
-3. **[[EntityRelationshipService]]** — Batch-fetches relationships for all entities
-4. **[[EntityService]]** — Converts database entities to API models with hydrated relationships
+1. **[[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]]** — Validates workspace access (cross-domain check)
+2. **[[riven/docs/system-design/domains/Entities/Entity Management/EntityService]]** — Queries entities by type ID, validates workspace ownership
+3. **[[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]]** — Batch-fetches relationships for all entities
+4. **[[riven/docs/system-design/domains/Entities/Entity Management/EntityService]]** — Converts database entities to API models with hydrated relationships
 5. **`EntityController`** — Returns entities to client
 
 ---
@@ -288,11 +288,11 @@ sequenceDiagram
 
 #### Key Steps
 
-1. **[[WorkspaceSecurity]]** — Validates workspace access
-2. **[[EntityRelationshipService]]** — Finds entities that link TO the deleted entities (impacted sources)
-3. **[[EntityService]]** — Deletes entity rows, unique values, and relationships
+1. **[[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]]** — Validates workspace access
+2. **[[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]]** — Finds entities that link TO the deleted entities (impacted sources)
+3. **[[riven/docs/system-design/domains/Entities/Entity Management/EntityService]]** — Deletes entity rows, unique values, and relationships
 4. **`ActivityService`** — Logs DELETE activity for each entity
-5. **[[EntityService]]** — Fetches impacted entities with updated relationships (cascaded removal of links)
+5. **[[riven/docs/system-design/domains/Entities/Entity Management/EntityService]]** — Fetches impacted entities with updated relationships (cascaded removal of links)
 6. **`EntityController`** — Returns count of deleted entities plus updated entities
 
 ---
@@ -302,9 +302,9 @@ sequenceDiagram
 |Step|Input Shape|Output Shape|Transformation|
 |---|---|---|---|
 |Split Payload|`Map<UUID, EntityAttributeRequest>`|`attributePayload: Map<String, Primitive>`<br/>`relationshipPayload: Map<UUID, List<UUID>>`|Pattern match on `EntityAttributeRequest.payload` type|
-|Validate|`EntityEntity`, `EntityTypeEntity`|`List<String>` errors|[[EntityValidationService]] validates payload against schema|
+|Validate|`EntityEntity`, `EntityTypeEntity`|`List<String>` errors|[[riven/docs/system-design/domains/Entities/Validation/EntityValidationService]] validates payload against schema|
 |Persist|`EntityEntity` (transient)|`EntityEntity` (persisted)|JPA save generates ID|
-|Save Relationships|`Map<UUID, List<UUID>>` (field → targets)|`Map<UUID, List<EntityLink>>` (field → hydrated links)|[[EntityRelationshipService]] creates records, returns links with labels/icons|
+|Save Relationships|`Map<UUID, List<UUID>>` (field → targets)|`Map<UUID, List<EntityLink>>` (field → hydrated links)|[[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] creates records, returns links with labels/icons|
 |Hydrate Relationships|`EntityEntity`|`Entity` model|Converts database entity to API model with relationships map|
 
 ---
@@ -321,25 +321,25 @@ sequenceDiagram
 
 |Failure|Cause|Detection|User Experience|Recovery|
 |---|---|---|---|---|
-|Invalid Payload|Missing required field, wrong type, constraint violation|[[EntityValidationService]] returns errors|HTTP 200 with `SaveEntityResponse.errors` populated|User corrects payload and retries|
+|Invalid Payload|Missing required field, wrong type, constraint violation|[[riven/docs/system-design/domains/Entities/Validation/EntityValidationService]] returns errors|HTTP 200 with `SaveEntityResponse.errors` populated|User corrects payload and retries|
 
 ### Failure Point: Unique Constraint Violation
 
 |Failure|Cause|Detection|User Experience|Recovery|
 |---|---|---|---|---|
-|Duplicate Value|Unique attribute value already exists|[[EntityTypeAttributeService]] throws exception|HTTP 409 Conflict (transaction rolled back)|User changes value to unique one|
+|Duplicate Value|Unique attribute value already exists|[[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]] throws exception|HTTP 409 Conflict (transaction rolled back)|User changes value to unique one|
 
 ### Failure Point: Entity Type Not Found
 
 |Failure|Cause|Detection|User Experience|Recovery|
 |---|---|---|---|---|
-|Invalid Type ID|Entity type doesn't exist or deleted|[[EntityTypeService]] throws exception|HTTP 404 Not Found|User selects valid entity type|
+|Invalid Type ID|Entity type doesn't exist or deleted|[[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] throws exception|HTTP 404 Not Found|User selects valid entity type|
 
 ### Failure Point: Relationship Target Not Found
 
 |Failure|Cause|Detection|User Experience|Recovery|
 |---|---|---|---|
-|Invalid Target ID|Relationship target entity doesn't exist|[[EntityRelationshipService]] skips invalid targets|Relationship not created (silent omission)|User removes invalid relationship or creates target entity first|
+|Invalid Target ID|Relationship target entity doesn't exist|[[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] skips invalid targets|Relationship not created (silent omission)|User removes invalid relationship or creates target entity first|
 
 ### Failure Point: Entity Not Found (Update/Delete)
 
@@ -462,7 +462,7 @@ Transaction boundaries ensure atomic operations. Failures during save or relatio
 
 |Step|Bottleneck|Mitigation|
 |---|---|---|
-|Relationship hydration|N+1 query problem|[[EntityRelationshipService]] uses batch fetching for all entity IDs|
+|Relationship hydration|N+1 query problem|[[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] uses batch fetching for all entity IDs|
 |Unique constraint check|Database unique index lookup|Native SQL operations, indexed queries|
 |Impacted entity fetching|Database reads|Only fetch if relationships changed, batch fetch all IDs|
 
@@ -473,12 +473,12 @@ Transaction boundaries ensure atomic operations. Failures during save or relatio
 |Component|Role|Can Block Flow|
 |---|---|---|
 |`EntityController`|API entry point|No (delegates immediately)|
-|[[WorkspaceSecurity]]|Cross-domain authorization|Yes (throws 403)|
-|[[EntityService]]|CRUD orchestration|Yes (coordinates all operations)|
-|[[EntityValidationService]]|Schema validation|Yes (returns errors, may throw exception)|
-|[[EntityTypeService]]|Type schema retrieval|Yes (throws 404 if type not found)|
-|[[EntityRelationshipService]]|Relationship management|Partial (skips invalid targets)|
-|[[EntityTypeAttributeService]]|Unique constraint enforcement|Yes (throws 409 on conflict)|
+|[[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]]|Cross-domain authorization|Yes (throws 403)|
+|[[riven/docs/system-design/domains/Entities/Entity Management/EntityService]]|CRUD orchestration|Yes (coordinates all operations)|
+|[[riven/docs/system-design/domains/Entities/Validation/EntityValidationService]]|Schema validation|Yes (returns errors, may throw exception)|
+|[[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]]|Type schema retrieval|Yes (throws 404 if type not found)|
+|[[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]]|Relationship management|Partial (skips invalid targets)|
+|[[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]]|Unique constraint enforcement|Yes (throws 409 on conflict)|
 |`AuthTokenService`|User ID extraction from JWT|Yes (throws if invalid token)|
 |`ActivityService`|Audit logging|No (failures don't block save)|
 
@@ -494,13 +494,13 @@ Transaction boundaries ensure atomic operations. Failures during save or relatio
 
 ## Related
 
-- [[Entity Management]] — Subdomain containing CRUD services
-- [[Entity Querying]] — Advanced filtering and querying flows
-- [[Validation]] — Schema validation subdomain
-- [[Workspaces & Users]] — Workspace authorization and scoping
-- [[EntityService]] — Primary orchestrator
-- [[EntityRelationshipService]] — Relationship management
-- [[EntityValidationService]] — Validation logic
+- [[riven/docs/system-design/domains/Entities/Entity Management/Entity Management]] — Subdomain containing CRUD services
+- [[riven/docs/system-design/feature-design/4. Completed/Entity Querying]] — Advanced filtering and querying flows
+- [[riven/docs/system-design/domains/Entities/Validation/Validation]] — Schema validation subdomain
+- [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] — Workspace authorization and scoping
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]] — Primary orchestrator
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] — Relationship management
+- [[riven/docs/system-design/domains/Entities/Validation/EntityValidationService]] — Validation logic
 
 ---
 
@@ -519,7 +519,7 @@ Transaction boundaries ensure atomic operations. Failures during save or relatio
 > Cannot change an entity's type after creation. Attempting to update with different `entityTypeId` throws exception.
 
 > [!warning] Relationship Target Validation
-> [[EntityRelationshipService]] silently skips invalid relationship targets (entities that don't exist). No error returned to user. This prevents cascading failures but may cause confusion if relationships silently don't appear.
+> [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] silently skips invalid relationship targets (entities that don't exist). No error returned to user. This prevents cascading failures but may cause confusion if relationships silently don't appear.
 
 ---
 

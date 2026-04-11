@@ -8,14 +8,14 @@ tags:
 Created: 2026-03-18
 Updated:
 Domains:
-  - "[[Workflows]]"
-  - "[[Knowledge]]"
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
+  - "[[riven/docs/system-design/domains/Knowledge/Knowledge]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 blocked by:
-  - "[[Conditional Nodes + Loop Support]]"
-  - "[[Workflow Node Output State Management Handling]]"
-  - "[[Knowledge Layer Sub-Agents]]"
-  - "[[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]]"
+  - "[[riven/docs/system-design/feature-design/5. Backlog/Conditional Nodes + Loop Support]]"
+  - "[[riven/docs/system-design/feature-design/5. Backlog/Workflow Node Output State Management Handling]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Knowledge Layer Sub-Agents]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]]"
 ---
 # Feature: Lifecycle-Scoped Workflow Templates (DEFERRED — Pre-MVP)
 
@@ -60,11 +60,11 @@ These must be addressed before pre-built workflow templates can provide reliable
 
 ## Related Documents
 
-- [[Workflows]] — engine that needs maturity before this feature
-- [[Conditional Nodes + Loop Support]] — prerequisite
-- [[Workflow Node Output State Management Handling]] — prerequisite
-- [[Knowledge Layer Sub-Agents]] — perspectives trigger workflows
-- [[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]] — lifecycle entities as workflow context
+- [[riven/docs/system-design/domains/Workflows/Workflows]] — engine that needs maturity before this feature
+- [[riven/docs/system-design/feature-design/5. Backlog/Conditional Nodes + Loop Support]] — prerequisite
+- [[riven/docs/system-design/feature-design/5. Backlog/Workflow Node Output State Management Handling]] — prerequisite
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Knowledge Layer Sub-Agents]] — perspectives trigger workflows
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]] — lifecycle entities as workflow context
 - CEO Plan: Lifecycle Vertical Scoping (2026-03-18)
 
 ---

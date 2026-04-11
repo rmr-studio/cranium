@@ -6,9 +6,9 @@ tags:
 Created: 2026-02-09
 Updated: 2026-03-17
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
-Part of [[Execution Engine]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/Execution Engine]]
 
 # TemporalWorkerConfiguration
 
@@ -35,6 +35,7 @@ Workers are registered by default unless explicitly disabled.
 | workflows.default | WORKFLOW_QUEUE | Default workflow execution | WorkflowOrchestrationService | WorkflowCoordinationService, WorkflowCompletionActivityImpl |
 | activities.external-api | EXTERNAL_API_QUEUE | External API activities (isolated) | — | (external API activities) |
 | identity.match | IDENTITY_MATCH_QUEUE | Identity matching pipeline | IdentityMatchWorkflowImpl | IdentityMatchActivitiesImpl |
+| enrichment.embed | ENRICHMENT_EMBED_QUEUE | Entity embedding enrichment pipeline. Isolated from default + identity queues so embedding-API latency cannot block other workloads. | [[EnrichmentWorkflow]] (`EnrichmentWorkflowImpl`) | [[EnrichmentActivitiesImpl]] |
 
 ---
 
@@ -49,6 +50,8 @@ Creates a `WorkerFactory` from `WorkflowClient`, registers workers for each task
 ## Queue Isolation
 
 Identity matching runs on a dedicated queue (`identity.match`) to prevent matching workload from blocking workflow executions on the default queue. Each queue gets its own Temporal worker.
+
+The embedding pipeline runs on its own `enrichment.embed` queue for the same reason — embedding API calls (OpenAI, Ollama) can take seconds and would otherwise stall identity matching and workflow execution. `EnrichmentWorkflowImpl` configures a 60s `startToCloseTimeout` per activity to accommodate that latency.
 
 ---
 
@@ -67,6 +70,7 @@ class TemporalWorkerConfiguration(
     private val workflowCoordinationService: WorkflowCoordinationService,
     private val workflowCompletionActivityImpl: WorkflowCompletionActivityImpl,
     private val identityMatchActivitiesImpl: IdentityMatchActivitiesImpl,
+    private val enrichmentActivities: EnrichmentActivitiesImpl,
     private val logger: KLogger
 )
 ```
@@ -84,11 +88,16 @@ class TemporalWorkerConfiguration(
 > [!warning] matchIfMissing = true
 > The `@ConditionalOnProperty` has `matchIfMissing = true`, meaning workers are registered by default unless `riven.workflow.engine.enabled` is explicitly set to `false`. This is important for test profiles that may not define this property.
 
+> [!warning] Enrichment Queue Isolation
+> `EnrichmentWorkflowImpl` uses a 60s `startToCloseTimeout` per activity to accommodate embedding API latency (OpenAI / Ollama). The dedicated `enrichment.embed` queue exists specifically so that latency cannot starve `workflows.default` or `identity.match`. Do not register enrichment workflows or activities on any other queue.
+
 ---
 
 ## Related
 
-- [[Execution Engine]] — Parent subdomain
-- [[IdentityMatchWorkflow]] — Identity match workflow type registered on identity.match queue
-- [[IdentityMatchActivitiesImpl]] — Identity match activities registered on identity.match queue
-- [[WorkflowOrchestrationService]] — Default workflow type registered on workflows.default queue
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/Execution Engine]] — Parent subdomain
+- [[riven/docs/system-design/domains/Identity Resolution/Temporal Integration/IdentityMatchWorkflow]] — Identity match workflow type registered on identity.match queue
+- [[riven/docs/system-design/domains/Identity Resolution/Temporal Integration/IdentityMatchActivitiesImpl]] — Identity match activities registered on identity.match queue
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowOrchestrationService]] — Default workflow type registered on workflows.default queue
+- [[EnrichmentWorkflow]] — Enrichment workflow type registered on enrichment.embed queue
+- [[EnrichmentActivitiesImpl]] — Enrichment activities registered on enrichment.embed queue

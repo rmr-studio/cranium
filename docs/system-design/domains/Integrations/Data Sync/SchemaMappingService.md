@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-18
 Domains:
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 # SchemaMappingService
 
-Part of [[Data Sync]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Data Sync/Data Sync]]
 
 ## Purpose
 
@@ -113,7 +113,7 @@ Maps an external payload to entity attributes using field mappings and key mappi
 - `FieldTransform` — Sealed class defining the four transform types (Direct, TypeCoercion, DefaultValue, JsonPathExtraction)
 - `ResolvedFieldMapping` — Resolved mapping with sourcePath, transform, targetSchemaType
 - `MappingResult` — Result container with attributes, warnings, errors, coverage
-- [[Data Sync]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Data Sync/Data Sync]] — Parent subdomain
 
 ---
 

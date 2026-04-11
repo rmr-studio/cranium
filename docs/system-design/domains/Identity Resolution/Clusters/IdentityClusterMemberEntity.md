@@ -1,14 +1,14 @@
 ---
 Created: 2026-03-17
 Domains:
-  - "[[Identity Resolution]]"
+  - "[[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]]"
 tags:
   - component/active
   - layer/entity
   - architecture/component
 ---
 
-Part of [[Clusters]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Clusters/Clusters]]
 
 # IdentityClusterMemberEntity
 
@@ -47,4 +47,4 @@ Converts to `IdentityClusterMember` domain model.
 ## Related
 
 - [[IdentityClusterEntity]]
-- [[Clusters]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Clusters/Clusters]]

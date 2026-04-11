@@ -1,8 +1,8 @@
 ---
 Created:
 Domains:
-  - "[[Entities]]"
-  - "[[Knowledge]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
+  - "[[riven/docs/system-design/domains/Knowledge/Knowledge]]"
 tags:
 ---
 # Subdomain: Schema Change Handling

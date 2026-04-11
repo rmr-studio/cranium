@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-14
 Domains:
-  - "[[Workspaces & Users]]"
+  - "[[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]"
 ---
 # WebSocketMessage
 
-Part of [[Real-time Events]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/Real-time Events]]
 
 ## Purpose
 
@@ -41,6 +41,6 @@ data class WebSocketMessage(
 
 ## Related
 
-- [[Real-time Events]] — Parent subdomain
-- [[WorkspaceEvent]] — Source events converted to this format
-- [[WebSocketEventListener]] — Creates and sends these messages
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/Real-time Events]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/WorkspaceEvent]] — Source events converted to this format
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/WebSocketEventListener]] — Creates and sends these messages

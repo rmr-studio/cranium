@@ -6,7 +6,7 @@ Created: 2026-02-09
 Updated: 2026-02-09
 Critical: true
 Domains:
-  - "[[Workspaces & Users]]"
+  - "[[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]"
 ---
 # Flow: Auth & Authorization
 
@@ -26,7 +26,7 @@ This flow traces the complete authentication and authorization chain from JWT va
 |---|---|---|
 |API Call|HTTP client with Bearer token|Every authenticated request to protected endpoints|
 
-**Entry Point:** Spring Security filter chain via [[SecurityConfig]]
+**Entry Point:** Spring Security filter chain via [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/SecurityConfig]]
 
 ---
 
@@ -109,7 +109,7 @@ sequenceDiagram
 
 #### 1. JWT Validation
 
-- **Component:** [[SecurityConfig]] + Spring Security JwtDecoder
+- **Component:** [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/SecurityConfig]] + Spring Security JwtDecoder
 - **Action:** Extract Bearer token from Authorization header, validate JWT signature using secret key or JWKS endpoint
 - **Input:** HTTP request with `Authorization: Bearer <token>` header
 - **Output:** Validated Jwt object with claims
@@ -125,7 +125,7 @@ fun jwtDecoder(): JwtDecoder {
 
 #### 2. Authority Extraction
 
-- **Component:** [[TokenDecoder]] (CustomAuthenticationTokenConverter)
+- **Component:** [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/TokenDecoder]] (CustomAuthenticationTokenConverter)
 - **Action:** Parse JWT claims to extract workspace roles, build Spring Security authorities in format `ROLE_{workspaceId}_{ROLE}`
 - **Input:** Jwt object with `scope` and `roles` claims
 - **Output:** JwtAuthenticationToken with authorities list
@@ -163,8 +163,8 @@ customClaims.roles.forEach { orgRole ->
 
 #### 5. @PreAuthorize Expression Evaluation
 
-- **Component:** [[WorkspaceSecurity]]
-- **Action:** Spring Security evaluates @PreAuthorize annotation BEFORE method executes, calls [[WorkspaceSecurity]] methods with workspace ID parameter
+- **Component:** [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]]
+- **Action:** Spring Security evaluates @PreAuthorize annotation BEFORE method executes, calls [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]] methods with workspace ID parameter
 - **Input:** Workspace ID from method parameter, authorities from SecurityContext
 - **Output:** Boolean (true = proceed, false = throw AccessDeniedException)
 - **Side Effects:** None - reads from SecurityContext
@@ -238,11 +238,11 @@ Critical for understanding which domain owns each auth layer:
 | Auth Layer | Mechanism | Owning Domain | Key Component |
 |---|---|---|---|
 | JWT Validation | Supabase JWKS or secret key | External (Supabase) / Config | Spring Security JwtDecoder |
-| Authority Extraction | Token parsing + claim transformation | [[Workspaces & Users]] | [[TokenDecoder]] (CustomAuthenticationTokenConverter) |
-| Method-level Authorization | @PreAuthorize expression evaluation | [[Workspaces & Users]] | [[WorkspaceSecurity]] |
+| Authority Extraction | Token parsing + claim transformation | [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] | [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/TokenDecoder]] (CustomAuthenticationTokenConverter) |
+| Method-level Authorization | @PreAuthorize expression evaluation | [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] | [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]] |
 | Row-level Security | PostgreSQL RLS policies | Cross-cutting (Database) | PostgreSQL RLS + workspace_members table |
 
-**Key insight:** Authentication (who is the user?) is external/framework responsibility. Authorization (what can they do?) is split between application layer ([[WorkspaceSecurity]]) for role-based checks and database layer (RLS) for workspace isolation.
+**Key insight:** Authentication (who is the user?) is external/framework responsibility. Authorization (what can they do?) is split between application layer ([[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]]) for role-based checks and database layer (RLS) for workspace isolation.
 
 ---
 
@@ -272,18 +272,18 @@ Critical for understanding which domain owns each auth layer:
 
 |Failure|Cause|Detection|User Experience|Recovery|
 |---|---|---|---|---|
-|Missing `roles` claim|JWT doesn't contain workspace roles|[[TokenDecoder]] returns empty authorities|403 Forbidden on all workspace operations (no authorities)|User must be assigned workspace role via workspace_members table|
-|Malformed `roles` claim|Invalid JSON structure or types|[[TokenDecoder]] catches exception, returns empty authorities|403 Forbidden|JWT issuer must fix claims format|
-|Invalid workspace_id|Not a valid UUID string|UUID.fromString() fails, [[TokenDecoder]] skips role|403 Forbidden (partial authority loss)|JWT issuer must provide valid UUIDs|
-|Invalid role string|Role not in WorkspaceRoles enum|WorkspaceRoles.fromString() throws, [[TokenDecoder]] skips role|403 Forbidden (partial authority loss)|JWT issuer must use valid role strings|
+|Missing `roles` claim|JWT doesn't contain workspace roles|[[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/TokenDecoder]] returns empty authorities|403 Forbidden on all workspace operations (no authorities)|User must be assigned workspace role via workspace_members table|
+|Malformed `roles` claim|Invalid JSON structure or types|[[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/TokenDecoder]] catches exception, returns empty authorities|403 Forbidden|JWT issuer must fix claims format|
+|Invalid workspace_id|Not a valid UUID string|UUID.fromString() fails, [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/TokenDecoder]] skips role|403 Forbidden (partial authority loss)|JWT issuer must provide valid UUIDs|
+|Invalid role string|Role not in WorkspaceRoles enum|WorkspaceRoles.fromString() throws, [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/TokenDecoder]] skips role|403 Forbidden (partial authority loss)|JWT issuer must use valid role strings|
 
 ### Failure Point: @PreAuthorize Check
 
 |Failure|Cause|Detection|User Experience|Recovery|
 |---|---|---|---|---|
-|User not workspace member|Authority string doesn't start with `ROLE_{workspaceId}`|[[WorkspaceSecurity]].hasWorkspace() returns false|403 Forbidden|User must be added to workspace via WorkspaceInviteService|
-|Insufficient role level|User is MEMBER but endpoint requires ADMIN|[[WorkspaceSecurity]].hasWorkspaceRoleOrHigher() compares authority levels|403 Forbidden|Workspace owner/admin must promote user role|
-|No authentication|SecurityContext has no authentication|[[WorkspaceSecurity]] returns false|403 Forbidden|Client must authenticate|
+|User not workspace member|Authority string doesn't start with `ROLE_{workspaceId}`|[[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]].hasWorkspace() returns false|403 Forbidden|User must be added to workspace via WorkspaceInviteService|
+|Insufficient role level|User is MEMBER but endpoint requires ADMIN|[[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]].hasWorkspaceRoleOrHigher() compares authority levels|403 Forbidden|Workspace owner/admin must promote user role|
+|No authentication|SecurityContext has no authentication|[[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]] returns false|403 Forbidden|Client must authenticate|
 
 ### Failure Point: RLS Enforcement
 
@@ -329,10 +329,10 @@ Critical for understanding which domain owns each auth layer:
 **Diverges at:** Step 5 (@PreAuthorize evaluation)
 
 **Steps:**
-1. [[WorkspaceSecurity]] evaluates expression
+1. [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]] evaluates expression
 2. Returns false (no matching authority or insufficient role level)
 3. Spring Security throws AccessDeniedException
-4. Exception handler in [[SecurityConfig]] catches
+4. Exception handler in [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/SecurityConfig]] catches
 5. Returns 403 Forbidden with error message
 
 **Rejoins at:** Step 8 (error response instead of data)
@@ -450,7 +450,7 @@ No rate limiting at auth layer. Rate limiting should be applied at API gateway o
 
 ## Security Considerations
 
-- **Authorization checks at:** Three layers - @PreAuthorize (method-level), [[WorkspaceSecurity]] (role hierarchy), PostgreSQL RLS (database-level)
+- **Authorization checks at:** Three layers - @PreAuthorize (method-level), [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]] (role hierarchy), PostgreSQL RLS (database-level)
 - **Sensitive data in flight:** JWT contains user ID, email, workspace roles - transmitted via HTTPS only
 - **Audit logging:** Failed auth attempts logged at WARN level with user context
 
@@ -494,11 +494,11 @@ No rate limiting at auth layer. Rate limiting should be applied at API gateway o
 
 |Component|Role|Can Block Flow|
 |---|---|---|
-|[[SecurityConfig]]|Configures Spring Security filter chain, registers JwtDecoder and [[TokenDecoder]]|Yes - misconfiguration blocks all requests|
+|[[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/SecurityConfig]]|Configures Spring Security filter chain, registers JwtDecoder and [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/TokenDecoder]]|Yes - misconfiguration blocks all requests|
 |Spring Security JwtDecoder|Validates JWT signature using secret key|Yes - invalid/expired JWT returns 401|
-|[[TokenDecoder]]|Extracts authorities from JWT `roles` claim, builds `ROLE_{wsId}_{ROLE}` strings|Partially - returns empty authorities on malformed claims|
-|[[WorkspaceSecurity]]|Evaluates @PreAuthorize expressions, checks role hierarchy|Yes - returns false for insufficient permissions (403)|
-|[[AuthTokenService]]|Service-layer access to JWT claims (user ID, email)|No - used after auth succeeds|
+|[[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/TokenDecoder]]|Extracts authorities from JWT `roles` claim, builds `ROLE_{wsId}_{ROLE}` strings|Partially - returns empty authorities on malformed claims|
+|[[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]]|Evaluates @PreAuthorize expressions, checks role hierarchy|Yes - returns false for insufficient permissions (403)|
+|[[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]]|Service-layer access to JWT claims (user ID, email)|No - used after auth succeeds|
 |PostgreSQL RLS|Database-level workspace filtering via policies and auth.uid()|Partially - filters rows silently (empty results, not error)|
 |workspace_members table|Pivot table linking users to workspaces with roles|Yes - no membership = RLS filters all rows|
 
@@ -515,19 +515,19 @@ No rate limiting at auth layer. Rate limiting should be applied at API gateway o
 
 ## Related
 
-- [[Auth & Authorization]] - Parent subdomain
-- [[TokenDecoder]] - Authority extraction component
-- [[WorkspaceSecurity]] - Authorization component
-- [[AuthTokenService]] - Claim extraction service
-- [[SecurityConfig]] - Spring Security configuration
-- [[WorkspaceRoles]] - Role enum with authority levels
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/flows/Auth & Authorization]] - Parent subdomain
+- [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/TokenDecoder]] - Authority extraction component
+- [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]] - Authorization component
+- [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]] - Claim extraction service
+- [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/SecurityConfig]] - Spring Security configuration
+- [[riven/apps/client/lib/types/docs/WorkspaceRoles]] - Role enum with authority levels
 
 ---
 
 ## Gotchas & Tribal Knowledge
 
 > [!warning] ROLE_{workspaceId}_{ROLE} Format is Critical Coupling Point
-> The authority string format `ROLE_{workspaceId}_{ROLE}` is hardcoded in three places: [[TokenDecoder]] (builds it), [[WorkspaceSecurity]] (parses it), and @PreAuthorize expressions (references it). Changing this format breaks authorization system-wide.
+> The authority string format `ROLE_{workspaceId}_{ROLE}` is hardcoded in three places: [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/TokenDecoder]] (builds it), [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]] (parses it), and @PreAuthorize expressions (references it). Changing this format breaks authorization system-wide.
 
 > [!warning] RLS Provides Silent Filtering, Not Errors
 > When RLS policies filter rows, the application receives an empty result set with 200 OK, not a 403 Forbidden. This means a user not in workspace_members will see empty workspaces, not access denied errors. This is by design - it prevents information leakage about workspace existence.
@@ -539,13 +539,13 @@ No rate limiting at auth layer. Rate limiting should be applied at API gateway o
 > - User can hit endpoints but gets empty results until JWT expires (~15 min)
 
 > [!warning] No User Existence Check in Auth Flow
-> [[TokenDecoder]] creates authorities based purely on JWT claims - it does not verify the user or workspace exists in the database. A JWT with valid signature but referring to deleted user/workspace will pass auth checks and fail later in business logic or RLS filtering.
+> [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/TokenDecoder]] creates authorities based purely on JWT claims - it does not verify the user or workspace exists in the database. A JWT with valid signature but referring to deleted user/workspace will pass auth checks and fail later in business logic or RLS filtering.
 
 > [!warning] Graceful Degradation on Malformed Claims
-> [[TokenDecoder]] never throws exceptions - malformed `roles` claims result in empty authorities list. This means auth "succeeds" but user is unauthorized for all workspace operations. Check logs for `auth.authorities.extracted` with `authority_count: 0` to debug.
+> [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/TokenDecoder]] never throws exceptions - malformed `roles` claims result in empty authorities list. This means auth "succeeds" but user is unauthorized for all workspace operations. Check logs for `auth.authorities.extracted` with `authority_count: 0` to debug.
 
 > [!warning] CustomJwtPrincipal.toString() Returns User ID
-> Services that call `SecurityContextHolder.getContext().authentication.principal.toString()` get the user ID string. This coupling means CustomJwtPrincipal's toString() implementation affects [[AuthTokenService]].getUserId() and similar methods.
+> Services that call `SecurityContextHolder.getContext().authentication.principal.toString()` get the user ID string. This coupling means CustomJwtPrincipal's toString() implementation affects [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]].getUserId() and similar methods.
 
 ---
 

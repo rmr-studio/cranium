@@ -6,9 +6,9 @@ tags:
   - domain/identity-resolution
 Created: 2026-03-19
 Domains:
-  - "[[Identity Resolution]]"
+  - "[[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]]"
 Sub-Domains:
-  - "[[Clusters]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Clusters/Clusters]]"
 ---
 
 # IdentityReadService
@@ -27,7 +27,7 @@ Read-only query service for the identity domain REST API. Exposes suggestion lis
 - Pending match count for a given entity
 
 **Does NOT own:**
-- Suggestion creation or scoring ([[IdentityMatchSuggestionService]])
+- Suggestion creation or scoring ([[riven/docs/system-design/domains/Identity Resolution/Matching Pipeline/IdentityMatchSuggestionService]])
 - Suggestion confirmation or rejection ([[IdentityConfirmationService]])
 - Cluster mutations ([[IdentityClusterService]])
 
@@ -138,7 +138,7 @@ The entity map is keyed by entity ID. Members whose entities are missing from th
 
 | Domain | Service | Direction | Purpose |
 |---|---|---|---|
-| Entities | [[EntityService]] | Outbound | Batch entity lookup for member enrichment in `getClusterDetail` |
+| Entities | [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]] | Outbound | Batch entity lookup for member enrichment in `getClusterDetail` |
 
 ## Error Handling
 

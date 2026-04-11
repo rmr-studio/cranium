@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-21
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # QueryFilterValidator
 
-Part of [[Querying]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/Querying]]
 
 ## Purpose
 
@@ -36,7 +36,7 @@ Eager pre-validation pass over QueryFilter trees to collect all relationship val
 
 ## Used By
 
-- [[EntityQueryService]] — Pre-validate filters before assembly
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/EntityQueryService]] — Pre-validate filters before assembly
 
 ---
 
@@ -88,9 +88,9 @@ Callers should wrap non-empty results in `QueryValidationException` if throwing.
 
 ## Related
 
-- [[EntityQueryService]] — Uses validator in pipeline
-- [[AttributeFilterVisitor]] — Enforces depth during SQL generation (redundant safety)
-- [[Querying]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/EntityQueryService]] — Uses validator in pipeline
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/AttributeFilterVisitor]] — Enforces depth during SQL generation (redundant safety)
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/Querying]] — Parent subdomain
 
 ---
 

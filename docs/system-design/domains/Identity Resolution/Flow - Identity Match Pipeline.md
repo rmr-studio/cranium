@@ -4,7 +4,7 @@ tags:
   - architecture/flow
   - domain/identity-resolution
 Domains:
-  - "[[Identity Resolution]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Identity Resolution]]"
 Created: 2026-03-17
 ---
 
@@ -106,9 +106,9 @@ sequenceDiagram
 
 ## Components Involved
 
-- [[IdentityMatchCandidateService]] — pg_trgm candidate finding
-- [[IdentityMatchScoringService]] — weighted scoring computation
-- [[IdentityMatchSuggestionService]] — suggestion persistence and re-suggestion
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Matching Pipeline/IdentityMatchCandidateService]] — pg_trgm candidate finding
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Matching Pipeline/IdentityMatchScoringService]] — weighted scoring computation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Matching Pipeline/IdentityMatchSuggestionService]] — suggestion persistence and re-suggestion
 - EntityTypeClassificationService — IDENTIFIER attribute cache
 - IdentityMatchQueueService — IDENTITY_MATCH job enqueueing
 - IdentityMatchDispatcherService — scheduled queue polling

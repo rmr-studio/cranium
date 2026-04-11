@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-08
 Domains:
-  - "[[Workspaces & Users]]"
+  - "[[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]"
 ---
 # WorkspaceSecurity
 
-Part of [[Auth & Authorization]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/Auth & Authorization]]
 
 ---
 
@@ -30,10 +30,10 @@ Central authorization component that provides workspace-scoped role checking for
 - Enable self-identification check for member-specific operations
 
 **Explicitly NOT responsible for:**
-- JWT decoding (handled by [[TokenDecoder]])
+- JWT decoding (handled by [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/TokenDecoder]])
 - Authority extraction from JWT claims (handled by CustomAuthenticationTokenConverter)
 - Database-level row-level security (PostgreSQL RLS policies)
-- User authentication (handled by [[SecurityConfig]])
+- User authentication (handled by [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/SecurityConfig]])
 - Token validation (Spring Security JWT decoder)
 
 ---
@@ -45,8 +45,8 @@ Central authorization component that provides workspace-scoped role checking for
 | Component | Purpose | Coupling |
 |---|---|---|
 | Spring SecurityContextHolder | Reads authentication context to extract authorities | High |
-| [[WorkspaceRoles]] enum | Authority comparison via numeric authority field | High |
-| [[WorkspaceMember]] model | Used in isUpdatingWorkspaceMember for role checking | Medium |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/WorkspaceRoles]] enum | Authority comparison via numeric authority field | High |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/WorkspaceMember]] model | Used in isUpdatingWorkspaceMember for role checking | Medium |
 
 ### External Dependencies
 
@@ -69,12 +69,12 @@ class WorkspaceSecurity
 
 | Component | How It Uses This | Notes |
 |---|---|---|
-| [[WorkspaceService]] | @PreAuthorize checks on workspace CRUD operations | hasWorkspace, hasWorkspaceRoleOrHigher |
-| [[WorkspaceInviteService]] | @PreAuthorize checks on invitation management | Compound: hasWorkspace AND hasWorkspaceRoleOrHigher |
-| [[EntityTypeService]] | @PreAuthorize checks on entity type operations | hasWorkspace |
-| [[EntityService]] | @PreAuthorize checks on entity CRUD operations | hasWorkspace |
-| [[WorkflowDefinitionService]] | @PreAuthorize checks on workflow CRUD | hasWorkspace |
-| [[WorkflowGraphService]] | @PreAuthorize checks on workflow graph operations | hasWorkspace |
+| [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceService]] | @PreAuthorize checks on workspace CRUD operations | hasWorkspace, hasWorkspaceRoleOrHigher |
+| [[riven/docs/system-design/domains/Workspaces & Users/Team Management/WorkspaceInviteService]] | @PreAuthorize checks on invitation management | Compound: hasWorkspace AND hasWorkspaceRoleOrHigher |
+| [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] | @PreAuthorize checks on entity type operations | hasWorkspace |
+| [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]] | @PreAuthorize checks on entity CRUD operations | hasWorkspace |
+| [[riven/docs/system-design/domains/Workflows/Definition Management/WorkflowDefinitionService]] | @PreAuthorize checks on workflow CRUD | hasWorkspace |
+| [[riven/docs/system-design/domains/Workflows/Definition Management/WorkflowGraphService]] | @PreAuthorize checks on workflow graph operations | hasWorkspace |
 | BlockService | @PreAuthorize checks on block operations | hasWorkspace |
 | BlockTypeService | @PreAuthorize checks on block type operations | hasWorkspace |
 | BlockEnvironmentService | @PreAuthorize checks on environment operations | hasWorkspace |
@@ -478,8 +478,8 @@ No exceptions are thrown - all methods return false when authorization fails, al
 
 ## Related
 
-- [[WorkspaceRoles]] - Role enum with numeric authority levels
-- [[SecurityConfig]] - Spring Security configuration that enables @PreAuthorize
-- [[CustomAuthenticationTokenConverter]] - Extracts authorities from JWT
-- [[WorkspaceMember]] - Model used in isUpdatingWorkspaceMember
-- [[Auth & Authorization]] - Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/WorkspaceRoles]] - Role enum with numeric authority levels
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/SecurityConfig]] - Spring Security configuration that enables @PreAuthorize
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/CustomAuthenticationTokenConverter]] - Extracts authorities from JWT
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/WorkspaceMember]] - Model used in isUpdatingWorkspaceMember
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/Auth & Authorization]] - Parent subdomain

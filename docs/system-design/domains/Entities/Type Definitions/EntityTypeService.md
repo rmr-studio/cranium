@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-21
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # EntityTypeService
 
-Part of [[Type Definitions]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Type Definitions/Type Definitions]]
 
 ## Purpose
 
@@ -36,19 +36,19 @@ Primary entry point for entity type lifecycle operations including creation, att
 ## Dependencies
 
 - `EntityTypeRepository` — Type persistence
-- [[EntityTypeRelationshipService]] — Relationship definition management
-- [[EntityTypeAttributeService]] — Attribute schema operations
+- [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] — Relationship definition management
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Type Definitions/EntityTypeAttributeService]] — Attribute schema operations
 - `RelationshipDefinitionRepository` — Direct repository access for checking definition existence during save/delete
 - `EntityRelationshipRepository` — Counts active links for impact analysis during delete
 - `AuthTokenService` — JWT user extraction
 - `ActivityService` — Audit logging
-- [[EntityTypeSemanticMetadataService]] — Lifecycle hooks for semantic metadata initialization and cascade deletion
-- [[IntegrationEnablementService]] — (via reverse dependency) calls `softDeleteByIntegration` and `restoreByIntegration` for integration lifecycle operations
+- [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]] — Lifecycle hooks for semantic metadata initialization and cascade deletion
+- [[riven/docs/system-design/domains/Integrations/Enablement/IntegrationEnablementService]] — (via reverse dependency) calls `softDeleteByIntegration` and `restoreByIntegration` for integration lifecycle operations
 
 ## Used By
 
 - Entity Type API controllers — REST endpoints for type management
-- [[EntityService]] — Fetches type definitions for instance validation
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]] — Fetches type definitions for instance validation
 
 ---
 
@@ -61,12 +61,12 @@ Primary entry point for entity type lifecycle operations including creation, att
 3. Initialize empty relationships list and single-column ordering
 4. Log CREATE activity
 5. Create fallback CONNECTED_ENTITIES definition via `entityTypeRelationshipService.createFallbackDefinition(workspaceId, savedId)` — ensures every published entity type has a system-managed connection definition
-6. Initialize semantic metadata via [[EntityTypeSemanticMetadataService]].initializeForEntityType() — creates ENTITY_TYPE metadata record plus one ATTRIBUTE metadata record per initial attribute
+6. Initialize semantic metadata via [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]].initializeForEntityType() — creates ENTITY_TYPE metadata record plus one ATTRIBUTE metadata record per initial attribute
 
 **Save definition (attribute or relationship):**
 
 1. Parse request to determine attribute vs. relationship
-2. For attributes: delegate to [[EntityTypeAttributeService]] (validates breaking changes)
+2. For attributes: delegate to [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Type Definitions/EntityTypeAttributeService]] (validates breaking changes)
 3. For relationships: check if definition exists via `definitionRepository.findByIdAndWorkspaceId()`
    - Not found → call `entityTypeRelationshipService.createRelationshipDefinition()`
    - Found → call `entityTypeRelationshipService.updateRelationshipDefinition()`
@@ -77,7 +77,7 @@ No diff calculation or impact analysis is performed on save — the create/updat
 
 **Remove definition:**
 
-- For attributes: delegate to [[EntityTypeAttributeService]]
+- For attributes: delegate to [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Type Definitions/EntityTypeAttributeService]]
 - For relationships: delegate to `entityTypeRelationshipService.deleteRelationshipDefinition()`, which returns a `DeleteDefinitionImpact?`
   - If impact returned: wrap in `EntityTypeImpactResponse` and return (two-pass confirmation flow)
   - Otherwise: proceed with column removal and return updated types
@@ -202,16 +202,16 @@ Groups metadata records by targetType into structured bundle (entity type + attr
 - **Workspace security:** All public methods use `@PreAuthorize` for access control.
 - **Protected types:** `protected=false` on user-created types. System types (if any) cannot be modified/deleted.
 - **Relationship impact vs. attribute impact:** Relationship definition deletes can affect OTHER entity types (bidirectional). Attribute changes only affect the same type's instances.
-- **Cascade complexity:** Deleting entity type with relationships requires cascade handling via [[EntityTypeRelationshipService]]. Link counts are checked directly via `EntityRelationshipRepository` before proceeding.
+- **Cascade complexity:** Deleting entity type with relationships requires cascade handling via [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]]. Link counts are checked directly via `EntityRelationshipRepository` before proceeding.
 
 ---
 
 ## Related
 
-- [[EntityTypeAttributeService]] — Attribute schema operations
-- [[EntityTypeRelationshipService]] — Relationship definition management
-- [[EntityService]] — Consumes type definitions for instance validation
-- [[Type Definitions]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Type Definitions/EntityTypeAttributeService]] — Attribute schema operations
+- [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] — Relationship definition management
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]] — Consumes type definitions for instance validation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Type Definitions/Type Definitions]] — Parent subdomain
 
 ---
 

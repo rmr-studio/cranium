@@ -1,6 +1,6 @@
 ---
 Created:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 Updated: 2026-02-13
 ---
 # WorkflowBulkUpdateEntityActionConfig
@@ -16,28 +16,28 @@ Queries entities matching filter criteria and applies identical field updates to
 - Configure bulk update parameters (query filters, update payload, error handling mode, pagination, timeout)
 - Validate embedded EntityQuery filter structure and template syntax in payload values
 - Execute paginated entity queries to collect matching entity IDs (up to 10,000 entities)
-- Apply batch updates in groups of 50 entities via [[EntityService]]
+- Apply batch updates in groups of 50 entities via [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]]
 - Track success/failure counts with detailed error information per entity
 - Support two error handling modes: stop on first failure or process all entities
 
 **Explicitly NOT responsible for:**
-- Query execution logic (delegated to [[EntityQueryService]])
-- Entity validation (delegated to [[EntityService]])
+- Query execution logic (delegated to [[riven/docs/system-design/domains/Entities/Querying/EntityQueryService]])
+- Entity validation (delegated to [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]])
 - Transaction management across batches (each entity update is independent)
 
 ## Dependencies
 
-- [[EntityService]] — gets and updates individual entities in batch loop
-- [[EntityQueryService]] — executes entity queries to find matching entities
-- [[WorkflowNodeConfigValidationService]] — validates template syntax and config fields
-- [[WorkflowNodeConfig]] — sealed parent class for all node configurations
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]] — gets and updates individual entities in batch loop
+- [[riven/docs/system-design/domains/Entities/Querying/EntityQueryService]] — executes entity queries to find matching entities
+- [[riven/docs/system-design/domains/Workflows/Node Execution/WorkflowNodeConfigValidationService]] — validates template syntax and config fields
+- [[riven/apps/client/lib/types/docs/WorkflowNodeConfig]] — sealed parent class for all node configurations
 - WorkflowFilterTemplateUtils — resolves template values within filter trees
 
 ## Used By
 
-- [[WorkflowNodeConfigRegistry]] — discovers at application startup via explicit registration
-- [[WorkflowNode]] — executes via `execute()` method during workflow runtime
-- [[WorkflowCoordinationService]] — resolves input templates before execution
+- [[riven/docs/system-design/domains/Workflows/Node Execution/WorkflowNodeConfigRegistry]] — discovers at application startup via explicit registration
+- [[riven/apps/client/lib/types/docs/WorkflowNode]] — executes via `execute()` method during workflow runtime
+- [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowCoordinationService]] — resolves input templates before execution
 
 ---
 
@@ -137,7 +137,7 @@ Entities are processed in batches of 50. Each entity update is independent — t
 
 ## Validation Rules
 
-1. **query**: Recursive filter validation (same as [[WorkflowQueryEntityActionConfig]])
+1. **query**: Recursive filter validation (same as [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Actions/WorkflowQueryEntityActionConfig]])
 2. **payload**: All values must have valid template syntax if templated (checked by `validateTemplateMap`)
 3. **errorHandling**: Must be valid enum value (FAIL_FAST or BEST_EFFORT)
 4. **timeoutSeconds**: Must be non-negative if provided
@@ -161,7 +161,7 @@ The `collectMatchingEntityIds()` method enforces a maximum of 10,000 entities re
 
 ### Schema Type Inference Not Implemented
 
-Same limitation as [[WorkflowCreateEntityActionConfig]] — all payload values default to `SchemaType.TEXT`. Numeric, boolean, and date attributes may not validate correctly.
+Same limitation as [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Actions/WorkflowCreateEntityActionConfig]] — all payload values default to `SchemaType.TEXT`. Numeric, boolean, and date attributes may not validate correctly.
 
 ### Cross-Domain Runtime Dependencies
 
@@ -176,7 +176,7 @@ All accessed via `NodeServiceProvider` lazy injection during execution.
 
 ## Related
 
-- [[Action Nodes]] — category-level overview of all action node types
-- [[WorkflowNodeConfig]] — sealed parent class defining node configuration contract
-- [[WorkflowQueryEntityActionConfig]] — uses same query model and filter validation
-- [[EntityQueryService]] — query execution in Entities domain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Actions/Action Nodes]] — category-level overview of all action node types
+- [[riven/apps/client/lib/types/docs/WorkflowNodeConfig]] — sealed parent class defining node configuration contract
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Actions/WorkflowQueryEntityActionConfig]] — uses same query model and filter validation
+- [[riven/docs/system-design/domains/Entities/Querying/EntityQueryService]] — query execution in Entities domain

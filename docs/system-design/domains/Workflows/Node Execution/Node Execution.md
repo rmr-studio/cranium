@@ -4,7 +4,7 @@ tags:
   - domain/workflow
 Created: 2026-02-08
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # Subdomain: Node Execution
 
@@ -16,9 +16,9 @@ Node Execution provides a polymorphic node execution system based on sealed inte
 
 | Component | Purpose | Type |
 | --------- | ------- | ------------------------------- |
-| [[WorkflowNodeConfig]] | Sealed interface — defines execution contract for all node types (trigger, action, control, utility, function, human interaction) | Model / Interface |
-| [[WorkflowNodeConfigRegistry]] | Discovers and registers all WorkflowNodeConfig implementations at startup | Service / Registry |
-| [[WorkflowNodeServiceInjectionProvider]] | Provides lazy Spring service injection to node configs during execution | Service / Provider |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/WorkflowNodeConfig]] | Sealed interface — defines execution contract for all node types (trigger, action, control, utility, function, human interaction) | Model / Interface |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/WorkflowNodeConfigRegistry]] | Discovers and registers all WorkflowNodeConfig implementations at startup | Service / Registry |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/WorkflowNodeServiceInjectionProvider]] | Provides lazy Spring service injection to node configs during execution | Service / Provider |
 | Output Metadata System | Declarative output field definitions (OutputFieldType, WorkflowNodeOutputField, WorkflowNodeOutputMetadata) enabling frontend preview of node outputs | Model / Data Classes |
 
 ## Node Categories
@@ -27,9 +27,9 @@ Concrete node implementations are organized by category. Each category has a sum
 
 | Category | Summary | Implemented Nodes | Unimplemented |
 |----------|---------|-------------------|---------------|
-| [[Action Nodes]] | Business operations (entity CRUD, HTTP requests) | 6 | 3 (LINK_ENTITY, INTEGRATION_REQUEST, SET_ENVIRONMENT_VARIABLE, MAP_DATA) |
-| [[Trigger Nodes]] | Workflow entry points (events, schedules, webhooks) | 4 | 0 |
-| [[Control Flow Nodes]] | Execution branching and flow control | 1 (CONDITION) | 5 (SWITCH, LOOP, PARALLEL, DELAY, MERGE) |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Actions/Action Nodes]] | Business operations (entity CRUD, HTTP requests) | 6 | 3 (LINK_ENTITY, INTEGRATION_REQUEST, SET_ENVIRONMENT_VARIABLE, MAP_DATA) |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Triggers/Trigger Nodes]] | Workflow entry points (events, schedules, webhooks) | 4 | 0 |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Controls/Control Flow Nodes]] | Execution branching and flow control | 1 (CONDITION) | 5 (SWITCH, LOOP, PARALLEL, DELAY, MERGE) |
 
 **Additional node types (interface/enum only, no implementations):**
 

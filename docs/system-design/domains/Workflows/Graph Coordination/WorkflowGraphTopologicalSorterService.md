@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-08
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # WorkflowGraphTopologicalSorterService
 
-Part of [[Graph Coordination]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Graph Coordination/Graph Coordination]]
 
 ---
 
@@ -42,8 +42,8 @@ Determines the correct execution order for workflow nodes by performing topologi
 
 |Component|Purpose|Coupling|
 |---|---|---|
-|[[WorkflowNode]]|Runtime DTO representing executable nodes|Low - data class|
-|[[WorkflowEdgeEntity]]|Persistence entity for directed edges|Low - data class|
+|[[riven/apps/client/lib/types/docs/WorkflowNode]]|Runtime DTO representing executable nodes|Low - data class|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Graph Coordination/WorkflowEdgeEntity]]|Persistence entity for directed edges|Low - data class|
 
 ### External Dependencies
 
@@ -61,7 +61,7 @@ None - stateless utility service with no constructor dependencies.
 
 |Component|How It Uses This|Notes|
 |---|---|---|
-|[[WorkflowGraphCoordinationService]]|Calls `sort()` before DAG execution to verify topological order|Used for validation, not for execution ordering|
+|[[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowGraphCoordinationService]]|Calls `sort()` before DAG execution to verify topological order|Used for validation, not for execution ordering|
 
 ---
 
@@ -258,9 +258,9 @@ None - this is a utility service called frequently during validation. Errors pro
 
 ## Related
 
-- [[WorkflowGraphCoordinationService]] — Uses this service for validation
-- [[WorkflowGraphQueueManagementService]] — Implements similar in-degree tracking for execution
-- [[Graph Coordination]] — Parent subdomain
+- [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowGraphCoordinationService]] — Uses this service for validation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Graph Coordination/WorkflowGraphQueueManagementService]] — Implements similar in-degree tracking for execution
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Graph Coordination/Graph Coordination]] — Parent subdomain
 
 ---
 

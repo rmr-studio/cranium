@@ -8,10 +8,10 @@ tags:
 Created: 2026-03-19
 Updated:
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 blocked by:
-  - "[[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]]"
-  - "[[Identity Resolution System]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]]"
+  - "[[riven/docs/system-design/feature-design/2. Planned/Identity Resolution System]]"
 ---
 # Feature: Lifecycle Analytics Views
 
@@ -148,10 +148,10 @@ Views populate automatically once integrations sync and identity resolution comp
 
 ## Related Documents
 
-- [[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]] — entity types these views aggregate over
-- [[Identity Resolution System]] — linking records across tools for cross-domain aggregation
-- [[Churn Retrospective Timeline]] — drill-in from churn rate cells
-- [[Lifecycle Operations Dashboard]] — Phase 2 evolution of these views with AI signals
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]] — entity types these views aggregate over
+- [[riven/docs/system-design/feature-design/2. Planned/Identity Resolution System]] — linking records across tools for cross-domain aggregation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Churn Retrospective Timeline]] — drill-in from churn rate cells
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Lifecycle Operations Dashboard]] — Phase 2 evolution of these views with AI signals
 - [[Launch Scope and Phasing]] — Layer 1 MVP component
 - CEO Plan: Day 1 Value — Layer 1 MVP (2026-03-19)
 

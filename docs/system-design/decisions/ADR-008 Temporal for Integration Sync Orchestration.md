@@ -108,7 +108,7 @@ Use Spring Batch's job/step/chunk processing model for sync execution.
 
 ## Related
 
-- [[Integration Data Sync Pipeline]] — Feature design for the sync pipeline that this decision supports
-- [[Entity Integration Sync]] — Sub-domain plan for entity sync processing
-- [[Workflows]] — Existing domain that established Temporal as the workflow orchestration platform
-- [[ADR-001 Nango as Integration Infrastructure]] — Decision to use Nango, whose webhook delivery model motivates Temporal's dedup capability
+- [[riven/docs/system-design/flows/Integration Data Sync Pipeline]] — Feature design for the sync pipeline that this decision supports
+- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]] — Sub-domain plan for entity sync processing
+- [[riven/docs/system-design/domains/Workflows/Workflows]] — Existing domain that established Temporal as the workflow orchestration platform
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-001 Nango as Integration Infrastructure]] — Decision to use Nango, whose webhook delivery model motivates Temporal's dedup capability

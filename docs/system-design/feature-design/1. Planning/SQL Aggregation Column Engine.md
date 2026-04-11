@@ -7,9 +7,9 @@ tags:
 Created: 2026-03-25
 Updated:
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 blocked by:
-  - "[[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]]"
   - "[[Aggregation Query Benchmark]]"
 ---
 # Feature: SQL Aggregation Column Engine
@@ -165,13 +165,13 @@ The [[Aggregation Query Benchmark]] feature must validate this approach before f
 
 ## Related Documents
 
-- [[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]] — declares the aggregation column definitions on core models
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]] — declares the aggregation column definitions on core models
 - [[Aggregation Query Benchmark]] — validates feasibility of this approach before implementation
-- [[Smart Projection Architecture]] — aggregation columns are how projected integration data surfaces on core entities
-- [[Dashboard Metrics Pre-computation Layer]] — deferred optimization if live computation proves insufficient
-- [[Lifecycle Analytics Views]] — primary consumer of aggregation columns
-- [[Churn Retrospective Timeline]] — uses aggregation for cohort comparison annotations
-- [[Pre-written Lifecycle Queries]] — recommended first validation feature
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Smart Projection Architecture]] — aggregation columns are how projected integration data surfaces on core entities
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Dashboard Metrics Pre-computation Layer]] — deferred optimization if live computation proves insufficient
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Lifecycle Analytics Views]] — primary consumer of aggregation columns
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Churn Retrospective Timeline]] — uses aggregation for cohort comparison annotations
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Pre-written Lifecycle Queries]] — recommended first validation feature
 - Eng Review: Lifecycle Spine (2026-03-25)
 
 ---

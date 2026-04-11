@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-08
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # WorkflowDefinitionService
 
-Part of [[Definition Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Definition Management/Definition Management]]
 
 ## Purpose
 
@@ -33,7 +33,7 @@ CRUD service for workflow definitions with workspace scoping, managing definitio
 
 - `WorkflowDefinitionRepository` — Definition persistence
 - `WorkflowDefinitionVersionRepository` — Version persistence
-- [[WorkflowGraphService]] — Graph structure management (separate concern)
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Definition Management/WorkflowGraphService]] — Graph structure management (separate concern)
 - `ActivityService` — Audit logging
 - `AuthTokenService` — JWT user extraction
 
@@ -54,7 +54,7 @@ CRUD service for workflow definitions with workspace scoping, managing definitio
 **Metadata vs. structure separation:**
 
 - **This service:** Manages metadata only (name, description, icon, tags, status)
-- **[[WorkflowGraphService]]:** Manages structure (nodes, edges, canvas)
+- **[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Definition Management/WorkflowGraphService]]:** Manages structure (nodes, edges, canvas)
 
 **Soft deletion:**
 
@@ -92,7 +92,7 @@ Soft-deletes workflow definition. Sets deleted flag and timestamp.
 
 ## Gotchas
 
-- **Initial version always empty:** Created workflows have `workflow.nodeIds = []` and `workflow.edgeIds = []`. Use [[WorkflowGraphService]] to add nodes/edges.
+- **Initial version always empty:** Created workflows have `workflow.nodeIds = []` and `workflow.edgeIds = []`. Use [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Definition Management/WorkflowGraphService]] to add nodes/edges.
 - **Workspace security:** All methods use `@PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")` for declarative access control.
 - **Partial updates:** `updateWorkflow()` only applies non-null fields from request. Frontend can send partial updates.
 
@@ -100,6 +100,6 @@ Soft-deletes workflow definition. Sets deleted flag and timestamp.
 
 ## Related
 
-- [[WorkflowGraphService]] — Manages workflow structure
-- [[WorkflowExecutionService]] — Starts executions
-- [[Definition Management]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Definition Management/WorkflowGraphService]] — Manages workflow structure
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Definition Management/WorkflowExecutionService]] — Starts executions
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Definition Management/Definition Management]] — Parent subdomain

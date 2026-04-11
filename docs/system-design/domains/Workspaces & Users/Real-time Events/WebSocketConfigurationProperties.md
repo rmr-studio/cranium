@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-14
 Domains:
-  - "[[Workspaces & Users]]"
+  - "[[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]"
 ---
 # WebSocketConfigurationProperties
 
-Part of [[Real-time Events]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/Real-time Events]]
 
 ## Purpose
 
@@ -33,7 +33,7 @@ Part of [[Real-time Events]]
 
 ## Used By
 
-- [[WebSocketConfig]] -- Reads all properties to configure STOMP endpoint, broker, and transport
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/WebSocketConfig]] -- Reads all properties to configure STOMP endpoint, broker, and transport
 
 ---
 
@@ -46,8 +46,8 @@ Part of [[Real-time Events]]
 
 ## Related
 
-- [[Real-time Events]] -- Parent subdomain
-- [[WebSocketConfig]] -- Sole consumer of these properties
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/Real-time Events]] -- Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/WebSocketConfig]] -- Sole consumer of these properties
 
 ---
 

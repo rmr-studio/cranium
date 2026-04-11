@@ -48,13 +48,16 @@ One of the biggest features of the application would be how a unionised platform
 - Semantic metadata CRUD endpoints (natural language definitions, attribute classifications, tags)
 - REST API at `/api/v1/knowledge/` for metadata management
 - Full metadata bundle retrieval (entity type + attributes + relationships in one response)
+- Async enrichment pipeline producing vector embeddings for entities (`entity_embeddings` table with pgvector HNSW cosine index)
+- Embedding-provider abstraction with pluggable OpenAI / Ollama backends selected by `riven.enrichment.provider`
 
 ### This Domain Does NOT Own
 
-- Semantic metadata persistence and lifecycle management (owned by [[Entity Semantics]] subdomain within Entities domain)
-- Entity type definitions, attributes, or relationships (owned by [[Entities]] domain)
-- Enrichment pipeline, embeddings, or AI processing (future — not yet implemented)
+- Semantic metadata persistence and lifecycle management (owned by [[riven/docs/system-design/domains/Entities/Entity Semantics/Entity Semantics]] subdomain within Entities domain)
+- Entity type definitions, attributes, or relationships (owned by [[riven/docs/system-design/domains/Entities/Entities]] domain)
+- Temporal worker registration for the `enrichment.embed` task queue (owned by [[riven/docs/system-design/domains/Workflows/Execution Engine/TemporalWorkerConfiguration]])
 - Sub-Agents / Perspectives (future — not yet implemented)
+- Vector similarity search query layer (HNSW index exists; query path not yet implemented)
 
 ---
 
@@ -62,7 +65,15 @@ One of the biggest features of the application would be how a unionised platform
 
 | Component | Purpose | Type |
 | --------- | ------- | ---- |
-| [[KnowledgeController]] | 8 REST endpoints for semantic metadata CRUD at `/api/v1/knowledge/` | Controller |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Knowledge/KnowledgeController]] | 8 REST endpoints for semantic metadata CRUD at `/api/v1/knowledge/` | Controller |
+| [[EnrichmentService]] | Pipeline orchestration: queue claim, batched context assembly, embedding storage | Service |
+| [[SemanticTextBuilderService]] | Renders entity context into 6-section enriched text with progressive truncation | Service |
+| [[EnrichmentWorkflow]] | Temporal workflow orchestrating the 4-step enrichment pipeline | Temporal Workflow |
+| [[EnrichmentActivitiesImpl]] | Spring-managed activity layer registered on the dedicated `enrichment.embed` queue | Temporal Activity |
+| [[EmbeddingProvider]] | Pluggable embedding API client (OpenAI default, Ollama alternative) | Service / Provider |
+| [[EnrichmentClientConfiguration]] | `@Configuration` wiring qualified `WebClient` beans + typed properties | Configuration |
+| [[EntityEmbeddingEntity]] | JPA entity for `entity_embeddings` (`vector(1536)`, system-managed) | Entity |
+| [[EntityEmbeddingRepository]] | JPA repository for embedding rows (no similarity query yet) | Repository |
 
 ---
 
@@ -71,6 +82,7 @@ One of the biggest features of the application would be how a unionised platform
 | Flow | Type | Description |
 | ---- | ---- | ----------- |
 | Semantic Metadata CRUD | User-facing | Create, read, update semantic definitions, classifications, and tags for entity types, attributes, and relationships |
+| [[Flow - Entity Enrichment Pipeline]] | Background | Async pipeline producing vector embeddings for entities after creation, update, or sync |
 
 ---
 
@@ -80,19 +92,24 @@ One of the biggest features of the application would be how a unionised platform
 
 | Entity | Purpose | Key Fields |
 |--------|---------|------------|
-| EntityTypeSemanticMetadataEntity | Semantic metadata records (shared ownership with [[Entity Semantics]]) | id, workspaceId, entityTypeId, targetType, targetId, definition, classification, tags |
+| EntityTypeSemanticMetadataEntity | Semantic metadata records (shared ownership with [[riven/docs/system-design/domains/Entities/Entity Semantics/Entity Semantics]]) | id, workspaceId, entityTypeId, targetType, targetId, definition, classification, tags |
+| [[EntityEmbeddingEntity]] | Stored vector embeddings per entity (system-managed; no audit, no soft-delete) | id, workspaceId, entityId, entityTypeId, embedding (vector(1536)), embeddedAt, embeddingModel, schemaVersion, truncated |
 
 ### Database Tables
 
 | Table | Entity | Notes |
 |-------|--------|-------|
 | entity_type_semantic_metadata | EntityTypeSemanticMetadataEntity | Shared ownership with Entity Semantics subdomain. Single-table discriminator pattern |
+| entity_embeddings | [[EntityEmbeddingEntity]] | pgvector `vector(1536)` column with HNSW cosine index (`m = 16`, `ef_construction = 64`); UNIQUE(entity_id) enforces upsert |
 
 ---
 
 ## External Dependencies
 
-None
+| Service | Purpose | Failure Impact |
+|---|---|---|
+| OpenAI Embeddings API | Default embedding provider (`text-embedding-3-small`, 1536 dim) | Embedding generation halts; queue items stay CLAIMED until Temporal retry / stale-claim recovery |
+| Ollama | Alternative embedding provider for local development (`nomic-embed-text`) | Same as OpenAI — only one provider is active at a time per `riven.enrichment.provider` |
 
 ---
 
@@ -102,14 +119,17 @@ None
 
 | Domain | What We Need | How We Access |
 |--------|-------------|---------------|
-| [[Entities]] | Semantic metadata service for all business logic | [[EntityTypeSemanticMetadataService]] via direct service injection |
-| [[Entities]] | Entity type existence verification for workspace scoping | [[EntityTypeRepository]] (accessed indirectly via service) |
+| [[riven/docs/system-design/domains/Entities/Entities]] | Semantic metadata service for all business logic | [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]] via direct service injection |
+| [[riven/docs/system-design/domains/Entities/Entities]] | Entity type existence verification for workspace scoping | [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeRepository]] (accessed indirectly via service) |
+| [[riven/docs/system-design/domains/Entities/Entities]] | Direct repository access for batched context assembly during enrichment (entities, attributes, relationships, identity cluster members, semantic metadata) | [[EnrichmentService]] injects 10 Entity-domain repositories directly |
+| [[riven/docs/system-design/domains/Workflows/Workflows]] | Temporal worker registration on the dedicated `enrichment.embed` task queue | [[riven/docs/system-design/domains/Workflows/Execution Engine/TemporalWorkerConfiguration]] registers `EnrichmentWorkflowImpl` and `EnrichmentActivitiesImpl` |
+| [[riven/docs/system-design/domains/Workflows/Workflows]] | Centralised execution queue with `ENRICHMENT` job type | `ExecutionQueueRepository` shared across job types |
 
 ### Consumed By
 
 | Domain | What They Need | How They Access |
 |--------|---------------|-----------------|
-| REST API consumers | Semantic metadata management | [[KnowledgeController]] endpoints |
+| REST API consumers | Semantic metadata management | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Knowledge/KnowledgeController]] endpoints |
 
 ---
 
@@ -133,3 +153,4 @@ None
 | Date | Change | Feature/ADR |
 |------|--------|-------------|
 | 2026-02-19 | KnowledgeController with 8 REST endpoints for semantic metadata CRUD | Semantic Metadata Foundation |
+| 2026-04-10 | Enrichment Pipeline subdomain populated — async pipeline producing `vector(1536)` embeddings via Temporal, OpenAI/Ollama providers, pgvector HNSW index | Enrichment Pipeline |

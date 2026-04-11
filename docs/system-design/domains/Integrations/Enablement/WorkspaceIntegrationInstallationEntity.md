@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2025-07-17
 Domains:
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 # WorkspaceIntegrationInstallationEntity
 
-Part of [[Enablement]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/Enablement]]
 
 ## Purpose
 
@@ -58,6 +58,6 @@ Transition validation is enforced by `InstallationStatus.canTransitionTo()` — 
 
 ## Related
 
-- [[WorkspaceIntegrationInstallationRepository]] — persistence layer
-- [[IntegrationEnablementService]] — creates, restores, and soft-deletes installations
-- [[Enablement]] — parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/WorkspaceIntegrationInstallationRepository]] — persistence layer
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/IntegrationEnablementService]] — creates, restores, and soft-deletes installations
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/Enablement]] — parent subdomain

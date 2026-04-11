@@ -1,6 +1,6 @@
 ---
 Created:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 Updated: 2026-02-09
 ---
 # WorkflowUpdateEntityActionConfig
@@ -16,19 +16,19 @@ Updates existing entity instances within workflows with template-resolved attrib
 - Configure update parameters (entity ID, payload, timeout)
 - Validate entity ID and payload template syntax
 - Fetch existing entity to determine type
-- Execute entity update via [[EntityService]]
+- Execute entity update via [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]]
 - Return updated entity metadata
 
 ## Dependencies
 
-- [[EntityService]] — fetches existing entity and saves updates
-- [[WorkflowNodeConfigValidationService]] — validates template syntax and UUIDs
-- [[WorkflowNodeConfig]] — sealed parent class for all node configurations
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]] — fetches existing entity and saves updates
+- [[riven/docs/system-design/domains/Workflows/Node Execution/WorkflowNodeConfigValidationService]] — validates template syntax and UUIDs
+- [[riven/apps/client/lib/types/docs/WorkflowNodeConfig]] — sealed parent class for all node configurations
 
 ## Used By
 
-- [[WorkflowNodeConfigRegistry]] — discovers at application startup via classpath scan
-- [[WorkflowNode]] — executes via `execute()` method during workflow runtime
+- [[riven/docs/system-design/domains/Workflows/Node Execution/WorkflowNodeConfigRegistry]] — discovers at application startup via classpath scan
+- [[riven/apps/client/lib/types/docs/WorkflowNode]] — executes via `execute()` method during workflow runtime
 
 ---
 
@@ -105,7 +105,7 @@ The `execute()` method:
 
 ### Schema Type Inference Not Implemented
 
-All payload values default to `SchemaType.TEXT` regardless of actual attribute type. This is the same limitation as [[WorkflowCreateEntityActionConfig]]:
+All payload values default to `SchemaType.TEXT` regardless of actual attribute type. This is the same limitation as [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Actions/WorkflowCreateEntityActionConfig]]:
 
 ```kotlin
 // TODO: Infer schema type from entity type schema for proper typing
@@ -124,6 +124,6 @@ Unlike create operations, update **requires fetching the existing entity first**
 
 ## Related
 
-- [[Action Nodes]] — category-level overview of all action node types
-- [[WorkflowNodeConfig]] — sealed parent class defining node configuration contract
-- [[WorkflowCreateEntityActionConfig]] — related create operation with same schema type limitation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Actions/Action Nodes]] — category-level overview of all action node types
+- [[riven/apps/client/lib/types/docs/WorkflowNodeConfig]] — sealed parent class defining node configuration contract
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Actions/WorkflowCreateEntityActionConfig]] — related create operation with same schema type limitation

@@ -8,8 +8,8 @@ tags:
 Created: 2026-03-18
 Updated: 2026-03-18
 Domains:
-  - "[[Entities]]"
-Backend-Feature: "[[Entity Querying]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
+Backend-Feature: "[[riven/docs/system-design/feature-design/4. Completed/Entity Querying]]"
 Pages:
   - "[[Dashboard Layout]]"
 ---
@@ -141,7 +141,7 @@ interface Props extends ClassNameProps {
 }
 ```
 
-- **Shared components used:** [[Data Table Infrastructure]]
+- **Shared components used:** [[riven/docs/frontend-design/architecture/Data Table Infrastructure]]
 - **Children:** DataTableProvider, DataTable, ColumnHeaderPopover, AttributeFormModal, DeleteDefinitionModal
 
 #### useEntityQuery
@@ -212,7 +212,7 @@ None. Search, filter, and sort state are ephemeral — they reset on navigation.
 
 | Endpoint | Method | Backend Feature Section | Purpose |
 | -------- | ------ | ----------------------- | ------- |
-| `/api/entities/query` | POST | [[Entity Querying]] | Paginated entity query with filter + sort |
+| `/api/entities/query` | POST | [[riven/docs/system-design/feature-design/4. Completed/Entity Querying]] | Paginated entity query with filter + sort |
 | `/api/entities` | POST | — | Save/update entity (inline edit) |
 | `/api/entities` | DELETE | — | Bulk delete selected entities |
 
@@ -367,9 +367,9 @@ The OpenAPI-generated `QueryFilterToJSON` has mutual recursion between discrimin
 
 ## Related Documents
 
-- [[Entity Querying]] — Backend entity query API consumed by this feature
-- [[Data Table Infrastructure]] — Shared infinite scroll, server-side sort, and search primitives
-- [[Auth Guard & App Shell]] — Dashboard auth gating that wraps entity routes
+- [[riven/docs/system-design/feature-design/4. Completed/Entity Querying]] — Backend entity query API consumed by this feature
+- [[riven/docs/frontend-design/architecture/Data Table Infrastructure]] — Shared infinite scroll, server-side sort, and search primitives
+- [[riven/docs/frontend-design/architecture/Auth Guard & App Shell]] — Dashboard auth gating that wraps entity routes
 
 ---
 

@@ -108,7 +108,7 @@ Instead of relying on Nango's auth webhook, have the frontend poll the Nango API
 
 ## Related
 
-- [[Integration Data Sync Pipeline]] — Feature design for the sync pipeline triggered after connection creation
-- [[Integration Connection Lifecycle]] — Existing documentation that must be updated to reflect the simplified state machine
-- [[Entity Integration Sync]] — Sub-domain plan for entity sync processing
-- [[ADR-001 Nango as Integration Infrastructure]] — Decision to use Nango, whose webhook delivery model is central to this design
+- [[riven/docs/system-design/flows/Integration Data Sync Pipeline]] — Feature design for the sync pipeline triggered after connection creation
+- [[riven/docs/system-design/flows/Integration Connection Lifecycle]] — Existing documentation that must be updated to reflect the simplified state machine
+- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]] — Sub-domain plan for entity sync processing
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-001 Nango as Integration Infrastructure]] — Decision to use Nango, whose webhook delivery model is central to this design

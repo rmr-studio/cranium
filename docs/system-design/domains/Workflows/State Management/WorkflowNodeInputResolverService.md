@@ -6,9 +6,9 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-08
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
-Part of [[State Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/State Management]]
 
 # WorkflowNodeInputResolverService
 
@@ -44,8 +44,8 @@ Resolves template references in node configurations against the workflow datasto
 
 |Component|Purpose|Coupling|
 |---|---|---|
-|[[WorkflowNodeTemplateParserService]]|Parses template syntax, extracts paths|High|
-|[[WorkflowDataStore]]|Read-only access to workflow state (steps, trigger, variables, loops)|High|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/WorkflowNodeTemplateParserService]]|Parses template syntax, extracts paths|High|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/WorkflowDataStore]]|Read-only access to workflow state (steps, trigger, variables, loops)|High|
 
 ### External Dependencies
 
@@ -69,7 +69,7 @@ class WorkflowNodeInputResolverService(
 
 |Component|How It Uses This|Notes|
 |---|---|---|
-|[[WorkflowNodeExecutionService]]|Resolves node input configurations before execution|Critical path - node can't execute without resolved inputs|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/WorkflowNodeExecutionService]]|Resolves node input configurations before execution|Critical path - node can't execute without resolved inputs|
 |Various Node Handlers|Resolve dynamic values from workflow state|Each handler may call resolve() or resolveAll()|
 
 ---
@@ -426,7 +426,7 @@ _This component does NOT access database directly - reads from in-memory Workflo
 
 |Flow|Role in Flow|
 |---|---|
-|[[Flow - Node Input Resolution]]|Implements template resolution step|
+|[[riven/docs/system-design/flows/Flow - Node Input Resolution]]|Implements template resolution step|
 |[[Flow - Workflow Execution]]|Called during node preparation phase|
 
 ---
@@ -467,10 +467,10 @@ Integration tests should verify:
 
 ## Related
 
-- [[State Management]] - Parent subdomain
-- [[WorkflowNodeTemplateParserService]] - Parses template syntax
-- [[WorkflowDataStore]] - Data source for resolution
-- [[WorkflowNodeExecutionService]] - Consumes resolved inputs
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/State Management]] - Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/WorkflowNodeTemplateParserService]] - Parses template syntax
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/WorkflowDataStore]] - Data source for resolution
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/WorkflowNodeExecutionService]] - Consumes resolved inputs
 
 ---
 

@@ -95,7 +95,7 @@ _List each new service/component this feature introduces_
 | Component                | Change Required                                        | Impact |
 | ------------------------ | ------------------------------------------------------ | ------ |
 | [[TagInput]]             | Fetch workspace tags for suggestions                   |        |
-| [[EntityTypeService]]    | Resolve tag references on save/load                    |        |
+| [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]]    | Resolve tag references on save/load                    |        |
 | [[WorkspaceSettings]]    | Add tag management surface                             |        |
 
 ### Component Interaction Diagram

@@ -6,9 +6,9 @@ tags:
 Created:
 Updated:
 Domains:
-  - "[[Integrations]]"
-  - "[[Entities]]"
-Sub-Domain: "[[Entity Integration Sync]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
+Sub-Domain: "[[riven/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]]"
 ---
 
 # Feature: Integration Schema Mapping
@@ -17,13 +17,13 @@ Sub-Domain: "[[Entity Integration Sync]]"
 ## 1. Overview
 
 ### Problem Statement
-When integration data is synced from a third party tool via the infrastructure covered in [[Integration Access Layer]], the data is still in its raw form and needs to be converted into an entity model that can be integrated into the entity ecosystem. The entity model conversion should allow for internal relationships between models from the same integration to maintain existing relationships.
+When integration data is synced from a third party tool via the infrastructure covered in [[riven/docs/system-design/feature-design/3. Active/Integration Access Layer]], the data is still in its raw form and needs to be converted into an entity model that can be integrated into the entity ecosystem. The entity model conversion should allow for internal relationships between models from the same integration to maintain existing relationships.
 
 Without a structured mapping layer, each integration would require bespoke transformation code — a Kotlin class per integration defining how to convert raw payloads into entity attributes. This approach does not scale: it requires code changes for every new integration, raises the barrier for community contributors, and prevents self-hosters from adding custom integrations without forking the codebase.
 
 ### Proposed Solution
 
-Per [[ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]], schema mappings are defined **declaratively in JSON manifest files** rather than as per-integration code implementations.
+Per [[riven/docs/system-design/decisions/ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]], schema mappings are defined **declaratively in JSON manifest files** rather than as per-integration code implementations.
 
 Each integration's manifest (`integrations/{slug}/manifest.json`) contains:
 - **Entity type schemas** — the readonly entity types this integration introduces (e.g., HubSpot Contact, Stripe Invoice)
@@ -35,7 +35,7 @@ Each integration's manifest (`integrations/{slug}/manifest.json`) contains:
 	- Default values for missing fields
 	- Conditional mapping (if field exists, map it; otherwise skip)
 - **Relationship definitions** — how entity types within the same integration connect to each other (e.g., HubSpot Contact → HubSpot Deal)
-- **Semantic metadata** — natural language definitions and classifications per [[Semantic Metadata Foundation]]
+- **Semantic metadata** — natural language definitions and classifications per [[riven/docs/system-design/feature-design/2. Planned/Semantic Metadata Foundation]]
 
 A **generic mapping engine** (single stateless service, deployed once) interprets these declarative definitions at runtime. The engine:
 1. Receives a raw external payload (JSON) from the sync pipeline
@@ -48,7 +48,7 @@ A **generic mapping engine** (single stateless service, deployed once) interpret
 { "transform": { "type": "plugin", "name": "hubspot-currency-converter" } }
 ```
 
-Manifests are loaded into the database on application startup by the manifest loader (see [[ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates|ADR-004]]). Application code queries mapping definitions from the database at runtime, not from the filesystem.
+Manifests are loaded into the database on application startup by the manifest loader (see [[riven/docs/system-design/decisions/ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates|ADR-004]]). Application code queries mapping definitions from the database at runtime, not from the filesystem.
 
 ### Success Criteria
 
@@ -373,12 +373,12 @@ _Is existing data affected? How will it be migrated?_
 
 ## Related Documents
 
-- [[ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]
-- [[Integration Access Layer]]
-- [[Predefined Integration Entity Types]]
-- [[Entity Integration Sync]]
-- [[Semantic Metadata Foundation]]
-- [[WorkflowNodeConfigRegistry]] — analogous registry pattern for custom transform plugins
+- [[riven/docs/system-design/decisions/ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]
+- [[riven/docs/system-design/feature-design/3. Active/Integration Access Layer]]
+- [[riven/docs/system-design/feature-design/3. Active/Predefined Integration Entity Types]]
+- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]]
+- [[riven/docs/system-design/feature-design/2. Planned/Semantic Metadata Foundation]]
+- [[riven/docs/system-design/domains/Workflows/Node Execution/WorkflowNodeConfigRegistry]] — analogous registry pattern for custom transform plugins
 
 ---
 

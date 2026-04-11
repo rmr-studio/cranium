@@ -6,8 +6,8 @@ tags:
 Created: 2026-04-01
 Updated: 2026-04-01
 Domains:
-  - "[[Knowledge]]"
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Knowledge/Knowledge]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 blocked by: []
 ---
 # Feature: Business Definition Layer
@@ -142,10 +142,10 @@ CatalogManifest ---(suggests)---> WorkspaceBusinessDefinition (during template i
 
 | Component | Change Required | Impact |
 |-----------|----------------|--------|
-| [[KnowledgeController]] | Add 6 new REST endpoints for business definition CRUD | Low — additive endpoints |
-| [[TemplateInstallationService]] | Read `suggestedDefinitions` from manifest and create workspace definitions during template install | Low — additive step in installation flow |
-| [[Prompt Construction for Knowledge Model Queries]] | Inject loaded workspace definitions into AI system prompt | Medium — new step in prompt construction pipeline |
-| [[Lifecycle Analytics Views]] | Consume `compiled_params` from definitions instead of hardcoded metric logic | Medium — view rendering must load and use compiled params |
+| [[riven/docs/system-design/domains/Knowledge/KnowledgeController]] | Add 6 new REST endpoints for business definition CRUD | Low — additive endpoints |
+| [[riven/docs/system-design/domains/Catalog/Template Installation/TemplateInstallationService]] | Read `suggestedDefinitions` from manifest and create workspace definitions during template install | Low — additive step in installation flow |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Prompt Construction for Knowledge Model Queries]] | Inject loaded workspace definitions into AI system prompt | Medium — new step in prompt construction pipeline |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Lifecycle Analytics Views]] | Consume `compiled_params` from definitions instead of hardcoded metric logic | Medium — view rendering must load and use compiled params |
 
 ### Component Interaction Diagram
 
@@ -521,11 +521,11 @@ No backfill needed. Existing workspaces start with empty definitions and receive
 
 ## Related Documents
 
-- [[Entity Semantics]] — existing schema-level semantic metadata (complementary, not replaced)
-- [[Knowledge]] — parent domain for business definition endpoints
-- [[Prompt Construction for Knowledge Model Queries]] — AI prompt pipeline that consumes definitions
-- [[Lifecycle Analytics Views]] — views that consume compiled definition parameters
-- [[Lifecycle-Aware Onboarding Flow]] — onboarding flow gains definition prompt step
+- [[riven/docs/system-design/domains/Entities/Entity Semantics/Entity Semantics]] — existing schema-level semantic metadata (complementary, not replaced)
+- [[riven/docs/system-design/domains/Knowledge/Knowledge]] — parent domain for business definition endpoints
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Prompt Construction for Knowledge Model Queries]] — AI prompt pipeline that consumes definitions
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Lifecycle Analytics Views]] — views that consume compiled definition parameters
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Lifecycle-Aware Onboarding Flow]] — onboarding flow gains definition prompt step
 - [[1. Application Overview]] — problem statement and ICP context
 - [[Launch Scope and Phasing]] — Phase 1 scope includes this feature
 

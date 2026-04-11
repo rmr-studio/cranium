@@ -5,7 +5,7 @@ tags:
   - tools/nango
 Created: 2026-03-18
 Domains:
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 # Subdomain: Webhook Authentication
 
@@ -17,15 +17,15 @@ Handles inbound Nango webhook events for the Integrations domain. After a user c
 
 | Component | Purpose | Type |
 | --------- | ------- | ---- |
-| [[NangoWebhookService]] | Routes and processes inbound Nango webhook events — auth events create connections and trigger materialization, sync events are stubbed for Phase 3 | Service |
-| [[NangoWebhookHmacFilter]] | Servlet filter validating HMAC-SHA256 signatures on inbound Nango webhook requests | Filter |
-| [[NangoWebhookController]] | Thin REST controller exposing `POST /api/v1/webhooks/nango`, always returns 200 | Controller |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookService]] | Routes and processes inbound Nango webhook events — auth events create connections and trigger materialization, sync events are stubbed for Phase 3 | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookHmacFilter]] | Servlet filter validating HMAC-SHA256 signatures on inbound Nango webhook requests | Filter |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookController]] | Thin REST controller exposing `POST /api/v1/webhooks/nango`, always returns 200 | Controller |
 
 ## Flows
 
 | Flow | Type | Description |
 |------|------|-------------|
-| [[Flow - Auth Webhook]] | Background | Nango sends auth webhook after OAuth -> HMAC validation -> connection creation -> installation tracking -> materialization |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/Flow - Auth Webhook]] | Background | Nango sends auth webhook after OAuth -> HMAC validation -> connection creation -> installation tracking -> materialization |
 
 ---
 

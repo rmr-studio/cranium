@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-19
 Updated: 2026-02-19
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # EntityTypeSemanticMetadataRepository
 
-Part of [[Entity Semantics]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Semantics/Entity Semantics]]
 
 ## Purpose
 
@@ -34,7 +34,7 @@ Data access layer for semantic metadata records, providing derived queries for c
 
 ## Used By
 
-- [[EntityTypeSemanticMetadataService]] — sole consumer of this repository
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]] — sole consumer of this repository
 
 ---
 
@@ -68,5 +68,5 @@ Data access layer for semantic metadata records, providing derived queries for c
 
 ## Related
 
-- [[EntityTypeSemanticMetadataService]] — sole consumer
-- [[Entity Semantics]] — parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]] — sole consumer
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Semantics/Entity Semantics]] — parent subdomain

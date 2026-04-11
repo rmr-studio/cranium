@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-19
 Updated: 2026-02-19
 Domains:
-  - "[[Knowledge]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Knowledge/Knowledge]]"
 ---
 # KnowledgeController
 
-Part of [[Knowledge]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Knowledge/Knowledge]]
 
 ## Purpose
 
@@ -23,15 +23,15 @@ REST controller exposing 8 endpoints for semantic metadata CRUD at `/api/v1/know
 - Expose semantic metadata CRUD endpoints grouped by scope (entity type, attribute, relationship)
 - Provide bulk attribute metadata upsert for efficient multi-attribute updates
 - Expose full metadata bundle endpoint combining all scopes in one response
-- Delegate all business logic to [[EntityTypeSemanticMetadataService]]
+- Delegate all business logic to [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]]
 - OpenAPI documentation via `@Operation` and `@ApiResponses`
 
 ---
 
 ## Dependencies
 
-- [[EntityTypeSemanticMetadataService]] — all business logic for metadata CRUD
-- [[EntityTypeService]] — bundle construction for full metadata retrieval
+- [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]] — all business logic for metadata CRUD
+- [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] — bundle construction for full metadata retrieval
 
 ## Used By
 
@@ -94,6 +94,6 @@ No business logic in the controller — all validation, authorization, and persi
 
 ## Related
 
-- [[EntityTypeSemanticMetadataService]] — business logic
-- [[Knowledge]] — parent domain
-- [[Entity Semantics]] — owns the underlying data model
+- [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]] — business logic
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Knowledge/Knowledge]] — parent domain
+- [[riven/docs/system-design/domains/Entities/Entity Semantics/Entity Semantics]] — owns the underlying data model

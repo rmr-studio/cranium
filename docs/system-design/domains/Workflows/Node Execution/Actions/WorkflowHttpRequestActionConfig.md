@@ -1,6 +1,6 @@
 ---
 Created:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 Updated: 2026-02-09
 ---
 # WorkflowHttpRequestActionConfig
@@ -34,8 +34,8 @@ Makes HTTP requests to external URLs with template-resolved parameters and SSRF 
 
 | Component | Purpose | Coupling |
 |---|---|---|
-| [[WorkflowNodeConfigValidationService]] | Validates template syntax and config fields | Medium |
-| [[WorkflowNodeConfig]] | Sealed parent class for all node configurations | High |
+| [[riven/docs/system-design/domains/Workflows/Node Execution/WorkflowNodeConfigValidationService]] | Validates template syntax and config fields | Medium |
+| [[riven/apps/client/lib/types/docs/WorkflowNodeConfig]] | Sealed parent class for all node configurations | High |
 
 ### External Dependencies
 
@@ -49,8 +49,8 @@ Makes HTTP requests to external URLs with template-resolved parameters and SSRF 
 
 | Component | How It Uses This | Notes |
 |---|---|---|
-| [[WorkflowNodeConfigRegistry]] | Discovers at startup via classpath scan | Auto-registration |
-| [[WorkflowNode]] | Executes via `execute()` method | At workflow runtime |
+| [[riven/docs/system-design/domains/Workflows/Node Execution/WorkflowNodeConfigRegistry]] | Discovers at startup via classpath scan | Auto-registration |
+| [[riven/apps/client/lib/types/docs/WorkflowNode]] | Executes via `execute()` method | At workflow runtime |
 
 ---
 
@@ -217,5 +217,5 @@ Single request attempt only. Network failures, timeouts, or 5xx errors fail the 
 
 ## Related
 
-- [[Action Nodes]] — category-level overview of all action node types
-- [[WorkflowNodeConfig]] — sealed parent class defining node configuration contract
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Actions/Action Nodes]] — category-level overview of all action node types
+- [[riven/apps/client/lib/types/docs/WorkflowNodeConfig]] — sealed parent class defining node configuration contract

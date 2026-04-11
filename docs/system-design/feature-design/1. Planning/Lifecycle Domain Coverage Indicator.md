@@ -9,11 +9,11 @@ tags:
 Created: 2026-03-18
 Updated:
 Domains:
-  - "[[Entities]]"
-  - "[[Knowledge]]"
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
+  - "[[riven/docs/system-design/domains/Knowledge/Knowledge]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 blocked by:
-  - "[[Lifecycle Domain Model]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Lifecycle Domain Model]]"
 ---
 # Feature: Lifecycle Domain Coverage Indicator
 
@@ -50,9 +50,9 @@ Computed by checking which `LifecycleDomain` values have at least one entity typ
 
 ## Related Documents
 
-- [[Lifecycle Domain Model]] — domains being measured
-- [[Lifecycle-Aware Onboarding Flow]] — coverage summary during onboarding
-- [[Lifecycle Operations Dashboard]] — persistent indicator on dashboard
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Lifecycle Domain Model]] — domains being measured
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Lifecycle-Aware Onboarding Flow]] — coverage summary during onboarding
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Lifecycle Operations Dashboard]] — persistent indicator on dashboard
 - [[SaaS Decline & Strategic Positioning]] — source-agnostic design rationale
 - CEO Plan: Lifecycle Vertical Scoping (2026-03-18)
 

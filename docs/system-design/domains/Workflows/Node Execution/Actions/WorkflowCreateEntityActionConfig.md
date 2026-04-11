@@ -1,6 +1,6 @@
 ---
 Created:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 Updated: 2026-02-09
 ---
 # WorkflowCreateEntityActionConfig
@@ -15,19 +15,19 @@ Creates new entity instances within workflows with template-resolved entity type
 
 - Configure creation parameters (entity type, attribute payload, timeout)
 - Validate entity type ID and payload template syntax
-- Execute entity creation via [[EntityService]]
+- Execute entity creation via [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]]
 - Return created entity metadata (ID, type, payload)
 
 ## Dependencies
 
-- [[EntityService]] — creates entity instances with validated payload
-- [[WorkflowNodeConfigValidationService]] — validates template syntax and UUIDs
-- [[WorkflowNodeConfig]] — sealed parent class for all node configurations
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]] — creates entity instances with validated payload
+- [[riven/docs/system-design/domains/Workflows/Node Execution/WorkflowNodeConfigValidationService]] — validates template syntax and UUIDs
+- [[riven/apps/client/lib/types/docs/WorkflowNodeConfig]] — sealed parent class for all node configurations
 
 ## Used By
 
-- [[WorkflowNodeConfigRegistry]] — discovers at application startup via classpath scan
-- [[WorkflowNode]] — executes via `execute()` method during workflow runtime
+- [[riven/docs/system-design/domains/Workflows/Node Execution/WorkflowNodeConfigRegistry]] — discovers at application startup via classpath scan
+- [[riven/apps/client/lib/types/docs/WorkflowNode]] — executes via `execute()` method during workflow runtime
 
 ---
 
@@ -131,6 +131,6 @@ schemaType = SchemaType.TEXT  // Default to TEXT, infer from schema later
 
 ## Related
 
-- [[Action Nodes]] — category-level overview of all action node types
-- [[WorkflowNodeConfig]] — sealed parent class defining node configuration contract
-- [[Entity Querying]] — related entity operations (Entities domain)
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Actions/Action Nodes]] — category-level overview of all action node types
+- [[riven/apps/client/lib/types/docs/WorkflowNodeConfig]] — sealed parent class defining node configuration contract
+- [[riven/docs/system-design/feature-design/4. Completed/Entity Querying]] — related entity operations (Entities domain)

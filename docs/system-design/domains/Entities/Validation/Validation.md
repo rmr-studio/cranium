@@ -4,7 +4,7 @@ tags:
   - domain/entity
 Created: 2026-02-08
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # Subdomain: Validation
 
@@ -16,7 +16,7 @@ Validates entity instances against their type schemas before persistence. Ensure
 
 | Component | Purpose | Type |
 | --------- | ------- | ---- |
-| [[EntityValidationService]] | Schema validation for entity save operations | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Validation/EntityValidationService]] | Schema validation for entity save operations | Service |
 
 ## Technical Debt
 

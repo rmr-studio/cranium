@@ -6,11 +6,11 @@ tags:
 Created: 2026-03-09
 Updated: 2026-03-09
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # EntityAttributeRepository
 
-Part of [[Entity Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/Entity Management]]
 
 ## Purpose
 
@@ -32,7 +32,7 @@ JPA repository for normalized entity attribute values stored in the `entity_attr
 
 ## Used By
 
-- [[EntityAttributeService]] — All attribute CRUD operations
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityAttributeService]] — All attribute CRUD operations
 - [[IdentityResolutionService]] — Identifier key matching (Check 2) during projection identity resolution
 
 ---
@@ -88,6 +88,6 @@ Batch identifier value lookup for projection identity resolution (Check 2). Nati
 
 ## Related
 
-- [[EntityAttributeEntity]] — JPA entity
-- [[EntityAttributeService]] — Service consumer
-- [[Entity Management]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityAttributeEntity]] — JPA entity
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityAttributeService]] — Service consumer
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/Entity Management]] — Parent subdomain

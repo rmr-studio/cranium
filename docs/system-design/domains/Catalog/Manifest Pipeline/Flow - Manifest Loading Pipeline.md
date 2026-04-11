@@ -4,7 +4,7 @@ tags:
   - architecture/flow
   - domain/catalog
 Domains:
-  - "[[Catalog]]"
+  - "[[riven/docs/system-design/domains/Catalog/Catalog]]"
 Created: 2026-03-06
 ---
 # Flow: Manifest Loading Pipeline
@@ -21,7 +21,7 @@ Background startup flow that populates the manifest catalog from classpath JSON 
 
 ## Entry Point
 
-[[ManifestLoaderService]]
+[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestLoaderService]]
 
 ---
 
@@ -90,12 +90,12 @@ sequenceDiagram
 
 ## Components Involved
 
-- [[ManifestLoaderService]]
-- [[ManifestScannerService]]
-- [[ManifestResolverService]]
-- [[ManifestUpsertService]]
-- [[ManifestReconciliationService]]
-- [[IntegrationDefinitionStaleSyncService]]
-- [[ManifestCatalogHealthIndicator]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestLoaderService]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestScannerService]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestResolverService]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestUpsertService]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestReconciliationService]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/IntegrationDefinitionStaleSyncService]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestCatalogHealthIndicator]]
 - [[CoreModelCatalogService]]
 - [[CoreModelRegistry]]

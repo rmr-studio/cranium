@@ -1,6 +1,6 @@
 ---
 Created:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 Updated: 2026-02-09
 ---
 # WorkflowEntityEventTriggerConfig
@@ -22,12 +22,12 @@ Triggers workflow execution when entity operations (CREATE, UPDATE, DELETE) occu
 
 ## Dependencies
 
-- [[WorkflowTriggerConfig]] — parent sealed interface
-- [[WorkflowNodeConfig]] — sealed parent class for all node configurations
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Triggers/WorkflowTriggerConfig]] — parent sealed interface
+- [[riven/apps/client/lib/types/docs/WorkflowNodeConfig]] — sealed parent class for all node configurations
 
 ## Used By
 
-- [[WorkflowNodeConfigRegistry]] — discovered and registered at startup via reflection
+- [[riven/docs/system-design/domains/Workflows/Node Execution/WorkflowNodeConfigRegistry]] — discovered and registered at startup via reflection
 
 ---
 
@@ -74,6 +74,6 @@ Triggers workflow execution when entity operations (CREATE, UPDATE, DELETE) occu
 
 ## Related
 
-- [[Trigger Nodes]] — category-level overview of all trigger types
-- [[WorkflowNodeConfig]] — sealed parent class
-- [[WorkflowTriggerConfig]] — parent sealed interface
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Triggers/Trigger Nodes]] — category-level overview of all trigger types
+- [[riven/apps/client/lib/types/docs/WorkflowNodeConfig]] — sealed parent class
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Triggers/WorkflowTriggerConfig]] — parent sealed interface

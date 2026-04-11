@@ -4,13 +4,13 @@ tags:
   - component/active
   - architecture/component
 Domains:
-  - "[[Workspaces & Users]]"
+  - "[[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]"
 Created: 2026-03-12
 Updated: 2026-03-12
 ---
 # OnboardingService
 
-Part of [[2. Areas/2.1 Startup & Business/Riven/2. System Design/domains/Workspaces & Users/Onboarding/Onboarding]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Onboarding/Onboarding]]
 
 ## Purpose
 
@@ -21,21 +21,21 @@ Orchestrates the complete user onboarding flow in a single request: creates a wo
 ## Responsibilities
 
 - Validate onboarding eligibility (user has not already completed onboarding)
-- Create workspace with OWNER membership via [[WorkspaceService]]
-- Update user profile (name, phone, default workspace, onboarding timestamp) via [[UserService]]
-- Install catalog templates and bundles via [[TemplateInstallationService]] with per-item error isolation
-- Send workspace invitations via [[WorkspaceInviteService]] with per-invite error isolation and validation (no self-invite, no OWNER role)
+- Create workspace with OWNER membership via [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceService]]
+- Update user profile (name, phone, default workspace, onboarding timestamp) via [[riven/docs/system-design/domains/Workspaces & Users/User Management/UserService]]
+- Install catalog templates and bundles via [[riven/docs/system-design/domains/Catalog/Template Installation/TemplateInstallationService]] with per-item error isolation
+- Send workspace invitations via [[riven/docs/system-design/domains/Workspaces & Users/Team Management/WorkspaceInviteService]] with per-invite error isolation and validation (no self-invite, no OWNER role)
 - Activity logging for the onboarding event
 
 ---
 
 ## Dependencies
 
-- [[WorkspaceService]] -- workspace creation (delegates OWNER membership and default workspace assignment)
-- [[UserService]] -- user profile retrieval and update
-- [[TemplateInstallationService]] -- catalog template and bundle installation into the new workspace
-- [[WorkspaceInviteService]] -- workspace invitation creation
-- [[AuthTokenService]] -- current user ID and email from JWT
+- [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceService]] -- workspace creation (delegates OWNER membership and default workspace assignment)
+- [[riven/docs/system-design/domains/Workspaces & Users/User Management/UserService]] -- user profile retrieval and update
+- [[riven/docs/system-design/domains/Catalog/Template Installation/TemplateInstallationService]] -- catalog template and bundle installation into the new workspace
+- [[riven/docs/system-design/domains/Workspaces & Users/Team Management/WorkspaceInviteService]] -- workspace invitation creation
+- [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]] -- current user ID and email from JWT
 - `ActivityService` -- audit logging for the onboarding operation
 - `TransactionTemplate` -- programmatic transaction boundary for Phase 1
 
@@ -55,10 +55,10 @@ The onboarding flow is split into two phases with different failure semantics:
 - **Phase 2 (best-effort):** Template installation and invitation sending run after the Phase 1 transaction commits. Each item is individually wrapped in try/catch so a single template or invite failure does not block the others. Results are collected and returned to the client with per-item success/failure status.
 
 **completeOnboarding:**
-1. Retrieves `userId` from JWT via [[AuthTokenService]]
+1. Retrieves `userId` from JWT via [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]]
 2. Validates eligibility -- checks `user.onboardingCompletedAt` is null, throws `ConflictException` if already completed
-3. Phase 1 transaction: creates workspace (with optional avatar) via [[WorkspaceService]], then updates user profile (name, phone, default workspace, `onboardingCompletedAt` timestamp) via [[UserService]], with optional profile avatar upload
-4. Phase 2 best-effort: iterates `templateKeys` and `bundleKeys`, installing each via [[TemplateInstallationService]] with individual error isolation; iterates `invites`, sending each via [[WorkspaceInviteService]] with validation and error isolation
+3. Phase 1 transaction: creates workspace (with optional avatar) via [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceService]], then updates user profile (name, phone, default workspace, `onboardingCompletedAt` timestamp) via [[riven/docs/system-design/domains/Workspaces & Users/User Management/UserService]], with optional profile avatar upload
+4. Phase 2 best-effort: iterates `templateKeys` and `bundleKeys`, installing each via [[riven/docs/system-design/domains/Catalog/Template Installation/TemplateInstallationService]] with individual error isolation; iterates `invites`, sending each via [[riven/docs/system-design/domains/Workspaces & Users/Team Management/WorkspaceInviteService]] with validation and error isolation
 5. Returns `CompleteOnboardingResponse` containing the created workspace, updated user, and lists of `TemplateInstallResult` and `InviteResult`
 
 **Invite validation (sendInviteSafely):**
@@ -97,12 +97,12 @@ Executes the full onboarding flow. Phase 1 (workspace + profile) is atomic; Phas
 
 ## Related
 
-- [[WorkspaceService]] -- Workspace creation and membership
-- [[UserService]] -- Profile update and onboarding timestamp
-- [[TemplateInstallationService]] -- Catalog template/bundle installation
-- [[WorkspaceInviteService]] -- Invitation creation
-- [[AuthTokenService]] -- JWT user identity
-- [[2. Areas/2.1 Startup & Business/Riven/2. System Design/domains/Workspaces & Users/Onboarding/Onboarding]] -- Parent subdomain
+- [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceService]] -- Workspace creation and membership
+- [[riven/docs/system-design/domains/Workspaces & Users/User Management/UserService]] -- Profile update and onboarding timestamp
+- [[riven/docs/system-design/domains/Catalog/Template Installation/TemplateInstallationService]] -- Catalog template/bundle installation
+- [[riven/docs/system-design/domains/Workspaces & Users/Team Management/WorkspaceInviteService]] -- Invitation creation
+- [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]] -- JWT user identity
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Onboarding/Onboarding]] -- Parent subdomain
 
 ---
 

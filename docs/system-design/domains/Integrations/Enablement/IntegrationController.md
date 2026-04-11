@@ -6,15 +6,15 @@ tags:
 Created: 2025-07-17
 Updated: 2026-03-18
 Domains:
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 # IntegrationController
 
-Part of [[Enablement]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/Enablement]]
 
 ## Purpose
 
-REST controller providing the Integrations domain's HTTP API surface — three endpoints for listing available integrations, checking workspace integration status, and disabling integrations. The `POST /enable` endpoint was removed in Phase 2 — integration enablement is now webhook-driven via [[NangoWebhookController]].
+REST controller providing the Integrations domain's HTTP API surface — three endpoints for listing available integrations, checking workspace integration status, and disabling integrations. The `POST /enable` endpoint was removed in Phase 2 — integration enablement is now webhook-driven via [[riven/docs/system-design/domains/Integrations/Webhook Authentication/NangoWebhookController]].
 
 ---
 
@@ -23,15 +23,15 @@ REST controller providing the Integrations domain's HTTP API surface — three e
 - Expose `GET /api/v1/integrations` for listing available integration definitions
 - Expose `GET /api/v1/integrations/{workspaceId}/status` for workspace integration connection status
 - Expose `POST /api/v1/integrations/{workspaceId}/disable` for disabling an integration
-- Delegate all business logic to [[IntegrationEnablementService]] (disable), [[IntegrationDefinitionService]] (listing), and [[IntegrationConnectionService]] (status)
+- Delegate all business logic to [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/IntegrationEnablementService]] (disable), [[IntegrationDefinitionService]] (listing), and [[riven/docs/system-design/domains/Integrations/Connection Management/IntegrationConnectionService]] (status)
 
 ---
 
 ## Dependencies
 
-- [[IntegrationEnablementService]] — Disable orchestration
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/IntegrationEnablementService]] — Disable orchestration
 - [[IntegrationDefinitionService]] — Active integration definition listing
-- [[IntegrationConnectionService]] — Workspace connection status queries
+- [[riven/docs/system-design/domains/Integrations/Connection Management/IntegrationConnectionService]] — Workspace connection status queries
 
 ---
 
@@ -53,10 +53,10 @@ Thin controller — delegates entirely to services. No business logic. Uses `@Va
 
 ## Related
 
-- [[IntegrationEnablementService]] — disable business logic
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/IntegrationEnablementService]] — disable business logic
 - [[IntegrationDefinitionService]] — integration catalog queries
-- [[IntegrationConnectionService]] — connection status queries
-- [[Enablement]] — parent subdomain
+- [[riven/docs/system-design/domains/Integrations/Connection Management/IntegrationConnectionService]] — connection status queries
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/Enablement]] — parent subdomain
 
 ---
 
@@ -68,5 +68,5 @@ Thin controller — delegates entirely to services. No business logic. Uses `@Va
 
 ### 2026-03-18
 
-- Removed `POST /enable` endpoint — integration enablement is now webhook-driven via [[NangoWebhookController]]
+- Removed `POST /enable` endpoint — integration enablement is now webhook-driven via [[riven/docs/system-design/domains/Integrations/Webhook Authentication/NangoWebhookController]]
 - Controller now has three endpoints: list, status, disable

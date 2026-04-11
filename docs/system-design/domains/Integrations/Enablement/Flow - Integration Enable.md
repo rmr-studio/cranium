@@ -6,11 +6,11 @@ tags:
 Created: 2025-07-17
 Updated: 2026-03-18
 Domains:
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 # Flow: Integration Enable (Deprecated)
 
-> **This flow has been replaced.** As of Phase 2 (2026-03-18), integration enablement is webhook-driven. See [[Flow - Auth Webhook]] for the current flow.
+> **This flow has been replaced.** As of Phase 2 (2026-03-18), integration enablement is webhook-driven. See [[riven/docs/system-design/domains/Integrations/Webhook Authentication/Flow - Auth Webhook]] for the current flow.
 
 ## What Changed
 
@@ -24,10 +24,10 @@ The original `POST /api/v1/integrations/{workspaceId}/enable` endpoint has been 
 **Current flow:**
 1. Frontend opens Nango Connect UI, passing tags (userId, workspaceId, integrationDefinitionId)
 2. Nango completes OAuth and sends a signed webhook to `POST /api/v1/webhooks/nango`
-3. [[NangoWebhookService]] creates the connection, installation, and triggers materialization
+3. [[riven/docs/system-design/domains/Integrations/Webhook Authentication/NangoWebhookService]] creates the connection, installation, and triggers materialization
 4. Frontend polls `GET /api/v1/integrations/{workspaceId}/status` to detect the new connection
 
-See [[Flow - Auth Webhook]] for the complete current flow documentation.
+See [[riven/docs/system-design/domains/Integrations/Webhook Authentication/Flow - Auth Webhook]] for the complete current flow documentation.
 
 ## Why It Changed
 
@@ -37,7 +37,7 @@ The webhook-driven approach eliminates client-side coordination of OAuth complet
 
 ## Components Involved (Current)
 
-- [[NangoWebhookHmacFilter]]
-- [[NangoWebhookController]]
-- [[NangoWebhookService]]
-- [[TemplateMaterializationService]]
+- [[riven/docs/system-design/domains/Integrations/Webhook Authentication/NangoWebhookHmacFilter]]
+- [[riven/docs/system-design/domains/Integrations/Webhook Authentication/NangoWebhookController]]
+- [[riven/docs/system-design/domains/Integrations/Webhook Authentication/NangoWebhookService]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/TemplateMaterializationService]]

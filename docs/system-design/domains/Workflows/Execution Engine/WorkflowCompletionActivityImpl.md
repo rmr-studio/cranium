@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-08
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # WorkflowCompletionActivityImpl
 
-Part of [[Execution Engine]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/Execution Engine]]
 
 ## Purpose
 
@@ -35,7 +35,7 @@ Temporal activity for recording final workflow execution status, updating both t
 
 ## Used By
 
-- [[WorkflowOrchestrationService]] — Invokes after DAG execution completes
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowOrchestrationService]] — Invokes after DAG execution completes
 
 ---
 
@@ -74,12 +74,12 @@ Records final workflow status. Updates execution record with status and duration
 
 - **Missing record handling:** If execution or queue item not found, logs warning but doesn't fail. The workflow completed regardless, so completion service shouldn't crash.
 - **Error structure conversion:** Converts `WorkflowExecutionError` domain model to JSONB map for PostgreSQL storage via `mapErrorToJson()`.
-- **Independent lifecycle:** Operates independently of [[WorkflowExecutionDispatcherService]]. Dispatcher claims work, this service records completion.
+- **Independent lifecycle:** Operates independently of [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionDispatcherService]]. Dispatcher claims work, this service records completion.
 
 ---
 
 ## Related
 
-- [[WorkflowOrchestrationService]] — Caller
-- [[WorkflowExecutionDispatcherService]] — Owns queue claiming
-- [[Queue Management]] — Queue lifecycle
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowOrchestrationService]] — Caller
+- [[riven/docs/system-design/domains/Workflows/Queue Management/WorkflowExecutionDispatcherService]] — Owns queue claiming
+- [[riven/docs/system-design/domains/Workflows/Queue Management/Queue Management]] — Queue lifecycle

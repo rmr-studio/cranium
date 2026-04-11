@@ -4,13 +4,13 @@ tags:
   - component/active
   - architecture/component
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 Created: 2026-02-08
 Updated: 2026-02-08
 ---
 # WorkflowNodeServiceInjectionProvider
 
-Part of [[Node Execution]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Node Execution]]
 
 ## Purpose
 
@@ -32,8 +32,8 @@ Spring implementation of `NodeServiceProvider` that wraps `ApplicationContext` f
 
 ## Used By
 
-- [[WorkflowGraphCoordinationService]] — Passes instance to `WorkflowNodeConfig.execute()` as `services` parameter
-- [[WorkflowNodeConfig]] implementations — Receive as `services` parameter, call `get()` to resolve needed services (e.g., `EntityService`, `HttpClient`, `EmailService`)
+- [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowGraphCoordinationService]] — Passes instance to `WorkflowNodeConfig.execute()` as `services` parameter
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/WorkflowNodeConfig]] implementations — Receive as `services` parameter, call `get()` to resolve needed services (e.g., `EntityService`, `HttpClient`, `EmailService`)
 
 ---
 
@@ -90,6 +90,6 @@ val result = entityService.create(entityType, fields)
 
 ## Related
 
-- [[WorkflowNodeConfig]] — Receives service provider as `services` parameter
-- [[WorkflowGraphCoordinationService]] — Creates and passes service provider to node execution
-- [[Node Execution]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/WorkflowNodeConfig]] — Receives service provider as `services` parameter
+- [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowGraphCoordinationService]] — Creates and passes service provider to node execution
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Node Execution]] — Parent subdomain

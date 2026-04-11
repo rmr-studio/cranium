@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-08
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # WorkflowGraphService
 
-Part of [[Definition Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Definition Management/Definition Management]]
 
 ## Purpose
 
@@ -115,6 +115,6 @@ Retrieves complete graph for workflow definition. Fetches node IDs from workflow
 
 ## Related
 
-- [[WorkflowDefinitionService]] — Manages workflow metadata
-- [[WorkflowGraphValidationService]] — Validates graph structure
-- [[Definition Management]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Definition Management/WorkflowDefinitionService]] — Manages workflow metadata
+- [[riven/docs/system-design/domains/Workflows/Graph Coordination/WorkflowGraphValidationService]] — Validates graph structure
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Definition Management/Definition Management]] — Parent subdomain

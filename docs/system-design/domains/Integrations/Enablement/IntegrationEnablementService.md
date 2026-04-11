@@ -6,15 +6,15 @@ tags:
 Created: 2025-07-17
 Updated: 2026-03-18
 Domains:
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 # IntegrationEnablementService
 
-Part of [[Enablement]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/Enablement]]
 
 ## Purpose
 
-Orchestrates the disable lifecycle for workspace integrations. Soft-deletes integration entity types and relationships, disconnects the Nango connection, snapshots sync state for gap recovery, and soft-deletes the installation record. Integration enablement (connection creation, installation tracking, materialization) has moved to [[NangoWebhookService]] in the [[Webhook Authentication]] subdomain.
+Orchestrates the disable lifecycle for workspace integrations. Soft-deletes integration entity types and relationships, disconnects the Nango connection, snapshots sync state for gap recovery, and soft-deletes the installation record. Integration enablement (connection creation, installation tracking, materialization) has moved to [[riven/docs/system-design/domains/Integrations/Webhook Authentication/NangoWebhookService]] in the [[riven/docs/system-design/domains/Integrations/Webhook Authentication/Webhook Authentication]] subdomain.
 
 ---
 
@@ -30,14 +30,14 @@ Orchestrates the disable lifecycle for workspace integrations. Soft-deletes inte
 
 - `WorkspaceIntegrationInstallationRepository` — Installation record persistence
 - `IntegrationDefinitionRepository` — Integration definition lookup
-- [[IntegrationConnectionService]] — Nango connection disconnect
-- [[EntityTypeService]] — Soft-delete entity types by integration on disable
+- [[riven/docs/system-design/domains/Integrations/Connection Management/IntegrationConnectionService]] — Nango connection disconnect
+- [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] — Soft-delete entity types by integration on disable
 - `AuthTokenService` — JWT user extraction
 - `ActivityService` — Audit logging
 
 ## Used By
 
-- [[IntegrationController]] — REST endpoint for disable
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/IntegrationController]] — REST endpoint for disable
 
 ---
 
@@ -84,18 +84,18 @@ Transactional method performing the DB mutations for disable. Separated from the
 - **Nango disconnect is best-effort:** `disconnectIfConnected()` catches all exceptions. The disable operation succeeds even if Nango cleanup fails, to avoid leaving the installation in an inconsistent half-disabled state.
 - **Unique constraint on installation:** The `workspace_integration_installations` table has a unique constraint on `(workspace_id, integration_definition_id)`. The soft-delete pattern means only one row per pair ever exists.
 - **Transaction separation is intentional:** The `disableIntegrationTransactional` method is `@Transactional` and handles all DB writes. The Nango disconnect runs AFTER the transaction commits. This is the same pattern used in `IntegrationConnectionService.disconnectConnection`.
-- **No enable functionality:** Enable has moved to [[NangoWebhookService]]. This service no longer handles connection creation, installation creation, or template materialization.
+- **No enable functionality:** Enable has moved to [[riven/docs/system-design/domains/Integrations/Webhook Authentication/NangoWebhookService]]. This service no longer handles connection creation, installation creation, or template materialization.
 
 ---
 
 ## Related
 
-- [[IntegrationController]] — REST API surface
-- [[IntegrationConnectionService]] — Nango connection lifecycle
-- [[TemplateMaterializationService]] — Template-to-entity-type materialization
-- [[WorkspaceIntegrationInstallationEntity]] — Installation tracking entity
-- [[WorkspaceIntegrationInstallationRepository]] — Installation persistence
-- [[Enablement]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/IntegrationController]] — REST API surface
+- [[riven/docs/system-design/domains/Integrations/Connection Management/IntegrationConnectionService]] — Nango connection lifecycle
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/TemplateMaterializationService]] — Template-to-entity-type materialization
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/WorkspaceIntegrationInstallationEntity]] — Installation tracking entity
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/WorkspaceIntegrationInstallationRepository]] — Installation persistence
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/Enablement]] — Parent subdomain
 
 ---
 
@@ -107,7 +107,7 @@ Transactional method performing the DB mutations for disable. Separated from the
 
 ### 2026-03-18
 
-- Removed `enableIntegration()` method — enable lifecycle moved to [[NangoWebhookService]] in [[Webhook Authentication]] subdomain
+- Removed `enableIntegration()` method — enable lifecycle moved to [[riven/docs/system-design/domains/Integrations/Webhook Authentication/NangoWebhookService]] in [[riven/docs/system-design/domains/Integrations/Webhook Authentication/Webhook Authentication]] subdomain
 - Service now handles disable only
 - Separated transactional DB mutations from Nango disconnect call
 - Updated purpose, responsibilities, and documentation to reflect disable-only scope

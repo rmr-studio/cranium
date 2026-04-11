@@ -4,7 +4,7 @@ tags:
   - domain/workflow
 Created: 2026-02-08
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # Subdomain: Graph Coordination
 
@@ -16,9 +16,9 @@ Graph Coordination implements pure graph algorithms for DAG execution. WorkflowG
 
 | Component | Purpose | Type |
 | --------- | ------- | ------------------------------- |
-| [[WorkflowGraphValidationService]] | Validates DAG before execution — cycle detection, edge validation, connectivity check | Service |
-| [[WorkflowGraphTopologicalSorterService]] | Computes execution order using Kahn's algorithm | Service |
-| [[WorkflowGraphQueueManagementService]] | Tracks in-degree map, ready queue, adjacency list — determines which nodes are ready to execute | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Graph Coordination/WorkflowGraphValidationService]] | Validates DAG before execution — cycle detection, edge validation, connectivity check | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Graph Coordination/WorkflowGraphTopologicalSorterService]] | Computes execution order using Kahn's algorithm | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Graph Coordination/WorkflowGraphQueueManagementService]] | Tracks in-degree map, ready queue, adjacency list — determines which nodes are ready to execute | Service |
 
 > [!warning] WorkflowGraphQueueManagementService holds mutable state
 > This service maintains in-memory state (in-degree map, ready queue, adjacency list) and is not thread-safe. It must be instantiated per workflow execution, not shared.

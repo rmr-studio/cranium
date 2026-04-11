@@ -5,15 +5,15 @@ tags:
   - architecture/component
 Created: 2026-03-07
 Domains:
-  - "[[Storage]]"
+  - "[[riven/docs/system-design/domains/Storage/Storage]]"
 ---
 # LocalStorageProvider
 
-Part of [[Provider Adapters]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/Provider Adapters]]
 
 ## Purpose
 
-Filesystem-based [[StorageProvider]] for development and self-hosted deployments. Active when `storage.provider=local`.
+Filesystem-based [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/StorageProvider]] for development and self-hosted deployments. Active when `storage.provider=local`.
 
 ---
 
@@ -30,11 +30,11 @@ Filesystem-based [[StorageProvider]] for development and self-hosted deployments
 ## Dependencies
 
 - `KLogger` — structured logging
-- [[StorageConfigurationProperties]] — `local.basePath` config
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/StorageConfigurationProperties]] — `local.basePath` config
 
 ## Used By
 
-- [[StorageService]] — via [[StorageProvider]] interface
+- [[riven/docs/system-design/domains/Storage/File Management/StorageService]] — via [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/StorageProvider]] interface
 
 ---
 
@@ -70,7 +70,7 @@ Check if file exists at `{basePath}/{key}`.
 Always throws `UnsupportedOperationException`. Local storage does not support presigned upload URLs.
 
 ### `generateSignedUrl(key, expiresIn): String`
-Always throws `UnsupportedOperationException`. [[StorageService]] falls back to HMAC-based [[SignedUrlService]].
+Always throws `UnsupportedOperationException`. [[riven/docs/system-design/domains/Storage/File Management/StorageService]] falls back to HMAC-based [[riven/docs/system-design/domains/Storage/File Management/SignedUrlService]].
 
 ### `healthCheck(): Boolean`
 Returns true if basePath is writable.
@@ -79,7 +79,7 @@ Returns true if basePath is writable.
 
 ## Gotchas
 
-- **No presigned URLs:** Local provider cannot generate presigned URLs. [[StorageService]] catches `UnsupportedOperationException` and uses [[SignedUrlService]] for HMAC-based signed download URLs instead.
+- **No presigned URLs:** Local provider cannot generate presigned URLs. [[riven/docs/system-design/domains/Storage/File Management/StorageService]] catches `UnsupportedOperationException` and uses [[riven/docs/system-design/domains/Storage/File Management/SignedUrlService]] for HMAC-based signed download URLs instead.
 - **Path traversal guard:** `resolveAndValidate()` is called on every operation. A key containing `..` segments that would escape basePath throws `StorageProviderException`.
 - **basePath is a computed property:** Re-evaluated on each call via `Paths.get(storageConfig.local.basePath).toAbsolutePath().normalize()`, so config changes take effect without restart.
 
@@ -87,6 +87,6 @@ Returns true if basePath is writable.
 
 ## Related
 
-- [[StorageProvider]]
-- [[SignedUrlService]]
-- [[StorageConfigurationProperties]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/StorageProvider]]
+- [[riven/docs/system-design/domains/Storage/File Management/SignedUrlService]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/StorageConfigurationProperties]]

@@ -4,13 +4,13 @@ tags:
   - component/active
   - architecture/component
 Domains:
-  - "[[Workspaces & Users]]"
+  - "[[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]"
 Created: 2026-02-08
 Updated: 2026-03-12
 ---
 # UserService
 
-Part of [[User Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/User Management/User Management]]
 
 ## Purpose
 
@@ -33,14 +33,14 @@ Manages user profile CRUD with session-aware retrieval. Provides optimized works
 
 - `UserRepository` — data access with custom findWorkspaceMembershipsByUserId query
 - `WorkspaceRepository` — lookup for default workspace assignment
-- [[AuthTokenService]] — get current user ID from JWT for session validation
-- [[StorageService]] — avatar file upload via uploadUserFile()
+- [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]] — get current user ID from JWT for session validation
+- [[riven/docs/system-design/domains/Storage/File Management/StorageService]] — avatar file upload via uploadUserFile()
 
 ## Used By
 
 - `UserController` — REST API layer
-- [[WorkspaceService]] — calls getUserWithWorkspacesFromSession during workspace creation for default workspace logic
-- [[OnboardingService]] — marks onboarding completion via updateUserDetails
+- [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceService]] — calls getUserWithWorkspacesFromSession during workspace creation for default workspace logic
+- [[riven/docs/system-design/domains/Workspaces & Users/Onboarding/OnboardingService]] — marks onboarding completion via updateUserDetails
 
 ---
 
@@ -116,7 +116,7 @@ Transactional deletion of user and associated membership records.
 
 ## Related
 
-- [[AuthTokenService]] — JWT claim extraction
-- [[WorkspaceService]] — Workspace management
-- [[StorageService]] — Avatar upload
-- [[User Management]] — Parent subdomain
+- [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]] — JWT claim extraction
+- [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceService]] — Workspace management
+- [[riven/docs/system-design/domains/Storage/File Management/StorageService]] — Avatar upload
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/User Management/User Management]] — Parent subdomain

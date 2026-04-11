@@ -6,9 +6,9 @@ tags:
   - domain/identity-resolution
 Created: 2026-03-19
 Domains:
-  - "[[Identity Resolution]]"
+  - "[[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]]"
 Sub-Domains:
-  - "[[Matching Pipeline]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Matching Pipeline/Matching Pipeline]]"
 ---
 
 # EntityTypeClassificationService
@@ -27,13 +27,13 @@ Cached IDENTIFIER-attribute classification lookups for entity types, using an in
 
 ## Dependencies
 
-- [[EntityTypeSemanticMetadataRepository]] — fetches IDENTIFIER attribute IDs for a given entity type
+- [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataRepository]] — fetches IDENTIFIER attribute IDs for a given entity type
 - KLogger — structured logging
 
 ## Used By
 
 - [[IdentityMatchTriggerListener]] — checks whether an entity type has IDENTIFIER attributes before enqueuing
-- [[IdentityMatchCandidateService]] — indirectly via EntityService for candidate discovery
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Matching Pipeline/IdentityMatchCandidateService]] — indirectly via EntityService for candidate discovery
 
 ---
 
@@ -62,5 +62,5 @@ An empty set means the entity type has been looked up but has no IDENTIFIER attr
 
 ## Related
 
-- [[Matching Pipeline]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Matching Pipeline/Matching Pipeline]]
 - [[IdentityMatchTriggerListener]]

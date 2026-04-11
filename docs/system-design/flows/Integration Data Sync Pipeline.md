@@ -4,8 +4,8 @@ tags:
   - architecture/flow
 Created: 2026-03-16
 Domains:
-  - "[[Integrations]]"
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # Flow: Integration Data Sync Pipeline
 
@@ -322,13 +322,13 @@ sequenceDiagram
 
 ## Related
 
-- [[Integration Connection Lifecycle]]
-- [[Entity Integration Sync]]
-- [[Integration Data Sync Pipeline]]
-- [[ADR-008 Temporal for Integration Sync Orchestration]]
-- [[ADR-009 Unique Index Deduplication over Mapping Table]]
-- [[ADR-010 Webhook-Driven Connection Creation]]
-- [[ADR-001 Nango as Integration Infrastructure]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/flows/Integration Connection Lifecycle]]
+- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/flows/Integration Data Sync Pipeline]]
+- [[riven/docs/system-design/decisions/ADR-008 Temporal for Integration Sync Orchestration]]
+- [[riven/docs/system-design/decisions/ADR-009 Unique Index Deduplication over Mapping Table]]
+- [[riven/docs/system-design/decisions/ADR-010 Webhook-Driven Connection Creation]]
+- [[riven/docs/system-design/decisions/ADR-001 Nango as Integration Infrastructure]]
 
 ---
 

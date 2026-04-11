@@ -5,7 +5,7 @@ tags:
 Created: 2026-03-17
 Updated: 2026-03-18
 Domains:
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 # Subdomain: Data Sync
 
@@ -17,10 +17,10 @@ Tracks per-connection per-entity-type sync progress for integration data ingesti
 
 | Component | Purpose | Type |
 | --------- | ------- | ---- |
-| [[IntegrationSyncStateEntity]] | Per-connection per-entity-type sync progress tracking with cursor, failure counts, and record metrics | Entity |
-| [[IntegrationSyncStateRepository]] | Queries sync state by connection and connection+entity type | Repository |
-| [[SchemaMappingService]] | Generic mapping engine transforming external JSON payloads into entity attributes with field transforms (direct, type coercion, default values, JSON path extraction) | Service |
-| [[NangoClientWrapper]] | HTTP client for Nango API — fetchRecords and triggerSync methods provide the data transport layer for sync operations | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Data Sync/IntegrationSyncStateEntity]] | Per-connection per-entity-type sync progress tracking with cursor, failure counts, and record metrics | Entity |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Data Sync/IntegrationSyncStateRepository]] | Queries sync state by connection and connection+entity type | Repository |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Data Sync/SchemaMappingService]] | Generic mapping engine transforming external JSON payloads into entity attributes with field transforms (direct, type coercion, default values, JSON path extraction) | Service |
+| [[riven/docs/system-design/domains/Integrations/Connection Management/NangoClientWrapper]] | HTTP client for Nango API — fetchRecords and triggerSync methods provide the data transport layer for sync operations | Service |
 
 ---
 

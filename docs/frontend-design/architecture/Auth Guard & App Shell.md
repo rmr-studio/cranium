@@ -143,7 +143,7 @@ The layout is a server component. All wrappers are client components that use `"
 | ---------- | ------------ |
 | `AuthProvider` / `useAuth()` | Provides session, user, and loading state consumed by AuthGuard and RootRedirect |
 | `useProfile()` | Query hook that fetches user profile; AuthGuard waits for this before rendering children |
-| [[Onboarding Flow]] | OnboardWrapper checks `onboardingCompletedAt` and overlays the onboarding shell |
+| [[riven/docs/frontend-design/dashboard/Onboarding Flow]] | OnboardWrapper checks `onboardingCompletedAt` and overlays the onboarding shell |
 | `WorkspaceStore` | RootRedirect reads `lastWorkspaceId` from localStorage for smart redirect |
 | Supabase Auth | Underlying auth provider; session exchange happens via `/api/auth/token/callback` |
 
@@ -165,7 +165,7 @@ The layout is a server component. All wrappers are client components that use `"
 
 | Date | Change | Feature/ADR |
 | ---- | ------ | ----------- |
-| 2026-03-15 | Added AppSplash component as shared loading screen | [[Onboarding Flow]] |
-| 2026-03-15 | AuthGuard refactored to wait for profile query before rendering | [[Onboarding Flow]] |
-| 2026-03-15 | OnboardWrapper added to dashboard layout composition | [[Onboarding Flow]] |
-| 2026-03-15 | RootRedirect extracted as dedicated component | [[Onboarding Flow]] |
+| 2026-03-15 | Added AppSplash component as shared loading screen | [[riven/docs/frontend-design/dashboard/Onboarding Flow]] |
+| 2026-03-15 | AuthGuard refactored to wait for profile query before rendering | [[riven/docs/frontend-design/dashboard/Onboarding Flow]] |
+| 2026-03-15 | OnboardWrapper added to dashboard layout composition | [[riven/docs/frontend-design/dashboard/Onboarding Flow]] |
+| 2026-03-15 | RootRedirect extracted as dedicated component | [[riven/docs/frontend-design/dashboard/Onboarding Flow]] |

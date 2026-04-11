@@ -4,7 +4,7 @@ tags:
   - domain/entity
 Created: 2026-02-08
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # Subdomain: Entity Management
 
@@ -16,13 +16,13 @@ Handles the lifecycle of entity instances — creating, updating, reading, and s
 
 | Component | Purpose | Type |
 | --------- | ------- | ---- |
-| [[EntityService]] | Entity instance CRUD with validation and relationship hydration | Service |
-| [[EntityRelationshipService]] | Instance-level relationship data management | Service |
-| [[EntityController]] | REST API for entity operations | Controller |
-| [[EntityRepository]] | JPA repository for entity persistence | Repository |
-| [[EntityAttributeService]] | Normalized entity attribute persistence and batch-loading | Service |
-| [[EntityAttributeRepository]] | JPA repository for entity_attributes table | Repository |
-| [[EntityAttributeEntity]] | JPA entity for normalized attribute values | Entity |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityService]] | Entity instance CRUD with validation and relationship hydration | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityRelationshipService]] | Instance-level relationship data management | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityController]] | REST API for entity operations | Controller |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityRepository]] | JPA repository for entity persistence | Repository |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityAttributeService]] | Normalized entity attribute persistence and batch-loading | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityAttributeRepository]] | JPA repository for entity_attributes table | Repository |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityAttributeEntity]] | JPA entity for normalized attribute values | Entity |
 
 ## Technical Debt
 
@@ -41,5 +41,5 @@ Handles the lifecycle of entity instances — creating, updating, reading, and s
 | 2026-03-01 | EntityRelationshipService updated — semantic group matching implemented (was stubbed), target-side cardinality batch-optimized, new EntityTypeRepository dependency | Semantic Entity Groups |
 | 2026-03-01 | EntityRelationshipService expanded with unified relationship CRUD (addRelationship, getRelationships, updateRelationship, removeRelationship); EntityController upgraded with 4 relationship endpoints under `/relationships` | Unified Relationship CRUD |
 | 2026-03-09 | Entity attributes normalized — new EntityAttributeService, EntityAttributeRepository, EntityAttributeEntity for per-attribute storage replacing JSONB payload column | Entity Attributes Normalization |
-| 2026-03-14 | [[EntityService]] publishes `EntityEvent` via `ApplicationEventPublisher` on create, update, and delete — consumed by [[WebSocketEventListener]] for real-time WebSocket broadcasting | WebSocket Notifications |
-| 2026-03-17 | [[EntityRepository]] gains `findByWorkspaceIdAndSourceIntegrationIdAndSourceExternalIdIn` — integration dedup query backed by partial unique index on `(workspace_id, source_integration_id, source_external_id)` | Integration Sync Persistence Foundation |
+| 2026-03-14 | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityService]] publishes `EntityEvent` via `ApplicationEventPublisher` on create, update, and delete — consumed by [[riven/docs/system-design/domains/Workspaces & Users/Real-time Events/WebSocketEventListener]] for real-time WebSocket broadcasting | WebSocket Notifications |
+| 2026-03-17 | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityRepository]] gains `findByWorkspaceIdAndSourceIntegrationIdAndSourceExternalIdIn` — integration dedup query backed by partial unique index on `(workspace_id, source_integration_id, source_external_id)` | Integration Sync Persistence Foundation |

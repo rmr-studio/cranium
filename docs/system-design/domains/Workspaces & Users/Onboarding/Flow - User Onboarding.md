@@ -4,7 +4,7 @@ tags:
   - architecture/flow
   - domain/workspace
 Domains:
-  - "[[Workspaces & Users]]"
+  - "[[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]"
 Created: 2026-03-12
 ---
 # Flow: User Onboarding
@@ -21,21 +21,21 @@ API-triggered flow that provisions a complete workspace environment for a newly 
 
 ## Entry Point
 
-[[OnboardingService]]
+[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Onboarding/OnboardingService]]
 
 ---
 
 ## Steps
 
-1. **OnboardingController** receives the multipart request, validates the JSON body via `@Valid`, and delegates to [[OnboardingService]]
-2. **OnboardingService** retrieves the current user ID from JWT via [[AuthTokenService]] and validates onboarding eligibility (checks `user.onboardingCompletedAt` is null; throws `ConflictException` if already completed)
+1. **OnboardingController** receives the multipart request, validates the JSON body via `@Valid`, and delegates to [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Onboarding/OnboardingService]]
+2. **OnboardingService** retrieves the current user ID from JWT via [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]] and validates onboarding eligibility (checks `user.onboardingCompletedAt` is null; throws `ConflictException` if already completed)
 3. **Phase 1 (atomic transaction):** Inside a `TransactionTemplate.execute` block:
-   - Creates workspace (with optional avatar) via [[WorkspaceService]], which assigns OWNER membership to the current user
-   - Updates user profile (name, phone, default workspace, `onboardingCompletedAt` timestamp) via [[UserService]], with optional profile avatar upload
+   - Creates workspace (with optional avatar) via [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceService]], which assigns OWNER membership to the current user
+   - Updates user profile (name, phone, default workspace, `onboardingCompletedAt` timestamp) via [[riven/docs/system-design/domains/Workspaces & Users/User Management/UserService]], with optional profile avatar upload
    - Logs an `ONBOARDING / CREATE` activity with workspace and profile details
 4. **Phase 2 (best-effort, after commit):**
-   - Iterates `templateKeys` and `bundleKeys`, installing each via [[TemplateInstallationService]] `*Internal` methods with individual try/catch -- failures produce `TemplateInstallResult` entries with `success = false` and error message
-   - Iterates `invites`, sending each via [[WorkspaceInviteService]] `createWorkspaceInvitationInternal` with pre-validation (rejects self-invite and OWNER role) and individual try/catch -- failures produce `InviteResult` entries with `success = false` and error message
+   - Iterates `templateKeys` and `bundleKeys`, installing each via [[riven/docs/system-design/domains/Catalog/Template Installation/TemplateInstallationService]] `*Internal` methods with individual try/catch -- failures produce `TemplateInstallResult` entries with `success = false` and error message
+   - Iterates `invites`, sending each via [[riven/docs/system-design/domains/Workspaces & Users/Team Management/WorkspaceInviteService]] `createWorkspaceInvitationInternal` with pre-validation (rejects self-invite and OWNER role) and individual try/catch -- failures produce `InviteResult` entries with `success = false` and error message
 5. Returns `CompleteOnboardingResponse` containing the created `Workspace`, updated `User`, and lists of `TemplateInstallResult` and `InviteResult`
 
 ```mermaid
@@ -107,9 +107,9 @@ The `*Internal` variants (`installTemplateInternal`, `installBundleInternal`, `c
 
 ## Components Involved
 
-- [[OnboardingService]]
-- [[WorkspaceService]]
-- [[UserService]]
-- [[TemplateInstallationService]]
-- [[WorkspaceInviteService]]
-- [[AuthTokenService]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Onboarding/OnboardingService]]
+- [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceService]]
+- [[riven/docs/system-design/domains/Workspaces & Users/User Management/UserService]]
+- [[riven/docs/system-design/domains/Catalog/Template Installation/TemplateInstallationService]]
+- [[riven/docs/system-design/domains/Workspaces & Users/Team Management/WorkspaceInviteService]]
+- [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]]

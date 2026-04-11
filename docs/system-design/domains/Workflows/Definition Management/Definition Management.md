@@ -4,7 +4,7 @@ tags:
   - domain/workflow
 Created: 2026-02-08
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # Subdomain: Definition Management
 
@@ -16,9 +16,9 @@ Definition Management provides CRUD operations for workflow definitions, graph s
 
 | Component | Purpose | Type |
 | --------- | ------- | ------------------------------- |
-| [[WorkflowDefinitionService]] | Workflow definition CRUD — create, update, delete, query definitions with workspace scoping | Service |
-| [[WorkflowGraphService]] | Graph node and edge management — add/remove/update nodes and edges within a workflow definition | Service |
-| [[WorkflowExecutionService]] | Execution lifecycle — start execution (enqueues), query execution status and history | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Definition Management/WorkflowDefinitionService]] | Workflow definition CRUD — create, update, delete, query definitions with workspace scoping | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Definition Management/WorkflowGraphService]] | Graph node and edge management — add/remove/update nodes and edges within a workflow definition | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Definition Management/WorkflowExecutionService]] | Execution lifecycle — start execution (enqueues), query execution status and history | Service |
 
 ## Technical Debt
 

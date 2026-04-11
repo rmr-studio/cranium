@@ -6,9 +6,9 @@ tags:
   - architecture/feature
 Created: 2026-03-19
 Domains:
-  - "[[Entities]]"
-  - "[[Identity Resolution]]"
-Sub-Domain: "[[Identity Resolution]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
+  - "[[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]]"
+Sub-Domain: "[[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]]"
 ---
 # Feature: Identity Semantics Streamlining
 
@@ -73,8 +73,8 @@ A layered approach combining system-level inference (reducing the need for manua
 
 ### Dependencies
 
-- [[Semantic Metadata Foundation]] — The `entity_type_semantic_metadata` table and `SemanticAttributeClassification` enum must exist (already shipped)
-- [[Identity Resolution]] — The matching pipeline (trigger, candidates, scoring, suggestions) must be functional (already shipped in identity-resolution milestone v1.0)
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/2. Planned/Semantic Metadata Foundation]] — The `entity_type_semantic_metadata` table and `SemanticAttributeClassification` enum must exist (already shipped)
+- [[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]] — The matching pipeline (trigger, candidates, scoring, suggestions) must be functional (already shipped in identity-resolution milestone v1.0)
 
 ---
 
@@ -194,11 +194,11 @@ Add attribute name heuristics to the entity type editor. Surface inline prompts 
 
 ## Related Documents
 
-- [[Semantic Metadata Foundation]] — The semantic metadata layer that stores IDENTIFIER classifications
-- [[Identity Resolution]] — The identity matching pipeline that consumes IDENTIFIER classifications
-- [[Clusters]] — Identity clusters formed from confirmed match suggestions
-- [[EntityTypeService]] — Entity type creation and attribute management
-- [[EntityTypeSemanticMetadataService]] — Semantic classification CRUD and lifecycle hooks
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/2. Planned/Semantic Metadata Foundation]] — The semantic metadata layer that stores IDENTIFIER classifications
+- [[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]] — The identity matching pipeline that consumes IDENTIFIER classifications
+- [[riven/docs/system-design/domains/Identity Resolution/Clusters/Clusters]] — Identity clusters formed from confirmed match suggestions
+- [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] — Entity type creation and attribute management
+- [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]] — Semantic classification CRUD and lifecycle hooks
 
 ---
 

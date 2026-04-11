@@ -5,7 +5,7 @@ tags:
   - domain/integration
 Created: 2026-03-18
 Domains:
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 # Flow: Integration Disable
 
@@ -21,23 +21,23 @@ Workspace admin calls `POST /api/v1/integrations/{workspaceId}/disable` with a `
 
 ## Entry Point
 
-[[IntegrationController]] → [[IntegrationEnablementService]].`disableIntegration()`
+[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/IntegrationController]] → [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/IntegrationEnablementService]].`disableIntegration()`
 
 ---
 
 ## Steps
 
-1. **[[IntegrationController]]** validates the request body (`@Valid`) and delegates to [[IntegrationEnablementService]]
-2. **[[IntegrationEnablementService]]** retrieves `userId` from JWT via `AuthTokenService`
-3. **[[IntegrationEnablementService]]** loads the `IntegrationDefinitionEntity` via `findOrThrow`
-4. **[[IntegrationEnablementService]]** finds the active installation — throws `NotFoundException` if integration is not enabled
-5. **[[EntityTypeService]]** soft-deletes all entity types and relationships created by the integration via `softDeleteByIntegration(workspaceId, integrationDefinitionId)`
-6. **[[IntegrationEnablementService]]** snapshots `lastSyncedAt` on the installation record for gap recovery on future re-enable
-7. **[[IntegrationEnablementService]]** soft-deletes the installation record via `markDeleted()`
-8. **[[ActivityService]]** logs the disable operation with integration slug and entity type count
+1. **[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/IntegrationController]]** validates the request body (`@Valid`) and delegates to [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/IntegrationEnablementService]]
+2. **[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/IntegrationEnablementService]]** retrieves `userId` from JWT via `AuthTokenService`
+3. **[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/IntegrationEnablementService]]** loads the `IntegrationDefinitionEntity` via `findOrThrow`
+4. **[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/IntegrationEnablementService]]** finds the active installation — throws `NotFoundException` if integration is not enabled
+5. **[[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]]** soft-deletes all entity types and relationships created by the integration via `softDeleteByIntegration(workspaceId, integrationDefinitionId)`
+6. **[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/IntegrationEnablementService]]** snapshots `lastSyncedAt` on the installation record for gap recovery on future re-enable
+7. **[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/IntegrationEnablementService]]** soft-deletes the installation record via `markDeleted()`
+8. **[[riven/docs/system-design/domains/Workspaces & Users/User Management/ActivityService]]** logs the disable operation with integration slug and entity type count
 9. Steps 2-8 commit as a single transaction (the `disableIntegrationTransactional()` method)
-10. **[[IntegrationConnectionService]]** disconnects the Nango connection if one exists — runs outside the transaction. Catches all exceptions gracefully; disable succeeds even if Nango cleanup fails
-11. **[[IntegrationEnablementService]]** returns `IntegrationDisableResponse` with soft-delete counts
+10. **[[riven/docs/system-design/domains/Integrations/Connection Management/IntegrationConnectionService]]** disconnects the Nango connection if one exists — runs outside the transaction. Catches all exceptions gracefully; disable succeeds even if Nango cleanup fails
+11. **[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/IntegrationEnablementService]]** returns `IntegrationDisableResponse` with soft-delete counts
 
 ```mermaid
 sequenceDiagram
@@ -91,10 +91,10 @@ sequenceDiagram
 
 ## Components Involved
 
-- [[IntegrationController]]
-- [[IntegrationEnablementService]]
-- [[IntegrationConnectionService]]
-- [[EntityTypeService]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/IntegrationController]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/IntegrationEnablementService]]
+- [[riven/docs/system-design/domains/Integrations/Connection Management/IntegrationConnectionService]]
+- [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]]
 - `IntegrationDefinitionRepository`
 - `WorkspaceIntegrationInstallationRepository`
-- [[ActivityService]]
+- [[riven/docs/system-design/domains/Workspaces & Users/User Management/ActivityService]]

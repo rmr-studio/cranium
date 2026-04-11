@@ -34,15 +34,15 @@ Identity Resolution detects duplicate entities within a workspace using pg_trgm 
 
 | Sub-Domain | Scope | Status |
 |---|---|---|
-| [[Matching Pipeline]] | Candidate finding, scoring, suggestion management, queue dispatch, classification cache | Active |
-| [[Clusters]] | Entity grouping into confirmed identity clusters | Active |
-| [[Temporal Integration]] | Workflow and activity orchestration for the matching pipeline | Active |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Matching Pipeline/Matching Pipeline]] | Candidate finding, scoring, suggestion management, queue dispatch, classification cache | Active |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Clusters/Clusters]] | Entity grouping into confirmed identity clusters | Active |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Temporal Integration/Temporal Integration]] | Workflow and activity orchestration for the matching pipeline | Active |
 
 ## Flows
 
 | Flow | Type | Summary |
 |---|---|---|
-| [[Flow - Identity Match Pipeline]] | Background | Entity save → event → queue → Temporal → candidates → scoring → suggestions |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Flow - Identity Match Pipeline]] | Background | Entity save → event → queue → Temporal → candidates → scoring → suggestions |
 
 ## Data
 
@@ -83,9 +83,9 @@ Identity Resolution detects duplicate entities within a workspace using pg_trgm 
 
 | Sub-Domain | Service | Purpose |
 |---|---|---|
-| Matching Pipeline | [[IdentityMatchCandidateService]] | pg_trgm candidate finding — two-phase GIN index blocking + similarity threshold |
-| Matching Pipeline | [[IdentityMatchScoringService]] | Weighted scoring — pure computation, weighted average with configurable per-signal-type weights |
-| Matching Pipeline | [[IdentityMatchSuggestionService]] | Suggestion persistence — idempotent creation, re-suggestion on improved score, rejection |
+| Matching Pipeline | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Matching Pipeline/IdentityMatchCandidateService]] | pg_trgm candidate finding — two-phase GIN index blocking + similarity threshold |
+| Matching Pipeline | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Matching Pipeline/IdentityMatchScoringService]] | Weighted scoring — pure computation, weighted average with configurable per-signal-type weights |
+| Matching Pipeline | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Matching Pipeline/IdentityMatchSuggestionService]] | Suggestion persistence — idempotent creation, re-suggestion on improved score, rejection |
 | Matching Pipeline | [[EntityTypeClassificationService]] | Cached IDENTIFIER attribute lookup for entity types using ConcurrentHashMap |
 | Matching Pipeline | [[IdentityMatchQueueService]] | IDENTITY_MATCH job enqueueing with deduplication via partial unique index |
 | Matching Pipeline | [[IdentityMatchDispatcherService]] | Scheduled queue polling (every 5s) with ShedLock distributed locking |
@@ -145,5 +145,5 @@ Identity clusters are relationship graphs: one core entity linked to N integrati
 
 ### References
 
-- [[Entity Ingestion Pipeline]]
-- [[Smart Projection Architecture]]
+- [[2. Areas/2.1 Startup & Content/Riven/7. Todo/Entity Ingestion Pipeline]]
+- [[riven/docs/system-design/feature-design/1. Planning/Smart Projection Architecture]]

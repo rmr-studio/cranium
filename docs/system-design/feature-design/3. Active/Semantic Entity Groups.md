@@ -8,9 +8,9 @@ tags:
 Created: 2026-02-28
 Updated:
 Domains:
-  - "[[Knowledge]]"
-  - "[[Entities]]"
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Knowledge/Knowledge]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 # Feature: Semantic Entity Groups
 
@@ -25,8 +25,8 @@ Entity types currently carry semantic metadata as natural language descriptions 
 This creates three concrete problems:
 
 - **Relationship target constraints are incomplete.** The `semanticTypeConstraint` field on [[RelationshipTargetRuleEntity]] is already stubbed but unenforceable — there's no categorical value on entity types to match against. Target rules can only constrain by explicit entity type ID or accept all types.
-- **Knowledge layer prompt construction is weaker.** When building prompts for cross-domain queries, the system must infer entity type roles from descriptions. A categorical scaffold (CUSTOMER, PRODUCT, COMMUNICATION) would give the LLM explicit domain structure to reason over, reducing misinterpretation and improving context selection for [[Prompt Construction for Knowledge Model Queries]].
-- **Automated perspective suggestions are blocked.** [[Extrapolate Agentic Perspectives from Entity Schema]] needs to detect gaps like "you have CUSTOMER and TRANSACTION types but no agent watching the correlation." This requires categorical grouping — parsing descriptions to infer domain roles is fragile and unreliable.
+- **Knowledge layer prompt construction is weaker.** When building prompts for cross-domain queries, the system must infer entity type roles from descriptions. A categorical scaffold (CUSTOMER, PRODUCT, COMMUNICATION) would give the LLM explicit domain structure to reason over, reducing misinterpretation and improving context selection for [[riven/docs/system-design/feature-design/1. Planning/Prompt Construction for Knowledge Model Queries]].
+- **Automated perspective suggestions are blocked.** [[riven/docs/system-design/feature-design/1. Planning/Extrapolate Agentic Perspectives from Entity Schema]] needs to detect gaps like "you have CUSTOMER and TRANSACTION types but no agent watching the correlation." This requires categorical grouping — parsing descriptions to infer domain roles is fragile and unreliable.
 
 ### Proposed Solution
 
@@ -35,9 +35,9 @@ Add a `semanticGroup` classification to each entity type, stored directly on the
 This enables:
 1. Runtime enforcement of the existing `semanticTypeConstraint` on relationship target rules
 2. Categorical schema scaffolding for knowledge layer prompt construction
-3. Embedding metadata filtering by `semantic_group` in the [[Data Chunking and Enrichment Pipeline]]
-4. Automated cross-domain gap detection for [[Extrapolate Agentic Perspectives from Entity Schema]]
-5. Template manifest entity types declare their group — flows into [[Semantic Metadata Baked Entity Data Model Templates]]
+3. Embedding metadata filtering by `semantic_group` in the [[riven/docs/system-design/feature-design/1. Planning/Data Chunking and Enrichment Pipeline]]
+4. Automated cross-domain gap detection for [[riven/docs/system-design/feature-design/1. Planning/Extrapolate Agentic Perspectives from Entity Schema]]
+5. Template manifest entity types declare their group — flows into [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/3. Active/Semantic Metadata Baked Entity Data Model Templates]]
 
 ### Success Criteria
 
@@ -87,9 +87,9 @@ enum class SemanticGroup {
 
 ### Data Ownership
 
-- `semanticGroup` on `EntityTypeEntity` — owned by [[Type Definitions]] subdomain, written via [[EntityTypeService]]
-- `semanticTypeConstraint` on `RelationshipTargetRuleEntity` — owned by [[Relationships]] subdomain, written via [[EntityTypeRelationshipService]]
-- Semantic meaning interpretation — owned by [[Knowledge]] domain (prompt construction, enrichment pipeline)
+- `semanticGroup` on `EntityTypeEntity` — owned by [[riven/docs/system-design/domains/Entities/Type Definitions/Type Definitions]] subdomain, written via [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]]
+- `semanticTypeConstraint` on `RelationshipTargetRuleEntity` — owned by [[riven/docs/system-design/domains/Entities/Relationships/Relationships]] subdomain, written via [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]]
+- Semantic meaning interpretation — owned by [[riven/docs/system-design/domains/Knowledge/Knowledge]] domain (prompt construction, enrichment pipeline)
 
 ### Relationships
 
@@ -110,7 +110,7 @@ At link creation time:
 ### Data Lifecycle
 
 - **Creation:** Set during `publishEntityType()` if provided in the request, otherwise defaults to `UNCATEGORIZED`. Templates and integration manifests pre-populate this.
-- **Updates:** Changed via `updateEntityTypeConfiguration()` — treated as metadata, not a schema-breaking change. Triggers **full re-enrichment** of all entity instances of that type via [[Schema Change Handling]], since the group fundamentally changes the semantic context prepended to every embedding. This is a rare operation in practice.
+- **Updates:** Changed via `updateEntityTypeConfiguration()` — treated as metadata, not a schema-breaking change. Triggers **full re-enrichment** of all entity instances of that type via [[riven/docs/system-design/domains/Knowledge/Schema Change Handling/Schema Change Handling]], since the group fundamentally changes the semantic context prepended to every embedding. This is a rare operation in practice.
 - **Deletion:** Soft-deleted with the entity type — no special handling needed.
 
 ### Consistency Requirements
@@ -127,19 +127,19 @@ At link creation time:
 #### SemanticGroupValidationService
 
 - **Responsibility:** Validates that a target entity's type has a `semanticGroup` contained in the `semanticTypeConstraints` array on the relationship target rule. Skipped entirely when `allowPolymorphic = true` on the definition. Called during entity link creation.
-- **Dependencies:** [[EntityTypeRepository]] (to resolve target entity type's semantic group)
-- **Exposes to:** [[EntityRelationshipService]] (write-time validation hook)
+- **Dependencies:** [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeRepository]] (to resolve target entity type's semantic group)
+- **Exposes to:** [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] (write-time validation hook)
 
 ### Affected Existing Components
 
 | Component | Change Required | Impact |
 |---|---|---|
-| [[EntityTypeService]] | Accept `semanticGroup` in publish and update requests. Include in response models. Reject CUSTOM group when semantic metadata definition is null or blank. | Low — additive field + one validation check |
-| [[EntityTypeController]] | Pass through `semanticGroup` from request DTOs. | Low — additive field |
-| [[EntityRelationshipService]] | Call `SemanticGroupValidationService` during link creation when target rule has `semanticTypeConstraint` set. | Medium — new validation path |
-| [[EntityTypeRelationshipService]] | No code change — `semanticTypeConstraint` is already persisted on target rules. | None |
-| [[EntityTypeSemanticMetadataService]] | No code change — semantic group lives on entity type, not metadata table. Metadata `definition` field on CUSTOM groups carries the descriptive label as it already does. | None |
-| [[KnowledgeController]] | Add `GET /api/v1/knowledge/entity-types?semanticGroup={group}` for filtered retrieval. | Low — new query parameter |
+| [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] | Accept `semanticGroup` in publish and update requests. Include in response models. Reject CUSTOM group when semantic metadata definition is null or blank. | Low — additive field + one validation check |
+| [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeController]] | Pass through `semanticGroup` from request DTOs. | Low — additive field |
+| [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] | Call `SemanticGroupValidationService` during link creation when target rule has `semanticTypeConstraint` set. | Medium — new validation path |
+| [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] | No code change — `semanticTypeConstraint` is already persisted on target rules. | None |
+| [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]] | No code change — semantic group lives on entity type, not metadata table. Metadata `definition` field on CUSTOM groups carries the descriptive label as it already does. | None |
+| [[riven/docs/system-design/domains/Knowledge/KnowledgeController]] | Add `GET /api/v1/knowledge/entity-types?semanticGroup={group}` for filtered retrieval. | Low — new query parameter |
 
 ### Component Interaction Diagram
 
@@ -387,7 +387,7 @@ All resolved — see Decisions Log.
 - [ ] Update `SaveRelationshipDefinitionRequest` target rule DTOs to accept array of semantic groups
 - [ ] Implement `SemanticGroupValidationService` with array matching and `allowPolymorphic` bypass
 - [ ] Wire validation into `EntityRelationshipService` link creation path
-- [ ] Wire semantic group change into [[Schema Change Handling]] to trigger full re-enrichment of all entity instances
+- [ ] Wire semantic group change into [[riven/docs/system-design/domains/Knowledge/Schema Change Handling/Schema Change Handling]] to trigger full re-enrichment of all entity instances
 - [ ] Add `semanticGroup` filter to `KnowledgeController` entity type retrieval
 - [ ] Update template manifest schema to include `semanticGroup` on entity type definitions
 - [ ] Unit tests for validation service (array matching, polymorphic bypass, CUSTOM rejection), entity type service changes, relationship enforcement
@@ -397,15 +397,15 @@ All resolved — see Decisions Log.
 
 ## Related Documents
 
-- [[Entity Semantics]] — parent subdomain for semantic metadata
-- [[Entity Type Polymorphic Relationship Support for Semantic Categories]] — prior quick design (superseded by this document)
-- [[Relationships]] — `semanticTypeConstraint` on target rules (already stubbed)
-- [[Knowledge]] — domain overview first proposed entity type categories
-- [[Data Chunking and Enrichment Pipeline]] — `semantic_category` field on embeddings table will be sourced from this
-- [[Prompt Construction for Knowledge Model Queries]] — categorical schema scaffolding for prompts
-- [[Extrapolate Agentic Perspectives from Entity Schema]] — cross-domain gap detection using groups
-- [[Schema Change Handling]] — semantic group changes trigger re-enrichment
-- [[Semantic Metadata Baked Entity Data Model Templates]] — templates declare groups on entity type definitions
+- [[riven/docs/system-design/domains/Entities/Entity Semantics/Entity Semantics]] — parent subdomain for semantic metadata
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/3. Active/Entity Type Polymorphic Relationship Support for Semantic Categories]] — prior quick design (superseded by this document)
+- [[riven/docs/system-design/domains/Entities/Relationships/Relationships]] — `semanticTypeConstraint` on target rules (already stubbed)
+- [[riven/docs/system-design/domains/Knowledge/Knowledge]] — domain overview first proposed entity type categories
+- [[riven/docs/system-design/feature-design/1. Planning/Data Chunking and Enrichment Pipeline]] — `semantic_category` field on embeddings table will be sourced from this
+- [[riven/docs/system-design/feature-design/1. Planning/Prompt Construction for Knowledge Model Queries]] — categorical schema scaffolding for prompts
+- [[riven/docs/system-design/feature-design/1. Planning/Extrapolate Agentic Perspectives from Entity Schema]] — cross-domain gap detection using groups
+- [[riven/docs/system-design/domains/Knowledge/Schema Change Handling/Schema Change Handling]] — semantic group changes trigger re-enrichment
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/3. Active/Semantic Metadata Baked Entity Data Model Templates]] — templates declare groups on entity type definitions
 
 ---
 

@@ -6,9 +6,9 @@ tags:
   - architecture/feature
 Created: 2026-02-18
 Domains:
-  - "[[Entities]]"
-  - "[[Knowledge]]"
-Sub-Domain: "[[Knowledge Layer]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
+  - "[[riven/docs/system-design/domains/Knowledge/Knowledge]]"
+Sub-Domain: "[[riven/docs/system-design/feature-design/_Sub-Domain Plans/Knowledge Layer]]"
 ---
 # Feature: Semantic Metadata Foundation
 
@@ -18,13 +18,13 @@ Sub-Domain: "[[Knowledge Layer]]"
 
 ### Problem Statement
 
-Entity types, attributes, and relationships in the existing system carry structural information -- names, data types, cardinality, JSON schemas -- but no semantic meaning. The system can tell you that an attribute is a "text field named `arr_usd`" but not that it represents "Annual Recurring Revenue in US dollars." Without semantic context, the downstream [[Enrichment Pipeline]] (Phase 3 of the [[Knowledge Layer]]) cannot construct meaningful text for embedding. It would produce low-quality embeddings that cluster on field names rather than business concepts, rendering vector similarity search ineffective for business-meaningful retrieval.
+Entity types, attributes, and relationships in the existing system carry structural information -- names, data types, cardinality, JSON schemas -- but no semantic meaning. The system can tell you that an attribute is a "text field named `arr_usd`" but not that it represents "Annual Recurring Revenue in US dollars." Without semantic context, the downstream [[riven/docs/system-design/domains/Knowledge/Enrichment Pipeline/Enrichment Pipeline]] (Phase 3 of the [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Knowledge Layer]]) cannot construct meaningful text for embedding. It would produce low-quality embeddings that cluster on field names rather than business concepts, rendering vector similarity search ineffective for business-meaningful retrieval.
 
 This gap also prevents future capabilities like prompt construction, agentic reasoning, and schema-aware intelligence from understanding what the data actually means in a business context. The absence of semantic metadata is the single blocking dependency for every downstream Knowledge Layer feature.
 
 ### Proposed Solution
 
-Add a separate `entity_type_semantic_metadata` table using a single-table discriminator pattern covering entity types, attributes, and relationships. Expose semantic metadata CRUD via a new `KnowledgeController` at `/api/v1/knowledge/` with 8 dedicated endpoints, and add an opt-in `?include=semantics` query parameter to existing [[EntityTypeController]] endpoints. Wire lifecycle hooks into [[EntityTypeService]], [[EntityTypeAttributeService]], and [[EntityTypeRelationshipService]] to auto-create and auto-delete metadata records when entity types, attributes, or relationships change, guaranteeing 1:1 consistency between the entity schema and its semantic metadata.
+Add a separate `entity_type_semantic_metadata` table using a single-table discriminator pattern covering entity types, attributes, and relationships. Expose semantic metadata CRUD via a new `KnowledgeController` at `/api/v1/knowledge/` with 8 dedicated endpoints, and add an opt-in `?include=semantics` query parameter to existing [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeController]] endpoints. Wire lifecycle hooks into [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]], [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]], and [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] to auto-create and auto-delete metadata records when entity types, attributes, or relationships change, guaranteeing 1:1 consistency between the entity schema and its semantic metadata.
 
 Register the pgvector PostgreSQL extension as an infrastructure prerequisite for Phase 3, and switch integration tests to a pgvector-enabled Docker image.
 
@@ -79,7 +79,7 @@ None. This feature is purely additive. No columns are added to `entity_types`, `
 
 ### Data Ownership
 
-`EntityTypeSemanticMetadataService` is the sole writer to the `entity_type_semantic_metadata` table. No other service writes to this table directly. Lifecycle hooks in [[EntityTypeService]], [[EntityTypeAttributeService]], and [[EntityTypeRelationshipService]] delegate to `EntityTypeSemanticMetadataService` methods for metadata creation and deletion.
+`EntityTypeSemanticMetadataService` is the sole writer to the `entity_type_semantic_metadata` table. No other service writes to this table directly. Lifecycle hooks in [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]], [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]], and [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] delegate to `EntityTypeSemanticMetadataService` methods for metadata creation and deletion.
 
 ### Relationships
 
@@ -151,10 +151,10 @@ Strong consistency via ACID transactions. Metadata operations execute within the
 
 | Component | Change |
 |-----------|--------|
-| [[EntityTypeService]] | New constructor dependency on `EntityTypeSemanticMetadataService`. Lifecycle hook in `publishEntityType` to auto-create metadata for entity type + initial identifier attribute. Lifecycle hook in `deleteEntityType` to soft-delete all metadata for the entity type. |
-| [[EntityTypeAttributeService]] | New constructor dependency on `EntityTypeSemanticMetadataService`. Lifecycle hook in `saveAttributeDefinition` to auto-create metadata for new attributes. Lifecycle hook in `removeAttributeDefinition` to hard-delete metadata when an attribute is removed. |
-| [[EntityTypeRelationshipService]] | New constructor dependency on `EntityTypeSemanticMetadataService`. Lifecycle hook when adding a relationship to auto-create metadata. Lifecycle hook when removing a relationship to hard-delete metadata. |
-| [[EntityTypeController]] | New constructor dependency on `EntityTypeSemanticMetadataService`. New `@RequestParam include: List<String>` on `getEntityTypesForWorkspace` and `getEntityTypeByKeyForWorkspace`. When `"semantics"` is in the include list, fetches and attaches `SemanticMetadataBundle`. |
+| [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] | New constructor dependency on `EntityTypeSemanticMetadataService`. Lifecycle hook in `publishEntityType` to auto-create metadata for entity type + initial identifier attribute. Lifecycle hook in `deleteEntityType` to soft-delete all metadata for the entity type. |
+| [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]] | New constructor dependency on `EntityTypeSemanticMetadataService`. Lifecycle hook in `saveAttributeDefinition` to auto-create metadata for new attributes. Lifecycle hook in `removeAttributeDefinition` to hard-delete metadata when an attribute is removed. |
+| [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] | New constructor dependency on `EntityTypeSemanticMetadataService`. Lifecycle hook when adding a relationship to auto-create metadata. Lifecycle hook when removing a relationship to hard-delete metadata. |
+| [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeController]] | New constructor dependency on `EntityTypeSemanticMetadataService`. New `@RequestParam include: List<String>` on `getEntityTypesForWorkspace` and `getEntityTypeByKeyForWorkspace`. When `"semantics"` is in the include list, fetches and attaches `SemanticMetadataBundle`. |
 
 ### Component Interaction Diagram
 
@@ -482,7 +482,7 @@ Metadata CRUD operations via `KnowledgeController` are isolated -- a failure in 
 
 - `@PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")` is applied to every public service method on `EntityTypeSemanticMetadataService` that accepts a `workspaceId` parameter. This verifies the authenticated user has access to the target workspace.
 - An additional inline check verifies the entity type belongs to the requested workspace: `require(entityType.workspaceId == workspaceId)`. This prevents cross-workspace access where a user supplies a valid `entityTypeId` from a workspace they do have access to but that does not match the `workspaceId` path parameter.
-- Lifecycle hook methods (`initializeForEntityType`, `deleteForTarget`, `softDeleteForEntityType`) do not have `@PreAuthorize` because they are called from within already-authorized `@Transactional` methods on [[EntityTypeService]], [[EntityTypeAttributeService]], and [[EntityTypeRelationshipService]].
+- Lifecycle hook methods (`initializeForEntityType`, `deleteForTarget`, `softDeleteForEntityType`) do not have `@PreAuthorize` because they are called from within already-authorized `@Transactional` methods on [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]], [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]], and [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]].
 
 ### Data Sensitivity
 
@@ -636,8 +636,8 @@ None for Phase 1. All design decisions were locked during the context gathering 
 
 | Date | Decision | Rationale | Reference |
 |------|----------|-----------|-----------|
-| 2026-02-18 | Separate table over inline JSONB for metadata storage | Avoids polluting entity_types CRUD hot path; zero changes to existing entity read/write flows; clean separation of concerns | [[ADR-002 Separate Table for Semantic Metadata]] |
-| 2026-02-18 | Single discriminator table over multiple tables | All three target types share identical field shapes (locked decision); simpler service code, single repository, one set of indexes | [[ADR-003 Single Discriminator Table for Metadata Targets]] |
+| 2026-02-18 | Separate table over inline JSONB for metadata storage | Avoids polluting entity_types CRUD hot path; zero changes to existing entity read/write flows; clean separation of concerns | [[riven/docs/system-design/decisions/ADR-002 Separate Table for Semantic Metadata]] |
+| 2026-02-18 | Single discriminator table over multiple tables | All three target types share identical field shapes (locked decision); simpler service code, single repository, one set of indexes | [[riven/docs/system-design/decisions/ADR-003 Single Discriminator Table for Metadata Targets]] |
 | 2026-02-18 | PUT semantics over PATCH for metadata updates | Full replacement is simpler to implement and reason about; metadata has few fields (definition, classification, tags); partial updates add complexity without proportional value |
 | 2026-02-18 | No activity logging for metadata mutations | Metadata edits are frequent during entity type setup and low-impact; would add noise to the audit trail without business-meaningful signal |
 | 2026-02-18 | Lowercase enum constants matching wire format | The project's `ObjectMapperConfig` does not enable `ACCEPT_CASE_INSENSITIVE_ENUMS`; Jackson requires exact match between enum constant names and JSON values; lowercase constants match the API contract directly |
@@ -693,17 +693,17 @@ Implementation is split into three sequential plans, each building on the artifa
 
 ## Related Documents
 
-- [[ADR-002 Separate Table for Semantic Metadata]] -- Architecture decision for storing metadata in a dedicated table
-- [[ADR-003 Single Discriminator Table for Metadata Targets]] -- Architecture decision for single-table discriminator vs. multiple tables
-- [[Flow - Semantic Metadata Lifecycle Sync]] -- Detailed flow documentation for metadata auto-creation and deletion
-- [[Knowledge Layer]] -- Sub-domain plan covering all four phases of the Knowledge Layer
-- [[Entity Semantics]] -- Sub-domain overview for entity semantic metadata
-- [[Entities]] -- Parent domain providing entity types, attributes, and relationships
-- [[Knowledge]] -- Knowledge domain overview
-- [[EntityTypeService]] -- Service modified with lifecycle hooks for metadata creation and soft-deletion
-- [[EntityTypeAttributeService]] -- Service modified with lifecycle hooks for attribute metadata creation and hard-deletion
-- [[EntityTypeRelationshipService]] -- Service modified with lifecycle hooks for relationship metadata creation and hard-deletion
-- [[EntityTypeController]] -- Controller modified with `?include=semantics` query parameter support
+- [[riven/docs/system-design/decisions/ADR-002 Separate Table for Semantic Metadata]] -- Architecture decision for storing metadata in a dedicated table
+- [[riven/docs/system-design/decisions/ADR-003 Single Discriminator Table for Metadata Targets]] -- Architecture decision for single-table discriminator vs. multiple tables
+- [[riven/docs/system-design/flows/Flow - Semantic Metadata Lifecycle Sync]] -- Detailed flow documentation for metadata auto-creation and deletion
+- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Knowledge Layer]] -- Sub-domain plan covering all four phases of the Knowledge Layer
+- [[riven/docs/system-design/domains/Entities/Entity Semantics/Entity Semantics]] -- Sub-domain overview for entity semantic metadata
+- [[riven/docs/system-design/domains/Entities/Entities]] -- Parent domain providing entity types, attributes, and relationships
+- [[riven/docs/system-design/domains/Knowledge/Knowledge]] -- Knowledge domain overview
+- [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] -- Service modified with lifecycle hooks for metadata creation and soft-deletion
+- [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]] -- Service modified with lifecycle hooks for attribute metadata creation and hard-deletion
+- [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] -- Service modified with lifecycle hooks for relationship metadata creation and hard-deletion
+- [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeController]] -- Controller modified with `?include=semantics` query parameter support
 
 ---
 

@@ -6,7 +6,7 @@ tags:
 Created: 2026-02-06
 Updated:
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # Feature: Workflow Human in the Loop
 

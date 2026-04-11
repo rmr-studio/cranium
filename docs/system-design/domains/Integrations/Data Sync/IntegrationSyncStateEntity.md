@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-17
 Domains:
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 # IntegrationSyncStateEntity
 
-Part of [[Data Sync]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Data Sync/Data Sync]]
 
 ## Purpose
 
@@ -54,6 +54,6 @@ JPA entity tracking per-connection per-entity-type sync progress. Records sync s
 
 ## Related
 
-- [[IntegrationSyncStateRepository]] — persistence layer
-- [[Data Sync]] — parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Data Sync/IntegrationSyncStateRepository]] — persistence layer
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Data Sync/Data Sync]] — parent subdomain
 - [[IntegrationConnectionEntity]] — parent connection (CASCADE delete)

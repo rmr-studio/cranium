@@ -81,20 +81,20 @@ Add `semantic_definition TEXT`, `attribute_semantics JSONB`, and `relationship_s
 
 ## Implementation Notes
 
-- **Table:** `entity_type_semantic_metadata` with columns: `id` (UUID PK), `entity_type_id` (FK to `entity_types`), `workspace_id` (FK to `workspaces`), `target_type` (TEXT discriminator), `target_id` (UUID), `definition` (TEXT), `classification` (TEXT, nullable), `tags` (JSONB array), plus audit columns from `AuditableSoftDeletableEntity`. See [[ADR-003 Single Discriminator Table for Metadata Targets]] for the discriminator design.
+- **Table:** `entity_type_semantic_metadata` with columns: `id` (UUID PK), `entity_type_id` (FK to `entity_types`), `workspace_id` (FK to `workspaces`), `target_type` (TEXT discriminator), `target_id` (UUID), `definition` (TEXT), `classification` (TEXT, nullable), `tags` (JSONB array), plus audit columns from `AuditableSoftDeletableEntity`. See [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-003 Single Discriminator Table for Metadata Targets]] for the discriminator design.
 - **JPA entity:** `EntityTypeSemanticMetadataEntity` in `riven.core.entity.entity` package, extending `AuditableSoftDeletableEntity`, with `@SQLRestriction("deleted = false")`.
 - **Repository:** `EntityTypeSemanticMetadataRepository` in `riven.core.repository.entity` with queries scoped by `workspaceId` and `entityTypeId`.
 - **Service:** `EntityTypeSemanticMetadataService` in `riven.core.service.entity` as the sole writer. All reads and writes go through this service. `@PreAuthorize` on all methods for workspace access control.
 - **RLS policy** on `entity_type_semantic_metadata` matching the existing workspace isolation pattern used by `entity_types` and other workspace-scoped tables.
-- **Lifecycle hooks** in [[EntityTypeAttributeService]] (attribute removal triggers metadata soft-delete) and [[EntityTypeRelationshipService]] (relationship removal triggers metadata soft-delete). See [[Flow - Semantic Metadata Lifecycle Sync]] for the full cascade design.
+- **Lifecycle hooks** in [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]] (attribute removal triggers metadata soft-delete) and [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] (relationship removal triggers metadata soft-delete). See [[riven/docs/system-design/flows/Flow - Semantic Metadata Lifecycle Sync]] for the full cascade design.
 - **SQL file** added to `db/schema/` in the appropriate numbered subdirectory following the existing execution order.
 
 ---
 
 ## Related
 
-- [[ADR-003 Single Discriminator Table for Metadata Targets]]
-- [[Semantic Metadata Foundation]]
-- [[Entity Semantics]]
-- [[Type Definitions]]
-- [[Knowledge Layer]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-003 Single Discriminator Table for Metadata Targets]]
+- [[riven/docs/system-design/feature-design/2. Planned/Semantic Metadata Foundation]]
+- [[riven/docs/system-design/domains/Entities/Entity Semantics/Entity Semantics]]
+- [[riven/docs/system-design/domains/Entities/Type Definitions/Type Definitions]]
+- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Knowledge Layer]]

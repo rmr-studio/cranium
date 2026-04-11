@@ -4,7 +4,7 @@ tags:
   - domain/identity-resolution
 Created: 2026-03-17
 Domains:
-  - "[[Identity Resolution]]"
+  - "[[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]]"
 ---
 
 # Temporal Integration

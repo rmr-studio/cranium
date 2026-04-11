@@ -42,18 +42,18 @@ The Workflows domain provides a DAG-based workflow execution engine that enables
 
 | Sub-Domain | Purpose |
 |---|---|
-| [[Execution Engine]] | Temporal workflow orchestration, activity coordination, completion handling |
-| [[Queue Management]] | Execution request queuing, scheduled dispatch, capacity-aware processing |
-| [[Graph Coordination]] | DAG validation, topological sorting, in-degree tracking, execution loop |
-| [[Node Execution]] | Polymorphic node config system, service injection, node type registry |
-| [[State Management]] | Template parsing, expression evaluation, input resolution, entity context |
-| [[Definition Management]] | Workflow definition CRUD, graph building, execution record management |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/Execution Engine]] | Temporal workflow orchestration, activity coordination, completion handling |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/Queue Management]] | Execution request queuing, scheduled dispatch, capacity-aware processing |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Graph Coordination/Graph Coordination]] | DAG validation, topological sorting, in-degree tracking, execution loop |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Node Execution]] | Polymorphic node config system, service injection, node type registry |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/State Management]] | Template parsing, expression evaluation, input resolution, entity context |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Definition Management/Definition Management]] | Workflow definition CRUD, graph building, execution record management |
 
 ### Integrations
 
 |Component|External System|
 |---|---|
-| [[TemporalWorkerConfiguration]] | Temporal Server |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/TemporalWorkerConfiguration]] | Temporal Server |
 
 ---
 
@@ -61,8 +61,8 @@ The Workflows domain provides a DAG-based workflow execution engine that enables
 
 | Flow | Type | Description |
 |---|---|---|
-| [[Workflow Execution]] | User-facing | API trigger -> queue -> Temporal -> DAG execution -> completion |
-| [[Queue Processing]] | Background | Scheduled queue polling, claiming, capacity check, Temporal dispatch |
+| [[riven/docs/system-design/flows/Workflow Execution]] | User-facing | API trigger -> queue -> Temporal -> DAG execution -> completion |
+| [[riven/docs/system-design/flows/Queue Processing]] | Background | Scheduled queue polling, claiming, capacity check, Temporal dispatch |
 
 ---
 
@@ -105,17 +105,17 @@ The Workflows domain provides a DAG-based workflow execution engine that enables
 
 | Domain | What We Consume | Via Component | Related Flow |
 |--------|----------------|---------------|--------------|
-| [[Entities]] | Entity CRUD and querying for node actions (create, update, delete, query, bulk update) | [[EntityService]], [[EntityQueryService]], [[EntityContextService]] | [[Workflow Execution]] |
-| [[Workspaces & Users]] | Workspace scoping via RLS | PostgreSQL RLS policies | [[Auth & Authorization]] |
-| [[Workspaces & Users]] | @PreAuthorize authorization checks | [[WorkspaceSecurity]] | [[Auth & Authorization]] |
-| [[Workspaces & Users]] | Workspace capacity tier enforcement | [[WorkspaceService]] | [[Queue Processing]] |
+| [[riven/docs/system-design/domains/Entities/Entities]] | Entity CRUD and querying for node actions (create, update, delete, query, bulk update) | [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]], [[riven/docs/system-design/domains/Entities/Querying/EntityQueryService]], [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/EntityContextService]] | [[riven/docs/system-design/flows/Workflow Execution]] |
+| [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] | Workspace scoping via RLS | PostgreSQL RLS policies | [[riven/docs/system-design/flows/Auth & Authorization]] |
+| [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] | @PreAuthorize authorization checks | [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]] | [[riven/docs/system-design/flows/Auth & Authorization]] |
+| [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] | Workspace capacity tier enforcement | [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceService]] | [[riven/docs/system-design/flows/Queue Processing]] |
 
 ### Consumed By
 
 | Consumer | What They Consume | Via Component | Related Flow |
 |----------|------------------|---------------|--------------|
-| REST API | Workflow management (definitions, executions, graph ops) | WorkflowDefinitionController, WorkflowExecutionController, WorkflowGraphController | [[Workflow Execution]] |
-| [[Identity Resolution]] | Execution queue infrastructure for IDENTITY_MATCH job dispatch | [[WorkflowExecutionQueueService]], [[ExecutionQueueEntity]] | [[Flow - Identity Match Pipeline]] |
+| REST API | Workflow management (definitions, executions, graph ops) | WorkflowDefinitionController, WorkflowExecutionController, WorkflowGraphController | [[riven/docs/system-design/flows/Workflow Execution]] |
+| [[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]] | Execution queue infrastructure for IDENTITY_MATCH job dispatch | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/WorkflowExecutionQueueService]], [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/ExecutionQueueEntity]] | [[riven/docs/system-design/domains/Identity Resolution/Flow - Identity Match Pipeline]] |
 
 ---
 
@@ -123,26 +123,26 @@ The Workflows domain provides a DAG-based workflow execution engine that enables
 
 | Subdomain | Service | Purpose |
 |---|---|---|
-| Execution Engine | [[WorkflowOrchestrationService]] | Temporal workflow — DAG lifecycle orchestration |
-| Execution Engine | [[WorkflowCoordinationService]] | Temporal activity — node execution coordination |
-| Execution Engine | [[WorkflowGraphCoordinationService]] | DAG execution loop with pull-based scheduling |
-| Execution Engine | [[WorkflowCompletionActivityImpl]] | Records final execution status |
-| Queue Management | [[WorkflowExecutionQueueService]] | Queue state transitions and persistence |
-| Queue Management | [[WorkflowExecutionDispatcherService]] | Scheduled queue polling with ShedLock |
-| Queue Management | [[WorkflowExecutionQueueProcessorService]] | Per-item processing with isolated transactions |
-| Graph Coordination | [[WorkflowGraphValidationService]] | DAG cycle detection, edge validation, connectivity |
-| Graph Coordination | [[WorkflowGraphTopologicalSorterService]] | Kahn's algorithm topological sort |
-| Graph Coordination | [[WorkflowGraphQueueManagementService]] | In-degree tracking and ready queue |
-| Node Execution | [[WorkflowNodeConfig]] | Sealed interface — polymorphic node execution |
-| Node Execution | [[WorkflowNodeConfigRegistry]] | Node type discovery and registration |
-| Node Execution | [[WorkflowNodeServiceInjectionProvider]] | Lazy Spring service injection for nodes |
-| State Management | [[WorkflowNodeInputResolverService]] | Template resolution against data registry |
-| State Management | [[WorkflowNodeTemplateParserService]] | {{ }} template syntax parsing |
-| State Management | [[WorkflowNodeExpressionEvaluatorService]] | Expression evaluation for conditions |
-| State Management | [[EntityContextService]] | Entity data loading for workflow context |
-| Definition Management | [[WorkflowDefinitionService]] | Definition CRUD operations |
-| Definition Management | [[WorkflowGraphService]] | Graph node/edge management |
-| Definition Management | [[WorkflowExecutionService]] | Execution lifecycle and status queries |
+| Execution Engine | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowOrchestrationService]] | Temporal workflow — DAG lifecycle orchestration |
+| Execution Engine | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowCoordinationService]] | Temporal activity — node execution coordination |
+| Execution Engine | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowGraphCoordinationService]] | DAG execution loop with pull-based scheduling |
+| Execution Engine | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Execution Engine/WorkflowCompletionActivityImpl]] | Records final execution status |
+| Queue Management | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/WorkflowExecutionQueueService]] | Queue state transitions and persistence |
+| Queue Management | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/WorkflowExecutionDispatcherService]] | Scheduled queue polling with ShedLock |
+| Queue Management | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/WorkflowExecutionQueueProcessorService]] | Per-item processing with isolated transactions |
+| Graph Coordination | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Graph Coordination/WorkflowGraphValidationService]] | DAG cycle detection, edge validation, connectivity |
+| Graph Coordination | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Graph Coordination/WorkflowGraphTopologicalSorterService]] | Kahn's algorithm topological sort |
+| Graph Coordination | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Graph Coordination/WorkflowGraphQueueManagementService]] | In-degree tracking and ready queue |
+| Node Execution | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/WorkflowNodeConfig]] | Sealed interface — polymorphic node execution |
+| Node Execution | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/WorkflowNodeConfigRegistry]] | Node type discovery and registration |
+| Node Execution | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/WorkflowNodeServiceInjectionProvider]] | Lazy Spring service injection for nodes |
+| State Management | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/WorkflowNodeInputResolverService]] | Template resolution against data registry |
+| State Management | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/WorkflowNodeTemplateParserService]] | {{ }} template syntax parsing |
+| State Management | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/WorkflowNodeExpressionEvaluatorService]] | Expression evaluation for conditions |
+| State Management | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/EntityContextService]] | Entity data loading for workflow context |
+| Definition Management | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Definition Management/WorkflowDefinitionService]] | Definition CRUD operations |
+| Definition Management | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Definition Management/WorkflowGraphService]] | Graph node/edge management |
+| Definition Management | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Definition Management/WorkflowExecutionService]] | Execution lifecycle and status queries |
 
 ---
 
@@ -193,7 +193,7 @@ flowchart TB
 | No loops or switch/case in control flow — only binary conditions supported | High | High |
 | Template-only expressions — no complex transformations, array indexing, or arithmetic | Medium | Medium |
 | No partial failure recovery — one node failure = entire workflow failure | High | High |
-| [[WorkflowGraphQueueManagementService]] holds mutable state — not thread-safe | Medium | Medium |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Graph Coordination/WorkflowGraphQueueManagementService]] holds mutable state — not thread-safe | Medium | Medium |
 | No workflow pausing for human approval — WorkflowHumanInteractionConfig is a stub | High | High |
 | Fixed batch size — not adaptive to load | Low | Low |
 | No rate limiting per workspace — fair-use enforcement is coarse | Medium | Medium |

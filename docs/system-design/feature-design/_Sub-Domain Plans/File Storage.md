@@ -4,7 +4,7 @@ tags:
 Created: 2026-03-06
 Updated: 2026-03-06
 Domains:
-  - "[[Storage]]"
+  - "[[riven/docs/system-design/domains/Storage/Storage]]"
 ---
 # Sub-Domain Plan: File Storage
 
@@ -27,7 +27,7 @@ File storage is a cohesive sub-domain because all its components share a common 
 ### Boundaries
 
 - **Owns:** File upload/download/delete/list, content type detection and validation, file size validation, SVG sanitization, storage provider abstraction (local/cloud), file metadata persistence, HMAC-signed URL generation and validation, storage domain definitions (AVATAR, future domains)
-- **Does NOT own:** Block content or block tree structure ([[Blocks]] domain), entity schemas or entity type definitions ([[Entities]] domain), workspace management or membership ([[Workspaces & Users]] domain), user authentication or JWT handling ([[Workspaces & Users]] domain), workflow execution ([[Workflows]] domain)
+- **Does NOT own:** Block content or block tree structure ([[Blocks]] domain), entity schemas or entity type definitions ([[riven/docs/system-design/domains/Entities/Entities]] domain), workspace management or membership ([[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] domain), user authentication or JWT handling ([[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] domain), workflow execution ([[riven/docs/system-design/domains/Workflows/Workflows]] domain)
 
 ---
 
@@ -80,9 +80,9 @@ graph TD
 
 | Decision | Rationale | Alternatives Rejected |
 |----------|-----------|----------------------|
-| Strategy pattern with `@ConditionalOnProperty` for provider selection | Only one provider active per deployment, idiomatic Spring, zero runtime overhead. See [[ADR-005 Strategy Pattern with Conditional Bean Selection for Storage Providers]]. | Pure if/else factory, abstract class hierarchy, runtime provider switching via DB config |
-| HMAC-signed download tokens | Self-contained tokens require no DB lookup per download, decoupled from JWT lifecycle. See [[ADR-006 HMAC-Signed Download Tokens for File Access]]. | JWT-based file tokens, database-stored tokens, permanent public URLs |
-| Apache Tika for content type detection | Magic bytes are not spoofable, Tika maintains comprehensive detection database. See [[ADR-007 Magic Byte Content Validation via Apache Tika]]. | Extension-based detection, custom magic byte tables, client-provided Content-Type header |
+| Strategy pattern with `@ConditionalOnProperty` for provider selection | Only one provider active per deployment, idiomatic Spring, zero runtime overhead. See [[riven/docs/system-design/decisions/ADR-005 Strategy Pattern with Conditional Bean Selection for Storage Providers]]. | Pure if/else factory, abstract class hierarchy, runtime provider switching via DB config |
+| HMAC-signed download tokens | Self-contained tokens require no DB lookup per download, decoupled from JWT lifecycle. See [[riven/docs/system-design/decisions/ADR-006 HMAC-Signed Download Tokens for File Access]]. | JWT-based file tokens, database-stored tokens, permanent public URLs |
+| Apache Tika for content type detection | Magic bytes are not spoofable, Tika maintains comprehensive detection database. See [[riven/docs/system-design/decisions/ADR-007 Magic Byte Content Validation via Apache Tika]]. | Extension-based detection, custom magic byte tables, client-provided Content-Type header |
 | Separate HMAC secret from JWT secret | Decouples file access scope from user auth scope, limits blast radius of secret compromise | Shared secret with JWT |
 | Blocking (non-suspend) provider interface | Matches synchronous Spring MVC architecture | Reactive/coroutine-based interface |
 | Local filesystem adapter first | Zero external dependencies, enables self-hosted deployments | Cloud-first (Supabase/S3) |
@@ -112,7 +112,7 @@ flowchart LR
 
 ### Secondary Flows
 
-- **Signed URL download flow:** Client requests `GET /api/v1/storage/download/{token}` (unauthenticated). `SignedUrlService` validates HMAC token, `StorageProvider` streams file bytes, `FileMetadataRepository` provides original filename for Content-Disposition. See [[Flow - Signed URL Download]].
+- **Signed URL download flow:** Client requests `GET /api/v1/storage/download/{token}` (unauthenticated). `SignedUrlService` validates HMAC token, `StorageProvider` streams file bytes, `FileMetadataRepository` provides original filename for Content-Disposition. See [[riven/docs/system-design/flows/Flow - Signed URL Download]].
 - **File delete flow:** Client requests `DELETE /api/v1/storage/workspace/{wId}/files/{fileId}` (authenticated). `StorageService` soft-deletes metadata, then deletes physical file from provider. Physical deletion failure is logged but does not roll back metadata soft-delete.
 - **Signed URL generation flow:** Client requests `POST /api/v1/storage/workspace/{wId}/files/{fileId}/signed-url` (authenticated). `StorageService` looks up file metadata, `SignedUrlService` generates HMAC token with configurable expiry.
 
@@ -219,7 +219,7 @@ graph LR
 
 | Domain / Sub-Domain | What We Need | Integration Point |
 |---------------------|-------------|-------------------|
-| [[Workspaces & Users]] | Workspace scoping, user authentication, role-based authorization | JWT auth, `@PreAuthorize`, workspace ID for file isolation |
+| [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] | Workspace scoping, user authentication, role-based authorization | JWT auth, `@PreAuthorize`, workspace ID for file isolation |
 | Activity | Audit trail for upload and delete operations | Direct service call to `ActivityService.logActivity` |
 
 ### Consumed By
@@ -227,8 +227,8 @@ graph LR
 | Domain / Sub-Domain | What They Need | Integration Point |
 |---------------------|---------------|-------------------|
 | [[Blocks]] (future) | File attachments in block content, inline image rendering | Block types reference file IDs; signed URLs render inline images |
-| [[Entities]] (future) | File-type attributes on entity instances | Entity attribute payload references file IDs |
-| [[Workspaces & Users]] | Workspace and user avatar upload/display | AVATAR storage domain; signed URLs for `<img>` rendering |
+| [[riven/docs/system-design/domains/Entities/Entities]] (future) | File-type attributes on entity instances | Entity attribute payload references file IDs |
+| [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]] | Workspace and user avatar upload/display | AVATAR storage domain; signed URLs for `<img>` rendering |
 
 ### Cross-Cutting Concerns
 
@@ -282,12 +282,12 @@ graph LR
 
 ## 10. Related Documents
 
-- [[Provider-Agnostic File Storage]] -- Feature design for Phase 1 Storage Foundation
-- [[ADR-005 Strategy Pattern with Conditional Bean Selection for Storage Providers]] -- Provider selection mechanism
-- [[ADR-006 HMAC-Signed Download Tokens for File Access]] -- Signed URL authentication
-- [[ADR-007 Magic Byte Content Validation via Apache Tika]] -- Content type detection
-- [[Flow - File Upload]] -- Upload flow documentation
-- [[Flow - Signed URL Download]] -- Download flow documentation
+- [[riven/docs/system-design/feature-design/2. Planned/Provider-Agnostic File Storage]] -- Feature design for Phase 1 Storage Foundation
+- [[riven/docs/system-design/decisions/ADR-005 Strategy Pattern with Conditional Bean Selection for Storage Providers]] -- Provider selection mechanism
+- [[riven/docs/system-design/decisions/ADR-006 HMAC-Signed Download Tokens for File Access]] -- Signed URL authentication
+- [[riven/docs/system-design/decisions/ADR-007 Magic Byte Content Validation via Apache Tika]] -- Content type detection
+- [[riven/docs/system-design/flows/Flow - File Upload]] -- Upload flow documentation
+- [[riven/docs/system-design/flows/Flow - Signed URL Download]] -- Download flow documentation
 
 ---
 

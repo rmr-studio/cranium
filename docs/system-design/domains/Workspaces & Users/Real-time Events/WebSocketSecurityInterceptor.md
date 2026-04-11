@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-14
 Domains:
-  - "[[Workspaces & Users]]"
+  - "[[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]"
 ---
 # WebSocketSecurityInterceptor
 
-Part of [[Real-time Events]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/Real-time Events]]
 
 ## Purpose
 
@@ -84,9 +84,9 @@ Static utility. Parses workspace UUID from a topic destination string. Returns `
 
 ## Related
 
-- [[Real-time Events]] -- Parent subdomain
-- [[Auth & Authorization]] -- HTTP-level JWT and authority infrastructure this interceptor builds on
-- [[WebSocketEventListener]] -- The component that sends messages to topics this interceptor protects
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/Real-time Events]] -- Parent subdomain
+- [[riven/docs/system-design/flows/Auth & Authorization]] -- HTTP-level JWT and authority infrastructure this interceptor builds on
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/WebSocketEventListener]] -- The component that sends messages to topics this interceptor protects
 - `WebSocketConfig` -- Registers this interceptor
 
 ---

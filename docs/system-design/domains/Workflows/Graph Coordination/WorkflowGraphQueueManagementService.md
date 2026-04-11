@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-08
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # WorkflowGraphQueueManagementService
 
-Part of [[Graph Coordination]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Graph Coordination/Graph Coordination]]
 
 ---
 
@@ -44,8 +44,8 @@ Manages the active execution queue for parallel workflow node scheduling by trac
 
 |Component|Purpose|Coupling|
 |---|---|---|
-|[[WorkflowNode]]|Runtime DTO representing executable nodes|Low - data class|
-|[[WorkflowEdgeEntity]]|Persistence entity for directed edges|Low - data class|
+|[[riven/apps/client/lib/types/docs/WorkflowNode]]|Runtime DTO representing executable nodes|Low - data class|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Graph Coordination/WorkflowEdgeEntity]]|Persistence entity for directed edges|Low - data class|
 
 ### External Dependencies
 
@@ -63,7 +63,7 @@ None - stateful service with no constructor dependencies.
 
 |Component|How It Uses This|Notes|
 |---|---|---|
-|[[WorkflowGraphCoordinationService]]|Calls initialize(), getReadyNodes(), markNodeCompleted(), hasMoreWork() in execution loop|Main consumer - drives DAG execution|
+|[[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowGraphCoordinationService]]|Calls initialize(), getReadyNodes(), markNodeCompleted(), hasMoreWork() in execution loop|Main consumer - drives DAG execution|
 
 ---
 
@@ -298,9 +298,9 @@ None - this service is called frequently within execution loops. Errors propagat
 
 ## Related
 
-- [[WorkflowGraphCoordinationService]] — Main consumer; drives DAG execution using this queue
-- [[WorkflowGraphTopologicalSorterService]] — Similar in-degree calculation for validation
-- [[Graph Coordination]] — Parent subdomain
+- [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowGraphCoordinationService]] — Main consumer; drives DAG execution using this queue
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Graph Coordination/WorkflowGraphTopologicalSorterService]] — Similar in-degree calculation for validation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Graph Coordination/Graph Coordination]] — Parent subdomain
 
 ---
 

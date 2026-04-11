@@ -8,13 +8,13 @@ tags:
 Created: 2026-03-25
 Updated:
 Domains:
-  - "[[Knowledge]]"
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Knowledge/Knowledge]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 blocked by:
   - "[[SQL Aggregation Column Engine]]"
   - "[[Aggregation Query Benchmark]]"
-  - "[[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]]"
-  - "[[Prompt Construction for Knowledge Model Queries]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Prompt Construction for Knowledge Model Queries]]"
 ---
 # Feature: Lifecycle Queries as Architecture Validation
 
@@ -32,7 +32,7 @@ The Pre-written Lifecycle Queries feature (already designed as a standalone feat
 
 ### Proposed Solution
 
-Implement Pre-written Lifecycle Queries as the first feature after the lifecycle spine and aggregation engine ship. This is not a new feature — it is a sequencing decision that prioritizes the existing [[Pre-written Lifecycle Queries]] design as the architecture validation milestone.
+Implement Pre-written Lifecycle Queries as the first feature after the lifecycle spine and aggregation engine ship. This is not a new feature — it is a sequencing decision that prioritizes the existing [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Pre-written Lifecycle Queries]] design as the architecture validation milestone.
 
 **What this validates:**
 
@@ -93,7 +93,7 @@ The full Pre-written Lifecycle Queries feature ships 15-20 per type. For validat
 
 ### What This Is NOT
 
-This is not a redesign of the Pre-written Lifecycle Queries feature. The full feature design lives at [[Pre-written Lifecycle Queries]]. This document captures the architectural validation rationale — why this feature should ship first, what it validates, and how to use its success or failure as a signal for the remaining 12 features.
+This is not a redesign of the Pre-written Lifecycle Queries feature. The full feature design lives at [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Pre-written Lifecycle Queries]]. This document captures the architectural validation rationale — why this feature should ship first, what it validates, and how to use its success or failure as a signal for the remaining 12 features.
 
 ### Success Criteria
 
@@ -122,14 +122,14 @@ After validation queries are running:
 
 ## Related Documents
 
-- [[Pre-written Lifecycle Queries]] — the full feature design this validates
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Pre-written Lifecycle Queries]] — the full feature design this validates
 - [[SQL Aggregation Column Engine]] — the aggregation engine these queries exercise
 - [[Aggregation Query Benchmark]] — raw performance validation (runs before this)
-- [[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]] — the entity type foundation
-- [[Lifecycle Domain Model]] — cross-domain traversal this validates
-- [[Smart Projection Architecture]] — next major feature after validation passes
-- [[Churn Retrospective Timeline]] — example of a feature that depends on this validation passing
-- [[Lifecycle Analytics Views]] — example of a feature that depends on this validation passing
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]] — the entity type foundation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Lifecycle Domain Model]] — cross-domain traversal this validates
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Smart Projection Architecture]] — next major feature after validation passes
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Churn Retrospective Timeline]] — example of a feature that depends on this validation passing
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Lifecycle Analytics Views]] — example of a feature that depends on this validation passing
 - Eng Review: Lifecycle Spine (2026-03-25) — outside voice recommended identifying a single validation feature
 
 ---

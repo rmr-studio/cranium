@@ -6,11 +6,11 @@ tags:
 Created: 2025-07-17
 Updated: 2026-03-18
 Domains:
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 # TemplateMaterializationService
 
-Part of [[Enablement]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/Enablement]]
 
 ## Purpose
 
@@ -46,8 +46,8 @@ Creates workspace-scoped entity types and relationships from global catalog defi
 - `CatalogRelationshipRepository` — Reads catalog relationship definitions by manifest ID
 - `CatalogRelationshipTargetRuleRepository` — Reads catalog target rules by relationship IDs
 - `ManifestCatalogRepository` — Resolves integration slug to manifest entry
-- [[EntityTypeSemanticMetadataService]] — Initializes semantic metadata records for materialized entity types and their attributes
-- [[EntityTypeRelationshipService]] — Creates fallback CONNECTED_ENTITIES relationship definitions
+- [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]] — Initializes semantic metadata records for materialized entity types and their attributes
+- [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] — Creates fallback CONNECTED_ENTITIES relationship definitions
 - [[EntityTypeSequenceService]] — Initializes ID sequences for `SchemaType.ID` attributes
 - `ObjectMapper` — JSON processing (injected but used for potential schema transformations)
 - `KLogger` — Structured logging
@@ -56,8 +56,8 @@ Creates workspace-scoped entity types and relationships from global catalog defi
 
 ## Used By
 
-- [[NangoWebhookService]] — Calls `materializeIntegrationTemplates()` during auth webhook processing
-- [[IntegrationConnectionService]] — Calls `materializeIntegrationTemplates()` when `updateConnectionStatus` transitions to CONNECTED
+- [[riven/docs/system-design/domains/Integrations/Webhook Authentication/NangoWebhookService]] — Calls `materializeIntegrationTemplates()` during auth webhook processing
+- [[riven/docs/system-design/domains/Integrations/Connection Management/IntegrationConnectionService]] — Calls `materializeIntegrationTemplates()` when `updateConnectionStatus` transitions to CONNECTED
 
 ---
 
@@ -192,13 +192,13 @@ Materializes all entity types and relationships for an integration into a worksp
 
 ## Related
 
-- [[NangoWebhookService]] — Calls this service during auth webhook processing
-- [[IntegrationConnectionService]] — Calls this service when connections transition to CONNECTED
-- [[EntityTypeService]] — Standard entity type management; materialized types appear alongside user-created types
-- [[EntityTypeSemanticMetadataService]] — Semantic metadata initialization
-- [[EntityTypeRelationshipService]] — Fallback relationship creation
+- [[riven/docs/system-design/domains/Integrations/Webhook Authentication/NangoWebhookService]] — Calls this service during auth webhook processing
+- [[riven/docs/system-design/domains/Integrations/Connection Management/IntegrationConnectionService]] — Calls this service when connections transition to CONNECTED
+- [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] — Standard entity type management; materialized types appear alongside user-created types
+- [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]] — Semantic metadata initialization
+- [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] — Fallback relationship creation
 - [[EntityTypeSequenceService]] — ID sequence initialization
-- [[Enablement]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/Enablement]] — Parent subdomain
 
 ---
 
@@ -212,7 +212,7 @@ Materializes all entity types and relationships for an integration into a worksp
 ### 2026-03-18
 
 - Added `integrationDefinitionId` parameter to `materializeIntegrationTemplates()` — sets `sourceIntegrationId` on materialized entity types for the integration dedup index
-- Updated callers: now called by [[NangoWebhookService]] (auth webhook) and [[IntegrationConnectionService]] (status transition) instead of [[IntegrationEnablementService]]
+- Updated callers: now called by [[riven/docs/system-design/domains/Integrations/Webhook Authentication/NangoWebhookService]] (auth webhook) and [[riven/docs/system-design/domains/Integrations/Connection Management/IntegrationConnectionService]] (status transition) instead of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/IntegrationEnablementService]]
 
 ### 2026-03-29
 

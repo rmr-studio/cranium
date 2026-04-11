@@ -5,7 +5,7 @@ tags:
   - tools/nango
 Created: 2026-03-18
 Domains:
-  - "[[Integrations]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Integrations]]"
 ---
 # Integrations FAQ
 
@@ -20,8 +20,8 @@ The authentication flow is webhook-driven, not API-driven:
 1. **Frontend** opens the Nango Connect UI, passing three tags: `endUserId` (user UUID), `organizationId` (workspace UUID), and `endUserEmail` (integration definition UUID)
 2. **Nango** handles the complete OAuth flow with the third-party provider (e.g. HubSpot)
 3. **Nango** sends a signed webhook (`POST /api/v1/webhooks/nango`) with type `"auth"` and `success: true`
-4. **[[NangoWebhookHmacFilter]]** validates the `X-Nango-Hmac-Sha256` signature
-5. **[[NangoWebhookService]]** parses the tags, creates/reconnects the connection, creates/restores the installation, and triggers template materialization
+4. **[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookHmacFilter]]** validates the `X-Nango-Hmac-Sha256` signature
+5. **[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookService]]** parses the tags, creates/reconnects the connection, creates/restores the installation, and triggers template materialization
 6. **Frontend** polls the workspace integration status endpoint (`GET /api/v1/integrations/{workspaceId}/status`) to detect the new connection
 
 The backend does NOT have a `POST /enable` endpoint for connection creation. All connections originate from the Nango auth webhook.
@@ -46,7 +46,7 @@ All three fields must be valid UUID strings. Missing or malformed tags cause the
 
 ### How does the webhook recognize the correct workspace and entities?
 
-The webhook payload includes the tags set by the frontend during OAuth initiation. [[NangoWebhookService]] parses these tags:
+The webhook payload includes the tags set by the frontend during OAuth initiation. [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookService]] parses these tags:
 
 1. `organizationId` → `workspaceId` — identifies the workspace
 2. `endUserId` → `userId` — identifies the user for activity logging
@@ -79,7 +79,7 @@ The key design decision: **materialization failure does not roll back the connec
 
 ### How does reconnection work after disconnect/failure?
 
-The `createOrReconnectConnection()` method in [[NangoWebhookService]] handles 4 scenarios:
+The `createOrReconnectConnection()` method in [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookService]] handles 4 scenarios:
 
 | Existing Connection State | Action |
 |---|---|
@@ -96,7 +96,7 @@ For installations, `findOrCreateInstallation()` handles:
 | Soft-deleted installation exists | Restore: clear `deleted`/`deletedAt`, set status to `ACTIVE` |
 | No installation | Create new with `ACTIVE` status |
 
-**Deterministic UUIDs ensure idempotent materialization.** When [[TemplateMaterializationService]] runs on reconnection, it checks for existing entity types by key. Soft-deleted types are restored, active types are skipped, and only genuinely new types are created. The deterministic UUID v3 ensures attribute keys remain stable across reconnections.
+**Deterministic UUIDs ensure idempotent materialization.** When [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/TemplateMaterializationService]] runs on reconnection, it checks for existing entity types by key. Soft-deleted types are restored, active types are skipped, and only genuinely new types are created. The deterministic UUID v3 ensures attribute keys remain stable across reconnections.
 
 ---
 
@@ -122,7 +122,7 @@ These are independent lifecycle concepts:
 
 ### How does template materialization work?
 
-[[TemplateMaterializationService]] bridges the global catalog (string-keyed) and workspace entity types (UUID-keyed):
+[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Enablement/TemplateMaterializationService]] bridges the global catalog (string-keyed) and workspace entity types (UUID-keyed):
 
 1. **Manifest lookup** — Finds the integration manifest by slug via `ManifestCatalogRepository`
 2. **Catalog fetch** — Loads all `CatalogEntityTypeEntity` and `CatalogRelationshipEntity` entries for the manifest
@@ -141,7 +141,7 @@ The `integrationDefinitionId` parameter was added in Phase 2 to set `sourceInteg
 
 ### How does field mapping/transformation work?
 
-[[SchemaMappingService]] applies declarative field mappings to transform external payloads:
+[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Data Sync/SchemaMappingService]] applies declarative field mappings to transform external payloads:
 
 **Transform types:**
 

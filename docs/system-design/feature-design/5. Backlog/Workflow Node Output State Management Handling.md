@@ -11,7 +11,7 @@ tags:
 Created: 2026-02-10
 Updated:
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # Quick Design: Workflow Node Output State Management Handling
 

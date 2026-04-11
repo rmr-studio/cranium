@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-08
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # WorkflowNodeTemplateParserService
 
-Part of [[State Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/State Management]]
 
 ## Purpose
 
@@ -34,7 +34,7 @@ None (pure parsing logic, no external dependencies)
 
 ## Used By
 
-- [[WorkflowNodeInputResolverService]] — Uses parser to identify and resolve templates
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/WorkflowNodeInputResolverService]] — Uses parser to identify and resolve templates
 
 ---
 
@@ -92,5 +92,5 @@ Quick check if string contains template syntax. Faster than full parsing when on
 
 ## Related
 
-- [[WorkflowNodeInputResolverService]] — Resolves parsed templates against data
-- [[State Management]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/WorkflowNodeInputResolverService]] — Resolves parsed templates against data
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/State Management]] — Parent subdomain

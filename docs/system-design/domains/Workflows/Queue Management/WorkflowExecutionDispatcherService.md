@@ -6,9 +6,9 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-08
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
-Part of [[Queue Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/Queue Management]]
 
 # WorkflowExecutionDispatcherService
 
@@ -43,8 +43,8 @@ Scheduled service that polls the execution queue and dispatches pending workflow
 
 |Component|Purpose|Coupling|
 |---|---|---|
-|[[WorkflowExecutionQueueProcessorService]]|Claims batches and processes individual items|High|
-|[[WorkflowExecutionQueueService]]|Recovers stale items stuck in CLAIMED state|Medium|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/WorkflowExecutionQueueProcessorService]]|Claims batches and processes individual items|High|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/WorkflowExecutionQueueService]]|Recovers stale items stuck in CLAIMED state|Medium|
 
 ### External Dependencies
 
@@ -307,8 +307,8 @@ _This service catches no exceptions - all error handling delegated to dependenci
 
 |Flow|Role in Flow|
 |---|---|
-|[[Flow - Workflow Execution Queueing]]|Orchestrates batch processing loop|
-|[[Flow - Stale Item Recovery]]|Initiates recovery of crashed dispatcher items|
+|[[riven/docs/system-design/flows/Flow - Workflow Execution Queueing]]|Orchestrates batch processing loop|
+|[[riven/docs/system-design/flows/Flow - Stale Item Recovery]]|Initiates recovery of crashed dispatcher items|
 
 ---
 
@@ -344,10 +344,10 @@ Integration tests should verify:
 
 ## Related
 
-- [[Queue Management]] - Parent subdomain
-- [[WorkflowExecutionQueueProcessorService]] - Processes individual items
-- [[WorkflowExecutionQueueService]] - Queue state management
-- [[Shedlock]] - External library for distributed locking
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/Queue Management]] - Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/WorkflowExecutionQueueProcessorService]] - Processes individual items
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/WorkflowExecutionQueueService]] - Queue state management
+- [[riven/docs/system-design/infrastructure/Shedlock]] - External library for distributed locking
 
 ---
 

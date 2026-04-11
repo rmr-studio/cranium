@@ -5,7 +5,7 @@ tags:
   - architecture/component
 Created: 2026-03-29
 Domains:
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 
 # ProjectionResult

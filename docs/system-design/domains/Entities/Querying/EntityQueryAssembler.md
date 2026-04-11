@@ -6,9 +6,9 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-08
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
-Part of [[Querying]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/Querying]]
 
 # EntityQueryAssembler
 
@@ -46,9 +46,9 @@ Assembles complete parameterized SELECT and COUNT queries from filter visitor ou
 
 |Component|Purpose|Coupling|
 |---|---|---|
-|[[AttributeFilterVisitor]]|Traverses filter trees and produces SQL fragments|High|
-|[[SqlFragment]]|Immutable container for SQL with parameters|High|
-|[[ParameterNameGenerator]]|Generates unique parameter names across query tree|High|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/AttributeFilterVisitor]]|Traverses filter trees and produces SQL fragments|High|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/SqlFragment]]|Immutable container for SQL with parameters|High|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/ParameterNameGenerator]]|Generates unique parameter names across query tree|High|
 
 ### External Dependencies
 
@@ -71,7 +71,7 @@ class EntityQueryAssembler(
 
 |Component|How It Uses This|Notes|
 |---|---|---|
-|[[EntityQueryService]] (Phase 5)|Calls assemble() to build queries before execution|Main consumer - coordinates entire query pipeline|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/EntityQueryService]] (Phase 5)|Calls assemble() to build queries before execution|Main consumer - coordinates entire query pipeline|
 
 ---
 
@@ -325,12 +325,12 @@ _This component does NOT access database directly - generates SQL for executor t
 
 ## Related
 
-- [[Querying]] - Parent subdomain
-- [[AttributeFilterVisitor]] - Generates filter WHERE clauses
-- [[AttributeSqlGenerator]] - Generates attribute filter SQL
-- [[RelationshipSqlGenerator]] - Generates relationship filter SQL
-- [[SqlFragment]] - Immutable SQL container
-- [[ParameterNameGenerator]] - Unique parameter name generation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/Querying]] - Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/AttributeFilterVisitor]] - Generates filter WHERE clauses
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/AttributeSqlGenerator]] - Generates attribute filter SQL
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/RelationshipSqlGenerator]] - Generates relationship filter SQL
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/SqlFragment]] - Immutable SQL container
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/ParameterNameGenerator]] - Unique parameter name generation
 
 ---
 

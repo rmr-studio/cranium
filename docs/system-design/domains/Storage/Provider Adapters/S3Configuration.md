@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-07
 Domains:
-  - "[[Storage]]"
+  - "[[riven/docs/system-design/domains/Storage/Storage]]"
 ---
 # S3Configuration
 
-Part of [[Provider Adapters]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/Provider Adapters]]
 
 ## Purpose
 
@@ -19,7 +19,7 @@ Conditional S3Client bean creation. Only active when `storage.provider=s3`.
 
 ## Responsibilities
 
-- Create and configure an `S3Client` bean from [[StorageConfigurationProperties]]
+- Create and configure an `S3Client` bean from [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/StorageConfigurationProperties]]
 - Support S3-compatible services via optional endpoint URL override with path-style access
 - Manage S3Client lifecycle — close on Spring context shutdown via `DisposableBean`
 - Provide static AWS credentials via a private inner `CredentialsProvider`
@@ -28,11 +28,11 @@ Conditional S3Client bean creation. Only active when `storage.provider=s3`.
 
 ## Dependencies
 
-- [[StorageConfigurationProperties]] — `s3.region`, `s3.accessKeyId`, `s3.secretAccessKey`, `s3.endpointUrl`
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/StorageConfigurationProperties]] — `s3.region`, `s3.accessKeyId`, `s3.secretAccessKey`, `s3.endpointUrl`
 
 ## Used By
 
-- [[S3StorageProvider]] — injects the `S3Client` bean
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/S3StorageProvider]] — injects the `S3Client` bean
 
 ---
 
@@ -59,5 +59,5 @@ Conditional S3Client bean creation. Only active when `storage.provider=s3`.
 
 ## Related
 
-- [[S3StorageProvider]]
-- [[StorageConfigurationProperties]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/S3StorageProvider]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/StorageConfigurationProperties]]

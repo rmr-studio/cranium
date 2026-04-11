@@ -4,14 +4,14 @@ tags:
   - domain/identity-resolution
 Created: 2026-03-17
 Domains:
-  - "[[Identity Resolution]]"
+  - "[[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]]"
 ---
 
 # Clusters
 
 ## Overview
 
-Manages identity clusters — groups of entities confirmed as representing the same real-world identity. Fully implemented with confirmation service (5-case cluster resolution), manual cluster mutations (add member, rename), and a read API for suggestions and clusters with member enrichment. Phase 4 feature design covers the confirmation state machine and Union-Find cluster management — see [[Identity Cluster Confirmation and Union-Find Management]].
+Manages identity clusters — groups of entities confirmed as representing the same real-world identity. Fully implemented with confirmation service (5-case cluster resolution), manual cluster mutations (add member, rename), and a read API for suggestions and clusters with member enrichment. Phase 4 feature design covers the confirmation state machine and Union-Find cluster management — see [[riven/docs/system-design/feature-design/2. Planned/Identity Cluster Confirmation and Union-Find Management]].
 
 ## Components
 

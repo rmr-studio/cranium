@@ -61,12 +61,12 @@ flowchart TD
 
 | Component | Purpose |
 | --------- | ------- |
-| [[Workspace Management]] | Workspace CRUD, membership management, activity logging |
-| [[Team Management]] | Invitation workflow, member onboarding (future: team features) |
-| [[User Management]] | User profile CRUD, session-based user retrieval, default workspace |
-| [[2. Areas/2.1 Startup & Business/Riven/2. System Design/domains/Workspaces & Users/Onboarding/Onboarding]] | Single-request onboarding flow: workspace creation, profile setup, template installation, team invites |
-| [[Auth & Authorization]] | JWT decoding, authority extraction, role-based access control, workspace security checks |
-| [[Real-time Events]] | WebSocket/STOMP infrastructure for broadcasting workspace-scoped domain events to connected clients |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Workspace Management/Workspace Management]] | Workspace CRUD, membership management, activity logging |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Team Management/Team Management]] | Invitation workflow, member onboarding (future: team features) |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/User Management/User Management]] | User profile CRUD, session-based user retrieval, default workspace |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Onboarding/Onboarding]] | Single-request onboarding flow: workspace creation, profile setup, template installation, team invites |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/Auth & Authorization]] | JWT decoding, authority extraction, role-based access control, workspace security checks |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/Real-time Events]] | WebSocket/STOMP infrastructure for broadcasting workspace-scoped domain events to connected clients |
 
 ### Integrations
 
@@ -80,9 +80,9 @@ flowchart TD
 
 | Flow        | Type                     | Description |
 | ----------- | ------------------------ | ----------- |
-| [[Auth & Authorization]] | User-facing | JWT decode -> authority extraction -> @PreAuthorize -> RLS (Phase 4) |
-| [[Invitation Acceptance]] | User-facing | Create invite -> token -> accept -> add member (Phase 4) |
-| [[Flow - Domain Event Broadcasting]] | Internal | Service → ApplicationEventPublisher → WebSocketEventListener → STOMP topic (cross-domain) |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/Auth & Authorization]] | User-facing | JWT decode -> authority extraction -> @PreAuthorize -> RLS (Phase 4) |
+| [[riven/docs/system-design/flows/Invitation Acceptance]] | User-facing | Create invite -> token -> accept -> add member (Phase 4) |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/Flow - Domain Event Broadcasting]] | Internal | Service → ApplicationEventPublisher → WebSocketEventListener → STOMP topic (cross-domain) |
 
 ---
 
@@ -123,16 +123,16 @@ flowchart TD
 
 | Domain | What We Consume | Via Component | Related Flow |
 |--------|----------------|---------------|--------------|
-| [[Storage]] | File upload for workspace and user avatars | [[StorageService]] | [[Flow - File Upload]] |
-| [[Catalog]] | Template and bundle installation during onboarding | [[TemplateInstallationService]] | [[2. Areas/2.1 Startup & Business/Riven/2. System Design/domains/Workspaces & Users/Onboarding/Onboarding]] |
+| [[riven/docs/system-design/domains/Storage/Storage]] | File upload for workspace and user avatars | [[riven/docs/system-design/domains/Storage/File Management/StorageService]] | [[riven/docs/system-design/flows/Flow - File Upload]] |
+| [[riven/docs/system-design/domains/Catalog/Catalog]] | Template and bundle installation during onboarding | [[riven/docs/system-design/domains/Catalog/Template Installation/TemplateInstallationService]] | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Onboarding/Onboarding]] |
 
 ### Consumed By
 
 | Consumer | What They Consume | Via Component | Related Flow |
 |----------|------------------|---------------|--------------|
-| [[Workflows]] | Workspace scoping (RLS), @PreAuthorize authorization | [[WorkspaceSecurity]], RLS via workspace_members | [[Auth & Authorization]], [[Queue Processing]] |
-| [[Entities]] | Workspace scoping (RLS), @PreAuthorize authorization, user context | [[WorkspaceSecurity]], [[AuthTokenService]], RLS via workspace_members | [[Auth & Authorization]], [[Entity CRUD]] |
-| [[Storage]] | User identity, workspace authorization | [[AuthTokenService]], [[WorkspaceSecurity]] | [[Flow - File Upload]] |
+| [[riven/docs/system-design/domains/Workflows/Workflows]] | Workspace scoping (RLS), @PreAuthorize authorization | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]], RLS via workspace_members | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/Auth & Authorization]], [[riven/docs/system-design/flows/Queue Processing]] |
+| [[riven/docs/system-design/domains/Entities/Entities]] | Workspace scoping (RLS), @PreAuthorize authorization, user context | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]], [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]], RLS via workspace_members | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/Auth & Authorization]], [[riven/docs/system-design/flows/Entity CRUD]] |
+| [[riven/docs/system-design/domains/Storage/Storage]] | User identity, workspace authorization | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]], [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Auth & Authorization/WorkspaceSecurity]] | [[riven/docs/system-design/flows/Flow - File Upload]] |
 
 ---
 
@@ -161,5 +161,5 @@ flowchart TD
 | Date | Change | Feature/ADR |
 | ---- | ------ | ----------- |
 | 2026-02-08 | Domain structure created | [[03-01-PLAN]] |
-| 2026-03-12 | Added [[2. Areas/2.1 Startup & Business/Riven/2. System Design/domains/Workspaces & Users/Onboarding/Onboarding]] subdomain; `onboardingCompletedAt` field on User; new dependency on [[Catalog]] domain | [[2. Areas/2.1 Startup & Business/Riven/2. System Design/domains/Workspaces & Users/Onboarding/Onboarding]] |
-| 2026-03-14 | Added [[Real-time Events]] subdomain — WebSocket/STOMP infrastructure with JWT security interceptor, transactional event listener, workspace-scoped topic broadcasting | WebSocket Notifications |
+| 2026-03-12 | Added [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Onboarding/Onboarding]] subdomain; `onboardingCompletedAt` field on User; new dependency on [[riven/docs/system-design/domains/Catalog/Catalog]] domain | [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Onboarding/Onboarding]] |
+| 2026-03-14 | Added [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/Real-time Events]] subdomain — WebSocket/STOMP infrastructure with JWT security interceptor, transactional event listener, workspace-scoped topic broadcasting | WebSocket Notifications |

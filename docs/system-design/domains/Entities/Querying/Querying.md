@@ -4,7 +4,7 @@ tags:
   - domain/entity
 Created: 2026-02-08
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # Subdomain: Querying
 
@@ -44,15 +44,15 @@ The query pipeline flow:
 
 | Component | Purpose | Type |
 | --------- | ------- | ---- |
-| [[EntityQueryService]] | Query entry point, delegates to pipeline, executes SQL | Service |
-| [[EntityQueryAssembler]] | Assembles complete parameterized queries from filter output | Service |
-| [[QueryFilterValidator]] | Validates filter structure and operator compatibility | Service |
-| [[AttributeFilterVisitor]] | Traverses filter AST, dispatches to SQL generators | Service |
-| [[AttributeSqlGenerator]] | Generates EXISTS/NOT EXISTS subqueries for attribute filters against `entity_attributes` | Component |
-| [[RelationshipSqlGenerator]] | Generates EXISTS subqueries for relationship filters | Component |
-| [[SqlFragment]] | Value object for SQL clause + parameter pairs | Data Class |
-| [[ParameterNameGenerator]] | Unique parameter name generation for query tree | Utility |
-| [[AssembledQuery]] | Value object holding paired data/count queries | Data Class |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/EntityQueryService]] | Query entry point, delegates to pipeline, executes SQL | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/EntityQueryAssembler]] | Assembles complete parameterized queries from filter output | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/QueryFilterValidator]] | Validates filter structure and operator compatibility | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/AttributeFilterVisitor]] | Traverses filter AST, dispatches to SQL generators | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/AttributeSqlGenerator]] | Generates EXISTS/NOT EXISTS subqueries for attribute filters against `entity_attributes` | Component |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/RelationshipSqlGenerator]] | Generates EXISTS subqueries for relationship filters | Component |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/SqlFragment]] | Value object for SQL clause + parameter pairs | Data Class |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/ParameterNameGenerator]] | Unique parameter name generation for query tree | Utility |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/AssembledQuery]] | Value object holding paired data/count queries | Data Class |
 
 ## Technical Debt
 

@@ -6,7 +6,7 @@ tags:
 Created:
 Updated:
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # Quick Design: Workflow State Management and Data Traversal
 
@@ -200,15 +200,15 @@ This needs to be condensed into a singular global state store that is both threa
 
 ## Components Affected
 
-- [[WorkflowNodeInputResolverService]] - The input resolver should now need to support json path matching to each of the sub attributes within the data store
+- [[riven/docs/system-design/domains/Workflows/State Management/WorkflowNodeInputResolverService]] - The input resolver should now need to support json path matching to each of the sub attributes within the data store
 	- Trigger (TriggerContext)
 	- Steps 
 	- Loops
 	- Variables
-- [[WorkflowOrchestrationService]] - During the instantiation of a workflow. A singular datastore entity should be created that is then passed around throughout the entire workflow
-- [[WorkflowGraphCoordinationService]] - The data store should be passed through into this service, and the `nodeExecutor` callback should accept `dataStore` as a second required parametre, this allows the data store reference to be passed around by every single node that is to be executed during the lifecycle of a workflow
+- [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowOrchestrationService]] - During the instantiation of a workflow. A singular datastore entity should be created that is then passed around throughout the entire workflow
+- [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowGraphCoordinationService]] - The data store should be passed through into this service, and the `nodeExecutor` callback should accept `dataStore` as a second required parametre, this allows the data store reference to be passed around by every single node that is to be executed during the lifecycle of a workflow
 
-- [[WorkflowNode]] - After the execution of a node. The node would need to manually update the referenced data store to store the result of its execution 
+- [[riven/apps/client/lib/types/docs/WorkflowNode]] - After the execution of a node. The node would need to manually update the referenced data store to store the result of its execution 
 
 ---
 

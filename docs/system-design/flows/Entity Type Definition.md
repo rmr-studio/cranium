@@ -6,7 +6,7 @@ Created: 2026-02-09
 Updated: 2026-02-09
 Critical: false
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # Flow: Entity Type Definition
 
@@ -29,7 +29,7 @@ Entity Type Definition flow manages the complete lifecycle of entity type schema
 | User Action | Entity Type Configuration UI | User creates, updates, or deletes entity type or its definitions |
 | API Call | POST/PUT/DELETE /api/v1/entity/schema/* | Direct API invocation |
 
-**Entry Point:** [[EntityTypeController]]
+**Entry Point:** [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeController]]
 
 ---
 
@@ -138,19 +138,19 @@ flowchart TD
 
 #### 1. Initial Request Routing
 
-**Subdomain:** [[Type Definitions]]
+**Subdomain:** [[riven/docs/system-design/domains/Entities/Type Definitions/Type Definitions]]
 
-- **Component:** [[EntityTypeController]]
+- **Component:** [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeController]]
 - **Action:** Route request to appropriate endpoint based on operation type
 - **Input:** CreateEntityTypeRequest, SaveTypeDefinitionRequest, DeleteTypeDefinitionRequest, or EntityType
-- **Output:** Routed to [[EntityTypeService]]
+- **Output:** Routed to [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]]
 - **Side Effects:** None (controller layer)
 
 #### 2. Entity Type Creation
 
-**Subdomain:** [[Type Definitions]]
+**Subdomain:** [[riven/docs/system-design/domains/Entities/Type Definitions/Type Definitions]]
 
-- **Component:** [[EntityTypeService]]
+- **Component:** [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]]
 - **Action:** Create new entity type with initial schema
 - **Input:** workspaceId, CreateEntityTypeRequest
 - **Output:** EntityType model with identifier attribute
@@ -162,9 +162,9 @@ flowchart TD
 
 #### 3. Attribute Definition Save
 
-**Subdomain:** [[Type Definitions]]
+**Subdomain:** [[riven/docs/system-design/domains/Entities/Type Definitions/Type Definitions]]
 
-- **Component:** [[EntityTypeAttributeService]]
+- **Component:** [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]]
 - **Action:** Add or update attribute in schema, validate breaking changes
 - **Input:** EntityTypeEntity, SaveAttributeDefinitionRequest
 - **Output:** Updated schema property map
@@ -176,9 +176,9 @@ flowchart TD
 
 #### 4. Relationship Definition Save
 
-**Subdomain:** [[Relationships]]
+**Subdomain:** [[riven/docs/system-design/domains/Entities/Relationships/Relationships]]
 
-- **Component:** [[EntityTypeService]] → [[EntityTypeRelationshipDiffService]]
+- **Component:** [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] → [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipDiffService]]
 - **Action:** Calculate relationship modification diff
 - **Input:** Previous and updated EntityRelationshipDefinition
 - **Output:** EntityTypeRelationshipModification with change types
@@ -186,9 +186,9 @@ flowchart TD
 
 #### 5. Impact Analysis
 
-**Subdomain:** [[Relationships]]
+**Subdomain:** [[riven/docs/system-design/domains/Entities/Relationships/Relationships]]
 
-- **Component:** [[EntityTypeRelationshipImpactAnalysisService]]
+- **Component:** [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipImpactAnalysisService]]
 - **Action:** Analyze diff for data loss and affected entity types
 - **Input:** workspaceId, sourceEntityType, EntityTypeRelationshipDiff
 - **Output:** EntityTypeRelationshipImpactAnalysis
@@ -198,13 +198,13 @@ flowchart TD
   - **Note:** Current implementation is a stub (returns empty result)
 
 > [!warning] Impact Analysis Stub
-> [[EntityTypeRelationshipImpactAnalysisService]] currently returns empty results. Full implementation requires entity data modeling completion. Users do not receive warnings about breaking changes until this is implemented.
+> [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipImpactAnalysisService]] currently returns empty results. Full implementation requires entity data modeling completion. Users do not receive warnings about breaking changes until this is implemented.
 
 #### 6. Breaking Change Decision Point
 
-**Subdomain:** [[Type Definitions]]
+**Subdomain:** [[riven/docs/system-design/domains/Entities/Type Definitions/Type Definitions]]
 
-- **Component:** [[EntityTypeService]]
+- **Component:** [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]]
 - **Action:** Check if impacts exist and user has confirmed
 - **Input:** impactConfirmed boolean, EntityTypeRelationshipImpactAnalysis
 - **Output:** Decision to proceed or return impacts
@@ -214,9 +214,9 @@ flowchart TD
 
 #### 7. Relationship Update Execution
 
-**Subdomain:** [[Relationships]]
+**Subdomain:** [[riven/docs/system-design/domains/Entities/Relationships/Relationships]]
 
-- **Component:** [[EntityTypeRelationshipService]]
+- **Component:** [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]]
 - **Action:** Apply relationship diff to entity type ecosystem
 - **Input:** workspaceId, EntityTypeRelationshipDiff
 - **Output:** Map of updated EntityTypeEntity by key
@@ -229,9 +229,9 @@ flowchart TD
 
 #### 8. Column Reordering
 
-**Subdomain:** [[Type Definitions]]
+**Subdomain:** [[riven/docs/system-design/domains/Entities/Type Definitions/Type Definitions]]
 
-- **Component:** [[EntityTypeService]]
+- **Component:** [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]]
 - **Action:** Update column order list with new/moved definition
 - **Input:** Current columns, new column, previous index (if moving), new index
 - **Output:** Updated List<EntityTypeAttributeColumn>
@@ -239,7 +239,7 @@ flowchart TD
 
 #### 9. Persistence
 
-**Subdomain:** [[Type Definitions]]
+**Subdomain:** [[riven/docs/system-design/domains/Entities/Type Definitions/Type Definitions]]
 
 - **Component:** EntityTypeRepository
 - **Action:** Save updated entity type(s)
@@ -305,11 +305,11 @@ flowchart TD
 
 **Steps:**
 1. Load existing entity type
-2. For attributes: [[EntityTypeAttributeService]] removes from schema properties
+2. For attributes: [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]] removes from schema properties
 3. For relationships:
    - Calculate impact of removal
    - If not confirmed and impacts exist: return 409 CONFLICT
-   - If confirmed: [[EntityTypeRelationshipService]] removes with cascade
+   - If confirmed: [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] removes with cascade
    - For ORIGIN relationships: removes all inverse REFERENCE relationships
    - For REFERENCE relationships: updates origin's bidirectionalEntityTypeKeys
 4. Remove from column ordering
@@ -328,7 +328,7 @@ flowchart TD
 2. Analyze impact of removing ALL relationships
 3. If not confirmed and impacts exist: return 409 CONFLICT
 4. If confirmed:
-   - Remove all relationships via [[EntityTypeRelationshipService]]
+   - Remove all relationships via [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]]
    - For ORIGIN relationships: DELETE_RELATIONSHIP action (cascade to inverses)
    - For REFERENCE relationships: REMOVE_ENTITY_TYPE action (update origins)
 5. Delete EntityTypeEntity
@@ -474,7 +474,7 @@ flow:entity_type_definition
 
 ## Security Considerations
 
-- **Authorization checks at:** All [[EntityTypeService]] public methods via `@PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")`
+- **Authorization checks at:** All [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] public methods via `@PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")`
 - **Sensitive data in flight:** Schema definitions contain no secrets, all workspace-scoped
 - **Audit logging:** CREATE/UPDATE/DELETE operations logged via ActivityService with userId, workspaceId, entityId
 
@@ -507,12 +507,12 @@ flow:entity_type_definition
 
 | Component | Role | Can Block Flow |
 |---|---|---|
-| [[EntityTypeController]] | HTTP endpoint routing | No (fast routing) |
-| [[EntityTypeService]] | Orchestrate definition lifecycle | Yes (business logic) |
-| [[EntityTypeAttributeService]] | Attribute schema validation | Yes (breaking change detection) |
-| [[EntityTypeRelationshipService]] | Relationship graph management | Yes (cascade operations) |
-| [[EntityTypeRelationshipDiffService]] | Modification delta calculation | No (pure calculation) |
-| [[EntityTypeRelationshipImpactAnalysisService]] | Impact analysis | No (stub, returns immediately) |
+| [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeController]] | HTTP endpoint routing | No (fast routing) |
+| [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] | Orchestrate definition lifecycle | Yes (business logic) |
+| [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]] | Attribute schema validation | Yes (breaking change detection) |
+| [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] | Relationship graph management | Yes (cascade operations) |
+| [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipDiffService]] | Modification delta calculation | No (pure calculation) |
+| [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipImpactAnalysisService]] | Impact analysis | No (stub, returns immediately) |
 | EntityValidationService | Schema breaking change detection | Yes (entity validation) |
 | EntityTypeRepository | Persistence | Yes (database I/O) |
 | ActivityService | Audit logging | No (async logging) |
@@ -529,13 +529,13 @@ flow:entity_type_definition
 
 ## Related
 
-- [[EntityTypeService]] - Primary orchestrator
-- [[EntityTypeAttributeService]] - Attribute operations
-- [[EntityTypeRelationshipService]] - Relationship operations
-- [[EntityTypeRelationshipImpactAnalysisService]] - Impact analysis
-- [[EntityTypeRelationshipDiffService]] - Change detection
-- [[Type Definitions]] - Parent subdomain
-- [[Relationships]] - Relationship subdomain
+- [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] - Primary orchestrator
+- [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]] - Attribute operations
+- [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] - Relationship operations
+- [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipImpactAnalysisService]] - Impact analysis
+- [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipDiffService]] - Change detection
+- [[riven/docs/system-design/domains/Entities/Type Definitions/Type Definitions]] - Parent subdomain
+- [[riven/docs/system-design/domains/Entities/Relationships/Relationships]] - Relationship subdomain
 
 ---
 
@@ -545,19 +545,19 @@ flow:entity_type_definition
 > Entity types update IN PLACE (unlike BlockTypes which are versioned). Breaking changes are validated against existing entities, but there's no rollback mechanism. Once a change is committed, it's permanent unless manually reverted.
 
 > [!warning] Impact Analysis Stub
-> [[EntityTypeRelationshipImpactAnalysisService]] currently returns empty results. Users will NOT see warnings about breaking changes until entity data modeling is complete. This is a known gap documented in the service.
+> [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipImpactAnalysisService]] currently returns empty results. Users will NOT see warnings about breaking changes until entity data modeling is complete. This is a known gap documented in the service.
 
 > [!warning] Relationship Cascade Complexity
 > Bidirectional relationships create inverse REFERENCE relationships on target entity types. Deleting an ORIGIN relationship cascades to ALL inverses. Deleting a REFERENCE relationship updates the origin's bidirectionalEntityTypeKeys. This cascade logic is complex and can affect multiple entity types in a single operation.
 
 > [!warning] Protected Relationships
-> System-managed relationships have `protected=true` and cannot be deleted by users. Attempts to delete protected relationships fail with IllegalStateException. This is enforced in [[EntityTypeRelationshipService]].
+> System-managed relationships have `protected=true` and cannot be deleted by users. Attempts to delete protected relationships fail with IllegalStateException. This is enforced in [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]].
 
 > [!warning] Transaction Boundaries
 > All operations are wrapped in `@Transactional`. Validation failures cause rollback, but some validation happens BEFORE the transaction (e.g., entity type existence checks). This can lead to inconsistent error reporting.
 
 > [!warning] Unique Constraints
-> Unique constraints are only supported for STRING and NUMBER types. This is validated in [[EntityTypeAttributeService]]. Attempting to mark other types as unique fails with SchemaValidationException.
+> Unique constraints are only supported for STRING and NUMBER types. This is validated in [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]]. Attempting to mark other types as unique fails with SchemaValidationException.
 
 ---
 

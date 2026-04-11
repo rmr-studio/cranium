@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-03-09
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 #EntityValidationService
 
-Part of [[Validation]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Validation/Validation]]
 
 ## Purpose
 
@@ -35,8 +35,8 @@ Schema validation for entity save operations and breaking change detection for e
 
 ## Used By
 
-- [[EntityService]] — Validates entities during save operations
-- [[EntityTypeAttributeService]] — Validates schema changes before applying
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]] — Validates entities during save operations
+- [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]] — Validates schema changes before applying
 
 ---
 
@@ -103,9 +103,9 @@ Runs new schema against all existing entities to determine impact. Accepts optio
 
 ## Related
 
-- [[EntityService]] — Primary consumer for instance validation
-- [[EntityTypeAttributeService]] — Uses for schema change validation
-- [[Validation]] — Parent subdomain
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]] — Primary consumer for instance validation
+- [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]] — Uses for schema change validation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Validation/Validation]] — Parent subdomain
 
 ---
 

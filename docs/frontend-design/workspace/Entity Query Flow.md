@@ -8,7 +8,7 @@ Created: 2026-03-18
 Updated: 2026-03-18
 Critical: false
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # Flow: Entity Query Pipeline
 
@@ -16,7 +16,7 @@ Domains:
 
 ## Overview
 
-The entity query pipeline is the data-fetching backbone of the [[Entity Data Table]]. It translates user interactions (searching, sorting, filtering) into paginated API calls against `POST /api/entities/query`, manages an infinite scroll cache of entity pages, and feeds flattened row data into TanStack Table. Understanding this flow is essential for debugging query behavior, extending filter capabilities, or adapting the pattern for other paginated features.
+The entity query pipeline is the data-fetching backbone of the [[2. Areas/2.1 Startup & Content/Riven/3. Frontend Design/workspace/Entity Data Table]]. It translates user interactions (searching, sorting, filtering) into paginated API calls against `POST /api/entities/query`, manages an infinite scroll cache of entity pages, and feeds flattened row data into TanStack Table. Understanding this flow is essential for debugging query behavior, extending filter capabilities, or adapting the pattern for other paginated features.
 
 ---
 
@@ -561,9 +561,9 @@ This works because the `EntityService` bypasses the generated `QueryFilterToJSON
 
 ## Related
 
-- [[Entity Data Table]] — Feature design covering the full component hierarchy and UX
-- [[Data Table Infrastructure]] — Shared infinite scroll, search, and sorting primitives
-- [[Entity Querying]] — Backend feature design for the query API
+- [[2. Areas/2.1 Startup & Content/Riven/3. Frontend Design/workspace/Entity Data Table]] — Feature design covering the full component hierarchy and UX
+- [[riven/docs/frontend-design/architecture/Data Table Infrastructure]] — Shared infinite scroll, search, and sorting primitives
+- [[riven/docs/system-design/feature-design/4. Completed/Entity Querying]] — Backend feature design for the query API
 
 ---
 

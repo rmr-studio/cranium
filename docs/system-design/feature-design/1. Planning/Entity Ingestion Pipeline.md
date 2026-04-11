@@ -6,11 +6,11 @@ tags:
 Created: 2026-03-27
 Updated: 2026-03-27
 Domains:
-  - "[[Integrations]]"
-  - "[[Entities]]"
-  - "[[Identity Resolution]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
+  - "[[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]]"
 depends-on:
-  - "[[Smart Projection Architecture]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Smart Projection Architecture]]"
 ---
 # Feature: Entity Ingestion Pipeline — Classify, Route, Map, Resolve
 
@@ -27,7 +27,7 @@ Riven ingests entity data from multiple external sources — Nango-synced SaaS i
 3. **No identity deduplication at ingest time.** Two records from different integrations representing the same person create two core entities. Identity resolution runs post-hoc and suggests matches, but doesn't prevent duplicates during the sync itself.
 4. **No classification routing.** Incoming data has no mechanism to self-route to the correct core entity type based on its domain classification. Routing is implicit (hardcoded per integration) rather than declarative.
 
-Without a unified ingestion pipeline, the [[Smart Projection Architecture]] cannot function — it depends on classified, mapped, and identity-resolved data flowing into core entity types automatically.
+Without a unified ingestion pipeline, the [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Smart Projection Architecture]] cannot function — it depends on classified, mapped, and identity-resolved data flowing into core entity types automatically.
 
 ### Proposed Solution
 
@@ -925,7 +925,7 @@ No feature flags. The pipeline is activated by wiring it into the Temporal workf
 | Date | Decision | Rationale | Alternatives Considered |
 |------|----------|-----------|------------------------|
 | 2026-03-27 | 4-step pipeline (Classify -> Route -> Map -> Resolve) | Each step is a discrete, testable unit with clear input/output contract. Steps map cleanly to Temporal activities with independent retry policies. | Monolithic sync handler (rejected: untestable, no retry granularity), 2-step (classify+route, map+resolve — rejected: loses independent retry for map vs resolve) |
-| 2026-03-27 | Hub model: core entities as user-facing hubs, integration entities as hidden infrastructure | Users see Customer, not hubspot_customer. Integration entities are the immutable source-of-record. Aligns with [[Smart Projection Architecture]]. | Direct write to core entities (rejected: provenance conflicts, no translation boundary) |
+| 2026-03-27 | Hub model: core entities as user-facing hubs, integration entities as hidden infrastructure | Users see Customer, not hubspot_customer. Integration entities are the immutable source-of-record. Aligns with [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Smart Projection Architecture]]. | Direct write to core entities (rejected: provenance conflicts, no translation boundary) |
 | 2026-03-27 | Source Wins for mapped fields | Simplest conflict resolution. Integration sources are authoritative for fields they provide. Users own fields the integration doesn't map to. | Per-field ownership toggles (rejected: CRDT-like complexity, premature), User Wins (rejected: integration data becomes stale) |
 | 2026-03-27 | Most Recent Sync Wins for multi-source conflicts | Timestamp-based, zero configuration. Field-level audit trail preserves full history. | Source priority ranking (rejected: requires user configuration, complex edge cases), CRDT merge (rejected: massive complexity for marginal benefit) |
 | 2026-03-27 | Field-level audit trail via activityService.logActivity() | Reuses existing activity infrastructure. Provides complete history of field changes including source attribution. | Separate audit table (rejected: duplicates activity infrastructure), No audit (rejected: users can't debug sync overwrites) |
@@ -978,7 +978,7 @@ Implementation follows a 3-phase sequencing. Each phase is independently deploya
 - [ ] Hostile QA: 500-record batch stress test
 - [ ] Race condition testing: concurrent syncs with syncVersion verification
 - [ ] Pipeline monitoring dashboard (Temporal metrics + application logs)
-- [ ] Documentation: update [[Integration Data Sync Pipeline]] with pipeline architecture
+- [ ] Documentation: update [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Integration Data Sync Pipeline]] with pipeline architecture
 - [ ] Performance benchmarking: measure throughput against targets (1000 records/min)
 
 **Effort:** M (human: ~1 week / CC: ~1 hour)
@@ -987,11 +987,11 @@ Implementation follows a 3-phase sequencing. Each phase is independently deploya
 
 ## Related Documents
 
-- [[Smart Projection Architecture]] — Projection rules and aggregation columns consumed by the pipeline
-- [[Identity Resolution System]] — Matching engine used in Step 4 (Resolve)
-- [[Integrations]] — Integration domain providing connections, manifests, and sync infrastructure
-- [[Entities]] — Entity domain providing entity types, attributes, relationships
-- [[Integration Data Sync Pipeline]] — Existing Temporal sync workflow extended by this pipeline
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Smart Projection Architecture]] — Projection rules and aggregation columns consumed by the pipeline
+- [[riven/docs/system-design/feature-design/2. Planned/Identity Resolution System]] — Matching engine used in Step 4 (Resolve)
+- [[riven/docs/system-design/domains/Integrations/Integrations]] — Integration domain providing connections, manifests, and sync infrastructure
+- [[riven/docs/system-design/domains/Entities/Entities]] — Entity domain providing entity types, attributes, relationships
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Integration Data Sync Pipeline]] — Existing Temporal sync workflow extended by this pipeline
 
 ---
 

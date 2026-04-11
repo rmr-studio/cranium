@@ -6,15 +6,15 @@ tags:
 Created: 2026-02-09
 Updated: 2026-03-01
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # EntityController
 
-Part of [[Entity Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/Entity Management]]
 
 ## Purpose
 
-REST controller for entity instance operations and entity relationships. Delegates all business logic to [[EntityService]] and [[EntityRelationshipService]].
+REST controller for entity instance operations and entity relationships. Delegates all business logic to [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityService]] and [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityRelationshipService]].
 
 ---
 
@@ -29,8 +29,8 @@ REST controller for entity instance operations and entity relationships. Delegat
 
 ## Dependencies
 
-- [[EntityService]] — Entity instance CRUD operations
-- [[EntityRelationshipService]] — Relationship CRUD operations
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityService]] — Entity instance CRUD operations
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityRelationshipService]] — Relationship CRUD operations
 
 ## Used By
 
@@ -75,9 +75,9 @@ REST controller for entity instance operations and entity relationships. Delegat
 
 ## Related
 
-- [[EntityService]] — Entity instance operations
-- [[EntityRelationshipService]] — Relationship operations
-- [[Entity Management]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityService]] — Entity instance operations
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityRelationshipService]] — Relationship operations
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/Entity Management]] — Parent subdomain
 
 ---
 

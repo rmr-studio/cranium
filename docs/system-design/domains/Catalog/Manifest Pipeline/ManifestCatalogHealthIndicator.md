@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-06
 Domains:
-  - "[[Catalog]]"
+  - "[[riven/docs/system-design/domains/Catalog/Catalog]]"
 ---
 # ManifestCatalogHealthIndicator
 
-Part of [[Manifest Pipeline]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/Manifest Pipeline]]
 
 ## Purpose
 
@@ -27,12 +27,12 @@ Spring Boot Actuator health indicator that reports the current state of the mani
 
 ## Dependencies
 
-None (updated by [[ManifestLoaderService]] via direct method calls)
+None (updated by [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestLoaderService]] via direct method calls)
 
 ## Used By
 
 - Spring Boot Actuator — auto-registered as a health contributor
-- [[ManifestLoaderService]] — sets load state during pipeline execution
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestLoaderService]] — sets load state during pipeline execution
 
 ---
 
@@ -54,5 +54,5 @@ Uses `@Volatile` fields for `loadState`, `lastError`, and `lastLoadedAt` since t
 
 ## Related
 
-- [[ManifestLoaderService]] — Updates health state during pipeline execution
-- [[Manifest Pipeline]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestLoaderService]] — Updates health state during pipeline execution
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/Manifest Pipeline]] — Parent subdomain

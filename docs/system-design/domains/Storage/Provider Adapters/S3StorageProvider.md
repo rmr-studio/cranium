@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-07
 Domains:
-  - "[[Storage]]"
+  - "[[riven/docs/system-design/domains/Storage/Storage]]"
 ---
 # S3StorageProvider
 
-Part of [[Provider Adapters]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/Provider Adapters]]
 
 ## Purpose
 
@@ -31,12 +31,12 @@ S3-compatible storage implementation supporting AWS S3 and compatible services (
 ## Dependencies
 
 - `KLogger` — structured logging
-- `S3Client` (from [[S3Configuration]]) — AWS SDK S3 client
-- [[StorageConfigurationProperties]] — `s3.bucket` config
+- `S3Client` (from [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/S3Configuration]]) — AWS SDK S3 client
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/StorageConfigurationProperties]] — `s3.bucket` config
 
 ## Used By
 
-- [[StorageService]] — via [[StorageProvider]] interface
+- [[riven/docs/system-design/domains/Storage/File Management/StorageService]] — via [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/StorageProvider]] interface
 
 ---
 
@@ -46,7 +46,7 @@ S3-compatible storage implementation supporting AWS S3 and compatible services (
 
 **Download:** Consumes the response body inside the `getObject` lambda to avoid closed-stream issues (the S3 SDK closes the stream when the lambda exits). Returns bytes wrapped in a `ByteArrayInputStream`.
 
-**Presigned upload URL:** Intentionally omits `contentType` from the `PutObjectRequest` to avoid S3 403 errors when the client uploads with a different Content-Type than what was signed. Content type validation happens post-upload via Tika detection in [[ContentValidationService]].
+**Presigned upload URL:** Intentionally omits `contentType` from the `PutObjectRequest` to avoid S3 403 errors when the client uploads with a different Content-Type than what was signed. Content type validation happens post-upload via Tika detection in [[riven/docs/system-design/domains/Storage/File Management/ContentValidationService]].
 
 **Not-found detection:** `isNotFound()` checks for `NoSuchKey` and `NotFound` exception types, plus message-based matching for `"nosuchkey"`, `"404"`, and `"not found"`. This covers various S3-compatible services that report not-found differently.
 
@@ -90,6 +90,6 @@ Verify bucket exists, auto-create if missing.
 
 ## Related
 
-- [[StorageProvider]]
-- [[S3Configuration]]
-- [[StorageConfigurationProperties]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/StorageProvider]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/S3Configuration]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/StorageConfigurationProperties]]

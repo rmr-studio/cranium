@@ -4,7 +4,7 @@ tags:
   - domain/workflow
 Created: 2026-02-08
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # Subdomain: State Management
 
@@ -16,11 +16,11 @@ State Management handles data flow between nodes during workflow execution. Work
 
 | Component | Purpose | Type |
 | --------- | ------- | ------------------------------- |
-| [[WorkflowNodeInputResolverService]] | Resolves template expressions against execution data registry — recursive map/list traversal | Service |
-| [[WorkflowNodeTemplateParserService]] | Parses `{{ }}` template syntax, extracts path segments | Service |
-| [[WorkflowNodeExpressionParserService]] | Parses conditional expressions for control flow nodes | Service |
-| [[WorkflowNodeExpressionEvaluatorService]] | Evaluates parsed expressions against runtime data | Service |
-| [[EntityContextService]] | Loads entity data into workflow execution context for node access | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/WorkflowNodeInputResolverService]] | Resolves template expressions against execution data registry — recursive map/list traversal | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/WorkflowNodeTemplateParserService]] | Parses `{{ }}` template syntax, extracts path segments | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/WorkflowNodeExpressionParserService]] | Parses conditional expressions for control flow nodes | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/WorkflowNodeExpressionEvaluatorService]] | Evaluates parsed expressions against runtime data | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/State Management/EntityContextService]] | Loads entity data into workflow execution context for node access | Service |
 
 > [!warning] Template-only expressions
 > The template system supports simple path-based value extraction (`{{ steps.node.output.field }}`) but does not support complex transformations, array indexing, or arithmetic operations.

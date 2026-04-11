@@ -7,9 +7,9 @@ tags:
 Created: 2026-03-25
 Updated:
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 blocked by:
-  - "[[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]]"
   - "[[SQL Aggregation Column Engine]]"
 ---
 # Feature: Hub Entity Batch Loading
@@ -106,11 +106,11 @@ Hub Entity Query (Customer list view with aggregations)
 
 ## Related Documents
 
-- [[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]] — defines the core models where hub is declared
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]] — defines the core models where hub is declared
 - [[SQL Aggregation Column Engine]] — aggregation engine benefits from hub designation
-- [[Churn Retrospective Timeline]] — requires full relationship fan-out from Customer
-- [[Lifecycle Analytics Views]] — GROUP BY customer with multi-relationship aggregation
-- [[Action Primitives - Tags Segments Alerts Write-back]] — segments filter customers by aggregated properties
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Churn Retrospective Timeline]] — requires full relationship fan-out from Customer
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Lifecycle Analytics Views]] — GROUP BY customer with multi-relationship aggregation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Action Primitives - Tags Segments Alerts Write-back]] — segments filter customers by aggregated properties
 - Eng Review: Lifecycle Spine (2026-03-25)
 
 ---

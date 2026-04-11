@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-08
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # WorkflowExecutionQueueService
 
-Part of [[Queue Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/Queue Management]]
 
 ---
 
@@ -47,10 +47,10 @@ Manages the workflow execution queue persistence layer, handling state transitio
 
 |Component|Purpose|Coupling|
 |---|---|---|
-|[[ExecutionQueueRepository]]|JPA repository for queue persistence|High - direct data access|
-|[[WorkflowDefinitionRepository]]|Validate workflow definition on enqueue|Medium - validation only|
-|[[ExecutionQueueEntity]]|Queue item entity|High - domain model|
-|[[ExecutionQueueStatus]]|Enum for queue states|Low - shared enum|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/ExecutionQueueRepository]]|JPA repository for queue persistence|High - direct data access|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/WorkflowDefinitionRepository]]|Validate workflow definition on enqueue|Medium - validation only|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/ExecutionQueueEntity]]|Queue item entity|High - domain model|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/ExecutionQueueStatus]]|Enum for queue states|Low - shared enum|
 
 ### External Dependencies
 
@@ -77,10 +77,10 @@ class WorkflowExecutionQueueService(
 
 |Component|How It Uses This|Notes|
 |---|---|---|
-|[[WorkflowExecutionService]]|Calls `enqueue()` when API receives execution request|Entry point from REST API|
-|[[WorkflowExecutionQueueProcessorService]]|Calls `markClaimed()`, `markDispatched()`, `setExecutionId()`, `markFailed()`, `releaseToPending()`|State transitions during processing|
-|[[WorkflowExecutionDispatcherService]]|Calls `recoverStaleItems()` on scheduled recovery job|Stale claim cleanup|
-|[[WorkflowCompletionActivityImpl]]|May query or update queue status on completion|Temporal activity completion|
+|[[riven/docs/system-design/domains/Workflows/Definition Management/WorkflowExecutionService]]|Calls `enqueue()` when API receives execution request|Entry point from REST API|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/WorkflowExecutionQueueProcessorService]]|Calls `markClaimed()`, `markDispatched()`, `setExecutionId()`, `markFailed()`, `releaseToPending()`|State transitions during processing|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/WorkflowExecutionDispatcherService]]|Calls `recoverStaleItems()` on scheduled recovery job|Stale claim cleanup|
+|[[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowCompletionActivityImpl]]|May query or update queue status on completion|Temporal activity completion|
 |[[IdentityMatchQueueProcessorService]]|Calls `markClaimed()`, `markDispatched()`, `markFailed()`, `releaseToPending()`|State transitions for IDENTITY_MATCH jobs (via Identity Resolution domain)|
 
 ---
@@ -272,7 +272,7 @@ stateDiagram-v2
 
 |Entity|Operations|Notes|
 |---|---|---|
-|[[ExecutionQueueEntity]]|CRUD|Primary responsibility - queue item lifecycle|
+|[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/ExecutionQueueEntity]]|CRUD|Primary responsibility - queue item lifecycle|
 
 ### Queries
 
@@ -387,10 +387,10 @@ WARN  Recovering 3 stale claimed items (claimed > 5 minutes ago)
 
 ## Related
 
-- [[WorkflowExecutionQueueProcessorService]] — Consumes this service for state transitions during processing
-- [[WorkflowExecutionDispatcherService]] — Calls recovery logic
-- [[WorkflowExecutionService]] — Entry point from API
-- [[Queue Management]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/WorkflowExecutionQueueProcessorService]] — Consumes this service for state transitions during processing
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/WorkflowExecutionDispatcherService]] — Calls recovery logic
+- [[riven/docs/system-design/domains/Workflows/Definition Management/WorkflowExecutionService]] — Entry point from API
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/Queue Management]] — Parent subdomain
 
 ---
 

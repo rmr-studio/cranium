@@ -4,13 +4,13 @@ tags:
   - component/active
   - architecture/component
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 Created: 2026-02-08
 Updated: 2026-02-08
 ---
 # WorkflowNodeConfig
 
-Part of [[Node Execution]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Node Execution]]
 
 ## Purpose
 
@@ -40,9 +40,9 @@ Sealed interface defining the polymorphic execution contract for all workflow no
 
 ## Used By
 
-- [[WorkflowGraphCoordinationService]] — Calls `execute()` via `WorkflowNode` wrapper during DAG execution
-- [[WorkflowNodeConfigRegistry]] — Discovers implementations via reflection to build schema registry
-- [[WorkflowGraphValidationService]] — Calls `validate()` to check node configuration correctness before execution
+- [[riven/docs/system-design/domains/Workflows/Execution Engine/WorkflowGraphCoordinationService]] — Calls `execute()` via `WorkflowNode` wrapper during DAG execution
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/WorkflowNodeConfigRegistry]] — Discovers implementations via reflection to build schema registry
+- [[riven/docs/system-design/domains/Workflows/Graph Coordination/WorkflowGraphValidationService]] — Calls `validate()` to check node configuration correctness before execution
 
 ---
 
@@ -121,6 +121,6 @@ Validate configuration using provided services. Returns validation result with s
 
 ## Related
 
-- [[WorkflowNode]] — Runtime DTO wrapper with entity metadata (id, workspaceId, key)
-- [[WorkflowNodeConfigRegistry]] — Discovers config schemas via reflection
-- [[Node Execution]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/WorkflowNode]] — Runtime DTO wrapper with entity metadata (id, workspaceId, key)
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/WorkflowNodeConfigRegistry]] — Discovers config schemas via reflection
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Node Execution]] — Parent subdomain

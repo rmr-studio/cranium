@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-03-09
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # EntityRelationshipService
 
-Part of [[Entity Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/Entity Management]]
 
 ## Purpose
 
@@ -31,7 +31,7 @@ Manages instance-level relationship links between entities. Responsible for diff
 - Resolving inverse visibility at read time via repository UNION queries
 - Grouping `EntityLink` projections by definition ID for single and batch reads
 - Soft-deleting all relationships involving a set of entities (as source or target)
-- Providing reverse lookups (target → source) for delete cascade orchestration in [[EntityService]]
+- Providing reverse lookups (target → source) for delete cascade orchestration in [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityService]]
 - Creating, reading, updating, and removing relationship links via unified CRUD API — handles both typed definitions (with validation) and fallback CONNECTED_ENTITIES definitions
 - Workspace access control on relationship CRUD operations via `@PreAuthorize`
 - Activity logging for relationship mutations (`Activity.ENTITY_RELATIONSHIP`)
@@ -42,9 +42,9 @@ Manages instance-level relationship links between entities. Responsible for diff
 
 - Loading `RelationshipDefinition` from the database — the definition is passed in by the caller for structured saves
 - Storing inverse rows — bidirectional visibility is handled purely at query time
-- Workspace access control for structured relationships (via `saveRelationships`) — access is enforced by [[EntityService]] before delegating. Relationship CRUD operations have their own `@PreAuthorize` annotations.
-- Activity logging for structured relationships (via `saveRelationships`) — mutations are logged by [[EntityService]]. Relationship CRUD operations log their own activity.
-- Impact tracking for cache invalidation — [[EntityService]] derives impacted entity IDs from `findByTargetIdIn` after calling this service
+- Workspace access control for structured relationships (via `saveRelationships`) — access is enforced by [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityService]] before delegating. Relationship CRUD operations have their own `@PreAuthorize` annotations.
+- Activity logging for structured relationships (via `saveRelationships`) — mutations are logged by [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityService]]. Relationship CRUD operations log their own activity.
+- Impact tracking for cache invalidation — [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityService]] derives impacted entity IDs from `findByTargetIdIn` after calling this service
 
 ---
 
@@ -87,8 +87,8 @@ class EntityRelationshipService(
 
 | Consumer | Methods Used | Reason |
 |---|---|---|
-| [[EntityService]] | `saveRelationships`, `findRelatedEntities` (both overloads), `findByTargetIdIn`, `archiveEntities` | Entity save, read hydration, delete cascade |
-| [[EntityController]] | `addRelationship`, `getRelationships`, `updateRelationship`, `removeRelationship` | Relationship CRUD endpoints |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityService]] | `saveRelationships`, `findRelatedEntities` (both overloads), `findByTargetIdIn`, `archiveEntities` | Entity save, read hydration, delete cascade |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityController]] | `addRelationship`, `getRelationships`, `updateRelationship`, `removeRelationship` | Relationship CRUD endpoints |
 
 ---
 
@@ -109,7 +109,7 @@ fun saveRelationships(
 
 **Purpose:** Atomically reconcile the relationship links for one source entity under one definition to match the requested target list.
 
-**When to use:** Called by [[EntityService]] during entity create and update whenever a relationship field appears in the incoming payload.
+**When to use:** Called by [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityService]] during entity create and update whenever a relationship field appears in the incoming payload.
 
 **Side effects:**
 - Acquires a pessimistic write lock (`SELECT FOR UPDATE`) on existing rows for the source+definition pair to serialize concurrent writes.
@@ -134,7 +134,7 @@ fun findRelatedEntities(entityId: UUID, workspaceId: UUID): Map<UUID, List<Entit
 
 **Purpose:** Hydrate all relationship links visible to a single entity, keyed by definition ID.
 
-**When to use:** Called during single-entity reads in [[EntityService]].
+**When to use:** Called during single-entity reads in [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityService]].
 
 **Side effects:** None. Read-only.
 
@@ -152,7 +152,7 @@ fun findRelatedEntities(entityIds: Set<UUID>, workspaceId: UUID): Map<UUID, Map<
 
 **Purpose:** Batch hydration of relationship links for multiple entities.
 
-**When to use:** Called during batch entity list reads in [[EntityService]] to avoid N+1 queries.
+**When to use:** Called during batch entity list reads in [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityService]] to avoid N+1 queries.
 
 **Side effects:** None. Read-only.
 
@@ -168,7 +168,7 @@ fun findRelatedEntities(entityIds: Set<UUID>, workspaceId: UUID): Map<UUID, Map<
 fun findByTargetIdIn(ids: List<UUID>): Map<UUID, List<EntityRelationshipEntity>>
 ```
 
-**Purpose:** Find all relationship rows where the given entities appear as targets. Used by [[EntityService]] to identify which other entities hold links to entities being deleted, enabling post-delete relationship response hydration.
+**Purpose:** Find all relationship rows where the given entities appear as targets. Used by [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityService]] to identify which other entities hold links to entities being deleted, enabling post-delete relationship response hydration.
 
 **When to use:** Called during entity deletion to locate reverse pointers.
 
@@ -186,7 +186,7 @@ fun archiveEntities(ids: Collection<UUID>, workspaceId: UUID): List<EntityRelati
 
 **Purpose:** Soft-delete all relationship rows where any of the given entities appear as source or target.
 
-**When to use:** Called by [[EntityService]] after an entity is soft-deleted to clean up all associated links.
+**When to use:** Called by [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityService]] after an entity is soft-deleted to clean up all associated links.
 
 **Side effects:** Sets `deleted = true` and `deleted_at = CURRENT_TIMESTAMP` on all matching rows via a native UPDATE ... RETURNING query.
 
@@ -223,7 +223,7 @@ fun addRelationship(
 - **With `definitionId`:** Creates a typed relationship. Validates target entity type against definition rules, enforces cardinality constraints, and checks for directional duplicates (A→B only under that definition). The definition is loaded via `entityTypeRelationshipService.getDefinitionById`.
 - **Without `definitionId`:** Falls back to the CONNECTED_ENTITIES definition. Resolves (or creates) the fallback definition for the source entity's type, and checks for bidirectional duplicates (A→B or B→A).
 
-**When to use:** Called by [[EntityController]] when a user links two entities via the relationships API.
+**When to use:** Called by [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityController]] when a user links two entities via the relationships API.
 
 **Side effects:**
 - Resolves definition via `resolveDefinition` — loads typed definition via `EntityTypeRelationshipService.getDefinitionById` or falls back to `entityTypeRelationshipService.getOrCreateFallbackDefinition(workspaceId, sourceEntity.typeId)`
@@ -253,7 +253,7 @@ fun getRelationships(workspaceId: UUID, entityId: UUID, definitionId: UUID? = nu
 
 **Purpose:** Returns all relationships for an entity (forward + inverse). When `definitionId` is provided, filters to only relationships under that definition.
 
-**When to use:** Called by [[EntityController]] for the relationships list endpoint.
+**When to use:** Called by [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityController]] for the relationships list endpoint.
 
 **Side effects:** None. Read-only.
 
@@ -413,7 +413,7 @@ In the inverse queries, `r.target_entity_id` is aliased as `sourceEntityId` in t
 | `findByTargetIdInAndDefinitionIdForUpdate` | Spring Data derived + `@Lock(PESSIMISTIC_WRITE)` | Batch variant: returns existing rows linking any of the given targets under a definition with write lock. Used for target-side cardinality enforcement. |
 | `findSemanticGroupsByIds` | JPQL projection | Returns `(id, semanticGroup)` pairs for a set of entity type IDs. Used by `resolveSemanticGroups` to batch-resolve semantic groups before validation. Defined on `EntityTypeRepository`. |
 | `deleteEntities` | Native SQL (RETURNING) | Soft-deletes all rows where source or target is in the ID array. Returns affected rows. |
-| `countByDefinitionId` | Spring Data derived | Count of all active links under a definition. Used by [[EntityTypeRelationshipService]] for impact analysis before definition deletion. |
+| `countByDefinitionId` | Spring Data derived | Count of all active links under a definition. Used by [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] for impact analysis before definition deletion. |
 | `findByIdAndWorkspaceId` | Spring Data derived | Loads single relationship by ID within workspace for update/remove operations |
 | `findByEntityIdAndDefinitionId` | JPQL `@Query` | Finds all relationships (source or target) for an entity under a specific definition. Used for relationship listing. |
 | `findAllRelationshipsForEntity` | JPQL `@Query` | Finds all relationships (source or target) for an entity across all definitions. Used for unfiltered relationship listing. |
@@ -437,7 +437,7 @@ All exceptions propagate to `ExceptionHandler` in `riven.core.exceptions`. This 
 
 ### Log Events
 
-Structured relationship operations do not emit log events from this service (mutations are logged by [[EntityService]]).
+Structured relationship operations do not emit log events from this service (mutations are logged by [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityService]]).
 
 Relationship CRUD operations emit:
 - `Activity.ENTITY_RELATIONSHIP / CREATE` — relationship created, with relationshipId, targetEntityId, definitionId, semanticContext
@@ -459,7 +459,7 @@ Relationship CRUD operations emit:
 > `enforceTargetSideCardinality` queries `findByTargetIdInAndDefinitionIdForUpdate` only for targets in `toAdd`. Retained targets are not re-checked. This is correct: a retained target that was previously linked by this source already passed target-side enforcement when it was first added.
 
 > [!warning] Structured relationship methods have no workspace access control
-> The structured relationship methods (`saveRelationships`, `findRelatedEntities`, etc.) have no `@PreAuthorize` annotations. They are internal methods called exclusively from [[EntityService]], which enforces workspace access before delegating. Relationship CRUD methods (`addRelationship`, `getRelationships`, `updateRelationship`, `removeRelationship`) DO have their own `@PreAuthorize` annotations and are called directly by [[EntityController]].
+> The structured relationship methods (`saveRelationships`, `findRelatedEntities`, etc.) have no `@PreAuthorize` annotations. They are internal methods called exclusively from [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityService]], which enforces workspace access before delegating. Relationship CRUD methods (`addRelationship`, `getRelationships`, `updateRelationship`, `removeRelationship`) DO have their own `@PreAuthorize` annotations and are called directly by [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityController]].
 
 > [!warning] Duplicate detection strategy depends on definition type
 > `addRelationship` uses different duplicate detection depending on the definition. Fallback definitions check bidirectionally (A→B and B→A are considered duplicates). Typed definitions check directionally only (A→B under definition X — the reverse B→A is a separate relationship).
@@ -528,10 +528,10 @@ Test class: `EntityRelationshipServiceTest` — `@SpringBootTest` scoped to `Ent
 
 ## Related
 
-- [[EntityService]] — Primary consumer. Owns workspace access control, activity logging, and impact tracking around this service.
-- [[EntityTypeRelationshipService]] — Manages `RelationshipDefinition` schema. Uses `countByDefinitionId` from `EntityRelationshipRepository` for impact analysis before definition deletion.
-- [[Entity Management]] — Parent subdomain.
-- [[Relationships]] — Type-level relationship definition domain.
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/EntityService]] — Primary consumer. Owns workspace access control, activity logging, and impact tracking around this service.
+- [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] — Manages `RelationshipDefinition` schema. Uses `countByDefinitionId` from `EntityRelationshipRepository` for impact analysis before definition deletion.
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Management/Entity Management]] — Parent subdomain.
+- [[riven/docs/system-design/domains/Entities/Relationships/Relationships]] — Type-level relationship definition domain.
 - `EntityRelationshipRepository` — Repository interface containing the native SQL projection queries that drive inverse visibility.
 
 ---

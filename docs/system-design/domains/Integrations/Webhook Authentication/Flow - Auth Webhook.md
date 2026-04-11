@@ -5,7 +5,7 @@ tags:
   - domain/integration
 Created: 2026-03-18
 Domains:
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 # Flow: Auth Webhook
 
@@ -21,24 +21,24 @@ Nango sends a POST request to `/api/v1/webhooks/nango` with type `"auth"` after 
 
 ## Entry Point
 
-[[NangoWebhookHmacFilter]] -> [[NangoWebhookController]] -> [[NangoWebhookService]].`handleWebhook()`
+[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookHmacFilter]] -> [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookController]] -> [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookService]].`handleWebhook()`
 
 ---
 
 ## Steps
 
-1. **[[NangoWebhookHmacFilter]]** reads the raw request body, validates the `X-Nango-Hmac-Sha256` signature against the shared secret key using constant-time comparison. Rejects with 401 on invalid signature. Wraps request in `CachedBodyHttpServletRequest` for downstream body re-reading.
-2. **[[NangoWebhookController]]** deserializes `NangoWebhookPayload` from the request body and delegates to [[NangoWebhookService]].`handleWebhook()`
-3. **[[NangoWebhookService]]** routes to `handleAuthEvent()` based on `payload.type == "auth"`
-4. **[[NangoWebhookService]]** parses and validates tags — extracts `userId`, `workspaceId`, `integrationDefinitionId` from `NangoWebhookTags`, validating each as a UUID
-5. **[[NangoWebhookService]]** validates `connectionId` is present and `success == true`
-6. **[[NangoWebhookService]]** opens a programmatic transaction via `TransactionTemplate`
-7. **[[NangoWebhookService]]** loads the `IntegrationDefinitionEntity` — early returns if not found
-8. **[[NangoWebhookService]]** creates or reconnects the connection — new connections start as `CONNECTED`, existing `DISCONNECTED`/`FAILED` connections are reconnected, already `CONNECTED` connections are handled idempotently
-9. **[[NangoWebhookService]]** finds or creates the installation — checks active, then soft-deleted (restores), then creates new. All set to `ACTIVE` status
-10. **[[TemplateMaterializationService]]** materializes catalog templates into workspace entity types — on failure, installation is set to `FAILED` but transaction still commits (connection preserved as `CONNECTED`)
-11. **[[NangoWebhookService]]** logs connection activity via `ActivityService`
-12. **[[NangoWebhookController]]** returns 200 OK to Nango
+1. **[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookHmacFilter]]** reads the raw request body, validates the `X-Nango-Hmac-Sha256` signature against the shared secret key using constant-time comparison. Rejects with 401 on invalid signature. Wraps request in `CachedBodyHttpServletRequest` for downstream body re-reading.
+2. **[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookController]]** deserializes `NangoWebhookPayload` from the request body and delegates to [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookService]].`handleWebhook()`
+3. **[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookService]]** routes to `handleAuthEvent()` based on `payload.type == "auth"`
+4. **[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookService]]** parses and validates tags — extracts `userId`, `workspaceId`, `integrationDefinitionId` from `NangoWebhookTags`, validating each as a UUID
+5. **[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookService]]** validates `connectionId` is present and `success == true`
+6. **[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookService]]** opens a programmatic transaction via `TransactionTemplate`
+7. **[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookService]]** loads the `IntegrationDefinitionEntity` — early returns if not found
+8. **[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookService]]** creates or reconnects the connection — new connections start as `CONNECTED`, existing `DISCONNECTED`/`FAILED` connections are reconnected, already `CONNECTED` connections are handled idempotently
+9. **[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookService]]** finds or creates the installation — checks active, then soft-deleted (restores), then creates new. All set to `ACTIVE` status
+10. **[[riven/docs/system-design/domains/Integrations/Enablement/TemplateMaterializationService]]** materializes catalog templates into workspace entity types — on failure, installation is set to `FAILED` but transaction still commits (connection preserved as `CONNECTED`)
+11. **[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookService]]** logs connection activity via `ActivityService`
+12. **[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookController]]** returns 200 OK to Nango
 
 ```mermaid
 sequenceDiagram
@@ -99,11 +99,11 @@ sequenceDiagram
 
 ## Components Involved
 
-- [[NangoWebhookHmacFilter]]
-- [[NangoWebhookController]]
-- [[NangoWebhookService]]
-- [[TemplateMaterializationService]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookHmacFilter]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookController]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Webhook Authentication/NangoWebhookService]]
+- [[riven/docs/system-design/domains/Integrations/Enablement/TemplateMaterializationService]]
 - `IntegrationConnectionRepository`
 - `IntegrationDefinitionRepository`
 - `WorkspaceIntegrationInstallationRepository`
-- [[ActivityService]]
+- [[riven/docs/system-design/domains/Workspaces & Users/User Management/ActivityService]]

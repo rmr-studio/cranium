@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-09
 Domains:
-  - "[[Catalog]]"
+  - "[[riven/docs/system-design/domains/Catalog/Catalog]]"
 ---
 # WorkspaceTemplateInstallationEntity
 
-Part of [[Template Installation]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Template Installation/Template Installation]]
 
 ## Purpose
 
@@ -48,6 +48,6 @@ JPA entity tracking which templates have been installed into which workspaces. E
 
 ## Related
 
-- [[TemplateInstallationService]] — creates installation records
-- [[WorkspaceTemplateInstallationRepository]] — data access layer
-- [[Template Installation]] — parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Template Installation/TemplateInstallationService]] — creates installation records
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Template Installation/WorkspaceTemplateInstallationRepository]] — data access layer
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Template Installation/Template Installation]] — parent subdomain

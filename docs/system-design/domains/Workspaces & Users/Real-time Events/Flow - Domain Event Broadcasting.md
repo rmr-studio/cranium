@@ -4,7 +4,7 @@ tags:
   - architecture/flow
   - domain/websocket
 Domains:
-  - "[[Workspaces & Users]]"
+  - "[[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]"
 Created: 2026-03-14
 ---
 # Flow: Domain Event Broadcasting
@@ -21,7 +21,7 @@ Any `@Transactional` service method that calls `applicationEventPublisher.publis
 
 ## Entry Point
 
-The publishing service (e.g. [[EntityService]], [[WorkspaceService]], BlockEnvironmentService).
+The publishing service (e.g. [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]], [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceService]], BlockEnvironmentService).
 
 ---
 
@@ -79,9 +79,9 @@ sequenceDiagram
 
 | Publishing Domain | Service | Event Type | Channel |
 |---|---|---|---|
-| Entities | [[EntityService]] | `EntityEvent` | ENTITIES |
+| Entities | [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]] | `EntityEvent` | ENTITIES |
 | Knowledge (Blocks) | BlockEnvironmentService | `BlockEnvironmentEvent` | BLOCKS |
-| Workspaces & Users | [[WorkspaceService]] | `WorkspaceChangeEvent` | WORKSPACE |
+| Workspaces & Users | [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceService]] | `WorkspaceChangeEvent` | WORKSPACE |
 
 **Coupling model:** Publishing services depend only on `ApplicationEventPublisher` (Spring core) and the `WorkspaceEvent` model classes (in `models.websocket` package). They have no dependency on `WebSocketEventListener`, `SimpMessagingTemplate`, or any WebSocket infrastructure. This is intentional loose coupling via the event bus.
 
@@ -89,8 +89,8 @@ sequenceDiagram
 
 ## Components Involved
 
-- [[EntityService]], [[WorkspaceService]], BlockEnvironmentService — Event publishers
-- [[WebSocketEventListener]] — Event-to-STOMP bridge
-- [[WebSocketSecurityInterceptor]] — Protects topic subscriptions
-- [[WorkspaceEvent]] — Event contract
-- [[WebSocketMessage]] — Wire format
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]], [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceService]], BlockEnvironmentService — Event publishers
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/WebSocketEventListener]] — Event-to-STOMP bridge
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/WebSocketSecurityInterceptor]] — Protects topic subscriptions
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/WorkspaceEvent]] — Event contract
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/WebSocketMessage]] — Wire format

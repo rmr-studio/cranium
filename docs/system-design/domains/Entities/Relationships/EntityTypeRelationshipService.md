@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-03-09
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # EntityTypeRelationshipService
 
-Part of [[Relationships]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Relationships/Relationships]]
 
 ---
 
@@ -34,10 +34,10 @@ Manages the full lifecycle of relationship definitions between entity types. Han
 - Logging activity for all create, update, and delete mutations
 
 **Explicitly NOT responsible for:**
-- Managing actual entity relationship instance data (entity-to-entity links); that is owned by [[EntityRelationshipService]]
-- Enforcing cardinality at link-creation time; that is owned by [[EntityRelationshipService]]
-- Orchestrating the save flow for an entire entity type definition; that is coordinated by [[EntityTypeService]]
-- Building or validating JSON schemas for attributes; handled by [[EntityTypeAttributeService]]
+- Managing actual entity relationship instance data (entity-to-entity links); that is owned by [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]]
+- Enforcing cardinality at link-creation time; that is owned by [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]]
+- Orchestrating the save flow for an entire entity type definition; that is coordinated by [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]]
+- Building or validating JSON schemas for attributes; handled by [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]]
 
 ---
 
@@ -47,13 +47,13 @@ Manages the full lifecycle of relationship definitions between entity types. Han
 
 | Component | Purpose | Coupling |
 |---|---|---|
-| [[RelationshipDefinitionRepository]] | CRUD for `relationship_definitions` | High |
-| [[RelationshipTargetRuleRepository]] | CRUD for `relationship_target_rules` | High |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Relationships/RelationshipDefinitionRepository]] | CRUD for `relationship_definitions` | High |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Relationships/RelationshipTargetRuleRepository]] | CRUD for `relationship_target_rules` | High |
 | EntityRelationshipRepository | Count and soft-delete link records on definition deletion and exclusion | Medium |
 | EntityTypeRepository | Workspace validation for entity types during exclusion | Low |
-| [[ActivityService]] | Logs relationship CRUD operations | Medium |
-| [[AuthTokenService]] | Retrieves current user ID for activity logging | Low |
-| [[EntityTypeSemanticMetadataService]] | Initialize and clean up semantic metadata for relationship definitions | Medium |
+| [[riven/docs/system-design/domains/Workspaces & Users/User Management/ActivityService]] | Logs relationship CRUD operations | Medium |
+| [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]] | Retrieves current user ID for activity logging | Low |
+| [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]] | Initialize and clean up semantic metadata for relationship definitions | Medium |
 
 ### External Dependencies
 
@@ -84,10 +84,10 @@ class EntityTypeRelationshipService(
 
 | Component | How It Uses This | Notes |
 |---|---|---|
-| [[EntityTypeService]] | Delegates create/update/delete of relationship definitions during `saveEntityTypeDefinition` and `deleteEntityType` | Primary orchestrator; calls this service within its own transaction |
-| [[EntityService]] | Calls `getDefinitionsForEntityType` to validate and resolve definition IDs during entity payload saves | Read-only usage; does not trigger mutations |
-| [[EntityRelationshipService]] | Calls `getOrCreateFallbackDefinition`, `getFallbackDefinitionId`, `getDefinitionById` | Resolves definitions for relationship CRUD |
-| [[EntityTypeService]] | Calls `createFallbackDefinition` | Creates fallback definition at entity type publish time |
+| [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] | Delegates create/update/delete of relationship definitions during `saveEntityTypeDefinition` and `deleteEntityType` | Primary orchestrator; calls this service within its own transaction |
+| [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]] | Calls `getDefinitionsForEntityType` to validate and resolve definition IDs during entity payload saves | Read-only usage; does not trigger mutations |
+| [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] | Calls `getOrCreateFallbackDefinition`, `getFallbackDefinitionId`, `getDefinitionById` | Resolves definitions for relationship CRUD |
+| [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] | Calls `createFallbackDefinition` | Creates fallback definition at entity type publish time |
 
 ---
 
@@ -262,7 +262,7 @@ fun createFallbackDefinition(
 ```
 
 - **Purpose:** Creates a CONNECTED_ENTITIES fallback definition for an entity type. Called at publish time to ensure every entity type has a system-managed connection definition.
-- **When to use:** Called by [[EntityTypeService]] during `publishEntityType`.
+- **When to use:** Called by [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] during `publishEntityType`.
 - **Side effects:** Saves a `RelationshipDefinitionEntity` with `name = "Connected Entities"`, `cardinalityDefault = MANY_TO_MANY`, `protected = true`, `systemType = CONNECTED_ENTITIES`. The definition's `isPolymorphic` computed property evaluates to `true` because `systemType` is non-null, allowing it to link to any entity type without target rules.
 - **Returns:** The saved entity.
 
@@ -279,7 +279,7 @@ fun getOrCreateFallbackDefinition(
 ```
 
 - **Purpose:** Returns the existing fallback definition or creates one if absent. Handles concurrent creation via unique constraint (`uq_relationship_definition_system_type`) by catching `DataIntegrityViolationException` and retrying with a read.
-- **When to use:** Called by [[EntityRelationshipService]] when creating a connection. Supports lazy creation for entity types published before the fallback feature existed.
+- **When to use:** Called by [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] when creating a connection. Supports lazy creation for entity types published before the fallback feature existed.
 - **Side effects:** May create a new `RelationshipDefinitionEntity` if none exists.
 - **Throws:** `NotFoundException` (via `ServiceUtil.findOrThrow`) if the concurrent-creation retry also fails (should not occur in practice).
 - **Returns:** The existing or newly created definition entity.
@@ -293,7 +293,7 @@ fun getFallbackDefinitionId(entityTypeId: UUID): UUID?
 ```
 
 - **Purpose:** Read-only lookup returning the fallback definition ID, or null if none exists.
-- **When to use:** Called by [[EntityRelationshipService]] when listing connections — avoids creating a definition just to check if connections exist.
+- **When to use:** Called by [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] when listing connections — avoids creating a definition just to check if connections exist.
 - **Side effects:** None. Read-only.
 - **Returns:** The definition UUID, or `null` if no fallback definition exists for this entity type.
 
@@ -381,7 +381,7 @@ Both sets are hydrated with their full target rules via a single batch query (`f
 
 ### Semantic Metadata Lifecycle
 
-Relationship definitions have associated semantic metadata managed by [[EntityTypeSemanticMetadataService]]:
+Relationship definitions have associated semantic metadata managed by [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]]:
 
 | Event | Call | Effect |
 |---|---|---|
@@ -575,10 +575,10 @@ Activity log `entityType` is always `ApplicationEntityType.ENTITY_TYPE` with `en
 
 ## Related
 
-- [[Relationships]] — Parent subdomain
-- [[EntityTypeService]] — Orchestrates entity type saves and delegates here for relationship mutations
-- [[EntityRelationshipService]] — Manages entity-to-entity link instance data (downstream consumer of definitions)
-- [[EntityTypeSemanticMetadataService]] — Initialized and cleaned up by this service on definition lifecycle events
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Relationships/Relationships]] — Parent subdomain
+- [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] — Orchestrates entity type saves and delegates here for relationship mutations
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] — Manages entity-to-entity link instance data (downstream consumer of definitions)
+- [[riven/docs/system-design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataService]] — Initialized and cleaned up by this service on definition lifecycle events
 - `RelationshipDefinitionEntity` — JPA entity for `relationship_definitions`
 - `RelationshipTargetRuleEntity` — JPA entity for `relationship_target_rules`
 - `DeleteDefinitionImpact` — Data class returned from the first pass of the delete flow

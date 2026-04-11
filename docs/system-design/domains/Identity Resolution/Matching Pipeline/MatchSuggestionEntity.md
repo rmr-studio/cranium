@@ -1,14 +1,14 @@
 ---
 Created: 2026-03-17
 Domains:
-  - "[[Identity Resolution]]"
+  - "[[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]]"
 tags:
   - component/active
   - layer/entity
   - architecture/component
 ---
 
-Part of [[Matching Pipeline]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Matching Pipeline/Matching Pipeline]]
 
 # MatchSuggestionEntity
 
@@ -53,6 +53,6 @@ Converts to `MatchSuggestion` domain model using `requireNotNull` for `id`, `cre
 
 ## Related
 
-- [[IdentityMatchSuggestionService]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Matching Pipeline/IdentityMatchSuggestionService]]
 - [[MatchSuggestionRepository]]
-- [[MatchSignalType]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Matching Pipeline/MatchSignalType]]

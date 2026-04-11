@@ -6,11 +6,11 @@ tags:
 Created: 2026-03-07
 Updated: 2026-03-07
 Domains:
-  - "[[Storage]]"
+  - "[[riven/docs/system-design/domains/Storage/Storage]]"
 ---
 # SignedUrlService
 
-Part of [[File Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/File Management]]
 
 ## Purpose
 
@@ -21,11 +21,11 @@ Generates and validates HMAC-SHA256 signed tokens for secure file download URLs.
 ## Dependencies
 
 - `KLogger` -- Structured logging
-- [[StorageConfigurationProperties]] -- Secret key (`signedUrl.secret`), default expiry (`signedUrl.defaultExpirySeconds`), max expiry (`signedUrl.maxExpirySeconds`)
+- [[riven/docs/system-design/domains/Storage/Provider Adapters/StorageConfigurationProperties]] -- Secret key (`signedUrl.secret`), default expiry (`signedUrl.defaultExpirySeconds`), max expiry (`signedUrl.maxExpirySeconds`)
 
 ## Used By
 
-- [[StorageService]] -- HMAC fallback URL generation via `generateDownloadUrl`, token validation via `validateToken`
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/StorageService]] -- HMAC fallback URL generation via `generateDownloadUrl`, token validation via `validateToken`
 
 ---
 
@@ -59,7 +59,7 @@ The HMAC is computed over the payload `{storageKey}:{expiresAtEpochSecond}` usin
 
 Generated URLs follow the pattern: `/api/v1/storage/download/{token}`
 
-These are relative paths, routed to [[StorageController]]'s download endpoint.
+These are relative paths, routed to [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/StorageController]]'s download endpoint.
 
 ### Expiry clamping
 
@@ -97,6 +97,6 @@ Return the configured default expiry duration.
 
 ## Related
 
-- [[StorageService]] -- Primary consumer for URL generation and token validation
-- [[StorageConfigurationProperties]] -- Configuration source
-- [[File Management]] -- Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/StorageService]] -- Primary consumer for URL generation and token validation
+- [[riven/docs/system-design/domains/Storage/Provider Adapters/StorageConfigurationProperties]] -- Configuration source
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/File Management]] -- Parent subdomain

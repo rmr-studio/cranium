@@ -6,9 +6,9 @@ tags:
 Created: 2026-02-09
 Updated: 2026-03-17
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
-Part of [[Queue Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/Queue Management]]
 
 # ExecutionQueueEntity
 
@@ -95,7 +95,7 @@ PENDING -> CLAIMED -> DISPATCHED (or FAILED). CLAIMED -> PENDING on retry or sta
 
 ## Related
 
-- [[WorkflowExecutionQueueService]] — State transition operations
-- [[WorkflowExecutionQueueProcessorService]] — Claims and processes WORKFLOW_EXECUTION items
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/WorkflowExecutionQueueService]] — State transition operations
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/WorkflowExecutionQueueProcessorService]] — Claims and processes WORKFLOW_EXECUTION items
 - [[IdentityMatchQueueProcessorService]] — Claims and processes IDENTITY_MATCH items
-- [[ExecutionQueueRepository]] — JPA repository
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/ExecutionQueueRepository]] — JPA repository

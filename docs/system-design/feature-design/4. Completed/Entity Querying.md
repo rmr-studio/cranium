@@ -5,8 +5,8 @@ tags:
 Created:
 Updated:
 Domains:
-  - "[[Entities]]"
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # Quick Design: Entity Querying
 

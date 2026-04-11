@@ -1,7 +1,7 @@
 ---
 Created: 2026-03-12
 Domains:
-  - "[[Workspaces & Users]]"
+  - "[[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]"
 tags:
   - architecture/subdomain
   - domain/workspace
@@ -14,13 +14,13 @@ Handles the single-request onboarding flow that transitions a newly authenticate
 
 The subdomain introduces a two-phase execution model: Phase 1 (workspace + profile) runs atomically inside a programmatic transaction, while Phase 2 (templates + invites) runs best-effort after commit, collecting per-item success/failure results for the client.
 
-OnboardingService is the sole orchestrator. It has no repository of its own and no persistent domain entities -- it coordinates across existing services from [[Workspace Management]], [[User Management]], [[Catalog]], and [[Team Management]].
+OnboardingService is the sole orchestrator. It has no repository of its own and no persistent domain entities -- it coordinates across existing services from [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/Workspace Management]], [[riven/docs/system-design/domains/Workspaces & Users/User Management/User Management]], [[riven/docs/system-design/domains/Catalog/Catalog]], and [[riven/docs/system-design/domains/Workspaces & Users/Team Management/Team Management]].
 
 ## Components
 
 | Component | Purpose | Type |
 | --------- | ------- | ---- |
-| [[OnboardingService]] | Orchestrates two-phase onboarding flow across workspace, user, catalog, and invite services | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Onboarding/OnboardingService]] | Orchestrates two-phase onboarding flow across workspace, user, catalog, and invite services | Service |
 | OnboardingController | REST endpoint for the onboarding request | Controller |
 
 ## Endpoints
@@ -52,11 +52,11 @@ Onboarding eligibility is gated by `user.onboardingCompletedAt`. The timestamp i
 
 | Target Domain | Service Used | Mechanism | Purpose |
 | ------------- | ------------ | --------- | ------- |
-| [[Workspace Management]] | [[WorkspaceService]] | Direct injection | Create workspace with OWNER membership |
-| [[User Management]] | [[UserService]] | Direct injection | Profile update, default workspace assignment, onboarding timestamp |
-| [[Catalog]] | [[TemplateInstallationService]] | Direct injection (`*Internal` methods) | Install catalog templates and bundles into the new workspace |
-| [[Team Management]] | [[WorkspaceInviteService]] | Direct injection (`*Internal` method) | Send workspace invitations |
-| [[Auth & Authorization]] | [[AuthTokenService]] | Direct injection | Retrieve user ID and email from JWT |
+| [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/Workspace Management]] | [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceService]] | Direct injection | Create workspace with OWNER membership |
+| [[riven/docs/system-design/domains/Workspaces & Users/User Management/User Management]] | [[riven/docs/system-design/domains/Workspaces & Users/User Management/UserService]] | Direct injection | Profile update, default workspace assignment, onboarding timestamp |
+| [[riven/docs/system-design/domains/Catalog/Catalog]] | [[riven/docs/system-design/domains/Catalog/Template Installation/TemplateInstallationService]] | Direct injection (`*Internal` methods) | Install catalog templates and bundles into the new workspace |
+| [[riven/docs/system-design/domains/Workspaces & Users/Team Management/Team Management]] | [[riven/docs/system-design/domains/Workspaces & Users/Team Management/WorkspaceInviteService]] | Direct injection (`*Internal` method) | Send workspace invitations |
+| [[riven/docs/system-design/flows/Auth & Authorization]] | [[riven/docs/system-design/domains/Workspaces & Users/Auth & Authorization/AuthTokenService]] | Direct injection | Retrieve user ID and email from JWT |
 
 ---
 

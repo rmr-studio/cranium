@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-19
 Updated: 2026-02-19
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # EntityTypeSemanticMetadataService
 
-Part of [[Entity Semantics]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Semantics/Entity Semantics]]
 
 ## Purpose
 
@@ -37,16 +37,16 @@ Central orchestrator for semantic metadata CRUD operations and lifecycle managem
 
 ## Dependencies
 
-- [[EntityTypeSemanticMetadataRepository]] — data access for semantic metadata records
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataRepository]] — data access for semantic metadata records
 - `EntityTypeRepository` — workspace ownership verification for public-facing methods
 
 ## Used By
 
-- [[KnowledgeController]] — delegates all business logic for 8 REST endpoints
-- [[EntityTypeService]] — lifecycle hooks on entity type publish and delete
-- [[EntityTypeAttributeService]] — lifecycle hooks on attribute add and remove
-- [[EntityTypeRelationshipService]] — lifecycle hooks on relationship add and remove
-- [[EntityTypeController]] — `?include=semantics` feature fetches metadata in batch
+- [[riven/docs/system-design/domains/Knowledge/KnowledgeController]] — delegates all business logic for 8 REST endpoints
+- [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] — lifecycle hooks on entity type publish and delete
+- [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeAttributeService]] — lifecycle hooks on attribute add and remove
+- [[riven/docs/system-design/domains/Entities/Relationships/EntityTypeRelationshipService]] — lifecycle hooks on relationship add and remove
+- [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeController]] — `?include=semantics` feature fetches metadata in batch
 
 ---
 
@@ -139,6 +139,6 @@ Lifecycle hook: soft-deletes ALL metadata records for entity type.
 
 ## Related
 
-- [[EntityTypeSemanticMetadataRepository]] — data access layer
-- [[KnowledgeController]] — API layer
-- [[Entity Semantics]] — parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Semantics/EntityTypeSemanticMetadataRepository]] — data access layer
+- [[riven/docs/system-design/domains/Knowledge/KnowledgeController]] — API layer
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Entity Semantics/Entity Semantics]] — parent subdomain

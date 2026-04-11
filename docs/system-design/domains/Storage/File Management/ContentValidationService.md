@@ -6,11 +6,11 @@ tags:
 Created: 2026-03-07
 Updated: 2026-03-07
 Domains:
-  - "[[Storage]]"
+  - "[[riven/docs/system-design/domains/Storage/Storage]]"
 ---
 # ContentValidationService
 
-Part of [[File Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/File Management]]
 
 ## Purpose
 
@@ -24,7 +24,7 @@ Validates file content before storage operations. Provides MIME type detection v
 
 ## Used By
 
-- [[StorageService]] -- Validation before all upload and presigned-confirm flows
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/StorageService]] -- Validation before all upload and presigned-confirm flows
 
 ---
 
@@ -44,7 +44,7 @@ Each `StorageDomain` defines a `maxFileSize` in bytes. `validateFileSize` checks
 
 ### SVG sanitization
 
-Uses `io.github.borewit:sanitize` (`SVGSanitizer.sanitize()`) to strip script tags, event handlers (`onload`, `onclick`, etc.), and embedded JavaScript from SVG files. Applied automatically by [[StorageService]] when the detected MIME type is `image/svg+xml`.
+Uses `io.github.borewit:sanitize` (`SVGSanitizer.sanitize()`) to strip script tags, event handlers (`onload`, `onclick`, etc.), and embedded JavaScript from SVG files. Applied automatically by [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/StorageService]] when the detected MIME type is `image/svg+xml`.
 
 ### Storage key generation
 
@@ -98,11 +98,11 @@ Generate a user-scoped storage key with UUID filename and MIME-derived extension
 ## Gotchas
 
 - **Extension derivation can fail** -- if Tika's MIME registry doesn't recognise the content type, `deriveExtension` returns an empty string. The file is stored without an extension but is still valid.
-- **SVG sanitization changes file size** -- the sanitized output may be smaller or larger than the input. The size stored in metadata reflects the original upload size, not the sanitized size. (Sanitization happens before `persistMetadata` in [[StorageService]], so the stored size is the sanitized size.)
+- **SVG sanitization changes file size** -- the sanitized output may be smaller or larger than the input. The size stored in metadata reflects the original upload size, not the sanitized size. (Sanitization happens before `persistMetadata` in [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/StorageService]], so the stored size is the sanitized size.)
 
 ---
 
 ## Related
 
-- [[StorageService]] -- Primary consumer
-- [[File Management]] -- Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/StorageService]] -- Primary consumer
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/File Management/File Management]] -- Parent subdomain

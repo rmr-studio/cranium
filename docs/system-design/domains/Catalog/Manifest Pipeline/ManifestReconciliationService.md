@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-06
 Domains:
-  - "[[Catalog]]"
+  - "[[riven/docs/system-design/domains/Catalog/Catalog]]"
 ---
 # ManifestReconciliationService
 
-Part of [[Manifest Pipeline]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/Manifest Pipeline]]
 
 ## Purpose
 
@@ -32,7 +32,7 @@ Post-load reconciliation service that marks catalog entries as stale if they wer
 
 ## Used By
 
-- [[ManifestLoaderService]] — called after all manifests have been upserted
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestLoaderService]] — called after all manifests have been upserted
 
 ---
 
@@ -55,6 +55,6 @@ Transactional. Reconciles stale flags for all catalog entries based on the provi
 
 ## Related
 
-- [[ManifestLoaderService]] — Provides the seen set and invokes reconciliation
-- [[IntegrationDefinitionStaleSyncService]] — Propagates stale flags to integration_definitions after reconciliation
-- [[Manifest Pipeline]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestLoaderService]] — Provides the seen set and invokes reconciliation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/IntegrationDefinitionStaleSyncService]] — Propagates stale flags to integration_definitions after reconciliation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/Manifest Pipeline]] — Parent subdomain

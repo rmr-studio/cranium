@@ -4,7 +4,7 @@ tags:
   - domain/workflow
 Created: 2026-02-08
 Domains:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 ---
 # Subdomain: Queue Management
 
@@ -18,9 +18,9 @@ The queue now supports multiple job types via a `job_type` discriminator on Exec
 
 | Component | Purpose | Type |
 | --------- | ------- | ------------------------------- |
-| [[WorkflowExecutionQueueService]] | Queue state CRUD — enqueue, claim, dispatch, fail, release, recover stale items | Service |
-| [[WorkflowExecutionDispatcherService]] | Scheduled job (every 5s with ShedLock) — polls queue and delegates to processor. Handles WORKFLOW_EXECUTION jobs (identity match jobs have their own dispatcher in Identity Resolution domain) | Service |
-| [[WorkflowExecutionQueueProcessorService]] | Processes individual WORKFLOW_EXECUTION queue items — capacity check, execution record creation, Temporal dispatch. Uses `REQUIRES_NEW` transactions. | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/WorkflowExecutionQueueService]] | Queue state CRUD — enqueue, claim, dispatch, fail, release, recover stale items | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/WorkflowExecutionDispatcherService]] | Scheduled job (every 5s with ShedLock) — polls queue and delegates to processor. Handles WORKFLOW_EXECUTION jobs (identity match jobs have their own dispatcher in Identity Resolution domain) | Service |
+| [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Queue Management/WorkflowExecutionQueueProcessorService]] | Processes individual WORKFLOW_EXECUTION queue items — capacity check, execution record creation, Temporal dispatch. Uses `REQUIRES_NEW` transactions. | Service |
 
 > [!warning] Fixed batch size
 > The dispatcher uses a fixed batch size (10 items) that is not adaptive to current load or pod capacity.

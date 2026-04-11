@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-14
 Domains:
-  - "[[Workspaces & Users]]"
+  - "[[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]"
 ---
 # WebSocketEventListener
 
-Part of [[Real-time Events]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/Real-time Events]]
 
 ## Purpose
 
@@ -34,7 +34,7 @@ Single-method component that bridges Spring application events to WebSocket STOM
 
 ## Related
 
-- [[Real-time Events]] — Parent subdomain
-- [[WorkspaceEvent]] — The sealed event interface this listener consumes
-- [[WebSocketMessage]] — The message envelope this listener produces
-- [[WebSocketSecurityInterceptor]] — Protects the topics this listener sends to
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/Real-time Events]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/WorkspaceEvent]] — The sealed event interface this listener consumes
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/WebSocketMessage]] — The message envelope this listener produces
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/WebSocketSecurityInterceptor]] — Protects the topics this listener sends to

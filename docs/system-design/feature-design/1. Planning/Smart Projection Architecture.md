@@ -6,10 +6,10 @@ tags:
 Created: 2026-03-20
 Updated: 2026-03-27
 Domains:
-  - "[[Integrations]]"
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 blocked-by:
-  - "[[Identity Resolution System]]"
+  - "[[riven/docs/system-design/feature-design/2. Planned/Identity Resolution System]]"
 ---
 # Feature: Smart Projection Architecture — Entity Integration Bridging
 
@@ -494,7 +494,7 @@ All of these produce entities with `lifecycleDomain` classification. Domain-base
 
 ### Ingestion Pipeline Reference
 
-> **Note (eng review 2026-03-27):** The sync workflow passes (1, 2, 3) are part of a broader 4-step **Entity Ingestion Pipeline**: **Classify -> Route -> Map -> Resolve**. The projection pipeline (Pass 3) corresponds to the **Route + Resolve** steps. Field mapping (the **Map** step) happens BEFORE projection, transforming integration schema values into the core entity schema. See [[Entity Ingestion Pipeline]] for the full pipeline design.
+> **Note (eng review 2026-03-27):** The sync workflow passes (1, 2, 3) are part of a broader 4-step **Entity Ingestion Pipeline**: **Classify -> Route -> Map -> Resolve**. The projection pipeline (Pass 3) corresponds to the **Route + Resolve** steps. Field mapping (the **Map** step) happens BEFORE projection, transforming integration schema values into the core entity schema. See [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Entity Ingestion Pipeline]] for the full pipeline design.
 
 ### Component Interaction Diagram
 
@@ -864,14 +864,14 @@ Implementation follows a 4-phase sequencing. Each phase is independently deploya
 
 ## Related Documents
 
-- [[Identity Resolution System]] — Matching engine that prevents duplicate suggestions for projected pairs
-- [[Integrations]] — Parent domain for integration data flow and sync pipeline
-- [[Entities]] — Entity domain providing entity types, attributes, relationships
-- [[2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]] — LifecycleDomain classification used for smart routing
-- [[Integration Data Sync Pipeline]] — Temporal sync workflow extended with Pass 3
-- [[Integration Schema Mapping]] — SchemaMappingService used for attribute transformation
+- [[riven/docs/system-design/feature-design/2. Planned/Identity Resolution System]] — Matching engine that prevents duplicate suggestions for projected pairs
+- [[riven/docs/system-design/domains/Integrations/Integrations]] — Parent domain for integration data flow and sync pipeline
+- [[riven/docs/system-design/domains/Entities/Entities]] — Entity domain providing entity types, attributes, relationships
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]] — LifecycleDomain classification used for smart routing
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Integration Data Sync Pipeline]] — Temporal sync workflow extended with Pass 3
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Integration Schema Mapping]] — SchemaMappingService used for attribute transformation
 - [[SaaS Decline & Strategic Positioning]] — Strategic thesis driving system-agnostic design
-- [[Entity Ingestion Pipeline]] — Full 4-step ingestion pipeline (Classify -> Route -> Map -> Resolve) that the projection pipeline is part of
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Entity Ingestion Pipeline]] — Full 4-step ingestion pipeline (Classify -> Route -> Map -> Resolve) that the projection pipeline is part of
 
 ---
 
@@ -881,4 +881,4 @@ Implementation follows a 4-phase sequencing. Each phase is independently deploya
 |------|--------|--------|
 | 2026-03-20 | Claude | Initial design from CEO plan review. Architecture validated by expert panel (Kleppmann, Hickey, Helland, Thompson, Hohpe, Wodtke). Placed in Planning — requires PR prerequisites merged before implementation. |
 | 2026-03-20 | Claude | Updated per Core Model Architecture CEO review: projection routing changed from per-integration manifest declarations to domain-based (LifecycleDomain + SemanticGroup) routing declared on Kotlin core model definitions. Integration manifests no longer declare projections. Core models are Kotlin objects, not JSON manifests. Added domain+semanticGroup disambiguation table. Source agnosticism section added per SaaS Decline thesis. |
-| 2026-03-27 | Claude | Updated per engineering review: added Source Wins field ownership rules, Most Recent Sync Wins for multi-source conflicts, ProjectionAcceptRule as List, field-level audit trail requirement, backfill projection note. Updated Component Interaction Diagram with field mapping step. Resolved CONFLICT-01, added BACKFILL-01. Referenced new [[Entity Ingestion Pipeline]] feature design. |
+| 2026-03-27 | Claude | Updated per engineering review: added Source Wins field ownership rules, Most Recent Sync Wins for multi-source conflicts, ProjectionAcceptRule as List, field-level audit trail requirement, backfill projection note. Updated Component Interaction Diagram with field mapping step. Resolved CONFLICT-01, added BACKFILL-01. Referenced new [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Entity Ingestion Pipeline]] feature design. |

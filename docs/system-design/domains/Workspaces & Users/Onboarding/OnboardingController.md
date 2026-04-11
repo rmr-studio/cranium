@@ -6,21 +6,21 @@ tags:
 Created: 2026-03-12
 Updated: 2026-03-12
 Domains:
-  - "[[Workspaces & Users]]"
+  - "[[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]"
 ---
 # OnboardingController
 
-Part of [[2. Areas/2.1 Startup & Business/Riven/2. System Design/domains/Workspaces & Users/Onboarding/Onboarding]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Onboarding/Onboarding]]
 
 ## Purpose
 
-Thin REST controller exposing a single onboarding endpoint under `/api/v1/onboarding`. Delegates all business logic to [[OnboardingService]] and returns `ResponseEntity` with appropriate HTTP status codes.
+Thin REST controller exposing a single onboarding endpoint under `/api/v1/onboarding`. Delegates all business logic to [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Onboarding/OnboardingService]] and returns `ResponseEntity` with appropriate HTTP status codes.
 
 ---
 
 ## Dependencies
 
-- [[OnboardingService]] -- all onboarding orchestration logic
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Onboarding/OnboardingService]] -- all onboarding orchestration logic
 
 ## Used By
 
@@ -46,8 +46,8 @@ Thin REST controller exposing a single onboarding endpoint under `/api/v1/onboar
 
 ## Related
 
-- [[OnboardingService]] -- delegated business logic
-- [[2. Areas/2.1 Startup & Business/Riven/2. System Design/domains/Workspaces & Users/Onboarding/Onboarding]] -- parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Onboarding/OnboardingService]] -- delegated business logic
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Onboarding/Onboarding]] -- parent subdomain
 
 ---
 

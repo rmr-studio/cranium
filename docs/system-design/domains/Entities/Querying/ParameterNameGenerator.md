@@ -6,11 +6,11 @@ tags:
 Created: 2026-02-08
 Updated: 2026-02-08
 Domains:
-  - "[[Entities]]"
+  - "[[riven/docs/system-design/domains/Entities/Entities]]"
 ---
 # ParameterNameGenerator
 
-Part of [[Querying]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/Querying]]
 
 ## Purpose
 
@@ -32,11 +32,11 @@ None (simple utility class)
 
 ## Used By
 
-- [[EntityQueryService]] — Creates one instance per query
-- [[EntityQueryAssembler]] — Passes to visitor and generators
-- [[AttributeFilterVisitor]] — Shares across entire filter tree
-- [[AttributeSqlGenerator]] — Generates unique param names
-- [[RelationshipSqlGenerator]] — Generates unique param names
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/EntityQueryService]] — Creates one instance per query
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/EntityQueryAssembler]] — Passes to visitor and generators
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/AttributeFilterVisitor]] — Shares across entire filter tree
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/AttributeSqlGenerator]] — Generates unique param names
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/RelationshipSqlGenerator]] — Generates unique param names
 
 ---
 
@@ -77,6 +77,6 @@ Generates unique parameter name with format `{prefix}_{counter}`. Counter increm
 
 ## Related
 
-- [[SqlFragment]] — Uses generated parameter names
-- [[EntityQueryService]] — Creates instance per query
-- [[Querying]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/SqlFragment]] — Uses generated parameter names
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/EntityQueryService]] — Creates instance per query
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Entities/Querying/Querying]] — Parent subdomain

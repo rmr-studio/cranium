@@ -6,11 +6,11 @@ tags:
   - tools/nango
 Created: 2026-03-18
 Domains:
-  - "[[Integrations]]"
+  - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
 ---
 # NangoClientWrapper
 
-Part of [[Connection Management]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Connection Management/Connection Management]]
 
 ## Purpose
 
@@ -38,7 +38,7 @@ Spring WebClient-based HTTP client for the Nango REST API. Provides connection m
 
 ## Used By
 
-- [[IntegrationConnectionService]] — Connection deletion during disconnect flow
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Connection Management/IntegrationConnectionService]] — Connection deletion during disconnect flow
 - Future sync orchestration services — Record fetching and sync triggering (Phase 3+)
 
 ---
@@ -121,10 +121,10 @@ Trigger sync execution for specified sync names. If `connectionId` is null, trig
 
 ## Related
 
-- [[IntegrationConnectionService]] — Primary consumer for connection operations
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Connection Management/IntegrationConnectionService]] — Primary consumer for connection operations
 - `NangoClientConfiguration` — WebClient bean configuration with auth header
 - `NangoConfigurationProperties` — Secret key and base URL configuration
-- [[Connection Management]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Integrations/Connection Management/Connection Management]] — Parent subdomain
 
 ---
 

@@ -1,6 +1,6 @@
 ---
 Created:
-  - "[[Workflows]]"
+  - "[[riven/docs/system-design/domains/Workflows/Workflows]]"
 Updated: 2026-02-09
 ---
 # WorkflowDeleteEntityActionConfig
@@ -15,19 +15,19 @@ Deletes entity instances within workflows with cascade deletion tracking and imp
 
 - Configure deletion parameters (entity ID, timeout)
 - Validate entity ID template syntax or UUID format
-- Execute entity deletion via [[EntityService]]
+- Execute entity deletion via [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]]
 - Return deletion status and cascade impact count
 
 ## Dependencies
 
-- [[EntityService]] — deletes entity with cascade handling
-- [[WorkflowNodeConfigValidationService]] — validates template syntax and UUIDs
-- [[WorkflowNodeConfig]] — sealed parent class for all node configurations
+- [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]] — deletes entity with cascade handling
+- [[riven/docs/system-design/domains/Workflows/Node Execution/WorkflowNodeConfigValidationService]] — validates template syntax and UUIDs
+- [[riven/apps/client/lib/types/docs/WorkflowNodeConfig]] — sealed parent class for all node configurations
 
 ## Used By
 
-- [[WorkflowNodeConfigRegistry]] — discovers at application startup via classpath scan
-- [[WorkflowNode]] — executes via `execute()` method during workflow runtime
+- [[riven/docs/system-design/domains/Workflows/Node Execution/WorkflowNodeConfigRegistry]] — discovers at application startup via classpath scan
+- [[riven/apps/client/lib/types/docs/WorkflowNode]] — executes via `execute()` method during workflow runtime
 
 ---
 
@@ -107,6 +107,6 @@ The node does not verify that the entity exists before attempting deletion. This
 
 ## Related
 
-- [[Action Nodes]] — category-level overview of all action node types
-- [[WorkflowNodeConfig]] — sealed parent class defining node configuration contract
-- [[Entity Querying]] — related entity operations for pre-deletion existence checks
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workflows/Node Execution/Actions/Action Nodes]] — category-level overview of all action node types
+- [[riven/apps/client/lib/types/docs/WorkflowNodeConfig]] — sealed parent class defining node configuration contract
+- [[riven/docs/system-design/feature-design/4. Completed/Entity Querying]] — related entity operations for pre-deletion existence checks

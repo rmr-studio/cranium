@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-07
 Domains:
-  - "[[Storage]]"
+  - "[[riven/docs/system-design/domains/Storage/Storage]]"
 ---
 # StorageProvider
 
-Part of [[Provider Adapters]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/Provider Adapters]]
 
 ## Purpose
 
@@ -31,17 +31,17 @@ Interface defining the contract all storage backends must implement. Activated v
 
 ## Used By
 
-- [[StorageService]] — delegates all I/O to the active provider
+- [[riven/docs/system-design/domains/Storage/File Management/StorageService]] — delegates all I/O to the active provider
 
 ---
 
 ## Key Logic
 
-**Key format:** All methods operate on storage keys in the format `{workspaceId}/{domain}/{uuid}.{ext}`. Key generation is handled by [[ContentValidationService]], not the provider.
+**Key format:** All methods operate on storage keys in the format `{workspaceId}/{domain}/{uuid}.{ext}`. Key generation is handled by [[riven/docs/system-design/domains/Storage/File Management/ContentValidationService]], not the provider.
 
 **Blocking contract:** All methods are blocking (non-suspend) to match the synchronous Spring MVC codebase. Providers wrapping async SDKs (S3, Supabase) use `runBlocking` internally.
 
-**Presigned URL support:** Not all providers support presigned URLs. [[LocalStorageProvider]] throws `UnsupportedOperationException` for `generateUploadUrl()` and `generateSignedUrl()`, which [[StorageService]] catches and falls back to HMAC-based [[SignedUrlService]].
+**Presigned URL support:** Not all providers support presigned URLs. [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/LocalStorageProvider]] throws `UnsupportedOperationException` for `generateUploadUrl()` and `generateSignedUrl()`, which [[riven/docs/system-design/domains/Storage/File Management/StorageService]] catches and falls back to HMAC-based [[riven/docs/system-design/domains/Storage/File Management/SignedUrlService]].
 
 ---
 
@@ -72,14 +72,14 @@ Verify the storage backend is healthy and reachable.
 
 ## Gotchas
 
-- **UnsupportedOperationException is expected:** [[StorageService]] explicitly catches this for local provider fallback. Do not treat it as a bug.
+- **UnsupportedOperationException is expected:** [[riven/docs/system-design/domains/Storage/File Management/StorageService]] explicitly catches this for local provider fallback. Do not treat it as a bug.
 - **Lives in `models.storage`, not `service.storage`:** The interface is in the models package because it defines a domain contract, not a Spring service. Concrete implementations are in `service.storage`.
 
 ---
 
 ## Related
 
-- [[LocalStorageProvider]]
-- [[S3StorageProvider]]
-- [[SupabaseStorageProvider]]
-- [[StorageService]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/LocalStorageProvider]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/S3StorageProvider]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Storage/Provider Adapters/SupabaseStorageProvider]]
+- [[riven/docs/system-design/domains/Storage/File Management/StorageService]]

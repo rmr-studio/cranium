@@ -6,9 +6,9 @@ tags:
   - domain/identity-resolution
 Created: 2026-03-19
 Domains:
-  - "[[Identity Resolution]]"
+  - "[[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]]"
 Sub-Domains:
-  - "[[Clusters]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Identity Resolution/Clusters/Clusters]]"
 ---
 
 # IdentityConfirmationService
@@ -27,7 +27,7 @@ Manages the human decision path for identity match suggestions — confirming an
 - Cluster naming from NAME signal extraction
 
 **Does NOT own:**
-- Suggestion creation or scoring ([[IdentityMatchSuggestionService]])
+- Suggestion creation or scoring ([[riven/docs/system-design/domains/Identity Resolution/Matching Pipeline/IdentityMatchSuggestionService]])
 - Manual cluster mutations ([[IdentityClusterService]])
 - Cluster and suggestion reads ([[IdentityReadService]])
 
@@ -76,7 +76,7 @@ Confirms a PENDING match suggestion. Creates a CONNECTED_ENTITIES relationship b
 fun rejectSuggestion(workspaceId: UUID, suggestionId: UUID): MatchSuggestion
 ```
 
-Rejects a PENDING match suggestion. Snapshots the current signals and confidence score into `rejectionSignals`, transitions to REJECTED, soft-deletes the row, and logs activity. The snapshot enables [[IdentityMatchSuggestionService]] to compare scores on future re-suggestion attempts.
+Rejects a PENDING match suggestion. Snapshots the current signals and confidence score into `rejectionSignals`, transitions to REJECTED, soft-deletes the row, and logs activity. The snapshot enables [[riven/docs/system-design/domains/Identity Resolution/Matching Pipeline/IdentityMatchSuggestionService]] to compare scores on future re-suggestion attempts.
 
 **Throws:**
 - `NotFoundException` if the suggestion does not exist.
@@ -89,7 +89,7 @@ Rejects a PENDING match suggestion. Snapshots the current signals and confidence
 
 1. Retrieve suggestion by ID, validate workspace ownership
 2. Validate status is PENDING (throws ConflictException otherwise)
-3. Create CONNECTED_ENTITIES relationship via [[EntityRelationshipService]] with `linkSource = SourceType.IDENTITY_MATCH`
+3. Create CONNECTED_ENTITIES relationship via [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] with `linkSource = SourceType.IDENTITY_MATCH`
 4. Resolve identity cluster using 5-case logic
 5. Set status to CONFIRMED, record `resolvedBy` and `resolvedAt`
 6. Log confirmation activity with cluster context
@@ -151,7 +151,7 @@ Entity display names are resolved from the NAME signal's `sourceValue`/`targetVa
 
 | Domain | Service | Direction | Purpose |
 |---|---|---|---|
-| Entities | [[EntityRelationshipService]] | Outbound | Creates CONNECTED_ENTITIES relationship on confirmation |
+| Entities | [[riven/docs/system-design/domains/Entities/Entity Management/EntityRelationshipService]] | Outbound | Creates CONNECTED_ENTITIES relationship on confirmation |
 | Notifications | `NotificationService` | Outbound | Broadcasts REVIEW_REQUEST notification on confirmation |
 
 ## Error Handling
@@ -166,5 +166,5 @@ Entity display names are resolved from the NAME signal's `sourceValue`/`targetVa
 ## Gotchas
 
 - **Merge uses hard-delete + re-insert** — dissolving cluster members are hard-deleted and re-inserted into the surviving cluster rather than being updated in place. This preserves the original `joinedAt` and `joinedBy` metadata while changing the `clusterId`.
-- **Rejection soft-deletes the suggestion** — unlike confirmation which keeps the row visible, rejection sets `deleted = true`. This means rejected suggestions are invisible to standard JPQL queries due to `@SQLRestriction("deleted = false")`. The re-suggestion logic in [[IdentityMatchSuggestionService]] uses native SQL to find them.
+- **Rejection soft-deletes the suggestion** — unlike confirmation which keeps the row visible, rejection sets `deleted = true`. This means rejected suggestions are invisible to standard JPQL queries due to `@SQLRestriction("deleted = false")`. The re-suggestion logic in [[riven/docs/system-design/domains/Identity Resolution/Matching Pipeline/IdentityMatchSuggestionService]] uses native SQL to find them.
 - **Notification is broadcast** — `userId = null` on the notification request targets all workspace members, not just the confirming user.

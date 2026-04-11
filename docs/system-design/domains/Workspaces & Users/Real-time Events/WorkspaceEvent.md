@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-14
 Domains:
-  - "[[Workspaces & Users]]"
+  - "[[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]"
 ---
 # WorkspaceEvent
 
-Part of [[Real-time Events]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/Real-time Events]]
 
 ## Purpose
 
@@ -34,14 +34,14 @@ sealed interface WorkspaceEvent {
 
 | Event | Channel | Published By | Domain-Specific Fields |
 |-------|---------|-------------|----------------------|
-| `EntityEvent` | ENTITIES | [[EntityService]] | `entityTypeId: UUID`, `entityTypeKey: String` |
+| `EntityEvent` | ENTITIES | [[riven/docs/system-design/domains/Entities/Entity Management/EntityService]] | `entityTypeId: UUID`, `entityTypeKey: String` |
 | `BlockEnvironmentEvent` | BLOCKS | BlockEnvironmentService | `layoutId: UUID`, `version: Int` |
 | `WorkflowEvent` | WORKFLOWS | (not yet published) | — |
-| `WorkspaceChangeEvent` | WORKSPACE | [[WorkspaceService]] | — |
+| `WorkspaceChangeEvent` | WORKSPACE | [[riven/docs/system-design/domains/Workspaces & Users/Workspace Management/WorkspaceService]] | — |
 
 ## Publishing Pattern
 
-Events are published inside `@Transactional` service methods via `applicationEventPublisher.publishEvent(...)` after the repository save completes. The `@TransactionalEventListener(AFTER_COMMIT)` in [[WebSocketEventListener]] ensures the message is only sent if the transaction commits.
+Events are published inside `@Transactional` service methods via `applicationEventPublisher.publishEvent(...)` after the repository save completes. The `@TransactionalEventListener(AFTER_COMMIT)` in [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/WebSocketEventListener]] ensures the message is only sent if the transaction commits.
 
 **EntityEvent examples:**
 - **Create/Update:** Published in `EntityService.saveEntity()` with `operation = CREATE` or `UPDATE`, `entityId = saved entity ID`, `summary = { entityTypeName }`
@@ -57,6 +57,6 @@ Events are published inside `@Transactional` service methods via `applicationEve
 
 ## Related
 
-- [[Real-time Events]] — Parent subdomain
-- [[WebSocketEventListener]] — Consumes these events
-- [[WebSocketMessage]] — Wire format these events are converted to
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/Real-time Events]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/WebSocketEventListener]] — Consumes these events
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Workspaces & Users/Real-time Events/WebSocketMessage]] — Wire format these events are converted to

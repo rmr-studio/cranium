@@ -5,11 +5,11 @@ tags:
   - architecture/component
 Created: 2026-03-06
 Domains:
-  - "[[Catalog]]"
+  - "[[riven/docs/system-design/domains/Catalog/Catalog]]"
 ---
 # ManifestScannerService
 
-Part of [[Manifest Pipeline]]
+Part of [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/Manifest Pipeline]]
 
 ## Purpose
 
@@ -38,7 +38,7 @@ Scans classpath directories for manifest JSON files, validates them against JSON
 
 ## Used By
 
-- [[ManifestLoaderService]] — invokes all three scan methods during pipeline execution
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestLoaderService]] — invokes all three scan methods during pipeline execution
 
 ---
 
@@ -86,6 +86,6 @@ Scans `bundles/*/manifest.json` from the classpath. Validated against `bundle.sc
 
 ## Related
 
-- [[ManifestLoaderService]] — Primary consumer, orchestrates the pipeline
-- [[ManifestResolverService]] — Processes the raw maps returned by this service
-- [[Manifest Pipeline]] — Parent subdomain
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestLoaderService]] — Primary consumer, orchestrates the pipeline
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/ManifestResolverService]] — Processes the raw maps returned by this service
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/domains/Catalog/Manifest Pipeline/Manifest Pipeline]] — Parent subdomain

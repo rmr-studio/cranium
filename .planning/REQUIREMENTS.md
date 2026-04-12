@@ -168,17 +168,94 @@
 
 ## Traceability
 
-Populated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (to be filled by roadmapper) | | |
+| ADPT-01 | Phase 1 | Pending |
+| ADPT-02 | Phase 1 | Pending |
+| ADPT-03 | Phase 1 | Pending |
+| ADPT-04 | Phase 1 | Pending |
+| ADPT-05 | Phase 1 | Pending |
+| CONN-01 | Phase 2 | Pending |
+| CONN-02 | Phase 2 | Pending |
+| CONN-03 | Phase 2 | Pending |
+| CONN-04 | Phase 2 | Pending |
+| CONN-05 | Phase 2 | Pending |
+| SEC-01 | Phase 2 | Pending |
+| SEC-02 | Phase 2 | Pending |
+| SEC-03 | Phase 2 | Pending |
+| SEC-04 | Phase 4 | Pending |
+| SEC-05 | Phase 2 | Pending |
+| SEC-06 | Phase 2 | Pending |
+| PG-01 | Phase 3 | Pending |
+| PG-02 | Phase 3 | Pending |
+| PG-03 | Phase 3 | Pending |
+| PG-04 | Phase 3 | Pending |
+| PG-05 | Phase 3 | Pending |
+| PG-06 | Phase 3 | Pending |
+| PG-07 | Phase 3 | Pending |
+| MAP-01 | Phase 3 | Pending |
+| MAP-02 | Phase 3 | Pending |
+| MAP-03 | Phase 3 | Pending |
+| MAP-04 | Phase 3 | Pending |
+| MAP-05 | Phase 3 | Pending |
+| MAP-06 | Phase 3 | Pending |
+| MAP-07 | Phase 3 | Pending |
+| MAP-08 | Phase 3 | Pending |
+| ORCH-01 | Phase 4 | Pending |
+| ORCH-02 | Phase 4 | Pending |
+| ORCH-03 | Phase 4 | Pending |
+| ORCH-04 | Phase 4 | Pending |
+| ORCH-05 | Phase 4 | Pending |
+| SYNC-01 | Phase 4 | Pending |
+| SYNC-02 | Phase 4 | Pending |
+| SYNC-03 | Phase 4 | Pending |
+| SYNC-04 | Phase 4 | Pending |
+| SYNC-05 | Phase 4 | Pending |
+| SYNC-06 | Phase 4 | Pending |
+| SYNC-07 | Phase 4 | Pending |
+| PROJ-01 | Phase 5 | Pending |
+| PROJ-02 | Phase 5 | Pending |
+| PROJ-03 | Phase 5 | Pending |
+| PROJ-04 | Phase 5 | Pending |
+| PROJ-05 | Phase 5 | Pending |
+| HLTH-01 | Phase 6 | Pending |
+| HLTH-02 | Phase 6 | Pending |
+| HLTH-03 | Phase 6 | Pending |
+| HLTH-04 | Phase 6 | Pending |
+| HLTH-05 | Phase 6 | Pending |
+| UI-01 | Phase 7 | Pending |
+| UI-02 | Phase 7 | Pending |
+| UI-03 | Phase 7 | Pending |
+| UI-04 | Phase 7 | Pending |
+| UI-05 | Phase 7 | Pending |
+| UI-06 | Phase 7 | Pending |
+| UI-07 | Phase 7 | Pending |
+| TEST-01 | Phase 8 | Pending |
+| TEST-02 | Phase 8 | Pending |
+| TEST-03 | Phase 8 | Pending |
+| TEST-04 | Phase 8 | Pending |
+| TEST-05 | Phase 8 | Pending |
+| TEST-06 | Phase 8 | Pending |
+| TEST-07 | Phase 8 | Pending |
+| TEST-08 | Phase 8 | Pending |
+| TEST-09 | Phase 8 | Pending |
+| TEST-10 | Phase 8 | Pending |
+| TEST-11 | Phase 8 | Pending |
+| TEST-12 | Phase 8 | Pending |
+| TEST-13 | Phase 8 | Pending |
+| TEST-14 | Phase 8 | Pending |
+| TEST-15 | Phase 8 | Pending |
+| TEST-16 | Phase 8 | Pending |
+| TEST-17 | Phase 8 | Pending |
+| TEST-18 | Phase 8 | Pending |
+| TEST-19 | Phase 8 | Pending |
+| TEST-20 | Phase 8 | Pending |
 
 **Coverage:**
-- v1 requirements: TBD total
-- Mapped to phases: TBD
-- Unmapped: TBD
+- v1 requirements: 68 total
+- Mapped to phases: 68
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-12*
-*Last updated: 2026-04-12 after initial definition*
+*Last updated: 2026-04-12 after roadmap creation (traceability populated)*

@@ -14,7 +14,7 @@ Domains:
   - "[[riven/docs/system-design/domains/Integrations/Integrations]]"
   - "[[riven/docs/system-design/feature-design/4. Completed/Notifications]]"
 blocked by:
-  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/5. Backlog/Three-Tier Entity Model and Lifecycle Spine]]"
   - "[[riven/docs/system-design/feature-design/2. Planned/Identity Resolution System]]"
 ---
 # Feature: Action Primitives — Tags, Segments, Alerts, Write-back
@@ -220,8 +220,8 @@ The operator went from insight (channel performance) to action (tagged, alerted,
 ## Related Documents
 
 - [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Lifecycle Analytics Views]] — primary surface where actions are triggered from
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Churn Retrospective Timeline]] — tag/flag customers directly from the retrospective
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]] — entity types being tagged and segmented
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/5. Backlog/Churn Retrospective Timeline]] — tag/flag customers directly from the retrospective
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/5. Backlog/Three-Tier Entity Model and Lifecycle Spine]] — entity types being tagged and segmented
 - [[riven/docs/system-design/feature-design/2. Planned/Identity Resolution System]] — cross-tool entity linking for segment scoping
 - [[riven/docs/system-design/domains/Integrations/Integrations]] — Nango write-back capability
 - [[riven/docs/system-design/feature-design/4. Completed/Notifications]] — alert delivery

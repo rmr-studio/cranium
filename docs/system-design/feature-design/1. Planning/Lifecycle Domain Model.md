@@ -73,9 +73,9 @@ These relationships inform prompt construction and perspective scoping — when 
 ## Related Documents
 
 - [[riven/docs/system-design/feature-design/3. Active/Semantic Entity Groups]] — orthogonal classification (SemanticGroup = WHAT, LifecycleDomain = WHERE)
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]] — spine types carry pre-assigned lifecycle domains
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/5. Backlog/Three-Tier Entity Model and Lifecycle Spine]] — spine types carry pre-assigned lifecycle domains
 - [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Prompt Construction for Knowledge Model Queries]] — uses lifecycle domain for context selection
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Knowledge Layer Sub-Agents]] — perspectives scoped to lifecycle domains
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/5. Backlog/Knowledge Layer Sub-Agents]] — perspectives scoped to lifecycle domains
 - CEO Plan: Lifecycle Vertical Scoping (2026-03-18)
 
 ---

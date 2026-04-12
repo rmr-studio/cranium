@@ -82,7 +82,7 @@ Every integration source needs its own set of entity types to represent that too
 ## Notes
 
 - This feature is tightly coupled with [[riven/docs/system-design/feature-design/1. Planning/Integration Schema Mapping]] — the same manifest file defines both the entity type schemas (this feature) and the field mappings (that feature)
-- The manifest format and loader service are shared with [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/3. Active/Semantic Metadata Baked Entity Data Model Templates]] — template manifests use the same entity type definition structure, just without the integration-specific mapping section
+- The manifest format and loader service are shared with [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/4. Completed/Semantic Metadata Baked Entity Data Model Templates]] — template manifests use the same entity type definition structure, just without the integration-specific mapping section
 
 ---
 

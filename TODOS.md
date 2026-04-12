@@ -23,3 +23,19 @@
 **Cons:** One-time task, low effort.
 **Context:** Queries affected: findByEntityIdAndWorkspaceId, searchByEntityIdAndWorkspaceId, findEntityContext. Index on note_entity_attachments(entity_id) should make this fast.
 **Depends on:** Entity-spanning notes migration deployed to a database with realistic data volume.
+
+## P2 — Unify IntegrationSyncWorkflow via IngestionOrchestrator
+**What:** Migrate IntegrationSyncActivitiesImpl (801 lines) to delegate record-processing to IngestionOrchestrator through NangoAdapter. Eliminates split path between custom-source and Nango pipelines.
+**Why:** Two-layer data plan ships NangoAdapter as thin wrapper but never wires it. Leaves parallel scaffolding that drifts over time.
+**Pros:** Single record-processing pipeline; one place to fix bugs in mapping/upsert/resolution/projection.
+**Cons:** Touches hot path used by all existing integrations; needs careful staged rollout (feature flag + shadow mode).
+**Context:** See `.planning/` two-layer data model. IngestionOrchestrator introduced for CustomSourceSyncWorkflow but Nango pipeline stays as-is. NangoAdapter created in plan specifically to enable this future migration.
+**Depends on:** Custom source Postgres adapter shipped and validated with Mac.
+
+## P2 — Schema Drift Detection for Custom Sources
+**What:** Detect and surface user DB schema changes (added/removed/renamed columns) between syncs.
+**Why:** Two-layer plan Open Question #2 defers to "next introspection surfaces unmapped column, user decides." No proactive detection of removed or renamed columns.
+**Pros:** User sees schema changes before they break sync; prevents silent data loss when a source column disappears.
+**Cons:** Needs periodic introspection separate from record sync; UX for "3 columns removed, remap?" is non-trivial.
+**Context:** Existing schema-reconciliation pattern (project_schema_reconciliation.md) applies to workspace entity types. Custom source drift is similar but origin is external DB, not core model changes. CustomSourceSchemaInferenceService already introspects; extend to diff against stored SourceSchema.
+**Depends on:** PostgresAdapter + SchemaInferenceService shipped.

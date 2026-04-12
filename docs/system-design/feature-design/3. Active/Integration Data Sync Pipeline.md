@@ -19,7 +19,7 @@ Sub-Domain: "[[riven/docs/system-design/feature-design/_Sub-Domain Plans/Entity 
 
 ### Problem Statement
 
-The integration infrastructure has three layers in place: a global catalog ([[riven/docs/system-design/feature-design/3. Active/Integration Access Layer|IntegrationDefinitionEntity]]), workspace connections ([[riven/docs/system-design/feature-design/3. Active/Integration Access Layer|IntegrationConnectionEntity]]), and installation tracking (WorkspaceIntegrationInstallationEntity). Schema mapping ([[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Integration Schema Mapping|SchemaMappingService]]) and template materialization (TemplateMaterializationService) are built. What is missing is the **data sync pipeline** — the mechanism that receives Nango webhook notifications, fetches synced records, maps them to entities, and persists them with deduplication and relationship resolution.
+The integration infrastructure has three layers in place: a global catalog ([[riven/docs/system-design/feature-design/3. Active/Integration Access Layer|IntegrationDefinitionEntity]]), workspace connections ([[riven/docs/system-design/feature-design/3. Active/Integration Access Layer|IntegrationConnectionEntity]]), and installation tracking (WorkspaceIntegrationInstallationEntity). Schema mapping ([[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/5. Backlog/Integration Schema Mapping|SchemaMappingService]]) and template materialization (TemplateMaterializationService) are built. What is missing is the **data sync pipeline** — the mechanism that receives Nango webhook notifications, fetches synced records, maps them to entities, and persists them with deduplication and relationship resolution.
 
 Additionally, the current auth flow creates connections pre-emptively in `PENDING_AUTHORIZATION` state during enablement. This is deprecated dead code — Nango handles authentication entirely via its Connect UI, and the backend should only create connections in response to Nango's auth webhook. The `ConnectionStatus` enum needs simplification to reflect this webhook-driven reality.
 
@@ -163,7 +163,7 @@ erDiagram
 #### IntegrationSyncActivities / IntegrationSyncActivitiesImpl
 
 - **Responsibility:** Temporal activity implementations for each pipeline step. `fetchRecords` — paginated Nango record fetching with heartbeating. `processRecordBatch` — batch dedup lookup + per-record upsert/delete with error isolation. `resolveRelationships` — two-pass relationship resolution by `source_external_id`. `updateSyncState` — write per-entity-type metrics.
-- **Dependencies:** `NangoClientWrapper`, [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Integration Schema Mapping|SchemaMappingService]], `EntityService`, `EntityRepository`, `EntityRelationshipService`, `IntegrationSyncStateRepository`, `IntegrationConnectionHealthService`
+- **Dependencies:** `NangoClientWrapper`, [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/5. Backlog/Integration Schema Mapping|SchemaMappingService]], `EntityService`, `EntityRepository`, `EntityRelationshipService`, `IntegrationSyncStateRepository`, `IntegrationConnectionHealthService`
 - **Exposes to:** `IntegrationSyncWorkflowImpl` (via Temporal)
 
 #### IntegrationConnectionHealthService
@@ -692,7 +692,7 @@ require(computed == request.getHeader("X-Nango-Hmac-Sha256")) { "Invalid webhook
 - [[riven/docs/system-design/decisions/ADR-009 Unique Index Deduplication over Mapping Table]]
 - [[riven/docs/system-design/decisions/ADR-010 Webhook-Driven Connection Creation]]
 - [[riven/docs/system-design/feature-design/3. Active/Integration Access Layer]]
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Integration Schema Mapping]]
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/5. Backlog/Integration Schema Mapping]]
 - [[Entity Provenance Tracking]]
 - [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]]
 - [[Integration Identity Resolution System]]

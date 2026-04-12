@@ -867,9 +867,9 @@ Implementation follows a 4-phase sequencing. Each phase is independently deploya
 - [[riven/docs/system-design/feature-design/2. Planned/Identity Resolution System]] — Matching engine that prevents duplicate suggestions for projected pairs
 - [[riven/docs/system-design/domains/Integrations/Integrations]] — Parent domain for integration data flow and sync pipeline
 - [[riven/docs/system-design/domains/Entities/Entities]] — Entity domain providing entity types, attributes, relationships
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]] — LifecycleDomain classification used for smart routing
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Integration Data Sync Pipeline]] — Temporal sync workflow extended with Pass 3
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Integration Schema Mapping]] — SchemaMappingService used for attribute transformation
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/5. Backlog/Three-Tier Entity Model and Lifecycle Spine]] — LifecycleDomain classification used for smart routing
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/3. Active/Integration Data Sync Pipeline]] — Temporal sync workflow extended with Pass 3
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/5. Backlog/Integration Schema Mapping]] — SchemaMappingService used for attribute transformation
 - [[SaaS Decline & Strategic Positioning]] — Strategic thesis driving system-agnostic design
 - [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Entity Ingestion Pipeline]] — Full 4-step ingestion pipeline (Classify -> Route -> Map -> Resolve) that the projection pipeline is part of
 

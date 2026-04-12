@@ -12,7 +12,7 @@ Domains:
 # Quick Design: Entity Type Polymorphic Relationship Support for Semantic Categories
 
 > [!important] Superseded
-> This quick design has been superseded by the full feature design: [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/3. Active/Semantic Entity Groups]]
+> This quick design has been superseded by the full feature design: [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/4. Completed/Semantic Entity Groups]]
 > That document covers the complete scope — semantic group enum, relationship target rule constraints (array-based matching), knowledge layer integration, `allowPolymorphic` bypass behavior, and re-enrichment triggers.
 
 ## Original Context

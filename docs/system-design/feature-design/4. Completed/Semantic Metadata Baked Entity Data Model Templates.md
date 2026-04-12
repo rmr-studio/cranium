@@ -435,7 +435,7 @@ _Is existing data affected? How will it be migrated?_
 - [[riven/docs/system-design/decisions/ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]
 - [[riven/docs/system-design/feature-design/2. Planned/Semantic Metadata Foundation]]
 - [[riven/docs/system-design/domains/Entities/Entity Semantics/Entity Semantics]]
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/3. Active/Predefined Integration Entity Types]] — uses the same manifest format for integration entity types
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/4. Completed/Predefined Integration Entity Types]] — uses the same manifest format for integration entity types
 - [[riven/docs/system-design/feature-design/1. Planning/Integration Schema Mapping]] — parallel manifest structure for integration-specific definitions
 - [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Knowledge Layer]]
 

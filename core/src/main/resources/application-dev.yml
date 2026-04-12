@@ -1,2 +1,7 @@
 storage:
   provider: supabase
+
+riven:
+  dev:
+    seed:
+      enabled: true

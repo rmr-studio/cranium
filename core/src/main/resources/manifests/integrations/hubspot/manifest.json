@@ -3,6 +3,12 @@
   "key": "hubspot",
   "name": "HubSpot",
   "description": "HubSpot CRM integration providing contacts, companies, deals, tickets, and notes with full relationship mapping.",
+  "syncModels": {
+    "contacts": "hubspot-contact",
+    "companies": "hubspot-company",
+    "deals": "hubspot-deal",
+    "tickets": "hubspot-ticket"
+  },
   "category": "CRM",
   "nangoProviderKey": "hubspot",
   "iconUrl": "/integrations/hubspot.svg",
@@ -358,12 +364,7 @@
           "required": false,
           "protected": true,
           "options": {
-            "enum": [
-              "new",
-              "waiting",
-              "open",
-              "closed"
-            ]
+            "enum": ["new", "waiting", "open", "closed"]
           }
         },
         "priority": {
@@ -373,11 +374,7 @@
           "required": false,
           "protected": true,
           "options": {
-            "enum": [
-              "low",
-              "medium",
-              "high"
-            ]
+            "enum": ["low", "medium", "high"]
           }
         },
         "category": {
@@ -422,62 +419,6 @@
           "key": "TEXT",
           "label": "Source Type",
           "type": "string",
-          "required": false,
-          "protected": true
-        }
-      }
-    },
-    {
-      "key": "hubspot-note",
-      "name": "Note",
-      "description": "A HubSpot engagement note associated with contacts, deals, or tickets.",
-      "displayName": {
-        "singular": "Note",
-        "plural": "Notes"
-      },
-      "icon": {
-        "type": "STICKY_NOTE",
-        "colour": "YELLOW"
-      },
-      "semanticGroup": "COMMUNICATION",
-      "identifierKey": "body",
-      "readonly": true,
-      "attributes": {
-        "body": {
-          "key": "TEXT",
-          "label": "Body",
-          "type": "string",
-          "required": false,
-          "protected": true
-        },
-        "created-date": {
-          "key": "DATETIME",
-          "label": "Created Date",
-          "type": "string",
-          "format": "date-time",
-          "required": false,
-          "protected": true
-        },
-        "last-modified": {
-          "key": "DATETIME",
-          "label": "Last Modified",
-          "type": "string",
-          "format": "date-time",
-          "required": false,
-          "protected": true
-        },
-        "owner-id": {
-          "key": "TEXT",
-          "label": "Owner ID",
-          "type": "string",
-          "required": false,
-          "protected": true
-        },
-        "timestamp": {
-          "key": "DATETIME",
-          "label": "Timestamp",
-          "type": "string",
-          "format": "date-time",
           "required": false,
           "protected": true
         }
@@ -672,31 +613,6 @@
           "transform": { "type": "direct" }
         }
       }
-    },
-    {
-      "entityTypeKey": "hubspot-note",
-      "mappings": {
-        "body": {
-          "source": "hs_note_body",
-          "transform": { "type": "direct" }
-        },
-        "created-date": {
-          "source": "createdate",
-          "transform": { "type": "type_coercion", "targetType": "datetime" }
-        },
-        "last-modified": {
-          "source": "lastmodifieddate",
-          "transform": { "type": "type_coercion", "targetType": "datetime" }
-        },
-        "owner-id": {
-          "source": "hubspot_owner_id",
-          "transform": { "type": "direct" }
-        },
-        "timestamp": {
-          "source": "hs_timestamp",
-          "transform": { "type": "type_coercion", "targetType": "datetime" }
-        }
-      }
     }
   ],
   "relationships": [
@@ -731,33 +647,18 @@
       "cardinality": "MANY_TO_ONE",
       "targetEntityTypeKey": "hubspot-contact",
       "protected": true
-    },
-    {
-      "key": "note-associations",
-      "sourceEntityTypeKey": "hubspot-note",
-      "name": "Associated With",
-      "targetRules": [
-        {
-          "targetEntityTypeKey": "hubspot-contact",
-          "inverseName": "Notes"
-        },
-        {
-          "targetEntityTypeKey": "hubspot-deal",
-          "inverseName": "Notes"
-        },
-        {
-          "targetEntityTypeKey": "hubspot-ticket",
-          "inverseName": "Notes"
-        }
-      ],
-      "protected": true
     }
   ],
-  "syncModels": {
-    "contacts": "hubspot-contact",
-    "companies": "hubspot-company",
-    "deals": "hubspot-deal",
-    "tickets": "hubspot-ticket",
-    "notes": "hubspot-note"
+  "noteEmbedding": {
+    "syncModel": "notes",
+    "bodyField": "hs_note_body",
+    "contentFormat": "html",
+    "timestampField": "hs_timestamp",
+    "associations": {
+      "contact": "hubspot-contact",
+      "deal": "hubspot-deal",
+      "ticket": "hubspot-ticket",
+      "company": "hubspot-company"
+    }
   }
 }

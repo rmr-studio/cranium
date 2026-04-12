@@ -5,6 +5,7 @@
 **Trigger:** Authored documentation for the new enrichment pipeline subdomain in `domains/Knowledge/Enrichment Pipeline/`. Several architectural observations surfaced that warrant human review.
 
 **Affected vault notes:**
+
 - `domains/Knowledge/Knowledge.md` — domain identity and dependency map
 - `domains/Knowledge/Enrichment Pipeline/Enrichment Pipeline.md` — subdomain index
 - `feature-design/_Sub-Domain Plans/Knowledge Layer.md` — original design plan referenced re-batching workflow that is not implemented yet
@@ -28,17 +29,24 @@
 
 ---
 
+## [2026-04-09] — Note Embedding Pipeline Documentation Updates
+
+**Trigger:** Implemented note embedding pipeline with new cross-domain dependency (Integration → Note)
+**Affected vault notes:** Integration Sync Pipeline, Note Domain, Data Flow diagrams
+**Suggested update:** Document the note embedding routing in the sync pipeline flow (fetchAndProcessRecords now has a pre-check for noteEmbedding config that short-circuits entity creation). Document the entity-spanning notes architecture change. Update Note domain docs to reflect multi-entity attachment model and readonly/source tracking fields.
+
 ## [2026-03-27] — Entity Ingestion Pipeline Documentation Updates
 
 **Trigger:** Engineering review defined the Entity Ingestion Pipeline architecture with 6 confirmed architectural decisions, 3 new services, and cross-domain dependencies.
 **Affected vault notes:**
+
 - `feature-design/1. Planning/Smart Projection Architecture.md` — updated with source wins, multi-source conflict resolution, ProjectionAcceptRule as List, backfill projection, audit trail
 - `feature-design/1. Planning/Entity Ingestion Pipeline.md` — new feature design document
 - `domains/Identity Resolution/Identity Resolution.md` — integration with ingestion pipeline
 - `domains/Integrations/Integrations.md` — ingestion pipeline section
 - `domains/Entities/Entities.md` — projected entities and hub model section
 - `domains/Catalog/Catalog.md` — field mapping for ingestion section
-**Suggested update:** Review all updated documents for accuracy against current codebase state. The ingestion pipeline feature design is comprehensive but describes future architecture — verify implementation matches when built. The Smart Projection doc now references the Ingestion Pipeline doc — ensure both stay in sync.
+  **Suggested update:** Review all updated documents for accuracy against current codebase state. The ingestion pipeline feature design is comprehensive but describes future architecture — verify implementation matches when built. The Smart Projection doc now references the Ingestion Pipeline doc — ensure both stay in sync.
 
 ---
 

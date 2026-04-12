@@ -4,6 +4,7 @@ import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.Type
 import org.hibernate.annotations.UpdateTimestamp
+import riven.core.enums.integration.SyncKeyType
 import riven.core.enums.integration.SyncStatus
 import riven.core.models.integration.IntegrationSyncState
 import java.time.ZonedDateTime
@@ -15,17 +16,15 @@ import java.util.*
  * System-managed state — does NOT extend AuditableEntity or implement SoftDeletable.
  * Updated in-place and deleted via CASCADE when the parent connection or entity type is removed.
  * Manages its own createdAt/updatedAt timestamps without user audit fields (createdBy/updatedBy).
+ *
+ * Uniqueness on (integration_connection_id, entity_type_id, sync_key) is enforced at the
+ * database level via two partial unique indexes in 02_indexes/integration_indexes.sql
+ * (one WHERE sync_key IS NULL, one WHERE sync_key IS NOT NULL) because Postgres treats
+ * NULLs as distinct. JPA @UniqueConstraint cannot express partial indexes, so it is
+ * intentionally omitted here.
  */
 @Entity
-@Table(
-    name = "integration_sync_state",
-    uniqueConstraints = [
-        UniqueConstraint(
-            name = "uq_sync_state_connection_entity_type",
-            columnNames = ["integration_connection_id", "entity_type_id"]
-        )
-    ]
-)
+@Table(name = "integration_sync_state")
 data class IntegrationSyncStateEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -63,6 +62,10 @@ data class IntegrationSyncStateEntity(
     @Type(JsonBinaryType::class)
     @Column(name = "projection_result", columnDefinition = "jsonb")
     var projectionResult: Map<String, Any>? = null,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sync_key", length = 100)
+    val syncKey: SyncKeyType? = null,
 
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: ZonedDateTime = ZonedDateTime.now(),

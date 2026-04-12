@@ -14,14 +14,19 @@ import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.integration.CoercionType
 import riven.core.enums.integration.ConnectionStatus
 import riven.core.enums.integration.SourceType
+import riven.core.enums.integration.SyncKeyType
 import riven.core.enums.integration.SyncStatus
 import riven.core.models.integration.NangoRecord
 import riven.core.models.integration.NangoRecordAction
 import riven.core.models.integration.sync.IntegrationSyncWorkflowInput
 import riven.core.models.integration.sync.RelationshipPending
 import riven.core.models.integration.sync.SyncProcessingResult
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.springframework.core.io.ResourceLoader
 import riven.core.models.integration.mapping.FieldTransform
 import riven.core.models.integration.mapping.ResolvedFieldMapping
+import riven.core.models.note.NoteContentFormat
+import riven.core.models.note.NoteEmbeddingConfig
 import riven.core.repository.catalog.CatalogEntityTypeRepository
 import riven.core.repository.catalog.CatalogFieldMappingRepository
 import riven.core.repository.catalog.ManifestCatalogRepository
@@ -70,6 +75,9 @@ class IntegrationSyncActivitiesImpl(
     private val entityTypeRepository: EntityTypeRepository,
     private val integrationHealthService: IntegrationHealthService,
     private val entityProjectionService: riven.core.service.ingestion.EntityProjectionService,
+    private val noteEmbeddingService: riven.core.service.note.NoteEmbeddingService,
+    private val objectMapper: ObjectMapper,
+    private val resourceLoader: ResourceLoader,
     private val transactionTemplate: TransactionTemplate,
     private val logger: KLogger,
 ) : IntegrationSyncActivities {
@@ -112,10 +120,17 @@ class IntegrationSyncActivitiesImpl(
     /**
      * Fetches all records from Nango for the given model and upserts them as workspace entities.
      *
-     * Resolves model context, paginates through all records with heartbeating, processes each
-     * batch with deduplication, and runs a second pass to resolve pending relationships.
+     * First checks if the model maps to a noteEmbedding config in the manifest. If so,
+     * routes directly to the note embedding pipeline, skipping entity creation entirely.
+     * Otherwise, resolves model context and runs the standard entity sync pipeline.
      */
     override fun fetchAndProcessRecords(input: IntegrationSyncWorkflowInput): SyncProcessingResult {
+        val noteEmbeddingConfig = resolveNoteEmbeddingConfig(input)
+        if (noteEmbeddingConfig != null) {
+            logger.info { "Model '${input.model}' maps to noteEmbedding — routing to note embedding pipeline" }
+            return runNoteEmbeddingLoop(input, noteEmbeddingConfig)
+        }
+
         val context = resolveModelContext(input) ?: return buildFailureResult(
             entityTypeId = null,
             message = "Failed to resolve model context for model ${input.model}",
@@ -134,10 +149,17 @@ class IntegrationSyncActivitiesImpl(
      */
     @Transactional
     override fun finalizeSyncState(connectionId: UUID, entityTypeId: UUID, result: SyncProcessingResult) {
-        val existing = syncStateRepository.findByIntegrationConnectionIdAndEntityTypeId(connectionId, entityTypeId)
+        val existing = if (result.syncKey != null) {
+            syncStateRepository.findByIntegrationConnectionIdAndEntityTypeIdAndSyncKey(
+                connectionId, entityTypeId, result.syncKey
+            )
+        } else {
+            syncStateRepository.findByIntegrationConnectionIdAndEntityTypeId(connectionId, entityTypeId)
+        }
         val state = existing ?: IntegrationSyncStateEntity(
             integrationConnectionId = connectionId,
             entityTypeId = entityTypeId,
+            syncKey = result.syncKey,
         )
 
         state.status = if (result.success) SyncStatus.SUCCESS else SyncStatus.FAILED
@@ -190,6 +212,167 @@ class IntegrationSyncActivitiesImpl(
      */
     override fun evaluateHealth(connectionId: UUID) {
         integrationHealthService.evaluateConnectionHealth(connectionId)
+    }
+
+    // ------ Note Embedding Pipeline ------
+
+    /**
+     * Resolves the noteEmbedding config for a given model from the integration manifest.
+     *
+     * Reads the manifest JSON from classpath (manifests/integrations/{slug}/manifest.json)
+     * and checks if the noteEmbedding.syncModel matches the incoming Nango model name.
+     *
+     * @return NoteEmbeddingConfig if the model routes to note embedding, null otherwise.
+     */
+    @Suppress("UNCHECKED_CAST")
+    private fun resolveNoteEmbeddingConfig(input: IntegrationSyncWorkflowInput): NoteEmbeddingConfig? {
+        val definition = definitionRepository.findById(input.integrationId).orElse(null) ?: return null
+
+        val resource = resourceLoader.getResource("classpath:manifests/integrations/${definition.slug}/manifest.json")
+        if (!resource.exists()) return null
+
+        val rawContent = try {
+            objectMapper.readValue(resource.inputStream, Map::class.java) as Map<String, Any?>
+        } catch (e: Exception) {
+            logger.warn(e) { "Failed to read manifest JSON for slug=${definition.slug}" }
+            return null
+        }
+
+        val noteEmbeddingBlock = rawContent["noteEmbedding"] as? Map<String, Any?> ?: return null
+        val syncModel = noteEmbeddingBlock["syncModel"] as? String ?: return null
+
+        if (syncModel != input.model) return null
+
+        val bodyField = noteEmbeddingBlock["bodyField"] as? String ?: return null
+        val contentFormatStr = noteEmbeddingBlock["contentFormat"] as? String ?: return null
+        val contentFormat = try {
+            NoteContentFormat.valueOf(contentFormatStr.uppercase())
+        } catch (_: IllegalArgumentException) {
+            logger.warn { "Unknown noteEmbedding contentFormat '$contentFormatStr' — skipping" }
+            return null
+        }
+        val timestampField = noteEmbeddingBlock["timestampField"] as? String
+        val associations = noteEmbeddingBlock["associations"] as? Map<String, String> ?: emptyMap()
+
+        return NoteEmbeddingConfig(
+            syncModel = syncModel,
+            bodyField = bodyField,
+            contentFormat = contentFormat,
+            timestampField = timestampField,
+            associations = associations,
+        )
+    }
+
+    /**
+     * Runs the paginated fetch loop for note embedding, delegating per-batch processing
+     * to NoteEmbeddingService. Mirrors runFetchAndProcessLoop but skips entity creation,
+     * relationship resolution, and projections.
+     *
+     * Uses a sentinel entityTypeId (UUID(0, 1)) and syncKey = "note-embedding" for sync state
+     * tracking since note embedding does not produce entity types.
+     */
+    private fun runNoteEmbeddingLoop(
+        input: IntegrationSyncWorkflowInput,
+        config: NoteEmbeddingConfig,
+    ): SyncProcessingResult {
+        var cursor: String? = resolveNoteEmbeddingStartCursor(input)
+        var lastSuccessfulCursor: String? = cursor
+        var recordsSynced = 0
+        var recordsFailed = 0
+        var lastErrorMessage: String? = null
+
+        do {
+            val page = nangoClientWrapper.fetchRecords(
+                providerConfigKey = input.providerConfigKey,
+                connectionId = input.nangoConnectionId,
+                model = input.model,
+                cursor = cursor,
+                modifiedAfter = input.modifiedAfter,
+                limit = null,
+            )
+
+            val batchResult = noteEmbeddingService.processBatch(
+                records = page.records,
+                config = config,
+                workspaceId = input.workspaceId,
+                integrationId = input.integrationId,
+            )
+
+            recordsSynced += batchResult.synced
+            recordsFailed += batchResult.failed
+            if (batchResult.lastError != null) lastErrorMessage = batchResult.lastError
+
+            lastSuccessfulCursor = cursor
+            cursor = page.nextCursor
+            heartbeat(cursor)
+        } while (cursor != null)
+
+        // Post-sync reconciliation: resolve previously unattached notes
+        try {
+            noteEmbeddingService.reconcileUnattachedNotes(input.workspaceId, input.integrationId, config)
+        } catch (e: Exception) {
+            logger.warn(e) { "Note reconciliation failed — non-fatal" }
+        }
+
+        val success = recordsSynced > 0 || recordsFailed == 0
+
+        return SyncProcessingResult(
+            entityTypeId = NOTE_EMBEDDING_SENTINEL_ENTITY_TYPE_ID,
+            cursor = lastSuccessfulCursor,
+            recordsSynced = recordsSynced,
+            recordsFailed = recordsFailed,
+            lastErrorMessage = lastErrorMessage,
+            success = success,
+            syncKey = NOTE_EMBEDDING_SYNC_KEY,
+        )
+    }
+
+    private fun resolveNoteEmbeddingStartCursor(input: IntegrationSyncWorkflowInput): String? {
+        val existingState = syncStateRepository.findByIntegrationConnectionIdAndEntityTypeIdAndSyncKey(
+            input.connectionId, NOTE_EMBEDDING_SENTINEL_ENTITY_TYPE_ID, NOTE_EMBEDDING_SYNC_KEY
+        )
+        return existingState?.lastCursor ?: input.modifiedAfter
+    }
+
+    /**
+     * Attempts note reconciliation after an entity model sync completes.
+     * Resolves the noteEmbedding config for the integration and, if present,
+     * tries to attach previously unattached notes to newly synced entities.
+     */
+    private fun reconcileNotesIfNeeded(input: IntegrationSyncWorkflowInput) {
+        try {
+            // Build a config with model=* to check if ANY noteEmbedding config exists
+            val definition = definitionRepository.findById(input.integrationId).orElse(null) ?: return
+            val resource = resourceLoader.getResource("classpath:manifests/integrations/${definition.slug}/manifest.json")
+            if (!resource.exists()) return
+
+            @Suppress("UNCHECKED_CAST")
+            val rawContent = objectMapper.readValue(resource.inputStream, Map::class.java) as Map<String, Any?>
+            @Suppress("UNCHECKED_CAST")
+            val noteBlock = rawContent["noteEmbedding"] as? Map<String, Any?> ?: return
+
+            @Suppress("UNCHECKED_CAST")
+            val associations = noteBlock["associations"] as? Map<String, String> ?: emptyMap()
+            val config = NoteEmbeddingConfig(
+                syncModel = noteBlock["syncModel"] as? String ?: return,
+                bodyField = noteBlock["bodyField"] as? String ?: return,
+                contentFormat = NoteContentFormat.valueOf(
+                    (noteBlock["contentFormat"] as? String ?: return).uppercase()
+                ),
+                timestampField = noteBlock["timestampField"] as? String,
+                associations = associations,
+            )
+
+            noteEmbeddingService.reconcileUnattachedNotes(input.workspaceId, input.integrationId, config)
+        } catch (e: Exception) {
+            logger.debug(e) { "Note reconciliation after entity sync skipped or failed — non-fatal" }
+        }
+    }
+
+    companion object {
+        /** Sentinel entityTypeId for note embedding sync state — not a real entity type. */
+        val NOTE_EMBEDDING_SENTINEL_ENTITY_TYPE_ID: UUID = UUID(0, 1)
+        val NOTE_EMBEDDING_SYNC_KEY: SyncKeyType = SyncKeyType.NOTE_EMBEDDING
     }
 
     // ------ Model Context Resolution ------
@@ -410,6 +593,10 @@ class IntegrationSyncActivitiesImpl(
         } while (cursor != null)
 
         resolveRelationships(relationshipPending, input.workspaceId, input.integrationId)
+
+        // Post-sync reconciliation: if this integration has noteEmbedding config,
+        // try to resolve previously unattached notes whose targets may have just synced
+        reconcileNotesIfNeeded(input)
 
         val success = recordsSynced > 0 || recordsFailed == 0
 

@@ -21,6 +21,7 @@
 - Added `riven.enrichment.*` configuration block to `application.yml` with env-var defaults
 
 **New cross-domain dependencies:** yes
+
 - Knowledge → Entities: `EnrichmentService` injects 10 Entity-domain repositories (entities, types, attributes, relationships, identity cluster members, semantic metadata) for batched context assembly. Previously the Knowledge domain delegated everything via `EntityTypeSemanticMetadataService` — this is the first time it touches Entity repositories directly.
 - Knowledge → Workflows: Worker registration for `enrichment.embed` happens in `TemporalWorkerConfiguration`, which now constructor-injects `EnrichmentActivitiesImpl`.
 - Knowledge → External: First-time HTTP integrations with OpenAI Embeddings API and Ollama (alternative).
@@ -35,6 +36,34 @@
 - `EnrichmentClientConfiguration` — `@Configuration` wiring qualified `WebClient` beans
 - `EnrichmentConfigurationProperties` — Typed properties for `riven.enrichment.*`
 - `EntityEmbeddingEntity` / `EntityEmbeddingModel` / `EntityEmbeddingRepository` — Persistence trio for vector embeddings
+
+## [2026-04-09] — Note Embedding Pipeline + Entity-Spanning Notes
+
+**Domains affected:** Note, Integration, Catalog
+**What changed:**
+
+- Notes now support multi-entity attachment via `note_entity_attachments` join table — one note can be attached to multiple entities
+- `NoteEntity.entityId` is now nullable (denormalized primary kept for backward compat); authoritative source of truth is the join table
+- Added source tracking to notes: `source_type` (USER/INTEGRATION), `source_integration_id`, `source_external_id`, `readonly`, `pending_associations`
+- Note model breaking change: `Note.entityId: UUID` → `Note.entityIds: List<UUID>`, `WorkspaceNote` now uses `entityContexts: List<NoteEntityContext>` instead of single entity context fields
+- New `NoteEmbeddingService` routes integration note records directly to `NoteEntity` creation, bypassing the entity creation pipeline entirely
+- Sync pipeline routing: `fetchAndProcessRecords()` checks for `noteEmbedding` manifest config before entity model resolution; matching models are routed to note embedding
+- HubSpot manifest: removed `hubspot-note` entity type, field mappings, and relationships; replaced with `noteEmbedding` config block
+- Added `sync_key` column to `integration_sync_state` for disambiguating note embedding sync state from entity sync state
+- Post-sync reconciliation: unattached notes (whose target entities hadn't synced yet) are automatically resolved after subsequent model syncs
+- `note_count` trigger moved from `notes` table to `note_entity_attachments` table — correctly counts notes per entity when notes span multiple entities
+- Added `HtmlToBlockConverter` (Jsoup-based) for converting integration HTML content to BlockNote blocks
+- Readonly enforcement: PUT/DELETE on readonly notes throws `AccessDeniedException` (403)
+- System user seed (`00000000-...`) for `createdBy`/`updatedBy` on integration-managed records
+
+**New cross-domain dependencies:** yes — Integration → Note via NoteEmbeddingService (sync pipeline routes note models to note domain instead of entity domain)
+**New components introduced:**
+
+- `NoteEmbeddingService` — processes integration note records into NoteEntity with BlockNote content and entity attachments
+- `HtmlToBlockConverter` / `PlaintextToBlockConverter` — content format converters for note embedding
+- `NoteEntityAttachment` / `NoteEntityAttachmentRepository` — join table entity and repository for multi-entity note attachments
+- `NoteEmbeddingConfig` / `NoteContentFormat` — manifest config models for note embedding
+- `NoteSourceType` enum — USER or INTEGRATION source type for notes
 
 ## [2026-04-01] — Business Definition Layer (Phase 1: CRUD Foundation)
 
@@ -53,6 +82,7 @@
 
 **New cross-domain dependencies:** no — Knowledge domain is self-contained for Phase 1
 **New components introduced:**
+
 - `WorkspaceBusinessDefinitionService` — CRUD lifecycle for workspace business definitions
 - `WorkspaceBusinessDefinitionRepository` — persistence layer for business definitions
 - `TermNormalizationUtil` — pure function for business term normalization
@@ -74,6 +104,7 @@
 
 **New cross-domain dependencies:** yes — `service.ingestion.EntityProjectionService` depends on `service.identity.IdentityClusterService` and `service.identity.EntityTypeClassificationService` for cluster assignment and identifier resolution
 **New components introduced:**
+
 - `EntityProjectionService` — core projection pipeline: rule loading, identity resolution, entity create/update, relationship linking
 - `IdentityResolutionService` — batch identity resolution with 2-query strategy
 - `ProjectionRuleEntity` / `ProjectionRuleRepository` — projection rule storage
@@ -96,11 +127,13 @@
 - Identified backfill projection need: when a new core model is installed that matches existing unmatched integration entities, retroactive projection required (deferred as P2 TODO).
 
 **New cross-domain dependencies:** yes
+
 - Integration → Entity: ingestion pipeline creates entities in core entity types from integration sync data
 - Integration → Identity Resolution: ingestion pipeline's Step 4 (Resolve) uses identity resolution for entity matching
 - Catalog → Integration: `CatalogFieldMappingEntity` consumed by `FieldMappingService` during ingestion
 
 **New components introduced:**
+
 - `FieldMappingService` — transforms integration source fields → core entity type schema using catalog field mappings
 - `IdentityResolutionService` — matches incoming integration data to existing entities (sourceExternalId + identifier key)
 - `EntityProjectionService` — creates/updates core entities from integration data, manages identity clusters via relationships
@@ -120,6 +153,7 @@
 
 **New cross-domain dependencies:** no — NangoWebhookService calls TemplateMaterializationService which is already in the Integration domain.
 **New components introduced:**
+
 - `NangoWebhookHmacFilter` — HMAC-SHA256 request signature verification filter
 - `NangoWebhookFilterConfiguration` — filter registration configuration
 - `NangoWebhookController` — webhook entry point
@@ -139,6 +173,7 @@
 
 **New cross-domain dependencies:** no — all changes within existing integration and entity domain boundaries
 **New components introduced:**
+
 - Documentation only — no new code components. Documents the planned architecture for: NangoWebhookController, NangoWebhookService, IntegrationSyncWorkflow, IntegrationSyncActivities, IntegrationConnectionHealthService, IntegrationSyncTemporalConfiguration
 
 ## [2026-03-16] — Integration Sync Persistence Foundation
@@ -159,6 +194,7 @@
 
 **New cross-domain dependencies:** no — changes extend existing integration and entity domains
 **New components introduced:**
+
 - `IntegrationSyncStateEntity` — JPA entity for sync state tracking (system-managed, no soft-delete)
 - `IntegrationSyncStateRepository` — data access for sync state
 - `IntegrationSyncState` — domain model mirroring sync state entity
@@ -181,6 +217,7 @@
 
 **New cross-domain dependencies:** yes — notification depends on activity (audit logging), websocket (event publishing via WorkspaceEvent), auth (workspace security)
 **New components introduced:**
+
 - `NotificationService` — CRUD, inbox, read-state, resolution, soft-delete
 - `NotificationDeliveryService` — domain event translation facade
 - `NotificationController` — REST endpoints for inbox, read-state, create, delete
@@ -203,6 +240,7 @@
 
 **New cross-domain dependencies:** yes — entity, block, and workspace services now depend on `models.websocket.WorkspaceEvent` (event model only, not WebSocket infrastructure)
 **New components introduced:**
+
 - `WebSocketConfig` — STOMP endpoint and broker configuration
 - `WebSocketSecurityInterceptor` — JWT auth + workspace subscription authorization
 - `WebSocketEventListener` — event-to-STOMP bridge
@@ -210,6 +248,7 @@
 - `WorkspaceEvent` sealed interface + domain subclasses — type-safe event model
 - `WebSocketMessage` — outbound message envelope
 - `WebSocketChannel` enum — topic segment mapping
+
 ## [2026-03-14] — Integration Enablement Feature
 
 **Domains affected:** Integration, Entity, Catalog
@@ -226,6 +265,7 @@
 
 **New cross-domain dependencies:** yes — Integration domain now depends on Entity domain's `EntityTypeService` for soft-delete/restore operations. Previously only Catalog → Entity dependency existed via `TemplateMaterializationService`.
 **New components introduced:**
+
 - `IntegrationEnablementService` — orchestrator for integration enable/disable lifecycle
 - `IntegrationController` — REST API for integration management
 - `WorkspaceIntegrationInstallationEntity` — installation tracking entity
@@ -247,6 +287,7 @@
 
 **New cross-domain dependencies:** yes — Onboarding → Workspace, User, Catalog (TemplateInstallation), Storage, Activity
 **New components introduced:**
+
 - `OnboardingService` — orchestrates the full onboarding flow with TransactionTemplate for atomicity
 - `OnboardingController` — single endpoint for complete onboarding
 - `CompleteOnboardingRequest` / `CompleteOnboardingResponse` — request/response models
@@ -285,6 +326,7 @@
 
 **New cross-domain dependencies:** No — Entity and Catalog already have existing dependency
 **New components introduced:**
+
 - `EntityTypeSequenceService` — manages atomic counter increment for ID generation
 - `EntityTypeSequenceEntity` / `EntityTypeSequenceRepository` — persistence for sequence counters
 - `SchemaService.validateDefault()` — validates default values against attribute schema constraints
@@ -304,6 +346,7 @@
 
 **New cross-domain dependencies:** Yes — Storage depends on Workspaces & Users (workspace scoping via @PreAuthorize, JWT auth via AuthTokenService) and Activity (audit logging via ActivityService)
 **New components introduced:**
+
 - StorageProvider interface — provider-agnostic abstraction for file operations
 - LocalStorageProvider — local filesystem implementation, activated via @ConditionalOnProperty
 - ContentValidationService — Apache Tika magic byte detection, domain-based validation, SVG sanitization
@@ -317,6 +360,7 @@
 
 **Domains affected:** Entity, Catalog
 **What changed:**
+
 - Removed semantic group-based targeting from relationship target rules — all rules now require explicit `targetEntityTypeId`
 - Removed `allowPolymorphic` column from relationship definitions — polymorphic behavior is now derived from `systemType` (only system-managed CONNECTED_ENTITIES definitions are polymorphic)
 - Removed `relationship_definition_exclusions` table and all exclusion infrastructure (entity, repository, service methods, tests)
@@ -340,6 +384,7 @@
 
 **New cross-domain dependencies:** yes — Identity Resolution → Entities (EntityRelationshipService for CONNECTED_ENTITIES creation on confirm), Identity Resolution → Notifications (confirmation broadcast to all workspace members)
 **New components introduced:**
+
 - `IdentityConfirmationService` — confirm/reject state machine with cluster orchestration, relationship creation, notification publishing, and activity logging
 - `IdentityClusterService` — cluster CRUD, Union-Find merge, auto-naming from NAME-signal attributes
 
@@ -360,6 +405,7 @@
 
 **New cross-domain dependencies:** yes — Identity Resolution → Entities (native SQL on entity_attributes + entity_type_semantic_metadata), Identity Resolution → Workflows (ExecutionQueueEntity for IDENTITY_MATCH jobs), Identity Resolution → Activity (audit logging)
 **New components introduced:**
+
 - `IdentityMatchCandidateService` — two-phase pg_trgm candidate finding
 - `IdentityMatchScoringService` — weighted average scoring with configurable signal weights
 - `IdentityMatchSuggestionService` — idempotent suggestion persistence with re-suggestion and rejection
@@ -390,6 +436,7 @@
 
 **New cross-domain dependencies:** yes — identity domain → entity domain via `EntityRelationshipService.addRelationship` with `SourceType.IDENTITY_MATCH`; identity domain → notification domain via `NotificationService.createInternalNotification`
 **New components introduced:**
+
 - `IdentityConfirmationService` — confirm/reject state machine with 5-case cluster management
 
 ## [2026-03-16] — Generic Execution Queue with Job Type Discriminator (INFRA-01/02/03)
@@ -408,4 +455,5 @@
 
 **New cross-domain dependencies:** no — queue change is internal to workflow domain; SourceType is an existing integration enum
 **New components introduced:**
+
 - `ExecutionJobType` enum — job type discriminator for the shared execution queue

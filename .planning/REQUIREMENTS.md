@@ -15,7 +15,7 @@
 
 ### Custom Source Connection (CONN)
 
-- [ ] **CONN-01**: `CustomSourceConnectionEntity` extends AuditableEntity, implements SoftDeletable
+- [x] **CONN-01**: `CustomSourceConnectionEntity` extends AuditableEntity, implements SoftDeletable
 - [ ] **CONN-02**: Credentials stored as encrypted JSONB (AES-256-GCM, app-level key)
 - [ ] **CONN-03**: `CustomSourceConnectionService` CRUD with `@PreAuthorize` workspace scoping
 - [ ] **CONN-04**: Connection string NEVER logged (KLogger redaction patterns for `postgresql://`, `jdbc:postgresql://`)
@@ -175,7 +175,7 @@
 | ADPT-03 | Phase 1 | Complete |
 | ADPT-04 | Phase 1 | Complete |
 | ADPT-05 | Phase 1 | Complete |
-| CONN-01 | Phase 2 | Pending |
+| CONN-01 | Phase 2 | Complete |
 | CONN-02 | Phase 2 | Pending |
 | CONN-03 | Phase 2 | Pending |
 | CONN-04 | Phase 2 | Pending |

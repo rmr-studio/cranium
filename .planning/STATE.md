@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Completed 02-00-PLAN.md
-last_updated: "2026-04-12T22:27:09.525Z"
+status: executing
+stopped_at: Completed 02-01-PLAN.md
+last_updated: "2026-04-12T22:38:02.711Z"
 progress:
   total_phases: 8
   completed_phases: 1
   total_plans: 8
-  completed_plans: 4
-  percent: 50
+  completed_plans: 5
+  percent: 63
 ---
 
 # STATE
@@ -27,10 +27,10 @@ progress:
 
 ## Current Position
 
-- **Phase:** 2 — Secure Connection Management (IN PROGRESS 1/5 plans)
-- **Plan:** 02-00 complete (Wave 0 scaffold); ready for Wave 1 (02-01..04)
+- **Phase:** 2 — Secure Connection Management (IN PROGRESS 2/5 plans)
+- **Plan:** 02-01 complete (CustomSourceConnectionEntity + foundation); ready for Wave 1 remainder (02-02..04)
 - **Status:** Ready to execute
-- **Progress:** [██░░░░░░░░] 20%
+- **Progress:** [██████░░░░] 63%
 
 ```
 [........] 0% (0/8 phases)
@@ -49,6 +49,7 @@ progress:
 | Phase 01-adapter-foundation P02 | 5min | 3 tasks | 12 files |
 | Phase 01-adapter-foundation P03 | 10min | 3 tasks | 5 files |
 | Phase 02-secure-connection-management P00 | 1min | 2 tasks | 9 files |
+| Phase 02-secure-connection-management P01 | 20min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -65,6 +66,10 @@ progress:
 - [Phase 01-adapter-foundation]: Plan 01-03: ProjectionPipelineIntegrationTestConfig excludes NangoAdapter from its ComponentScan because the Nango HTTP layer is intentionally omitted (same pattern as queue service excludes)
 - [Phase 02-secure-connection-management]: Plan 02-00: @Disabled + placeholder() body pattern for Wave 0 scaffolds — keeps suite green until downstream plans populate
 - [Phase 02-secure-connection-management]: Plan 02-00: CustomSourceConnectionEntityFactory landed as empty object; plan 02-01 must populate create() alongside entity creation
+- [Phase 02-secure-connection-management]: Plan 02-01: @SQLRestriction must be declared on concrete entity, not only @MappedSuperclass — Hibernate 6 does not reliably propagate mapped-superclass SQLRestriction to derived queries. Matches project-wide pattern (WorkspaceEntity, EntityEntity, BlockEntity).
+- [Phase 02-secure-connection-management]: Plan 02-01: ConnectionException sealed hierarchy is a sibling to Phase 1 AdapterException (not a subclass). All subtypes extend RuntimeException for @Transactional default rollback.
+- [Phase 02-secure-connection-management]: Plan 02-01: CustomSourceConnectionModel omits encryptedCredentials/iv/keyVersion/password; service passes decrypted host/port/db/user/sslMode to toModel() at read time.
+- [Phase 02-secure-connection-management]: Plan 02-01: Integration test hand-creates minimal workspaces table via JdbcTemplate (scans only customsource package) to avoid pulling WorkspaceInviteEntity→UserEntity chain into the test persistence unit.
 
 ### Key Decisions (from PROJECT.md)
 
@@ -100,7 +105,7 @@ Completed Plan 01-03 (NangoAdapter + Registry). Phase 01 closes with: NangoAdapt
 Begin Phase 02 planning (per ROADMAP.md).
 
 ### Last session
-- **Stopped at:** Completed 02-00-PLAN.md
+- **Stopped at:** Completed 02-01-PLAN.md
 - **Timestamp:** 2026-04-12T07:43:39Z
 
 ### Files of Record

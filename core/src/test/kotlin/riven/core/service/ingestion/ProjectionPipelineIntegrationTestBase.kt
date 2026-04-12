@@ -108,6 +108,10 @@ object ProjectionTestContainer {
                 riven.core.service.workflow.queue.WorkflowExecutionQueueService::class,
                 riven.core.service.identity.IdentityMatchQueueProcessorService::class,
                 riven.core.service.identity.IdentityMatchDispatcherService::class,
+                // NangoAdapter requires NangoClientWrapper (in riven.core.service.integration,
+                // which is not scanned by this config — Nango HTTP layer is intentionally
+                // excluded from the projection pipeline tests).
+                riven.core.service.ingestion.adapter.nango.NangoAdapter::class,
             ]
         ),
     ],

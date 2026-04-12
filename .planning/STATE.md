@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-02-PLAN.md
-last_updated: "2026-04-12T22:44:27.642Z"
+stopped_at: Completed 02-03-PLAN.md
+last_updated: "2026-04-12T22:50:22.801Z"
 progress:
   total_phases: 8
   completed_phases: 1
   total_plans: 8
-  completed_plans: 6
-  percent: 75
+  completed_plans: 7
+  percent: 88
 ---
 
 # STATE
@@ -30,7 +30,7 @@ progress:
 - **Phase:** 2 — Secure Connection Management (IN PROGRESS 3/5 plans)
 - **Plan:** 02-02 complete (CredentialEncryptionService + global Logback TurboFilter); ready for Wave 2 parallel siblings (02-03 SSRF/RO verifier) and Wave 3 (02-04 service+controller)
 - **Status:** Ready to execute
-- **Progress:** [████████░░] 75%
+- **Progress:** [█████████░] 88%
 
 ```
 [........] 0% (0/8 phases)
@@ -51,6 +51,7 @@ progress:
 | Phase 02-secure-connection-management P00 | 1min | 2 tasks | 9 files |
 | Phase 02-secure-connection-management P01 | 20min | 2 tasks | 7 files |
 | Phase 02-secure-connection-management P02 | 4 min | 2 tasks | 8 files |
+| Phase 02-secure-connection-management P03 | 9min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,13 @@ progress:
 - [Phase 02-secure-connection-management]: Plan 02-02: AES-256-GCM with 12-byte SecureRandom IV per call; keyVersion=1 reserved for rotation. AEADBadTagException -> DataCorruptionException (wrong-key and corruption indistinguishable at cipher layer).
 - [Phase 02-secure-connection-management]: Plan 02-02: Global Logback TurboFilter on root LoggerContext covers third-party JDBC/HikariCP paths. Re-log-and-DENY rewrite pattern — stack trace loss on re-log accepted; service-layer exception sanitisation remains primary defence.
 - [Phase 02-secure-connection-management]: Plan 02-02: RIVEN_CREDENTIAL_ENCRYPTION_KEY env var contract: base64-encoded 32-byte key, fail-fast on blank/non-base64/wrong-size at bean init.
+- [Phase 02-secure-connection-management]: Plan 02-03: NameResolver seam on SsrfValidatorService enables DNS-rebinding tests without a fake DNS server; DefaultNameResolver @Component wraps InetAddress.getAllByName in production
+- [Phase 02-secure-connection-management]: Plan 02-03: @Throws(UnknownHostException::class) on NameResolver.resolve — required for mockito-kotlin thenThrow to accept the checked exception (Kotlin default signature has no throws declaration)
+- [Phase 02-secure-connection-management]: Plan 02-03: SsrfValidatorService.GENERIC_MESSAGE asserted verbatim in tests so accidental CIDR/category leakage is caught in CI; protects against error-message reconnaissance oracle
+- [Phase 02-secure-connection-management]: Plan 02-03: IPv4-mapped IPv6 addresses unwrapped and re-checked rather than matched by /96 prefix — lets JVM-builtin isLoopbackAddress/isSiteLocalAddress short-circuit; covers ::ffff:* comprehensively
+- [Phase 02-secure-connection-management]: Plan 02-03: ReadOnlyRoleVerifier uses DriverManager (never HikariCP); reflective test asserts no Hikari/DataSource references on the service class so a future @Autowire DataSource refactor gets caught
+- [Phase 02-secure-connection-management]: Plan 02-03: SAVEPOINT probe uses CREATE TABLE (not INSERT) — rejects any schema-mutation capability; cheapest write that doesn't need a pre-existing target; pass iff fails with SQLState 42501
+- [Phase 02-secure-connection-management]: Plan 02-03: Test role teardown uses PL/pgSQL DO + DROP OWNED BY <role> + DROP ROLE instead of DROP ROLE IF EXISTS — direct drop fails on re-runs with 'role cannot be dropped because some objects depend on it'
 
 ### Key Decisions (from PROJECT.md)
 
@@ -109,7 +117,7 @@ Completed Plan 01-03 (NangoAdapter + Registry). Phase 01 closes with: NangoAdapt
 Begin Phase 02 planning (per ROADMAP.md).
 
 ### Last session
-- **Stopped at:** Completed 02-02-PLAN.md
+- **Stopped at:** Completed 02-03-PLAN.md
 - **Timestamp:** 2026-04-12T07:43:39Z
 
 ### Files of Record

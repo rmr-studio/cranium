@@ -23,9 +23,9 @@
 
 ### Security Gates (SEC)
 
-- [ ] **SEC-01**: SSRF validation rejects localhost, 127.0.0.0/8, 169.254.169.254, RFC1918 ranges, IPv6 loopback
-- [ ] **SEC-02**: SSRF validation resolves hostname to IP and checks resolved IP (DNS rebinding defense)
-- [ ] **SEC-03**: Read-only role enforcement: reject connection if role has INSERT/UPDATE/DELETE on target tables
+- [x] **SEC-01**: SSRF validation rejects localhost, 127.0.0.0/8, 169.254.169.254, RFC1918 ranges, IPv6 loopback
+- [x] **SEC-02**: SSRF validation resolves hostname to IP and checks resolved IP (DNS rebinding defense)
+- [x] **SEC-03**: Read-only role enforcement: reject connection if role has INSERT/UPDATE/DELETE on target tables
 - [ ] **SEC-04**: Per-record error isolation in sync (one bad row does not fail batch)
 - [x] **SEC-05**: `CryptoException` at credential read → ConnectionStatus=FAILED, "Config error" message, no key in logs
 - [x] **SEC-06**: `DataCorruptionException` at credential read → ConnectionStatus=FAILED, prompt user to re-enter
@@ -180,9 +180,9 @@
 | CONN-03 | Phase 2 | Pending |
 | CONN-04 | Phase 2 | Complete |
 | CONN-05 | Phase 2 | Pending |
-| SEC-01 | Phase 2 | Pending |
-| SEC-02 | Phase 2 | Pending |
-| SEC-03 | Phase 2 | Pending |
+| SEC-01 | Phase 2 | Complete |
+| SEC-02 | Phase 2 | Complete |
+| SEC-03 | Phase 2 | Complete |
 | SEC-04 | Phase 4 | Pending |
 | SEC-05 | Phase 2 | Complete |
 | SEC-06 | Phase 2 | Complete |

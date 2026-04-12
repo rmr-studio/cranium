@@ -41,6 +41,8 @@ riven:
   nango:
     secret-key: ${NANGO_SECRET_KEY:}
     base-url: ${NANGO_BASE_URL:https://api.nango.dev}
+  custom-source:
+    credential-encryption-key: ${RIVEN_CREDENTIAL_ENCRYPTION_KEY:}
   rate-limit:
     enabled: ${RATE_LIMIT_ENABLED:true}
     authenticated-rpm: ${RATE_LIMIT_AUTHENTICATED_RPM:200}

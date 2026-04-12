@@ -12,6 +12,8 @@ import org.springframework.web.context.request.ServletRequestAttributes
 import riven.core.configuration.properties.ApplicationConfigurationProperties
 import com.fasterxml.jackson.core.JsonProcessingException
 import riven.core.enums.common.ApiError
+import riven.core.exceptions.customsource.ReadOnlyVerificationException
+import riven.core.exceptions.customsource.SsrfRejectedException
 import riven.core.exceptions.query.QueryExecutionException
 import riven.core.exceptions.query.QueryFilterException
 import riven.core.models.response.common.ErrorResponse
@@ -238,6 +240,34 @@ class ExceptionHandler(private val logger: KLogger, private val config: Applicat
             statusCode = HttpStatus.BAD_GATEWAY,
             error = ApiError.STORAGE_PROVIDER_ERROR,
             message = ex.message ?: "Storage provider encountered an error",
+            stackTrace = config.includeStackTrace.takeIf { it }?.let { ex.stackTraceToString() }
+        ).also { logger.error { it } }.let {
+            ResponseEntity(it, it.statusCode)
+        }
+    }
+
+    // ------ Custom Source Connection Exception Handlers ------
+
+    @ExceptionHandler(SsrfRejectedException::class)
+    fun handleSsrfRejectedException(ex: SsrfRejectedException): ResponseEntity<ErrorResponse> {
+        storeExceptionForAnalytics(ex)
+        return ErrorResponse(
+            statusCode = HttpStatus.BAD_REQUEST,
+            error = ApiError.SSRF_REJECTED,
+            message = ex.message ?: "Host rejected",
+            stackTrace = config.includeStackTrace.takeIf { it }?.let { ex.stackTraceToString() }
+        ).also { logger.error { it } }.let {
+            ResponseEntity(it, it.statusCode)
+        }
+    }
+
+    @ExceptionHandler(ReadOnlyVerificationException::class)
+    fun handleReadOnlyVerificationException(ex: ReadOnlyVerificationException): ResponseEntity<ErrorResponse> {
+        storeExceptionForAnalytics(ex)
+        return ErrorResponse(
+            statusCode = HttpStatus.BAD_REQUEST,
+            error = ApiError.ROLE_VERIFICATION_FAILED,
+            message = ex.message ?: "Role verification failed",
             stackTrace = config.includeStackTrace.takeIf { it }?.let { ex.stackTraceToString() }
         ).also { logger.error { it } }.let {
             ResponseEntity(it, it.statusCode)

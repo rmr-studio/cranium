@@ -1,4 +1,6 @@
 import {
+  Dynamic,
+  DynamicDefaultFunction,
   IconColour,
   IconType,
   OptionSortingType,
@@ -14,6 +16,12 @@ import {
   SaveTypeDefinitionRequest,
   SemanticAttributeClassification,
 } from '@/lib/types/entity';
+import {
+  buildDynamicDefaultValue,
+  buildStaticDefaultValue,
+  isDynamicDefault,
+  isStaticDefault,
+} from '@/lib/util/form/default-value.util';
 import { attributeTypes } from '@/lib/util/form/schema.util';
 import { uuid } from '@/lib/util/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -44,7 +52,9 @@ export const attributeFormSchema = z
     maxLength: z.coerce.number().min(0).optional().nullable(),
     regex: z.string().optional().nullable(),
     // Default value for backfilling when toggling required on existing attributes
-    defaultValue: z.any().optional().nullable(),
+    defaultValueMode: z.enum(['none', 'static', 'dynamic']).default('none'),
+    defaultStaticValue: z.unknown().optional().nullable(),
+    defaultDynamicFunction: z.nativeEnum(DynamicDefaultFunction).optional().nullable(),
     // Semantic context fields
     classification: z.nativeEnum(SemanticAttributeClassification).optional().nullable(),
     definition: z.string().optional().nullable(),
@@ -99,7 +109,9 @@ export function useEntityTypeAttributeSchemaForm(
       minLength: undefined,
       maxLength: undefined,
       regex: undefined,
-      defaultValue: undefined,
+      defaultValueMode: 'none',
+      defaultStaticValue: undefined,
+      defaultDynamicFunction: null,
       classification: null,
       definition: null,
     },
@@ -163,7 +175,19 @@ export function useEntityTypeAttributeSchemaForm(
       minLength: schema.options?.minLength,
       maxLength: schema.options?.maxLength,
       regex: schema.options?.regex,
-      defaultValue: schema.options?._default ?? undefined,
+      defaultValueMode: !schema.options?.defaultValue
+        ? 'none'
+        : isStaticDefault(schema.options.defaultValue)
+          ? 'static'
+          : 'dynamic',
+      defaultStaticValue:
+        schema.options?.defaultValue && isStaticDefault(schema.options.defaultValue)
+          ? schema.options.defaultValue.value
+          : undefined,
+      defaultDynamicFunction:
+        schema.options?.defaultValue && isDynamicDefault(schema.options.defaultValue)
+          ? (schema.options.defaultValue as Dynamic)._function
+          : null,
       classification: semanticMetadata?.classification ?? null,
       definition: semanticMetadata?.definition ?? null,
     });
@@ -190,7 +214,12 @@ export function useEntityTypeAttributeSchemaForm(
         minLength: values.minLength ?? undefined,
         maxLength: values.maxLength ?? undefined,
         regex: values.regex ?? undefined,
-        _default: values.defaultValue != null ? values.defaultValue : undefined,
+        defaultValue:
+          values.defaultValueMode === 'static' && values.defaultStaticValue != null
+            ? buildStaticDefaultValue(values.defaultStaticValue)
+            : values.defaultValueMode === 'dynamic' && values.defaultDynamicFunction
+              ? buildDynamicDefaultValue(values.defaultDynamicFunction)
+              : undefined,
       };
 
       const hasSemantics = values.classification || values.definition;

@@ -1,4 +1,4 @@
-import { IconColour, IconType, SchemaType } from '@/lib/types/common';
+import { DynamicDefaultFunction, IconColour, IconType, SchemaType } from '@/lib/types/common';
 import type { SchemaUUID } from '@/lib/types/common';
 import { EntityRelationshipCardinality } from '@/lib/types/entity';
 import type { RelationshipDefinition } from '@/lib/types/entity';
@@ -852,24 +852,32 @@ describe('getDefaultValueForSchema', () => {
     expect(getDefaultValueForSchema(makeAttr(SchemaType.Object))).toEqual({});
   });
 
-  it('returns custom _default when set', () => {
+  it('returns custom static defaultValue when set', () => {
     expect(
-      getDefaultValueForSchema(makeAttr(SchemaType.Number, { options: { _default: 50 } })),
+      getDefaultValueForSchema(
+        makeAttr(SchemaType.Number, {
+          options: { defaultValue: { type: 'Static', value: 50 } },
+        }),
+      ),
     ).toBe(50);
   });
 
-  it('returns custom string _default when set', () => {
+  it('returns custom string static defaultValue when set', () => {
     expect(
       getDefaultValueForSchema(
-        makeAttr(SchemaType.Select, { options: { _default: 'medium' } }),
+        makeAttr(SchemaType.Select, {
+          options: { defaultValue: { type: 'Static', value: 'medium' } },
+        }),
       ),
     ).toBe('medium');
   });
 
-  it('prefers _default over minimum for numbers', () => {
+  it('prefers defaultValue over minimum for numbers', () => {
     expect(
       getDefaultValueForSchema(
-        makeAttr(SchemaType.Number, { options: { _default: 50, minimum: 0 } }),
+        makeAttr(SchemaType.Number, {
+          options: { defaultValue: { type: 'Static', value: 50 }, minimum: 0 },
+        }),
       ),
     ).toBe(50);
   });
@@ -882,6 +890,73 @@ describe('getDefaultValueForSchema', () => {
   it('returns edgeCaseEntityType priority default of medium', () => {
     const prioritySchema = edgeCaseEntityType.schema.properties!['priority'];
     expect(getDefaultValueForSchema(prioritySchema)).toBe('medium');
+  });
+
+  describe('dynamic defaults', () => {
+    it('resolves CurrentDate to local YYYY-MM-DD for Date fields', () => {
+      const result = getDefaultValueForSchema(
+        makeAttr(SchemaType.Date, {
+          options: {
+            defaultValue: {
+              type: 'Dynamic',
+              _function: DynamicDefaultFunction.CurrentDate,
+            },
+          },
+        }),
+      );
+      const now = new Date();
+      const pad = (n: number) => String(n).padStart(2, '0');
+      const expected = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+      expect(result).toBe(expected);
+    });
+
+    it('resolves CurrentDatetime to ISO string for Datetime fields', () => {
+      const before = Date.now();
+      const result = getDefaultValueForSchema(
+        makeAttr(SchemaType.Datetime, {
+          options: {
+            defaultValue: {
+              type: 'Dynamic',
+              _function: DynamicDefaultFunction.CurrentDatetime,
+            },
+          },
+        }),
+      );
+      const after = Date.now();
+      expect(typeof result).toBe('string');
+      const parsed = new Date(result as string).getTime();
+      expect(parsed).toBeGreaterThanOrEqual(before);
+      expect(parsed).toBeLessThanOrEqual(after);
+    });
+
+    it('falls back to type default when dynamic function is unknown', () => {
+      const result = getDefaultValueForSchema(
+        makeAttr(SchemaType.Number, {
+          options: {
+            defaultValue: {
+              type: 'Dynamic',
+              _function: 'UNKNOWN_FN' as DynamicDefaultFunction,
+            },
+            minimum: 10,
+          },
+        }),
+      );
+      expect(result).toBe(10);
+    });
+
+    it('falls back to empty string when Date schema has unknown dynamic function', () => {
+      const result = getDefaultValueForSchema(
+        makeAttr(SchemaType.Date, {
+          options: {
+            defaultValue: {
+              type: 'Dynamic',
+              _function: 'UNKNOWN_FN' as DynamicDefaultFunction,
+            },
+          },
+        }),
+      );
+      expect(result).toBe('');
+    });
   });
 });
 
@@ -911,7 +986,7 @@ describe('buildDefaultValuesFromEntityType', () => {
     expect(defaults).toHaveProperty('rel-deal-company');
   });
 
-  it('uses _default value when set in options', () => {
+  it('uses static defaultValue when set in options', () => {
     const defaults = buildDefaultValuesFromEntityType(edgeCaseEntityType);
     expect(defaults['score']).toBe(50);
     expect(defaults['priority']).toBe('medium');

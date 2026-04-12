@@ -49,16 +49,16 @@ export interface ReferenceNode {
     block: Block;
     /**
      * 
-     * @type {NodeType}
-     * @memberof ReferenceNode
-     */
-    type: NodeType;
-    /**
-     * 
      * @type {Array<string>}
      * @memberof ReferenceNode
      */
     warnings: Array<string>;
+    /**
+     * 
+     * @type {NodeType}
+     * @memberof ReferenceNode
+     */
+    type: NodeType;
     /**
      * 
      * @type {ReferenceNodeAllOfReference1}
@@ -74,8 +74,8 @@ export interface ReferenceNode {
  */
 export function instanceOfReferenceNode(value: object): value is ReferenceNode {
     if (!('block' in value) || value['block'] === undefined) return false;
-    if (!('type' in value) || value['type'] === undefined) return false;
     if (!('warnings' in value) || value['warnings'] === undefined) return false;
+    if (!('type' in value) || value['type'] === undefined) return false;
     if (!('reference' in value) || value['reference'] === undefined) return false;
     return true;
 }
@@ -91,8 +91,8 @@ export function ReferenceNodeFromJSONTyped(json: any, ignoreDiscriminator: boole
     return {
         
         'block': BlockFromJSON(json['block']),
-        'type': NodeTypeFromJSON(json['type']),
         'warnings': json['warnings'],
+        'type': NodeTypeFromJSON(json['type']),
         'reference': ReferenceNodeAllOfReference1FromJSON(json['reference']),
     };
 }
@@ -109,8 +109,8 @@ export function ReferenceNodeToJSONTyped(value?: ReferenceNode | null, ignoreDis
     return {
         
         'block': BlockToJSON(value['block']),
-        'type': NodeTypeToJSON(value['type']),
         'warnings': value['warnings'],
+        'type': NodeTypeToJSON(value['type']),
         'reference': ReferenceNodeAllOfReference1ToJSON(value['reference']),
     };
 }

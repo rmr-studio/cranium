@@ -39,7 +39,7 @@ import { EnumOptionsEditor } from '../../enum-options-editor';
 
 const classificationOptions = [
   {
-    value: SemanticAttributeClassification.Identifier,
+  value: SemanticAttributeClassification.Identifier,
     label: 'Identifier',
     description: 'A unique label that tells records apart',
     example: 'e.g. Order Number, Email Address, SKU',
@@ -128,14 +128,15 @@ export const SchemaForm: FC<Props> = ({
   const isRequired = form.watch('required');
   const watchedEnumValues = form.watch('enumValues');
 
-  const showDefaultValue =
-    mode === 'edit' && isRequired && !TYPES_WITHOUT_DEFAULT.has(currentType);
+  const showDefaultValue = isRequired && !TYPES_WITHOUT_DEFAULT.has(currentType);
   const disableRequiredInEdit = mode === 'edit' && TYPES_WITHOUT_DEFAULT.has(currentType);
 
-  // Clear default value when required is toggled off
+  // Clear default value fields when required is toggled off
   useEffect(() => {
     if (!isRequired) {
-      form.setValue('defaultValue', undefined);
+      form.setValue('defaultValueMode', 'none');
+      form.setValue('defaultStaticValue', undefined);
+      form.setValue('defaultDynamicFunction', null);
     }
   }, [isRequired]);
 

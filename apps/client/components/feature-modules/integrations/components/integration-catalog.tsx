@@ -8,6 +8,7 @@ import { IntegrationCard } from '@/components/feature-modules/integrations/compo
 import { IntegrationCatalogSkeleton } from '@/components/feature-modules/integrations/components/integration-catalog-skeleton';
 import { useIntegrationStatus } from '@/components/feature-modules/integrations/hooks/query/use-integration-status';
 import { useIntegrations } from '@/components/feature-modules/integrations/hooks/query/use-integrations';
+import { useSidePanelActions } from '@/components/ui/sidebar/context/side-panel-provider';
 import { ConnectionStatus } from '@/lib/types/integration';
 import { cn } from '@/lib/util/utils';
 import { Input } from '@riven/ui/input';
@@ -28,6 +29,7 @@ export function IntegrationCatalog() {
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<CategoryValue>('ALL');
+  const { replaceView } = useSidePanelActions();
 
   const {
     data: integrations,
@@ -126,6 +128,7 @@ export function IntegrationCatalog() {
               integration={integration}
               isConnected={connectedIds.has(integration.id)}
               workspaceId={workspaceId}
+              onClick={replaceView}
             />
           ))}
         </div>

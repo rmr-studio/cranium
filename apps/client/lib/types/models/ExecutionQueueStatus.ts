@@ -21,6 +21,7 @@ export enum ExecutionQueueStatus {
     Pending = 'PENDING',
     Claimed = 'CLAIMED',
     Dispatched = 'DISPATCHED',
+    Completed = 'COMPLETED',
     Failed = 'FAILED'
 }
 

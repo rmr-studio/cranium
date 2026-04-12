@@ -312,7 +312,7 @@ export const edgeCaseEntityType: EntityType = {
         options: {
           minimum: 0,
           maximum: 100,
-          _default: 50,
+          defaultValue: { type: 'Static', value: 50 },
         },
       }),
       // Optional text — not required, no constraints
@@ -321,7 +321,7 @@ export const edgeCaseEntityType: EntityType = {
       priority: attr(SchemaType.Select, 'Priority', DataType.String, {
         options: {
           _enum: ['low', 'medium', 'high', 'critical'],
-          _default: 'medium',
+          defaultValue: { type: 'Static', value: 'medium' },
         },
       }),
     },

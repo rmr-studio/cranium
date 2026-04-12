@@ -19,7 +19,8 @@
  */
 export enum ExecutionJobType {
     WorkflowExecution = 'WORKFLOW_EXECUTION',
-    IdentityMatch = 'IDENTITY_MATCH'
+    IdentityMatch = 'IDENTITY_MATCH',
+    Enrichment = 'ENRICHMENT'
 }
 
 

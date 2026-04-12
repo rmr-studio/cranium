@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { DefaultValue } from './DefaultValue';
+import {
+    DefaultValueFromJSON,
+    DefaultValueFromJSONTyped,
+    DefaultValueToJSON,
+    DefaultValueToJSONTyped,
+} from './DefaultValue';
 import type { OptionSortingType } from './OptionSortingType';
 import {
     OptionSortingTypeFromJSON,
@@ -29,10 +36,10 @@ import {
 export interface SchemaOptions {
     /**
      * 
-     * @type {object}
+     * @type {DefaultValue}
      * @memberof SchemaOptions
      */
-    _default?: object;
+    defaultValue?: DefaultValue;
     /**
      * 
      * @type {string}
@@ -114,7 +121,7 @@ export function SchemaOptionsFromJSONTyped(json: any, ignoreDiscriminator: boole
     }
     return {
         
-        '_default': json['default'] == null ? undefined : json['default'],
+        'defaultValue': json['defaultValue'] == null ? undefined : DefaultValueFromJSON(json['defaultValue']),
         'prefix': json['prefix'] == null ? undefined : json['prefix'],
         'regex': json['regex'] == null ? undefined : json['regex'],
         '_enum': json['enum'] == null ? undefined : json['enum'],
@@ -139,7 +146,7 @@ export function SchemaOptionsToJSONTyped(value?: SchemaOptions | null, ignoreDis
 
     return {
         
-        'default': value['_default'],
+        'defaultValue': DefaultValueToJSON(value['defaultValue']),
         'prefix': value['prefix'],
         'regex': value['regex'],
         'enum': value['_enum'],

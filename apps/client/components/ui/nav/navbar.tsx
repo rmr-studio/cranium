@@ -1,19 +1,26 @@
 'use client';
 
+import { DevToolsDropdown } from '@/components/feature-modules/dev/components/dev-tools-dropdown';
 import { UserProfileDropdown } from '@/components/feature-modules/user/components/avatar-dropdown';
 import { useProfile } from '@/components/feature-modules/user/hooks/use-profile';
 import { ConnectionStatus } from '@/components/feature-modules/workspace/components/connection-status';
-import { useIconRail } from '@/components/ui/sidebar/icon-rail-context';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  usePanelOpen,
+  useSidePanelActions,
+} from '@/components/ui/sidebar/context/side-panel-provider';
 import { Button } from '@riven/ui/button';
 import { ThemeToggle } from '@riven/ui/theme-toggle';
+import { useIsMobile } from '@riven/hooks';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Menu, PanelLeftOpen } from 'lucide-react';
 import Link from 'next/link';
 import { FC } from 'react';
 
 export const Navbar = () => {
-  const { setMobileOpen, isMobile, panelOpen, openPanel } = useIconRail();
+  const { setMobileOpen, openPanel } = useSidePanelActions();
+  const panelOpen = usePanelOpen();
+  const isMobile = useIsMobile();
 
   const showReopenButton = !isMobile && !panelOpen;
 
@@ -46,6 +53,7 @@ export const Navbar = () => {
       </AnimatePresence>
       <div className="flex w-auto grow items-center justify-end space-x-2">
         <ConnectionStatus />
+        {process.env.NODE_ENV === 'development' && <DevToolsDropdown />}
         <ThemeToggle />
         <NavbarUserProfile />
       </div>

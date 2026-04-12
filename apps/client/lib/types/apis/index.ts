@@ -1,6 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export * from './BlockApi';
+export * from './DevApi';
 export * from './EntityApi';
 export * from './IdentityApi';
 export * from './IntegrationsApi';

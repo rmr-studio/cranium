@@ -1,77 +1,63 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
 import { PanelLeftClose } from 'lucide-react';
-import { type PanelId, useIconRail } from './icon-rail-context';
-import { BillingPanel } from './panels/billing-panel';
-import { EntitiesPanel } from './panels/entities-panel';
-import { KnowledgePanel } from './panels/knowledge-panel';
-import { NotesPanel } from './panels/notes-panel';
-import { OverviewPanel } from './panels/overview-panel';
-import { SettingsPanel } from './panels/settings-panel';
-import { WorkspacesPanel } from './panels/workspaces-panel';
+import {
+  useCurrentView,
+  usePanelOpen,
+  useSelectedPanel,
+  useSidePanelActions,
+} from '@/components/ui/sidebar/context/side-panel-provider';
+import { panelRootRegistry } from '@/components/ui/sidebar/components/panel-root-registry';
+import { PanelViewRenderer } from '@/components/ui/sidebar/components/panel-view-renderer';
 
-const panelTitles: Record<PanelId, string> = {
-  workspaces: 'Workspaces',
-  overview: 'Overview',
-  entities: 'Entities',
-  knowledge: 'Knowledge',
-  notes: 'Notes',
-  billing: 'Billing',
-  settings: 'Settings',
-};
-
-const panelComponents: Record<PanelId, React.ComponentType> = {
-  workspaces: WorkspacesPanel,
-  overview: OverviewPanel,
-  entities: EntitiesPanel,
-  knowledge: KnowledgePanel,
-  notes: NotesPanel,
-  billing: BillingPanel,
-  settings: SettingsPanel,
-};
-
+/**
+ * The side panel content area.
+ *
+ * When the view stack is empty, renders the root panel component for the
+ * selected icon rail section. When views have been pushed, renders the
+ * PanelViewRenderer which resolves the top-of-stack view from the registry.
+ *
+ * Width and collapse/expand are managed by the parent ResizablePanelGroup.
+ */
 export function SubPanel() {
-  const { selectedPanel, panelOpen, closePanel, isMobile } = useIconRail();
+  const selectedPanel = useSelectedPanel();
+  const panelOpen = usePanelOpen();
+  const currentView = useCurrentView();
+  const { closePanel } = useSidePanelActions();
 
-  if (isMobile) return null;
+  if (!panelOpen) return null;
+
+  // If there's a view on the stack, render it instead of the panel root
+  if (currentView) {
+    return (
+      <aside aria-label="Side panel detail view" className="flex h-full flex-col bg-background">
+        <PanelViewRenderer />
+      </aside>
+    );
+  }
+
+  // Panel root view
+  const entry = panelRootRegistry[selectedPanel];
+  const PanelComponent = entry.component;
 
   return (
-    <AnimatePresence>
-      {panelOpen && (
-        <motion.aside
-          key="sub-panel"
-          initial={{ width: 0, opacity: 0 }}
-          animate={{ width: 'var(--sub-panel-width)', opacity: 1 }}
-          exit={{ width: 0, opacity: 0 }}
-          transition={{ duration: 0.2, ease: 'linear' }}
-          className="h-full shrink-0 overflow-hidden"
+    <aside aria-label={`${entry.title} panel`} className="flex h-full flex-col bg-background">
+      {/* Header — px-4 matches DESIGN.md spacing for structural headers */}
+      <div className="flex min-h-(--header-height) shrink-0 items-center justify-between border-b px-4">
+        <span className="text-sm font-medium text-sidebar-foreground">{entry.title}</span>
+        <button
+          onClick={closePanel}
+          aria-label="Close panel"
+          className="flex size-7 items-center justify-center rounded-md text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
         >
-          <div className="flex h-full w-(--sub-panel-width) flex-col rounded-r-xl border-r-4 border-r-primary bg-background dark:border-r-secondary">
-            {/* Header */}
-            <div className="flex min-h-(--header-height) shrink-0 items-center justify-between border-b px-4">
-              <span className="text-sm font-semibold text-sidebar-foreground">
-                {panelTitles[selectedPanel]}
-              </span>
-              <button
-                onClick={closePanel}
-                aria-label="Close panel"
-                className="flex size-7 items-center justify-center rounded-md text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
-              >
-                <PanelLeftClose className="size-4" />
-              </button>
-            </div>
+          <PanelLeftClose className="size-4" />
+        </button>
+      </div>
 
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto px-3 py-2">
-              {(() => {
-                const PanelComponent = panelComponents[selectedPanel];
-                return <PanelComponent />;
-              })()}
-            </div>
-          </div>
-        </motion.aside>
-      )}
-    </AnimatePresence>
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto px-3 py-2">
+        <PanelComponent />
+      </div>
+    </aside>
   );
 }

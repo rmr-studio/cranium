@@ -8,5 +8,8 @@ enum class SourceType {
     WORKFLOW,
     IDENTITY_MATCH,
     TEMPLATE,
-    PROJECTED
+    PROJECTED,
+
+    /** Custom data source (Postgres, CSV, etc.) introspected at runtime. Phase 1 foundation. */
+    CUSTOM_SOURCE,
 }

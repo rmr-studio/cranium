@@ -61,7 +61,7 @@ class RecordBatchTest {
     }
 
     @Test
-    fun `nextCursor accepts String? nullable type`() {
+    fun `nextCursor accepts nullable String type`() {
         val nullable: String? = null
         val batch = RecordBatch(records = emptyList(), nextCursor = nullable, hasMore = false)
         assertThat(batch.nextCursor).isNull()

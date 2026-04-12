@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-01-PLAN.md
-last_updated: "2026-04-12T22:38:02.711Z"
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-04-12T22:44:27.642Z"
 progress:
   total_phases: 8
   completed_phases: 1
   total_plans: 8
-  completed_plans: 5
-  percent: 63
+  completed_plans: 6
+  percent: 75
 ---
 
 # STATE
@@ -27,10 +27,10 @@ progress:
 
 ## Current Position
 
-- **Phase:** 2 — Secure Connection Management (IN PROGRESS 2/5 plans)
-- **Plan:** 02-01 complete (CustomSourceConnectionEntity + foundation); ready for Wave 1 remainder (02-02..04)
+- **Phase:** 2 — Secure Connection Management (IN PROGRESS 3/5 plans)
+- **Plan:** 02-02 complete (CredentialEncryptionService + global Logback TurboFilter); ready for Wave 2 parallel siblings (02-03 SSRF/RO verifier) and Wave 3 (02-04 service+controller)
 - **Status:** Ready to execute
-- **Progress:** [██████░░░░] 63%
+- **Progress:** [████████░░] 75%
 
 ```
 [........] 0% (0/8 phases)
@@ -50,6 +50,7 @@ progress:
 | Phase 01-adapter-foundation P03 | 10min | 3 tasks | 5 files |
 | Phase 02-secure-connection-management P00 | 1min | 2 tasks | 9 files |
 | Phase 02-secure-connection-management P01 | 20min | 2 tasks | 7 files |
+| Phase 02-secure-connection-management P02 | 4 min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -70,6 +71,9 @@ progress:
 - [Phase 02-secure-connection-management]: Plan 02-01: ConnectionException sealed hierarchy is a sibling to Phase 1 AdapterException (not a subclass). All subtypes extend RuntimeException for @Transactional default rollback.
 - [Phase 02-secure-connection-management]: Plan 02-01: CustomSourceConnectionModel omits encryptedCredentials/iv/keyVersion/password; service passes decrypted host/port/db/user/sslMode to toModel() at read time.
 - [Phase 02-secure-connection-management]: Plan 02-01: Integration test hand-creates minimal workspaces table via JdbcTemplate (scans only customsource package) to avoid pulling WorkspaceInviteEntity→UserEntity chain into the test persistence unit.
+- [Phase 02-secure-connection-management]: Plan 02-02: AES-256-GCM with 12-byte SecureRandom IV per call; keyVersion=1 reserved for rotation. AEADBadTagException -> DataCorruptionException (wrong-key and corruption indistinguishable at cipher layer).
+- [Phase 02-secure-connection-management]: Plan 02-02: Global Logback TurboFilter on root LoggerContext covers third-party JDBC/HikariCP paths. Re-log-and-DENY rewrite pattern — stack trace loss on re-log accepted; service-layer exception sanitisation remains primary defence.
+- [Phase 02-secure-connection-management]: Plan 02-02: RIVEN_CREDENTIAL_ENCRYPTION_KEY env var contract: base64-encoded 32-byte key, fail-fast on blank/non-base64/wrong-size at bean init.
 
 ### Key Decisions (from PROJECT.md)
 
@@ -105,7 +109,7 @@ Completed Plan 01-03 (NangoAdapter + Registry). Phase 01 closes with: NangoAdapt
 Begin Phase 02 planning (per ROADMAP.md).
 
 ### Last session
-- **Stopped at:** Completed 02-01-PLAN.md
+- **Stopped at:** Completed 02-02-PLAN.md
 - **Timestamp:** 2026-04-12T07:43:39Z
 
 ### Files of Record

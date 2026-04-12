@@ -16,9 +16,9 @@
 ### Custom Source Connection (CONN)
 
 - [x] **CONN-01**: `CustomSourceConnectionEntity` extends AuditableEntity, implements SoftDeletable
-- [ ] **CONN-02**: Credentials stored as encrypted JSONB (AES-256-GCM, app-level key)
+- [x] **CONN-02**: Credentials stored as encrypted JSONB (AES-256-GCM, app-level key)
 - [ ] **CONN-03**: `CustomSourceConnectionService` CRUD with `@PreAuthorize` workspace scoping
-- [ ] **CONN-04**: Connection string NEVER logged (KLogger redaction patterns for `postgresql://`, `jdbc:postgresql://`)
+- [x] **CONN-04**: Connection string NEVER logged (KLogger redaction patterns for `postgresql://`, `jdbc:postgresql://`)
 - [ ] **CONN-05**: User can create, view, update, soft-delete Postgres connections via `/api/v1/custom-sources/connections`
 
 ### Security Gates (SEC)
@@ -27,8 +27,8 @@
 - [ ] **SEC-02**: SSRF validation resolves hostname to IP and checks resolved IP (DNS rebinding defense)
 - [ ] **SEC-03**: Read-only role enforcement: reject connection if role has INSERT/UPDATE/DELETE on target tables
 - [ ] **SEC-04**: Per-record error isolation in sync (one bad row does not fail batch)
-- [ ] **SEC-05**: `CryptoException` at credential read → ConnectionStatus=FAILED, "Config error" message, no key in logs
-- [ ] **SEC-06**: `DataCorruptionException` at credential read → ConnectionStatus=FAILED, prompt user to re-enter
+- [x] **SEC-05**: `CryptoException` at credential read → ConnectionStatus=FAILED, "Config error" message, no key in logs
+- [x] **SEC-06**: `DataCorruptionException` at credential read → ConnectionStatus=FAILED, prompt user to re-enter
 
 ### Postgres Adapter (PG)
 
@@ -176,16 +176,16 @@
 | ADPT-04 | Phase 1 | Complete |
 | ADPT-05 | Phase 1 | Complete |
 | CONN-01 | Phase 2 | Complete |
-| CONN-02 | Phase 2 | Pending |
+| CONN-02 | Phase 2 | Complete |
 | CONN-03 | Phase 2 | Pending |
-| CONN-04 | Phase 2 | Pending |
+| CONN-04 | Phase 2 | Complete |
 | CONN-05 | Phase 2 | Pending |
 | SEC-01 | Phase 2 | Pending |
 | SEC-02 | Phase 2 | Pending |
 | SEC-03 | Phase 2 | Pending |
 | SEC-04 | Phase 4 | Pending |
-| SEC-05 | Phase 2 | Pending |
-| SEC-06 | Phase 2 | Pending |
+| SEC-05 | Phase 2 | Complete |
+| SEC-06 | Phase 2 | Complete |
 | PG-01 | Phase 3 | Pending |
 | PG-02 | Phase 3 | Pending |
 | PG-03 | Phase 3 | Pending |

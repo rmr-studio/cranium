@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Phase 3 context gathered
-last_updated: "2026-04-13T02:59:52.971Z"
+stopped_at: Phase 03 Plan 00 complete (Wave-0 scaffolds)
+last_updated: "2026-04-13T03:27:03.385Z"
 progress:
   total_phases: 8
   completed_phases: 2
-  total_plans: 8
-  completed_plans: 8
-  percent: 100
+  total_plans: 13
+  completed_plans: 9
+  percent: 69
 ---
 
 # STATE
@@ -27,10 +27,10 @@ progress:
 
 ## Current Position
 
-- **Phase:** 2 — Secure Connection Management (COMPLETE 5/5 plans)
-- **Plan:** 02-04 complete (CustomSourceConnectionService + Controller + 6 REST endpoints); Phase 2 shipping-blockers all satisfied (CONN-01..05, SEC-01..03, SEC-05, SEC-06)
-- **Status:** Ready to plan
-- **Progress:** [██████████] 100%
+- **Phase:** 3 — Postgres Adapter & Schema Mapping (IN PROGRESS 1/5 plans)
+- **Plan:** 03-00 complete (Wave-0 test scaffolds + factories + entity shells); 03-01..04 can now proceed in parallel per ROADMAP
+- **Status:** Ready to execute 03-01
+- **Progress:** [███████░░░] 69%
 
 ```
 [........] 0% (0/8 phases)
@@ -53,6 +53,7 @@ progress:
 | Phase 02-secure-connection-management P02 | 4 min | 2 tasks | 8 files |
 | Phase 02-secure-connection-management P03 | 9min | 2 tasks | 4 files |
 | Phase 02-secure-connection-management P04 | 9min | 3 tasks | 15 files |
+| Phase 03-postgres-adapter-schema-mapping P00 | 8min | 2 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -88,6 +89,10 @@ progress:
 - [Phase 02-secure-connection-management]: Plan 02-04: listByWorkspace isolates per-row decrypt failures — one bad row returns a FAILED model with [unavailable] fields, remaining rows hydrate normally. No list-level failure from a single corrupt credential.
 - [Phase 02-secure-connection-management]: Plan 02-04: @PreAuthorize cross-workspace blocking asserted at the SpringBootTest service-layer test rather than MockMvc — standalone MockMvc does not load method security. Controller test focuses on wire format + bean-validation + ExceptionHandler mapping.
 - [Phase 02-secure-connection-management]: Plan 02-04: SslMode uses libpq-canonical kebab strings (require/verify-ca/verify-full/prefer) via @JsonValue so JDBC driver consumes stored string directly; @JsonCreator throws IllegalArgumentException on unknown values (Jackson wraps in JsonMappingException).
+- [Phase 03-postgres-adapter-schema-mapping]: Plan 03-00: Wave-0 entity shells carry the full field list (no JPA annotations yet) — plan 03-01 annotates + DDL in one sweep without touching factory call sites.
+- [Phase 03-postgres-adapter-schema-mapping]: Plan 03-00: Factories live flat under service/util/factory/ (not a customsource/ subfolder) to match plan 03-00's declared files list and keep the Phase 3 factory surface greppable by test-class name.
+- [Phase 03-postgres-adapter-schema-mapping]: Plan 03-00: Pre-existing riven.core.lifecycle.* imports in service/dev/ auto-fixed (Rule 3 blocking) — compileTestKotlin was red on postgres-ingestion HEAD before any Phase 3 scaffold existed; canonical package is riven.core.models.core.*.
+- [Phase 03-postgres-adapter-schema-mapping]: Plan 03-00: 13 pre-existing DataConnectorConnectionServiceTest failures deferred to phase-scoped deferred-items.md — out-of-scope for Wave-0 scaffolding; narrowed-glob verification confirms every new @Disabled scaffold is BUILD SUCCESSFUL.
 
 ### Key Decisions (from PROJECT.md)
 
@@ -117,14 +122,14 @@ progress:
 ## Session Continuity
 
 ### Last Action
-Completed Plan 01-03 (NangoAdapter + Registry). Phase 01 closes with: NangoAdapter @Component + @SourceTypeAdapter(INTEGRATION), SourceTypeAdapterRegistry @Configuration assembling Map<SourceType, IngestionAdapter>, full Nango→Adapter exception translation, 13 new tests + full build green (1,735 tests). Live Nango sync path untouched.
+Completed Plan 03-00 (Wave-0 test scaffolds). 8 @Disabled placeholder test classes + 3 test factories (CustomSourceTableMappingEntityFactory, CustomSourceFieldMappingEntityFactory, PostgresIntrospectionFactory) + 2 entity shells (CustomSourceTableMappingEntity, CustomSourceFieldMappingEntity) landed. compileTestKotlin green; narrowed-glob test verification BUILD SUCCESSFUL. Rule-3 auto-fix: corrected stale riven.core.lifecycle.* imports in service/dev/.
 
 ### Next Action
-Begin Phase 02 planning (per ROADMAP.md).
+Execute plans 03-01..03-04 (parallel per Phase 3 ROADMAP wave plan). Each plan flips its owned @Disabled class off and replaces placeholder() bodies with real assertions.
 
 ### Last session
-- **Stopped at:** Phase 3 context gathered
-- **Timestamp:** 2026-04-12T07:43:39Z
+- **Stopped at:** Phase 03 Plan 00 complete (Wave-0 scaffolds)
+- **Timestamp:** 2026-04-13T03:25:40Z
 
 ### Files of Record
 - `.planning/PROJECT.md`

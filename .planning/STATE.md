@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Deferred 03-04-PLAN.md (pending phase 03.5 Boot 4 upgrade)
-last_updated: "2026-04-13T04:37:11.546Z"
+stopped_at: Phase 03.1 context gathered
+last_updated: "2026-04-13T08:03:18.692Z"
 progress:
-  total_phases: 8
+  total_phases: 9
   completed_phases: 3
   total_plans: 13
   completed_plans: 13
@@ -142,6 +142,10 @@ progress:
 
 - None
 
+### Roadmap Evolution
+
+- Phase 03.1 inserted after Phase 3: Boot 3.5.3 → 4.0.x upgrade with transitive dep bumps (URGENT)
+
 ## Session Continuity
 
 ### Last Action
@@ -154,7 +158,7 @@ Completed Plan 03-02 (PostgresAdapter + WorkspaceConnectionPoolManager). Workspa
 Scope + stand up new phase **03.5-boot4-upgrade** (Spring Boot 4 migration) as prerequisite to reopening 03-04. After 03.5 lands, rewrite 03-04-PLAN.md against Spring AI 2.x multi-provider (Anthropic default + OpenAI reasoning) + new env vars (ANTHROPIC_API_KEY + OPENAI_REASONING_API_KEY). In parallel, Phase 4 (IngestionOrchestrator + CustomSourceSyncWorkflow) is unblocked and is the natural next workstream — MAP-07 is not on its input contract.
 
 ### Last session
-- **Stopped at:** Deferred 03-04-PLAN.md (pending phase 03.5 Boot 4 upgrade)
+- **Stopped at:** Phase 03.1 context gathered
 - **Timestamp:** 2026-04-13T12:00:00Z
 
 ### Files of Record

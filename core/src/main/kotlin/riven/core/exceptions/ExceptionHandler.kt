@@ -12,6 +12,7 @@ import org.springframework.web.context.request.ServletRequestAttributes
 import riven.core.configuration.properties.ApplicationConfigurationProperties
 import com.fasterxml.jackson.core.JsonProcessingException
 import riven.core.enums.common.ApiError
+import riven.core.exceptions.connector.MappingValidationException
 import riven.core.exceptions.connector.ReadOnlyVerificationException
 import riven.core.exceptions.connector.SsrfRejectedException
 import riven.core.exceptions.query.QueryExecutionException
@@ -255,6 +256,19 @@ class ExceptionHandler(private val logger: KLogger, private val config: Applicat
             statusCode = HttpStatus.BAD_REQUEST,
             error = ApiError.SSRF_REJECTED,
             message = ex.message ?: "Host rejected",
+            stackTrace = config.includeStackTrace.takeIf { it }?.let { ex.stackTraceToString() }
+        ).also { logger.error { it } }.let {
+            ResponseEntity(it, it.statusCode)
+        }
+    }
+
+    @ExceptionHandler(MappingValidationException::class)
+    fun handleMappingValidationException(ex: MappingValidationException): ResponseEntity<ErrorResponse> {
+        storeExceptionForAnalytics(ex)
+        return ErrorResponse(
+            statusCode = HttpStatus.BAD_REQUEST,
+            error = ApiError.MAPPING_VALIDATION_FAILED,
+            message = ex.message ?: "Mapping validation failed",
             stackTrace = config.includeStackTrace.takeIf { it }?.let { ex.stackTraceToString() }
         ).also { logger.error { it } }.let {
             ResponseEntity(it, it.statusCode)

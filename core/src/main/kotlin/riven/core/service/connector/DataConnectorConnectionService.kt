@@ -26,6 +26,7 @@ import riven.core.models.connector.request.UpdateDataConnectorConnectionRequest
 import riven.core.repository.connector.CustomSourceConnectionRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.auth.AuthTokenService
+import riven.core.service.connector.pool.WorkspaceConnectionPoolManager
 import riven.core.util.ServiceUtil.findOrThrow
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -55,6 +56,7 @@ class DataConnectorConnectionService(
     private val authTokenService: AuthTokenService,
     private val activityService: ActivityService,
     private val objectMapper: ObjectMapper,
+    private val poolManager: WorkspaceConnectionPoolManager,
 ) {
 
     // ------ Public mutations ------
@@ -161,6 +163,9 @@ class DataConnectorConnectionService(
         entity.deleted = true
         entity.deletedAt = ZonedDateTime.now()
         repository.save(entity)
+        // Evict any cached pool for this connection so adapter calls fail fast
+        // (the soft-deleted connection is not supposed to serve traffic). Idempotent.
+        poolManager.evict(id)
         logActivity(
             operation = OperationType.DELETE,
             userId = userId,
@@ -255,6 +260,9 @@ class DataConnectorConnectionService(
         }
         request.name?.let { entity.name = it }
         val saved = repository.save(entity)
+        // Evict the cached pool so the next adapter call rebuilds with the
+        // fresh credentials. No-op if the pool was never built.
+        poolManager.evict(requireNotNull(saved.id) { "saved entity must have id after save" })
         return saved.toModel(
             merged.host, merged.port, merged.database, merged.user, merged.sslMode.value,
         )

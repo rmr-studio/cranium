@@ -53,10 +53,10 @@ const spaceMono = Space_Mono({
 
 const SITE_TITLE = 'Riven | Autonomous Intelligence & Growth Platform';
 const SITE_DESCRIPTION =
-  'Move fast. Act fast. Grow Fast. One workspace for your customer lifecycle stack. From marketing to CRMs to payments, analytics and support. Cross-domain intelligence surfaces churn risks, hidden patterns, and growth opportunities no single tool can see. Query across every platform in plain English, tag and track accounts, and act on insights without leaving the tab.';
+  'Move fast. Act fast. Grow Fast. The next generation intelligence workspace for rapid growth. Connect your data, ask questions, generate insights, find your most valuable cohorts, take immediate action and track results — all in plain english, and all in one place.';
 
 const ogImage = process.env.NEXT_PUBLIC_CDN_URL
-  ? `${process.env.NEXT_PUBLIC_CDN_URL}/images/og-image.png`
+  ? `${process.env.NEXT_PUBLIC_CDN_URL}/images/og-image.jpg`
   : '/og-image.png';
 
 export const metadata: Metadata = {
@@ -71,6 +71,9 @@ export const metadata: Metadata = {
 
   keywords: [
     'customer lifecycle intelligence',
+    'autonomous business intelligence',
+    'growth platform',
+    'customer data platform',
     'customer insights platform',
     'SaaS customer analytics',
     'Ecommerce customer insights',
@@ -101,7 +104,7 @@ export const metadata: Metadata = {
         url: ogImage,
         width: 1200,
         height: 630,
-        alt: 'Riven — One workspace. Every tool. Immediate insight to action.',
+        alt: 'Riven | Autonomous Intelligence & Growth Platform',
       },
     ],
   },

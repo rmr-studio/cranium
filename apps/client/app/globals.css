@@ -13,6 +13,9 @@
   --color-content: var(--content);
   --color-heading: var(--heading);
   --color-logo-primary: var(--logo-primary);
+  --color-logo-secondary: var(--logo-secondary);
+  --color-logo-tertiary: var(--logo-tertiary);
+  --color-logo-background: var(--logo-background);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-serif: var(--font-redaction);
@@ -61,7 +64,10 @@
   --header-height: 3.5rem;
   --icon-rail-width: 3.5rem;
   --sub-panel-width: 30rem;
-  --logo-primary: oklch(0.35 0 0);
+  --logo-primary: oklch(0.3 0.02 200);
+  --logo-secondary: oklch(0.7 0.12 348);
+  --logo-tertiary: oklch(0.3 0.02 200);
+  --logo-background: oklch(0.98 0 0);
   --radius: 0.625rem;
   --background: oklch(0.985 0 0);
   --foreground: oklch(0.145 0 0);
@@ -101,7 +107,10 @@
 }
 
 .dark {
-  --logo-primary: oklch(0.85 0 0);
+  --logo-primary: oklch(0.96 0 0);
+  --logo-secondary: oklch(0.66 0.11 348);
+  --logo-tertiary: oklch(0.61 0.09 263);
+  --logo-background: oklch(0.18 0 0);
   --background: oklch(0.185 0 0);
   --foreground: oklch(0.9 0 0);
   --content: oklch(0.8 0 0);

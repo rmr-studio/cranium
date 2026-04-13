@@ -9,6 +9,9 @@
   --color-content: var(--content);
   --color-heading: var(--heading);
   --color-logo-primary: var(--logo-primary);
+  --color-logo-secondary: var(--logo-secondary);
+  --color-logo-tertiary: var(--logo-tertiary);
+  --color-logo-background: var(--logo-background);
   --font-sans: var(--font-geist);
   --font-mono: var(--font-geist-mono);
   --font-serif: var(--font-redaction);
@@ -81,7 +84,10 @@
 :root {
   --panel-inset: max(4dvw, calc((100vw - var(--breakpoint-3xl)) / 2));
   --wash-opacity: 0.2;
-  --logo-primary: oklch(0.35 0 0);
+  --logo-primary: oklch(0.3 0.02 200);
+  --logo-secondary: oklch(0.7 0.12 348);
+  --logo-tertiary: oklch(0.3 0.02 200);
+  --logo-background: oklch(0.98 0 0);
   --radius: 0.625rem;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -119,15 +125,6 @@
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
 
-  /* Navbar inverse values (dark-on-light → light-on-dark) */
-  --nav-inv-background: oklch(0.145 0 0);
-  --nav-inv-foreground: oklch(0.985 0 0);
-  --nav-inv-muted-foreground: oklch(0.708 0 0);
-  --nav-inv-border: oklch(1 0 0 / 10%);
-  --nav-inv-muted: oklch(0.269 0 0);
-  --nav-inv-primary: oklch(0.922 0 0);
-  --nav-inv-logo-primary: oklch(0.85 0 0);
-
   /* CTA gradient stops — sky → violet → rose */
   --cta-g1: #38bdf8;
   --cta-g2: #8b5cf6;
@@ -140,7 +137,10 @@
 
 .dark {
   --wash-opacity: 0.5;
-  --logo-primary: oklch(0.85 0 0);
+  --logo-primary: oklch(0.96 0 0);
+  --logo-secondary: oklch(0.66 0.11 348);
+  --logo-tertiary: oklch(0.61 0.09 263);
+  --logo-background: oklch(0.18 0 0);
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -185,15 +185,6 @@
 
   --inverse-card: var(--card);
   --paper-texture-opacity: 0.85;
-
-  /* Navbar inverse values (light-on-dark → dark-on-light) */
-  --nav-inv-background: oklch(1 0 0);
-  --nav-inv-foreground: oklch(0.145 0 0);
-  --nav-inv-muted-foreground: oklch(0.556 0 0);
-  --nav-inv-border: oklch(0.922 0 0);
-  --nav-inv-muted: oklch(0.97 0 0);
-  --nav-inv-primary: oklch(0.205 0 0);
-  --nav-inv-logo-primary: oklch(0.35 0 0);
 }
 
 html {
@@ -310,10 +301,6 @@ html {
     0 0 0 1px oklch(1 0 0 / 0.08);
 }
 
-.logo-fill {
-  fill: var(--logo-primary);
-}
-
 .h-screen-without-header {
   height: calc(100dvh - 5rem - 1px);
 }
@@ -337,16 +324,6 @@ nav[data-navbar] {
     color 0.3s ease,
     border-color 0.3s ease,
     box-shadow 0.3s ease;
-}
-
-nav[data-inverted] {
-  --background: var(--nav-inv-background);
-  --foreground: var(--nav-inv-foreground);
-  --muted-foreground: var(--nav-inv-muted-foreground);
-  --border: var(--nav-inv-border);
-  --muted: var(--nav-inv-muted);
-  --primary: var(--nav-inv-primary);
-  --logo-primary: var(--nav-inv-logo-primary);
 }
 
 :root {

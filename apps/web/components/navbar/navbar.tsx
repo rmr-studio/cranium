@@ -15,7 +15,7 @@ import { NAV_LINKS_FLAT } from '@/lib/navigation';
 import { scrollToHashOnLoad, scrollToSection } from '@/lib/scroll';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/providers/auth-provider';
-import { LogoBackground } from '@riven/ui/logo';
+import { Logo } from '@riven/ui/logo';
 import { Menu } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
@@ -81,10 +81,12 @@ export function Navbar() {
           {/* Left: Logo + Nav Links */}
           <div className="flex items-center">
             <Link href="/" className="flex shrink-0 gap-1 px-3 md:px-4">
-              <LogoBackground
-                size={36}
-                className="mt-0.5 mr-1 rounded-md fill-primary"
-                logoClassname="fill-background"
+              <Logo
+                size={30}
+                className="mt-0.5 mr-1 rounded-md"
+                primaryClassName="fill-logo-primary"
+                secondaryClassName="fill-logo-secondary"
+                tertiaryClassName="fill-logo-tertiary"
               />
               <div className="mt-1 font-serif text-[2rem] tracking-tighter text-primary">Riven</div>
             </Link>
@@ -115,9 +117,7 @@ export function Navbar() {
                       </Link>
                     </NavigationMenuLink>
                   </NavigationMenuItem>
-                  {/* Solutions */}
-                  {/* <SolutionsMenu /> */}
-                  {/* Story */}
+
                   <NavigationMenuItem asChild>
                     <NavigationMenuLink
                       asChild
@@ -142,7 +142,6 @@ export function Navbar() {
 
           {/* Right: ThemeToggle + CTA + Mobile Menu */}
           <div className="flex items-center gap-1.5 px-2 md:gap-2 md:px-4">
-           
             {!loading && user ? (
               <Link href={CLIENT_URL}>
                 <CtaButton size="sm">

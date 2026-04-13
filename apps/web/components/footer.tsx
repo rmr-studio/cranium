@@ -4,7 +4,7 @@ import { NAV_LINKS } from '@/lib/navigation';
 import { scrollToSection } from '@/lib/scroll';
 import { useMounted } from '@riven/hooks';
 import { Button } from '@riven/ui/button';
-import { LogoBackground } from '@riven/ui/logo';
+import { Logo } from '@riven/ui/logo';
 import { Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
@@ -47,11 +47,7 @@ export function Footer() {
         <div className="flex flex-col gap-10 md:flex-row md:justify-between">
           <div className="mx-auto flex flex-col sm:mx-0">
             <Link href="/" className="flex items-center gap-2.5">
-              <LogoBackground
-                size={102}
-                className="scale-80 fill-primary sm:scale-100"
-                logoClassname="fill-background"
-              />
+              <Logo size={90} className="scale-80 sm:scale-100" />
               <span className="mt-2 font-serif text-6xl font-normal tracking-tight text-primary sm:ml-4 md:text-8xl">
                 Riven
               </span>

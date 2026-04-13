@@ -1,22 +1,41 @@
 "use client";
 
 import { cn } from "@riven/utils";
-import { useId } from "react";
 
 interface LogoProps extends React.SVGProps<SVGSVGElement> {
   /** Width of the logo in pixels (height auto-scales to maintain aspect ratio) */
   size?: number | string;
-  logoClassname?: string;
+  /** Container rounded-rect background */
+  backgroundClassName?: string;
+  /** Left (tallest) pillar */
+  primaryClassName?: string;
+  /** Middle pillar */
+  secondaryClassName?: string;
+  /** Right (shortest) pillar */
+  tertiaryClassName?: string;
 }
+
+const BG_PATH =
+  "M1943.94 0H80C35.8172 0 0 35.8172 0 80V1882C0 1926.18 35.8173 1962 80.0001 1962H1943.94C1988.12 1962 2023.94 1926.18 2023.94 1882V80C2023.94 35.8172 1988.12 0 1943.94 0Z";
+
+const PRIMARY_PATH =
+  "M729.333 1506.77V341.555L505.113 341.548C441.761 341.555 390.413 392.909 390.413 456.248V1621.47L614.633 1621.47C677.991 1621.47 729.346 1570.13 729.333 1506.77Z";
+
+const SECONDARY_PATH =
+  "M1181.8 1050.34L1181.81 341.555H842.879V1165.05L1067.1 1165.04C1130.44 1165.05 1181.8 1113.69 1181.8 1050.34Z";
+
+const TERTIARY_PATH =
+  "M1634.27 692.491V384.428C1634.27 360.743 1615.08 341.548 1591.39 341.548L1295.35 341.555L1295.34 807.191H1519.57C1582.91 807.191 1634.26 755.843 1634.27 692.491Z";
 
 export function LogoBackground({
   size = 32,
   className,
-  logoClassname,
+  backgroundClassName,
+  primaryClassName,
+  secondaryClassName,
+  tertiaryClassName,
   ...props
 }: LogoProps) {
-  const id = useId().replace(/:/g, "");
-
   return (
     <svg
       viewBox="0 0 2024 1962"
@@ -26,81 +45,55 @@ export function LogoBackground({
       className={cn(className)}
       {...props}
     >
-      <path d="M1943.94 0H80C35.8172 0 0 35.8172 0 80V1882C0 1926.18 35.8173 1962 80.0001 1962H1943.94C1988.12 1962 2023.94 1926.18 2023.94 1882V80C2023.94 35.8172 1988.12 0 1943.94 0Z" />
-      <mask
-        id={`${id}-mask0`}
-        style={{ maskType: "luminance" }}
-        maskUnits="userSpaceOnUse"
-        x="1268"
-        y="895"
-        width="533"
-        height="819"
-      >
-        <path
-          d="M1268.49 915.193C1268.49 904.147 1277.45 895.193 1288.49 895.193H1781C1792.05 895.193 1801 904.147 1801 915.193V1693.93C1801 1704.97 1792.05 1713.93 1781 1713.93H1288.49C1277.45 1713.93 1268.49 1704.97 1268.49 1693.93V915.193Z"
-          fill="white"
-        />
-      </mask>
-      <g mask={`url(#${id}-mask0)`}>
-        <path
-          d="M1781.95 1510.65L1444.9 927.007C1437.2 913.672 1417.95 913.677 1410.26 927.017L1277.09 1157.92C1273.52 1164.11 1273.53 1171.73 1277.1 1177.91L1547.25 1645.94C1572.17 1689.16 1617.71 1713.77 1664.59 1713.77C1687.52 1713.77 1710.79 1707.79 1732.08 1695.5C1797.23 1657.92 1819.18 1575.48 1781.95 1510.65Z"
-          className={cn("fill-logo-primary", logoClassname)}
-        />
-      </g>
       <path
-        d="M1492.03 559.776L1346.57 820.022L1195.02 1090.91L960.748 1510.04C890.588 1635.65 759.619 1713.78 619.325 1713.78C476.767 1713.78 349.014 1637.66 277.573 1510.04C206.142 1382.73 206.142 1230.16 277.573 1102.54L687.548 369.66C730.024 293.546 806.279 248 891.242 248C976.193 248 1052.45 293.546 1095.26 369.66L1110.05 396.242L1147.06 462.261C1150.46 468.331 1150.46 475.733 1147.07 481.805L1018.43 711.715C1010.8 725.361 991.164 725.362 983.528 711.717L908.708 578.018C901.07 564.369 881.426 564.375 873.796 578.028L505.081 1237.82C470.648 1299.3 493.505 1353.82 505.081 1374.41C516.666 1395.02 550.784 1442.89 619.638 1442.89C666.626 1442.89 710.709 1416.64 733.881 1374.41L1043.77 820.022L1195.34 549.133L1264.84 424.499C1301.21 359.68 1381.34 337.416 1444.08 374.969C1506.82 412.194 1528.38 494.954 1492.03 559.776Z"
-        className={cn("fill-logo-primary", logoClassname)}
+        d={BG_PATH}
+        className={cn("fill-logo-background", backgroundClassName)}
+      />
+      <path
+        d={PRIMARY_PATH}
+        className={cn("fill-logo-primary", primaryClassName)}
+      />
+      <path
+        d={SECONDARY_PATH}
+        className={cn("fill-logo-secondary", secondaryClassName)}
+      />
+      <path
+        d={TERTIARY_PATH}
+        className={cn("fill-logo-tertiary", tertiaryClassName)}
       />
     </svg>
   );
 }
 
-export function Logo({ size = 32, className, ...props }: LogoProps) {
-  const id = useId().replace(/:/g, "");
-
+export function Logo({
+  size = 32,
+  className,
+  primaryClassName,
+  secondaryClassName,
+  tertiaryClassName,
+  ...props
+}: Omit<LogoProps, "backgroundClassName">) {
   return (
     <svg
-      viewBox="624 590 748 698"
+      viewBox="390 341 1244 1281"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       width={size}
       className={cn(className)}
       {...props}
     >
-      <mask
-        id={`${id}-mask0`}
-        style={{ maskType: "luminance" }}
-        maskUnits="userSpaceOnUse"
-        x="1113"
-        y="901"
-        width="239"
-        height="368"
-      >
-        <path d="M1113.33 901.333H1352V1268.29H1113.33V901.333Z" fill="white" />
-      </mask>
-      <g mask={`url(#${id}-mask0)`}>
-        <path
-          d="M1343.46 1177.18L1184.63 902.141L1114.6 1023.57L1238.27 1237.82C1249.44 1257.19 1269.85 1268.22 1290.86 1268.22C1301.14 1268.22 1311.57 1265.54 1321.11 1260.03C1350.31 1243.19 1360.15 1206.24 1343.46 1177.18Z"
-          className="fill-logo-primary"
-        />
-      </g>
-      <mask
-        id={`${id}-mask1`}
-        style={{ maskType: "luminance" }}
-        maskUnits="userSpaceOnUse"
-        x="644"
-        y="610"
-        width="598"
-        height="659"
-      >
-        <path d="M644 610.667H1241.33V1268.29H644V610.667Z" fill="white" />
-      </mask>
-      <g mask={`url(#${id}-mask1)`}>
-        <path
-          d="M1232.01 751.063L1164.66 867.724L1094.49 989.156L986.021 1177.04C953.536 1233.35 892.896 1268.37 827.938 1268.37C761.932 1268.37 702.781 1234.25 669.703 1177.04C636.63 1119.97 636.63 1051.58 669.703 994.37L859.526 665.839C879.193 631.719 914.5 611.302 953.839 611.302C993.172 611.302 1028.48 631.719 1048.3 665.839L1055.15 677.755L1074.82 711.729L1004.65 833.156L953.839 745.25L775.042 1055.01C759.099 1082.57 769.682 1107.01 775.042 1116.24C780.406 1125.48 796.203 1146.94 828.083 1146.94C849.839 1146.94 870.25 1135.17 880.979 1116.24L1024.46 867.724L1094.64 746.292L1126.82 690.422C1143.66 661.365 1180.76 651.385 1209.81 668.219C1238.86 684.906 1248.84 722.005 1232.01 751.063Z"
-          className="fill-logo-primary"
-        />
-      </g>
+      <path
+        d={PRIMARY_PATH}
+        className={cn("fill-logo-primary", primaryClassName)}
+      />
+      <path
+        d={SECONDARY_PATH}
+        className={cn("fill-logo-secondary", secondaryClassName)}
+      />
+      <path
+        d={TERTIARY_PATH}
+        className={cn("fill-logo-tertiary", tertiaryClassName)}
+      />
     </svg>
   );
 }

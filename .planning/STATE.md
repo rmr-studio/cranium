@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 03.1-01-PLAN.md
-last_updated: "2026-04-13T08:33:32.534Z"
+stopped_at: Completed 03.1-02-PLAN.md
+last_updated: "2026-04-13T08:39:30.045Z"
 progress:
   total_phases: 9
   completed_phases: 3
   total_plans: 17
-  completed_plans: 14
-  percent: 82
+  completed_plans: 15
+  percent: 88
 ---
 
 # STATE
@@ -28,9 +28,9 @@ progress:
 ## Current Position
 
 - **Phase:** 03.1 — Boot 3.5.3 → 4.0.5 Upgrade with Transitive Dep Bumps (in progress)
-- **Plan:** 03.1-01 complete (compile-clean Boot 4 + Hibernate 7 dep bump). 03.1-02 (Spring Security 7 SecurityFilterChain migration), 03.1-03 (test harness sweep), 03.1-04 (closure + Nango smoke) still to execute.
+- **Plan:** 03.1-01 complete (compile-clean Boot 4 + Hibernate 7 dep bump). 03.1-02 complete (Spring Security 7 SecurityFilterChain Kotlin DSL migration). 03.1-03 (test harness sweep) and 03.1-04 (closure + Nango smoke) still to execute.
 - **Status:** Ready to plan next plan
-- **Progress:** [████████░░] 82%
+- **Progress:** [█████████░] 88%
 
 ```
 [........] 0% (0/8 phases)
@@ -58,6 +58,7 @@ progress:
 | Phase 03-postgres-adapter-schema-mapping P02 | 11min | 3 tasks | 12 files |
 | Phase 03-postgres-adapter-schema-mapping P03 | 10min | 3 tasks | 14 files |
 | Phase 03.1-boot-3-5-3-4-0-x-upgrade-with-transitive-dep-bumps P01 | 10min | 3 tasks | 18 files |
+| Phase 03.1-boot-3-5-3-4-0-x-upgrade-with-transitive-dep-bumps P02 | 7min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -123,6 +124,8 @@ progress:
 - [Phase 03.1]: Plan 01-01: Spring Security 7 GrantedAuthority.authority is @Nullable — null-safe accessors in OrganisationSecurity/WebSocketSecurityInterceptor/AuthTokenService; SecurityFilterChain migration deferred to Plan 02
 - [Phase 03.1]: Plan 01-01: Temporal 1.34.0 starter POM still lists Boot 2.7.18 parent — accepted; Boot 4 BOM overrides at build time; runtime surprises are Plan 03/04 surface
 - [Phase 03.1]: Plan 01-01: hibernate-vector pinned to 7.2.7.Final matching Boot 4.0.5 BOM hibernate.version exactly — avoids minor-drift ClassChangeError
+- [Phase 03.1]: Plan 02: SecurityFilterChain rewritten in Security 7 Kotlin DSL (http { } invoke form); authorize(pattern, permitAll) / authorize(anyRequest, authenticated) replace fluent chain; JwtDecoder identity + public-path allowlist + CORS + session STATELESS + CSRF-disabled preserved bit-identical
+- [Phase 03.1]: Plan 02: Exception handlers assigned as SAM-converted properties (authenticationEntryPoint = AuthenticationEntryPoint { ... } / accessDeniedHandler = AccessDeniedHandler { ... }) — explicit SAM reference required because Kotlin cannot resolve functional type from property position alone
 
 ### Key Decisions (from PROJECT.md)
 
@@ -156,16 +159,19 @@ progress:
 ## Session Continuity
 
 ### Last Action
-Completed Plan 03.1-01 (Spring Boot 3.5.3 → 4.0.5 + Hibernate 7.2.7 dep bump). Gradle plugin + core deps on Boot 4; Spring Security pins released to BOM (now 7.0.4); Temporal 1.34.0; SpringDoc 3.0.3; ShedLock 7.7.0; resilience4j-spring-boot3 dropped for direct resilience4j-core + -annotations + -spring at 2.3.0. Hypersistence switched to `hypersistence-utils-hibernate-71:3.15.2` (targets Hibernate 7.2.x) after `-70` hit IncompatibleClassChangeError against Boot 4.0.5's Hibernate 7.2.7. hibernate-vector pinned to 7.2.7.Final. Six Rule 3 compile-blocking auto-fixes: Boot 4 actuator/autoconfig package relocations (health → health.contributor, security autoconfigs split out of spring-boot-autoconfigure, EntityScan → spring-boot-persistence), Spring Security 7 GrantedAuthority.authority nullability, Reactor 3.7+ Mono<T : Any>, JUnit Jupiter 6 non-null ExtensionContext. Plus one Rule 1 bug (hypersistence -70 vs -71 artifact mismatch). `./gradlew compileKotlin compileTestKotlin` BUILD SUCCESSFUL; properties-migrator log clean (no renamed-key hits). SecurityFilterChain migration intentionally NOT touched — Plan 02 owns that.
+Completed Plan 03.1-02 (Spring Security 7 SecurityFilterChain migration). `core/src/main/kotlin/riven/core/configuration/auth/SecurityConfig.kt` rewritten in Security 7 Kotlin DSL (`http { }` invoke form via `org.springframework.security.config.annotation.web.invoke`). Replaced fluent-lambda chain: `.cors { it.configurationSource(...) }` → `cors { configurationSource = corsConfig() }`; `.csrf { it.disable() }` → `csrf { disable() }`; `.sessionManagement { it.sessionCreationPolicy(...) }` → `sessionManagement { sessionCreationPolicy = STATELESS }`; `.requestMatchers(...).permitAll()` / `.anyRequest().authenticated()` → `authorize(pattern, permitAll)` / `authorize(anyRequest, authenticated)`; `.oauth2ResourceServer { oauth2.jwt { jwt.jwtAuthenticationConverter(tokenDecoder) } }` → `oauth2ResourceServer { jwt { jwtAuthenticationConverter = tokenDecoder } }`. Exception handlers assigned as SAM-converted property values — explicit `AuthenticationEntryPoint { ... }` / `AccessDeniedHandler { ... }` lambdas required because Kotlin cannot resolve functional type from property position alone. Public-path allowlist (8 matchers + anyRequest), CORS policy, JwtDecoder bean identity (NimbusJwtDecoder.withSecretKey), session STATELESS, CSRF-disabled semantics all preserved bit-identical. `./gradlew compileKotlin` clean for Security 6→7 migrated surface. Auth / Security / JWT test slice BUILD SUCCESSFUL — @WithUserPersona harness + @PreAuthorize rules + 401/403 exception paths all green unchanged.
 
 ### Previous Action
+Completed Plan 03.1-01 (Spring Boot 3.5.3 → 4.0.5 + Hibernate 7.2.7 dep bump). Gradle plugin + core deps on Boot 4; Spring Security pins released to BOM (now 7.0.4); Temporal 1.34.0; SpringDoc 3.0.3; ShedLock 7.7.0; resilience4j-spring-boot3 dropped for direct resilience4j-core + -annotations + -spring at 2.3.0. Hypersistence switched to `hypersistence-utils-hibernate-71:3.15.2` (targets Hibernate 7.2.x) after `-70` hit IncompatibleClassChangeError against Boot 4.0.5's Hibernate 7.2.7. hibernate-vector pinned to 7.2.7.Final. Six Rule 3 compile-blocking auto-fixes: Boot 4 actuator/autoconfig package relocations (health → health.contributor, security autoconfigs split out of spring-boot-autoconfigure, EntityScan → spring-boot-persistence), Spring Security 7 GrantedAuthority.authority nullability, Reactor 3.7+ Mono<T : Any>, JUnit Jupiter 6 non-null ExtensionContext. Plus one Rule 1 bug (hypersistence -70 vs -71 artifact mismatch). `./gradlew compileKotlin compileTestKotlin` BUILD SUCCESSFUL; properties-migrator log clean (no renamed-key hits). SecurityFilterChain migration intentionally NOT touched — Plan 02 owns that.
+
+### Earlier Action
 Deferred Plan 03-04 (NL-Assisted Mapping Suggestions) via R1 decision on 2026-04-13. No code, no build.gradle.kts edit, no Spring AI dependency. Bookkeeping artifacts only: 03-04-SUMMARY.md (status=deferred), STATE.md updated, ROADMAP.md updated. MAP-07 remains Pending in REQUIREMENTS.md; MAP-03/04/05 unchanged (Complete via 03-03). Reopen condition: phase 03.5-boot4-upgrade lands Boot 4.x, at which point 03-04-PLAN.md is rewritten against Spring AI 2.x ChatModel multi-provider coordinates (Anthropic default + OpenAI reasoning fallback). Earlier: Completed Plan 03-02 (PostgresAdapter + WorkspaceConnectionPoolManager). WorkspaceConnectionPoolManager caches one HikariDataSource per connectionId via ConcurrentHashMap.computeIfAbsent; HikariConfig uses initializationFailTimeout=-1 so pool construction never eagerly connects. PostgresAdapter @SourceTypeAdapter(SourceType.CONNECTOR) implements IngestionAdapter — syncMode=POLL, introspectSchema + introspectWithFkMetadata sibling method for plan 03-03 to consume ForeignKeyMetadata. PostgresFetcher builds server-side-cursor SQL (autoCommit=false + fetchSize) with cursor-or-PK-fallback variants; casts comparison column with ::text for cross-type UUID/bigint/text compatibility; null-cursor first fetch omits WHERE entirely. JDBC SQLState translator: 28xxx→AdapterAuthException, 57014→AdapterUnavailableException (timeout), 08xxx→AdapterConnectionRefusedException, else→AdapterUnavailableException. Pool eviction wired into DataConnectorConnectionService credential-update + softDelete branches (not cosmetic). 20 tests green (6 pool + 11 adapter against Testcontainers pgvector/pg16 + 3 new eviction tests + 13 previously-failing service tests unblocked by the added @MockitoBean poolManager).
 
 ### Next Action
-Execute Plan 03.1-02 (Spring Security 7 SecurityFilterChain migration) — lambda-DSL strictness, current authorization API idioms on `core/src/main/kotlin/riven/core/configuration/auth/SecurityConfig.kt`. Compile-clean baseline from 03.1-01 makes this straightforward. Plans 03.1-03 (test harness sweep) and 03.1-04 (closure + Nango smoke) can run in parallel waves afterward. Phase 03.5 (reopen 03-04 against Spring AI 2.x) unblocks once 03.1-04 closes.
+Execute Plan 03.1-03 (test harness sweep) — `@MockBean` → `@MockitoBean`, MockMvc/WebTestClient API changes, `spring-boot-properties-migrator` application.yml sweep. Then Plan 03.1-04 (closure gate: full suite green + manual Nango integration-sync smoke). Phase 03.5 (reopen 03-04 against Spring AI 2.x) unblocks once 03.1-04 closes.
 
 ### Last session
-- **Stopped at:** Completed 03.1-01-PLAN.md
+- **Stopped at:** Completed 03.1-02-PLAN.md
 - **Timestamp:** 2026-04-13T12:00:00Z
 
 ### Files of Record

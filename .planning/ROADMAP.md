@@ -75,7 +75,7 @@ Brownfield additive milestone: introduce the IngestionAdapter abstraction, build
 **Goal:** Spring Boot 3.5.3 → 4.0.x upgrade with minimum-necessary transitive dep bumps (Hibernate 7, Spring Security 7, Temporal Boot-4 starter, SpringDoc 3.x, Resilience4j direct-wiring), green test suite, and a manually-smoked Nango integration sync proving `IntegrationSyncWorkflowImpl` continues to work unchanged — unblocking Phase 03-04 (Spring AI 2.x for MAP-07).
 **Requirements**: none (upgrade-only phase; DoD derived from CONTEXT.md, not roadmap requirement IDs)
 **Depends on:** Phase 3
-**Plans:** 1/4 plans executed
+**Plans:** 2/4 plans executed
 
 Plans:
 - [ ] 03.1-01-PLAN.md — Core Boot/Gradle upgrade: build.gradle.kts dep bumps (Boot 4, Hibernate 7, Temporal starter, SpringDoc 3.x, Resilience4j direct-wiring, Spring Security unpins) + spring-boot-properties-migrator sweep across all application*.yml

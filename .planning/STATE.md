@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-04-13T03:41:08.305Z"
+stopped_at: Completed 03-02-PLAN.md
+last_updated: "2026-04-13T03:56:41.736Z"
 progress:
   total_phases: 8
   completed_phases: 2
   total_plans: 13
-  completed_plans: 10
-  percent: 77
+  completed_plans: 11
+  percent: 85
 ---
 
 # STATE
@@ -27,10 +27,10 @@ progress:
 
 ## Current Position
 
-- **Phase:** 3 — Postgres Adapter & Schema Mapping (IN PROGRESS 2/5 plans)
-- **Plan:** 03-01 complete (PgTypeMapper + SchemaHasher + JPA mapping entities/repos/DDL landed; 7 Testcontainers integration cases passing); 03-02..04 can proceed in parallel per ROADMAP
-- **Status:** Ready to execute 03-02
-- **Progress:** [████████░░] 77%
+- **Phase:** 3 — Postgres Adapter & Schema Mapping (IN PROGRESS 3/5 plans)
+- **Plan:** 03-02 complete (PostgresAdapter + WorkspaceConnectionPoolManager + Introspector + Fetcher + ForeignKeyMetadata landed; 11 adapter tests + 6 pool tests + 3 new eviction-wiring tests + 13 previously-failing service tests all green against Testcontainers pgvector/pg16); 03-03..04 can proceed in parallel per ROADMAP
+- **Status:** Ready to execute 03-03
+- **Progress:** [█████████░] 85%
 
 ```
 [........] 0% (0/8 phases)
@@ -55,6 +55,7 @@ progress:
 | Phase 02-secure-connection-management P04 | 9min | 3 tasks | 15 files |
 | Phase 03-postgres-adapter-schema-mapping P00 | 8min | 2 tasks | 14 files |
 | Phase 03-postgres-adapter-schema-mapping P01 | 9 min | 2 tasks | 16 files |
+| Phase 03-postgres-adapter-schema-mapping P02 | 11min | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -99,6 +100,14 @@ progress:
 - [Phase 03-postgres-adapter-schema-mapping]: Plan 03-01: Integration test applies FK CASCADE via JdbcTemplate mirroring production DDL — Hibernate ddl-auto=create-drop does not emit ON DELETE CASCADE from JPA annotations alone; declarative SQL in db/schema/04_constraints/ remains single source of truth
 - [Phase 03-postgres-adapter-schema-mapping]: Plan 03-01: enumOptions != null is the SELECT signal in PgTypeMapper — caller resolves pg_enum rows; the pg type literal for a user-defined enum is user-supplied and cannot be enumerated in a when
 - [Phase 03-postgres-adapter-schema-mapping]: Plan 03-01 Rule-3 blocking auto-fix: resolved unresolved Git merge-conflict markers in core/src/main/resources/application.yml around websocket block — SnakeYAML ScannerException blocked all integration-test bootstrap on postgres-ingestion HEAD
+- [Phase 03-postgres-adapter-schema-mapping]: Plan 03-02: Pool keying by connectionId, not workspaceId — a workspace owns many connections, each gets its own HikariCP pool (name is historic)
+- [Phase 03-postgres-adapter-schema-mapping]: Plan 03-02: HikariConfig.initializationFailTimeout = -1 so pool construction never eagerly connects; first getConnection() call surfaces any connection error for translation into AdapterAuthException/AdapterConnectionRefusedException
+- [Phase 03-postgres-adapter-schema-mapping]: Plan 03-02: FK metadata exposed via introspectWithFkMetadata sibling method rather than extending Phase 1 IngestionAdapter contract — keeps Nango + future adapters from implementing a surface they do not use
+- [Phase 03-postgres-adapter-schema-mapping]: Plan 03-02: Server-side Postgres cursor (autoCommit=false + fetchSize=props.defaultBatchSize) is mandatory for streaming — without it the JDBC driver buffers the entire ResultSet in memory
+- [Phase 03-postgres-adapter-schema-mapping]: Plan 03-02: Cursor SQL casts comparison column with ::text so a single String parameter compares against any column type (uuid/bigint/text); timestamp cursors use dedicated ?::timestamptz variant; null cursor omits WHERE entirely
+- [Phase 03-postgres-adapter-schema-mapping]: Plan 03-02: Pool eviction via direct service call (DataConnectorConnectionService.update credential branch + softDelete → poolManager.evict), not events. Cosmetic updates skip eviction
+- [Phase 03-postgres-adapter-schema-mapping]: Plan 03-02 Rule-1 auto-fix: added initializationFailTimeout=-1 to HikariConfig so 6 pool unit tests can build against fake credentials without triggering PoolInitializationException
+- [Phase 03-postgres-adapter-schema-mapping]: Plan 03-02 Rule-1 auto-fix: PK-fallback SQL omits WHERE when cursor is null and casts column with ::text when cursor is non-null — avoids 'operator does not exist: uuid > character varying' against UUID PKs
 
 ### Key Decisions (from PROJECT.md)
 
@@ -128,14 +137,14 @@ progress:
 ## Session Continuity
 
 ### Last Action
-Completed Plan 03-01 (Postgres mapping persistence + schema utilities). PgTypeMapper + SchemaHasher land as pure objects with full coverage (17 unit tests green). CustomSourceTableMappingEntity + CustomSourceFieldMappingEntity upgraded from Wave-0 shells to full JPA with @SQLRestriction on the concrete entity, toModel(), unique constraints, and derived-query repositories. Declarative DDL landed under db/schema/{01_tables,02_indexes,04_constraints}/. 7 Testcontainers integration cases pass including FK ON DELETE CASCADE. Rule-3 auto-fixes: resolved unresolved Git merge-conflict markers in application.yml (blocked all integration tests); applied FK CASCADE via JdbcTemplate in @BeforeAll mirroring the production DDL (Hibernate ddl-auto doesn't emit CASCADE from annotations).
+Completed Plan 03-02 (PostgresAdapter + WorkspaceConnectionPoolManager). WorkspaceConnectionPoolManager caches one HikariDataSource per connectionId via ConcurrentHashMap.computeIfAbsent; HikariConfig uses initializationFailTimeout=-1 so pool construction never eagerly connects. PostgresAdapter @SourceTypeAdapter(SourceType.CONNECTOR) implements IngestionAdapter — syncMode=POLL, introspectSchema + introspectWithFkMetadata sibling method for plan 03-03 to consume ForeignKeyMetadata. PostgresFetcher builds server-side-cursor SQL (autoCommit=false + fetchSize) with cursor-or-PK-fallback variants; casts comparison column with ::text for cross-type UUID/bigint/text compatibility; null-cursor first fetch omits WHERE entirely. JDBC SQLState translator: 28xxx→AdapterAuthException, 57014→AdapterUnavailableException (timeout), 08xxx→AdapterConnectionRefusedException, else→AdapterUnavailableException. Pool eviction wired into DataConnectorConnectionService credential-update + softDelete branches (not cosmetic). 20 tests green (6 pool + 11 adapter against Testcontainers pgvector/pg16 + 3 new eviction tests + 13 previously-failing service tests unblocked by the added @MockitoBean poolManager).
 
 ### Next Action
-Execute plans 03-02, 03-03, 03-04 (parallel per Phase 3 ROADMAP wave plan). Each plan flips its owned @Disabled class off and replaces placeholder() bodies with real assertions. PgTypeMapper, SchemaHasher, and the new mapping repositories are now available for those plans to consume.
+Execute plans 03-03, 03-04 (parallel per Phase 3 ROADMAP wave plan). PostgresAdapter.introspectWithFkMetadata + ForeignKeyMetadata + WorkspaceConnectionPoolManager.getPool are available. Plan 03-00 deferred-items.md still references 13 DataConnectorConnectionServiceTest failures — these are now green (root cause was missing @MockitoBean poolManager, unblocked by Task 3), can be removed from deferred-items in a housekeeping pass.
 
 ### Last session
-- **Stopped at:** Completed 03-01-PLAN.md
-- **Timestamp:** 2026-04-13T03:25:40Z
+- **Stopped at:** Completed 03-02-PLAN.md
+- **Timestamp:** 2026-04-13T03:55:00Z
 
 ### Files of Record
 - `.planning/PROJECT.md`

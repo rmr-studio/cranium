@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Phase 03 Plan 00 complete (Wave-0 scaffolds)
-last_updated: "2026-04-13T03:27:03.385Z"
+status: executing
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-04-13T03:41:08.305Z"
 progress:
   total_phases: 8
   completed_phases: 2
   total_plans: 13
-  completed_plans: 9
-  percent: 69
+  completed_plans: 10
+  percent: 77
 ---
 
 # STATE
@@ -27,10 +27,10 @@ progress:
 
 ## Current Position
 
-- **Phase:** 3 — Postgres Adapter & Schema Mapping (IN PROGRESS 1/5 plans)
-- **Plan:** 03-00 complete (Wave-0 test scaffolds + factories + entity shells); 03-01..04 can now proceed in parallel per ROADMAP
-- **Status:** Ready to execute 03-01
-- **Progress:** [███████░░░] 69%
+- **Phase:** 3 — Postgres Adapter & Schema Mapping (IN PROGRESS 2/5 plans)
+- **Plan:** 03-01 complete (PgTypeMapper + SchemaHasher + JPA mapping entities/repos/DDL landed; 7 Testcontainers integration cases passing); 03-02..04 can proceed in parallel per ROADMAP
+- **Status:** Ready to execute 03-02
+- **Progress:** [████████░░] 77%
 
 ```
 [........] 0% (0/8 phases)
@@ -54,6 +54,7 @@ progress:
 | Phase 02-secure-connection-management P03 | 9min | 2 tasks | 4 files |
 | Phase 02-secure-connection-management P04 | 9min | 3 tasks | 15 files |
 | Phase 03-postgres-adapter-schema-mapping P00 | 8min | 2 tasks | 14 files |
+| Phase 03-postgres-adapter-schema-mapping P01 | 9 min | 2 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -93,6 +94,11 @@ progress:
 - [Phase 03-postgres-adapter-schema-mapping]: Plan 03-00: Factories live flat under service/util/factory/ (not a customsource/ subfolder) to match plan 03-00's declared files list and keep the Phase 3 factory surface greppable by test-class name.
 - [Phase 03-postgres-adapter-schema-mapping]: Plan 03-00: Pre-existing riven.core.lifecycle.* imports in service/dev/ auto-fixed (Rule 3 blocking) — compileTestKotlin was red on postgres-ingestion HEAD before any Phase 3 scaffold existed; canonical package is riven.core.models.core.*.
 - [Phase 03-postgres-adapter-schema-mapping]: Plan 03-00: 13 pre-existing DataConnectorConnectionServiceTest failures deferred to phase-scoped deferred-items.md — out-of-scope for Wave-0 scaffolding; narrowed-glob verification confirms every new @Disabled scaffold is BUILD SUCCESSFUL.
+- [Phase 03-postgres-adapter-schema-mapping]: Plan 03-01: SHA-256 hex (64 chars) chosen over xxHash for schema-hash — JDK-standard MessageDigest, no new dependency, deterministic
+- [Phase 03-postgres-adapter-schema-mapping]: Plan 03-01: FK from connector_(table|field)_mappings to data_connector_connections is ON DELETE CASCADE — mappings are connection-internal state with no historical value once the parent is hard-purged; soft-delete on the connection does not trigger cascade
+- [Phase 03-postgres-adapter-schema-mapping]: Plan 03-01: Integration test applies FK CASCADE via JdbcTemplate mirroring production DDL — Hibernate ddl-auto=create-drop does not emit ON DELETE CASCADE from JPA annotations alone; declarative SQL in db/schema/04_constraints/ remains single source of truth
+- [Phase 03-postgres-adapter-schema-mapping]: Plan 03-01: enumOptions != null is the SELECT signal in PgTypeMapper — caller resolves pg_enum rows; the pg type literal for a user-defined enum is user-supplied and cannot be enumerated in a when
+- [Phase 03-postgres-adapter-schema-mapping]: Plan 03-01 Rule-3 blocking auto-fix: resolved unresolved Git merge-conflict markers in core/src/main/resources/application.yml around websocket block — SnakeYAML ScannerException blocked all integration-test bootstrap on postgres-ingestion HEAD
 
 ### Key Decisions (from PROJECT.md)
 
@@ -122,13 +128,13 @@ progress:
 ## Session Continuity
 
 ### Last Action
-Completed Plan 03-00 (Wave-0 test scaffolds). 8 @Disabled placeholder test classes + 3 test factories (CustomSourceTableMappingEntityFactory, CustomSourceFieldMappingEntityFactory, PostgresIntrospectionFactory) + 2 entity shells (CustomSourceTableMappingEntity, CustomSourceFieldMappingEntity) landed. compileTestKotlin green; narrowed-glob test verification BUILD SUCCESSFUL. Rule-3 auto-fix: corrected stale riven.core.lifecycle.* imports in service/dev/.
+Completed Plan 03-01 (Postgres mapping persistence + schema utilities). PgTypeMapper + SchemaHasher land as pure objects with full coverage (17 unit tests green). CustomSourceTableMappingEntity + CustomSourceFieldMappingEntity upgraded from Wave-0 shells to full JPA with @SQLRestriction on the concrete entity, toModel(), unique constraints, and derived-query repositories. Declarative DDL landed under db/schema/{01_tables,02_indexes,04_constraints}/. 7 Testcontainers integration cases pass including FK ON DELETE CASCADE. Rule-3 auto-fixes: resolved unresolved Git merge-conflict markers in application.yml (blocked all integration tests); applied FK CASCADE via JdbcTemplate in @BeforeAll mirroring the production DDL (Hibernate ddl-auto doesn't emit CASCADE from annotations).
 
 ### Next Action
-Execute plans 03-01..03-04 (parallel per Phase 3 ROADMAP wave plan). Each plan flips its owned @Disabled class off and replaces placeholder() bodies with real assertions.
+Execute plans 03-02, 03-03, 03-04 (parallel per Phase 3 ROADMAP wave plan). Each plan flips its owned @Disabled class off and replaces placeholder() bodies with real assertions. PgTypeMapper, SchemaHasher, and the new mapping repositories are now available for those plans to consume.
 
 ### Last session
-- **Stopped at:** Phase 03 Plan 00 complete (Wave-0 scaffolds)
+- **Stopped at:** Completed 03-01-PLAN.md
 - **Timestamp:** 2026-04-13T03:25:40Z
 
 ### Files of Record

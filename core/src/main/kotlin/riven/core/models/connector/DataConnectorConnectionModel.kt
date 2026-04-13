@@ -5,7 +5,7 @@ import java.time.ZonedDateTime
 import java.util.UUID
 
 /**
- * Response DTO for a custom source connection.
+ * Response DTO for a data connector connection.
  *
  * Intentionally omits `encryptedCredentials`, `iv`, `keyVersion`, and any
  * password field — credentials never leave the service boundary. The
@@ -15,7 +15,7 @@ import java.util.UUID
  * Defensive contract: future edits MUST NOT add a `password` or credential
  * bytes field here. The [init] block documents this guardrail for reviewers.
  */
-data class CustomSourceConnectionModel(
+data class DataConnectorConnectionModel(
     val id: UUID,
     val workspaceId: UUID,
     val name: String,

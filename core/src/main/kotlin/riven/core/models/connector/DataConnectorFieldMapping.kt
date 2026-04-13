@@ -11,7 +11,7 @@ import java.util.UUID
  * the per-column state that drives Phase 4 sync behavior (isSyncCursor,
  * isIdentifier, stale) and Phase 5 identity resolution (isIdentifier).
  */
-data class CustomSourceFieldMapping(
+data class DataConnectorFieldMapping(
     val id: UUID,
     val workspaceId: UUID,
     val connectionId: UUID,

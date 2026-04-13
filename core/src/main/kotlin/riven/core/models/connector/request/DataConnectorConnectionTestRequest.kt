@@ -34,6 +34,6 @@ data class DataConnectorConnectionTestRequest(
     val sslMode: SslMode = SslMode.REQUIRE,
 ) {
     override fun toString(): String =
-        "TestCustomSourceConnectionRequest(workspaceId=$workspaceId,host=$host,port=$port," +
+        "TestDataConnectorConnectionRequest(workspaceId=$workspaceId,host=$host,port=$port," +
             "database=$database,user=$user,password=***,sslMode=$sslMode)"
 }

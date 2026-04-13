@@ -2,12 +2,11 @@ package riven.core.service.connector.mapping
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.connector.CustomSourceFieldMappingEntity
-import riven.core.entity.connector.CustomSourceTableMappingEntity
+import riven.core.entity.connector.DataConnectorFieldMappingEntity
+import riven.core.entity.connector.DataConnectorTableMappingEntity
 import riven.core.entity.entity.EntityTypeEntity
 import riven.core.entity.entity.RelationshipDefinitionEntity
 import riven.core.enums.activity.Activity
@@ -21,15 +20,15 @@ import riven.core.exceptions.connector.MappingValidationException
 import riven.core.models.common.validation.Schema
 import riven.core.models.connector.CredentialPayload
 import riven.core.models.connector.CursorIndexWarning
-import riven.core.models.connector.request.SaveCustomSourceFieldMappingRequest
-import riven.core.models.connector.request.SaveCustomSourceMappingRequest
-import riven.core.models.connector.response.CustomSourceMappingSaveResponse
+import riven.core.models.connector.request.SaveDataConnectorFieldMappingRequest
+import riven.core.models.connector.request.SaveDataConnectorMappingRequest
+import riven.core.models.connector.response.DataConnectorMappingSaveResponse
 import riven.core.models.connector.response.PendingRelationship
 import riven.core.models.entity.EntityTypeSchema
 import riven.core.models.ingestion.adapter.ColumnSchema
-import riven.core.repository.connector.CustomSourceConnectionRepository
-import riven.core.repository.connector.CustomSourceFieldMappingRepository
-import riven.core.repository.connector.CustomSourceTableMappingRepository
+import riven.core.repository.connector.DataConnectorConnectionRepository
+import riven.core.repository.connector.DataConnectorFieldMappingRepository
+import riven.core.repository.connector.DataConnectorTableMappingRepository
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.repository.entity.RelationshipDefinitionRepository
 import riven.core.service.activity.ActivityService
@@ -46,7 +45,7 @@ import java.time.ZonedDateTime
 import java.util.UUID
 
 /**
- * POST /api/v1/custom-sources/connections/{id}/schema/tables/{tableName}/mapping —
+ * POST /api/v1/connector/connections/{id}/schema/tables/{tableName}/mapping —
  * transactionally persists per-column mappings, creates (or updates) a
  * readonly [EntityTypeEntity] with `sourceType=CONNECTOR`, materialises FK
  * relationships where both ends are published, and transitions the table
@@ -58,19 +57,18 @@ import java.util.UUID
  * 6. mark published → 7. log activity → 8. build response.
  */
 @Service
-class CustomSourceFieldMappingService(
+class DataConnectorFieldMappingService(
     private val postgresAdapter: PostgresAdapter,
     private val encryptionService: CredentialEncryptionService,
     private val cursorIndexProbe: CursorIndexProbe,
-    private val connectionRepository: CustomSourceConnectionRepository,
-    private val tableMappingRepository: CustomSourceTableMappingRepository,
-    private val fieldMappingRepository: CustomSourceFieldMappingRepository,
+    private val connectionRepository: DataConnectorConnectionRepository,
+    private val tableMappingRepository: DataConnectorTableMappingRepository,
+    private val fieldMappingRepository: DataConnectorFieldMappingRepository,
     private val entityTypeRepository: EntityTypeRepository,
     private val relationshipDefinitionRepository: RelationshipDefinitionRepository,
     private val activityService: ActivityService,
     private val authTokenService: AuthTokenService,
     private val objectMapper: ObjectMapper,
-    @Suppress("unused") private val logger: KLogger,
 ) {
 
     @Transactional
@@ -79,8 +77,8 @@ class CustomSourceFieldMappingService(
         workspaceId: UUID,
         connectionId: UUID,
         tableName: String,
-        request: SaveCustomSourceMappingRequest,
-    ): CustomSourceMappingSaveResponse {
+        request: SaveDataConnectorMappingRequest,
+    ): DataConnectorMappingSaveResponse {
         val userId = authTokenService.getUserId()
         val credentials = resolveCredentials(workspaceId, connectionId)
 
@@ -126,7 +124,7 @@ class CustomSourceFieldMappingService(
             "tableName" to tableName,
         )
 
-        return CustomSourceMappingSaveResponse(
+        return DataConnectorMappingSaveResponse(
             entityTypeId = entityTypeId,
             relationshipsCreated = relationshipsCreated,
             pendingRelationships = pendingRelationships,
@@ -146,7 +144,7 @@ class CustomSourceFieldMappingService(
     }
 
     private fun validateRequest(
-        request: SaveCustomSourceMappingRequest,
+        request: SaveDataConnectorMappingRequest,
         liveColumns: List<ColumnSchema>,
     ) {
         val liveNames = liveColumns.map { it.name }.toSet()
@@ -179,10 +177,10 @@ class CustomSourceFieldMappingService(
         workspaceId: UUID,
         connectionId: UUID,
         tableName: String,
-        request: SaveCustomSourceMappingRequest,
+        request: SaveDataConnectorMappingRequest,
         liveColumns: List<ColumnSchema>,
         fks: List<ForeignKeyMetadata>,
-    ): List<CustomSourceFieldMappingEntity> {
+    ): List<DataConnectorFieldMappingEntity> {
         val stored = fieldMappingRepository
             .findByConnectionIdAndTableName(connectionId, tableName)
             .associateBy { it.columnName }
@@ -209,7 +207,7 @@ class CustomSourceFieldMappingService(
                 ?: live.name
             val schemaType: SchemaType = req?.schemaType ?: existing?.schemaType ?: SchemaType.TEXT
 
-            val entity = existing ?: CustomSourceFieldMappingEntity(
+            val entity = existing ?: DataConnectorFieldMappingEntity(
                 workspaceId = workspaceId,
                 connectionId = connectionId,
                 tableName = tableName,
@@ -240,11 +238,11 @@ class CustomSourceFieldMappingService(
         workspaceId: UUID,
         connectionId: UUID,
         tableName: String,
-        request: SaveCustomSourceMappingRequest,
+        request: SaveDataConnectorMappingRequest,
         freshHash: String,
-    ): CustomSourceTableMappingEntity {
+    ): DataConnectorTableMappingEntity {
         val existing = tableMappingRepository.findByConnectionIdAndTableName(connectionId, tableName)
-        val entity = existing ?: CustomSourceTableMappingEntity(
+        val entity = existing ?: DataConnectorTableMappingEntity(
             workspaceId = workspaceId,
             connectionId = connectionId,
             tableName = tableName,
@@ -263,9 +261,9 @@ class CustomSourceFieldMappingService(
 
     private fun createOrUpdateEntityType(
         workspaceId: UUID,
-        tableMapping: CustomSourceTableMappingEntity,
-        fieldMappings: List<CustomSourceFieldMappingEntity>,
-        request: SaveCustomSourceMappingRequest,
+        tableMapping: DataConnectorTableMappingEntity,
+        fieldMappings: List<DataConnectorFieldMappingEntity>,
+        request: SaveDataConnectorMappingRequest,
     ): UUID {
         val mappedFields = fieldMappings.filter { it.isMapped && !it.stale }
         val identifierColumn = mappedFields.firstOrNull { it.isIdentifier }
@@ -326,7 +324,7 @@ class CustomSourceFieldMappingService(
     private fun createFkRelationships(
         workspaceId: UUID,
         tableName: String,
-        fieldMappings: List<CustomSourceFieldMappingEntity>,
+        fieldMappings: List<DataConnectorFieldMappingEntity>,
         fks: List<ForeignKeyMetadata>,
         sourceEntityTypeId: UUID,
     ): FkMaterialisation {
@@ -371,7 +369,7 @@ class CustomSourceFieldMappingService(
         return FkMaterialisation(created, pending, composite)
     }
 
-    private fun markPublished(tableMapping: CustomSourceTableMappingEntity, entityTypeId: UUID) {
+    private fun markPublished(tableMapping: DataConnectorTableMappingEntity, entityTypeId: UUID) {
         tableMapping.published = true
         tableMapping.entityTypeId = entityTypeId
         tableMappingRepository.save(tableMapping)
@@ -382,7 +380,7 @@ class CustomSourceFieldMappingService(
         credentials: CredentialPayload,
         schema: String,
         tableName: String,
-        request: SaveCustomSourceMappingRequest,
+        request: SaveDataConnectorMappingRequest,
     ): CursorIndexWarning? {
         val cursor = request.columns.firstOrNull { it.isSyncCursor }?.columnName ?: return null
         val indexed = cursorIndexProbe.isIndexed(connectionId, credentials, schema, tableName, cursor)
@@ -400,5 +398,5 @@ class CustomSourceFieldMappingService(
     }
 
     @Suppress("unused")
-    private fun stubSaveRequestRef(req: SaveCustomSourceFieldMappingRequest): SaveCustomSourceFieldMappingRequest = req
+    private fun stubSaveRequestRef(req: SaveDataConnectorFieldMappingRequest): SaveDataConnectorFieldMappingRequest = req
 }

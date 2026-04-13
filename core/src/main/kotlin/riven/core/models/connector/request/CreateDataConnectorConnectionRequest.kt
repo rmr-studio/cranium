@@ -9,7 +9,7 @@ import riven.core.enums.connector.SslMode
 import java.util.UUID
 
 /**
- * Create-request DTO for a custom source Postgres connection.
+ * Create-request DTO for a data connector Postgres connection.
  *
  * [toString] deliberately redacts the `password` field — it MUST NOT emit the
  * plaintext value. The global Logback TurboFilter is a backstop; this is the
@@ -41,6 +41,6 @@ data class CreateDataConnectorConnectionRequest(
     val sslMode: SslMode = SslMode.REQUIRE,
 ) {
     override fun toString(): String =
-        "CreateCustomSourceConnectionRequest(workspaceId=$workspaceId,name=$name,host=$host," +
+        "CreateDataConnectorConnectionRequest(workspaceId=$workspaceId,name=$name,host=$host," +
             "port=$port,database=$database,user=$user,password=***,sslMode=$sslMode)"
 }

@@ -6,23 +6,23 @@ import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.connector.CustomSourceFieldMappingEntity
-import riven.core.entity.connector.CustomSourceTableMappingEntity
+import riven.core.entity.connector.DataConnectorFieldMappingEntity
+import riven.core.entity.connector.DataConnectorTableMappingEntity
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.models.connector.CredentialPayload
 import riven.core.models.connector.CursorIndexWarning
 import riven.core.models.connector.response.ColumnSchemaResponse
-import riven.core.models.connector.response.CustomSourceSchemaResponse
+import riven.core.models.connector.response.DataConnectorSchemaResponse
 import riven.core.models.connector.response.DriftStatus
 import riven.core.models.connector.response.ExistingMappingRef
 import riven.core.models.connector.response.FkTargetRef
 import riven.core.models.connector.response.TableSchemaResponse
 import riven.core.models.ingestion.adapter.ColumnSchema
 import riven.core.models.ingestion.adapter.TableSchema
-import riven.core.repository.connector.CustomSourceConnectionRepository
-import riven.core.repository.connector.CustomSourceFieldMappingRepository
-import riven.core.repository.connector.CustomSourceTableMappingRepository
+import riven.core.repository.connector.DataConnectorConnectionRepository
+import riven.core.repository.connector.DataConnectorFieldMappingRepository
+import riven.core.repository.connector.DataConnectorTableMappingRepository
 import riven.core.service.connector.CredentialEncryptionService
 import riven.core.service.connector.EncryptedCredentials
 import riven.core.service.connector.postgres.ForeignKeyMetadata
@@ -45,12 +45,12 @@ import java.util.UUID
  * each table mapping's `schemaHash` + `lastIntrospectedAt` are also updated.
  */
 @Service
-class CustomSourceSchemaInferenceService(
+class DataConnectorSchemaInferenceService(
     private val postgresAdapter: PostgresAdapter,
     private val encryptionService: CredentialEncryptionService,
-    private val connectionRepository: CustomSourceConnectionRepository,
-    private val tableMappingRepository: CustomSourceTableMappingRepository,
-    private val fieldMappingRepository: CustomSourceFieldMappingRepository,
+    private val connectionRepository: DataConnectorConnectionRepository,
+    private val tableMappingRepository: DataConnectorTableMappingRepository,
+    private val fieldMappingRepository: DataConnectorFieldMappingRepository,
     private val cursorIndexProbe: CursorIndexProbe,
     private val objectMapper: ObjectMapper,
     @Suppress("unused") private val logger: KLogger,
@@ -58,7 +58,7 @@ class CustomSourceSchemaInferenceService(
 
     @Transactional
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
-    fun getSchema(workspaceId: UUID, connectionId: UUID): CustomSourceSchemaResponse {
+    fun getSchema(workspaceId: UUID, connectionId: UUID): DataConnectorSchemaResponse {
         // Resolve + decrypt credentials once — reused for the probe.
         val credentials = resolveCredentials(workspaceId, connectionId)
 
@@ -85,7 +85,7 @@ class CustomSourceSchemaInferenceService(
             )
         }
 
-        return CustomSourceSchemaResponse(tables = tableResponses)
+        return DataConnectorSchemaResponse(tables = tableResponses)
     }
 
     // ------ Private helpers ------
@@ -103,8 +103,8 @@ class CustomSourceSchemaInferenceService(
         connectionId: UUID,
         liveTable: TableSchema,
         foreignKeys: List<ForeignKeyMetadata>,
-        storedTable: CustomSourceTableMappingEntity?,
-        storedFields: List<CustomSourceFieldMappingEntity>,
+        storedTable: DataConnectorTableMappingEntity?,
+        storedFields: List<DataConnectorFieldMappingEntity>,
         credentials: CredentialPayload,
         schema: String,
     ): TableSchemaResponse {
@@ -157,7 +157,7 @@ class CustomSourceSchemaInferenceService(
     private fun buildColumnResponse(
         column: ColumnSchema,
         fks: List<ForeignKeyMetadata>,
-        stored: CustomSourceFieldMappingEntity?,
+        stored: DataConnectorFieldMappingEntity?,
         isPrimaryKey: Boolean,
         autoDetected: Boolean,
     ): ColumnSchemaResponse {
@@ -192,8 +192,8 @@ class CustomSourceSchemaInferenceService(
     }
 
     private fun resolveDriftStatus(
-        storedTable: CustomSourceTableMappingEntity?,
-        storedFields: List<CustomSourceFieldMappingEntity>,
+        storedTable: DataConnectorTableMappingEntity?,
+        storedFields: List<DataConnectorFieldMappingEntity>,
         liveTable: TableSchema,
         freshHash: String,
     ): DriftStatus {
@@ -210,7 +210,7 @@ class CustomSourceSchemaInferenceService(
     }
 
     private fun markDroppedColumnsStale(
-        storedFields: List<CustomSourceFieldMappingEntity>,
+        storedFields: List<DataConnectorFieldMappingEntity>,
         liveColumns: List<ColumnSchema>,
     ) {
         val liveNames = liveColumns.map { it.name }.toSet()

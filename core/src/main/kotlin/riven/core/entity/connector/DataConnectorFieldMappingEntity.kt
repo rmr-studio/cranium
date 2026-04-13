@@ -12,11 +12,11 @@ import jakarta.persistence.UniqueConstraint
 import org.hibernate.annotations.SQLRestriction
 import riven.core.entity.util.AuditableSoftDeletableEntity
 import riven.core.enums.common.validation.SchemaType
-import riven.core.models.connector.CustomSourceFieldMapping
+import riven.core.models.connector.DataConnectorFieldMapping
 import java.util.UUID
 
 /**
- * JPA entity for column-level mapping state of a custom source connection
+ * JPA entity for column-level mapping state of a data connector connection
  * (Phase 3 plan 03-01, requirement PG-05 / MAP-08).
  *
  * One row per `(workspaceId, connectionId, tableName, columnName)`. The
@@ -38,7 +38,7 @@ import java.util.UUID
     ],
 )
 @SQLRestriction("deleted = false")
-class CustomSourceFieldMappingEntity(
+class DataConnectorFieldMappingEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", columnDefinition = "uuid")
@@ -94,9 +94,9 @@ class CustomSourceFieldMappingEntity(
     var stale: Boolean = false,
 ) : AuditableSoftDeletableEntity() {
 
-    fun toModel(): CustomSourceFieldMapping = CustomSourceFieldMapping(
+    fun toModel(): DataConnectorFieldMapping = DataConnectorFieldMapping(
         id = requireNotNull(id) {
-            "CustomSourceFieldMappingEntity.id must not be null when mapping to model"
+            "DataConnectorFieldMappingEntity.id must not be null when mapping to model"
         },
         workspaceId = workspaceId,
         connectionId = connectionId,

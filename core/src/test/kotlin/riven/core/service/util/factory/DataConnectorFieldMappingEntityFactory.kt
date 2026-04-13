@@ -1,11 +1,11 @@
 package riven.core.service.util.factory
 
-import riven.core.entity.connector.CustomSourceFieldMappingEntity
+import riven.core.entity.connector.DataConnectorFieldMappingEntity
 import riven.core.enums.common.validation.SchemaType
 import java.util.UUID
 
-/** Test factory for [CustomSourceFieldMappingEntity] (Phase 3). */
-object CustomSourceFieldMappingEntityFactory {
+/** Test factory for [DataConnectorFieldMappingEntity] (Phase 3). */
+object DataConnectorFieldMappingEntityFactory {
 
     fun create(
         workspaceId: UUID = UUID.randomUUID(),
@@ -24,7 +24,7 @@ object CustomSourceFieldMappingEntityFactory {
         isSyncCursor: Boolean = false,
         isMapped: Boolean = true,
         stale: Boolean = false,
-    ): CustomSourceFieldMappingEntity = CustomSourceFieldMappingEntity(
+    ): DataConnectorFieldMappingEntity = DataConnectorFieldMappingEntity(
         workspaceId = workspaceId,
         connectionId = connectionId,
         tableName = tableName,

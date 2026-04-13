@@ -12,7 +12,7 @@ import java.util.UUID
  * mapping configuration consumed by Phase 4 (sync orchestration) and
  * Phase 7 (mapping UI).
  */
-data class CustomSourceTableMapping(
+data class DataConnectorTableMapping(
     val id: UUID,
     val workspaceId: UUID,
     val connectionId: UUID,

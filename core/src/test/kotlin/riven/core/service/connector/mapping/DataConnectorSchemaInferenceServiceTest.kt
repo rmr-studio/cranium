@@ -24,9 +24,8 @@ import org.springframework.security.access.AccessDeniedException
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.connector.CustomSourceFieldMappingEntity
+import riven.core.entity.connector.DataConnectorFieldMappingEntity
 import riven.core.entity.connector.DataConnectorConnectionEntity
-import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.connector.SslMode
 import riven.core.enums.workspace.WorkspaceRoles
 import riven.core.models.connector.CredentialPayload
@@ -34,9 +33,9 @@ import riven.core.models.connector.response.DriftStatus
 import riven.core.models.ingestion.adapter.ColumnSchema
 import riven.core.models.ingestion.adapter.SchemaIntrospectionResult
 import riven.core.models.ingestion.adapter.TableSchema
-import riven.core.repository.connector.CustomSourceConnectionRepository
-import riven.core.repository.connector.CustomSourceFieldMappingRepository
-import riven.core.repository.connector.CustomSourceTableMappingRepository
+import riven.core.repository.connector.DataConnectorConnectionRepository
+import riven.core.repository.connector.DataConnectorFieldMappingRepository
+import riven.core.repository.connector.DataConnectorTableMappingRepository
 import riven.core.service.auth.AuthTokenService
 import riven.core.service.connector.CredentialEncryptionService
 import riven.core.service.connector.postgres.ForeignKeyMetadata
@@ -47,15 +46,15 @@ import riven.core.service.ingestion.adapter.PostgresCallContext
 import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.WithUserPersona
 import riven.core.service.util.WorkspaceRole
-import riven.core.service.util.factory.CustomSourceFieldMappingEntityFactory
-import riven.core.service.util.factory.CustomSourceTableMappingEntityFactory
-import riven.core.service.util.factory.customsource.DataConnectorConnectionEntityFactory
+import riven.core.service.util.factory.DataConnectorFieldMappingEntityFactory
+import riven.core.service.util.factory.DataConnectorTableMappingEntityFactory
+import riven.core.service.util.factory.dataconnector.DataConnectorConnectionEntityFactory
 import java.time.ZonedDateTime
 import java.util.Optional
 import java.util.UUID
 
 /**
- * Unit tests for [CustomSourceSchemaInferenceService] (Phase 3 plan 03-03).
+ * Unit tests for [DataConnectorSchemaInferenceService] (Phase 3 plan 03-03).
  *
  * Covers the 7 named assertions from plan 03-00 — drift detection, FK
  * metadata propagation, stale-marking of dropped columns, cursor-index
@@ -66,8 +65,8 @@ import java.util.UUID
         AuthTokenService::class,
         WorkspaceSecurity::class,
         SecurityTestConfig::class,
-        CustomSourceSchemaInferenceServiceTest.TestConfig::class,
-        CustomSourceSchemaInferenceService::class,
+        DataConnectorSchemaInferenceServiceTest.TestConfig::class,
+        DataConnectorSchemaInferenceService::class,
     ],
 )
 @TestPropertySource(properties = ["riven.connector.enabled=true"])
@@ -82,7 +81,7 @@ import java.util.UUID
         ),
     ],
 )
-class CustomSourceSchemaInferenceServiceTest {
+class DataConnectorSchemaInferenceServiceTest {
 
     @Configuration
     class TestConfig {
@@ -95,14 +94,14 @@ class CustomSourceSchemaInferenceServiceTest {
 
     @MockitoBean private lateinit var postgresAdapter: PostgresAdapter
     @MockitoBean private lateinit var encryptionService: CredentialEncryptionService
-    @MockitoBean private lateinit var connectionRepository: CustomSourceConnectionRepository
-    @MockitoBean private lateinit var tableMappingRepository: CustomSourceTableMappingRepository
-    @MockitoBean private lateinit var fieldMappingRepository: CustomSourceFieldMappingRepository
+    @MockitoBean private lateinit var connectionRepository: DataConnectorConnectionRepository
+    @MockitoBean private lateinit var tableMappingRepository: DataConnectorTableMappingRepository
+    @MockitoBean private lateinit var fieldMappingRepository: DataConnectorFieldMappingRepository
     @MockitoBean private lateinit var cursorIndexProbe: CursorIndexProbe
     @MockitoBean private lateinit var logger: KLogger
     @MockitoBean private lateinit var authTokenService: AuthTokenService
 
-    @Autowired private lateinit var service: CustomSourceSchemaInferenceService
+    @Autowired private lateinit var service: DataConnectorSchemaInferenceService
     @Autowired private lateinit var objectMapper: ObjectMapper
 
     @BeforeEach
@@ -137,7 +136,7 @@ class CustomSourceSchemaInferenceServiceTest {
         )
         whenever(encryptionService.decrypt(any())).thenReturn(credentialJson)
 
-        whenever(fieldMappingRepository.save(any())).thenAnswer { it.arguments[0] as CustomSourceFieldMappingEntity }
+        whenever(fieldMappingRepository.save(any())).thenAnswer { it.arguments[0] as DataConnectorFieldMappingEntity }
         whenever(tableMappingRepository.save(any())).thenAnswer { it.arguments[0] }
 
         // Default: cursor column considered indexed (no warning) unless overridden.
@@ -167,13 +166,13 @@ class CustomSourceSchemaInferenceServiceTest {
     fun getSchemaSurfacesDriftWhenStoredHashDiffers() {
         val columns = listOf(ColumnSchema("id", "uuid", false))
         stubIntrospection(listOf(TableSchema("customers", columns)))
-        val storedTable = CustomSourceTableMappingEntityFactory.create(
+        val storedTable = DataConnectorTableMappingEntityFactory.create(
             workspaceId = workspaceId,
             connectionId = connectionId,
             tableName = "customers",
             schemaHash = "stale-hash-xxx",
         )
-        val storedField = CustomSourceFieldMappingEntityFactory.create(
+        val storedField = DataConnectorFieldMappingEntityFactory.create(
             workspaceId = workspaceId,
             connectionId = connectionId,
             tableName = "customers",
@@ -197,7 +196,7 @@ class CustomSourceSchemaInferenceServiceTest {
             ColumnSchema("new_col", "text", true),
         )
         stubIntrospection(listOf(TableSchema("customers", live)))
-        val storedTable = CustomSourceTableMappingEntityFactory.create(
+        val storedTable = DataConnectorTableMappingEntityFactory.create(
             workspaceId = workspaceId,
             connectionId = connectionId,
             tableName = "customers",
@@ -207,11 +206,11 @@ class CustomSourceSchemaInferenceServiceTest {
             ),
         )
         val storedFields = listOf(
-            CustomSourceFieldMappingEntityFactory.create(
+            DataConnectorFieldMappingEntityFactory.create(
                 workspaceId = workspaceId, connectionId = connectionId,
                 tableName = "customers", columnName = "id", pgDataType = "uuid", isPrimaryKey = true,
             ),
-            CustomSourceFieldMappingEntityFactory.create(
+            DataConnectorFieldMappingEntityFactory.create(
                 workspaceId = workspaceId, connectionId = connectionId,
                 tableName = "customers", columnName = "email", pgDataType = "text",
             ),
@@ -231,16 +230,16 @@ class CustomSourceSchemaInferenceServiceTest {
     fun getSchemaMarksDroppedColumnsStaleInMappingTable() {
         val live = listOf(ColumnSchema("id", "uuid", false))
         stubIntrospection(listOf(TableSchema("customers", live)))
-        val storedTable = CustomSourceTableMappingEntityFactory.create(
+        val storedTable = DataConnectorTableMappingEntityFactory.create(
             workspaceId = workspaceId,
             connectionId = connectionId,
             tableName = "customers",
         )
-        val droppedField = CustomSourceFieldMappingEntityFactory.create(
+        val droppedField = DataConnectorFieldMappingEntityFactory.create(
             workspaceId = workspaceId, connectionId = connectionId,
             tableName = "customers", columnName = "deleted_me", pgDataType = "text",
         )
-        val keptField = CustomSourceFieldMappingEntityFactory.create(
+        val keptField = DataConnectorFieldMappingEntityFactory.create(
             workspaceId = workspaceId, connectionId = connectionId,
             tableName = "customers", columnName = "id", pgDataType = "uuid", isPrimaryKey = true,
         )
@@ -249,7 +248,7 @@ class CustomSourceSchemaInferenceServiceTest {
 
         service.getSchema(workspaceId, connectionId)
 
-        verify(fieldMappingRepository).save(argThat<CustomSourceFieldMappingEntity> {
+        verify(fieldMappingRepository).save(argThat<DataConnectorFieldMappingEntity> {
             columnName == "deleted_me" && stale
         })
     }
@@ -329,7 +328,7 @@ class CustomSourceSchemaInferenceServiceTest {
         whenever(
             postgresAdapter.introspectWithFkMetadata(
                 argThat<PostgresCallContext> {
-                    this.connectionId == this@CustomSourceSchemaInferenceServiceTest.connectionId
+                    this.connectionId == this@DataConnectorSchemaInferenceServiceTest.connectionId
                 },
             ),
         ).thenReturn(result)

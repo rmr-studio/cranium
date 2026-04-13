@@ -247,7 +247,7 @@ class ExceptionHandler(private val logger: KLogger, private val config: Applicat
         }
     }
 
-    // ------ Custom Source Connection Exception Handlers ------
+    // ------ Data Connector Connection Exception Handlers ------
 
     @ExceptionHandler(SsrfRejectedException::class)
     fun handleSsrfRejectedException(ex: SsrfRejectedException): ResponseEntity<ErrorResponse> {

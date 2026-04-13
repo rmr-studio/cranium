@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import riven.core.models.connector.request.SaveCustomSourceMappingRequest
-import riven.core.models.connector.response.CustomSourceMappingSaveResponse
-import riven.core.models.connector.response.CustomSourceSchemaResponse
-import riven.core.service.connector.mapping.CustomSourceFieldMappingService
-import riven.core.service.connector.mapping.CustomSourceSchemaInferenceService
+import riven.core.models.connector.request.SaveDataConnectorMappingRequest
+import riven.core.models.connector.response.DataConnectorMappingSaveResponse
+import riven.core.models.connector.response.DataConnectorSchemaResponse
+import riven.core.service.connector.mapping.DataConnectorFieldMappingService
+import riven.core.service.connector.mapping.DataConnectorSchemaInferenceService
 import java.util.UUID
 
 /**
@@ -36,9 +36,9 @@ import java.util.UUID
     name = "custom-source-mapping",
     description = "Introspect live Postgres schema + persist column-to-attribute mappings for a data-connector connection",
 )
-class CustomSourceMappingController(
-    private val inferenceService: CustomSourceSchemaInferenceService,
-    private val fieldMappingService: CustomSourceFieldMappingService,
+class DataConnectorMappingController(
+    private val inferenceService: DataConnectorSchemaInferenceService,
+    private val fieldMappingService: DataConnectorFieldMappingService,
 ) {
 
     @GetMapping("/schema")
@@ -51,7 +51,7 @@ class CustomSourceMappingController(
     fun getSchema(
         @RequestParam workspaceId: UUID,
         @PathVariable connectionId: UUID,
-    ): ResponseEntity<CustomSourceSchemaResponse> =
+    ): ResponseEntity<DataConnectorSchemaResponse> =
         ResponseEntity.ok(inferenceService.getSchema(workspaceId, connectionId))
 
     @PostMapping("/schema/tables/{tableName}/mapping")
@@ -66,8 +66,8 @@ class CustomSourceMappingController(
         @RequestParam workspaceId: UUID,
         @PathVariable connectionId: UUID,
         @PathVariable tableName: String,
-        @Valid @RequestBody request: SaveCustomSourceMappingRequest,
-    ): ResponseEntity<CustomSourceMappingSaveResponse> {
+        @Valid @RequestBody request: SaveDataConnectorMappingRequest,
+    ): ResponseEntity<DataConnectorMappingSaveResponse> {
         val response = fieldMappingService.saveMapping(workspaceId, connectionId, tableName, request)
         return ResponseEntity
             .status(HttpStatus.CREATED)

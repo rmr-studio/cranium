@@ -21,7 +21,7 @@ import riven.core.enums.entity.semantics.SemanticGroup
  * @property columns Per-column mapping decisions; the nested `@field:Valid`
  *   ensures bean validation recurses into each row.
  */
-data class SaveCustomSourceMappingRequest(
+data class SaveDataConnectorMappingRequest(
     @field:NotNull
     val lifecycleDomain: LifecycleDomain,
 
@@ -30,10 +30,10 @@ data class SaveCustomSourceMappingRequest(
 
     @field:Valid
     @field:NotEmpty(message = "columns must not be empty")
-    val columns: List<SaveCustomSourceFieldMappingRequest>,
+    val columns: List<SaveDataConnectorFieldMappingRequest>,
 )
 
-data class SaveCustomSourceFieldMappingRequest(
+data class SaveDataConnectorFieldMappingRequest(
     @field:NotBlank
     val columnName: String,
 

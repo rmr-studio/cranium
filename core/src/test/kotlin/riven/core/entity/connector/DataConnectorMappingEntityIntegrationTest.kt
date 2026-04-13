@@ -29,19 +29,19 @@ import org.springframework.transaction.annotation.Transactional
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
-import riven.core.repository.connector.CustomSourceConnectionRepository
-import riven.core.repository.connector.CustomSourceFieldMappingRepository
-import riven.core.repository.connector.CustomSourceTableMappingRepository
-import riven.core.service.util.factory.CustomSourceFieldMappingEntityFactory
-import riven.core.service.util.factory.CustomSourceTableMappingEntityFactory
-import riven.core.service.util.factory.customsource.DataConnectorConnectionEntityFactory
+import riven.core.repository.connector.DataConnectorConnectionRepository
+import riven.core.repository.connector.DataConnectorFieldMappingRepository
+import riven.core.repository.connector.DataConnectorTableMappingRepository
+import riven.core.service.util.factory.DataConnectorFieldMappingEntityFactory
+import riven.core.service.util.factory.DataConnectorTableMappingEntityFactory
+import riven.core.service.util.factory.dataconnector.DataConnectorConnectionEntityFactory
 import java.time.ZonedDateTime
 import java.time.temporal.TemporalAccessor
 import java.util.Optional
 import java.util.UUID
 
 /**
- * Integration tests for [CustomSourceTableMappingEntity] + [CustomSourceFieldMappingEntity]
+ * Integration tests for [DataConnectorTableMappingEntity] + [DataConnectorFieldMappingEntity]
  * against real Postgres via Testcontainers. Covers Phase 3 plan 03-01 must-haves:
  *
  *  - Round-trip persistence of every declared field on both entities
@@ -74,28 +74,28 @@ import java.util.UUID
 @EnableJpaRepositories(basePackages = ["riven.core.repository.connector"])
 @EntityScan("riven.core.entity.connector")
 @EnableJpaAuditing(
-    auditorAwareRef = "customSourceMappingAuditorProvider",
-    dateTimeProviderRef = "customSourceMappingDateTimeProvider",
+    auditorAwareRef = "dataConnectorMappingAuditorProvider",
+    dateTimeProviderRef = "dataConnectorMappingDateTimeProvider",
 )
-class CustomSourceMappingEntityTestConfig {
+class DataConnectorMappingEntityTestConfig {
 
     @Bean
-    fun customSourceMappingAuditorProvider(): AuditorAware<UUID> =
+    fun dataConnectorMappingAuditorProvider(): AuditorAware<UUID> =
         AuditorAware { Optional.empty() }
 
     @Bean
-    fun customSourceMappingDateTimeProvider(): DateTimeProvider =
+    fun dataConnectorMappingDateTimeProvider(): DateTimeProvider =
         DateTimeProvider { Optional.of<TemporalAccessor>(ZonedDateTime.now()) }
 }
 
 @SpringBootTest(
-    classes = [CustomSourceMappingEntityTestConfig::class],
+    classes = [DataConnectorMappingEntityTestConfig::class],
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
 )
 @ActiveProfiles("integration")
 @Testcontainers
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class CustomSourceMappingEntityIntegrationTest {
+class DataConnectorMappingEntityIntegrationTest {
 
     companion object {
         @JvmStatic
@@ -120,13 +120,13 @@ class CustomSourceMappingEntityIntegrationTest {
     }
 
     @Autowired
-    private lateinit var tableMappingRepository: CustomSourceTableMappingRepository
+    private lateinit var tableMappingRepository: DataConnectorTableMappingRepository
 
     @Autowired
-    private lateinit var fieldMappingRepository: CustomSourceFieldMappingRepository
+    private lateinit var fieldMappingRepository: DataConnectorFieldMappingRepository
 
     @Autowired
-    private lateinit var connectionRepository: CustomSourceConnectionRepository
+    private lateinit var connectionRepository: DataConnectorConnectionRepository
 
     @Autowired
     private lateinit var jdbcTemplate: JdbcTemplate
@@ -207,13 +207,13 @@ class CustomSourceMappingEntityIntegrationTest {
 
     @Test
     @Transactional
-    fun saveAndReloadCustomSourceTableMappingPersistsAllFields() {
+    fun saveAndReloadDataConnectorTableMappingPersistsAllFields() {
         val workspaceId = insertWorkspace()
         val connectionId = insertConnection(workspaceId)
         val entityTypeId = UUID.randomUUID()
         val introspectedAt = ZonedDateTime.now().withNano(0)
 
-        val entity = CustomSourceTableMappingEntityFactory.create(
+        val entity = DataConnectorTableMappingEntityFactory.create(
             workspaceId = workspaceId,
             connectionId = connectionId,
             tableName = "customers",
@@ -248,11 +248,11 @@ class CustomSourceMappingEntityIntegrationTest {
 
     @Test
     @Transactional
-    fun saveAndReloadCustomSourceFieldMappingPersistsAllFields() {
+    fun saveAndReloadDataConnectorFieldMappingPersistsAllFields() {
         val workspaceId = insertWorkspace()
         val connectionId = insertConnection(workspaceId)
 
-        val entity = CustomSourceFieldMappingEntityFactory.create(
+        val entity = DataConnectorFieldMappingEntityFactory.create(
             workspaceId = workspaceId,
             connectionId = connectionId,
             tableName = "customers",
@@ -303,7 +303,7 @@ class CustomSourceMappingEntityIntegrationTest {
         val connectionId = insertConnection(workspaceId)
 
         val saved = tableMappingRepository.saveAndFlush(
-            CustomSourceTableMappingEntityFactory.create(
+            DataConnectorTableMappingEntityFactory.create(
                 workspaceId = workspaceId,
                 connectionId = connectionId,
                 tableName = "to_be_deleted",
@@ -337,7 +337,7 @@ class CustomSourceMappingEntityIntegrationTest {
         val connectionId = insertConnection(workspaceId)
 
         val saved = fieldMappingRepository.saveAndFlush(
-            CustomSourceFieldMappingEntityFactory.create(
+            DataConnectorFieldMappingEntityFactory.create(
                 workspaceId = workspaceId,
                 connectionId = connectionId,
                 tableName = "customers",
@@ -372,7 +372,7 @@ class CustomSourceMappingEntityIntegrationTest {
         val connectionId = insertConnection(workspaceId)
 
         tableMappingRepository.saveAndFlush(
-            CustomSourceTableMappingEntityFactory.create(
+            DataConnectorTableMappingEntityFactory.create(
                 workspaceId = workspaceId,
                 connectionId = connectionId,
                 tableName = "customers",
@@ -381,7 +381,7 @@ class CustomSourceMappingEntityIntegrationTest {
 
         assertThatThrownBy {
             tableMappingRepository.saveAndFlush(
-                CustomSourceTableMappingEntityFactory.create(
+                DataConnectorTableMappingEntityFactory.create(
                     workspaceId = workspaceId,
                     connectionId = connectionId,
                     tableName = "customers",
@@ -397,7 +397,7 @@ class CustomSourceMappingEntityIntegrationTest {
         val connectionId = insertConnection(workspaceId)
 
         fieldMappingRepository.saveAndFlush(
-            CustomSourceFieldMappingEntityFactory.create(
+            DataConnectorFieldMappingEntityFactory.create(
                 workspaceId = workspaceId,
                 connectionId = connectionId,
                 tableName = "customers",
@@ -407,7 +407,7 @@ class CustomSourceMappingEntityIntegrationTest {
 
         assertThatThrownBy {
             fieldMappingRepository.saveAndFlush(
-                CustomSourceFieldMappingEntityFactory.create(
+                DataConnectorFieldMappingEntityFactory.create(
                     workspaceId = workspaceId,
                     connectionId = connectionId,
                     tableName = "customers",
@@ -425,14 +425,14 @@ class CustomSourceMappingEntityIntegrationTest {
         val connectionId = insertConnection(workspaceId)
 
         tableMappingRepository.saveAndFlush(
-            CustomSourceTableMappingEntityFactory.create(
+            DataConnectorTableMappingEntityFactory.create(
                 workspaceId = workspaceId,
                 connectionId = connectionId,
                 tableName = "cascade_target",
             ),
         )
         fieldMappingRepository.saveAndFlush(
-            CustomSourceFieldMappingEntityFactory.create(
+            DataConnectorFieldMappingEntityFactory.create(
                 workspaceId = workspaceId,
                 connectionId = connectionId,
                 tableName = "cascade_target",

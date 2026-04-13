@@ -10,7 +10,7 @@ import riven.core.models.connector.CredentialPayload
 import riven.core.models.ingestion.adapter.RecordBatch
 import riven.core.models.ingestion.adapter.SchemaIntrospectionResult
 import riven.core.models.ingestion.adapter.SyncMode
-import riven.core.repository.connector.CustomSourceConnectionRepository
+import riven.core.repository.connector.DataConnectorConnectionRepository
 import riven.core.service.connector.CredentialEncryptionService
 import riven.core.service.connector.EncryptedCredentials
 import riven.core.service.connector.pool.WorkspaceConnectionPoolManager
@@ -43,7 +43,7 @@ import javax.sql.DataSource
 @ConditionalOnProperty(prefix = "riven.connector", name = ["enabled"], havingValue = "true")
 class PostgresAdapter(
     private val poolManager: WorkspaceConnectionPoolManager,
-    private val connectionRepository: CustomSourceConnectionRepository,
+    private val connectionRepository: DataConnectorConnectionRepository,
     private val encryptionService: CredentialEncryptionService,
     private val introspector: PostgresIntrospector,
     private val fetcher: PostgresFetcher,

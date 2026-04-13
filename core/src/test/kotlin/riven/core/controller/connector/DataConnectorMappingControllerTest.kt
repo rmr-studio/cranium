@@ -24,32 +24,32 @@ import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.exceptions.ExceptionHandler
 import riven.core.models.connector.CursorIndexWarning
-import riven.core.models.connector.response.CustomSourceMappingSaveResponse
-import riven.core.models.connector.response.CustomSourceSchemaResponse
+import riven.core.models.connector.response.DataConnectorMappingSaveResponse
+import riven.core.models.connector.response.DataConnectorSchemaResponse
 import riven.core.models.connector.response.DriftStatus
 import riven.core.models.connector.response.TableSchemaResponse
-import riven.core.service.connector.mapping.CustomSourceFieldMappingService
-import riven.core.service.connector.mapping.CustomSourceSchemaInferenceService
+import riven.core.service.connector.mapping.DataConnectorFieldMappingService
+import riven.core.service.connector.mapping.DataConnectorSchemaInferenceService
 import java.util.UUID
 
 /**
- * MockMvc wire-level tests for [CustomSourceMappingController] (Phase 3 plan 03-03).
+ * MockMvc wire-level tests for [DataConnectorMappingController] (Phase 3 plan 03-03).
  *
  * Per Phase 2 02-04 lesson, @PreAuthorize workspace-scoping is not exercised
  * here (standalone MockMvc does not load method security). The 403
  * workspace-mismatch assertion lives at the service-layer SpringBootTest
- * (see [riven.core.service.connector.mapping.CustomSourceFieldMappingServiceTest]
- * + [riven.core.service.connector.mapping.CustomSourceSchemaInferenceServiceTest]).
+ * (see [riven.core.service.connector.mapping.DataConnectorFieldMappingServiceTest]
+ * + [riven.core.service.connector.mapping.DataConnectorSchemaInferenceServiceTest]).
  */
-class CustomSourceMappingControllerTest {
+class DataConnectorMappingControllerTest {
 
-    private val inferenceService: CustomSourceSchemaInferenceService =
-        mock(CustomSourceSchemaInferenceService::class.java)
-    private val fieldMappingService: CustomSourceFieldMappingService =
-        mock(CustomSourceFieldMappingService::class.java)
+    private val inferenceService: DataConnectorSchemaInferenceService =
+        mock(DataConnectorSchemaInferenceService::class.java)
+    private val fieldMappingService: DataConnectorFieldMappingService =
+        mock(DataConnectorFieldMappingService::class.java)
     private val logger: KLogger = mock(KLogger::class.java)
 
-    private val controller = CustomSourceMappingController(inferenceService, fieldMappingService)
+    private val controller = DataConnectorMappingController(inferenceService, fieldMappingService)
 
     private val objectMapper: ObjectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
 
@@ -75,7 +75,7 @@ class CustomSourceMappingControllerTest {
 
     @Test
     fun getSchemaReturns200WithTablesAndDriftIndicator() {
-        val response = CustomSourceSchemaResponse(
+        val response = DataConnectorSchemaResponse(
             tables = listOf(
                 TableSchemaResponse(
                     tableName = "customers",
@@ -100,7 +100,7 @@ class CustomSourceMappingControllerTest {
     fun saveMappingReturns201WithCreatedEntityTypeId() {
         val entityTypeId = UUID.randomUUID()
         whenever(fieldMappingService.saveMapping(any(), any(), any(), any()))
-            .thenReturn(CustomSourceMappingSaveResponse(entityTypeId = entityTypeId))
+            .thenReturn(DataConnectorMappingSaveResponse(entityTypeId = entityTypeId))
 
         val body = objectMapper.writeValueAsString(validRequest())
 
@@ -123,7 +123,7 @@ class CustomSourceMappingControllerTest {
         val entityTypeId = UUID.randomUUID()
         whenever(fieldMappingService.saveMapping(any(), any(), any(), any()))
             .thenReturn(
-                CustomSourceMappingSaveResponse(
+                DataConnectorMappingSaveResponse(
                     entityTypeId = entityTypeId,
                     cursorIndexWarning = CursorIndexWarning(
                         column = "updated_at",
@@ -151,8 +151,8 @@ class CustomSourceMappingControllerTest {
     /**
      * Phase 2 02-04 lesson: MockMvc standalone does not load @PreAuthorize.
      * Workspace-mismatch scoping is verified at the service layer via
-     * @SpringBootTest (CustomSourceSchemaInferenceServiceTest.getSchemaScopedToWorkspaceViaPreAuthorize
-     * + CustomSourceFieldMappingServiceTest.saveScopedToWorkspaceViaPreAuthorize).
+     * @SpringBootTest (DataConnectorSchemaInferenceServiceTest.getSchemaScopedToWorkspaceViaPreAuthorize
+     * + DataConnectorFieldMappingServiceTest.saveScopedToWorkspaceViaPreAuthorize).
      * This test documents the placement decision with a trivial assertion
      * against the service-layer path so the rename rule is greppable.
      */

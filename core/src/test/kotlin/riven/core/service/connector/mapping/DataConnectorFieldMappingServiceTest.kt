@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -28,8 +26,8 @@ import org.springframework.security.access.AccessDeniedException
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.connector.CustomSourceFieldMappingEntity
-import riven.core.entity.connector.CustomSourceTableMappingEntity
+import riven.core.entity.connector.DataConnectorFieldMappingEntity
+import riven.core.entity.connector.DataConnectorTableMappingEntity
 import riven.core.entity.entity.EntityTypeEntity
 import riven.core.entity.entity.RelationshipDefinitionEntity
 import riven.core.enums.common.validation.SchemaType
@@ -38,16 +36,15 @@ import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.integration.SourceType
 import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.exceptions.connector.MappingValidationException
 import riven.core.models.connector.CredentialPayload
-import riven.core.models.connector.request.SaveCustomSourceFieldMappingRequest
-import riven.core.models.connector.request.SaveCustomSourceMappingRequest
+import riven.core.models.connector.request.SaveDataConnectorFieldMappingRequest
+import riven.core.models.connector.request.SaveDataConnectorMappingRequest
 import riven.core.models.ingestion.adapter.ColumnSchema
 import riven.core.models.ingestion.adapter.SchemaIntrospectionResult
 import riven.core.models.ingestion.adapter.TableSchema
-import riven.core.repository.connector.CustomSourceConnectionRepository
-import riven.core.repository.connector.CustomSourceFieldMappingRepository
-import riven.core.repository.connector.CustomSourceTableMappingRepository
+import riven.core.repository.connector.DataConnectorConnectionRepository
+import riven.core.repository.connector.DataConnectorFieldMappingRepository
+import riven.core.repository.connector.DataConnectorTableMappingRepository
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.repository.entity.RelationshipDefinitionRepository
 import riven.core.service.activity.ActivityService
@@ -60,15 +57,15 @@ import riven.core.service.ingestion.adapter.PostgresCallContext
 import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.WithUserPersona
 import riven.core.service.util.WorkspaceRole
-import riven.core.service.util.factory.CustomSourceFieldMappingEntityFactory
-import riven.core.service.util.factory.CustomSourceTableMappingEntityFactory
-import riven.core.service.util.factory.customsource.DataConnectorConnectionEntityFactory
+import riven.core.service.util.factory.DataConnectorFieldMappingEntityFactory
+import riven.core.service.util.factory.DataConnectorTableMappingEntityFactory
+import riven.core.service.util.factory.dataconnector.DataConnectorConnectionEntityFactory
 import java.time.ZonedDateTime
 import java.util.Optional
 import java.util.UUID
 
 /**
- * Unit tests for [CustomSourceFieldMappingService] (Phase 3 plan 03-03).
+ * Unit tests for [DataConnectorFieldMappingService] (Phase 3 plan 03-03).
  * Covers the 10 named assertions from 03-00: EntityType creation with
  * sourceType=CONNECTOR+readonly, attribute definitions per mapped column,
  * FK relationship materialisation + pending metadata, composite FK skip,
@@ -80,8 +77,8 @@ import java.util.UUID
         AuthTokenService::class,
         WorkspaceSecurity::class,
         SecurityTestConfig::class,
-        CustomSourceFieldMappingServiceTest.TestConfig::class,
-        CustomSourceFieldMappingService::class,
+        DataConnectorFieldMappingServiceTest.TestConfig::class,
+        DataConnectorFieldMappingService::class,
     ],
 )
 @TestPropertySource(properties = ["riven.connector.enabled=true"])
@@ -96,7 +93,7 @@ import java.util.UUID
         ),
     ],
 )
-class CustomSourceFieldMappingServiceTest {
+class DataConnectorFieldMappingServiceTest {
 
     @Configuration
     class TestConfig {
@@ -111,16 +108,16 @@ class CustomSourceFieldMappingServiceTest {
     @MockitoBean private lateinit var postgresAdapter: PostgresAdapter
     @MockitoBean private lateinit var encryptionService: CredentialEncryptionService
     @MockitoBean private lateinit var cursorIndexProbe: CursorIndexProbe
-    @MockitoBean private lateinit var connectionRepository: CustomSourceConnectionRepository
-    @MockitoBean private lateinit var tableMappingRepository: CustomSourceTableMappingRepository
-    @MockitoBean private lateinit var fieldMappingRepository: CustomSourceFieldMappingRepository
+    @MockitoBean private lateinit var connectionRepository: DataConnectorConnectionRepository
+    @MockitoBean private lateinit var tableMappingRepository: DataConnectorTableMappingRepository
+    @MockitoBean private lateinit var fieldMappingRepository: DataConnectorFieldMappingRepository
     @MockitoBean private lateinit var entityTypeRepository: EntityTypeRepository
     @MockitoBean private lateinit var relationshipDefinitionRepository: RelationshipDefinitionRepository
     @MockitoBean private lateinit var activityService: ActivityService
     @MockitoBean private lateinit var authTokenService: AuthTokenService
     @MockitoBean private lateinit var logger: KLogger
 
-    @Autowired private lateinit var service: CustomSourceFieldMappingService
+    @Autowired private lateinit var service: DataConnectorFieldMappingService
     @Autowired private lateinit var objectMapper: ObjectMapper
 
     @BeforeEach
@@ -148,11 +145,11 @@ class CustomSourceFieldMappingServiceTest {
 
         // Save stubs: return argument with an ID injected (simulating JPA save).
         whenever(fieldMappingRepository.save(any())).thenAnswer { inv ->
-            val arg = inv.arguments[0] as CustomSourceFieldMappingEntity
+            val arg = inv.arguments[0] as DataConnectorFieldMappingEntity
             if (arg.id == null) injectId(arg, UUID.randomUUID()) else arg
         }
         whenever(tableMappingRepository.save(any())).thenAnswer { inv ->
-            val arg = inv.arguments[0] as CustomSourceTableMappingEntity
+            val arg = inv.arguments[0] as DataConnectorTableMappingEntity
             if (arg.id == null) injectIdTable(arg, UUID.randomUUID()) else arg
         }
         whenever(entityTypeRepository.save(any())).thenAnswer { inv ->
@@ -222,7 +219,7 @@ class CustomSourceFieldMappingServiceTest {
         whenever(fieldMappingRepository.findByConnectionIdAndTableName(connectionId, "orders")).thenReturn(emptyList())
         whenever(tableMappingRepository.findByConnectionIdAndTableName(connectionId, "orders")).thenReturn(null)
         // Target "customers" is already published.
-        val publishedTarget = CustomSourceTableMappingEntityFactory.create(
+        val publishedTarget = DataConnectorTableMappingEntityFactory.create(
             workspaceId = workspaceId, connectionId = connectionId, tableName = "customers", published = true,
             entityTypeId = UUID.randomUUID(),
         )
@@ -277,7 +274,7 @@ class CustomSourceFieldMappingServiceTest {
         assertEquals("customers", response.pendingRelationships.first().targetTable)
 
         // FK metadata persists on the field mapping row itself.
-        val captor = argumentCaptor<CustomSourceFieldMappingEntity>()
+        val captor = argumentCaptor<DataConnectorFieldMappingEntity>()
         verify(fieldMappingRepository, org.mockito.kotlin.atLeastOnce()).save(captor.capture())
         val customerIdRow = captor.allValues.first { it.columnName == "customer_id" }
         assertEquals("customers", customerIdRow.fkTargetTable)
@@ -325,7 +322,7 @@ class CustomSourceFieldMappingServiceTest {
 
         service.saveMapping(workspaceId, connectionId, "customers", baseRequest())
 
-        val captor = argumentCaptor<CustomSourceTableMappingEntity>()
+        val captor = argumentCaptor<DataConnectorTableMappingEntity>()
         verify(tableMappingRepository, org.mockito.kotlin.atLeastOnce()).save(captor.capture())
         val lastSave = captor.allValues.last()
         assertTrue(lastSave.published)
@@ -374,7 +371,7 @@ class CustomSourceFieldMappingServiceTest {
             ),
         )
         val existingEntityTypeId = UUID.randomUUID()
-        val existingTable = CustomSourceTableMappingEntityFactory.create(
+        val existingTable = DataConnectorTableMappingEntityFactory.create(
             workspaceId = workspaceId, connectionId = connectionId, tableName = "customers",
             entityTypeId = existingEntityTypeId, published = true,
         )
@@ -382,11 +379,11 @@ class CustomSourceFieldMappingServiceTest {
             .thenReturn(existingTable)
         whenever(fieldMappingRepository.findByConnectionIdAndTableName(connectionId, "customers")).thenReturn(
             listOf(
-                CustomSourceFieldMappingEntityFactory.create(
+                DataConnectorFieldMappingEntityFactory.create(
                     workspaceId = workspaceId, connectionId = connectionId, tableName = "customers",
                     columnName = "id", pgDataType = "uuid", isPrimaryKey = true, attributeName = "id",
                 ),
-                CustomSourceFieldMappingEntityFactory.create(
+                DataConnectorFieldMappingEntityFactory.create(
                     workspaceId = workspaceId, connectionId = connectionId, tableName = "customers",
                     columnName = "email", pgDataType = "text", attributeName = "email",
                 ),
@@ -434,12 +431,12 @@ class CustomSourceFieldMappingServiceTest {
                 listOf(ColumnSchema("id", "uuid", false)),
             ),
         )
-        val existingTable = CustomSourceTableMappingEntityFactory.create(
+        val existingTable = DataConnectorTableMappingEntityFactory.create(
             workspaceId = workspaceId, connectionId = connectionId, tableName = "customers", published = true,
         )
         whenever(tableMappingRepository.findByConnectionIdAndTableName(connectionId, "customers"))
             .thenReturn(existingTable)
-        val droppedField = CustomSourceFieldMappingEntityFactory.create(
+        val droppedField = DataConnectorFieldMappingEntityFactory.create(
             workspaceId = workspaceId, connectionId = connectionId, tableName = "customers",
             columnName = "deleted_col", pgDataType = "text", attributeName = "deletedCol",
         )
@@ -453,7 +450,7 @@ class CustomSourceFieldMappingServiceTest {
             ),
         )
 
-        verify(fieldMappingRepository).save(argThat<CustomSourceFieldMappingEntity> {
+        verify(fieldMappingRepository).save(argThat<DataConnectorFieldMappingEntity> {
             columnName == "deleted_col" && stale
         })
     }
@@ -488,7 +485,7 @@ class CustomSourceFieldMappingServiceTest {
         whenever(postgresAdapter.introspectWithFkMetadata(any<PostgresCallContext>())).thenReturn(result)
     }
 
-    private fun baseRequest() = SaveCustomSourceMappingRequest(
+    private fun baseRequest() = SaveDataConnectorMappingRequest(
         lifecycleDomain = LifecycleDomain.UNCATEGORIZED,
         semanticGroup = SemanticGroup.UNCATEGORIZED,
         columns = listOf(
@@ -505,7 +502,7 @@ class CustomSourceFieldMappingServiceTest {
         isIdentifier: Boolean = false,
         isSyncCursor: Boolean = false,
         attributeName: String? = null,
-    ) = SaveCustomSourceFieldMappingRequest(
+    ) = SaveDataConnectorFieldMappingRequest(
         columnName = columnName,
         attributeName = attributeName,
         schemaType = schemaType,
@@ -514,8 +511,8 @@ class CustomSourceFieldMappingServiceTest {
         isMapped = isMapped,
     )
 
-    private fun injectId(entity: CustomSourceFieldMappingEntity, id: UUID): CustomSourceFieldMappingEntity =
-        CustomSourceFieldMappingEntity(
+    private fun injectId(entity: DataConnectorFieldMappingEntity, id: UUID): DataConnectorFieldMappingEntity =
+        DataConnectorFieldMappingEntity(
             id = id,
             workspaceId = entity.workspaceId,
             connectionId = entity.connectionId,
@@ -535,8 +532,8 @@ class CustomSourceFieldMappingServiceTest {
             stale = entity.stale,
         )
 
-    private fun injectIdTable(entity: CustomSourceTableMappingEntity, id: UUID): CustomSourceTableMappingEntity =
-        CustomSourceTableMappingEntity(
+    private fun injectIdTable(entity: DataConnectorTableMappingEntity, id: UUID): DataConnectorTableMappingEntity =
+        DataConnectorTableMappingEntity(
             id = id,
             workspaceId = entity.workspaceId,
             connectionId = entity.connectionId,

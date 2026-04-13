@@ -1,4 +1,4 @@
-package riven.core.service.util.factory.customsource
+package riven.core.service.util.factory.dataconnector
 
 import riven.core.entity.connector.DataConnectorConnectionEntity
 import riven.core.enums.integration.ConnectionStatus

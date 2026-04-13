@@ -17,7 +17,7 @@ import java.util.UUID
  * @property cursorIndexWarning Populated when the chosen sync-cursor column
  *   has no supporting index (copy from GET /schema for symmetry).
  */
-data class CustomSourceMappingSaveResponse(
+data class DataConnectorMappingSaveResponse(
     val entityTypeId: UUID,
     val relationshipsCreated: List<UUID> = emptyList(),
     val pendingRelationships: List<PendingRelationship> = emptyList(),

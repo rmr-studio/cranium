@@ -40,14 +40,14 @@ import riven.core.exceptions.connector.SsrfRejectedException
 import riven.core.models.connector.CredentialPayload
 import riven.core.models.connector.request.CreateDataConnectorConnectionRequest
 import riven.core.models.connector.request.UpdateDataConnectorConnectionRequest
-import riven.core.repository.connector.CustomSourceConnectionRepository
+import riven.core.repository.connector.DataConnectorConnectionRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.auth.AuthTokenService
 import riven.core.service.connector.pool.WorkspaceConnectionPoolManager
 import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.WithUserPersona
 import riven.core.service.util.WorkspaceRole
-import riven.core.service.util.factory.customsource.DataConnectorConnectionEntityFactory
+import riven.core.service.util.factory.dataconnector.DataConnectorConnectionEntityFactory
 import java.net.InetAddress
 import java.util.Optional
 import java.util.UUID
@@ -92,7 +92,7 @@ class DataConnectorConnectionServiceTest {
     private val workspaceId: UUID = UUID.fromString("22222222-2222-2222-2222-222222222222")
     private val otherWorkspaceId: UUID = UUID.fromString("cccccccc-cccc-cccc-cccc-cccccccccccc")
 
-    @MockitoBean private lateinit var repository: CustomSourceConnectionRepository
+    @MockitoBean private lateinit var repository: DataConnectorConnectionRepository
     @MockitoBean private lateinit var encryptionService: CredentialEncryptionService
     @MockitoBean private lateinit var ssrfValidator: SsrfValidatorService
     @MockitoBean private lateinit var roVerifier: ReadOnlyRoleVerifierService

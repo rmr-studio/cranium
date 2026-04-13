@@ -24,7 +24,7 @@ import riven.core.enums.connector.SslMode
 import riven.core.enums.integration.SourceType
 import riven.core.models.connector.CredentialPayload
 import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.repository.connector.CustomSourceConnectionRepository
+import riven.core.repository.connector.DataConnectorConnectionRepository
 import riven.core.service.connector.CredentialEncryptionService
 import riven.core.service.connector.pool.WorkspaceConnectionPoolManager
 import riven.core.service.ingestion.adapter.NangoCallContext
@@ -32,7 +32,7 @@ import riven.core.service.ingestion.adapter.PostgresCallContext
 import riven.core.service.ingestion.adapter.SourceTypeAdapter
 import riven.core.service.ingestion.adapter.exception.AdapterAuthException
 import riven.core.service.ingestion.adapter.exception.AdapterUnavailableException
-import riven.core.service.util.factory.customsource.DataConnectorConnectionEntityFactory
+import riven.core.service.util.factory.dataconnector.DataConnectorConnectionEntityFactory
 import java.util.Optional
 import java.util.UUID
 
@@ -69,7 +69,7 @@ class PostgresAdapterTest {
     private val logger: KLogger = mock()
 
     private lateinit var poolManager: WorkspaceConnectionPoolManager
-    private lateinit var connectionRepository: CustomSourceConnectionRepository
+    private lateinit var connectionRepository: DataConnectorConnectionRepository
     private lateinit var encryptionService: CredentialEncryptionService
     private lateinit var introspector: PostgresIntrospector
     private lateinit var fetcher: PostgresFetcher

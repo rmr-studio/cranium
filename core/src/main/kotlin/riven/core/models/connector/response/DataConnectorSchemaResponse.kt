@@ -8,14 +8,14 @@ import java.util.UUID
  * GET /api/v1/custom-sources/connections/{id}/schema response.
  *
  * Combines the live Postgres introspection (tables + columns + FK metadata)
- * with any stored `CustomSourceTableMappingEntity` / `CustomSourceFieldMappingEntity`
+ * with any stored `DataConnectorTableMappingEntity` / `DataConnectorFieldMappingEntity`
  * rows for this connection and surfaces drift + cursor-index warnings.
  *
  * @property tables One entry per live table in the target schema. Stored
  *   mappings that no longer exist upstream are NOT returned — their stale
  *   rows are flagged in the mapping table as a side effect.
  */
-data class CustomSourceSchemaResponse(
+data class DataConnectorSchemaResponse(
     val tables: List<TableSchemaResponse>,
 )
 

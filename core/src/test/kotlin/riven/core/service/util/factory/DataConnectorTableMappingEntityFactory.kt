@@ -1,13 +1,13 @@
 package riven.core.service.util.factory
 
-import riven.core.entity.connector.CustomSourceTableMappingEntity
+import riven.core.entity.connector.DataConnectorTableMappingEntity
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticGroup
 import java.time.ZonedDateTime
 import java.util.UUID
 
-/** Test factory for [CustomSourceTableMappingEntity] (Phase 3). */
-object CustomSourceTableMappingEntityFactory {
+/** Test factory for [DataConnectorTableMappingEntity] (Phase 3). */
+object DataConnectorTableMappingEntityFactory {
 
     fun create(
         workspaceId: UUID = UUID.randomUUID(),
@@ -19,7 +19,7 @@ object CustomSourceTableMappingEntityFactory {
         schemaHash: String = "hash-${UUID.randomUUID()}",
         lastIntrospectedAt: ZonedDateTime = ZonedDateTime.now(),
         published: Boolean = false,
-    ): CustomSourceTableMappingEntity = CustomSourceTableMappingEntity(
+    ): DataConnectorTableMappingEntity = DataConnectorTableMappingEntity(
         workspaceId = workspaceId,
         connectionId = connectionId,
         tableName = tableName,

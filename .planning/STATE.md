@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Phase 03.1 context gathered
-last_updated: "2026-04-13T08:03:18.692Z"
+stopped_at: Completed 03.1-01-PLAN.md
+last_updated: "2026-04-13T08:33:32.534Z"
 progress:
   total_phases: 9
   completed_phases: 3
-  total_plans: 13
-  completed_plans: 13
-  percent: 92
+  total_plans: 17
+  completed_plans: 14
+  percent: 82
 ---
 
 # STATE
@@ -27,10 +27,10 @@ progress:
 
 ## Current Position
 
-- **Phase:** 3 — Postgres Adapter & Schema Mapping (functionally complete; 03-04 deferred)
-- **Plan:** 03-03 complete; **03-04 deferred** pending phase 03.5 (Boot 4 upgrade). Phase 3 ingestion path (adapter + schema inference + mapping save + readonly EntityType creation + FK inference) ships without NL assist. MAP-03/04/05 remain Complete (manual selection via 03-03 Save path); MAP-07 remains Pending (LLM-assisted pre-fill deferred to post-03.5).
-- **Status:** Ready to plan
-- **Progress:** [█████████░] 92%
+- **Phase:** 03.1 — Boot 3.5.3 → 4.0.5 Upgrade with Transitive Dep Bumps (in progress)
+- **Plan:** 03.1-01 complete (compile-clean Boot 4 + Hibernate 7 dep bump). 03.1-02 (Spring Security 7 SecurityFilterChain migration), 03.1-03 (test harness sweep), 03.1-04 (closure + Nango smoke) still to execute.
+- **Status:** Ready to plan next plan
+- **Progress:** [████████░░] 82%
 
 ```
 [........] 0% (0/8 phases)
@@ -57,6 +57,7 @@ progress:
 | Phase 03-postgres-adapter-schema-mapping P01 | 9 min | 2 tasks | 16 files |
 | Phase 03-postgres-adapter-schema-mapping P02 | 11min | 3 tasks | 12 files |
 | Phase 03-postgres-adapter-schema-mapping P03 | 10min | 3 tasks | 14 files |
+| Phase 03.1-boot-3-5-3-4-0-x-upgrade-with-transitive-dep-bumps P01 | 10min | 3 tasks | 18 files |
 
 ## Accumulated Context
 
@@ -116,6 +117,12 @@ progress:
 - [Phase 03-postgres-adapter-schema-mapping]: Plan 03-03: Workspace-mismatch 403 assertion at service-layer SpringBootTest, not MockMvc — standalone MockMvc does not load @PreAuthorize. Phase 2 02-04 lesson carried forward; controller test documents placement explicitly
 - [Phase 03-postgres-adapter-schema-mapping]: Plan 03-03: Activity.DATA_CONNECTOR_CONNECTION reused for mapping Saves (already exists since Phase 2) — no new enum variant. details map carries connectionId + tableName
 - [Phase 03-postgres-adapter-schema-mapping]: Plan 03-04 DEFERRED (2026-04-13, R1 decision): MAP-07 (LLM-assisted mapping suggestions) requires Spring AI 2.x multi-provider ChatModel abstraction (Anthropic default + OpenAI reasoning fallback), which only targets Spring Boot 4.x. Boot 4 upgrade scoped to new phase 03.5-boot4-upgrade. No code/build/dependency changes made; bookkeeping only. MAP-03/04/05 remain Complete via 03-03 manual selection — only the LLM pre-fill UX is deferred. Distinct env vars locked: ANTHROPIC_API_KEY (default) + OPENAI_REASONING_API_KEY (separate from embeddings' OPENAI_API_KEY) for independent rotation.
+- [Phase 03.1]: Plan 01-01: hypersistence-utils-hibernate-71 (not -70) — artifact encodes Hibernate major; -71 targets 7.2.x to match Boot 4.0.5 BOM; -70 targets 7.0.x and hits IncompatibleClassChangeError on final getJavaTypeClass
+- [Phase 03.1]: Plan 01-01: Resilience4j uniform 2.3.0 across core/annotations/spring — resilience4j-spring caps at 2.3.0 so no 2.4.0 promotion
+- [Phase 03.1]: Plan 01-01: Boot 4 package relocations (Rule 3 auto-fix) — actuate.health -> health.contributor; autoconfigure.security.servlet -> security.autoconfigure; autoconfigure.domain.EntityScan -> persistence.autoconfigure.EntityScan
+- [Phase 03.1]: Plan 01-01: Spring Security 7 GrantedAuthority.authority is @Nullable — null-safe accessors in OrganisationSecurity/WebSocketSecurityInterceptor/AuthTokenService; SecurityFilterChain migration deferred to Plan 02
+- [Phase 03.1]: Plan 01-01: Temporal 1.34.0 starter POM still lists Boot 2.7.18 parent — accepted; Boot 4 BOM overrides at build time; runtime surprises are Plan 03/04 surface
+- [Phase 03.1]: Plan 01-01: hibernate-vector pinned to 7.2.7.Final matching Boot 4.0.5 BOM hibernate.version exactly — avoids minor-drift ClassChangeError
 
 ### Key Decisions (from PROJECT.md)
 
@@ -149,16 +156,16 @@ progress:
 ## Session Continuity
 
 ### Last Action
-Deferred Plan 03-04 (NL-Assisted Mapping Suggestions) via R1 decision on 2026-04-13. No code, no build.gradle.kts edit, no Spring AI dependency. Bookkeeping artifacts only: 03-04-SUMMARY.md (status=deferred), STATE.md updated, ROADMAP.md updated. MAP-07 remains Pending in REQUIREMENTS.md; MAP-03/04/05 unchanged (Complete via 03-03). Reopen condition: phase 03.5-boot4-upgrade lands Boot 4.x, at which point 03-04-PLAN.md is rewritten against Spring AI 2.x ChatModel multi-provider coordinates (Anthropic default + OpenAI reasoning fallback).
+Completed Plan 03.1-01 (Spring Boot 3.5.3 → 4.0.5 + Hibernate 7.2.7 dep bump). Gradle plugin + core deps on Boot 4; Spring Security pins released to BOM (now 7.0.4); Temporal 1.34.0; SpringDoc 3.0.3; ShedLock 7.7.0; resilience4j-spring-boot3 dropped for direct resilience4j-core + -annotations + -spring at 2.3.0. Hypersistence switched to `hypersistence-utils-hibernate-71:3.15.2` (targets Hibernate 7.2.x) after `-70` hit IncompatibleClassChangeError against Boot 4.0.5's Hibernate 7.2.7. hibernate-vector pinned to 7.2.7.Final. Six Rule 3 compile-blocking auto-fixes: Boot 4 actuator/autoconfig package relocations (health → health.contributor, security autoconfigs split out of spring-boot-autoconfigure, EntityScan → spring-boot-persistence), Spring Security 7 GrantedAuthority.authority nullability, Reactor 3.7+ Mono<T : Any>, JUnit Jupiter 6 non-null ExtensionContext. Plus one Rule 1 bug (hypersistence -70 vs -71 artifact mismatch). `./gradlew compileKotlin compileTestKotlin` BUILD SUCCESSFUL; properties-migrator log clean (no renamed-key hits). SecurityFilterChain migration intentionally NOT touched — Plan 02 owns that.
 
 ### Previous Action
-Completed Plan 03-02 (PostgresAdapter + WorkspaceConnectionPoolManager). WorkspaceConnectionPoolManager caches one HikariDataSource per connectionId via ConcurrentHashMap.computeIfAbsent; HikariConfig uses initializationFailTimeout=-1 so pool construction never eagerly connects. PostgresAdapter @SourceTypeAdapter(SourceType.CONNECTOR) implements IngestionAdapter — syncMode=POLL, introspectSchema + introspectWithFkMetadata sibling method for plan 03-03 to consume ForeignKeyMetadata. PostgresFetcher builds server-side-cursor SQL (autoCommit=false + fetchSize) with cursor-or-PK-fallback variants; casts comparison column with ::text for cross-type UUID/bigint/text compatibility; null-cursor first fetch omits WHERE entirely. JDBC SQLState translator: 28xxx→AdapterAuthException, 57014→AdapterUnavailableException (timeout), 08xxx→AdapterConnectionRefusedException, else→AdapterUnavailableException. Pool eviction wired into DataConnectorConnectionService credential-update + softDelete branches (not cosmetic). 20 tests green (6 pool + 11 adapter against Testcontainers pgvector/pg16 + 3 new eviction tests + 13 previously-failing service tests unblocked by the added @MockitoBean poolManager).
+Deferred Plan 03-04 (NL-Assisted Mapping Suggestions) via R1 decision on 2026-04-13. No code, no build.gradle.kts edit, no Spring AI dependency. Bookkeeping artifacts only: 03-04-SUMMARY.md (status=deferred), STATE.md updated, ROADMAP.md updated. MAP-07 remains Pending in REQUIREMENTS.md; MAP-03/04/05 unchanged (Complete via 03-03). Reopen condition: phase 03.5-boot4-upgrade lands Boot 4.x, at which point 03-04-PLAN.md is rewritten against Spring AI 2.x ChatModel multi-provider coordinates (Anthropic default + OpenAI reasoning fallback). Earlier: Completed Plan 03-02 (PostgresAdapter + WorkspaceConnectionPoolManager). WorkspaceConnectionPoolManager caches one HikariDataSource per connectionId via ConcurrentHashMap.computeIfAbsent; HikariConfig uses initializationFailTimeout=-1 so pool construction never eagerly connects. PostgresAdapter @SourceTypeAdapter(SourceType.CONNECTOR) implements IngestionAdapter — syncMode=POLL, introspectSchema + introspectWithFkMetadata sibling method for plan 03-03 to consume ForeignKeyMetadata. PostgresFetcher builds server-side-cursor SQL (autoCommit=false + fetchSize) with cursor-or-PK-fallback variants; casts comparison column with ::text for cross-type UUID/bigint/text compatibility; null-cursor first fetch omits WHERE entirely. JDBC SQLState translator: 28xxx→AdapterAuthException, 57014→AdapterUnavailableException (timeout), 08xxx→AdapterConnectionRefusedException, else→AdapterUnavailableException. Pool eviction wired into DataConnectorConnectionService credential-update + softDelete branches (not cosmetic). 20 tests green (6 pool + 11 adapter against Testcontainers pgvector/pg16 + 3 new eviction tests + 13 previously-failing service tests unblocked by the added @MockitoBean poolManager).
 
 ### Next Action
-Scope + stand up new phase **03.5-boot4-upgrade** (Spring Boot 4 migration) as prerequisite to reopening 03-04. After 03.5 lands, rewrite 03-04-PLAN.md against Spring AI 2.x multi-provider (Anthropic default + OpenAI reasoning) + new env vars (ANTHROPIC_API_KEY + OPENAI_REASONING_API_KEY). In parallel, Phase 4 (IngestionOrchestrator + CustomSourceSyncWorkflow) is unblocked and is the natural next workstream — MAP-07 is not on its input contract.
+Execute Plan 03.1-02 (Spring Security 7 SecurityFilterChain migration) — lambda-DSL strictness, current authorization API idioms on `core/src/main/kotlin/riven/core/configuration/auth/SecurityConfig.kt`. Compile-clean baseline from 03.1-01 makes this straightforward. Plans 03.1-03 (test harness sweep) and 03.1-04 (closure + Nango smoke) can run in parallel waves afterward. Phase 03.5 (reopen 03-04 against Spring AI 2.x) unblocks once 03.1-04 closes.
 
 ### Last session
-- **Stopped at:** Phase 03.1 context gathered
+- **Stopped at:** Completed 03.1-01-PLAN.md
 - **Timestamp:** 2026-04-13T12:00:00Z
 
 ### Files of Record

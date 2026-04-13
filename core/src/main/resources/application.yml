@@ -85,7 +85,6 @@ riven:
     ollama:
       base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
       model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
-<<<<<<< Updated upstream
   websocket:
     endpoint: /ws
     server-heartbeat-ms: 10000
@@ -93,9 +92,6 @@ riven:
     max-message-size-bytes: 65536
     send-buffer-size-bytes: 524288
     send-timeout-ms: 15000
-||||||| Stash base
-=======
->>>>>>> Stashed changes
   query:
     timeout-seconds: 10
 storage:

@@ -9,7 +9,6 @@ import { GoogleTagManager } from '@next/third-parties/google';
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono, Space_Mono } from 'next/font/google';
 import localFont from 'next/font/local';
-import { GoogleTagManager } from '@next/third-parties/google';
 import { Toaster } from 'sonner';
 import './globals.css';
 

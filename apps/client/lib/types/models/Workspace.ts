@@ -63,7 +63,7 @@ export interface Workspace {
      * @type {string}
      * @memberof Workspace
      */
-    avatarUrl?: string;
+    avatarUrl?: string | null;
     /**
      * 
      * @type {number}
@@ -75,25 +75,25 @@ export interface Workspace {
      * @type {Date}
      * @memberof Workspace
      */
-    createdAt?: Date;
+    createdAt?: Date | null;
     /**
      * 
      * @type {Date}
      * @memberof Workspace
      */
-    updatedAt?: Date;
+    updatedAt?: Date | null;
     /**
      * 
      * @type {string}
      * @memberof Workspace
      */
-    createdBy?: string;
+    createdBy?: string | null;
     /**
      * 
      * @type {string}
      * @memberof Workspace
      */
-    updatedBy?: string;
+    updatedBy?: string | null;
 }
 
 

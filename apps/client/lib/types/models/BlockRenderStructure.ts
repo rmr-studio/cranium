@@ -64,7 +64,7 @@ export interface BlockRenderStructure {
      * @type {ThemeTokens}
      * @memberof BlockRenderStructure
      */
-    theme?: ThemeTokens;
+    theme?: ThemeTokens | null;
 }
 
 /**

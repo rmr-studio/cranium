@@ -51,25 +51,25 @@ export interface FormWidgetConfig {
      * @type {string}
      * @memberof FormWidgetConfig
      */
-    description?: string;
+    description?: string | null;
     /**
      * 
      * @type {string}
      * @memberof FormWidgetConfig
      */
-    tooltip?: string;
+    tooltip?: string | null;
     /**
      * 
      * @type {string}
      * @memberof FormWidgetConfig
      */
-    placeholder?: string;
+    placeholder?: string | null;
     /**
      * 
      * @type {Array<Option>}
      * @memberof FormWidgetConfig
      */
-    options?: Array<Option>;
+    options?: Array<Option> | null;
 }
 
 

@@ -44,7 +44,7 @@ export interface WorkflowDefinitionVersion {
      * @type {WorkflowGraph}
      * @memberof WorkflowDefinitionVersion
      */
-    workflow?: WorkflowGraph;
+    workflow?: WorkflowGraph | null;
     /**
      * 
      * @type {object}
@@ -56,25 +56,25 @@ export interface WorkflowDefinitionVersion {
      * @type {Date}
      * @memberof WorkflowDefinitionVersion
      */
-    createdAt?: Date;
+    createdAt?: Date | null;
     /**
      * 
      * @type {Date}
      * @memberof WorkflowDefinitionVersion
      */
-    updatedAt?: Date;
+    updatedAt?: Date | null;
     /**
      * 
      * @type {string}
      * @memberof WorkflowDefinitionVersion
      */
-    createdBy?: string;
+    createdBy?: string | null;
     /**
      * 
      * @type {string}
      * @memberof WorkflowDefinitionVersion
      */
-    updatedBy?: string;
+    updatedBy?: string | null;
 }
 
 /**

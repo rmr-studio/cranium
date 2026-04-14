@@ -28,23 +28,23 @@ import {
  */
 export interface QueryPagination {
     /**
-     * 
+     * Maximum number of entities to return.
      * @type {number}
      * @memberof QueryPagination
      */
     limit?: number;
     /**
-     * 
+     * Number of entities to skip.
      * @type {number}
      * @memberof QueryPagination
      */
     offset?: number;
     /**
-     * 
+     * Optional ordering clauses.
      * @type {Array<OrderByClause>}
      * @memberof QueryPagination
      */
-    orderBy?: Array<OrderByClause>;
+    orderBy?: Array<OrderByClause> | null;
 }
 
 /**

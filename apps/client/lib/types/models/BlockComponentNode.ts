@@ -69,10 +69,10 @@ export interface BlockComponentNode {
     type: ComponentType;
     /**
      * 
-     * @type {{ [key: string]: any; }}
+     * @type {object}
      * @memberof BlockComponentNode
      */
-    props: { [key: string]: any; };
+    props: object;
     /**
      * 
      * @type {Array<BlockBinding>}
@@ -84,25 +84,25 @@ export interface BlockComponentNode {
      * @type {{ [key: string]: Array<string>; }}
      * @memberof BlockComponentNode
      */
-    slots?: { [key: string]: Array<string>; };
+    slots?: { [key: string]: Array<string>; } | null;
     /**
      * 
      * @type {{ [key: string]: LayoutGrid; }}
      * @memberof BlockComponentNode
      */
-    slotLayout?: { [key: string]: LayoutGrid; };
+    slotLayout?: { [key: string]: LayoutGrid; } | null;
     /**
      * 
      * @type {{ [key: string]: object; }}
      * @memberof BlockComponentNode
      */
-    widgetMeta?: { [key: string]: object; };
+    widgetMeta?: { [key: string]: object; } | null;
     /**
      * 
      * @type {Condition}
      * @memberof BlockComponentNode
      */
-    visible?: Condition;
+    visible?: Condition | null;
     /**
      * 
      * @type {BlockFetchPolicy}

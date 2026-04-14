@@ -85,19 +85,19 @@ export interface CompleteOnboardingRequest {
      * @type {Array<OnboardingInvite>}
      * @memberof CompleteOnboardingRequest
      */
-    invites?: Array<OnboardingInvite>;
+    invites?: Array<OnboardingInvite> | null;
     /**
      * 
      * @type {Array<OnboardingBusinessDefinition>}
      * @memberof CompleteOnboardingRequest
      */
-    businessDefinitions?: Array<OnboardingBusinessDefinition>;
+    businessDefinitions?: Array<OnboardingBusinessDefinition> | null;
     /**
      * 
      * @type {Array<AcquisitionChannel>}
      * @memberof CompleteOnboardingRequest
      */
-    acquisitionChannels?: Array<AcquisitionChannel>;
+    acquisitionChannels?: Array<AcquisitionChannel> | null;
 }
 
 

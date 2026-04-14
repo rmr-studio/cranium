@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { ConditionRight } from './ConditionRight';
+import {
+    ConditionRightFromJSON,
+    ConditionRightFromJSONTyped,
+    ConditionRightToJSON,
+    ConditionRightToJSONTyped,
+} from './ConditionRight';
 import type { Op } from './Op';
 import {
     OpFromJSON,
@@ -48,10 +55,10 @@ export interface Condition {
     left: ConditionLeft;
     /**
      * 
-     * @type {ConditionLeft}
+     * @type {ConditionRight}
      * @memberof Condition
      */
-    right?: ConditionLeft;
+    right?: ConditionRight | null;
 }
 
 
@@ -77,7 +84,7 @@ export function ConditionFromJSONTyped(json: any, ignoreDiscriminator: boolean):
         
         'op': OpFromJSON(json['op']),
         'left': ConditionLeftFromJSON(json['left']),
-        'right': json['right'] == null ? undefined : ConditionLeftFromJSON(json['right']),
+        'right': json['right'] == null ? undefined : ConditionRightFromJSON(json['right']),
     };
 }
 
@@ -94,7 +101,7 @@ export function ConditionToJSONTyped(value?: Condition | null, ignoreDiscriminat
         
         'op': OpToJSON(value['op']),
         'left': ConditionLeftToJSON(value['left']),
-        'right': ConditionLeftToJSON(value['right']),
+        'right': ConditionRightToJSON(value['right']),
     };
 }
 

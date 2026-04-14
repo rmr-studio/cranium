@@ -6,7 +6,7 @@
 
 Name | Type
 ------------ | -------------
-`root` | [BlockTreeRoot](BlockTreeRoot.md)
+`root` | [Node](Node.md)
 
 ## Example
 

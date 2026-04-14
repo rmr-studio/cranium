@@ -12,59 +12,27 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { NodeType } from './NodeType';
+import type { ContentNode } from './ContentNode';
 import {
-    NodeTypeFromJSON,
-    NodeTypeFromJSONTyped,
-    NodeTypeToJSON,
-    NodeTypeToJSONTyped,
-} from './NodeType';
-import type { Block } from './Block';
+    instanceOfContentNode,
+    ContentNodeFromJSON,
+    ContentNodeFromJSONTyped,
+    ContentNodeToJSON,
+} from './ContentNode';
+import type { ReferenceNode } from './ReferenceNode';
 import {
-    BlockFromJSON,
-    BlockFromJSONTyped,
-    BlockToJSON,
-    BlockToJSONTyped,
-} from './Block';
+    instanceOfReferenceNode,
+    ReferenceNodeFromJSON,
+    ReferenceNodeFromJSONTyped,
+    ReferenceNodeToJSON,
+} from './ReferenceNode';
 
 /**
+ * @type Node
  * 
  * @export
- * @interface Node
  */
-export interface Node {
-    /**
-     * 
-     * @type {Block}
-     * @memberof Node
-     */
-    block: Block;
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof Node
-     */
-    warnings: Array<string>;
-    /**
-     * 
-     * @type {NodeType}
-     * @memberof Node
-     */
-    type: NodeType;
-}
-
-
-
-/**
- * Check if a given object implements the Node interface.
- */
-export function instanceOfNode(value: object): value is Node {
-    if (!('block' in value) || value['block'] === undefined) return false;
-    if (!('warnings' in value) || value['warnings'] === undefined) return false;
-    if (!('type' in value) || value['type'] === undefined) return false;
-    return true;
-}
+export type Node = ContentNode | ReferenceNode;
 
 export function NodeFromJSON(json: any): Node {
     return NodeFromJSONTyped(json, false);
@@ -74,15 +42,19 @@ export function NodeFromJSONTyped(json: any, ignoreDiscriminator: boolean): Node
     if (json == null) {
         return json;
     }
-    return {
-        
-        'block': BlockFromJSON(json['block']),
-        'warnings': json['warnings'],
-        'type': NodeTypeFromJSON(json['type']),
-    };
+    if (typeof json !== 'object') {
+        return json;
+    }
+    if (instanceOfContentNode(json)) {
+        return ContentNodeFromJSONTyped(json, true);
+    }
+    if (instanceOfReferenceNode(json)) {
+        return ReferenceNodeFromJSONTyped(json, true);
+    }
+    return {} as any;
 }
 
-export function NodeToJSON(json: any): Node {
+export function NodeToJSON(json: any): any {
     return NodeToJSONTyped(json, false);
 }
 
@@ -90,12 +62,15 @@ export function NodeToJSONTyped(value?: Node | null, ignoreDiscriminator: boolea
     if (value == null) {
         return value;
     }
-
-    return {
-        
-        'block': BlockToJSON(value['block']),
-        'warnings': value['warnings'],
-        'type': NodeTypeToJSON(value['type']),
-    };
+    if (typeof value !== 'object') {
+        return value;
+    }
+    if (instanceOfContentNode(value)) {
+        return ContentNodeToJSON(value as ContentNode);
+    }
+    if (instanceOfReferenceNode(value)) {
+        return ReferenceNodeToJSON(value as ReferenceNode);
+    }
+    return {};
 }
 

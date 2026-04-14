@@ -42,7 +42,7 @@ export interface UserDisplay {
      * @type {string}
      * @memberof UserDisplay
      */
-    avatarUrl?: string;
+    avatarUrl?: string | null;
 }
 
 /**

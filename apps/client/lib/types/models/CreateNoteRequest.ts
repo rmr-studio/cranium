@@ -24,7 +24,7 @@ export interface CreateNoteRequest {
      * @type {string}
      * @memberof CreateNoteRequest
      */
-    title?: string;
+    title?: string | null;
     /**
      * 
      * @type {Array<{ [key: string]: object; }>}

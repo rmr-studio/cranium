@@ -38,7 +38,7 @@ export interface DevSeedResponse {
      * @type {string}
      * @memberof DevSeedResponse
      */
-    templateKey?: string;
+    templateKey?: string | null;
     /**
      * 
      * @type {number}

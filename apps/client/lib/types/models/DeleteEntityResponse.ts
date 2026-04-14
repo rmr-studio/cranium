@@ -38,7 +38,7 @@ export interface DeleteEntityResponse {
      * @type {{ [key: string]: Array<Entity>; }}
      * @memberof DeleteEntityResponse
      */
-    updatedEntities?: { [key: string]: Array<Entity>; };
+    updatedEntities?: { [key: string]: Array<Entity>; } | null;
 }
 
 /**

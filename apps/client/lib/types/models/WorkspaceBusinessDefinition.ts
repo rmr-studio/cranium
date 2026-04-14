@@ -82,7 +82,7 @@ export interface WorkspaceBusinessDefinition {
      * @type {{ [key: string]: object; }}
      * @memberof WorkspaceBusinessDefinition
      */
-    compiledParams?: { [key: string]: object; };
+    compiledParams?: { [key: string]: object; } | null;
     /**
      * 
      * @type {DefinitionStatus}
@@ -124,19 +124,19 @@ export interface WorkspaceBusinessDefinition {
      * @type {string}
      * @memberof WorkspaceBusinessDefinition
      */
-    createdBy?: string;
+    createdBy?: string | null;
     /**
      * 
      * @type {Date}
      * @memberof WorkspaceBusinessDefinition
      */
-    createdAt?: Date;
+    createdAt?: Date | null;
     /**
      * 
      * @type {Date}
      * @memberof WorkspaceBusinessDefinition
      */
-    updatedAt?: Date;
+    updatedAt?: Date | null;
 }
 
 

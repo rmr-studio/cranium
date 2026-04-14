@@ -45,7 +45,7 @@ export interface BlockTreeReference {
      * @type {ReferenceItemBlockTree}
      * @memberof BlockTreeReference
      */
-    reference?: ReferenceItemBlockTree;
+    reference?: ReferenceItemBlockTree | null;
 }
 
 

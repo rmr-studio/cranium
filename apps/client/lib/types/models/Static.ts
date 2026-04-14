@@ -32,7 +32,7 @@ export interface Static extends DefaultValue {
      * @type {object}
      * @memberof Static
      */
-    value?: object;
+    value?: object | null;
 }
 
 /**

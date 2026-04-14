@@ -13,6 +13,20 @@
  */
 
 import { mapValues } from '../runtime';
+import type { EntityRelationshipCardinality } from './EntityRelationshipCardinality';
+import {
+    EntityRelationshipCardinalityFromJSON,
+    EntityRelationshipCardinalityFromJSONTyped,
+    EntityRelationshipCardinalityToJSON,
+    EntityRelationshipCardinalityToJSONTyped,
+} from './EntityRelationshipCardinality';
+import type { SaveTargetRuleRequest } from './SaveTargetRuleRequest';
+import {
+    SaveTargetRuleRequestFromJSON,
+    SaveTargetRuleRequestFromJSONTyped,
+    SaveTargetRuleRequestToJSON,
+    SaveTargetRuleRequestToJSONTyped,
+} from './SaveTargetRuleRequest';
 import type { SaveSemanticMetadataRequest } from './SaveSemanticMetadataRequest';
 import {
     SaveSemanticMetadataRequestFromJSON,
@@ -34,6 +48,20 @@ import {
     EntityTypeRequestDefinitionToJSON,
     EntityTypeRequestDefinitionToJSONTyped,
 } from './EntityTypeRequestDefinition';
+import type { IconType } from './IconType';
+import {
+    IconTypeFromJSON,
+    IconTypeFromJSONTyped,
+    IconTypeToJSON,
+    IconTypeToJSONTyped,
+} from './IconType';
+import type { IconColour } from './IconColour';
+import {
+    IconColourFromJSON,
+    IconColourFromJSONTyped,
+    IconColourToJSON,
+    IconColourToJSONTyped,
+} from './IconColour';
 
 /**
  * Request to save a schema attribute definition for an entity type
@@ -52,7 +80,7 @@ export interface SaveAttributeDefinitionRequest {
      * @type {string}
      * @memberof SaveAttributeDefinitionRequest
      */
-    id: string;
+    id: string | null;
     /**
      * 
      * @type {EntityTypeRequestDefinition}
@@ -70,7 +98,37 @@ export interface SaveAttributeDefinitionRequest {
      * @type {SaveSemanticMetadataRequest}
      * @memberof SaveAttributeDefinitionRequest
      */
-    semantics?: SaveSemanticMetadataRequest;
+    semantics?: SaveSemanticMetadataRequest | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof SaveAttributeDefinitionRequest
+     */
+    name: string;
+    /**
+     * 
+     * @type {IconType}
+     * @memberof SaveAttributeDefinitionRequest
+     */
+    iconType?: IconType | null;
+    /**
+     * 
+     * @type {IconColour}
+     * @memberof SaveAttributeDefinitionRequest
+     */
+    iconColour?: IconColour | null;
+    /**
+     * 
+     * @type {EntityRelationshipCardinality}
+     * @memberof SaveAttributeDefinitionRequest
+     */
+    cardinalityDefault: EntityRelationshipCardinality;
+    /**
+     * 
+     * @type {Array<SaveTargetRuleRequest>}
+     * @memberof SaveAttributeDefinitionRequest
+     */
+    targetRules: Array<SaveTargetRuleRequest>;
 }
 
 
@@ -83,6 +141,9 @@ export function instanceOfSaveAttributeDefinitionRequest(value: object): value i
     if (!('id' in value) || value['id'] === undefined) return false;
     if (!('type' in value) || value['type'] === undefined) return false;
     if (!('schema' in value) || value['schema'] === undefined) return false;
+    if (!('name' in value) || value['name'] === undefined) return false;
+    if (!('cardinalityDefault' in value) || value['cardinalityDefault'] === undefined) return false;
+    if (!('targetRules' in value) || value['targetRules'] === undefined) return false;
     return true;
 }
 
@@ -101,6 +162,11 @@ export function SaveAttributeDefinitionRequestFromJSONTyped(json: any, ignoreDis
         'type': EntityTypeRequestDefinitionFromJSON(json['type']),
         'schema': SchemaUUIDFromJSON(json['schema']),
         'semantics': json['semantics'] == null ? undefined : SaveSemanticMetadataRequestFromJSON(json['semantics']),
+        'name': json['name'],
+        'iconType': json['iconType'] == null ? undefined : IconTypeFromJSON(json['iconType']),
+        'iconColour': json['iconColour'] == null ? undefined : IconColourFromJSON(json['iconColour']),
+        'cardinalityDefault': EntityRelationshipCardinalityFromJSON(json['cardinalityDefault']),
+        'targetRules': ((json['targetRules'] as Array<any>).map(SaveTargetRuleRequestFromJSON)),
     };
 }
 
@@ -120,6 +186,11 @@ export function SaveAttributeDefinitionRequestToJSONTyped(value?: SaveAttributeD
         'type': EntityTypeRequestDefinitionToJSON(value['type']),
         'schema': SchemaUUIDToJSON(value['schema']),
         'semantics': SaveSemanticMetadataRequestToJSON(value['semantics']),
+        'name': value['name'],
+        'iconType': IconTypeToJSON(value['iconType']),
+        'iconColour': IconColourToJSON(value['iconColour']),
+        'cardinalityDefault': EntityRelationshipCardinalityToJSON(value['cardinalityDefault']),
+        'targetRules': ((value['targetRules'] as Array<any>).map(SaveTargetRuleRequestToJSON)),
     };
 }
 

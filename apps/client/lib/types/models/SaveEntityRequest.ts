@@ -39,7 +39,7 @@ export interface SaveEntityRequest {
      * @type {string}
      * @memberof SaveEntityRequest
      */
-    id?: string;
+    id?: string | null;
     /**
      * 
      * @type {{ [key: string]: EntityAttributeRequest; }}
@@ -51,7 +51,7 @@ export interface SaveEntityRequest {
      * @type {Icon}
      * @memberof SaveEntityRequest
      */
-    icon?: Icon;
+    icon?: Icon | null;
 }
 
 /**

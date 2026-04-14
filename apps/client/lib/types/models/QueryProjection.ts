@@ -20,19 +20,19 @@ import { mapValues } from '../runtime';
  */
 export interface QueryProjection {
     /**
-     * 
-     * @type {Array<string>}
+     * Specific attribute UUIDs to include. Null includes all.
+     * @type {Array<string | null>}
      * @memberof QueryProjection
      */
-    includeAttributes?: Array<string>;
+    includeAttributes?: Array<string | null> | null;
     /**
-     * 
-     * @type {Array<string>}
+     * Specific relationship UUIDs to include. Null includes all.
+     * @type {Array<string | null>}
      * @memberof QueryProjection
      */
-    includeRelationships?: Array<string>;
+    includeRelationships?: Array<string | null> | null;
     /**
-     * 
+     * Whether to hydrate related entities.
      * @type {boolean}
      * @memberof QueryProjection
      */

@@ -47,13 +47,13 @@ export interface WorkflowNodeTypeMetadata {
      */
     description: string;
     /**
-     * Icon type for UI rendering
+     * 
      * @type {IconType}
      * @memberof WorkflowNodeTypeMetadata
      */
     icon: IconType;
     /**
-     * UI category for grouping (trigger, action, condition, utility)
+     * 
      * @type {WorkflowNodeType}
      * @memberof WorkflowNodeTypeMetadata
      */

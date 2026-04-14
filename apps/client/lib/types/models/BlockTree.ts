@@ -13,13 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
-import type { BlockTreeRoot } from './BlockTreeRoot';
+import type { Node } from './Node';
 import {
-    BlockTreeRootFromJSON,
-    BlockTreeRootFromJSONTyped,
-    BlockTreeRootToJSON,
-    BlockTreeRootToJSONTyped,
-} from './BlockTreeRoot';
+    NodeFromJSON,
+    NodeFromJSONTyped,
+    NodeToJSON,
+    NodeToJSONTyped,
+} from './Node';
 
 /**
  * 
@@ -29,10 +29,10 @@ import {
 export interface BlockTree {
     /**
      * 
-     * @type {BlockTreeRoot}
+     * @type {Node}
      * @memberof BlockTree
      */
-    root: BlockTreeRoot;
+    root: Node;
 }
 
 /**
@@ -53,7 +53,7 @@ export function BlockTreeFromJSONTyped(json: any, ignoreDiscriminator: boolean):
     }
     return {
         
-        'root': BlockTreeRootFromJSON(json['root']),
+        'root': NodeFromJSON(json['root']),
     };
 }
 
@@ -68,7 +68,7 @@ export function BlockTreeToJSONTyped(value?: BlockTree | null, ignoreDiscriminat
 
     return {
         
-        'root': BlockTreeRootToJSON(value['root']),
+        'root': NodeToJSON(value['root']),
     };
 }
 

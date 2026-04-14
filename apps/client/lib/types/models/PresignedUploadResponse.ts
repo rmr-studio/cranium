@@ -30,13 +30,13 @@ export interface PresignedUploadResponse {
      * @type {string}
      * @memberof PresignedUploadResponse
      */
-    uploadUrl?: string;
+    uploadUrl?: string | null;
     /**
      * 
      * @type {string}
      * @memberof PresignedUploadResponse
      */
-    method?: string;
+    method?: string | null;
     /**
      * 
      * @type {boolean}

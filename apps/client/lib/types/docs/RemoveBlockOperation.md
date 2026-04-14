@@ -8,8 +8,15 @@ Name | Type
 ------------ | -------------
 `blockId` | string
 `type` | [BlockOperationType](BlockOperationType.md)
-`childrenIds` | { [key: string]: string; }
+`block` | [Node](Node.md)
 `parentId` | string
+`index` | number
+`childrenIds` | { [key: string]: string; }
+`fromParentId` | string
+`toParentId` | string
+`updatedContent` | [Node](Node.md)
+`fromIndex` | number
+`toIndex` | number
 
 ## Example
 
@@ -20,8 +27,15 @@ import type { RemoveBlockOperation } from ''
 const example = {
   "blockId": null,
   "type": null,
-  "childrenIds": null,
+  "block": null,
   "parentId": null,
+  "index": null,
+  "childrenIds": null,
+  "fromParentId": null,
+  "toParentId": null,
+  "updatedContent": null,
+  "fromIndex": null,
+  "toIndex": null,
 } satisfies RemoveBlockOperation
 
 console.log(example)

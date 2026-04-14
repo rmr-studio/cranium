@@ -62,7 +62,7 @@ export interface RelationshipResponse {
      * @type {string}
      * @memberof RelationshipResponse
      */
-    semanticContext?: string;
+    semanticContext?: string | null;
     /**
      * 
      * @type {SourceType}
@@ -74,13 +74,13 @@ export interface RelationshipResponse {
      * @type {Date}
      * @memberof RelationshipResponse
      */
-    createdAt?: Date;
+    createdAt?: Date | null;
     /**
      * 
      * @type {Date}
      * @memberof RelationshipResponse
      */
-    updatedAt?: Date;
+    updatedAt?: Date | null;
 }
 
 

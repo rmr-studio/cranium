@@ -32,7 +32,7 @@ export interface Literal extends FilterValue {
      * @type {object}
      * @memberof Literal
      */
-    value?: object;
+    value?: object | null;
 }
 
 /**

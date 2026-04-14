@@ -24,13 +24,13 @@ export interface UpdateNoteRequest {
      * @type {string}
      * @memberof UpdateNoteRequest
      */
-    title?: string;
+    title?: string | null;
     /**
      * 
      * @type {Array<{ [key: string]: object; }>}
      * @memberof UpdateNoteRequest
      */
-    content?: Array<{ [key: string]: object; }>;
+    content?: Array<{ [key: string]: object; }> | null;
 }
 
 /**

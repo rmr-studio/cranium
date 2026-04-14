@@ -38,19 +38,19 @@ export interface ClusterMemberContext {
      * @type {string}
      * @memberof ClusterMemberContext
      */
-    typeKey?: string;
+    typeKey?: string | null;
     /**
      * 
      * @type {SourceType}
      * @memberof ClusterMemberContext
      */
-    sourceType?: SourceType;
+    sourceType?: SourceType | null;
     /**
      * 
      * @type {string}
      * @memberof ClusterMemberContext
      */
-    identifierKey?: string;
+    identifierKey?: string | null;
     /**
      * 
      * @type {Date}

@@ -39,19 +39,19 @@ export interface EntityTypeImpactResponse {
      * @type {string}
      * @memberof EntityTypeImpactResponse
      */
-    error?: string;
+    error?: string | null;
     /**
      * 
      * @type {{ [key: string]: EntityType; }}
      * @memberof EntityTypeImpactResponse
      */
-    updatedEntityTypes?: { [key: string]: EntityType; };
+    updatedEntityTypes?: { [key: string]: EntityType; } | null;
     /**
      * 
      * @type {DeleteDefinitionImpact}
      * @memberof EntityTypeImpactResponse
      */
-    impact?: DeleteDefinitionImpact;
+    impact?: DeleteDefinitionImpact | null;
 }
 
 /**

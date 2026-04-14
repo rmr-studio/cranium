@@ -90,7 +90,7 @@ export interface CreateEntityTypeRequest {
      * @type {SaveSemanticMetadataRequest}
      * @memberof CreateEntityTypeRequest
      */
-    semantics?: SaveSemanticMetadataRequest;
+    semantics?: SaveSemanticMetadataRequest | null;
 }
 
 

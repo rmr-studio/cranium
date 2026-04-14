@@ -45,25 +45,25 @@ export interface ReferenceItemBlockTree {
      * @type {string}
      * @memberof ReferenceItemBlockTree
      */
-    path?: string;
+    path?: string | null;
     /**
      * 
      * @type {number}
      * @memberof ReferenceItemBlockTree
      */
-    orderIndex?: number;
+    orderIndex?: number | null;
     /**
      * 
      * @type {BlockTree}
      * @memberof ReferenceItemBlockTree
      */
-    entity?: BlockTree;
+    entity?: BlockTree | null;
     /**
      * 
      * @type {BlockReferenceWarning}
      * @memberof ReferenceItemBlockTree
      */
-    warning?: BlockReferenceWarning;
+    warning?: BlockReferenceWarning | null;
 }
 
 

@@ -32,13 +32,13 @@ export interface SaveWorkflowNodeRequest {
      * @type {string}
      * @memberof SaveWorkflowNodeRequest
      */
-    id?: string;
+    id?: string | null;
     /**
      * 
      * @type {string}
      * @memberof SaveWorkflowNodeRequest
      */
-    key?: string;
+    key?: string | null;
     /**
      * 
      * @type {string}
@@ -50,7 +50,7 @@ export interface SaveWorkflowNodeRequest {
      * @type {string}
      * @memberof SaveWorkflowNodeRequest
      */
-    description?: string;
+    description?: string | null;
     /**
      * 
      * @type {SaveWorkflowNodeRequestConfig}

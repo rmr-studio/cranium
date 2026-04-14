@@ -13,6 +13,21 @@
  */
 
 import { mapValues } from '../runtime';
+import type { NoteSourceType } from './NoteSourceType';
+import {
+    NoteSourceTypeFromJSON,
+    NoteSourceTypeFromJSONTyped,
+    NoteSourceTypeToJSON,
+    NoteSourceTypeToJSONTyped,
+} from './NoteSourceType';
+import type { NoteEntityContext } from './NoteEntityContext';
+import {
+    NoteEntityContextFromJSON,
+    NoteEntityContextFromJSONTyped,
+    NoteEntityContextToJSON,
+    NoteEntityContextToJSONTyped,
+} from './NoteEntityContext';
+
 /**
  * 
  * @export
@@ -27,10 +42,10 @@ export interface WorkspaceNote {
     id: string;
     /**
      * 
-     * @type {string}
+     * @type {Array<string>}
      * @memberof WorkspaceNote
      */
-    entityId: string;
+    entityIds: Array<string>;
     /**
      * 
      * @type {string}
@@ -51,66 +66,62 @@ export interface WorkspaceNote {
     content: Array<{ [key: string]: object; }>;
     /**
      * 
-     * @type {Date}
+     * @type {NoteSourceType}
      * @memberof WorkspaceNote
      */
-    createdAt?: Date;
+    sourceType: NoteSourceType;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof WorkspaceNote
+     */
+    readonly: boolean;
     /**
      * 
      * @type {Date}
      * @memberof WorkspaceNote
      */
-    updatedAt?: Date;
+    createdAt?: Date | null;
+    /**
+     * 
+     * @type {Date}
+     * @memberof WorkspaceNote
+     */
+    updatedAt?: Date | null;
     /**
      * 
      * @type {string}
      * @memberof WorkspaceNote
      */
-    createdBy?: string;
+    createdBy?: string | null;
     /**
      * 
      * @type {string}
      * @memberof WorkspaceNote
      */
-    updatedBy?: string;
+    updatedBy?: string | null;
     /**
      * 
-     * @type {string}
+     * @type {Array<NoteEntityContext>}
      * @memberof WorkspaceNote
      */
-    entityDisplayName?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof WorkspaceNote
-     */
-    entityTypeKey: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof WorkspaceNote
-     */
-    entityTypeIcon: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof WorkspaceNote
-     */
-    entityTypeColour: string;
+    entityContexts: Array<NoteEntityContext>;
 }
+
+
 
 /**
  * Check if a given object implements the WorkspaceNote interface.
  */
 export function instanceOfWorkspaceNote(value: object): value is WorkspaceNote {
     if (!('id' in value) || value['id'] === undefined) return false;
-    if (!('entityId' in value) || value['entityId'] === undefined) return false;
+    if (!('entityIds' in value) || value['entityIds'] === undefined) return false;
     if (!('workspaceId' in value) || value['workspaceId'] === undefined) return false;
     if (!('title' in value) || value['title'] === undefined) return false;
     if (!('content' in value) || value['content'] === undefined) return false;
-    if (!('entityTypeKey' in value) || value['entityTypeKey'] === undefined) return false;
-    if (!('entityTypeIcon' in value) || value['entityTypeIcon'] === undefined) return false;
-    if (!('entityTypeColour' in value) || value['entityTypeColour'] === undefined) return false;
+    if (!('sourceType' in value) || value['sourceType'] === undefined) return false;
+    if (!('readonly' in value) || value['readonly'] === undefined) return false;
+    if (!('entityContexts' in value) || value['entityContexts'] === undefined) return false;
     return true;
 }
 
@@ -125,18 +136,17 @@ export function WorkspaceNoteFromJSONTyped(json: any, ignoreDiscriminator: boole
     return {
         
         'id': json['id'],
-        'entityId': json['entityId'],
+        'entityIds': json['entityIds'],
         'workspaceId': json['workspaceId'],
         'title': json['title'],
         'content': json['content'],
+        'sourceType': NoteSourceTypeFromJSON(json['sourceType']),
+        'readonly': json['readonly'],
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
         'updatedAt': json['updatedAt'] == null ? undefined : (new Date(json['updatedAt'])),
         'createdBy': json['createdBy'] == null ? undefined : json['createdBy'],
         'updatedBy': json['updatedBy'] == null ? undefined : json['updatedBy'],
-        'entityDisplayName': json['entityDisplayName'] == null ? undefined : json['entityDisplayName'],
-        'entityTypeKey': json['entityTypeKey'],
-        'entityTypeIcon': json['entityTypeIcon'],
-        'entityTypeColour': json['entityTypeColour'],
+        'entityContexts': ((json['entityContexts'] as Array<any>).map(NoteEntityContextFromJSON)),
     };
 }
 
@@ -152,18 +162,17 @@ export function WorkspaceNoteToJSONTyped(value?: WorkspaceNote | null, ignoreDis
     return {
         
         'id': value['id'],
-        'entityId': value['entityId'],
+        'entityIds': value['entityIds'],
         'workspaceId': value['workspaceId'],
         'title': value['title'],
         'content': value['content'],
+        'sourceType': NoteSourceTypeToJSON(value['sourceType']),
+        'readonly': value['readonly'],
         'createdAt': value['createdAt'] == null ? value['createdAt'] : value['createdAt'].toISOString(),
         'updatedAt': value['updatedAt'] == null ? value['updatedAt'] : value['updatedAt'].toISOString(),
         'createdBy': value['createdBy'],
         'updatedBy': value['updatedBy'],
-        'entityDisplayName': value['entityDisplayName'],
-        'entityTypeKey': value['entityTypeKey'],
-        'entityTypeIcon': value['entityTypeIcon'],
-        'entityTypeColour': value['entityTypeColour'],
+        'entityContexts': ((value['entityContexts'] as Array<any>).map(NoteEntityContextToJSON)),
     };
 }
 

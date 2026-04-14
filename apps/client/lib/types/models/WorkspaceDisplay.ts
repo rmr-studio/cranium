@@ -36,7 +36,7 @@ export interface WorkspaceDisplay {
      * @type {string}
      * @memberof WorkspaceDisplay
      */
-    avatarUrl?: string;
+    avatarUrl?: string | null;
 }
 
 /**

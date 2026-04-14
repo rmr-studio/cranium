@@ -46,69 +46,87 @@ export interface WorkflowHttpRequestActionConfig {
      * @type {number}
      * @memberof WorkflowHttpRequestActionConfig
      */
-    version?: number;
+    version: number;
     /**
-     * 
+     * URL to request. Can contain templates like {{ steps.x.output.url }}
      * @type {string}
      * @memberof WorkflowHttpRequestActionConfig
      */
-    url?: string;
+    url: string;
     /**
-     * 
+     * HTTP method: GET, POST, PUT, DELETE, PATCH
      * @type {string}
      * @memberof WorkflowHttpRequestActionConfig
      */
-    method?: string;
+    method: WorkflowHttpRequestActionConfigMethodEnum;
     /**
-     * 
-     * @type {{ [key: string]: string; }}
+     * Optional HTTP headers. Values can be templates.
+     * @type {{ [key: string]: string | null; }}
      * @memberof WorkflowHttpRequestActionConfig
      */
-    headers?: { [key: string]: string; };
+    headers?: { [key: string]: string | null; } | null;
     /**
-     * 
-     * @type {{ [key: string]: string; }}
+     * Optional request body for POST/PUT/PATCH. Values can be templates.
+     * @type {{ [key: string]: string | null; }}
      * @memberof WorkflowHttpRequestActionConfig
      */
-    body?: { [key: string]: string; };
+    body?: { [key: string]: string | null; } | null;
     /**
-     * 
+     * Optional timeout override in seconds
      * @type {number}
      * @memberof WorkflowHttpRequestActionConfig
      */
-    timeoutSeconds?: number;
+    timeoutSeconds?: number | null;
     /**
      * 
      * @type {Array<WorkflowNodeConfigField>}
      * @memberof WorkflowHttpRequestActionConfig
      */
-    configSchema?: Array<WorkflowNodeConfigField>;
+    configSchema: Array<WorkflowNodeConfigField>;
     /**
      * 
      * @type {{ [key: string]: object; }}
      * @memberof WorkflowHttpRequestActionConfig
      */
-    config?: { [key: string]: object; };
+    config: { [key: string]: object; };
     /**
      * 
      * @type {WorkflowActionType}
      * @memberof WorkflowHttpRequestActionConfig
      */
-    subType?: WorkflowActionType;
+    subType: WorkflowActionType;
     /**
      * 
      * @type {WorkflowNodeType}
      * @memberof WorkflowHttpRequestActionConfig
      */
-    type?: WorkflowNodeType;
+    type: WorkflowNodeType;
 }
 
+/**
+* @export
+* @enum {string}
+*/
+export enum WorkflowHttpRequestActionConfigMethodEnum {
+    Get = 'GET',
+    Post = 'POST',
+    Put = 'PUT',
+    Delete = 'DELETE',
+    Patch = 'PATCH'
+}
 
 
 /**
  * Check if a given object implements the WorkflowHttpRequestActionConfig interface.
  */
 export function instanceOfWorkflowHttpRequestActionConfig(value: object): value is WorkflowHttpRequestActionConfig {
+    if (!('version' in value) || value['version'] === undefined) return false;
+    if (!('url' in value) || value['url'] === undefined) return false;
+    if (!('method' in value) || value['method'] === undefined) return false;
+    if (!('configSchema' in value) || value['configSchema'] === undefined) return false;
+    if (!('config' in value) || value['config'] === undefined) return false;
+    if (!('subType' in value) || value['subType'] === undefined) return false;
+    if (!('type' in value) || value['type'] === undefined) return false;
     return true;
 }
 
@@ -122,16 +140,16 @@ export function WorkflowHttpRequestActionConfigFromJSONTyped(json: any, ignoreDi
     }
     return {
         
-        'version': json['version'] == null ? undefined : json['version'],
-        'url': json['url'] == null ? undefined : json['url'],
-        'method': json['method'] == null ? undefined : json['method'],
+        'version': json['version'],
+        'url': json['url'],
+        'method': json['method'],
         'headers': json['headers'] == null ? undefined : json['headers'],
         'body': json['body'] == null ? undefined : json['body'],
         'timeoutSeconds': json['timeoutSeconds'] == null ? undefined : json['timeoutSeconds'],
-        'configSchema': json['configSchema'] == null ? undefined : ((json['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldFromJSON)),
-        'config': json['config'] == null ? undefined : json['config'],
-        'subType': json['subType'] == null ? undefined : WorkflowActionTypeFromJSON(json['subType']),
-        'type': json['type'] == null ? undefined : WorkflowNodeTypeFromJSON(json['type']),
+        'configSchema': ((json['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldFromJSON)),
+        'config': json['config'],
+        'subType': WorkflowActionTypeFromJSON(json['subType']),
+        'type': WorkflowNodeTypeFromJSON(json['type']),
     };
 }
 
@@ -152,7 +170,7 @@ export function WorkflowHttpRequestActionConfigToJSONTyped(value?: WorkflowHttpR
         'headers': value['headers'],
         'body': value['body'],
         'timeoutSeconds': value['timeoutSeconds'],
-        'configSchema': value['configSchema'] == null ? undefined : ((value['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldToJSON)),
+        'configSchema': ((value['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldToJSON)),
         'config': value['config'],
         'subType': WorkflowActionTypeToJSON(value['subType']),
         'type': WorkflowNodeTypeToJSON(value['type']),

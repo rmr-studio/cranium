@@ -32,13 +32,13 @@ export interface SaveWorkflowNodeResponse {
      * @type {WorkflowNode}
      * @memberof SaveWorkflowNodeResponse
      */
-    node?: WorkflowNode;
+    node?: WorkflowNode | null;
     /**
      * 
      * @type {Array<string>}
      * @memberof SaveWorkflowNodeResponse
      */
-    errors?: Array<string>;
+    errors?: Array<string> | null;
     /**
      * 
      * @type {boolean}

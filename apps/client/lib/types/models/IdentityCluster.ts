@@ -36,7 +36,7 @@ export interface IdentityCluster {
      * @type {string}
      * @memberof IdentityCluster
      */
-    name?: string;
+    name?: string | null;
     /**
      * 
      * @type {number}

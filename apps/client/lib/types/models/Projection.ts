@@ -30,7 +30,7 @@ export interface Projection {
      * @type {string}
      * @memberof Projection
      */
-    templateId?: string;
+    templateId?: string | null;
 }
 
 /**

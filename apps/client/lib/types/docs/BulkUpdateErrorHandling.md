@@ -1,6 +1,7 @@
 
 # BulkUpdateErrorHandling
 
+Error handling mode for individual entity update failures.
 
 ## Properties
 

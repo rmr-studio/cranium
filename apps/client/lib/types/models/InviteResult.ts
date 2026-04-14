@@ -36,7 +36,7 @@ export interface InviteResult {
      * @type {string}
      * @memberof InviteResult
      */
-    error?: string;
+    error?: string | null;
 }
 
 /**

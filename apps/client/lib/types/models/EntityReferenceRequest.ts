@@ -44,7 +44,7 @@ export interface EntityReferenceRequest {
      * @type {number}
      * @memberof EntityReferenceRequest
      */
-    index?: number;
+    index?: number | null;
 }
 
 

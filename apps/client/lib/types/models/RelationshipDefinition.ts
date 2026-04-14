@@ -95,7 +95,7 @@ export interface RelationshipDefinition {
      * @type {SystemRelationshipType}
      * @memberof RelationshipDefinition
      */
-    systemType?: SystemRelationshipType;
+    systemType?: SystemRelationshipType | null;
     /**
      * 
      * @type {Array<RelationshipTargetRule>}
@@ -107,25 +107,25 @@ export interface RelationshipDefinition {
      * @type {Date}
      * @memberof RelationshipDefinition
      */
-    createdAt?: Date;
+    createdAt?: Date | null;
     /**
      * 
      * @type {Date}
      * @memberof RelationshipDefinition
      */
-    updatedAt?: Date;
+    updatedAt?: Date | null;
     /**
      * 
      * @type {string}
      * @memberof RelationshipDefinition
      */
-    createdBy?: string;
+    createdBy?: string | null;
     /**
      * 
      * @type {string}
      * @memberof RelationshipDefinition
      */
-    updatedBy?: string;
+    updatedBy?: string | null;
     /**
      * 
      * @type {boolean}

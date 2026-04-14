@@ -32,7 +32,7 @@ export interface SaveTargetRuleRequest {
      * @type {string}
      * @memberof SaveTargetRuleRequest
      */
-    id?: string;
+    id?: string | null;
     /**
      * 
      * @type {string}
@@ -44,7 +44,7 @@ export interface SaveTargetRuleRequest {
      * @type {EntityRelationshipCardinality}
      * @memberof SaveTargetRuleRequest
      */
-    cardinalityOverride?: EntityRelationshipCardinality;
+    cardinalityOverride?: EntityRelationshipCardinality | null;
     /**
      * 
      * @type {string}

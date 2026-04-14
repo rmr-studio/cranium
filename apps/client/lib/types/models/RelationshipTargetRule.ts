@@ -50,7 +50,7 @@ export interface RelationshipTargetRule {
      * @type {EntityRelationshipCardinality}
      * @memberof RelationshipTargetRule
      */
-    cardinalityOverride?: EntityRelationshipCardinality;
+    cardinalityOverride?: EntityRelationshipCardinality | null;
     /**
      * 
      * @type {string}
@@ -62,13 +62,13 @@ export interface RelationshipTargetRule {
      * @type {Date}
      * @memberof RelationshipTargetRule
      */
-    createdAt?: Date;
+    createdAt?: Date | null;
     /**
      * 
      * @type {Date}
      * @memberof RelationshipTargetRule
      */
-    updatedAt?: Date;
+    updatedAt?: Date | null;
 }
 
 

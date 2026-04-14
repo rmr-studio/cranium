@@ -32,7 +32,7 @@ export interface Value extends Operand {
      * @type {object}
      * @memberof Value
      */
-    value?: object;
+    value?: object | null;
 }
 
 /**

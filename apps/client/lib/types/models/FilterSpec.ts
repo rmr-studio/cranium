@@ -21,10 +21,10 @@ import { mapValues } from '../runtime';
 export interface FilterSpec {
     /**
      * 
-     * @type {{ [key: string]: any; }}
+     * @type {object}
      * @memberof FilterSpec
      */
-    expr: { [key: string]: any; };
+    expr: object;
 }
 
 /**

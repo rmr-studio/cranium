@@ -12,51 +12,27 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { EntityTypeRequestDefinition } from './EntityTypeRequestDefinition';
+import type { SaveAttributeDefinitionRequest } from './SaveAttributeDefinitionRequest';
 import {
-    EntityTypeRequestDefinitionFromJSON,
-    EntityTypeRequestDefinitionFromJSONTyped,
-    EntityTypeRequestDefinitionToJSON,
-    EntityTypeRequestDefinitionToJSONTyped,
-} from './EntityTypeRequestDefinition';
+    instanceOfSaveAttributeDefinitionRequest,
+    SaveAttributeDefinitionRequestFromJSON,
+    SaveAttributeDefinitionRequestFromJSONTyped,
+    SaveAttributeDefinitionRequestToJSON,
+} from './SaveAttributeDefinitionRequest';
+import type { SaveRelationshipDefinitionRequest } from './SaveRelationshipDefinitionRequest';
+import {
+    instanceOfSaveRelationshipDefinitionRequest,
+    SaveRelationshipDefinitionRequestFromJSON,
+    SaveRelationshipDefinitionRequestFromJSONTyped,
+    SaveRelationshipDefinitionRequestToJSON,
+} from './SaveRelationshipDefinitionRequest';
 
 /**
+ * @type TypeDefinition
  * 
  * @export
- * @interface TypeDefinition
  */
-export interface TypeDefinition {
-    /**
-     * 
-     * @type {string}
-     * @memberof TypeDefinition
-     */
-    key: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof TypeDefinition
-     */
-    id?: string;
-    /**
-     * 
-     * @type {EntityTypeRequestDefinition}
-     * @memberof TypeDefinition
-     */
-    type: EntityTypeRequestDefinition;
-}
-
-
-
-/**
- * Check if a given object implements the TypeDefinition interface.
- */
-export function instanceOfTypeDefinition(value: object): value is TypeDefinition {
-    if (!('key' in value) || value['key'] === undefined) return false;
-    if (!('type' in value) || value['type'] === undefined) return false;
-    return true;
-}
+export type TypeDefinition = SaveAttributeDefinitionRequest | SaveRelationshipDefinitionRequest;
 
 export function TypeDefinitionFromJSON(json: any): TypeDefinition {
     return TypeDefinitionFromJSONTyped(json, false);
@@ -66,15 +42,19 @@ export function TypeDefinitionFromJSONTyped(json: any, ignoreDiscriminator: bool
     if (json == null) {
         return json;
     }
-    return {
-        
-        'key': json['key'],
-        'id': json['id'] == null ? undefined : json['id'],
-        'type': EntityTypeRequestDefinitionFromJSON(json['type']),
-    };
+    if (typeof json !== 'object') {
+        return json;
+    }
+    if (instanceOfSaveAttributeDefinitionRequest(json)) {
+        return SaveAttributeDefinitionRequestFromJSONTyped(json, true);
+    }
+    if (instanceOfSaveRelationshipDefinitionRequest(json)) {
+        return SaveRelationshipDefinitionRequestFromJSONTyped(json, true);
+    }
+    return {} as any;
 }
 
-export function TypeDefinitionToJSON(json: any): TypeDefinition {
+export function TypeDefinitionToJSON(json: any): any {
     return TypeDefinitionToJSONTyped(json, false);
 }
 
@@ -82,12 +62,15 @@ export function TypeDefinitionToJSONTyped(value?: TypeDefinition | null, ignoreD
     if (value == null) {
         return value;
     }
-
-    return {
-        
-        'key': value['key'],
-        'id': value['id'],
-        'type': EntityTypeRequestDefinitionToJSON(value['type']),
-    };
+    if (typeof value !== 'object') {
+        return value;
+    }
+    if (instanceOfSaveAttributeDefinitionRequest(value)) {
+        return SaveAttributeDefinitionRequestToJSON(value as SaveAttributeDefinitionRequest);
+    }
+    if (instanceOfSaveRelationshipDefinitionRequest(value)) {
+        return SaveRelationshipDefinitionRequestToJSON(value as SaveRelationshipDefinitionRequest);
+    }
+    return {};
 }
 

@@ -67,19 +67,19 @@ export interface WorkflowBulkUpdateEntityActionConfig {
      * @type {number}
      * @memberof WorkflowBulkUpdateEntityActionConfig
      */
-    version?: number;
+    version: number;
     /**
      * 
      * @type {EntityQuery}
      * @memberof WorkflowBulkUpdateEntityActionConfig
      */
-    query?: EntityQuery;
+    query: EntityQuery;
     /**
-     * 
+     * Map of attribute updates to apply to each matching entity. Keys are attribute UUID strings, values support templates.
      * @type {{ [key: string]: string; }}
      * @memberof WorkflowBulkUpdateEntityActionConfig
      */
-    payload?: { [key: string]: string; };
+    payload: { [key: string]: string; };
     /**
      * 
      * @type {BulkUpdateErrorHandling}
@@ -91,37 +91,37 @@ export interface WorkflowBulkUpdateEntityActionConfig {
      * @type {QueryPagination}
      * @memberof WorkflowBulkUpdateEntityActionConfig
      */
-    pagination?: QueryPagination;
+    pagination?: QueryPagination | null;
     /**
-     * 
+     * Optional timeout override in seconds.
      * @type {number}
      * @memberof WorkflowBulkUpdateEntityActionConfig
      */
-    timeoutSeconds?: number;
+    timeoutSeconds?: number | null;
     /**
      * 
      * @type {Array<WorkflowNodeConfigField>}
      * @memberof WorkflowBulkUpdateEntityActionConfig
      */
-    configSchema?: Array<WorkflowNodeConfigField>;
+    configSchema: Array<WorkflowNodeConfigField>;
     /**
      * 
      * @type {{ [key: string]: object; }}
      * @memberof WorkflowBulkUpdateEntityActionConfig
      */
-    config?: { [key: string]: object; };
+    config: { [key: string]: object; };
     /**
      * 
      * @type {WorkflowActionType}
      * @memberof WorkflowBulkUpdateEntityActionConfig
      */
-    subType?: WorkflowActionType;
+    subType: WorkflowActionType;
     /**
      * 
      * @type {WorkflowNodeType}
      * @memberof WorkflowBulkUpdateEntityActionConfig
      */
-    type?: WorkflowNodeType;
+    type: WorkflowNodeType;
 }
 
 
@@ -130,6 +130,13 @@ export interface WorkflowBulkUpdateEntityActionConfig {
  * Check if a given object implements the WorkflowBulkUpdateEntityActionConfig interface.
  */
 export function instanceOfWorkflowBulkUpdateEntityActionConfig(value: object): value is WorkflowBulkUpdateEntityActionConfig {
+    if (!('version' in value) || value['version'] === undefined) return false;
+    if (!('query' in value) || value['query'] === undefined) return false;
+    if (!('payload' in value) || value['payload'] === undefined) return false;
+    if (!('configSchema' in value) || value['configSchema'] === undefined) return false;
+    if (!('config' in value) || value['config'] === undefined) return false;
+    if (!('subType' in value) || value['subType'] === undefined) return false;
+    if (!('type' in value) || value['type'] === undefined) return false;
     return true;
 }
 
@@ -143,16 +150,16 @@ export function WorkflowBulkUpdateEntityActionConfigFromJSONTyped(json: any, ign
     }
     return {
         
-        'version': json['version'] == null ? undefined : json['version'],
-        'query': json['query'] == null ? undefined : EntityQueryFromJSON(json['query']),
-        'payload': json['payload'] == null ? undefined : json['payload'],
+        'version': json['version'],
+        'query': EntityQueryFromJSON(json['query']),
+        'payload': json['payload'],
         'errorHandling': json['errorHandling'] == null ? undefined : BulkUpdateErrorHandlingFromJSON(json['errorHandling']),
         'pagination': json['pagination'] == null ? undefined : QueryPaginationFromJSON(json['pagination']),
         'timeoutSeconds': json['timeoutSeconds'] == null ? undefined : json['timeoutSeconds'],
-        'configSchema': json['configSchema'] == null ? undefined : ((json['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldFromJSON)),
-        'config': json['config'] == null ? undefined : json['config'],
-        'subType': json['subType'] == null ? undefined : WorkflowActionTypeFromJSON(json['subType']),
-        'type': json['type'] == null ? undefined : WorkflowNodeTypeFromJSON(json['type']),
+        'configSchema': ((json['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldFromJSON)),
+        'config': json['config'],
+        'subType': WorkflowActionTypeFromJSON(json['subType']),
+        'type': WorkflowNodeTypeFromJSON(json['type']),
     };
 }
 
@@ -173,7 +180,7 @@ export function WorkflowBulkUpdateEntityActionConfigToJSONTyped(value?: Workflow
         'errorHandling': BulkUpdateErrorHandlingToJSON(value['errorHandling']),
         'pagination': QueryPaginationToJSON(value['pagination']),
         'timeoutSeconds': value['timeoutSeconds'],
-        'configSchema': value['configSchema'] == null ? undefined : ((value['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldToJSON)),
+        'configSchema': ((value['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldToJSON)),
         'config': value['config'],
         'subType': WorkflowActionTypeToJSON(value['subType']),
         'type': WorkflowNodeTypeToJSON(value['type']),

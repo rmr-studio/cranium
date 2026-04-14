@@ -53,7 +53,7 @@ export interface TargetMatches extends RelationshipFilter {
      * @type {QueryFilter}
      * @memberof TargetMatches
      */
-    filter?: QueryFilter;
+    filter: QueryFilter | null;
 }
 
 
@@ -62,6 +62,7 @@ export interface TargetMatches extends RelationshipFilter {
  * Check if a given object implements the TargetMatches interface.
  */
 export function instanceOfTargetMatches(value: object): value is TargetMatches {
+    if (!('filter' in value) || value['filter'] === undefined) return false;
     return true;
 }
 
@@ -75,7 +76,7 @@ export function TargetMatchesFromJSONTyped(json: any, ignoreDiscriminator: boole
     }
     return {
         ...RelationshipFilterFromJSONTyped(json, true),
-        'filter': json['filter'] == null ? undefined : QueryFilterFromJSON(json['filter']),
+        'filter': QueryFilterFromJSON(json['filter']),
     };
 }
 

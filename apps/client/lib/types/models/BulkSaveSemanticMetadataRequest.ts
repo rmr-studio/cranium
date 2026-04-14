@@ -45,19 +45,19 @@ export interface BulkSaveSemanticMetadataRequest {
      * @type {string}
      * @memberof BulkSaveSemanticMetadataRequest
      */
-    definition?: string;
+    definition?: string | null;
     /**
      * 
      * @type {SemanticAttributeClassification}
      * @memberof BulkSaveSemanticMetadataRequest
      */
-    classification?: SemanticAttributeClassification;
+    classification?: SemanticAttributeClassification | null;
     /**
      * 
      * @type {MatchSignalType}
      * @memberof BulkSaveSemanticMetadataRequest
      */
-    signalType?: MatchSignalType;
+    signalType?: MatchSignalType | null;
     /**
      * 
      * @type {Array<string>}

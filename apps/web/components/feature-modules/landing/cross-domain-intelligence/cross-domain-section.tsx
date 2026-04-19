@@ -1,24 +1,15 @@
 import { CrossDomainCarousel } from '@/components/feature-modules/landing/cross-domain-intelligence/cross-domain-carousel';
 import { Section } from '@/components/ui/section';
 import { SectionDivider } from '@/components/ui/section-divider';
-import { ShaderContainer, ThemeStaticImages } from '@/components/ui/shader-container';
+import { ShaderContainer, type ShaderColors } from '@/components/ui/shader-container';
 
 export function CrossDomainIntelligence() {
-  const dashboardShaders = {
-    light: {
-      base: '#9e4a5c',
-      colors: ['#1a6080', '#1e1218', '#c4a882'] as [string, string, string],
-    },
-    dark: {
-      base: '#8dbaa4',
-      colors: ['#0f3d5c', '#1a2a3f', '#0d1f2d'] as [string, string, string],
-    },
+  const dashboardShaders: ShaderColors = {
+    base: '#9e4a5c',
+    colors: ['#1a6080', '#1e1218', '#c4a882'],
   };
 
-  const gradients: ThemeStaticImages = {
-    light: 'images/texture/static-gradient-4.webp',
-    dark: 'images/texture/static-gradient-4.webp',
-  };
+  const gradient = 'images/texture/static-gradient-4.webp';
 
   return (
     <Section id="cross-domain-intelligence" size={24} className="mx-0! px-0!">
@@ -38,9 +29,9 @@ export function CrossDomainIntelligence() {
 
       <div className="mt-10 w-full md:mt-14">
         <ShaderContainer
-          staticImages={gradients}
+          staticImage={gradient}
           shaders={dashboardShaders}
-          className="relative z-30 mx-0! w-full rounded-none border-none! px-0! py-0! shadow-lg shadow-foreground/40 3xl:rounded-l-lg dark:shadow-none"
+          className=":shadow-none relative z-30 mx-0! w-full rounded-none border-none! px-0! py-0! shadow-lg shadow-foreground/40 3xl:rounded-l-lg"
         >
           <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-black/60 via-black/25 to-transparent md:w-40" />
           <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-black/60 via-black/25 to-transparent md:w-40" />

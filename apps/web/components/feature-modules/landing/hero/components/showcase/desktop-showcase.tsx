@@ -20,7 +20,7 @@ export function DesktopShowcase() {
       >
         <div className="relative" style={{ height: DESKTOP_HEIGHT * scale }}>
           <div
-            className="dark relative flex translate-y-10 overflow-hidden rounded-lg"
+            className="relative flex translate-y-10 overflow-hidden rounded-lg"
             style={{ height: 800 }}
           >
             <MockIconRail />
@@ -28,7 +28,7 @@ export function DesktopShowcase() {
             <MockDataTable scenario={customerScenario} />
           </div>
           {/* Activity Timeline */}
-          <div className="dark absolute top-1/3 -left-8 z-10 origin-top translate-y-1/3 md:-right-12">
+          <div className="absolute top-1/3 -left-8 z-10 origin-top translate-y-1/3 md:-right-12">
             <div className="relative">
               <MockActivityTimeline scenario={customerScenario} />
             </div>

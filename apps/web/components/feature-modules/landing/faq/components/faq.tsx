@@ -16,14 +16,13 @@ interface Question {
 const FAQ: Question[] = [
   {
     question: 'What does Riven actually do?',
-    answer: `From marketing, to sales, to product usage, to support, and to the moment your customer picks up their stuff and leaves. Each of these tools will only ever see its own slice. Stripe sees payments, Intercom sees tickets, Google Ads sees clicks. Nobody sees the whole customer.
-    A customer lifecycle intelligence platform connects all of them so you can follow someone from the ad they clicked
-    to the subscription they cancelled. Riven does that, and gives your team a workspace to do something about what it finds.`,
+    answer: `Riven is an intelligence and growth platform. Deploying AI powered agents, executing data driven decisions from the context embued all around from marketing, to sales, to product usage, to support, and to the moment your customer picks up their stuff and leaves. Each of these tools will only ever see its own slice. Riven sees everything, and provides you with the tools to grow, with automations rapidly acting on the signals surfaced.
+    `,
   },
   {
     question: 'Who uses Riven?',
     answer: `
-    B2C SaaS and DTC e-commerce teams that don't have a data person. Maybe you're the founder who is also somehow the entire analytics department.
+    DTC e-commerce teams. Maybe you're the founder who is also somehow the entire analytics department.
     Maybe you're the head of ops who spends half the week pulling reports instead of acting on them.
     You've outgrown your starter tools but you're nowhere near a six-figure Looker contract.
     You just need to know what's going on without it becoming your whole day.`,

@@ -121,9 +121,7 @@ export default async function BlogPostPage({ params }: Props) {
       <BlogHeroHeader
         post={post}
         variant="post"
-        topSlot={
-          <Breadcrumbs category={post.category} postTitle={post.title} variant="inverse" />
-        }
+        topSlot={<Breadcrumbs category={post.category} postTitle={post.title} variant="inverse" />}
         metaSlot={post.tags.map((tag) => (
           <span
             key={tag}

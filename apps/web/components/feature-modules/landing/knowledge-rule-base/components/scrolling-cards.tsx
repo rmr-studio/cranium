@@ -41,7 +41,7 @@ export const ROW_2_CARDS: CardData[] = [
 
 const QueryCard: FC<CardData> = ({ category, query }) => {
   return (
-    <div className="glass-panel dark w-72 shrink-0 rounded-lg border p-4 backdrop-blur-xl">
+    <div className="w-72 shrink-0 rounded-lg bg-amber-50/80 p-4 shadow-lg backdrop-blur-xl">
       <p className="font-display text-xs font-bold tracking-widest text-primary uppercase">
         {category}
       </p>

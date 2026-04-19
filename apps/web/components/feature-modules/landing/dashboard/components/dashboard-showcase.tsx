@@ -1,19 +1,13 @@
 'use client';
 
 import { SectionDivider } from '@/components/ui/section-divider';
-import { ShaderContainer, ThemeStaticImages } from '@/components/ui/shader-container';
+import { ShaderContainer, type ShaderColors } from '@/components/ui/shader-container';
 import { ShowcaseSection, type FeatureCard } from '@/components/ui/showcase-section';
 import { MockDashboard } from './mock-dashboard';
 
-const dashboardShaders = {
-  light: {
-    base: '#4a5e6e',
-    colors: ['#1a6080', '#3a8aaa', '#78b8cc'] as [string, string, string],
-  },
-  dark: {
-    base: '#0a0d12',
-    colors: ['#0f3d5c', '#1a2a3f', '#0d1f2d'] as [string, string, string],
-  },
+const dashboardShaders: ShaderColors = {
+  base: '#4a5e6e',
+  colors: ['#1a6080', '#3a8aaa', '#78b8cc'],
 };
 
 const FEATURES: FeatureCard[] = [
@@ -35,10 +29,7 @@ const FEATURES: FeatureCard[] = [
 ];
 
 export function DashboardShowcase() {
-  const gradients: ThemeStaticImages = {
-    light: 'images/texture/static-gradient-3.webp',
-    dark: 'images/texture/static-gradient-3.webp',
-  };
+  const gradient = 'images/texture/static-gradient-3.webp';
 
   return (
     <>
@@ -66,9 +57,9 @@ export function DashboardShowcase() {
           </section>
 
           <ShaderContainer
-            staticImages={gradients}
+            staticImage={gradient}
             shaders={dashboardShaders}
-            className="relative z-30 w-full p-0! shadow-lg shadow-foreground/40 lg:rounded-lg dark:shadow-none"
+            className=":shadow-none relative z-30 w-full p-0! shadow-lg shadow-foreground/40 lg:rounded-lg"
           >
             <section className="lg:p-12">
               <div className="pointer-events-none absolute inset-y-0 left-0 z-10 hidden w-24 bg-gradient-to-r from-black/60 via-black/25 to-transparent md:w-40 3xl:block" />

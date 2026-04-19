@@ -44,7 +44,7 @@ export const TypewriterPrompt: FC<TypewriterPromptProps> = ({
       )}
     >
       {/* Glow aura */}
-      <div className="pointer-events-none absolute -inset-1 -z-10 rounded-xl bg-gradient-to-r from-[var(--cta-g1)]/20 via-[var(--cta-g2)]/25 to-[var(--cta-g3)]/20 blur-md" />
+      <div className="pointer-events-none absolute -inset-1 -z-10 rounded-xl bg-gradient-to-r from-[var(--cta-g1)]/20 via-[var(--cta-g2)]/25 to-[var(--cta-g3)]/20 opacity-60 blur-md" />
 
       {/* Subtle top highlight */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />

@@ -22,7 +22,7 @@ export const ACTION_CONTENT: KnowledgeLayerSectionContent[] = [
     description: `When a new Stripe charge syncs, Riven already knows which company it belongs to, which support tickets are open on 
   ▎ that account, and what they cost you in ad spend. No manual mapping`,
     content: (
-      <EntityDetailShowcase className="dark absolute -right-12 -bottom-16 sm:-right-48 sm:scale-130 md:bottom-8" />
+      <EntityDetailShowcase className="absolute -right-12 -bottom-16 sm:-right-48 sm:scale-130 md:bottom-8" />
     ),
   },
   {
@@ -38,7 +38,7 @@ export const ACTION_CONTENT: KnowledgeLayerSectionContent[] = [
   Tags follow the record everywhere and are pushed to the relevant tools, so you won't lose the thread. Tracked something last tuesday? Riven tracks what happened and when. Four re-engaged. Two churned anyway.
   Seventeen still at risk. No spreadsheet required.`,
     content: (
-      <TaggingViewShowcase className="dark translate-x-8 translate-y-0 translate-y-4 scale-90 sm:translate-x-0 sm:scale-80 md:m-6 md:scale-60 lg:scale-100" />
+      <TaggingViewShowcase className="translate-x-8 translate-y-0 translate-y-4 scale-90 sm:translate-x-0 sm:scale-80 md:m-6 md:scale-60 lg:scale-100" />
     ),
   },
 ];

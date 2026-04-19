@@ -51,11 +51,11 @@ class IntegrationDefinitionSeederService(
     private fun upsertDefinition(scanned: ScannedManifest): UpsertResult {
         val json = scanned.json
         val slug = scanned.key
-        val name = json.get("name")?.asText() ?: slug
-        val description = json.get("description")?.asText()
-        val category = parseCategory(json.get("category")?.asText())
-        val nangoProviderKey = json.get("nangoProviderKey")?.asText() ?: ""
-        val iconUrl = json.get("iconUrl")?.asText()
+        val name = json.get("name")?.asString() ?: slug
+        val description = json.get("description")?.asString()
+        val category = parseCategory(json.get("category")?.asString())
+        val nangoProviderKey = json.get("nangoProviderKey")?.asString() ?: ""
+        val iconUrl = json.get("iconUrl")?.asString()
 
         val existing = integrationDefinitionRepository.findBySlug(slug)
 

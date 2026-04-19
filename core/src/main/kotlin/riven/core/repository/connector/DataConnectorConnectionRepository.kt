@@ -14,7 +14,7 @@ import java.util.UUID
  * here never need to repeat `AND deleted = false`.
  */
 @Repository
-interface CustomSourceConnectionRepository : JpaRepository<DataConnectorConnectionEntity, UUID> {
+interface DataConnectorConnectionRepository : JpaRepository<DataConnectorConnectionEntity, UUID> {
 
     fun findByWorkspaceId(workspaceId: UUID): List<DataConnectorConnectionEntity>
 

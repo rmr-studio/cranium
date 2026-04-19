@@ -28,7 +28,7 @@ data class Projection(
 data class SortSpec(val by: String, val dir: SortDir = SortDir.ASC)
 enum class SortDir { ASC, DESC }
 data class FilterSpec(
-    @param:Schema(type = "object", additionalProperties = Schema.AdditionalPropertiesValue.TRUE)
+    @get:Schema(type = "object", implementation = Any::class)
     val expr: Map<String, Any?> = emptyMap()
 )
 

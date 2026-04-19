@@ -2,7 +2,7 @@ package riven.core.models.notification
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver
+import tools.jackson.databind.annotation.JsonTypeIdResolver
 import riven.core.configuration.util.CaseInsensitiveTypeIdResolver
 import riven.core.enums.notification.ReviewPriority
 import riven.core.enums.notification.SystemSeverity

@@ -2,8 +2,8 @@ package riven.core.service.catalog
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import org.springframework.boot.actuate.health.Health
-import org.springframework.boot.actuate.health.Status
+import org.springframework.boot.health.contributor.Health
+import org.springframework.boot.health.contributor.Status
 import java.time.Instant
 
 

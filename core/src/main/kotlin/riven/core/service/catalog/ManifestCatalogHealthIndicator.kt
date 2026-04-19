@@ -1,7 +1,7 @@
 package riven.core.service.catalog
 
-import org.springframework.boot.actuate.health.AbstractHealthIndicator
-import org.springframework.boot.actuate.health.Health
+import org.springframework.boot.health.contributor.AbstractHealthIndicator
+import org.springframework.boot.health.contributor.Health
 import org.springframework.stereotype.Component
 import java.time.Instant
 

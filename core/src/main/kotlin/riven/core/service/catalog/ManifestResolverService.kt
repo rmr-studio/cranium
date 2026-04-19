@@ -1,9 +1,10 @@
 package riven.core.service.catalog
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ArrayNode
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.node.ArrayNode
 import io.github.oshai.kotlinlogging.KLogger
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import riven.core.enums.catalog.ManifestType
 import riven.core.enums.entity.EntityRelationshipCardinality
@@ -49,10 +50,10 @@ class ManifestResolverService(
 
         return ResolvedManifest(
             key = scanned.key,
-            name = json.get("name")?.asText() ?: scanned.key,
-            description = json.get("description")?.asText(),
+            name = json.get("name")?.asString() ?: scanned.key,
+            description = json.get("description")?.asString(),
             type = scanned.type,
-            manifestVersion = json.get("manifestVersion")?.asText(),
+            manifestVersion = json.get("manifestVersion")?.asString(),
             entityTypes = entityTypes,
             relationships = relationships,
             fieldMappings = fieldMappings,
@@ -65,7 +66,7 @@ class ManifestResolverService(
 
     private fun resolveIntegrationEntityTypes(json: JsonNode): List<ResolvedEntityType> {
         val entityTypesArray = json.get("entityTypes") ?: return emptyList()
-        return entityTypesArray.map { parseEntityType(it, readonlyDefault = true) }
+        return entityTypesArray.toList().map { parseEntityType(it, readonlyDefault = true) }
     }
 
     /** Extracts all fields from a JsonNode into a ResolvedEntityType. */
@@ -83,22 +84,22 @@ class ManifestResolverService(
 
         val semantics = if (semanticsNode != null) {
             ResolvedSemantics(
-                definition = semanticsNode.get("definition")?.asText(),
-                tags = semanticsNode.get("tags")?.map { it.asText() } ?: emptyList()
+                definition = semanticsNode.get("definition")?.asString(),
+                tags = semanticsNode.get("tags")?.toList()?.map { it.asString() } ?: emptyList()
             )
         } else null
 
         return ResolvedEntityType(
-            key = json.get("key")?.asText() ?: "",
-            displayNameSingular = displayName?.get("singular")?.asText() ?: "",
-            displayNamePlural = displayName?.get("plural")?.asText() ?: "",
-            iconType = icon?.get("type")?.asText() ?: "BOX",
-            iconColour = icon?.get("colour")?.asText() ?: "NEUTRAL",
-            semanticGroup = json.get("semanticGroup")?.asText() ?: "UNCATEGORIZED",
-            lifecycleDomain = json.get("lifecycleDomain")?.asText()?.let { value ->
+            key = json.get("key")?.asString() ?: "",
+            displayNameSingular = displayName?.get("singular")?.asString() ?: "",
+            displayNamePlural = displayName?.get("plural")?.asString() ?: "",
+            iconType = icon?.get("type")?.asString() ?: "BOX",
+            iconColour = icon?.get("colour")?.asString() ?: "NEUTRAL",
+            semanticGroup = json.get("semanticGroup")?.asString() ?: "UNCATEGORIZED",
+            lifecycleDomain = json.get("lifecycleDomain")?.asString()?.let { value ->
                 enumValues<LifecycleDomain>().firstOrNull { it.name == value }
             },
-            identifierKey = json.get("identifierKey")?.asText(),
+            identifierKey = json.get("identifierKey")?.asString(),
             readonly = json.get("readonly")?.asBoolean() ?: readonlyDefault,
             schema = attributesMap,
             columns = null,
@@ -134,14 +135,14 @@ class ManifestResolverService(
         val hasFullFormat = rel.has("targetRules")
 
         if (hasShorthand && hasFullFormat) {
-            logger.warn { "Relationship '${rel.get("key")?.asText()}' has both shorthand and full format — skipping" }
+            logger.warn { "Relationship '${rel.get("key")?.asString()}' has both shorthand and full format — skipping" }
             return null
         }
 
         if (!hasShorthand && !hasFullFormat) {
             logger.warn {
                 "Relationship '${
-                    rel.get("key")?.asText()
+                    rel.get("key")?.asString()
                 }' has neither shorthand nor full format — skipping"
             }
             return null
@@ -154,8 +155,8 @@ class ManifestResolverService(
         val semanticsNode = rel.get("semantics")
         val semantics = if (semanticsNode != null) {
             ResolvedRelationshipSemantics(
-                definition = semanticsNode.get("definition")?.asText(),
-                tags = semanticsNode.get("tags")?.map { it.asText() } ?: emptyList()
+                definition = semanticsNode.get("definition")?.asString(),
+                tags = semanticsNode.get("tags")?.toList()?.map { it.asString() } ?: emptyList()
             )
         } else null
 
@@ -172,13 +173,13 @@ class ManifestResolverService(
         icon: JsonNode?,
         semantics: ResolvedRelationshipSemantics?
     ): NormalizedRelationship? {
-        val key = rel.get("key")?.asText()
-        val targetKey = rel.get("targetEntityTypeKey")?.asText()
+        val key = rel.get("key")?.asString()
+        val targetKey = rel.get("targetEntityTypeKey")?.asString()
         if (targetKey == null) {
             logger.warn { "Relationship '$key' shorthand format missing targetEntityTypeKey" }
             return null
         }
-        val cardinalityStr = rel.get("cardinality")?.asText()
+        val cardinalityStr = rel.get("cardinality")?.asString()
         if (cardinalityStr == null) {
             logger.warn { "Relationship '$key' shorthand format missing cardinality" }
             return null
@@ -191,11 +192,11 @@ class ManifestResolverService(
         }
 
         return NormalizedRelationship(
-            key = rel.get("key").asText(),
-            sourceEntityTypeKey = rel.get("sourceEntityTypeKey").asText(),
-            name = rel.get("name").asText(),
-            iconType = icon?.get("type")?.asText() ?: "LINK",
-            iconColour = icon?.get("colour")?.asText() ?: "NEUTRAL",
+            key = rel.get("key").asString(),
+            sourceEntityTypeKey = rel.get("sourceEntityTypeKey").asString(),
+            name = rel.get("name").asString(),
+            iconType = icon?.get("type")?.asString() ?: "LINK",
+            iconColour = icon?.get("colour")?.asString() ?: "NEUTRAL",
             cardinalityDefault = cardinality,
             `protected` = isProtected,
             targetRules = listOf(NormalizedTargetRule(targetEntityTypeKey = targetKey)),
@@ -210,10 +211,10 @@ class ManifestResolverService(
         semantics: ResolvedRelationshipSemantics?
     ): NormalizedRelationship {
         val targetRulesArray = rel.get("targetRules") as? ArrayNode ?: objectMapper.createArrayNode()
-        val targetRules = targetRulesArray.map { rule ->
-            val cardinalityOverrideStr = rule.get("cardinalityOverride")?.asText()
+        val targetRules = targetRulesArray.toList().map { rule ->
+            val cardinalityOverrideStr = rule.get("cardinalityOverride")?.asString()
             NormalizedTargetRule(
-                targetEntityTypeKey = rule.get("targetEntityTypeKey").asText(),
+                targetEntityTypeKey = rule.get("targetEntityTypeKey").asString(),
                 cardinalityOverride = cardinalityOverrideStr?.let {
                     try {
                         EntityRelationshipCardinality.valueOf(it)
@@ -222,7 +223,7 @@ class ManifestResolverService(
                     }
                 },
                 inverseVisible = rule.get("inverseVisible")?.asBoolean(),
-                inverseName = rule.get("inverseName")?.asText()
+                inverseName = rule.get("inverseName")?.asString()
             )
         }
 
@@ -230,11 +231,11 @@ class ManifestResolverService(
         val cardinalityDefault = EntityRelationshipCardinality.ONE_TO_MANY
 
         return NormalizedRelationship(
-            key = rel.get("key").asText(),
-            sourceEntityTypeKey = rel.get("sourceEntityTypeKey").asText(),
-            name = rel.get("name").asText(),
-            iconType = icon?.get("type")?.asText() ?: "LINK",
-            iconColour = icon?.get("colour")?.asText() ?: "NEUTRAL",
+            key = rel.get("key").asString(),
+            sourceEntityTypeKey = rel.get("sourceEntityTypeKey").asString(),
+            name = rel.get("name").asString(),
+            iconType = icon?.get("type")?.asString() ?: "LINK",
+            iconColour = icon?.get("colour")?.asString() ?: "NEUTRAL",
             cardinalityDefault = cardinalityDefault,
             `protected` = isProtected,
             targetRules = targetRules,
@@ -292,7 +293,7 @@ class ManifestResolverService(
         val result = mutableListOf<ResolvedFieldMapping>()
 
         for (mappingEntry in fieldMappingsArray) {
-            val entityTypeKey = mappingEntry.get("entityTypeKey")?.asText() ?: continue
+            val entityTypeKey = mappingEntry.get("entityTypeKey")?.asString() ?: continue
             val mappingsNode = mappingEntry.get("mappings") ?: continue
             val validAttributeKeys = entityTypeAttributeIndex[entityTypeKey] ?: continue
 
@@ -318,8 +319,8 @@ class ManifestResolverService(
     private fun resolveSyncModels(json: JsonNode): Map<String, String> {
         val node = json.get("syncModels") ?: return emptyMap()
         val map = mutableMapOf<String, String>()
-        node.fields().forEach { (nangoModel, entityTypeKeyNode) ->
-            map[nangoModel] = entityTypeKeyNode.asText()
+        node.properties().forEach { (nangoModel, entityTypeKeyNode) ->
+            map[nangoModel] = entityTypeKeyNode.asString()
         }
         return map.toMap()
     }
@@ -329,10 +330,10 @@ class ManifestResolverService(
     private fun buildStaleManifest(scanned: ScannedManifest): ResolvedManifest {
         return ResolvedManifest(
             key = scanned.key,
-            name = scanned.json.get("name")?.asText() ?: scanned.key,
-            description = scanned.json.get("description")?.asText(),
+            name = scanned.json.get("name")?.asString() ?: scanned.key,
+            description = scanned.json.get("description")?.asString(),
             type = scanned.type,
-            manifestVersion = scanned.json.get("manifestVersion")?.asText(),
+            manifestVersion = scanned.json.get("manifestVersion")?.asString(),
             entityTypes = emptyList(),
             relationships = emptyList(),
             fieldMappings = emptyList(),

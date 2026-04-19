@@ -1,6 +1,6 @@
 package riven.core.models.request.entity.type
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.annotation.JsonDeserialize
 import io.swagger.v3.oas.annotations.media.Schema
 import riven.core.deserializer.TypeDefinitionRequestDeserializer
 import riven.core.enums.entity.EntityTypeRequestDefinition

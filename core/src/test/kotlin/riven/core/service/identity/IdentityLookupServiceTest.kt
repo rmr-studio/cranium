@@ -23,7 +23,7 @@ import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.WithUserPersona
 import riven.core.service.util.WorkspaceRole
 import riven.core.service.util.factory.entity.EntityFactory
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import java.util.UUID
 
 /**

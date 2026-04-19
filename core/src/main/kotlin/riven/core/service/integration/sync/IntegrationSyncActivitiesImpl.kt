@@ -21,7 +21,7 @@ import riven.core.models.integration.NangoRecordAction
 import riven.core.models.integration.sync.IntegrationSyncWorkflowInput
 import riven.core.models.integration.sync.RelationshipPending
 import riven.core.models.integration.sync.SyncProcessingResult
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import org.springframework.core.io.ResourceLoader
 import riven.core.models.integration.mapping.FieldTransform
 import riven.core.models.integration.mapping.ResolvedFieldMapping

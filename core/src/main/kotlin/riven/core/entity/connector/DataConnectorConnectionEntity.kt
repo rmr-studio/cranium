@@ -11,16 +11,16 @@ import jakarta.persistence.Table
 import org.hibernate.annotations.SQLRestriction
 import riven.core.entity.util.AuditableSoftDeletableEntity
 import riven.core.enums.integration.ConnectionStatus
-import riven.core.models.connector.CustomSourceConnectionModel
+import riven.core.models.connector.DataConnectorConnectionModel
 import java.time.ZonedDateTime
 import java.util.UUID
 
 /**
- * JPA entity for user-defined custom source connections (Phase 2 CONN-01).
+ * JPA entity for user-defined data connector connections (Phase 2 CONN-01).
  *
  * Stores AES-256-GCM encrypted credentials as raw bytea with IV + key version
  * metadata. Decryption is performed by the service layer at read-time; the
- * corresponding [CustomSourceConnectionModel] intentionally omits the
+ * corresponding [DataConnectorConnectionModel] intentionally omits the
  * encrypted bytes, IV, and key version so credentials never leave the service
  * boundary.
  *
@@ -73,9 +73,9 @@ class DataConnectorConnectionEntity(
         database: String,
         user: String,
         sslMode: String,
-    ): CustomSourceConnectionModel = CustomSourceConnectionModel(
+    ): DataConnectorConnectionModel = DataConnectorConnectionModel(
         id = requireNotNull(id) {
-            "CustomSourceConnectionEntity.id must not be null when mapping to model"
+            "DataConnectorConnectionEntity.id must not be null when mapping to model"
         },
         workspaceId = workspaceId,
         name = name,

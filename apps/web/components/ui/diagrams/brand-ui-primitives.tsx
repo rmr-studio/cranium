@@ -9,10 +9,10 @@ export function ShowcaseIconRail({
   showWorkspace?: boolean;
 }) {
   return (
-    <div className="flex h-full w-14 shrink-0 flex-col items-center rounded-tl-lg bg-foreground dark:bg-secondary">
+    <div className=":bg-secondary flex h-full w-14 shrink-0 flex-col items-center rounded-tl-lg bg-foreground">
       {/* Logo */}
       <div className="flex h-12 w-full items-center justify-center border-b border-background/15">
-        <Logo size={20} className="fill-background dark:fill-foreground" />
+        <Logo size={20} className=":fill-foreground fill-background" />
       </div>
 
       {/* Optional workspace avatar */}
@@ -33,9 +33,8 @@ export function ShowcaseIconRail({
           <div
             key={i}
             className={cn(
-              'flex size-10 items-center justify-center rounded-md text-background/50 dark:text-foreground/50',
-              item.active &&
-                'bg-background/15 text-background dark:bg-foreground/20 dark:text-foreground',
+              ':text-foreground/50 flex size-10 items-center justify-center rounded-md text-background/50',
+              item.active && ':bg-foreground/20 :text-foreground bg-background/15 text-background',
             )}
           >
             {item.icon}
@@ -60,11 +59,11 @@ export function MockBreadcrumb({ items }: { items: string[] }) {
     <div className="flex items-center gap-1.5">
       {items.map((item, i) => (
         <span key={i} className="flex items-center gap-1.5">
-          {i > 0 && <span className="text-xs text-muted-foreground/40">/</span>}
+          {i > 0 && <span className="text-xs text-muted-foreground">/</span>}
           <span
             className={cn(
               'font-display text-xs tracking-[0.05em] uppercase',
-              i === items.length - 1 ? 'text-foreground' : 'text-muted-foreground/50',
+              i === items.length - 1 ? 'text-content' : 'text-muted-foreground',
             )}
           >
             {item}
@@ -121,7 +120,7 @@ export function ShowcaseSubPanel({
   return (
     <div
       className={cn(
-        'glass-panel flex h-full w-56 shrink-0 flex-col border-r border-border backdrop-blur-xl',
+        'flex h-full w-56 shrink-0 flex-col border-r border-border bg-background/90 backdrop-blur-xl',
         className,
       )}
     >

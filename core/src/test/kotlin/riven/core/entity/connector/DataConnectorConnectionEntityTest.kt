@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
-import org.springframework.boot.autoconfigure.domain.EntityScan
-import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
-import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+import org.springframework.boot.persistence.autoconfigure.EntityScan
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration
+import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -27,8 +27,8 @@ import org.springframework.transaction.annotation.Transactional
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
-import riven.core.repository.connector.CustomSourceConnectionRepository
-import riven.core.service.util.factory.customsource.DataConnectorConnectionEntityFactory
+import riven.core.repository.connector.DataConnectorConnectionRepository
+import riven.core.service.util.factory.dataconnector.DataConnectorConnectionEntityFactory
 import java.time.ZonedDateTime
 import java.time.temporal.TemporalAccessor
 import java.util.Optional
@@ -68,22 +68,22 @@ import java.util.UUID
 @EnableJpaRepositories(basePackages = ["riven.core.repository.connector"])
 @EntityScan("riven.core.entity.connector")
 @EnableJpaAuditing(
-    auditorAwareRef = "customSourceConnectionRoundTripAuditorProvider",
-    dateTimeProviderRef = "customSourceConnectionRoundTripDateTimeProvider",
+    auditorAwareRef = "dataConnectorConnectionRoundTripAuditorProvider",
+    dateTimeProviderRef = "dataConnectorConnectionRoundTripDateTimeProvider",
 )
-class CustomSourceConnectionEntityTestConfig {
+class DataConnectorConnectionEntityTestConfig {
 
     @Bean
-    fun customSourceConnectionRoundTripAuditorProvider(): AuditorAware<UUID> =
+    fun dataConnectorConnectionRoundTripAuditorProvider(): AuditorAware<UUID> =
         AuditorAware { Optional.empty() }
 
     @Bean
-    fun customSourceConnectionRoundTripDateTimeProvider(): DateTimeProvider =
+    fun dataConnectorConnectionRoundTripDateTimeProvider(): DateTimeProvider =
         DateTimeProvider { Optional.of<TemporalAccessor>(ZonedDateTime.now()) }
 }
 
 @SpringBootTest(
-    classes = [CustomSourceConnectionEntityTestConfig::class],
+    classes = [DataConnectorConnectionEntityTestConfig::class],
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
 )
 @ActiveProfiles("integration")
@@ -114,7 +114,7 @@ class DataConnectorConnectionEntityTest {
     }
 
     @Autowired
-    private lateinit var connectionRepository: CustomSourceConnectionRepository
+    private lateinit var connectionRepository: DataConnectorConnectionRepository
 
     @Autowired
     private lateinit var jdbcTemplate: JdbcTemplate
@@ -124,7 +124,7 @@ class DataConnectorConnectionEntityTest {
 
     /**
      * Hibernate's `ddl-auto: create-drop` only generates tables for scanned
-     * entities. We deliberately scan only `riven.core.entity.customsource`
+     * entities. We deliberately scan only `riven.core.entity.dataconnector`
      * to avoid dragging in the full entity graph (WorkspaceInviteEntity ->
      * UserEntity etc.), so we hand-create the minimal `workspaces` table
      * that the dats_connector_connection FK targets.

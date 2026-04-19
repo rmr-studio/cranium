@@ -6,24 +6,15 @@ import {
 import { BookOpen, FileQuestionMark, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { BGPattern } from '../ui/background/grids';
-import { ShaderContainer, ThemeStaticImages } from '../ui/shader-container';
+import { ShaderContainer, type ShaderColors } from '../ui/shader-container';
 import { DropdownListItem } from './dropdown-list-item';
 
 export function ResourcesMenu() {
-  const gradients: ThemeStaticImages = {
-    light: 'images/texture/static-gradient-4.webp',
-    dark: 'images/texture/static-gradient-4.webp',
-  };
+  const gradient = 'images/texture/static-gradient-4.webp';
 
-  const shaders = {
-    light: {
-      base: '#7d1441',
-      colors: ['#1a6080', '#3a8aaa', '#78b8cc'] as [string, string, string],
-    },
-    dark: {
-      base: '#7d1441',
-      colors: ['#0f3d5c', '#1a2a3f', '#0d1f2d'] as [string, string, string],
-    },
+  const shaders: ShaderColors = {
+    base: '#7d1441',
+    colors: ['#1a6080', '#3a8aaa', '#78b8cc'],
   };
 
   return (
@@ -72,7 +63,7 @@ export function ResourcesMenu() {
 
           <ShaderContainer
             className="relative z-0 mt-4! ml-0! px-0 py-4"
-            staticImages={gradients}
+            staticImage={gradient}
             shaders={shaders}
           >
             <Link

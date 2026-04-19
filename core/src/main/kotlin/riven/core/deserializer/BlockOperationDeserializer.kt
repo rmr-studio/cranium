@@ -1,9 +1,9 @@
 package riven.core.deserializer
 
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.databind.DeserializationContext
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.JsonNode
+import tools.jackson.core.JsonParser
+import tools.jackson.databind.DeserializationContext
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.ValueDeserializer
 import riven.core.enums.block.request.BlockOperationType
 import riven.core.models.block.operation.*
 import riven.core.util.getEnumFromField
@@ -12,9 +12,9 @@ import riven.core.util.getEnumFromField
  * Jackson deserializer for [BlockOperation].
  * Ensures all implementations of this sealed interface are properly deserialized.
  */
-class BlockOperationDeserializer : JsonDeserializer<BlockOperation>() {
+class BlockOperationDeserializer : ValueDeserializer<BlockOperation>() {
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext): BlockOperation {
-        val operation = p.codec.readTree<JsonNode>(p)
+        val operation = ctxt.readTree(p) as JsonNode
         val operationType = ctxt.getEnumFromField<BlockOperationType>(
             operation,
             "type",
@@ -22,11 +22,11 @@ class BlockOperationDeserializer : JsonDeserializer<BlockOperation>() {
         )
 
         return when (operationType) {
-            BlockOperationType.ADD_BLOCK -> p.codec.treeToValue(operation, AddBlockOperation::class.java)
-            BlockOperationType.REMOVE_BLOCK -> p.codec.treeToValue(operation, RemoveBlockOperation::class.java)
-            BlockOperationType.UPDATE_BLOCK -> p.codec.treeToValue(operation, UpdateBlockOperation::class.java)
-            BlockOperationType.REORDER_BLOCK -> p.codec.treeToValue(operation, ReorderBlockOperation::class.java)
-            BlockOperationType.MOVE_BLOCK -> p.codec.treeToValue(operation, MoveBlockOperation::class.java)
+            BlockOperationType.ADD_BLOCK -> ctxt.readTreeAsValue(operation, AddBlockOperation::class.java)
+            BlockOperationType.REMOVE_BLOCK -> ctxt.readTreeAsValue(operation, RemoveBlockOperation::class.java)
+            BlockOperationType.UPDATE_BLOCK -> ctxt.readTreeAsValue(operation, UpdateBlockOperation::class.java)
+            BlockOperationType.REORDER_BLOCK -> ctxt.readTreeAsValue(operation, ReorderBlockOperation::class.java)
+            BlockOperationType.MOVE_BLOCK -> ctxt.readTreeAsValue(operation, MoveBlockOperation::class.java)
         }
     }
 }

@@ -3,8 +3,8 @@ package riven.core.service.dev
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 import riven.core.enums.common.validation.SchemaType
-import riven.core.lifecycle.CoreModelAttribute
-import riven.core.lifecycle.CoreModelDefinition
+import riven.core.models.core.CoreModelAttribute
+import riven.core.models.core.CoreModelDefinition
 import riven.core.models.common.json.JsonValue
 import java.time.LocalDate
 import kotlin.random.Random

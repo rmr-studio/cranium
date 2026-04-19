@@ -1,10 +1,10 @@
 package riven.core.service.catalog
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ObjectNode
-import com.networknt.schema.JsonSchema
-import com.networknt.schema.JsonSchemaFactory
-import com.networknt.schema.SpecVersion
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.node.ObjectNode
+import com.networknt.schema.Schema
+import com.networknt.schema.SchemaRegistry
+import com.networknt.schema.SpecificationVersion
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.core.io.Resource
 import org.springframework.core.io.support.ResourcePatternResolver
@@ -25,7 +25,7 @@ class ManifestScannerService(
     private val manifestProperties: ManifestConfigurationProperties,
     private val logger: KLogger
 ) {
-    private val schemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)
+    private val schemaRegistry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09)
 
     // ------ Public Scan Methods ------
 
@@ -67,15 +67,14 @@ class ManifestScannerService(
     }
 
     /** Loads a JSON Schema from classpath for validation. Strips $id to avoid URI resolution issues with networknt 1.0.83. */
-    private fun loadSchema(path: String): JsonSchema {
+    private fun loadSchema(path: String): Schema {
         val schemaResource = resourcePatternResolver.getResource("classpath:$path")
         val schemaNode = objectMapper.readTree(schemaResource.inputStream)
-        // networknt 1.0.83 chokes on relative $id URIs; remove them since we don't need URI-based resolution
         if (schemaNode is ObjectNode) {
             schemaNode.remove("\$id")
             schemaNode.remove("\$schema")
         }
-        return schemaFactory.getSchema(schemaNode)
+        return schemaRegistry.getSchema(schemaNode)
     }
 
     /** Returns resources matching the pattern, or empty array if the parent directory doesn't exist on classpath. */

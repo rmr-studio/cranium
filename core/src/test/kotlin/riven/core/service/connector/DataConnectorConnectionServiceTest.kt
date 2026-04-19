@@ -1,8 +1,8 @@
 package riven.core.service.connector
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.readValue
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -40,13 +40,14 @@ import riven.core.exceptions.connector.SsrfRejectedException
 import riven.core.models.connector.CredentialPayload
 import riven.core.models.connector.request.CreateDataConnectorConnectionRequest
 import riven.core.models.connector.request.UpdateDataConnectorConnectionRequest
-import riven.core.repository.connector.CustomSourceConnectionRepository
+import riven.core.repository.connector.DataConnectorConnectionRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.auth.AuthTokenService
+import riven.core.service.connector.pool.WorkspaceConnectionPoolManager
 import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.WithUserPersona
 import riven.core.service.util.WorkspaceRole
-import riven.core.service.util.factory.customsource.DataConnectorConnectionEntityFactory
+import riven.core.service.util.factory.dataconnector.DataConnectorConnectionEntityFactory
 import java.net.InetAddress
 import java.util.Optional
 import java.util.UUID
@@ -91,20 +92,21 @@ class DataConnectorConnectionServiceTest {
     private val workspaceId: UUID = UUID.fromString("22222222-2222-2222-2222-222222222222")
     private val otherWorkspaceId: UUID = UUID.fromString("cccccccc-cccc-cccc-cccc-cccccccccccc")
 
-    @MockitoBean private lateinit var repository: CustomSourceConnectionRepository
+    @MockitoBean private lateinit var repository: DataConnectorConnectionRepository
     @MockitoBean private lateinit var encryptionService: CredentialEncryptionService
     @MockitoBean private lateinit var ssrfValidator: SsrfValidatorService
     @MockitoBean private lateinit var roVerifier: ReadOnlyRoleVerifierService
     @MockitoBean private lateinit var authTokenService: AuthTokenService
     @MockitoBean private lateinit var activityService: ActivityService
     @MockitoBean private lateinit var logger: KLogger
+    @MockitoBean private lateinit var poolManager: WorkspaceConnectionPoolManager
 
     @Autowired private lateinit var service: DataConnectorConnectionService
     @Autowired private lateinit var objectMapper: ObjectMapper
 
     @BeforeEach
     fun setup() {
-        reset(repository, encryptionService, ssrfValidator, roVerifier, activityService, authTokenService)
+        reset(repository, encryptionService, ssrfValidator, roVerifier, activityService, authTokenService, poolManager)
         whenever(authTokenService.getUserId()).thenReturn(userId)
     }
 
@@ -400,6 +402,53 @@ class DataConnectorConnectionServiceTest {
         assertThrows<AccessDeniedException> {
             service.getById(otherWorkspaceId, UUID.randomUUID())
         }
+    }
+
+    // ------ pool eviction wiring (Phase 3 03-02) ------
+
+    @Test
+    fun `update with credential change evicts pool`() {
+        val id = UUID.randomUUID()
+        val entity = entityWithId(id = id)
+        whenever(repository.findByIdAndWorkspaceId(id, workspaceId)).thenReturn(Optional.of(entity))
+
+        val current = CredentialPayload("h", 5432, "d", "u", "old", SslMode.REQUIRE)
+        whenever(encryptionService.decrypt(any())).thenReturn(objectMapper.writeValueAsString(current))
+        whenever(ssrfValidator.validateAndResolve(any()))
+            .thenReturn(listOf(InetAddress.getByName("8.8.8.8")))
+        whenever(encryptionService.encrypt(any()))
+            .thenReturn(EncryptedCredentials(ByteArray(64) { 1 }, ByteArray(12) { 2 }, 1))
+        whenever(repository.save(any<DataConnectorConnectionEntity>())).thenAnswer { it.arguments[0] }
+
+        service.update(workspaceId, id, UpdateDataConnectorConnectionRequest(password = "new-pw"))
+
+        verify(poolManager).evict(eq(id))
+    }
+
+    @Test
+    fun `update with cosmetic change only does not evict pool`() {
+        val id = UUID.randomUUID()
+        val entity = entityWithId(id = id)
+        whenever(repository.findByIdAndWorkspaceId(id, workspaceId)).thenReturn(Optional.of(entity))
+        whenever(repository.save(any<DataConnectorConnectionEntity>())).thenAnswer { it.arguments[0] }
+        val goodPayload = CredentialPayload("h", 5432, "d", "u", "pw", SslMode.REQUIRE)
+        whenever(encryptionService.decrypt(any())).thenReturn(objectMapper.writeValueAsString(goodPayload))
+
+        service.update(workspaceId, id, UpdateDataConnectorConnectionRequest(name = "renamed"))
+
+        verify(poolManager, never()).evict(any())
+    }
+
+    @Test
+    fun `softDelete evicts pool`() {
+        val id = UUID.randomUUID()
+        val entity = entityWithId(id = id)
+        whenever(repository.findByIdAndWorkspaceId(id, workspaceId)).thenReturn(Optional.of(entity))
+        whenever(repository.save(any<DataConnectorConnectionEntity>())).thenAnswer { it.arguments[0] }
+
+        service.softDelete(workspaceId, id)
+
+        verify(poolManager).evict(eq(id))
     }
 
 }

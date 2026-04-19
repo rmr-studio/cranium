@@ -1,8 +1,8 @@
 package riven.core.models.workflow.node.config.actions
 
 import com.fasterxml.jackson.annotation.JsonTypeName
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.ValueDeserializer
+import tools.jackson.databind.annotation.JsonDeserialize
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.media.Schema
 import kotlinx.coroutines.runBlocking
@@ -92,7 +92,7 @@ private const val MAX_BULK_UPDATE_ENTITIES = 10_000
     description = "Configuration for BULK_UPDATE_ENTITY action nodes that apply identical field updates to all entities matching a query."
 )
 @JsonTypeName("workflow_bulk_update_entity_action")
-@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonDeserialize(using = ValueDeserializer.None::class)
 data class WorkflowBulkUpdateEntityActionConfig(
     override val version: Int = 1,
 

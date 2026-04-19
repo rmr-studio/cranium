@@ -1,8 +1,8 @@
 package riven.core.models.workflow.node.config.trigger
 
 import com.fasterxml.jackson.annotation.JsonTypeName
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.ValueDeserializer
+import tools.jackson.databind.annotation.JsonDeserialize
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.workflow.WorkflowNodeConfigFieldType
 import riven.core.enums.workflow.WorkflowNodeType
@@ -29,7 +29,7 @@ import io.swagger.v3.oas.annotations.media.Schema as SwaggerSchema
     description = "Configuration for FUNCTION trigger nodes. Triggers workflow execution when called as a function."
 )
 @JsonTypeName("workflow_function_trigger")
-@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonDeserialize(using = ValueDeserializer.None::class)
 data class WorkflowFunctionTriggerConfig(
     override val version: Int = 1,
     val schema: Schema<String>

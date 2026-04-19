@@ -1,8 +1,8 @@
 package riven.core.models.workflow.node.config.actions
 
 import com.fasterxml.jackson.annotation.JsonTypeName
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.ValueDeserializer
+import tools.jackson.databind.annotation.JsonDeserialize
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.http.HttpMethod
@@ -76,7 +76,7 @@ private val logger = KotlinLogging.logger {}
     description = "Configuration for HTTP_REQUEST action nodes."
 )
 @JsonTypeName("workflow_http_request_action")
-@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonDeserialize(using = ValueDeserializer.None::class)
 data class WorkflowHttpRequestActionConfig(
     override val version: Int = 1,
 

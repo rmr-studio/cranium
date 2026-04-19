@@ -1,6 +1,6 @@
 package riven.core.service.ingestion
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue

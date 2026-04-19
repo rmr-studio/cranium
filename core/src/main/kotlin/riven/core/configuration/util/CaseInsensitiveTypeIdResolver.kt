@@ -2,21 +2,18 @@ package riven.core.configuration.util
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.fasterxml.jackson.databind.DatabindContext
-import com.fasterxml.jackson.databind.JavaType
-import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase
-import com.fasterxml.jackson.databind.type.TypeFactory
+import tools.jackson.databind.DatabindContext
+import tools.jackson.databind.JavaType
+import tools.jackson.databind.jsontype.impl.TypeIdResolverBase
+import tools.jackson.databind.type.TypeFactory
 
 /**
- * Jackson [com.fasterxml.jackson.databind.jsontype.TypeIdResolver] that performs
+ * Jackson [tools.jackson.databind.jsontype.TypeIdResolver] performing
  * case-insensitive type-id lookups.
  *
- * Reads the [JsonSubTypes] annotation from the base type during [init] to build:
- * - An uppercase-keyed map for case-insensitive deserialization
- * - A class-to-canonical-name map for deterministic serialization
- *
- * This allows the frontend to send any casing (e.g. `"Or"`, `"or"`, `"OR"`)
- * while the backend always serializes the canonical name defined in [JsonSubTypes].
+ * Reads [JsonSubTypes] from the base type during [init] to build an
+ * uppercase-keyed map for case-insensitive deserialization and a
+ * class-to-canonical-name map for deterministic serialization.
  */
 class CaseInsensitiveTypeIdResolver : TypeIdResolverBase() {
 
@@ -25,28 +22,22 @@ class CaseInsensitiveTypeIdResolver : TypeIdResolverBase() {
 
     override fun init(baseType: JavaType) {
         super.init(baseType)
-        buildMaps(baseType.rawClass, baseType)
-    }
-
-    private fun buildMaps(baseClass: Class<*>, baseType: JavaType) {
-        val subtypes = baseClass.getAnnotation(JsonSubTypes::class.java) ?: return
-
-        val typeFactory = TypeFactory.defaultInstance()
+        val subtypes = baseType.rawClass.getAnnotation(JsonSubTypes::class.java) ?: return
+        val typeFactory = TypeFactory.createDefaultInstance()
 
         idToType = subtypes.value.associate { sub ->
             sub.name.uppercase() to typeFactory.constructSpecializedType(baseType, sub.value.java)
         }
-
         typeToId = subtypes.value.associate { sub ->
             sub.value.java to sub.name
         }
     }
 
-    override fun idFromValue(value: Any): String =
+    override fun idFromValue(context: DatabindContext, value: Any): String =
         typeToId[value::class.java]
             ?: throw IllegalArgumentException("No type id mapping for ${value::class.java.name}")
 
-    override fun idFromValueAndType(value: Any?, suggestedType: Class<*>): String =
+    override fun idFromValueAndType(context: DatabindContext, value: Any?, suggestedType: Class<*>): String =
         typeToId[suggestedType]
             ?: throw IllegalArgumentException("No type id mapping for ${suggestedType.name}")
 

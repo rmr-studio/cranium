@@ -1,9 +1,9 @@
 package riven.core.models.connector
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.JsonMappingException
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.DatabindException
+import tools.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.readValue
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -75,7 +75,7 @@ class CredentialPayloadJacksonTest {
         // ValueInstantiationException (subtype of JsonMappingException). Either
         // is acceptable — the contract is "deserialisation does not silently
         // succeed for an unknown sslMode".
-        assertThrows(JsonMappingException::class.java) {
+        assertThrows(DatabindException::class.java) {
             mapper.readValue<CredentialPayload>(json)
         }
     }

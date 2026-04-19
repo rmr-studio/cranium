@@ -5,10 +5,10 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
-import org.springframework.boot.autoconfigure.domain.EntityScan
-import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
-import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+import org.springframework.boot.persistence.autoconfigure.EntityScan
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration
+import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

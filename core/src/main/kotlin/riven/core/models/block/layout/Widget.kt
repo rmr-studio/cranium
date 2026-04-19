@@ -2,7 +2,7 @@ package riven.core.models.block.layout
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.annotation.JsonDeserialize
 import riven.core.deserializer.WidgetDeserializer
 
 /**

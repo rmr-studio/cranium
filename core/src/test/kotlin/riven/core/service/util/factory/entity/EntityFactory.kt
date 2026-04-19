@@ -1,7 +1,7 @@
 package riven.core.service.util.factory.entity
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.JsonNodeFactory
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.node.JsonNodeFactory
 import riven.core.entity.entity.EntityAttributeEntity
 import riven.core.entity.entity.EntityEntity
 import riven.core.entity.entity.EntityRelationshipEntity

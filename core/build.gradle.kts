@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm") version "2.1.21"
     kotlin("plugin.spring") version "2.1.21"
-    id("org.springframework.boot") version "3.5.3"
+    id("org.springframework.boot") version "4.0.5"
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("plugin.jpa") version "2.1.21"
 }
@@ -25,11 +25,16 @@ repositories {
     mavenCentral()
 }
 
+// Override Boot 4.0.5's managed Hibernate 7.2.x with 7.3 — required by
+// hypersistence-utils-hibernate-73 (the Jackson 3 variant).
+extra["hibernate.version"] = "7.3.1.Final"
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-webclient")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -37,25 +42,24 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     // Workflow Execution
-    implementation("io.temporal:temporal-kotlin:1.32.1")
-    implementation("io.temporal:temporal-sdk:1.24.1")
-    implementation("io.temporal:temporal-spring-boot-starter:1.31.0")
+    implementation("io.temporal:temporal-kotlin:1.34.0")
+    implementation("io.temporal:temporal-sdk:1.34.0")
+    implementation("io.temporal:temporal-spring-boot-starter:1.34.0")
 
     // Distributed Locking (ShedLock)
-    implementation("net.javacrumbs.shedlock:shedlock-spring:7.5.0")
-    implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc-template:7.5.0")
+    implementation("net.javacrumbs.shedlock:shedlock-spring:7.7.0")
+    implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc-template:7.7.0")
 
     // Security/JWT
     implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server:3.5.0")
-    implementation("org.springframework.security:spring-security-oauth2-jose:6.5.0")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+    implementation("org.springframework.security:spring-security-oauth2-jose")
 
     // Supabase
     implementation(platform("io.github.jan-tennert.supabase:bom:3.1.4"))
     implementation("io.github.jan-tennert.supabase:auth-kt")
     implementation("io.github.jan-tennert.supabase:storage-kt")
     implementation("io.ktor:ktor-client-cio:3.0.0")
-    implementation("io.github.jan-tennert.supabase:serializer-jackson:3.1.4")
 
     // Storage: S3-compatible providers (AWS S3, MinIO, R2, Spaces)
     implementation("aws.sdk.kotlin:s3:1.3.112")
@@ -68,7 +72,7 @@ dependencies {
     implementation("com.github.librepdf:openpdf:1.3.30")
 
     // Swagger/OpenAPI
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
 
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.16")
@@ -81,16 +85,22 @@ dependencies {
     implementation("com.bucket4j:bucket4j-core:8.10.1")
     implementation("com.github.ben-manes.caffeine:caffeine:3.2.0")
 
-    // Resilience4j Circuit Breaker
-    implementation("io.github.resilience4j:resilience4j-spring-boot3:2.3.0")
+    // Resilience4j Circuit Breaker (direct coordinates — no resilience4j-spring-boot4 starter exists yet;
+    // wire annotations via Spring AOP. See Phase 03.1 CONTEXT.md.)
+    implementation("io.github.resilience4j:resilience4j-core:2.3.0")
+    implementation("io.github.resilience4j:resilience4j-annotations:2.3.0")
+    implementation("io.github.resilience4j:resilience4j-spring:2.3.0")
     implementation("org.springframework.boot:spring-boot-starter-aop")
 
-    // Object Mapping
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    // Object Mapping (Jackson 3)
+    implementation(platform("tools.jackson:jackson-bom:3.1.0"))
+    implementation("tools.jackson.module:jackson-module-kotlin")
 
-    // Postgres/JPA
-    implementation("io.hypersistence:hypersistence-utils-hibernate-63:3.9.2")
-    implementation("org.hibernate.orm:hibernate-vector:6.6.18.Final")
+    // Postgres/JPA — hypersistence-utils-hibernate-73 is the first artifact to ship Jackson 3 support
+    // (tools.jackson.module:*). Requires Hibernate 7.3+, which we pin explicitly since Boot 4.0.5's BOM
+    // resolves to 7.2.x.
+    implementation("io.hypersistence:hypersistence-utils-hibernate-73:3.15.2")
+    implementation("org.hibernate.orm:hibernate-vector:7.3.1.Final")
     runtimeOnly("org.postgresql:postgresql")
 
     // Flyway Database Migrations
@@ -98,7 +108,7 @@ dependencies {
     implementation("org.flywaydb:flyway-database-postgresql")
 
     // Schema Validation
-    implementation("com.networknt:json-schema-validator:1.0.83")
+    implementation("com.networknt:json-schema-validator:3.0.1")
 
     // HTML Parsing
     implementation("org.jsoup:jsoup:1.18.3")
@@ -113,9 +123,9 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("io.temporal:temporal-testing:1.24.1")
-    testImplementation("org.testcontainers:testcontainers:2.0.3")
-    testImplementation("org.testcontainers:testcontainers-postgresql:2.0.3")
-    testImplementation("org.testcontainers:testcontainers-junit-jupiter:2.0.3")
+    testImplementation("org.testcontainers:testcontainers:2.0.4")
+    testImplementation("org.testcontainers:testcontainers-postgresql:2.0.4")
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter:2.0.4")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
     testRuntimeOnly("org.postgresql:postgresql")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")

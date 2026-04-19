@@ -8,9 +8,9 @@ import org.springframework.transaction.annotation.Transactional
 import riven.core.models.response.catalog.TemplateInstallationResponse
 import riven.core.service.catalog.TemplateInstallationService
 import riven.core.enums.common.validation.SchemaType
-import riven.core.lifecycle.CoreModelDefinition
-import riven.core.lifecycle.CoreModelRegistry
-import riven.core.lifecycle.CoreModelSet
+import riven.core.models.core.CoreModelDefinition
+import riven.core.models.core.CoreModelRegistry
+import riven.core.models.core.CoreModelSet
 import riven.core.models.common.json.JsonValue
 import riven.core.models.entity.EntityType
 import riven.core.models.entity.RelationshipDefinition

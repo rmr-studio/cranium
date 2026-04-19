@@ -1,8 +1,8 @@
 package riven.core.models.workflow.node.config
 
 import com.fasterxml.jackson.annotation.JsonTypeName
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.ValueDeserializer
+import tools.jackson.databind.annotation.JsonDeserialize
 import io.swagger.v3.oas.annotations.media.Schema
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.workflow.WorkflowNodeType
@@ -26,7 +26,7 @@ import riven.core.models.workflow.node.config.validation.ConfigValidationResult
     description = "Configuration for FUNCTION category nodes."
 )
 @JsonTypeName("function_config")
-@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonDeserialize(using = ValueDeserializer.None::class)
 data class WorkflowFunctionConfig(
     override val version: Int = 1
 ) : WorkflowNodeConfig {

@@ -1,18 +1,18 @@
 package riven.core.deserializer
 
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.databind.DeserializationContext
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.JsonNode
+import tools.jackson.core.JsonParser
+import tools.jackson.databind.DeserializationContext
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.ValueDeserializer
 import riven.core.enums.entity.EntityPropertyType
 import riven.core.models.entity.payload.EntityAttributePayload
 import riven.core.models.entity.payload.EntityAttributePrimitivePayload
 import riven.core.models.entity.payload.EntityAttributeRelationPayloadReference
 import riven.core.util.getEnumFromField
 
-class EntityAttributePayloadDeserializer : JsonDeserializer<EntityAttributePayload>() {
+class EntityAttributePayloadDeserializer : ValueDeserializer<EntityAttributePayload>() {
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext): EntityAttributePayload {
-        val node = p.codec.readTree<JsonNode>(p)
+        val node = ctxt.readTree(p) as JsonNode
         val attributeType = ctxt.getEnumFromField<EntityPropertyType>(
             node,
             "type",
@@ -20,12 +20,12 @@ class EntityAttributePayloadDeserializer : JsonDeserializer<EntityAttributePaylo
         )
 
         return when (attributeType) {
-            EntityPropertyType.ATTRIBUTE -> p.codec.treeToValue(
+            EntityPropertyType.ATTRIBUTE -> ctxt.readTreeAsValue(
                 node,
                 EntityAttributePrimitivePayload::class.java
             )
 
-            EntityPropertyType.RELATIONSHIP -> p.codec.treeToValue(
+            EntityPropertyType.RELATIONSHIP -> ctxt.readTreeAsValue(
                 node,
                 EntityAttributeRelationPayloadReference::class.java
             )

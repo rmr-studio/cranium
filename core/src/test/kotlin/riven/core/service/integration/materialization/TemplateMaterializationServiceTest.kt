@@ -1,6 +1,6 @@
 package riven.core.service.integration.materialization
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach

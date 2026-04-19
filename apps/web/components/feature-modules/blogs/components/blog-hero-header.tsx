@@ -16,10 +16,10 @@ interface BlogHeroHeaderProps {
   metaSlot?: React.ReactNode;
 }
 
-/* ── Shared dark section wrapper with dot pattern ── */
+/* ── Shared  section wrapper with dot pattern ── */
 function HeroWrapper({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <section className={cn('paper-lite relative mt-18 bg-foreground/90 text-background', className)}>
+    <section className={cn('relative mt-18 bg-foreground/90 text-background', className)}>
       <BGPattern
         variant="dots"
         size={12}
@@ -118,20 +118,18 @@ export function BlogHeroHeader({
 }: BlogHeroHeaderProps) {
   const hasCover = !!post.coverImage;
 
-  /* ── Overview: page title in dark section, featured card overlaps boundary ── */
+  /* ── Overview: page title in  section, featured card overlaps boundary ── */
   if (variant === 'overview') {
     return (
       <>
         <HeroWrapper>
-          <div className="mx-auto max-w-5xl px-6 pt-16 lg:px-8">
-            {topSlot}
-          </div>
+          <div className="mx-auto max-w-5xl px-6 pt-16 lg:px-8">{topSlot}</div>
           <div className="pb-48 sm:pb-56 lg:pb-72" />
         </HeroWrapper>
         <div className="relative z-10 mx-auto -mt-48 max-w-5xl px-6 sm:-mt-56 lg:-mt-72 lg:px-8">
           <Link
             href={`/resources/blog/${post.slug}`}
-            className="group block overflow-hidden rounded-lg border border-border bg-card/30 shadow-lg shadow-foreground/10 dark:shadow-none"
+            className="group :shadow-none block overflow-hidden rounded-lg border border-border bg-card/30 shadow-lg shadow-foreground/10"
           >
             <CoverImage post={post} className="rounded-none" />
             <div className="p-6 lg:p-8">
@@ -166,7 +164,7 @@ export function BlogHeroHeader({
     );
   }
 
-  /* ── Post: breadcrumbs + header, cover overlaps dark/light boundary ── */
+  /* ── Post: breadcrumbs + header, cover overlaps /light boundary ── */
   return (
     <>
       <HeroWrapper>
@@ -176,9 +174,7 @@ export function BlogHeroHeader({
             <span className="font-mono text-xs font-bold tracking-widest text-background/50 uppercase">
               {CATEGORY_LABELS[post.category]}
             </span>
-            <h1 className="mt-4 font-serif text-4xl tracking-tight lg:text-5xl">
-              {post.title}
-            </h1>
+            <h1 className="mt-4 font-serif text-4xl tracking-tight lg:text-5xl">{post.title}</h1>
             <p className="mt-4 text-lg leading-snug text-background/60">{post.description}</p>
             <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-background/10 pt-5">
               <span className="font-mono text-xs tracking-widest text-background/50 uppercase">
@@ -202,7 +198,7 @@ export function BlogHeroHeader({
       </HeroWrapper>
       {hasCover && (
         <div className="relative z-10 mx-auto -mt-24 max-w-5xl px-6 sm:-mt-32 lg:-mt-64 lg:px-8">
-          <div className="overflow-hidden rounded-lg shadow-lg shadow-foreground/40 dark:shadow-none">
+          <div className=":shadow-none overflow-hidden rounded-lg shadow-lg shadow-foreground/40">
             <Image
               src={getCdnUrl(post.coverImage!)}
               alt={`Cover image for ${post.title}`}

@@ -1,6 +1,7 @@
 package riven.core.filter.ratelimit
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.junit.jupiter.api.Test
@@ -39,7 +40,7 @@ class RateLimitFilterIntegrationTest {
         fun meterRegistry(): MeterRegistry = SimpleMeterRegistry()
 
         @Bean
-        fun objectMapper(): ObjectMapper = ObjectMapper().findAndRegisterModules()
+        fun objectMapper(): ObjectMapper = JsonMapper.builder().build()
     }
 
     @Autowired

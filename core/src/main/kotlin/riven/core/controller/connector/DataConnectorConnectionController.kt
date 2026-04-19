@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import riven.core.models.connector.ConnectorTestResult
-import riven.core.models.connector.CustomSourceConnectionModel
+import riven.core.models.connector.DataConnectorConnectionModel
 import riven.core.models.connector.request.CreateDataConnectorConnectionRequest
 import riven.core.models.connector.request.DataConnectorConnectionTestRequest
 import riven.core.models.connector.request.UpdateDataConnectorConnectionRequest
@@ -58,7 +58,7 @@ class DataConnectorConnectionController(
     )
     fun create(
         @Valid @RequestBody request: CreateDataConnectorConnectionRequest,
-    ): ResponseEntity<CustomSourceConnectionModel> =
+    ): ResponseEntity<DataConnectorConnectionModel> =
         ResponseEntity.status(HttpStatus.CREATED).body(service.create(request))
 
     @GetMapping
@@ -69,7 +69,7 @@ class DataConnectorConnectionController(
     )
     fun list(
         @RequestParam workspaceId: UUID,
-    ): ResponseEntity<List<CustomSourceConnectionModel>> =
+    ): ResponseEntity<List<DataConnectorConnectionModel>> =
         ResponseEntity.ok(service.listByWorkspace(workspaceId))
 
     @GetMapping("/{id}")
@@ -82,7 +82,7 @@ class DataConnectorConnectionController(
     fun getById(
         @RequestParam workspaceId: UUID,
         @PathVariable id: UUID,
-    ): ResponseEntity<CustomSourceConnectionModel> =
+    ): ResponseEntity<DataConnectorConnectionModel> =
         ResponseEntity.ok(service.getById(workspaceId, id))
 
     @PatchMapping("/{id}")
@@ -97,7 +97,7 @@ class DataConnectorConnectionController(
         @RequestParam workspaceId: UUID,
         @PathVariable id: UUID,
         @Valid @RequestBody request: UpdateDataConnectorConnectionRequest,
-    ): ResponseEntity<CustomSourceConnectionModel> =
+    ): ResponseEntity<DataConnectorConnectionModel> =
         ResponseEntity.ok(service.update(workspaceId, id, request))
 
     @DeleteMapping("/{id}")

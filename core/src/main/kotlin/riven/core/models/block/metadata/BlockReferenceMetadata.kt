@@ -1,8 +1,8 @@
 package riven.core.models.block.metadata
 
 import com.fasterxml.jackson.annotation.JsonTypeName
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.ValueDeserializer
+import tools.jackson.databind.annotation.JsonDeserialize
 import riven.core.enums.block.structure.BlockMetadataType
 import riven.core.enums.block.structure.BlockReferenceFetchPolicy
 
@@ -10,7 +10,7 @@ import riven.core.enums.block.structure.BlockReferenceFetchPolicy
  * Metadata when a block is referencing an external block.
  */
 @JsonTypeName("block_reference")
-@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonDeserialize(using = ValueDeserializer.None::class)
 data class BlockReferenceMetadata(
     override val fetchPolicy: BlockReferenceFetchPolicy = BlockReferenceFetchPolicy.LAZY,
     override val deletable: Boolean = true,

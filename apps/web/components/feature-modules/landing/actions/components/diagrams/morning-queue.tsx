@@ -142,7 +142,7 @@ const GHOST_CARD = {
 export function MockMorningQueue() {
   return (
     <div
-      className="z-20 flex overflow-hidden rounded-xl border-border bg-card shadow-lg dark:border"
+      className=":border z-20 flex overflow-hidden rounded-xl border-border bg-card shadow-lg"
       style={{ height: 1200 }}
     >
       <ShowcaseIconRail icons={QUEUE_NAV_ICONS} />

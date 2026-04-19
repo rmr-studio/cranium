@@ -1,7 +1,7 @@
 package riven.core.util
 
-import com.fasterxml.jackson.databind.DeserializationContext
-import com.fasterxml.jackson.databind.JsonNode
+import tools.jackson.databind.DeserializationContext
+import tools.jackson.databind.JsonNode
 
 /**
  * Safely extracts an enum value from a JsonNode field.
@@ -9,14 +9,14 @@ import com.fasterxml.jackson.databind.JsonNode
  * @param fieldName The name of the field to extract (e.g., "type")
  * @param targetClass The class being deserialized (for error reporting)
  * @return The enum value
- * @throws com.fasterxml.jackson.databind.JsonMappingException if field is missing or enum value is invalid
+ * @throws tools.jackson.databind.exc.MismatchedInputException if field is missing or enum value is invalid
  */
 inline fun <reified E : Enum<E>> DeserializationContext.getEnumFromField(
     node: JsonNode,
     fieldName: String,
     targetClass: Class<*>
 ): E {
-    val fieldValue = node.get(fieldName)?.asText()
+    val fieldValue = node.get(fieldName)?.asString()
         ?: reportInputMismatch(
             targetClass,
             "Missing '$fieldName' field while deserializing ${targetClass.simpleName}"

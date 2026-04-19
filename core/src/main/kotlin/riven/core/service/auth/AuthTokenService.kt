@@ -93,7 +93,7 @@ open class AuthTokenService(private val logger: KLogger) {
 
     fun getCurrentUserAuthorities(): Collection<String> {
         return SecurityContextHolder.getContext().authentication?.authorities
-            ?.map { it.authority } ?: emptyList()
+            ?.mapNotNull { it.authority } ?: emptyList()
     }
 
 }

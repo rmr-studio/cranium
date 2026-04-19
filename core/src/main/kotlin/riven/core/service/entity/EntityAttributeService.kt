@@ -1,7 +1,8 @@
 package riven.core.service.entity
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KLogger
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import riven.core.entity.entity.EntityAttributeEntity

@@ -1,8 +1,8 @@
 package riven.core.models.workflow.node.config.actions
 
 import com.fasterxml.jackson.annotation.JsonTypeName
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.ValueDeserializer
+import tools.jackson.databind.annotation.JsonDeserialize
 import io.swagger.v3.oas.annotations.media.Schema
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.common.validation.SchemaType
@@ -61,7 +61,7 @@ import java.util.*
     description = "Configuration for UPDATE_ENTITY action nodes."
 )
 @JsonTypeName("workflow_update_entity_action")
-@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonDeserialize(using = ValueDeserializer.None::class)
 data class WorkflowUpdateEntityActionConfig(
     override val version: Int = 1,
 

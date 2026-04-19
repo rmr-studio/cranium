@@ -1,7 +1,6 @@
 package riven.core.service.catalog
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import tools.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -30,7 +29,7 @@ class ManifestUpsertServiceTest {
     private lateinit var logger: KLogger
     private lateinit var service: ManifestUpsertService
 
-    private val objectMapper = ObjectMapper().registerModule(JavaTimeModule())
+    private val objectMapper = ObjectMapper()
     private val manifestId = UUID.randomUUID()
 
     @BeforeEach

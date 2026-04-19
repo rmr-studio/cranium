@@ -1,8 +1,8 @@
 package riven.core.models.workflow.node.config.trigger
 
 import com.fasterxml.jackson.annotation.JsonTypeName
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.ValueDeserializer
+import tools.jackson.databind.annotation.JsonDeserialize
 import io.swagger.v3.oas.annotations.media.Schema
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.util.OperationType
@@ -32,7 +32,7 @@ import riven.core.service.workflow.state.WorkflowNodeConfigValidationService
     description = "Configuration for ENTITY_EVENT trigger nodes. Triggers workflow execution when entity operations occur."
 )
 @JsonTypeName("workflow_entity_event_trigger")
-@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonDeserialize(using = ValueDeserializer.None::class)
 data class WorkflowEntityEventTriggerConfig(
     override val version: Int = 1,
     val key: String,

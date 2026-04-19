@@ -1,7 +1,7 @@
 package riven.core.models.entity.payload
 
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.ValueDeserializer
+import tools.jackson.databind.annotation.JsonDeserialize
 import io.swagger.v3.oas.annotations.media.DiscriminatorMapping
 import io.swagger.v3.oas.annotations.media.Schema
 import riven.core.deserializer.EntityAttributePayloadDeserializer
@@ -22,8 +22,9 @@ sealed interface EntityAttributePayload {
     name = "EntityAttributePrimitivePayload",
     description = "An attribute payload representing a primitive value with a defined schema type"
 )
-@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonDeserialize(using = ValueDeserializer.None::class)
 data class EntityAttributePrimitivePayload(
+    @get:Schema(type = "object", implementation = Any::class)
     val value: JsonValue,
     val schemaType: SchemaType
 ) : EntityAttributePayload {
@@ -34,7 +35,7 @@ data class EntityAttributePrimitivePayload(
     name = "EntityAttributeRelationPayloadReference",
     description = "An attribute payload representing relationships to other entities by their IDs"
 )
-@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonDeserialize(using = ValueDeserializer.None::class)
 data class EntityAttributeRelationPayloadReference(
     val relations: List<UUID>
 ) : EntityAttributePayload {
@@ -45,7 +46,7 @@ data class EntityAttributeRelationPayloadReference(
     name = "EntityAttributeRelationPayload",
     description = "An attribute payload representing a relationship to another entity, with a full identifying link"
 )
-@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonDeserialize(using = ValueDeserializer.None::class)
 data class EntityAttributeRelationPayload(
     val relations: List<EntityLink>
 ) : EntityAttributePayload {

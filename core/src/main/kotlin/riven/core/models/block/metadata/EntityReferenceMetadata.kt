@@ -1,8 +1,8 @@
 package riven.core.models.block.metadata
 
 import com.fasterxml.jackson.annotation.JsonTypeName
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.ValueDeserializer
+import tools.jackson.databind.annotation.JsonDeserialize
 import riven.core.enums.block.structure.BlockMetadataType
 import riven.core.enums.block.structure.BlockReferenceFetchPolicy
 import riven.core.models.entity.Entity
@@ -11,7 +11,7 @@ import riven.core.models.entity.Entity
  * Metadata when a block is referencing a list of external entities
  */
 @JsonTypeName("entity_reference")
-@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonDeserialize(using = ValueDeserializer.None::class)
 data class EntityReferenceMetadata(
     override val fetchPolicy: BlockReferenceFetchPolicy = BlockReferenceFetchPolicy.LAZY,
     override val path: String = "\$.items",           // <— used by service to scope rows

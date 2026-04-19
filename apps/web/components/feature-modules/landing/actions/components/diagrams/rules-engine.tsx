@@ -87,7 +87,7 @@ export const RulesEngineGraphic = () => {
   return (
     <>
       {/* Rule Definition — front, left */}
-      <GlowBorder className="dark absolute bottom-10 left-10 z-10 w-[430px] sm:top-1/2 sm:left-1/2 sm:w-[520px] sm:-translate-x-1/2 sm:-translate-y-2/3 sm:scale-110 lg:bottom-40 lg:left-24 lg:translate-x-0 lg:translate-y-0 lg:scale-130">
+      <GlowBorder className="absolute bottom-10 left-10 z-10 w-[430px] sm:top-1/2 sm:left-1/2 sm:w-[520px] sm:-translate-x-1/2 sm:-translate-y-2/3 sm:scale-110 lg:bottom-40 lg:left-24 lg:translate-x-0 lg:translate-y-0 lg:scale-130">
         <div className="glass-panel w-full rounded-md border border-border bg-card p-5 shadow-lg backdrop-blur-xl">
           {/* Window Controls */}
           <WindowControls size={6} />
@@ -155,13 +155,13 @@ export const RulesEngineGraphic = () => {
       {/* Notification Inbox — behind, right, overlapping */}
 
       <div
-        className="dark absolute hidden w-[1920px] translate-x-64 overflow-hidden rounded-lg lg:flex"
+        className="absolute hidden w-[1920px] translate-x-64 overflow-hidden rounded-lg lg:flex"
         style={{ height: 800 }}
       >
         <ShowcaseIconRail icons={INBOX_NAV_ICONS} />
         <ShowcaseSubPanel>
           {/* Header */}
-          <div className="paper-lite flex h-12 shrink-0 items-center border-b border-border px-4">
+          <div className="flex h-12 shrink-0 items-center border-b border-border px-4">
             <span className="text-sm font-semibold text-foreground">Notifications</span>
           </div>
 

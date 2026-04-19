@@ -32,7 +32,7 @@ import riven.core.service.identity.IdentityClusterService
 import riven.core.service.util.BaseServiceTest
 import riven.core.service.util.factory.entity.EntityFactory
 import riven.core.service.util.factory.integration.IntegrationFactory
-import com.fasterxml.jackson.databind.node.JsonNodeFactory
+import tools.jackson.databind.node.JsonNodeFactory
 import org.mockito.Mockito.reset
 import org.springframework.beans.factory.annotation.Autowired
 import java.util.Optional

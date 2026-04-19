@@ -5,7 +5,7 @@
 -- (e.g. Postgres read-replicas). Credentials are AES-256-GCM encrypted
 -- and stored as raw bytea alongside their IV + key version.
 --
--- distinct because custom sources carry encrypted credentials + readonly
+-- distinct because data connectors carry encrypted credentials + readonly
 -- verification metadata rather than a Nango connection id.
 
 CREATE TABLE IF NOT EXISTS data_connector_connection (

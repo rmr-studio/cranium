@@ -3,7 +3,7 @@ package riven.core.models.entity.query.filter
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
-import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver
+import tools.jackson.databind.annotation.JsonTypeIdResolver
 import io.swagger.v3.oas.annotations.media.Schema
 import riven.core.configuration.util.CaseInsensitiveTypeIdResolver
 

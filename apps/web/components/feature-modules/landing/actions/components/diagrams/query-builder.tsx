@@ -51,7 +51,7 @@ const PlatformLabel = ({ icon, label }: { icon: React.ReactNode; label: string }
 export const QueryBuilderGraphic = ({ className }: { className?: string }) => {
   return (
     <>
-      <div className="translate dark relative flex h-full w-full">
+      <div className="translate relative flex h-full w-full">
         <div
           className="hidden aspect-video scale-80 border border-border shadow-lg lg:flex"
           style={{ height: 700 }}
@@ -67,7 +67,7 @@ export const QueryBuilderGraphic = ({ className }: { className?: string }) => {
 
 export const QuerySection = () => {
   return (
-    <GlowBorder className="dark absolute bottom-10 left-20 w-[500px] scale-120 sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 lg:bottom-40 lg:left-16 lg:translate-x-0 lg:translate-y-0">
+    <GlowBorder className="absolute bottom-10 left-20 w-[500px] scale-120 sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 lg:bottom-40 lg:left-16 lg:translate-x-0 lg:translate-y-0">
       <div className="glass-panel w-full rounded-md border border-border p-3 shadow-lg backdrop-blur-xl">
         <div className="mb-2.5">
           <WindowControls size={6} />

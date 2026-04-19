@@ -1,7 +1,7 @@
 package riven.core.service.connector
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.readValue
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.security.access.prepost.PreAuthorize
@@ -19,13 +19,14 @@ import riven.core.exceptions.connector.ReadOnlyVerificationException
 import riven.core.exceptions.connector.SsrfRejectedException
 import riven.core.models.connector.ConnectorTestResult
 import riven.core.models.connector.CredentialPayload
-import riven.core.models.connector.CustomSourceConnectionModel
+import riven.core.models.connector.DataConnectorConnectionModel
 import riven.core.models.connector.request.CreateDataConnectorConnectionRequest
 import riven.core.models.connector.request.DataConnectorConnectionTestRequest
 import riven.core.models.connector.request.UpdateDataConnectorConnectionRequest
-import riven.core.repository.connector.CustomSourceConnectionRepository
+import riven.core.repository.connector.DataConnectorConnectionRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.auth.AuthTokenService
+import riven.core.service.connector.pool.WorkspaceConnectionPoolManager
 import riven.core.util.ServiceUtil.findOrThrow
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -37,7 +38,7 @@ import java.util.UUID
  *   1. [SsrfValidatorService.validateAndResolve] — resolve + blocklist
  *   2. [ReadOnlyRoleVerifierService.verify] — probe role read-only-ness
  *   3. [CredentialEncryptionService.encrypt] — AES-256-GCM seal (create/update only)
- *   4. [CustomSourceConnectionRepository.save] — persist (create/update only)
+ *   4. [DataConnectorConnectionRepository.save] — persist (create/update only)
  *
  * Any gate failure rolls back the transaction. [CryptoException] and
  * [DataCorruptionException] at read-time transition the entity's
@@ -48,13 +49,14 @@ import java.util.UUID
 @ConditionalOnProperty(prefix = "riven.connector", name = ["enabled"], havingValue = "true")
 class DataConnectorConnectionService(
     private val logger: KLogger,
-    private val repository: CustomSourceConnectionRepository,
+    private val repository: DataConnectorConnectionRepository,
     private val encryptionService: CredentialEncryptionService,
     private val ssrfValidator: SsrfValidatorService,
     private val roVerifier: ReadOnlyRoleVerifierService,
     private val authTokenService: AuthTokenService,
     private val activityService: ActivityService,
     private val objectMapper: ObjectMapper,
+    private val poolManager: WorkspaceConnectionPoolManager,
 ) {
 
     // ------ Public mutations ------
@@ -65,7 +67,7 @@ class DataConnectorConnectionService(
      */
     @Transactional
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#request.workspaceId)")
-    fun create(request: CreateDataConnectorConnectionRequest): CustomSourceConnectionModel {
+    fun create(request: CreateDataConnectorConnectionRequest): DataConnectorConnectionModel {
         val userId = authTokenService.getUserId()
         runGateChain(
             request.host, request.port, request.database,
@@ -130,11 +132,11 @@ class DataConnectorConnectionService(
         workspaceId: UUID,
         id: UUID,
         request: UpdateDataConnectorConnectionRequest,
-    ): CustomSourceConnectionModel {
+    ): DataConnectorConnectionModel {
         val userId = authTokenService.getUserId()
         val entity = findOrThrow { repository.findByIdAndWorkspaceId(id, workspaceId) }
 
-        val updatedModel: CustomSourceConnectionModel = if (request.touchesCredentials()) {
+        val updatedModel: DataConnectorConnectionModel = if (request.touchesCredentials()) {
             applyCredentialUpdate(entity, request)
         } else {
             applyCosmeticUpdate(entity, request)
@@ -161,6 +163,9 @@ class DataConnectorConnectionService(
         entity.deleted = true
         entity.deletedAt = ZonedDateTime.now()
         repository.save(entity)
+        // Evict any cached pool for this connection so adapter calls fail fast
+        // (the soft-deleted connection is not supposed to serve traffic). Idempotent.
+        poolManager.evict(id)
         logActivity(
             operation = OperationType.DELETE,
             userId = userId,
@@ -174,14 +179,14 @@ class DataConnectorConnectionService(
 
     @Transactional
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
-    fun getById(workspaceId: UUID, id: UUID): CustomSourceConnectionModel {
+    fun getById(workspaceId: UUID, id: UUID): DataConnectorConnectionModel {
         val entity = findOrThrow { repository.findByIdAndWorkspaceId(id, workspaceId) }
         return decryptToModel(entity)
     }
 
     @Transactional
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
-    fun listByWorkspace(workspaceId: UUID): List<CustomSourceConnectionModel> =
+    fun listByWorkspace(workspaceId: UUID): List<DataConnectorConnectionModel> =
         repository.findByWorkspaceId(workspaceId).map { decryptToModel(it) }
 
     // ------ Private helpers ------
@@ -207,7 +212,7 @@ class DataConnectorConnectionService(
      * [CryptoException] and [DataCorruptionException] transition the status
      * to FAILED with a user-safe message — they NEVER propagate to HTTP.
      */
-    private fun decryptToModel(entity: DataConnectorConnectionEntity): CustomSourceConnectionModel {
+    private fun decryptToModel(entity: DataConnectorConnectionEntity): DataConnectorConnectionModel {
         return try {
             val json = encryptionService.decrypt(
                 EncryptedCredentials(entity.encryptedCredentials, entity.iv, entity.keyVersion),
@@ -228,7 +233,7 @@ class DataConnectorConnectionService(
     private fun applyCredentialUpdate(
         entity: DataConnectorConnectionEntity,
         request: UpdateDataConnectorConnectionRequest,
-    ): CustomSourceConnectionModel {
+    ): DataConnectorConnectionModel {
         val currentJson = encryptionService.decrypt(
             EncryptedCredentials(entity.encryptedCredentials, entity.iv, entity.keyVersion),
         )
@@ -255,6 +260,9 @@ class DataConnectorConnectionService(
         }
         request.name?.let { entity.name = it }
         val saved = repository.save(entity)
+        // Evict the cached pool so the next adapter call rebuilds with the
+        // fresh credentials. No-op if the pool was never built.
+        poolManager.evict(requireNotNull(saved.id) { "saved entity must have id after save" })
         return saved.toModel(
             merged.host, merged.port, merged.database, merged.user, merged.sslMode.value,
         )
@@ -263,7 +271,7 @@ class DataConnectorConnectionService(
     private fun applyCosmeticUpdate(
         entity: DataConnectorConnectionEntity,
         request: UpdateDataConnectorConnectionRequest,
-    ): CustomSourceConnectionModel {
+    ): DataConnectorConnectionModel {
         request.name?.let { entity.name = it }
         val saved = repository.save(entity)
         return decryptToModel(saved)
@@ -281,7 +289,7 @@ class DataConnectorConnectionService(
     private fun buildFailedModel(
         entity: DataConnectorConnectionEntity,
         reason: String,
-    ): CustomSourceConnectionModel = CustomSourceConnectionModel(
+    ): DataConnectorConnectionModel = DataConnectorConnectionModel(
         id = requireNotNull(entity.id) { "entity.id must not be null for persisted row" },
         workspaceId = entity.workspaceId,
         name = entity.name,

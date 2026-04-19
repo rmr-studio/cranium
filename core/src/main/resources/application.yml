@@ -9,7 +9,6 @@ spring:
     url: ${POSTGRES_DB_JDBC}
     driver-class-name: org.postgresql.Driver
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
     show-sql: ${riven.include-stack-trace}
@@ -85,7 +84,6 @@ riven:
     ollama:
       base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
       model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
-<<<<<<< Updated upstream
   websocket:
     endpoint: /ws
     server-heartbeat-ms: 10000
@@ -93,9 +91,6 @@ riven:
     max-message-size-bytes: 65536
     send-buffer-size-bytes: 524288
     send-timeout-ms: 15000
-||||||| Stash base
-=======
->>>>>>> Stashed changes
   query:
     timeout-seconds: 10
 storage:
@@ -119,5 +114,6 @@ storage:
 springdoc:
   api-docs:
     path: /docs/v3/api-docs
+    version: openapi_3_0
   swagger-ui:
     path: /docs/swagger-ui.html

@@ -1,16 +1,16 @@
 package riven.core.models.block.metadata
 
 import com.fasterxml.jackson.annotation.JsonTypeName
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.ValueDeserializer
+import tools.jackson.databind.annotation.JsonDeserialize
 import io.swagger.v3.oas.annotations.media.Schema
 import riven.core.enums.block.structure.BlockMetadataType
 import riven.core.models.common.json.JsonObject
 
 @JsonTypeName("content")
-@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonDeserialize(using = ValueDeserializer.None::class)
 data class BlockContentMetadata(
-    @param:Schema(type = "object", additionalProperties = Schema.AdditionalPropertiesValue.TRUE)
+    @get:Schema(type = "object", implementation = Any::class)
     var data: JsonObject = emptyMap(),
     override val meta: BlockMeta = BlockMeta(),
     override val deletable: Boolean = true,

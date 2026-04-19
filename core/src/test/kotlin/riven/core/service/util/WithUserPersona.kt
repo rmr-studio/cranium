@@ -150,7 +150,7 @@ class WithUserPersonaExtension : BeforeEachCallback, AfterEachCallback {
         }
     }
 
-    override fun afterEach(context: ExtensionContext?) {
+    override fun afterEach(context: ExtensionContext) {
         SecurityContextHolder.clearContext()
     }
 

@@ -105,7 +105,7 @@ class IntegrationSyncActivitiesImplTest {
             integrationHealthService: IntegrationHealthService,
             entityProjectionService: riven.core.service.ingestion.EntityProjectionService,
             noteEmbeddingService: riven.core.service.note.NoteEmbeddingService,
-            objectMapper: com.fasterxml.jackson.databind.ObjectMapper,
+            objectMapper: tools.jackson.databind.ObjectMapper,
             resourceLoader: org.springframework.core.io.ResourceLoader,
             transactionTemplate: TransactionTemplate,
             logger: KLogger,
@@ -189,7 +189,7 @@ class IntegrationSyncActivitiesImplTest {
     private lateinit var noteEmbeddingService: riven.core.service.note.NoteEmbeddingService
 
     @MockitoBean
-    private lateinit var objectMapper: com.fasterxml.jackson.databind.ObjectMapper
+    private lateinit var objectMapper: tools.jackson.databind.ObjectMapper
 
     @MockitoBean
     private lateinit var resourceLoader: org.springframework.core.io.ResourceLoader

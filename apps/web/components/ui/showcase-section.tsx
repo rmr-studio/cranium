@@ -11,7 +11,7 @@ export interface FeatureCard {
   description: string;
 }
 
-/* ── Showcase section (dark section + heading + feature cards) ──── */
+/* ── Showcase section ( section + heading + feature cards) ──── */
 
 interface ShowcaseSectionProps extends React.HTMLAttributes<HTMLDivElement> {
   heading: ReactNode;
@@ -28,15 +28,11 @@ export const ShowcaseSection = forwardRef<HTMLDivElement, ShowcaseSectionProps>(
       <Section
         {...props}
         ref={ref}
-        className={cn(
-          'relative w-full overflow-hidden py-12! md:py-16!  lg:py-20!',
-          className,
-        )}
+        className={cn('relative w-full overflow-hidden py-12! md:py-16! lg:py-20!', className)}
         lazyRender={lazyRender}
         size={24}
         mask="fade-edges"
       >
-
         <div className="clamp relative z-40">
           {/* ── Top: Heading + Feature Cards ─────────────── */}
           <div className="flex flex-col gap-10 px-4 sm:px-8 lg:flex-row lg:items-end lg:justify-between">
@@ -78,7 +74,7 @@ export function ShowcaseCard({ children, className }: ShowcaseCardProps) {
   return (
     <div
       className={cn(
-        'relative z-10 mt-12 overflow-hidden border-[1.5px] border-primary-foreground/10 bg-primary-foreground/5 shadow-md md:mt-16 lg:rounded-xl lg:backdrop-blur-sm dark:border-primary-foreground/40 dark:bg-background dark:shadow-xl dark:shadow-black/60',
+        ':border-primary-foreground/40 :bg-background :shadow-xl :shadow-black/60 relative z-10 mt-12 overflow-hidden border-[1.5px] border-primary-foreground/10 bg-primary-foreground/5 shadow-md md:mt-16 lg:rounded-xl lg:backdrop-blur-sm',
         className,
       )}
     >

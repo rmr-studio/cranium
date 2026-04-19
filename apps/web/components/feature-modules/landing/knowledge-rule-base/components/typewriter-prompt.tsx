@@ -39,7 +39,7 @@ export const TypewriterPrompt: FC<TypewriterPromptProps> = ({
   return (
     <div
       className={cn(
-        'group glass-panel relative z-40 mx-4 max-w-xs min-w-xs overflow-hidden rounded-xl border px-5 py-4 backdrop-blur-xl sm:mx-0 sm:h-32 sm:w-full sm:max-w-2xl',
+        'group relative z-40 mx-4 max-w-xs min-w-xs overflow-hidden rounded-xl bg-amber-50 px-5 py-4 shadow-lg backdrop-blur-xl sm:mx-0 sm:h-32 sm:w-full sm:max-w-2xl',
         className,
       )}
     >
@@ -50,13 +50,13 @@ export const TypewriterPrompt: FC<TypewriterPromptProps> = ({
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
       {/* Label */}
-      <span className="mb-2 inline-block font-display text-lg font-bold tracking-tight text-white uppercase sm:text-2xl">
+      <span className="mb-2 inline-block font-display text-lg font-bold tracking-tight uppercase sm:text-2xl">
         {label}
       </span>
 
       {/* Text area */}
       <div className="min-h-[3rem]">
-        <p className="text-base leading-relaxed text-white/90 md:text-lg">
+        <p className="text-base leading-relaxed text-content md:text-lg">
           <span
             className={
               selected ? 'rounded-sm bg-[var(--cta-g2)]/30 box-decoration-clone py-px' : undefined
@@ -65,7 +65,7 @@ export const TypewriterPrompt: FC<TypewriterPromptProps> = ({
             {text}
           </span>
           {(phase === 'typing' || phase === 'shown') && (
-            <span className="ml-px inline-block h-5 w-0.5 animate-pulse bg-white/80 align-text-bottom" />
+            <span className="ml-px inline-block h-5 w-0.5 animate-pulse bg-black/70 align-text-bottom" />
           )}
         </p>
       </div>

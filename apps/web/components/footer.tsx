@@ -13,7 +13,7 @@ const footerLinks = {
 const socialLinks = [
   {
     label: 'X (Formerly Twitter)',
-    href: 'https://x.com/riven_app',
+    href: 'https://x.com/withriven',
   },
   {
     label: 'LinkedIn',
@@ -23,7 +23,6 @@ const socialLinks = [
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
-
 
   return (
     <footer className="border-t bg-background px-8 pt-14 pb-10 md:px-8 md:pt-20 md:pb-14 lg:px-12">
@@ -40,7 +39,6 @@ export function Footer() {
             <div className="mx-auto tracking-tighter text-muted-foreground sm:mx-0 sm:text-xl">
               Move fast. Act fast. Grow Fast.
             </div>
-           
           </div>
 
           <div className="flex gap-16 md:gap-20">

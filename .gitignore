@@ -29,3 +29,4 @@ build/
 .gstack/
 
 **/**/lighthouse-*.json
+.mcp.json

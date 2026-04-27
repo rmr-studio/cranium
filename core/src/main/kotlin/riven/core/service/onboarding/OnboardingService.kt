@@ -8,11 +8,11 @@ import riven.core.enums.activity.Activity
 import riven.core.enums.core.ApplicationEntityType
 import riven.core.enums.knowledge.DefinitionSource
 import riven.core.enums.util.OperationType
-import riven.core.enums.workspace.BusinessType
 import riven.core.enums.workspace.WorkspaceRoles
 import riven.core.exceptions.ConflictException
 import riven.core.exceptions.NotFoundException
 import riven.core.exceptions.UniqueConstraintViolationException
+import riven.core.models.core.DTC_ECOMMERCE_MODELS
 import riven.core.models.request.knowledge.CreateBusinessDefinitionRequest
 import riven.core.models.request.onboarding.CompleteOnboardingRequest
 import riven.core.models.request.onboarding.OnboardingBusinessDefinition
@@ -81,7 +81,7 @@ class OnboardingService(
                 throw ConflictException("User has already completed onboarding")
             }
             val workspace = createWorkspace(request, workspaceAvatar)
-            val templateResult = populateWorkspace(workspace.id, request.businessType, userId)
+            val templateResult = populateWorkspace(workspace.id, userId)
             val user = updateUserProfile(userId, request, workspace, profileAvatar)
             Triple(workspace, user, templateResult)
         }!!
@@ -157,12 +157,12 @@ class OnboardingService(
 
     private fun populateWorkspace(
         id: UUID,
-        type: BusinessType,
         userId: UUID,
     ): TemplateInstallResult {
-        val response = templateInstallationService.installTemplateInternal(id, type.templateKey, userId)
+        val templateKey = DTC_ECOMMERCE_MODELS.manifestKey
+        val response = templateInstallationService.installTemplateInternal(id, templateKey, userId)
         return TemplateInstallResult(
-            key = type.templateKey,
+            key = templateKey,
             entityTypesCreated = response.entityTypesCreated,
             relationshipsCreated = response.relationshipsCreated,
         )

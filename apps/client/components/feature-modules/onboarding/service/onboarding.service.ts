@@ -6,7 +6,6 @@ import {
   OnboardingProfile,
   OnboardingWorkspace,
   OnboardingInvite,
-  BusinessType,
   AcquisitionChannel,
   DefinitionCategory,
 } from '@/lib/types/models';
@@ -24,7 +23,6 @@ interface ProfileStepShape {
 interface WorkspaceStepShape {
   displayName: string;
   plan: WorkspacePlan;
-  businessType: BusinessType;
 }
 
 interface DefinitionsStepShape {
@@ -102,7 +100,6 @@ export function assemblePayload(data: ValidatedStepData): CompleteOnboardingRequ
   return {
     profile,
     workspace,
-    businessType: workspaceData.businessType,
     invites,
     businessDefinitions,
     acquisitionChannels,

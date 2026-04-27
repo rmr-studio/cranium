@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { BusinessType, DefinitionCategory } from '@/lib/types/workspace';
+import { DefinitionCategory } from '@/lib/types/workspace';
 import { cn } from '@riven/utils';
 import { Plus, RotateCcw, X } from 'lucide-react';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
@@ -37,11 +37,6 @@ export interface DefinitionEntry {
 
 export interface DefinitionsLiveData {
   definitions: DefinitionEntry[];
-  businessType?: BusinessType;
-}
-
-interface WorkspaceLiveData {
-  businessType?: BusinessType;
 }
 
 export const DefinitionsStepForm: FC = () => {
@@ -53,16 +48,10 @@ export const DefinitionsStepForm: FC = () => {
     () => storeApi.getState().liveData['definitions'] as DefinitionsLiveData | undefined,
   );
 
-  const workspaceLiveData = storeApi.getState().liveData['workspace'] as
-    | WorkspaceLiveData
-    | undefined;
-  const businessType = workspaceLiveData?.businessType;
-
   const [definitions, setDefinitions] = useState<DefinitionEntry[]>(() => {
-    if (restoredData?.definitions?.length && restoredData?.businessType === businessType) return restoredData.definitions;
+    if (restoredData?.definitions?.length) return restoredData.definitions;
 
-    const defaults = businessType ? DEFINITION_DEFAULTS[businessType] ?? [] : [];
-    return defaults.map((d) => ({
+    return DEFINITION_DEFAULTS.map((d) => ({
       id: crypto.randomUUID(),
       term: d.term,
       definition: d.defaultDefinition,
@@ -72,10 +61,10 @@ export const DefinitionsStepForm: FC = () => {
     }));
   });
 
-  const defaultDefinitionMap = useMemo(() => {
-    const defaults = businessType ? DEFINITION_DEFAULTS[businessType] ?? [] : [];
-    return new Map(defaults.map((d) => [d.term, d.defaultDefinition]));
-  }, [businessType]);
+  const defaultDefinitionMap = useMemo(
+    () => new Map(DEFINITION_DEFAULTS.map((d) => [d.term, d.defaultDefinition])),
+    [],
+  );
 
   // Optional step — always valid
   useEffect(() => {
@@ -85,7 +74,7 @@ export const DefinitionsStepForm: FC = () => {
 
   // Sync liveData
   useEffect(() => {
-    setLiveData('definitions', { definitions, businessType });
+    setLiveData('definitions', { definitions });
   }, [definitions, setLiveData]);
 
   const updateDefinition = useCallback((index: number, value: string) => {

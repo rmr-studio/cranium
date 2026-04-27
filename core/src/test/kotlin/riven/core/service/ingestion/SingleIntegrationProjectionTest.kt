@@ -20,7 +20,7 @@ import java.util.*
  * End-to-end integration test for the single-integration projection pipeline.
  *
  * Verifies the full flow: sync integration entities -> run projection -> verify core entities created/updated.
- * Uses a real PostgreSQL container with full schema, HubSpot manifest, and b2c-saas core model template.
+ * Uses a real PostgreSQL container with full schema, HubSpot manifest, and dtc-ecommerce core model template.
  */
 @SpringBootTest(
     classes = [ProjectionPipelineIntegrationTestConfig::class],
@@ -49,7 +49,7 @@ class SingleIntegrationProjectionTest : ProjectionPipelineIntegrationTestBase() 
     fun setup() {
         loadIntegrationManifests()
         createWorkspaceAndUser()
-        installCoreModelTemplate("b2c-saas")
+        installCoreModelTemplate("dtc-ecommerce")
         hubspotDefId = createIntegrationDefinition("hubspot")
         materializeIntegration("hubspot", hubspotDefId)
 

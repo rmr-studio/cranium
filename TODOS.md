@@ -39,3 +39,67 @@
 **Cons:** Needs periodic introspection separate from record sync; UX for "3 columns removed, remap?" is non-trivial.
 **Context:** Existing schema-reconciliation pattern (project_schema_reconciliation.md) applies to workspace entity types. Custom source drift is similar but origin is external DB, not core model changes. CustomSourceSchemaInferenceService already introspects; extend to diff against stored SourceSchema.
 **Depends on:** PostgresAdapter + SchemaInferenceService shipped.
+
+## P1 — OnboardingFirstInsightService (DTC trust moment)
+**What:** Post-Shopify-connect service runs one canned cross-domain query and renders an "insight card" on the onboarding step. Library of 5 canned queries: shipping-delay-support-overlap, repeat-customer-discount-dependency, high-return-SKU, ad-creative-to-cohort-overlap, packaging-complaint-cluster. Needs LOADING / EMPTY (<3 results fallback) / ERROR / PARTIAL / SUCCESS states on the card.
+**Why:** Converts "data pipe" feeling into "AI analyst" feeling in 60 seconds. Positioning-critical — the first 60s of post-connect UX is where "proactive AI signals" gets believed or doesn't.
+**Pros:** Trust moment. Delivers on the D2C repositioning story at first contact.
+**Cons:** Shopify first-sync is async (minutes). Needs a state-delivery mechanism: WebSocket push (existing WorkspaceEvent pattern) or polling endpoint. Without it the card can stall at LOADING.
+**Context:** Deferred from the 2026-04-22 DTC ecom repositioning plan. Canned-query library lives as Kotlin code (5 query builders in OnboardingFirstInsightService), not DB or prompt templates — keeps it testable and versionable. Requires `riven.onboarding.first_insight.hit_rate` metric to track whether canned queries match real brand data.
+**Depends on:** DTC core-model expansion (23 models) shipped + at least one real Shopify adapter.
+
+## P1 — Signal Layer + SignalDerivationWorkflow
+**What:** Add 4 signal models — CohortDriftEvent, CreativeFatigueEvent, ChurnRiskSignal, DiscountDependentSignal — as first-class entities in a new signal layer. Scaffolding: Temporal workflow `SignalDerivationWorkflow` with 1/day schedule per workspace, activity stubs per signal type, feature flag `riven.signals.derivation.enabled` (default false), metrics `riven.signal.derivation.{duration,success_rate}`. Real derivation logic follows per-signal in subsequent PRs.
+**Why:** This is the product's "proactive AI behavioural signals" positioning made concrete as data. Without signals, DTC repositioning ships a shape without substance.
+**Pros:** First-class queryable entities that agents can reason over. Foundation for the "I traced it to 87 comments + 12 tickets" platonic-ideal insight.
+**Cons:** Signal models straddle user-facing (consumed by workspace) and system-produced (written from Temporal). Audit context pitfall `jpa-auditing-temporal` applies — Temporal workers have no SecurityContext, system user UUID must be stamped explicitly. Schedule registration path (boot scan, workspace-creation hook, admin endpoint) needs decision. Jitter needed or all workspaces fire at 00:00 UTC simultaneously.
+**Context:** Deferred from the 2026-04-22 DTC ecom repositioning plan. Needs its own plan with scheduler decisions + audit-context design + derivation math per signal.
+**Depends on:** DTC core-model expansion shipped.
+
+## P1 — SocialMention PII / GDPR policy
+**What:** Policy document covering PII handling for SocialMention, SocialComment, and ProductReview models — ingesting third-party user content (handles, emails, review text) from people who never signed consent with the brand. Includes GDPR/CCPA delete-request surface and identity-resolution-bridging-SocialMention-to-Customer-via-handle (re-identification-adjacent).
+**Why:** Gates Meta/Instagram/TikTok adapter ship. Ingesting non-consented PII without a policy is a company-level liability.
+**Pros:** Protects the company. Gives adapter engineers clear rules.
+**Cons:** Legal review required. May land at "don't bridge SocialMention to Customer without workspace-level opt-in," which would gate the relationship declaration itself.
+**Context:** The SocialMention model and its relationship to Customer (via identity resolution) were shipped with the core-model expansion. The adapter that populates them is deferred. Policy must land before the adapter ships, not before the model.
+**Depends on:** Nothing in code — a doc/policy task.
+
+## P3 — N+1 in TemplateMaterializationService.installProjectionRules
+**What:** `installProjectionRules` at `TemplateMaterializationService.kt:455-467` calls `projectionRuleRepository.existsByWorkspaceAndSourceAndTarget(...)` per (source entity type × core model match) pair. Worst case with 23 catalog types × ~20 projection targets = ~460 DB round-trips on workspace manifest install. Batch the existence check (one query over the full source set).
+**Why:** Pre-existing N+1, worsened by DTC catalog expansion (9→23 models).
+**Pros:** One-time workspace-install path that currently takes a few hundred round-trips reduces to single-digit queries.
+**Cons:** Not hot-path, runs once per workspace. Low urgency.
+**Context:** Identified during plan-eng-review for the DTC ecom repositioning. The loop lives at lines 455-467 in `core/src/main/kotlin/riven/core/service/integration/materialization/TemplateMaterializationService.kt`.
+**Depends on:** Nothing — independent refactor.
+
+## P2 — CollectionCohortMirror + CohortModel (future synthesis layer)
+**What:** Cohorts conceptualized as a "synthesis layer" on top of Customer — not a first-class model. Explore whether Shopify Collections (product groupings) should auto-derive customer-cohort views via post-purchase analysis, or whether cohorts belong purely as query-derived entities built by agents.
+**Why:** Original plan's "Collection → Cohort mirror" mapped products to customer groups, which is semantically muddy. But the underlying insight — that brand-curated product sets can reveal customer segments — is real.
+**Pros:** Gets to the "VIP tier 2 customers" insight without requiring manual cohort creation.
+**Cons:** Needs a design doc. "Synthesis layer" is not a shipped concept — needs definition.
+**Context:** Deferred from the 2026-04-22 DTC ecom repositioning plan. User's guidance: "Cohorts will be a part of the synthesis layer of customers, not a model by itself."
+**Depends on:** Synthesis layer design.
+
+## P3 — ReturnReasonClassifier (async LLM classifier)
+**What:** LLM-backed classifier for Return entity reason text → fixed taxonomy (DAMAGE, WRONG_SIZE, QUALITY, EXPECTATION_MISMATCH, SHIPPING_DELAY, CHANGED_MIND, OTHER). Run as post-materialization Temporal activity, not inline with ingestion. Cache by content hash. Fall back to OTHER on LLM failure.
+**Why:** Unlocks cohort-level return-reason analysis. Native Shopify return reasons are free-text and low-fidelity.
+**Pros:** Structured return reasons queryable across cohorts + time.
+**Cons:** Latency/availability coupling if run inline. Must be async. Needs Postgres content-hash cache table.
+**Context:** Deferred from the 2026-04-22 DTC ecom repositioning plan (was E4 in original scope). Classifier prompt version should be part of cache key.
+**Depends on:** Return model shipped (this PR), Temporal activity pattern, cache infrastructure.
+
+## P2 — Reinstate DevSeed for DTC catalog
+**What:** Rebuild the dev-only seed pipeline (DevSeedController + DevSeedService + DevSeedDataGenerator + DevSeedConfigurationProperties + DevSeedResponse) keyed on the DTC model set. Seed realistic mock entities for all 23 DTC entity types and their relationships. Toggle via `riven.dev.seed.enabled=true`.
+**Why:** DevSeed was ripped during the DTC repositioning because the old implementation hardcoded B2C_SAAS model keys (`"subscription"`, `"feature-usage-event"`) in `DevSeedDataGenerator.kt:120-125`. Rebuilding is faster than migrating. Dev UX suffers without realistic mock data — running the app locally against an empty catalog makes frontend + flow work painful.
+**Pros:** Fast local iteration on the frontend (realistic data shape + volume), integration-test seed path, demoable dev environment.
+**Cons:** 500-600 lines of new Kotlin across the service/generator. Per-model generator functions needed for the 23 DTC types (campaigns, ad creatives, shipments, returns, reviews, etc.). Test coverage.
+**Context:** Deletion happened in the 2026-04-22 DTC repositioning PR. No backwards-compat concern — there are no external callers besides the (also-deleted) client `DevApi.ts`. New implementation should be keyed on the single DTC manifest (no business-type branching) and can drop the `templateKey` path variable in the reinstall endpoint since there's only one template. Add per-domain generator helpers (marketing, social, fulfillment, commerce) matching the directory layout.
+**Depends on:** DTC catalog expansion shipped (this PR).
+
+## P3 — Observability for DTC catalog expansion
+**What:** Metrics and alerts for the DTC catalog surface: `riven.onboarding.first_insight.hit_rate` (when first-insight ships), `riven.signal.derivation.{duration,success_rate}` per signal type per workspace, `riven.classifier.return_reason.{cache_hit_rate,llm_error_rate}`, alert on inert signal worker staying inert >30 days.
+**Why:** Positioning-critical for "proactive AI signals" claim. Without metrics, there's no accountability for whether the canned queries actually match real brand data.
+**Pros:** Release accountability + product north-star signal visibility.
+**Cons:** Needs meters registered per Micrometer pattern. Each signal ships with its metric surface.
+**Context:** Deferred from 2026-04-22 DTC ecom plan. Ships incrementally with each feature (first-insight, signal derivation, classifier).
+**Depends on:** The features themselves.

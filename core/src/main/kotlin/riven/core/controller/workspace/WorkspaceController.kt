@@ -9,8 +9,8 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import riven.core.enums.workspace.BusinessType
 import riven.core.enums.workspace.WorkspaceRoles
+import riven.core.models.core.DTC_ECOMMERCE_MODELS
 import riven.core.models.request.workspace.SaveWorkspaceRequest
 import riven.core.models.response.catalog.TemplateInstallationResponse
 import riven.core.models.workspace.Workspace
@@ -100,9 +100,8 @@ class WorkspaceController(
     @PostMapping("/{workspaceId}/install-template")
     fun installTemplate(
         @PathVariable workspaceId: UUID,
-        @RequestParam businessType: BusinessType,
     ): ResponseEntity<TemplateInstallationResponse> {
-        val response = templateInstallationService.installTemplate(workspaceId, businessType.templateKey)
+        val response = templateInstallationService.installTemplate(workspaceId, DTC_ECOMMERCE_MODELS.manifestKey)
         return ResponseEntity.ok(response)
     }
 }

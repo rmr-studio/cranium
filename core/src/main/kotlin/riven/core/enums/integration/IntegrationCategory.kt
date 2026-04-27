@@ -5,6 +5,10 @@ enum class IntegrationCategory {
     PAYMENTS,
     SUPPORT,
     EMAIL,
+    MARKETING,
+    SOCIAL,
+    SHIPPING,
+    ECOMMERCE_PLATFORM,
 
     COMMUNICATION,
     PRODUCT_ANALYTICS,

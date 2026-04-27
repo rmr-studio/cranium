@@ -22,13 +22,13 @@ object ProductModel : riven.core.models.core.CoreModelDefinition(
     iconType = IconType.PACKAGE,
     iconColour = IconColour.YELLOW,
     semanticGroup = SemanticGroup.PRODUCT,
-    lifecycleDomain = LifecycleDomain.USAGE,
+    lifecycleDomain = LifecycleDomain.COMMERCE,
     identifierKey = "name",
     semanticDefinition = "A sellable item in the store catalogue. Products are what customers purchase via orders.",
     semanticTags = listOf("catalogue", "inventory", "ecommerce"),
     projectionAccepts = listOf(
         ProjectionAcceptRule(
-            domain = LifecycleDomain.USAGE,
+            domain = LifecycleDomain.COMMERCE,
             semanticGroup = SemanticGroup.PRODUCT,
             relationshipName = ProjectionAcceptRule.SOURCE_DATA_RELATIONSHIP,
         ),

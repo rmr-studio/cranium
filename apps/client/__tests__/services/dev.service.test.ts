@@ -20,28 +20,6 @@ describe('DevService', () => {
     jest.clearAllMocks();
   });
 
-  describe('seedWorkspace', () => {
-    it('calls api.seedWorkspace with workspaceId and returns response', async () => {
-      const response = { entitiesCreated: 3, relationshipsCreated: 1, alreadySeeded: false };
-      const seedWorkspace = jest.fn().mockResolvedValue(response);
-      mockedCreateDevApi.mockReturnValue({ seedWorkspace } as never);
-
-      const result = await DevService.seedWorkspace(session, 'ws-1');
-
-      expect(seedWorkspace).toHaveBeenCalledWith({ workspaceId: 'ws-1' });
-      expect(result).toBe(response);
-    });
-
-    it('routes errors through normalizeApiError', async () => {
-      const error = new Error('boom');
-      const seedWorkspace = jest.fn().mockRejectedValue(error);
-      mockedCreateDevApi.mockReturnValue({ seedWorkspace } as never);
-
-      await expect(DevService.seedWorkspace(session, 'ws-1')).rejects.toBe(error);
-      expect(mockedNormalizeApiError).toHaveBeenCalledWith(error);
-    });
-  });
-
   describe('reinstallTemplate', () => {
     it('calls api.reinstallTemplate with workspaceId + templateKey and returns response', async () => {
       const response = {

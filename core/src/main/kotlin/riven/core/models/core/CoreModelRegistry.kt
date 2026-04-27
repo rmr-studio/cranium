@@ -10,19 +10,14 @@ import riven.core.models.catalog.ResolvedManifest
  * Central registry of all core lifecycle model definitions.
  *
  * Responsibilities:
- * - Collects all model sets (B2C SaaS, DTC E-commerce)
+ * - Collects all model sets (currently DTC E-commerce is the sole supported vertical)
  * - Validates cross-references at boot time (fail fast)
  * - Converts model sets to ResolvedManifest for catalog population
  * - Provides lookup by key for downstream services
- *
- * Models with the same key may appear across different model sets (e.g., SaasBillingEventModel
- * and DtcBillingEventModel both use key "billing-event"). This is expected — each business type
- * gets a tailored variant of the same conceptual entity type.
  */
 object CoreModelRegistry {
 
     private val allModelSets: List<CoreModelSet> = listOf(
-        B2C_SAAS_MODELS,
         DTC_ECOMMERCE_MODELS,
     )
 

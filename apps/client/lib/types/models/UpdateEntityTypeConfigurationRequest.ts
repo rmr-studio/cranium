@@ -85,25 +85,25 @@ export interface UpdateEntityTypeConfigurationRequest {
      * @type {SemanticGroup}
      * @memberof UpdateEntityTypeConfigurationRequest
      */
-    semanticGroup?: SemanticGroup;
+    semanticGroup?: SemanticGroup | null;
     /**
      * 
      * @type {LifecycleDomain}
      * @memberof UpdateEntityTypeConfigurationRequest
      */
-    lifecycleDomain?: LifecycleDomain;
+    lifecycleDomain?: LifecycleDomain | null;
     /**
      * 
      * @type {ColumnConfiguration}
      * @memberof UpdateEntityTypeConfigurationRequest
      */
-    columnConfiguration?: ColumnConfiguration;
+    columnConfiguration?: ColumnConfiguration | null;
     /**
      * 
      * @type {SaveSemanticMetadataRequest}
      * @memberof UpdateEntityTypeConfigurationRequest
      */
-    semantics?: SaveSemanticMetadataRequest;
+    semantics?: SaveSemanticMetadataRequest | null;
 }
 
 

@@ -24,31 +24,31 @@ export interface DraggableOptions {
      * @type {string}
      * @memberof DraggableOptions
      */
-    cancel?: string;
+    cancel?: string | null;
     /**
      * 
      * @type {number}
      * @memberof DraggableOptions
      */
-    pause?: number;
+    pause?: number | null;
     /**
      * 
      * @type {string}
      * @memberof DraggableOptions
      */
-    handle?: string;
+    handle?: string | null;
     /**
      * 
      * @type {string}
      * @memberof DraggableOptions
      */
-    appendTo?: string;
+    appendTo?: string | null;
     /**
      * 
      * @type {boolean}
      * @memberof DraggableOptions
      */
-    scroll?: boolean;
+    scroll?: boolean | null;
 }
 
 /**

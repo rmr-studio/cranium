@@ -75,13 +75,13 @@ export interface WorkflowExecutionRecord {
      * @type {Date}
      * @memberof WorkflowExecutionRecord
      */
-    completedAt?: Date;
+    completedAt?: Date | null;
     /**
      * 
      * @type {string}
      * @memberof WorkflowExecutionRecord
      */
-    duration?: string;
+    duration?: string | null;
     /**
      * 
      * @type {WorkflowTriggerType}
@@ -93,19 +93,19 @@ export interface WorkflowExecutionRecord {
      * @type {object}
      * @memberof WorkflowExecutionRecord
      */
-    input?: object;
+    input?: object | null;
     /**
      * 
      * @type {object}
      * @memberof WorkflowExecutionRecord
      */
-    error?: object;
+    error?: object | null;
     /**
      * 
      * @type {object}
      * @memberof WorkflowExecutionRecord
      */
-    output?: object;
+    output?: object | null;
 }
 
 

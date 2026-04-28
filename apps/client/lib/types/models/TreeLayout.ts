@@ -13,13 +13,6 @@
  */
 
 import { mapValues } from '../runtime';
-import type { TreeLayoutColumn } from './TreeLayoutColumn';
-import {
-    TreeLayoutColumnFromJSON,
-    TreeLayoutColumnFromJSONTyped,
-    TreeLayoutColumnToJSON,
-    TreeLayoutColumnToJSONTyped,
-} from './TreeLayoutColumn';
 import type { ResizableOptions } from './ResizableOptions';
 import {
     ResizableOptionsFromJSON,
@@ -60,217 +53,217 @@ export interface TreeLayout {
      * @type {boolean}
      * @memberof TreeLayout
      */
-    acceptWidgets?: boolean;
+    acceptWidgets?: boolean | null;
     /**
      * 
      * @type {boolean}
      * @memberof TreeLayout
      */
-    alwaysShowResizeHandle?: boolean;
+    alwaysShowResizeHandle?: boolean | null;
     /**
      * 
      * @type {boolean}
      * @memberof TreeLayout
      */
-    animate?: boolean;
+    animate?: boolean | null;
     /**
      * 
      * @type {boolean}
      * @memberof TreeLayout
      */
-    auto?: boolean;
+    auto?: boolean | null;
     /**
      * 
      * @type {number}
      * @memberof TreeLayout
      */
-    cellHeight?: number;
+    cellHeight?: number | null;
     /**
      * 
      * @type {ResizableOptions}
      * @memberof TreeLayout
      */
-    resizable?: ResizableOptions;
+    resizable?: ResizableOptions | null;
     /**
      * 
      * @type {DraggableOptions}
      * @memberof TreeLayout
      */
-    draggable?: DraggableOptions;
+    draggable?: DraggableOptions | null;
     /**
      * 
      * @type {number}
      * @memberof TreeLayout
      */
-    margin?: number;
+    margin?: number | null;
     /**
      * 
      * @type {number}
      * @memberof TreeLayout
      */
-    marginTop?: number;
+    marginTop?: number | null;
     /**
      * 
      * @type {number}
      * @memberof TreeLayout
      */
-    marginRight?: number;
+    marginRight?: number | null;
     /**
      * 
      * @type {number}
      * @memberof TreeLayout
      */
-    marginBottom?: number;
+    marginBottom?: number | null;
     /**
      * 
      * @type {number}
      * @memberof TreeLayout
      */
-    marginLeft?: number;
+    marginLeft?: number | null;
     /**
      * 
-     * @type {TreeLayoutColumn}
+     * @type {object}
      * @memberof TreeLayout
      */
-    column?: TreeLayoutColumn;
+    column?: object | null;
     /**
      * 
      * @type {ColumnOptions}
      * @memberof TreeLayout
      */
-    columnOpts?: ColumnOptions;
+    columnOpts?: ColumnOptions | null;
     /**
      * 
      * @type {boolean}
      * @memberof TreeLayout
      */
-    disableDrag?: boolean;
+    disableDrag?: boolean | null;
     /**
      * 
      * @type {boolean}
      * @memberof TreeLayout
      */
-    disableOneColumnMode?: boolean;
+    disableOneColumnMode?: boolean | null;
     /**
      * 
      * @type {boolean}
      * @memberof TreeLayout
      */
-    disableResize?: boolean;
+    disableResize?: boolean | null;
     /**
      * 
      * @type {boolean}
      * @memberof TreeLayout
      */
-    _float?: boolean;
+    _float?: boolean | null;
     /**
      * 
      * @type {string}
      * @memberof TreeLayout
      */
-    handle?: string;
+    handle?: string | null;
     /**
      * 
      * @type {string}
      * @memberof TreeLayout
      */
-    handleClass?: string;
+    handleClass?: string | null;
     /**
      * 
      * @type {string}
      * @memberof TreeLayout
      */
-    itemClass?: string;
+    itemClass?: string | null;
     /**
      * 
      * @type {number}
      * @memberof TreeLayout
      */
-    maxRow?: number;
+    maxRow?: number | null;
     /**
      * 
      * @type {number}
      * @memberof TreeLayout
      */
-    minRow?: number;
+    minRow?: number | null;
     /**
      * 
      * @type {number}
      * @memberof TreeLayout
      */
-    oneColumnSize?: number;
+    oneColumnSize?: number | null;
     /**
      * 
      * @type {string}
      * @memberof TreeLayout
      */
-    placeholderClass?: string;
+    placeholderClass?: string | null;
     /**
      * 
      * @type {string}
      * @memberof TreeLayout
      */
-    placeholderText?: string;
+    placeholderText?: string | null;
     /**
      * 
      * @type {boolean}
      * @memberof TreeLayout
      */
-    removable?: boolean;
+    removable?: boolean | null;
     /**
      * 
      * @type {number}
      * @memberof TreeLayout
      */
-    removeTimeout?: number;
+    removeTimeout?: number | null;
     /**
      * 
      * @type {number}
      * @memberof TreeLayout
      */
-    row?: number;
+    row?: number | null;
     /**
      * 
      * @type {boolean}
      * @memberof TreeLayout
      */
-    rtl?: boolean;
+    rtl?: boolean | null;
     /**
      * 
      * @type {boolean}
      * @memberof TreeLayout
      */
-    staticGrid?: boolean;
+    staticGrid?: boolean | null;
     /**
      * 
      * @type {boolean}
      * @memberof TreeLayout
      */
-    styleInHead?: boolean;
+    styleInHead?: boolean | null;
     /**
      * 
      * @type {boolean}
      * @memberof TreeLayout
      */
-    sizeToContent?: boolean;
+    sizeToContent?: boolean | null;
     /**
      * 
      * @type {string}
      * @memberof TreeLayout
      */
-    layout?: string;
+    layout?: string | null;
     /**
      * 
      * @type {string}
      * @memberof TreeLayout
      */
-    _class?: string;
+    _class?: string | null;
     /**
      * 
      * @type {Array<Widget>}
      * @memberof TreeLayout
      */
-    children?: Array<Widget>;
+    children?: Array<Widget> | null;
 }
 
 /**
@@ -302,7 +295,7 @@ export function TreeLayoutFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         'marginRight': json['marginRight'] == null ? undefined : json['marginRight'],
         'marginBottom': json['marginBottom'] == null ? undefined : json['marginBottom'],
         'marginLeft': json['marginLeft'] == null ? undefined : json['marginLeft'],
-        'column': json['column'] == null ? undefined : TreeLayoutColumnFromJSON(json['column']),
+        'column': json['column'] == null ? undefined : json['column'],
         'columnOpts': json['columnOpts'] == null ? undefined : ColumnOptionsFromJSON(json['columnOpts']),
         'disableDrag': json['disableDrag'] == null ? undefined : json['disableDrag'],
         'disableOneColumnMode': json['disableOneColumnMode'] == null ? undefined : json['disableOneColumnMode'],
@@ -352,7 +345,7 @@ export function TreeLayoutToJSONTyped(value?: TreeLayout | null, ignoreDiscrimin
         'marginRight': value['marginRight'],
         'marginBottom': value['marginBottom'],
         'marginLeft': value['marginLeft'],
-        'column': TreeLayoutColumnToJSON(value['column']),
+        'column': value['column'],
         'columnOpts': ColumnOptionsToJSON(value['columnOpts']),
         'disableDrag': value['disableDrag'],
         'disableOneColumnMode': value['disableOneColumnMode'],

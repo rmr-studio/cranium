@@ -60,7 +60,7 @@ export interface SchemaUUID {
      * @type {string}
      * @memberof SchemaUUID
      */
-    label?: string;
+    label?: string | null;
     /**
      * 
      * @type {SchemaType}
@@ -84,7 +84,7 @@ export interface SchemaUUID {
      * @type {DataFormat}
      * @memberof SchemaUUID
      */
-    format?: DataFormat;
+    format?: DataFormat | null;
     /**
      * 
      * @type {boolean}
@@ -96,13 +96,13 @@ export interface SchemaUUID {
      * @type {{ [key: string]: SchemaUUID; }}
      * @memberof SchemaUUID
      */
-    properties?: { [key: string]: SchemaUUID; };
+    properties?: { [key: string]: SchemaUUID; } | null;
     /**
      * 
      * @type {SchemaUUID}
      * @memberof SchemaUUID
      */
-    items?: SchemaUUID;
+    items?: SchemaUUID | null;
     /**
      * 
      * @type {boolean}
@@ -120,7 +120,7 @@ export interface SchemaUUID {
      * @type {SchemaOptions}
      * @memberof SchemaUUID
      */
-    options?: SchemaOptions;
+    options?: SchemaOptions | null;
 }
 
 

@@ -10,7 +10,8 @@ Name | Type
 `block` | [Block](Block.md)
 `warnings` | Array&lt;string&gt;
 `type` | [NodeType](NodeType.md)
-`reference` | [ReferenceNodeAllOfReference1](ReferenceNodeAllOfReference1.md)
+`children` | Array&lt;object&gt;
+`reference` | [ReferencePayload](ReferencePayload.md)
 
 ## Example
 
@@ -22,6 +23,7 @@ const example = {
   "block": null,
   "warnings": null,
   "type": null,
+  "children": null,
   "reference": null,
 } satisfies ReferenceNode
 

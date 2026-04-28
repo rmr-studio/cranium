@@ -50,13 +50,13 @@ export interface IntegrationDefinitionModel {
      * @type {string}
      * @memberof IntegrationDefinitionModel
      */
-    iconUrl?: string;
+    iconUrl?: string | null;
     /**
      * 
      * @type {string}
      * @memberof IntegrationDefinitionModel
      */
-    description?: string;
+    description?: string | null;
     /**
      * 
      * @type {IntegrationCategory}

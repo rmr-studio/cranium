@@ -27,16 +27,16 @@ export interface BlockMeta {
     validationErrors: Array<string>;
     /**
      * 
-     * @type {{ [key: string]: any; }}
+     * @type {object}
      * @memberof BlockMeta
      */
-    computedFields?: { [key: string]: any; };
+    computedFields?: object | null;
     /**
      * 
      * @type {number}
      * @memberof BlockMeta
      */
-    lastValidatedVersion?: number;
+    lastValidatedVersion?: number | null;
 }
 
 /**

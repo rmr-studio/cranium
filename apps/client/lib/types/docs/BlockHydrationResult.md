@@ -7,7 +7,7 @@
 Name | Type
 ------------ | -------------
 `blockId` | string
-`references` | Array&lt;any&gt;
+`references` | Array&lt;object&gt;
 `error` | string
 
 ## Example

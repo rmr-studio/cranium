@@ -30,9 +30,9 @@ describe('SidePanelStore', () => {
     });
 
     it('accepts initial state overrides', () => {
-      const store = createSidePanelStore({ selectedPanel: 'settings', panelOpen: false });
+      const store = createSidePanelStore({ selectedPanel: 'billing', panelOpen: false });
       const state = store.getState();
-      expect(state.selectedPanel).toBe('settings');
+      expect(state.selectedPanel).toBe('billing');
       expect(state.panelOpen).toBe(false);
     });
   });
@@ -60,7 +60,7 @@ describe('SidePanelStore', () => {
       store.getState().pushView(makeView('definition-detail', '1'));
       expect(store.getState().viewStack).toHaveLength(1);
 
-      store.getState().togglePanel('settings');
+      store.getState().togglePanel('billing');
       expect(store.getState().viewStack).toEqual([]);
     });
   });

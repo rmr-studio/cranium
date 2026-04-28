@@ -13,13 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
-import type { StructuralOperationRequestData } from './StructuralOperationRequestData';
+import type { BlockOperation } from './BlockOperation';
 import {
-    StructuralOperationRequestDataFromJSON,
-    StructuralOperationRequestDataFromJSONTyped,
-    StructuralOperationRequestDataToJSON,
-    StructuralOperationRequestDataToJSONTyped,
-} from './StructuralOperationRequestData';
+    BlockOperationFromJSON,
+    BlockOperationFromJSONTyped,
+    BlockOperationToJSON,
+    BlockOperationToJSONTyped,
+} from './BlockOperation';
 
 /**
  * 
@@ -41,10 +41,10 @@ export interface StructuralOperationRequest {
     timestamp: Date;
     /**
      * 
-     * @type {StructuralOperationRequestData}
+     * @type {BlockOperation}
      * @memberof StructuralOperationRequest
      */
-    data: StructuralOperationRequestData;
+    data: BlockOperation;
 }
 
 /**
@@ -69,7 +69,7 @@ export function StructuralOperationRequestFromJSONTyped(json: any, ignoreDiscrim
         
         'id': json['id'],
         'timestamp': (new Date(json['timestamp'])),
-        'data': StructuralOperationRequestDataFromJSON(json['data']),
+        'data': BlockOperationFromJSON(json['data']),
     };
 }
 
@@ -86,7 +86,7 @@ export function StructuralOperationRequestToJSONTyped(value?: StructuralOperatio
         
         'id': value['id'],
         'timestamp': value['timestamp'].toISOString(),
-        'data': StructuralOperationRequestDataToJSON(value['data']),
+        'data': BlockOperationToJSON(value['data']),
     };
 }
 

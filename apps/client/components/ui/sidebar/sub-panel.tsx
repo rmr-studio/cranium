@@ -40,6 +40,14 @@ export function SubPanel() {
   const entry = panelRootRegistry[selectedPanel];
   const PanelComponent = entry.component;
 
+  if (entry.hideHeader) {
+    return (
+      <aside aria-label={`${entry.title} panel`} className="flex h-full flex-col bg-background">
+        <PanelComponent />
+      </aside>
+    );
+  }
+
   return (
     <aside aria-label={`${entry.title} panel`} className="flex h-full flex-col bg-background">
       {/* Header — px-4 matches DESIGN.md spacing for structural headers */}

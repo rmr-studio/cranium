@@ -11,7 +11,6 @@ import {
 import { Input } from '@riven/ui/input';
 import { AvatarUploader } from '@/components/ui/avatar-uploader';
 import { WorkspacePlan } from '@/lib/types/workspace';
-import { BusinessType } from '@/lib/types/workspace';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { cn } from '@/lib/util/utils';
 import { FC, useEffect, useState } from 'react';
@@ -31,10 +30,6 @@ export const workspaceStepSchema = z.object({
     required_error: 'Please select a plan',
     invalid_type_error: 'Please select a plan',
   }),
-  businessType: z.nativeEnum(BusinessType, {
-    required_error: 'Please select a business type',
-    invalid_type_error: 'Please select a business type',
-  }),
 });
 
 export type WorkspaceStepData = z.infer<typeof workspaceStepSchema>;
@@ -42,7 +37,6 @@ export type WorkspaceStepData = z.infer<typeof workspaceStepSchema>;
 interface WorkspaceLiveData {
   displayName?: string;
   plan?: WorkspacePlan;
-  businessType?: BusinessType;
   avatarPreviewUrl?: string;
 }
 
@@ -78,23 +72,6 @@ const PLAN_OPTIONS: {
   },
 ];
 
-const BUSINESS_TYPE_OPTIONS: {
-  type: BusinessType;
-  label: string;
-  description: string;
-}[] = [
-  {
-    type: BusinessType.DtcEcommerce,
-    label: 'DTC / E-commerce',
-    description: 'Direct-to-consumer products and online retail',
-  },
-  {
-    type: BusinessType.B2CSaas,
-    label: 'B2C SaaS',
-    description: 'Software as a service for consumers',
-  },
-];
-
 export const WorkspaceStepForm: FC = () => {
   const storeApi = useOnboardStoreApi();
   const { setLiveData, registerFormTrigger, clearFormTrigger } = useOnboardFormControls();
@@ -112,7 +89,6 @@ export const WorkspaceStepForm: FC = () => {
     defaultValues: {
       displayName: restoredData?.displayName ?? '',
       plan: restoredData?.plan ?? undefined,
-      businessType: restoredData?.businessType ?? undefined,
     },
   });
 
@@ -171,7 +147,6 @@ export const WorkspaceStepForm: FC = () => {
   void avatarBlob;
 
   const selectedPlan = form.watch('plan');
-  const selectedBusinessType = form.watch('businessType');
 
   return (
     <Form {...form}>
@@ -223,37 +198,6 @@ export const WorkspaceStepForm: FC = () => {
                   >
                     <span className="text-sm font-semibold">{label}</span>
                     <span className="text-primary text-sm font-medium">{price}</span>
-                    <span className="text-muted-foreground text-xs">{description}</span>
-                  </button>
-                ))}
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="businessType"
-          render={() => (
-            <FormItem>
-              <FormLabel>Business type</FormLabel>
-              <div className="grid grid-cols-2 gap-3">
-                {BUSINESS_TYPE_OPTIONS.map(({ type, label, description }) => (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() =>
-                      form.setValue('businessType', type, { shouldValidate: false })
-                    }
-                    className={cn(
-                      'flex flex-col items-start gap-1 rounded-lg border p-4 text-left transition-colors',
-                      selectedBusinessType === type
-                        ? 'border-primary bg-primary/5 ring-2 ring-primary'
-                        : 'border-border hover:border-muted-foreground/40',
-                    )}
-                  >
-                    <span className="text-sm font-semibold">{label}</span>
                     <span className="text-muted-foreground text-xs">{description}</span>
                   </button>
                 ))}

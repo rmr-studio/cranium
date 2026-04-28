@@ -12,6 +12,11 @@ Name | Type
 `type` | [EntityTypeRequestDefinition](EntityTypeRequestDefinition.md)
 `schema` | [SchemaUUID](SchemaUUID.md)
 `semantics` | [SaveSemanticMetadataRequest](SaveSemanticMetadataRequest.md)
+`name` | string
+`iconType` | [IconType](IconType.md)
+`iconColour` | [IconColour](IconColour.md)
+`cardinalityDefault` | [EntityRelationshipCardinality](EntityRelationshipCardinality.md)
+`targetRules` | [Array&lt;SaveTargetRuleRequest&gt;](SaveTargetRuleRequest.md)
 
 ## Example
 
@@ -25,6 +30,11 @@ const example = {
   "type": null,
   "schema": null,
   "semantics": null,
+  "name": null,
+  "iconType": null,
+  "iconColour": null,
+  "cardinalityDefault": null,
+  "targetRules": null,
 } satisfies SaveAttributeDefinitionRequest
 
 console.log(example)

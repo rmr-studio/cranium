@@ -23,7 +23,7 @@ import type { WorkflowDeleteEntityActionConfig } from ''
 // TODO: Update the object below with actual values
 const example = {
   "version": null,
-  "entityId": null,
+  "entityId": 550e8400-e29b-41d4-a716-446655440000,
   "timeoutSeconds": null,
   "configSchema": null,
   "config": null,

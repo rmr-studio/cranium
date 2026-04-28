@@ -53,7 +53,7 @@ export interface IsRelatedTo extends QueryFilter {
      * @type {RelationshipFilter}
      * @memberof IsRelatedTo
      */
-    condition?: RelationshipFilter;
+    condition: RelationshipFilter;
 }
 
 
@@ -62,6 +62,7 @@ export interface IsRelatedTo extends QueryFilter {
  * Check if a given object implements the IsRelatedTo interface.
  */
 export function instanceOfIsRelatedTo(value: object): value is IsRelatedTo {
+    if (!('condition' in value) || value['condition'] === undefined) return false;
     return true;
 }
 
@@ -75,7 +76,7 @@ export function IsRelatedToFromJSONTyped(json: any, ignoreDiscriminator: boolean
     }
     return {
         ...QueryFilterFromJSONTyped(json, true),
-        'condition': json['condition'] == null ? undefined : RelationshipFilterFromJSON(json['condition']),
+        'condition': RelationshipFilterFromJSON(json['condition']),
     };
 }
 

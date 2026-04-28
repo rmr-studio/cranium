@@ -62,19 +62,19 @@ export interface IntegrationConnectionModel {
      * @type {{ [key: string]: object; }}
      * @memberof IntegrationConnectionModel
      */
-    connectionMetadata?: { [key: string]: object; };
+    connectionMetadata?: { [key: string]: object; } | null;
     /**
      * 
      * @type {Date}
      * @memberof IntegrationConnectionModel
      */
-    createdAt?: Date;
+    createdAt?: Date | null;
     /**
      * 
      * @type {Date}
      * @memberof IntegrationConnectionModel
      */
-    updatedAt?: Date;
+    updatedAt?: Date | null;
 }
 
 

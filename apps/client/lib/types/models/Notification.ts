@@ -58,7 +58,7 @@ export interface Notification {
      * @type {string}
      * @memberof Notification
      */
-    userId?: string;
+    userId?: string | null;
     /**
      * 
      * @type {NotificationType}
@@ -76,13 +76,13 @@ export interface Notification {
      * @type {NotificationReferenceType}
      * @memberof Notification
      */
-    referenceType?: NotificationReferenceType;
+    referenceType?: NotificationReferenceType | null;
     /**
      * 
      * @type {string}
      * @memberof Notification
      */
-    referenceId?: string;
+    referenceId?: string | null;
     /**
      * 
      * @type {boolean}
@@ -94,37 +94,37 @@ export interface Notification {
      * @type {Date}
      * @memberof Notification
      */
-    resolvedAt?: Date;
+    resolvedAt?: Date | null;
     /**
      * 
      * @type {Date}
      * @memberof Notification
      */
-    expiresAt?: Date;
+    expiresAt?: Date | null;
     /**
      * 
      * @type {Date}
      * @memberof Notification
      */
-    createdAt?: Date;
+    createdAt?: Date | null;
     /**
      * 
      * @type {Date}
      * @memberof Notification
      */
-    updatedAt?: Date;
+    updatedAt?: Date | null;
     /**
      * 
      * @type {string}
      * @memberof Notification
      */
-    createdBy?: string;
+    createdBy?: string | null;
     /**
      * 
      * @type {string}
      * @memberof Notification
      */
-    updatedBy?: string;
+    updatedBy?: string | null;
 }
 
 

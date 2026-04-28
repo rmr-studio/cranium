@@ -74,13 +74,13 @@ export interface SuggestionResponse {
      * @type {string}
      * @memberof SuggestionResponse
      */
-    resolvedBy?: string;
+    resolvedBy?: string | null;
     /**
      * 
      * @type {Date}
      * @memberof SuggestionResponse
      */
-    resolvedAt?: Date;
+    resolvedAt?: Date | null;
     /**
      * 
      * @type {Date}

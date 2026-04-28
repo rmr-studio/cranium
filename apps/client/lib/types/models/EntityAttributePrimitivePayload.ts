@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { EntityLink } from './EntityLink';
+import {
+    EntityLinkFromJSON,
+    EntityLinkFromJSONTyped,
+    EntityLinkToJSON,
+    EntityLinkToJSONTyped,
+} from './EntityLink';
 import type { EntityPropertyType } from './EntityPropertyType';
 import {
     EntityPropertyTypeFromJSON,
@@ -45,13 +52,19 @@ export interface EntityAttributePrimitivePayload {
      * @type {object}
      * @memberof EntityAttributePrimitivePayload
      */
-    value?: object;
+    value?: object | null;
     /**
      * 
      * @type {SchemaType}
      * @memberof EntityAttributePrimitivePayload
      */
     schemaType: SchemaType;
+    /**
+     * 
+     * @type {Array<EntityLink>}
+     * @memberof EntityAttributePrimitivePayload
+     */
+    relations: Array<EntityLink>;
 }
 
 
@@ -62,6 +75,7 @@ export interface EntityAttributePrimitivePayload {
 export function instanceOfEntityAttributePrimitivePayload(value: object): value is EntityAttributePrimitivePayload {
     if (!('type' in value) || value['type'] === undefined) return false;
     if (!('schemaType' in value) || value['schemaType'] === undefined) return false;
+    if (!('relations' in value) || value['relations'] === undefined) return false;
     return true;
 }
 
@@ -78,6 +92,7 @@ export function EntityAttributePrimitivePayloadFromJSONTyped(json: any, ignoreDi
         'type': EntityPropertyTypeFromJSON(json['type']),
         'value': json['value'] == null ? undefined : json['value'],
         'schemaType': SchemaTypeFromJSON(json['schemaType']),
+        'relations': ((json['relations'] as Array<any>).map(EntityLinkFromJSON)),
     };
 }
 
@@ -95,6 +110,7 @@ export function EntityAttributePrimitivePayloadToJSONTyped(value?: EntityAttribu
         'type': EntityPropertyTypeToJSON(value['type']),
         'value': value['value'],
         'schemaType': SchemaTypeToJSON(value['schemaType']),
+        'relations': ((value['relations'] as Array<any>).map(EntityLinkToJSON)),
     };
 }
 

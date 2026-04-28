@@ -7,8 +7,8 @@ Field selection for query results.
 
 Name | Type
 ------------ | -------------
-`includeAttributes` | Array&lt;string&gt;
-`includeRelationships` | Array&lt;string&gt;
+`includeAttributes` | Array&lt;string | null&gt;
+`includeRelationships` | Array&lt;string | null&gt;
 `expandRelationships` | boolean
 
 ## Example

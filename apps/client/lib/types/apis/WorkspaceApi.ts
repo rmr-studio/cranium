@@ -15,7 +15,6 @@
 
 import * as runtime from '../runtime';
 import type {
-  BusinessType,
   SaveWorkspaceRequest,
   TemplateInstallationResponse,
   Workspace,
@@ -24,8 +23,6 @@ import type {
   WorkspaceRoles,
 } from '../models/index';
 import {
-    BusinessTypeFromJSON,
-    BusinessTypeToJSON,
     SaveWorkspaceRequestFromJSON,
     SaveWorkspaceRequestToJSON,
     TemplateInstallationResponseFromJSON,
@@ -59,7 +56,6 @@ export interface GetWorkspaceInvitesRequest {
 
 export interface InstallTemplateRequest {
     workspaceId: string;
-    businessType: BusinessType;
 }
 
 export interface InviteToWorkspaceRequest {
@@ -318,18 +314,7 @@ export class WorkspaceApi extends runtime.BaseAPI {
             );
         }
 
-        if (requestParameters['businessType'] == null) {
-            throw new runtime.RequiredError(
-                'businessType',
-                'Required parameter "businessType" was null or undefined when calling installTemplate().'
-            );
-        }
-
         const queryParameters: any = {};
-
-        if (requestParameters['businessType'] != null) {
-            queryParameters['businessType'] = requestParameters['businessType'];
-        }
 
         const headerParameters: runtime.HTTPHeaders = {};
 

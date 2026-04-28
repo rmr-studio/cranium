@@ -1,15 +1,13 @@
 import { WorkspacePlan } from '@/lib/types/workspace';
-import { BusinessType } from '@/lib/types/models';
 import { workspaceStepSchema } from '@/components/feature-modules/onboarding/components/forms/workspace-step-form';
 
 describe('workspaceStepSchema', () => {
   const validData = {
     displayName: 'Acme Corp',
     plan: WorkspacePlan.Free,
-    businessType: BusinessType.B2CSaas,
   };
 
-  it('accepts valid displayName, plan, and businessType', () => {
+  it('accepts valid displayName and plan', () => {
     const result = workspaceStepSchema.safeParse(validData);
     expect(result.success).toBe(true);
   });
@@ -36,7 +34,6 @@ describe('workspaceStepSchema', () => {
   it('rejects missing displayName', () => {
     const result = workspaceStepSchema.safeParse({
       plan: WorkspacePlan.Scale,
-      businessType: BusinessType.DtcEcommerce,
     });
     expect(result.success).toBe(false);
     expect(result.error?.issues.some((i) => i.path.includes('displayName'))).toBe(true);
@@ -45,7 +42,6 @@ describe('workspaceStepSchema', () => {
   it('rejects missing plan', () => {
     const result = workspaceStepSchema.safeParse({
       displayName: 'Acme Corp',
-      businessType: BusinessType.B2CSaas,
     });
     expect(result.success).toBe(false);
     expect(result.error?.issues.some((i) => i.path.includes('plan'))).toBe(true);
@@ -69,32 +65,6 @@ describe('workspaceStepSchema', () => {
     ];
     for (const plan of plans) {
       const result = workspaceStepSchema.safeParse({ ...validData, plan });
-      expect(result.success).toBe(true);
-    }
-  });
-
-  it('rejects missing businessType', () => {
-    const result = workspaceStepSchema.safeParse({
-      displayName: 'Acme Corp',
-      plan: WorkspacePlan.Free,
-    });
-    expect(result.success).toBe(false);
-    expect(result.error?.issues.some((i) => i.path.includes('businessType'))).toBe(true);
-  });
-
-  it('rejects invalid businessType value', () => {
-    const result = workspaceStepSchema.safeParse({
-      ...validData,
-      businessType: 'INVALID',
-    });
-    expect(result.success).toBe(false);
-    expect(result.error?.issues.some((i) => i.path.includes('businessType'))).toBe(true);
-  });
-
-  it('accepts all valid BusinessType values', () => {
-    const types = [BusinessType.DtcEcommerce, BusinessType.B2CSaas];
-    for (const businessType of types) {
-      const result = workspaceStepSchema.safeParse({ ...validData, businessType });
       expect(result.success).toBe(true);
     }
   });

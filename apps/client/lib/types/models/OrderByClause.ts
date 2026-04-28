@@ -28,11 +28,11 @@ import {
  */
 export interface OrderByClause {
     /**
-     * 
+     * UUID key of the attribute to order by.
      * @type {string}
      * @memberof OrderByClause
      */
-    attributeId?: string;
+    attributeId: string;
     /**
      * 
      * @type {SortDirection}
@@ -47,6 +47,7 @@ export interface OrderByClause {
  * Check if a given object implements the OrderByClause interface.
  */
 export function instanceOfOrderByClause(value: object): value is OrderByClause {
+    if (!('attributeId' in value) || value['attributeId'] === undefined) return false;
     return true;
 }
 
@@ -60,7 +61,7 @@ export function OrderByClauseFromJSONTyped(json: any, ignoreDiscriminator: boole
     }
     return {
         
-        'attributeId': json['attributeId'] == null ? undefined : json['attributeId'],
+        'attributeId': json['attributeId'],
         'direction': json['direction'] == null ? undefined : SortDirectionFromJSON(json['direction']),
     };
 }

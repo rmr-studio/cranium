@@ -12,66 +12,34 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { BlockMetadataType } from './BlockMetadataType';
+import type { BlockContentMetadata } from './BlockContentMetadata';
 import {
-    BlockMetadataTypeFromJSON,
-    BlockMetadataTypeFromJSONTyped,
-    BlockMetadataTypeToJSON,
-    BlockMetadataTypeToJSONTyped,
-} from './BlockMetadataType';
-import type { BlockMeta } from './BlockMeta';
+    instanceOfBlockContentMetadata,
+    BlockContentMetadataFromJSON,
+    BlockContentMetadataFromJSONTyped,
+    BlockContentMetadataToJSON,
+} from './BlockContentMetadata';
+import type { BlockReferenceMetadata } from './BlockReferenceMetadata';
 import {
-    BlockMetaFromJSON,
-    BlockMetaFromJSONTyped,
-    BlockMetaToJSON,
-    BlockMetaToJSONTyped,
-} from './BlockMeta';
+    instanceOfBlockReferenceMetadata,
+    BlockReferenceMetadataFromJSON,
+    BlockReferenceMetadataFromJSONTyped,
+    BlockReferenceMetadataToJSON,
+} from './BlockReferenceMetadata';
+import type { EntityReferenceMetadata } from './EntityReferenceMetadata';
+import {
+    instanceOfEntityReferenceMetadata,
+    EntityReferenceMetadataFromJSON,
+    EntityReferenceMetadataFromJSONTyped,
+    EntityReferenceMetadataToJSON,
+} from './EntityReferenceMetadata';
 
 /**
+ * @type Metadata
  * 
  * @export
- * @interface Metadata
  */
-export interface Metadata {
-    /**
-     * 
-     * @type {boolean}
-     * @memberof Metadata
-     */
-    deletable: boolean;
-    /**
-     * 
-     * @type {BlockMeta}
-     * @memberof Metadata
-     */
-    meta: BlockMeta;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof Metadata
-     */
-    readonly: boolean;
-    /**
-     * 
-     * @type {BlockMetadataType}
-     * @memberof Metadata
-     */
-    type: BlockMetadataType;
-}
-
-
-
-/**
- * Check if a given object implements the Metadata interface.
- */
-export function instanceOfMetadata(value: object): value is Metadata {
-    if (!('deletable' in value) || value['deletable'] === undefined) return false;
-    if (!('meta' in value) || value['meta'] === undefined) return false;
-    if (!('readonly' in value) || value['readonly'] === undefined) return false;
-    if (!('type' in value) || value['type'] === undefined) return false;
-    return true;
-}
+export type Metadata = BlockContentMetadata | BlockReferenceMetadata | EntityReferenceMetadata;
 
 export function MetadataFromJSON(json: any): Metadata {
     return MetadataFromJSONTyped(json, false);
@@ -81,16 +49,22 @@ export function MetadataFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
     if (json == null) {
         return json;
     }
-    return {
-        
-        'deletable': json['deletable'],
-        'meta': BlockMetaFromJSON(json['meta']),
-        'readonly': json['readonly'],
-        'type': BlockMetadataTypeFromJSON(json['type']),
-    };
+    if (typeof json !== 'object') {
+        return json;
+    }
+    if (instanceOfBlockContentMetadata(json)) {
+        return BlockContentMetadataFromJSONTyped(json, true);
+    }
+    if (instanceOfBlockReferenceMetadata(json)) {
+        return BlockReferenceMetadataFromJSONTyped(json, true);
+    }
+    if (instanceOfEntityReferenceMetadata(json)) {
+        return EntityReferenceMetadataFromJSONTyped(json, true);
+    }
+    return {} as any;
 }
 
-export function MetadataToJSON(json: any): Metadata {
+export function MetadataToJSON(json: any): any {
     return MetadataToJSONTyped(json, false);
 }
 
@@ -98,13 +72,18 @@ export function MetadataToJSONTyped(value?: Metadata | null, ignoreDiscriminator
     if (value == null) {
         return value;
     }
-
-    return {
-        
-        'deletable': value['deletable'],
-        'meta': BlockMetaToJSON(value['meta']),
-        'readonly': value['readonly'],
-        'type': BlockMetadataTypeToJSON(value['type']),
-    };
+    if (typeof value !== 'object') {
+        return value;
+    }
+    if (instanceOfBlockContentMetadata(value)) {
+        return BlockContentMetadataToJSON(value as BlockContentMetadata);
+    }
+    if (instanceOfBlockReferenceMetadata(value)) {
+        return BlockReferenceMetadataToJSON(value as BlockReferenceMetadata);
+    }
+    if (instanceOfEntityReferenceMetadata(value)) {
+        return EntityReferenceMetadataToJSON(value as EntityReferenceMetadata);
+    }
+    return {};
 }
 

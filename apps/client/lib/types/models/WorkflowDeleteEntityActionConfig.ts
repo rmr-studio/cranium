@@ -46,43 +46,43 @@ export interface WorkflowDeleteEntityActionConfig {
      * @type {number}
      * @memberof WorkflowDeleteEntityActionConfig
      */
-    version?: number;
+    version: number;
     /**
-     * 
+     * UUID of the entity to delete. Can be a static UUID or template.
      * @type {string}
      * @memberof WorkflowDeleteEntityActionConfig
      */
-    entityId?: string;
+    entityId: string;
     /**
-     * 
+     * Optional timeout override in seconds
      * @type {number}
      * @memberof WorkflowDeleteEntityActionConfig
      */
-    timeoutSeconds?: number;
+    timeoutSeconds?: number | null;
     /**
      * 
      * @type {Array<WorkflowNodeConfigField>}
      * @memberof WorkflowDeleteEntityActionConfig
      */
-    configSchema?: Array<WorkflowNodeConfigField>;
+    configSchema: Array<WorkflowNodeConfigField>;
     /**
      * 
      * @type {{ [key: string]: object; }}
      * @memberof WorkflowDeleteEntityActionConfig
      */
-    config?: { [key: string]: object; };
+    config: { [key: string]: object; };
     /**
      * 
      * @type {WorkflowActionType}
      * @memberof WorkflowDeleteEntityActionConfig
      */
-    subType?: WorkflowActionType;
+    subType: WorkflowActionType;
     /**
      * 
      * @type {WorkflowNodeType}
      * @memberof WorkflowDeleteEntityActionConfig
      */
-    type?: WorkflowNodeType;
+    type: WorkflowNodeType;
 }
 
 
@@ -91,6 +91,12 @@ export interface WorkflowDeleteEntityActionConfig {
  * Check if a given object implements the WorkflowDeleteEntityActionConfig interface.
  */
 export function instanceOfWorkflowDeleteEntityActionConfig(value: object): value is WorkflowDeleteEntityActionConfig {
+    if (!('version' in value) || value['version'] === undefined) return false;
+    if (!('entityId' in value) || value['entityId'] === undefined) return false;
+    if (!('configSchema' in value) || value['configSchema'] === undefined) return false;
+    if (!('config' in value) || value['config'] === undefined) return false;
+    if (!('subType' in value) || value['subType'] === undefined) return false;
+    if (!('type' in value) || value['type'] === undefined) return false;
     return true;
 }
 
@@ -104,13 +110,13 @@ export function WorkflowDeleteEntityActionConfigFromJSONTyped(json: any, ignoreD
     }
     return {
         
-        'version': json['version'] == null ? undefined : json['version'],
-        'entityId': json['entityId'] == null ? undefined : json['entityId'],
+        'version': json['version'],
+        'entityId': json['entityId'],
         'timeoutSeconds': json['timeoutSeconds'] == null ? undefined : json['timeoutSeconds'],
-        'configSchema': json['configSchema'] == null ? undefined : ((json['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldFromJSON)),
-        'config': json['config'] == null ? undefined : json['config'],
-        'subType': json['subType'] == null ? undefined : WorkflowActionTypeFromJSON(json['subType']),
-        'type': json['type'] == null ? undefined : WorkflowNodeTypeFromJSON(json['type']),
+        'configSchema': ((json['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldFromJSON)),
+        'config': json['config'],
+        'subType': WorkflowActionTypeFromJSON(json['subType']),
+        'type': WorkflowNodeTypeFromJSON(json['type']),
     };
 }
 
@@ -128,7 +134,7 @@ export function WorkflowDeleteEntityActionConfigToJSONTyped(value?: WorkflowDele
         'version': value['version'],
         'entityId': value['entityId'],
         'timeoutSeconds': value['timeoutSeconds'],
-        'configSchema': value['configSchema'] == null ? undefined : ((value['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldToJSON)),
+        'configSchema': ((value['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldToJSON)),
         'config': value['config'],
         'subType': WorkflowActionTypeToJSON(value['subType']),
         'type': WorkflowNodeTypeToJSON(value['type']),

@@ -7,18 +7,17 @@
 Name | Type
 ------------ | -------------
 `id` | string
-`entityId` | string
+`entityIds` | Array&lt;string&gt;
 `workspaceId` | string
 `title` | string
 `content` | Array&lt;{ [key: string]: object; }&gt;
+`sourceType` | [NoteSourceType](NoteSourceType.md)
+`readonly` | boolean
 `createdAt` | Date
 `updatedAt` | Date
 `createdBy` | string
 `updatedBy` | string
-`entityDisplayName` | string
-`entityTypeKey` | string
-`entityTypeIcon` | string
-`entityTypeColour` | string
+`entityContexts` | [Array&lt;NoteEntityContext&gt;](NoteEntityContext.md)
 
 ## Example
 
@@ -28,18 +27,17 @@ import type { WorkspaceNote } from ''
 // TODO: Update the object below with actual values
 const example = {
   "id": null,
-  "entityId": null,
+  "entityIds": null,
   "workspaceId": null,
   "title": null,
   "content": null,
+  "sourceType": null,
+  "readonly": null,
   "createdAt": null,
   "updatedAt": null,
   "createdBy": null,
   "updatedBy": null,
-  "entityDisplayName": null,
-  "entityTypeKey": null,
-  "entityTypeIcon": null,
-  "entityTypeColour": null,
+  "entityContexts": null,
 } satisfies WorkspaceNote
 
 console.log(example)

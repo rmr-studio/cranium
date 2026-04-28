@@ -36,7 +36,7 @@ export interface BusinessDefinitionResult {
      * @type {string}
      * @memberof BusinessDefinitionResult
      */
-    error?: string;
+    error?: string | null;
 }
 
 /**

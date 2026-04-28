@@ -32,7 +32,7 @@ export interface Information extends NotificationContent {
      * @type {string}
      * @memberof Information
      */
-    sourceLabel?: string;
+    sourceLabel?: string | null;
 }
 
 /**

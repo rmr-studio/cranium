@@ -32,19 +32,19 @@ export interface SaveEntityResponse {
      * @type {Entity}
      * @memberof SaveEntityResponse
      */
-    entity?: Entity;
+    entity?: Entity | null;
     /**
      * 
      * @type {Array<string>}
      * @memberof SaveEntityResponse
      */
-    errors?: Array<string>;
+    errors?: Array<string> | null;
     /**
      * 
      * @type {{ [key: string]: Array<Entity>; }}
      * @memberof SaveEntityResponse
      */
-    impactedEntities?: { [key: string]: Array<Entity>; };
+    impactedEntities?: { [key: string]: Array<Entity>; } | null;
 }
 
 /**

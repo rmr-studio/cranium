@@ -64,13 +64,13 @@ export interface NotificationInboxItem {
      * @type {NotificationReferenceType}
      * @memberof NotificationInboxItem
      */
-    referenceType?: NotificationReferenceType;
+    referenceType?: NotificationReferenceType | null;
     /**
      * 
      * @type {string}
      * @memberof NotificationInboxItem
      */
-    referenceId?: string;
+    referenceId?: string | null;
     /**
      * 
      * @type {boolean}

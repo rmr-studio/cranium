@@ -13,13 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
-import type { EntityAttributeRequestPayload } from './EntityAttributeRequestPayload';
+import type { EntityAttributePayload } from './EntityAttributePayload';
 import {
-    EntityAttributeRequestPayloadFromJSON,
-    EntityAttributeRequestPayloadFromJSONTyped,
-    EntityAttributeRequestPayloadToJSON,
-    EntityAttributeRequestPayloadToJSONTyped,
-} from './EntityAttributeRequestPayload';
+    EntityAttributePayloadFromJSON,
+    EntityAttributePayloadFromJSONTyped,
+    EntityAttributePayloadToJSON,
+    EntityAttributePayloadToJSONTyped,
+} from './EntityAttributePayload';
 
 /**
  * 
@@ -29,10 +29,10 @@ import {
 export interface EntityAttributeRequest {
     /**
      * 
-     * @type {EntityAttributeRequestPayload}
+     * @type {EntityAttributePayload}
      * @memberof EntityAttributeRequest
      */
-    payload: EntityAttributeRequestPayload;
+    payload: EntityAttributePayload;
 }
 
 /**
@@ -53,7 +53,7 @@ export function EntityAttributeRequestFromJSONTyped(json: any, ignoreDiscriminat
     }
     return {
         
-        'payload': EntityAttributeRequestPayloadFromJSON(json['payload']),
+        'payload': EntityAttributePayloadFromJSON(json['payload']),
     };
 }
 
@@ -68,7 +68,7 @@ export function EntityAttributeRequestToJSONTyped(value?: EntityAttributeRequest
 
     return {
         
-        'payload': EntityAttributeRequestPayloadToJSON(value['payload']),
+        'payload': EntityAttributePayloadToJSON(value['payload']),
     };
 }
 

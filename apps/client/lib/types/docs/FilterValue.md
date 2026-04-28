@@ -19,7 +19,7 @@ import type { FilterValue } from ''
 // TODO: Update the object below with actual values
 const example = {
   "kind": null,
-  "expression": null,
+  "expression": {{ steps.lookup.output.status }},
   "value": null,
 } satisfies FilterValue
 

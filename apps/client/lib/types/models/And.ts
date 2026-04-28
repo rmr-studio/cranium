@@ -49,11 +49,11 @@ import {
  */
 export interface And extends QueryFilter {
     /**
-     * 
+     * List of conditions that must all match.
      * @type {Array<QueryFilter>}
      * @memberof And
      */
-    conditions?: Array<QueryFilter>;
+    conditions: Array<QueryFilter>;
 }
 
 
@@ -62,6 +62,7 @@ export interface And extends QueryFilter {
  * Check if a given object implements the And interface.
  */
 export function instanceOfAnd(value: object): value is And {
+    if (!('conditions' in value) || value['conditions'] === undefined) return false;
     return true;
 }
 
@@ -75,7 +76,7 @@ export function AndFromJSONTyped(json: any, ignoreDiscriminator: boolean): And {
     }
     return {
         ...QueryFilterFromJSONTyped(json, true),
-        'conditions': json['conditions'] == null ? undefined : ((json['conditions'] as Array<any>).map(QueryFilterFromJSON)),
+        'conditions': ((json['conditions'] as Array<any>).map(QueryFilterFromJSON)),
     };
 }
 
@@ -90,7 +91,7 @@ export function AndToJSONTyped(value?: And | null, ignoreDiscriminator: boolean 
 
     return {
         ...QueryFilterToJSONTyped(value, true),
-        'conditions': value['conditions'] == null ? undefined : ((value['conditions'] as Array<any>).map(QueryFilterToJSON)),
+        'conditions': ((value['conditions'] as Array<any>).map(QueryFilterToJSON)),
     };
 }
 

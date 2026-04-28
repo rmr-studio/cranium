@@ -12,15 +12,16 @@ import org.springframework.test.context.ActiveProfiles
 import org.testcontainers.junit.jupiter.Testcontainers
 import riven.core.entity.entity.EntityTypeEntity
 import riven.core.enums.integration.SourceType
-import riven.core.service.util.factory.entity.EntityFactory
+import riven.core.models.core.DTC_ECOMMERCE_MODELS
 import riven.core.models.entity.payload.EntityAttributePrimitivePayload
+import riven.core.service.util.factory.entity.EntityFactory
 import java.util.*
 
 /**
  * End-to-end integration test for the single-integration projection pipeline.
  *
  * Verifies the full flow: sync integration entities -> run projection -> verify core entities created/updated.
- * Uses a real PostgreSQL container with full schema, HubSpot manifest, and b2c-saas core model template.
+ * Uses a real PostgreSQL container with full schema, HubSpot manifest, and dtc-ecommerce core model template.
  */
 @SpringBootTest(
     classes = [ProjectionPipelineIntegrationTestConfig::class],
@@ -49,7 +50,7 @@ class SingleIntegrationProjectionTest : ProjectionPipelineIntegrationTestBase() 
     fun setup() {
         loadIntegrationManifests()
         createWorkspaceAndUser()
-        installCoreModelTemplate("b2c-saas")
+        installCoreModelTemplate(DTC_ECOMMERCE_MODELS.manifestKey)
         hubspotDefId = createIntegrationDefinition("hubspot")
         materializeIntegration("hubspot", hubspotDefId)
 

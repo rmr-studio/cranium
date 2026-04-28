@@ -7,6 +7,7 @@
 Name | Type
 ------------ | -------------
 `type` | [ReferenceType](ReferenceType.md)
+`reference` | [ReferenceItemBlockTree](ReferenceItemBlockTree.md)
 
 ## Example
 
@@ -16,6 +17,7 @@ import type { ReferencePayload } from ''
 // TODO: Update the object below with actual values
 const example = {
   "type": null,
+  "reference": null,
 } satisfies ReferencePayload
 
 console.log(example)

@@ -58,7 +58,7 @@ export interface CreateBlockTypeRequest {
      * @type {string}
      * @memberof CreateBlockTypeRequest
      */
-    description?: string;
+    description?: string | null;
     /**
      * 
      * @type {ValidationScope}

@@ -45,25 +45,25 @@ export interface ReferenceItemEntity {
      * @type {string}
      * @memberof ReferenceItemEntity
      */
-    path?: string;
+    path?: string | null;
     /**
      * 
      * @type {number}
      * @memberof ReferenceItemEntity
      */
-    orderIndex?: number;
+    orderIndex?: number | null;
     /**
      * 
      * @type {Entity}
      * @memberof ReferenceItemEntity
      */
-    entity?: Entity;
+    entity?: Entity | null;
     /**
      * 
      * @type {BlockReferenceWarning}
      * @memberof ReferenceItemEntity
      */
-    warning?: BlockReferenceWarning;
+    warning?: BlockReferenceWarning | null;
 }
 
 

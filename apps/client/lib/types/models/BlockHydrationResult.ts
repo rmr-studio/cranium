@@ -27,16 +27,16 @@ export interface BlockHydrationResult {
     blockId: string;
     /**
      * 
-     * @type {Array<any>}
+     * @type {Array<object>}
      * @memberof BlockHydrationResult
      */
-    references: Array<any>;
+    references: Array<object>;
     /**
      * 
      * @type {string}
      * @memberof BlockHydrationResult
      */
-    error?: string;
+    error?: string | null;
 }
 
 /**

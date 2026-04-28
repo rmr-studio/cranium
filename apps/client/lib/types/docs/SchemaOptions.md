@@ -6,7 +6,7 @@
 
 Name | Type
 ------------ | -------------
-`defaultValue` | [DefaultValue](DefaultValue.md)
+`defaultValue` | [SchemaOptionsDefaultValue](SchemaOptionsDefaultValue.md)
 `prefix` | string
 `regex` | string
 `_enum` | Array&lt;string&gt;

@@ -33,7 +33,7 @@ const example = {
   "status": null,
   "startedAt": null,
   "completedAt": null,
-  "duration": PT2H30M,
+  "duration": null,
   "triggerType": null,
   "input": null,
   "error": null,

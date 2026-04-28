@@ -19,12 +19,16 @@
  */
 export enum LifecycleDomain {
     Acquisition = 'ACQUISITION',
+    Marketing = 'MARKETING',
     Onboarding = 'ONBOARDING',
-    Usage = 'USAGE',
+    Commerce = 'COMMERCE',
+    Fulfillment = 'FULFILLMENT',
+    Engagement = 'ENGAGEMENT',
     Support = 'SUPPORT',
     Billing = 'BILLING',
     Retention = 'RETENTION',
-    Uncategorized = 'UNCATEGORIZED'
+    Uncategorized = 'UNCATEGORIZED',
+    Usage = 'USAGE'
 }
 
 

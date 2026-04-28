@@ -38,7 +38,7 @@ export interface EntityQueryResponse {
      * @type {number}
      * @memberof EntityQueryResponse
      */
-    totalCount?: number;
+    totalCount?: number | null;
     /**
      * Whether more results exist beyond the current page
      * @type {boolean}

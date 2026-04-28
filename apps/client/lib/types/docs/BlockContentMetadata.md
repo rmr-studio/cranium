@@ -10,7 +10,18 @@ Name | Type
 `meta` | [BlockMeta](BlockMeta.md)
 `readonly` | boolean
 `type` | [BlockMetadataType](BlockMetadataType.md)
-`data` | { [key: string]: any; }
+`fetchPolicy` | [BlockReferenceFetchPolicy](BlockReferenceFetchPolicy.md)
+`path` | string
+`presentation` | [Presentation](Presentation.md)
+`items` | [Array&lt;ReferenceItem&gt;](ReferenceItem.md)
+`projection` | [Projection](Projection.md)
+`listType` | [Entity](Entity.md)
+`display` | [ListDisplayConfig](ListDisplayConfig.md)
+`config` | [ListConfig](ListConfig.md)
+`allowDuplicates` | boolean
+`expandDepth` | number
+`item` | [ReferenceItem](ReferenceItem.md)
+`data` | object
 `listConfig` | [BlockListConfiguration](BlockListConfiguration.md)
 
 ## Example
@@ -24,6 +35,17 @@ const example = {
   "meta": null,
   "readonly": null,
   "type": null,
+  "fetchPolicy": null,
+  "path": null,
+  "presentation": null,
+  "items": null,
+  "projection": null,
+  "listType": null,
+  "display": null,
+  "config": null,
+  "allowDuplicates": null,
+  "expandDepth": null,
+  "item": null,
   "data": null,
   "listConfig": null,
 } satisfies BlockContentMetadata

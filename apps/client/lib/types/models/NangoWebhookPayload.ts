@@ -45,67 +45,67 @@ export interface NangoWebhookPayload {
      * @type {string}
      * @memberof NangoWebhookPayload
      */
-    operation?: string;
+    operation?: string | null;
     /**
      * 
      * @type {string}
      * @memberof NangoWebhookPayload
      */
-    connectionId?: string;
+    connectionId?: string | null;
     /**
      * 
      * @type {string}
      * @memberof NangoWebhookPayload
      */
-    providerConfigKey?: string;
+    providerConfigKey?: string | null;
     /**
      * 
      * @type {string}
      * @memberof NangoWebhookPayload
      */
-    provider?: string;
+    provider?: string | null;
     /**
      * 
      * @type {string}
      * @memberof NangoWebhookPayload
      */
-    environment?: string;
+    environment?: string | null;
     /**
      * 
      * @type {boolean}
      * @memberof NangoWebhookPayload
      */
-    success?: boolean;
+    success?: boolean | null;
     /**
      * 
      * @type {NangoWebhookTags}
      * @memberof NangoWebhookPayload
      */
-    tags?: NangoWebhookTags;
+    tags?: NangoWebhookTags | null;
     /**
      * 
      * @type {string}
      * @memberof NangoWebhookPayload
      */
-    syncName?: string;
+    syncName?: string | null;
     /**
      * 
      * @type {string}
      * @memberof NangoWebhookPayload
      */
-    model?: string;
+    model?: string | null;
     /**
      * 
      * @type {string}
      * @memberof NangoWebhookPayload
      */
-    modifiedAfter?: string;
+    modifiedAfter?: string | null;
     /**
      * 
      * @type {NangoSyncResults}
      * @memberof NangoWebhookPayload
      */
-    responseResults?: NangoSyncResults;
+    responseResults?: NangoSyncResults | null;
 }
 
 /**

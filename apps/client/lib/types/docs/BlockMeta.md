@@ -7,7 +7,7 @@
 Name | Type
 ------------ | -------------
 `validationErrors` | Array&lt;string&gt;
-`computedFields` | { [key: string]: any; }
+`computedFields` | object
 `lastValidatedVersion` | number
 
 ## Example

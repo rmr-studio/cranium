@@ -30,7 +30,7 @@ export interface GenerateSignedUrlRequest {
      * @type {number}
      * @memberof GenerateSignedUrlRequest
      */
-    expiresInSeconds?: number;
+    expiresInSeconds?: number | null;
 }
 
 /**

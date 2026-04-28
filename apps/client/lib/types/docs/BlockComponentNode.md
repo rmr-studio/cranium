@@ -8,7 +8,7 @@ Name | Type
 ------------ | -------------
 `id` | string
 `type` | [ComponentType](ComponentType.md)
-`props` | { [key: string]: any; }
+`props` | object
 `bindings` | [Array&lt;BlockBinding&gt;](BlockBinding.md)
 `slots` | { [key: string]: Array&lt;string&gt;; }
 `slotLayout` | [{ [key: string]: LayoutGrid; }](LayoutGrid.md)

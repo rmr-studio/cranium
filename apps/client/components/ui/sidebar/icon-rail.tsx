@@ -1,20 +1,18 @@
 'use client';
 
 import { useProfile } from '@/components/feature-modules/user/hooks/use-profile';
-import { WorkspaceIcon } from '@/components/feature-modules/workspace/components/workspace-icon';
 import { useWorkspaceStore } from '@/components/feature-modules/workspace/provider/workspace-provider';
-import { Logo } from '@riven/ui/logo';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@riven/ui/tooltip';
-import { cn } from '@riven/utils';
-import { useIsMobile } from '@riven/hooks';
-import { BookOpen, Building2, CogIcon, SquareDashedMousePointer, StickyNote, TrendingUpDown } from 'lucide-react';
 import { Kbd, KbdGroup } from '@/components/ui/kbd';
-import { Skeleton } from '@/components/ui/skeleton';
+import { SelectedWorkspaceIcon } from '@/components/ui/sidebar/selected-workspace-icon';
 import {
   useSelectedPanel,
   useSidePanelActions,
 } from '@/components/ui/sidebar/context/side-panel-provider';
 import type { PanelId } from '@/components/ui/sidebar/types/side-panel.types';
+import { useIsMobile } from '@riven/hooks';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@riven/ui/tooltip';
+import { cn } from '@riven/utils';
+import { BookOpen, SquareDashedMousePointer, StickyNote, TrendingUpDown } from 'lucide-react';
 
 interface RailButton {
   id: PanelId;
@@ -23,49 +21,31 @@ interface RailButton {
 }
 
 const navItems: RailButton[] = [
-  { id: 'overview', icon: <Building2 className="size-5" />, label: 'Overview' },
   { id: 'entities', icon: <SquareDashedMousePointer className="size-5" />, label: 'Entities' },
   { id: 'knowledge', icon: <BookOpen className="size-5" />, label: 'Knowledge' },
   { id: 'notes', icon: <StickyNote className="size-5" />, label: 'Notes' },
   { id: 'billing', icon: <TrendingUpDown className="size-5" />, label: 'Billing' },
-  { id: 'settings', icon: <CogIcon className="size-5" />, label: 'Settings' },
 ];
-
-function SelectedWorkspaceIcon() {
-  const { data, isPending, isLoadingAuth } = useProfile();
-  const selectedWorkspaceId = useWorkspaceStore((s) => s.selectedWorkspaceId);
-
-  const workspace = data?.memberships.find(
-    (m) => m.workspace?.id === selectedWorkspaceId,
-  )?.workspace;
-
-  if (isPending || isLoadingAuth) {
-    return <Skeleton className="size-8 rounded-md" />;
-  }
-
-  return (
-    <WorkspaceIcon
-      name={workspace?.name ?? 'Workspace'}
-      avatarUrl={workspace?.avatarUrl}
-    />
-  );
-}
 
 export function IconRail() {
   const selectedPanel = useSelectedPanel();
   const { togglePanel } = useSidePanelActions();
+  const selectedWorkspaceId = useWorkspaceStore((s) => s.selectedWorkspaceId);
+  const { data: profile } = useProfile();
+
   const isMobile = useIsMobile();
 
-  if (isMobile) return null;
+  if (isMobile || !selectedWorkspaceId || !profile) return null;
+
+  const workspace = profile.memberships.find(
+    (m) => m.workspace?.id === selectedWorkspaceId,
+  )?.workspace;
+
+  if (!workspace) return null;
 
   return (
     <TooltipProvider delayDuration={0}>
       <aside className="flex h-full w-(--icon-rail-width) shrink-0 flex-col items-center bg-foreground dark:bg-secondary">
-        {/* Top section — matches header height */}
-        <div className="flex h-(--header-height) w-full shrink-0 flex-col items-center justify-center gap-1 border-b border-background/15 [--logo-primary:var(--background)] dark:[--logo-primary:var(--foreground)]">
-          <Logo size={24} />
-        </div>
-
         {/* Workspace switcher */}
         <div className="pt-2">
           <Tooltip>
@@ -78,10 +58,13 @@ export function IconRail() {
                   selectedPanel === 'workspaces' && 'bg-background/15',
                 )}
               >
-                <SelectedWorkspaceIcon />
+                <SelectedWorkspaceIcon
+                  avatarUrl={workspace.avatarUrl}
+                  name={workspace.name}
+                />
               </button>
             </TooltipTrigger>
-            <TooltipContent side="right">Workspaces</TooltipContent>
+            <TooltipContent side="right">{workspace.name}</TooltipContent>
           </Tooltip>
         </div>
 

@@ -27,6 +27,13 @@ import {
     EntityPropertyTypeToJSON,
     EntityPropertyTypeToJSONTyped,
 } from './EntityPropertyType';
+import type { SchemaType } from './SchemaType';
+import {
+    SchemaTypeFromJSON,
+    SchemaTypeFromJSONTyped,
+    SchemaTypeToJSON,
+    SchemaTypeToJSONTyped,
+} from './SchemaType';
 
 /**
  * An attribute payload representing a relationship to another entity, with a full identifying link
@@ -42,6 +49,18 @@ export interface EntityAttributeRelationPayload {
     type: EntityPropertyType;
     /**
      * 
+     * @type {object}
+     * @memberof EntityAttributeRelationPayload
+     */
+    value?: object | null;
+    /**
+     * 
+     * @type {SchemaType}
+     * @memberof EntityAttributeRelationPayload
+     */
+    schemaType: SchemaType;
+    /**
+     * 
      * @type {Array<EntityLink>}
      * @memberof EntityAttributeRelationPayload
      */
@@ -55,6 +74,7 @@ export interface EntityAttributeRelationPayload {
  */
 export function instanceOfEntityAttributeRelationPayload(value: object): value is EntityAttributeRelationPayload {
     if (!('type' in value) || value['type'] === undefined) return false;
+    if (!('schemaType' in value) || value['schemaType'] === undefined) return false;
     if (!('relations' in value) || value['relations'] === undefined) return false;
     return true;
 }
@@ -70,6 +90,8 @@ export function EntityAttributeRelationPayloadFromJSONTyped(json: any, ignoreDis
     return {
         
         'type': EntityPropertyTypeFromJSON(json['type']),
+        'value': json['value'] == null ? undefined : json['value'],
+        'schemaType': SchemaTypeFromJSON(json['schemaType']),
         'relations': ((json['relations'] as Array<any>).map(EntityLinkFromJSON)),
     };
 }
@@ -86,6 +108,8 @@ export function EntityAttributeRelationPayloadToJSONTyped(value?: EntityAttribut
     return {
         
         'type': EntityPropertyTypeToJSON(value['type']),
+        'value': value['value'],
+        'schemaType': SchemaTypeToJSON(value['schemaType']),
         'relations': ((value['relations'] as Array<any>).map(EntityLinkToJSON)),
     };
 }

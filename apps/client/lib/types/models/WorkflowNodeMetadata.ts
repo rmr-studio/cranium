@@ -77,7 +77,7 @@ export interface WorkflowNodeMetadata {
      * @type {WorkflowNodeOutputMetadata}
      * @memberof WorkflowNodeMetadata
      */
-    outputMetadata?: WorkflowNodeOutputMetadata;
+    outputMetadata?: WorkflowNodeOutputMetadata | null;
 }
 
 

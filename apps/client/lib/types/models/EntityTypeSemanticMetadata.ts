@@ -76,19 +76,19 @@ export interface EntityTypeSemanticMetadata {
      * @type {string}
      * @memberof EntityTypeSemanticMetadata
      */
-    definition?: string;
+    definition?: string | null;
     /**
      * 
      * @type {SemanticAttributeClassification}
      * @memberof EntityTypeSemanticMetadata
      */
-    classification?: SemanticAttributeClassification;
+    classification?: SemanticAttributeClassification | null;
     /**
      * 
      * @type {MatchSignalType}
      * @memberof EntityTypeSemanticMetadata
      */
-    signalType?: MatchSignalType;
+    signalType?: MatchSignalType | null;
     /**
      * 
      * @type {Array<string>}
@@ -100,25 +100,25 @@ export interface EntityTypeSemanticMetadata {
      * @type {Date}
      * @memberof EntityTypeSemanticMetadata
      */
-    createdAt?: Date;
+    createdAt?: Date | null;
     /**
      * 
      * @type {Date}
      * @memberof EntityTypeSemanticMetadata
      */
-    updatedAt?: Date;
+    updatedAt?: Date | null;
     /**
      * 
      * @type {string}
      * @memberof EntityTypeSemanticMetadata
      */
-    createdBy?: string;
+    createdBy?: string | null;
     /**
      * 
      * @type {string}
      * @memberof EntityTypeSemanticMetadata
      */
-    updatedBy?: string;
+    updatedBy?: string | null;
 }
 
 

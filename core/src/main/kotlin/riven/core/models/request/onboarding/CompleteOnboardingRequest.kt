@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import riven.core.enums.knowledge.DefinitionCategory
 import riven.core.enums.user.AcquisitionChannel
-import riven.core.enums.workspace.BusinessType
 import riven.core.enums.workspace.WorkspacePlan
 import riven.core.enums.workspace.WorkspaceRoles
 
@@ -16,8 +15,6 @@ data class CompleteOnboardingRequest(
     val workspace: OnboardingWorkspace,
     @field:Valid
     val profile: OnboardingProfile,
-    @field:NotNull
-    val businessType: BusinessType,
     @field:Valid
     val invites: List<OnboardingInvite>? = null,
     @field:Valid

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import riven.core.models.catalog.ReconciliationImpact
@@ -52,7 +53,7 @@ class WorkspaceSchemaController(
     )
     fun reconcileSchema(
         @PathVariable workspaceId: UUID,
-        @RequestBody request: SchemaReconcileRequest,
+        @Valid @RequestBody request: SchemaReconcileRequest,
     ): ResponseEntity<Any> {
         val result = schemaReconciliationService.applyBreakingChanges(
             workspaceId = workspaceId,

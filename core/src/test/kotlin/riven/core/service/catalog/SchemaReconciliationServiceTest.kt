@@ -8,6 +8,7 @@ import org.mockito.kotlin.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import riven.core.configuration.auth.WorkspaceSecurity
 import riven.core.enums.activity.Activity
@@ -30,6 +31,7 @@ import riven.core.repository.entity.EntityTypeRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.auth.AuthTokenService
 import riven.core.service.util.BaseServiceTest
+import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.WithUserPersona
 import riven.core.service.util.WorkspaceRole
 import riven.core.service.util.factory.catalog.CatalogFactory
@@ -40,6 +42,7 @@ import java.util.*
     classes = [
         AuthTokenService::class,
         WorkspaceSecurity::class,
+        SecurityTestConfig::class,
         SchemaReconciliationServiceTest.TestConfig::class,
         SchemaReconciliationService::class,
     ]
@@ -974,6 +977,54 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
             assertTrue(typeImpact.dataLoss)
         }
 
+        /**
+         * Regression: previously buildEntityTypeImpact used maxOfOrNull across breaking changes, so the
+         * confirmation payload reported only the largest single bucket, not the full destructive impact.
+         * Admins could approve a reconcile while seeing a materially low estimate. After the fix it sums
+         * counts across all breaking changes, so the reported affectedEntities reflects total impact.
+         */
+        @Test
+        fun `affectedEntities sums counts across multiple breaking changes`() {
+            val entityTypeId = UUID.randomUUID()
+            val (workspaceSchema, mapping, uuidMap) = buildWorkspaceSchema(
+                mapOf(
+                    "email" to SchemaAttrDef(label = "Email"),
+                    "phone" to SchemaAttrDef(label = "Phone"),
+                )
+            )
+            // Remove both email and phone from catalog → two breaking FIELD_REMOVED changes.
+            val catalogSchema = buildCatalogSchema(emptyMap())
+            val entityType = EntityFactory.createEntityType(
+                id = entityTypeId,
+                workspaceId = workspaceId,
+                sourceManifestId = manifestId,
+                attributeKeyMapping = mapping,
+                schema = workspaceSchema,
+                pendingSchemaUpdate = true,
+            )
+            val catalogEntry = CatalogFactory.createEntityTypeEntity(
+                manifestId = manifestId,
+                key = entityType.key,
+                schema = catalogSchema,
+                schemaHash = "new-hash",
+            )
+
+            whenever(entityTypeRepository.findAllById(listOf(entityTypeId)))
+                .thenReturn(listOf(entityType))
+            whenever(catalogEntityTypeRepository.findByManifestIdAndKey(manifestId, entityType.key))
+                .thenReturn(catalogEntry)
+            whenever(entityAttributeRepository.countByTypeIdAndAttributeId(eq(entityTypeId), eq(uuidMap["email"]!!)))
+                .thenReturn(5L)
+            whenever(entityAttributeRepository.countByTypeIdAndAttributeId(eq(entityTypeId), eq(uuidMap["phone"]!!)))
+                .thenReturn(7L)
+
+            val result = service.applyBreakingChanges(workspaceId, listOf(entityTypeId), impactConfirmed = false)
+                as ReconciliationImpact
+
+            val typeImpact = result.impacts[entityTypeId]!!
+            assertEquals(12L, typeImpact.affectedEntities)
+        }
+
         @Test
         fun `applies all changes when impactConfirmed is true`() {
             val entityTypeId = UUID.randomUUID()
@@ -1460,6 +1511,42 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
             assertEquals(25L, pendingChange.affectedEntityCount)
         }
 
+        /**
+         * Regression: legacy entity types with sourceSchemaHash == null whose schema is structurally
+         * identical to the catalog used to fall through to PENDING_NON_BREAKING with an empty
+         * pendingChanges list, surfacing false drift to admins. The fix returns UP_TO_DATE when the
+         * computed diff is empty regardless of whether a hash has been stamped.
+         */
+        @Test
+        fun `returns UP_TO_DATE for legacy entity type with null sourceSchemaHash but matching schema`() {
+            val (workspaceSchema, mapping) = buildWorkspaceSchema(mapOf("email" to SchemaAttrDef()))
+            val catalogSchema = buildCatalogSchema(mapOf("email" to CatalogAttrDef()))
+            val entityType = EntityFactory.createEntityType(
+                workspaceId = workspaceId,
+                sourceManifestId = manifestId,
+                attributeKeyMapping = mapping,
+                schema = workspaceSchema,
+                sourceSchemaHash = null,
+            )
+            val catalogEntry = CatalogFactory.createEntityTypeEntity(
+                manifestId = manifestId,
+                key = entityType.key,
+                schema = catalogSchema,
+                schemaHash = "catalog-hash",
+            )
+
+            whenever(catalogEntityTypeRepository.findByManifestIdAndKey(manifestId, entityType.key))
+                .thenReturn(catalogEntry)
+
+            val response = service.getSchemaHealth(workspaceId, listOf(entityType))
+
+            val status = response.entityTypes[0]
+            assertEquals(SchemaHealthStatusType.UP_TO_DATE, status.status)
+            assertTrue(status.pendingChanges.isEmpty())
+            assertEquals("catalog-hash", status.catalogSchemaHash)
+            assertEquals("catalog-hash", status.sourceSchemaHash)
+        }
+
         @Test
         fun `summary counts are correct`() {
             // Create three entity types with different statuses
@@ -1519,6 +1606,49 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
             assertEquals(1, response.summary.pendingNonBreaking)
             assertEquals(1, response.summary.pendingBreaking)
             assertEquals(0, response.summary.unknown)
+        }
+    }
+
+    // ------ Access Denied Tests ------
+
+    @Nested
+    @WithUserPersona(
+        userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
+        email = "test@test.com",
+        displayName = "Test User",
+        roles = [
+            WorkspaceRole(
+                workspaceId = "00000000-0000-0000-0000-000000000000",
+                role = WorkspaceRoles.OWNER
+            )
+        ]
+    )
+    inner class UnauthorizedAccessTests {
+
+        /**
+         * @PreAuthorize on reconcileIfNeeded must reject access when the authenticated user has no
+         * role on the target workspace, before any repository interaction. Regression coverage per
+         * the project rule that every @PreAuthorize-protected service method needs a denied-access test.
+         */
+        @Test
+        fun `reconcileIfNeeded throws AccessDeniedException for unauthorized workspace`() {
+            assertThrows(AccessDeniedException::class.java) {
+                service.reconcileIfNeeded(workspaceId, emptyList())
+            }
+        }
+
+        @Test
+        fun `applyBreakingChanges throws AccessDeniedException for unauthorized workspace`() {
+            assertThrows(AccessDeniedException::class.java) {
+                service.applyBreakingChanges(workspaceId, emptyList(), impactConfirmed = false)
+            }
+        }
+
+        @Test
+        fun `getSchemaHealth throws AccessDeniedException for unauthorized workspace`() {
+            assertThrows(AccessDeniedException::class.java) {
+                service.getSchemaHealth(workspaceId, emptyList())
+            }
         }
     }
 

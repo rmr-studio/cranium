@@ -577,11 +577,11 @@ class SchemaReconciliationService(
 
         val affectedEntities = changes
             .filter { it.workspaceAttributeId != null && it.breaking }
-            .maxOfOrNull { change ->
+            .sumOf { change ->
                 entityAttributeRepository.countByTypeIdAndAttributeId(
                     entityTypeId, requireNotNull(change.workspaceAttributeId),
                 )
-            } ?: 0L
+            }
 
         return EntityTypeImpact(
             affectedEntities = affectedEntities,
@@ -738,6 +738,22 @@ class SchemaReconciliationService(
         }
 
         val changes = computeSchemaDiff(catalogEntry.schema, entityType.schema, entityType.attributeKeyMapping!!)
+
+        // Legacy entity types (sourceSchemaHash == null) may be structurally identical to catalog even
+        // though their hash hasn't been stamped yet. Treat empty diff as UP_TO_DATE so the health endpoint
+        // doesn't surface false drift; the actual hash stamp is performed by reconcileIfNeeded.
+        if (changes.isEmpty()) {
+            return EntityTypeHealthStatus(
+                entityTypeId = entityTypeId,
+                entityTypeKey = entityType.key,
+                displayName = entityType.displayNameSingular,
+                status = SchemaHealthStatusType.UP_TO_DATE,
+                sourceSchemaHash = catalogEntry.schemaHash,
+                catalogSchemaHash = catalogEntry.schemaHash,
+                pendingChanges = emptyList(),
+            )
+        }
+
         val hasBreaking = changes.any { it.breaking }
 
         val pendingChanges = changes.map { change ->

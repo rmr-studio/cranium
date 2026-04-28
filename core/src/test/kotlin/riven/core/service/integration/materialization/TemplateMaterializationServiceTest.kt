@@ -396,6 +396,48 @@ class TemplateMaterializationServiceTest {
         })
     }
 
+    /**
+     * Regression: restoreEntityType used to stamp only sourceSchemaHash, leaving sourceManifestId
+     * as whatever the soft-deleted row already had (null for pre-provenance rows). That broke
+     * reconciliation traceability after restore. The fix also stamps the catalog manifest pointer
+     * so restored rows match newly created rows on traceability.
+     */
+    @Test
+    fun `materializeIntegrationTemplates - stamps sourceManifestId and sourceSchemaHash on restored entity type`() {
+        val softDeletedEntityType = EntityTypeEntity(
+            id = UUID.randomUUID(),
+            key = "hubspot-contact",
+            displayNameSingular = "HubSpot Contact",
+            displayNamePlural = "HubSpot Contacts",
+            identifierKey = UUID.randomUUID(),
+            workspaceId = workspaceId,
+            sourceType = SourceType.INTEGRATION,
+            sourceManifestId = null,
+            sourceSchemaHash = null,
+            readonly = true,
+            schema = riven.core.models.common.validation.Schema(
+                key = SchemaType.OBJECT,
+                type = DataType.OBJECT
+            ),
+        )
+        val catalogWithHash = catalogContactType.copy(schemaHash = "catalog-hash-v1")
+
+        whenever(catalogEntityTypeRepository.findByManifestId(manifestId))
+            .thenReturn(listOf(catalogWithHash))
+        whenever(catalogRelationshipRepository.findByManifestId(manifestId))
+            .thenReturn(emptyList())
+        whenever(entityTypeRepository.findSoftDeletedByWorkspaceIdAndKeyIn(eq(workspaceId), any()))
+            .thenReturn(listOf(softDeletedEntityType))
+
+        service.materializeIntegrationTemplates(workspaceId, integrationSlug, integrationDefinitionId)
+
+        verify(entityTypeRepository).save(argThat { entity ->
+            entity.key == "hubspot-contact" &&
+                entity.sourceManifestId == manifestId &&
+                entity.sourceSchemaHash == "catalog-hash-v1"
+        })
+    }
+
     // ========== Relationship Materialization Tests ==========
 
     @Test

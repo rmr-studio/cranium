@@ -1,5 +1,18 @@
 # Architecture Changelog
 
+## 2026-04-28 — Schema Hash Numeric Canonicalization Format Change
+
+**Domains affected:** Catalog (schema reconciliation)
+
+**What changed:**
+
+- `SchemaHashUtil.canonicalize()` no longer routes numbers through `Number.toDouble()`. Numeric values now collapse to the canonical `BigDecimal(value.toString()).stripTrailingZeros().toPlainString()` representation, preserving precision for integers above 2^53 and eliminating hash collisions between distinct large longs.
+- Stored `entity_types.source_schema_hash` values written under the previous representation (e.g. `0.0` style for integral schema constants) will not match newly computed hashes for schemas containing numeric values. Existing reconciliation paths handle this as a legacy mismatch and re-stamp via the established legacy-stamping path.
+
+**New cross-domain dependencies:** No
+
+**New components introduced:** None — internal utility behavior change only.
+
 ## 2026-03-17 — Identity Match Dispatch Infrastructure and EntityService Event Publishing
 
 **Domains affected:** Identity, Entity, Workflow

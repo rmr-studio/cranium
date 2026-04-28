@@ -1,5 +1,6 @@
 package riven.core.models.catalog
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import riven.core.enums.entity.validation.EntityTypeChangeType
 import java.util.*
 
@@ -32,10 +33,10 @@ data class EntityTypeHealthStatus(
 )
 
 enum class SchemaHealthStatusType {
-    UP_TO_DATE,
-    PENDING_NON_BREAKING,
-    PENDING_BREAKING,
-    UNKNOWN
+    @JsonProperty("UP_TO_DATE") UP_TO_DATE,
+    @JsonProperty("PENDING_NON_BREAKING") PENDING_NON_BREAKING,
+    @JsonProperty("PENDING_BREAKING") PENDING_BREAKING,
+    @JsonProperty("UNKNOWN") UNKNOWN
 }
 
 data class PendingSchemaChange(
@@ -72,6 +73,11 @@ data class ReconciliationImpact(
 )
 
 data class EntityTypeImpact(
+    /**
+     * Total attribute writes/deletes that breaking changes will touch on this entity type — summed across
+     * every breaking change. May exceed the entity row count when a single row carries multiple attributes
+     * affected by the reconcile, by design: this counts admin-visible destructive impact, not distinct rows.
+     */
     val affectedEntities: Long,
     val fieldsRemoved: List<String>,
     val dataLoss: Boolean

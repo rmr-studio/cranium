@@ -78,26 +78,26 @@ interface EntityAttributeRepository : JpaRepository<EntityAttributeEntity, UUID>
     /**
      * Count entity attributes for a given entity type and attribute definition.
      * Used by schema reconciliation to assess impact of breaking changes.
+     *
+     * Soft-delete filtering is applied automatically by @SQLRestriction on the entity.
      */
     @Query(
-        value = """
-            SELECT COUNT(*) FROM entity_attributes ea
-            WHERE ea.type_id = :typeId
-              AND ea.attribute_id = :attributeId
-              AND ea.deleted = false
-        """,
-        nativeQuery = true
+        "SELECT COUNT(ea) FROM EntityAttributeEntity ea " +
+            "WHERE ea.typeId = :typeId AND ea.attributeId = :attributeId"
     )
     fun countByTypeIdAndAttributeId(typeId: UUID, attributeId: UUID): Long
 
     /**
      * Hard-delete all attributes for a given entity type and attribute definition.
      * Used by schema reconciliation when applying FIELD_REMOVED breaking changes.
+     *
+     * JPQL bulk DELETE intentionally bypasses @SQLRestriction soft-delete handling — FIELD_REMOVED
+     * is a destructive reconcile and the rows must be removed, not marked deleted.
      */
     @Modifying
     @Query(
-        value = "DELETE FROM entity_attributes WHERE type_id = :typeId AND attribute_id = :attributeId",
-        nativeQuery = true
+        "DELETE FROM EntityAttributeEntity ea " +
+            "WHERE ea.typeId = :typeId AND ea.attributeId = :attributeId"
     )
     fun deleteAllByTypeIdAndAttributeId(typeId: UUID, attributeId: UUID)
 

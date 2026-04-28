@@ -82,7 +82,7 @@ data class EntityTypeEntity(
     var pendingSchemaUpdate: Boolean = false,
 
     @Column(name = "source_manifest_id", columnDefinition = "uuid")
-    val sourceManifestId: UUID? = null,
+    var sourceManifestId: UUID? = null,
 
     @Column(name = "identifier_key", nullable = false)
     val identifierKey: UUID,

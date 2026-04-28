@@ -140,6 +140,8 @@ class TemplateInstallationService(
                 entityTypeId = result.entityTypeId,
                 workspaceId = workspaceId,
                 lifecycleDomain = lifecycleDomain,
+                sourceManifestId = catalogType.manifestId,
+                sourceSchemaHash = catalogType.schemaHash,
             )
             logger.info { "Promoted reused entity type '$key' (${result.entityTypeId}) to template" }
         }
@@ -304,6 +306,8 @@ class TemplateInstallationService(
             semanticGroup = catalogType.semanticGroup,
             lifecycleDomain = catalogType.lifecycleDomain,
             sourceType = SourceType.TEMPLATE,
+            sourceManifestId = catalogType.manifestId,
+            sourceSchemaHash = catalogType.schemaHash,
             identifierKey = identifierKey,
             workspaceId = workspaceId,
             protected = true,

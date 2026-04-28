@@ -21,9 +21,9 @@ export function AccordionItem({
       type="button"
       onClick={onClick}
       className={cn(
-        'border-b border-white/10 text-left last:border-b-0 dark:border-foreground/10',
+        ':border-foreground/10 border-b border-white/10 text-left last:border-b-0',
         compact
-          ? 'border-primary-foreground/10 py-4 dark:border-foreground/10'
+          ? ':border-foreground/10 border-primary-foreground/10 py-4'
           : 'flex cursor-pointer items-start gap-4 py-5',
       )}
     >

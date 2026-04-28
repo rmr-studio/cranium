@@ -33,20 +33,11 @@ class CoreModelCatalogServiceTest {
     }
 
     @Test
-    fun `onApplicationReady upserts all core model sets to catalog`() {
+    fun `onApplicationReady upserts the dtc-ecommerce core model set to catalog`() {
         service.onApplicationReady()
 
-        // Should upsert exactly 2 model sets (b2c-saas and dtc-ecommerce)
-        verify(upsertService, times(2)).upsertManifest(any())
-    }
-
-    @Test
-    fun `onApplicationReady upserts b2c-saas with correct key`() {
-        service.onApplicationReady()
-
-        verify(upsertService).upsertManifest(argThat<ResolvedManifest> {
-            key == "b2c-saas" && entityTypes.any { it.key == "subscription" }
-        })
+        // Only dtc-ecommerce ships; b2c-saas was ripped.
+        verify(upsertService, times(1)).upsertManifest(any())
     }
 
     @Test
@@ -61,35 +52,22 @@ class CoreModelCatalogServiceTest {
     // ------ Error Resilience Tests ------
 
     @Test
-    fun `upsert failure for one model set does not crash and sets health indicator to FAILED`() {
-        whenever(upsertService.upsertManifest(any()))
-            .thenThrow(RuntimeException("simulated failure"))
-            .thenAnswer { } // second call succeeds
-
-        service.onApplicationReady()
-
-        verify(upsertService, times(2)).upsertManifest(any())
-        verify(healthIndicator).loadState = ManifestCatalogHealthIndicator.LoadState.FAILED
-        verify(healthIndicator).lastError = argThat<String> { contains("1/2") }
-    }
-
-    @Test
-    fun `upsert failure for all model sets sets health indicator to FAILED`() {
+    fun `upsert failure sets health indicator to FAILED`() {
         whenever(upsertService.upsertManifest(any()))
             .thenThrow(RuntimeException("simulated failure"))
 
         service.onApplicationReady()
 
-        verify(upsertService, times(2)).upsertManifest(any())
+        verify(upsertService, times(1)).upsertManifest(any())
         verify(healthIndicator).loadState = ManifestCatalogHealthIndicator.LoadState.FAILED
-        verify(healthIndicator).lastError = argThat<String> { contains("2/2") }
+        verify(healthIndicator).lastError = argThat<String> { contains("1/1") }
     }
 
     @Test
     fun `successful load does not set health indicator to FAILED`() {
         service.onApplicationReady()
 
-        verify(upsertService, times(2)).upsertManifest(any())
+        verify(upsertService, times(1)).upsertManifest(any())
         verify(healthIndicator, never()).loadState = ManifestCatalogHealthIndicator.LoadState.FAILED
         verify(healthIndicator, never()).lastError = any()
     }

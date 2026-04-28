@@ -1,8 +1,8 @@
 import { cn } from '@/lib/utils';
-import { FC } from 'react';
+import { ButtonHTMLAttributes, FC } from 'react';
 import { Button } from './button';
 
-interface Props {
+interface Props extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'size'> {
   children: React.ReactNode;
   className?: string;
   size?: keyof typeof sizeStyles;
@@ -21,7 +21,7 @@ const glowGradient =
 const borderGradient =
   'linear-gradient(var(--background), var(--background)) padding-box, conic-gradient(from var(--border-angle), var(--cta-g1), var(--cta-g2) var(--arc-start), var(--cta-muted) calc(var(--arc-start) + 3%), var(--cta-muted) calc(97% - var(--arc-start)), var(--cta-g3) calc(100% - var(--arc-start)), var(--cta-g1)) border-box';
 
-export const CtaButton: FC<Props> = ({ children, className, size = 'default' }) => {
+export const CtaButton: FC<Props> = ({ children, className, size = 'default', ...props }) => {
   return (
     <div className="group relative w-fit">
       {/* Glow — blurred gradient behind, fades in on hover */}
@@ -38,6 +38,7 @@ export const CtaButton: FC<Props> = ({ children, className, size = 'default' }) 
         }}
       >
         <Button
+          {...props}
           className={cn(
             'cursor-pointer items-center rounded-lg border-0 bg-foreground/80 font-mono tracking-wide text-background outline-0 transition-colors hover:bg-foreground/85',
             sizeStyles[size],

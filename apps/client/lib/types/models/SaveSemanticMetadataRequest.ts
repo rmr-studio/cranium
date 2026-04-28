@@ -39,19 +39,19 @@ export interface SaveSemanticMetadataRequest {
      * @type {string}
      * @memberof SaveSemanticMetadataRequest
      */
-    definition?: string;
+    definition?: string | null;
     /**
      * 
      * @type {SemanticAttributeClassification}
      * @memberof SaveSemanticMetadataRequest
      */
-    classification?: SemanticAttributeClassification;
+    classification?: SemanticAttributeClassification | null;
     /**
      * 
      * @type {MatchSignalType}
      * @memberof SaveSemanticMetadataRequest
      */
-    signalType?: MatchSignalType;
+    signalType?: MatchSignalType | null;
     /**
      * 
      * @type {Array<string>}

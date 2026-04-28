@@ -7,9 +7,9 @@
 Name | Type
 ------------ | -------------
 `type` | [EntityPropertyType](EntityPropertyType.md)
+`relations` | [Array&lt;EntityLink&gt;](EntityLink.md)
 `value` | object
 `schemaType` | [SchemaType](SchemaType.md)
-`relations` | [Array&lt;EntityLink&gt;](EntityLink.md)
 
 ## Example
 
@@ -19,9 +19,9 @@ import type { EntityAttributePayload } from ''
 // TODO: Update the object below with actual values
 const example = {
   "type": null,
+  "relations": null,
   "value": null,
   "schemaType": null,
-  "relations": null,
 } satisfies EntityAttributePayload
 
 console.log(example)

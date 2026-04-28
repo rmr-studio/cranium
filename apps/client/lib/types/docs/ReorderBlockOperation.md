@@ -8,7 +8,13 @@ Name | Type
 ------------ | -------------
 `blockId` | string
 `type` | [BlockOperationType](BlockOperationType.md)
+`block` | [Node](Node.md)
 `parentId` | string
+`index` | number
+`childrenIds` | { [key: string]: string; }
+`fromParentId` | string
+`toParentId` | string
+`updatedContent` | [Node](Node.md)
 `fromIndex` | number
 `toIndex` | number
 
@@ -21,7 +27,13 @@ import type { ReorderBlockOperation } from ''
 const example = {
   "blockId": null,
   "type": null,
+  "block": null,
   "parentId": null,
+  "index": null,
+  "childrenIds": null,
+  "fromParentId": null,
+  "toParentId": null,
+  "updatedContent": null,
   "fromIndex": null,
   "toIndex": null,
 } satisfies ReorderBlockOperation

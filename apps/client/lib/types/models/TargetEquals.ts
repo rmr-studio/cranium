@@ -49,11 +49,11 @@ import {
  */
 export interface TargetEquals extends RelationshipFilter {
     /**
-     * 
+     * List of entity IDs to match. Supports template expressions.
      * @type {Array<string>}
      * @memberof TargetEquals
      */
-    entityIds?: Array<string>;
+    entityIds: Array<string>;
 }
 
 
@@ -62,6 +62,7 @@ export interface TargetEquals extends RelationshipFilter {
  * Check if a given object implements the TargetEquals interface.
  */
 export function instanceOfTargetEquals(value: object): value is TargetEquals {
+    if (!('entityIds' in value) || value['entityIds'] === undefined) return false;
     return true;
 }
 
@@ -75,7 +76,7 @@ export function TargetEqualsFromJSONTyped(json: any, ignoreDiscriminator: boolea
     }
     return {
         ...RelationshipFilterFromJSONTyped(json, true),
-        'entityIds': json['entityIds'] == null ? undefined : json['entityIds'],
+        'entityIds': json['entityIds'],
     };
 }
 

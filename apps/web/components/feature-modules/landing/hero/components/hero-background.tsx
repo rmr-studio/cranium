@@ -1,7 +1,5 @@
 'use client';
 
-import { BGPattern } from '@/components/ui/background/grids';
-import { StarsBackground } from '@/components/ui/background/stars';
 import { cdnImageLoader, getCdnUrl } from '@/lib/cdn-image-loader';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -15,7 +13,6 @@ interface ImageVariant {
 interface HeroBackgroundProps {
   className?: string;
   image: {
-    avif: ImageVariant[];
     webp: ImageVariant[];
   };
   alt?: string;
@@ -35,36 +32,18 @@ export function HeroBackground({
   // Build the fallback src from the smallest webp variant
   const fallbackSrc = getCdnUrl(image.webp[0].src);
   return (
-    <div
-      className="absolute inset-0"
-      style={{
-        maskImage: 'linear-gradient(to bottom, black 55%, transparent 100%)',
-        WebkitMaskImage: 'linear-gradient(to bottom, black 55%, transparent 100%)',
-      }}
-    >
-      <BGPattern
-        variant={'grid'}
-        size={24}
-        mask="fade-edges"
-        fill="color-mix(in srgb, var(--primary) 2.5%, transparent)"
-        className="z-20"
-      />
+    <div className="absolute inset-0">
       <div
-        className={cn(
-          'absolute inset-x-0 z-0 mx-auto max-w-screen-3xl 3xl:right-0 3xl:left-auto 3xl:mx-0 3xl:w-[70%] 3xl:max-w-none',
-          className,
-        )}
+        className={cn('absolute inset-x-0 z-0 mx-auto', className)}
         style={{
-          maskImage:
-            'linear-gradient(to bottom, transparent, black 25%), linear-gradient(to right, transparent, black 8%, black 92%, transparent)',
+          maskImage: 'linear-gradient(to bottom, transparent, black 60%, black 90%, transparent)',
           WebkitMaskImage:
-            'linear-gradient(to bottom, transparent, black 25%), linear-gradient(to right, transparent, black 8%, black 92%, transparent)',
+            'linear-gradient(to bottom, transparent, black 60%, black 90%, transparent)',
           maskComposite: 'intersect',
           WebkitMaskComposite: 'source-in' as string,
         }}
       >
         <picture className="relative block h-full w-full">
-          <source srcSet={buildSrcSet(image.avif)} type="image/avif" sizes="100vw" />
           <source srcSet={buildSrcSet(image.webp)} type="image/webp" sizes="100vw" />
           <Image
             loader={cdnImageLoader}
@@ -76,18 +55,13 @@ export function HeroBackground({
             priority={true}
             sizes="100vw"
             className={cn(
-              'object-cover object-bottom invert-100 transition-opacity duration-400 ease-out dark:invert-0',
+              'object-cover object-bottom transition-opacity duration-400 ease-out',
               isLoaded ? 'opacity-100' : 'opacity-0',
             )}
             onLoad={() => setIsLoaded(true)}
           />
         </picture>
       </div>
-      <StarsBackground
-        factor={0.15}
-        starColor={'color-mix(in srgb, var(--foreground) 100%, transparent)'}
-        className={cn('absolute inset-0 flex items-center justify-center rounded-xl')}
-      />
     </div>
   );
 }

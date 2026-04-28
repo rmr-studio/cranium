@@ -1,5 +1,18 @@
 # Architecture Changelog
 
+## 2026-04-28 — Schema Hash Numeric Canonicalization Format Change
+
+**Domains affected:** Catalog (schema reconciliation)
+
+**What changed:**
+
+- `SchemaHashUtil.canonicalize()` no longer routes numbers through `Number.toDouble()`. Numeric values now collapse to the canonical `BigDecimal(value.toString()).stripTrailingZeros().toPlainString()` representation, preserving precision for integers above 2^53 and eliminating hash collisions between distinct large longs.
+- Stored `entity_types.source_schema_hash` values written under the previous representation (e.g. `0.0` style for integral schema constants) will not match newly computed hashes for schemas containing numeric values. Existing reconciliation paths handle this as a legacy mismatch and re-stamp via the established legacy-stamping path.
+
+**New cross-domain dependencies:** No
+
+**New components introduced:** None — internal utility behavior change only.
+
 ## 2026-03-17 — Identity Match Dispatch Infrastructure and EntityService Event Publishing
 
 **Domains affected:** Identity, Entity, Workflow
@@ -114,3 +127,21 @@
 **New components introduced:**
 
 - Feature design document only — no code components introduced in this change. The document specifies components to be built across 5 implementation phases.
+
+## 2026-04-28 — Avatar Resolution Endpoint
+
+**Domains affected:** Storage, User, Workspace
+
+**What changed:**
+
+- Added public read endpoints `/api/v1/avatars/user/{userId}` and `/api/v1/avatars/workspace/{workspaceId}` that 302-redirect to a short-lived signed URL on the storage provider, replacing the previously unimplemented URLs synthesized by `AvatarUrlResolver`
+- Introduced `AvatarService` to translate user/workspace entity `avatarUrl` (storage key) into a signed URL via the configured `StorageProvider`, with HMAC fallback through `SignedUrlService` when the provider does not support native signed URLs
+- Responses set `Cache-Control: max-age=240, public` so browsers cache the redirect target slightly under the 5-minute signed URL expiry
+- Hardened `SupabaseStorageProvider` startup: `@PostConstruct ensureBucketExists` probes the configured bucket and best-effort creates it as private; failures (RLS denial under anon key, network errors) are logged and swallowed so the application still boots
+
+**New cross-domain dependencies:** Yes — Storage → User and Storage → Workspace: `AvatarService` reads `avatarUrl` from `UserRepository` and `WorkspaceRepository` to resolve avatar storage keys.
+
+**New components introduced:**
+
+- `AvatarController` — public REST controller exposing user/workspace avatar redirect endpoints
+- `AvatarService` — Spring service resolving user/workspace avatar storage keys to signed download URLs

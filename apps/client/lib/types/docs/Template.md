@@ -16,7 +16,7 @@ import type { Template } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "expression": null,
+  "expression": {{ steps.lookup.output.status }},
 } satisfies Template
 
 console.log(example)

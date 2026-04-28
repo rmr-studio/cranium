@@ -76,6 +76,32 @@ interface EntityAttributeRepository : JpaRepository<EntityAttributeEntity, UUID>
     ): List<EntityAttributeEntity>
 
     /**
+     * Count entity attributes for a given entity type and attribute definition.
+     * Used by schema reconciliation to assess impact of breaking changes.
+     *
+     * Soft-delete filtering is applied automatically by @SQLRestriction on the entity.
+     */
+    @Query(
+        "SELECT COUNT(ea) FROM EntityAttributeEntity ea " +
+            "WHERE ea.typeId = :typeId AND ea.attributeId = :attributeId"
+    )
+    fun countByTypeIdAndAttributeId(typeId: UUID, attributeId: UUID): Long
+
+    /**
+     * Hard-delete all attributes for a given entity type and attribute definition.
+     * Used by schema reconciliation when applying FIELD_REMOVED breaking changes.
+     *
+     * JPQL bulk DELETE intentionally bypasses @SQLRestriction soft-delete handling — FIELD_REMOVED
+     * is a destructive reconcile and the rows must be removed, not marked deleted.
+     */
+    @Modifying
+    @Query(
+        "DELETE FROM EntityAttributeEntity ea " +
+            "WHERE ea.typeId = :typeId AND ea.attributeId = :attributeId"
+    )
+    fun deleteAllByTypeIdAndAttributeId(typeId: UUID, attributeId: UUID)
+
+    /**
      * Find entity attributes whose JSONB value column contains a text value matching the given string.
      *
      * Uses the ->> operator to extract the JSON text as a plain string for comparison.

@@ -361,7 +361,7 @@ example().catch(console.error);
 
 ## installTemplate
 
-> TemplateInstallationResponse installTemplate(workspaceId, businessType)
+> TemplateInstallationResponse installTemplate(workspaceId)
 
 Install or reinstall the lifecycle template for a workspace. Idempotent — returns early if already installed.
 
@@ -385,8 +385,6 @@ async function example() {
   const body = {
     // string
     workspaceId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
-    // BusinessType
-    businessType: ...,
   } satisfies InstallTemplateRequest;
 
   try {
@@ -407,7 +405,6 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **workspaceId** | `string` |  | [Defaults to `undefined`] |
-| **businessType** | `BusinessType` |  | [Defaults to `undefined`] [Enum: DTC_ECOMMERCE, B2C_SAAS] |
 
 ### Return type
 

@@ -50,7 +50,7 @@ export interface ListDisplayConfig {
      * @type {PagingSpec}
      * @memberof ListDisplayConfig
      */
-    paging?: PagingSpec;
+    paging?: PagingSpec | null;
 }
 
 /**

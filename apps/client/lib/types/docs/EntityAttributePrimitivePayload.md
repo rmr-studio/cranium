@@ -10,6 +10,7 @@ Name | Type
 `type` | [EntityPropertyType](EntityPropertyType.md)
 `value` | object
 `schemaType` | [SchemaType](SchemaType.md)
+`relations` | [Array&lt;EntityLink&gt;](EntityLink.md)
 
 ## Example
 
@@ -21,6 +22,7 @@ const example = {
   "type": null,
   "value": null,
   "schemaType": null,
+  "relations": null,
 } satisfies EntityAttributePrimitivePayload
 
 console.log(example)

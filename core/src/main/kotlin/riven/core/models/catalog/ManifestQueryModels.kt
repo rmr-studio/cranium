@@ -44,6 +44,7 @@ data class ManifestDetail(
 /** Entity type with schema, columns, and semantic metadata. */
 data class CatalogEntityTypeModel(
     val id: UUID,
+    val manifestId: UUID,
     val key: String,
     val displayNameSingular: String,
     val displayNamePlural: String,
@@ -55,6 +56,7 @@ data class CatalogEntityTypeModel(
     val readonly: Boolean,
     val schema: Map<String, Any>,
     val columns: List<Map<String, Any>>?,
+    val schemaHash: String?,
     val semanticMetadata: List<CatalogSemanticMetadataModel>
 )
 

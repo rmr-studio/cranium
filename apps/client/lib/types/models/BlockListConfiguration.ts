@@ -39,7 +39,7 @@ export interface BlockListConfiguration {
      * @type {Array<string>}
      * @memberof BlockListConfiguration
      */
-    listType?: Array<string>;
+    listType?: Array<string> | null;
     /**
      * 
      * @type {boolean}

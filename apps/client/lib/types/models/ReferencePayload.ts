@@ -12,38 +12,27 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { ReferenceType } from './ReferenceType';
+import type { BlockTreeReference } from './BlockTreeReference';
 import {
-    ReferenceTypeFromJSON,
-    ReferenceTypeFromJSONTyped,
-    ReferenceTypeToJSON,
-    ReferenceTypeToJSONTyped,
-} from './ReferenceType';
+    instanceOfBlockTreeReference,
+    BlockTreeReferenceFromJSON,
+    BlockTreeReferenceFromJSONTyped,
+    BlockTreeReferenceToJSON,
+} from './BlockTreeReference';
+import type { EntityReference } from './EntityReference';
+import {
+    instanceOfEntityReference,
+    EntityReferenceFromJSON,
+    EntityReferenceFromJSONTyped,
+    EntityReferenceToJSON,
+} from './EntityReference';
 
 /**
+ * @type ReferencePayload
  * 
  * @export
- * @interface ReferencePayload
  */
-export interface ReferencePayload {
-    /**
-     * 
-     * @type {ReferenceType}
-     * @memberof ReferencePayload
-     */
-    type: ReferenceType;
-}
-
-
-
-/**
- * Check if a given object implements the ReferencePayload interface.
- */
-export function instanceOfReferencePayload(value: object): value is ReferencePayload {
-    if (!('type' in value) || value['type'] === undefined) return false;
-    return true;
-}
+export type ReferencePayload = BlockTreeReference | EntityReference;
 
 export function ReferencePayloadFromJSON(json: any): ReferencePayload {
     return ReferencePayloadFromJSONTyped(json, false);
@@ -53,13 +42,19 @@ export function ReferencePayloadFromJSONTyped(json: any, ignoreDiscriminator: bo
     if (json == null) {
         return json;
     }
-    return {
-        
-        'type': ReferenceTypeFromJSON(json['type']),
-    };
+    if (typeof json !== 'object') {
+        return json;
+    }
+    if (instanceOfBlockTreeReference(json)) {
+        return BlockTreeReferenceFromJSONTyped(json, true);
+    }
+    if (instanceOfEntityReference(json)) {
+        return EntityReferenceFromJSONTyped(json, true);
+    }
+    return {} as any;
 }
 
-export function ReferencePayloadToJSON(json: any): ReferencePayload {
+export function ReferencePayloadToJSON(json: any): any {
     return ReferencePayloadToJSONTyped(json, false);
 }
 
@@ -67,10 +62,15 @@ export function ReferencePayloadToJSONTyped(value?: ReferencePayload | null, ign
     if (value == null) {
         return value;
     }
-
-    return {
-        
-        'type': ReferenceTypeToJSON(value['type']),
-    };
+    if (typeof value !== 'object') {
+        return value;
+    }
+    if (instanceOfBlockTreeReference(value)) {
+        return BlockTreeReferenceToJSON(value as BlockTreeReference);
+    }
+    if (instanceOfEntityReference(value)) {
+        return EntityReferenceToJSON(value as EntityReference);
+    }
+    return {};
 }
 

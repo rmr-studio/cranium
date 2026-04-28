@@ -52,7 +52,7 @@ export interface CreateNotificationRequest {
      * @type {string}
      * @memberof CreateNotificationRequest
      */
-    userId?: string;
+    userId?: string | null;
     /**
      * 
      * @type {NotificationType}
@@ -70,19 +70,19 @@ export interface CreateNotificationRequest {
      * @type {NotificationReferenceType}
      * @memberof CreateNotificationRequest
      */
-    referenceType?: NotificationReferenceType;
+    referenceType?: NotificationReferenceType | null;
     /**
      * 
      * @type {string}
      * @memberof CreateNotificationRequest
      */
-    referenceId?: string;
+    referenceId?: string | null;
     /**
      * 
      * @type {Date}
      * @memberof CreateNotificationRequest
      */
-    expiresAt?: Date;
+    expiresAt?: Date | null;
 }
 
 

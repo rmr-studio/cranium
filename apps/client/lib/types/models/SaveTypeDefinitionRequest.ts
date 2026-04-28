@@ -13,13 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
-import type { SaveTypeDefinitionRequestDefinition } from './SaveTypeDefinitionRequestDefinition';
+import type { TypeDefinition } from './TypeDefinition';
 import {
-    SaveTypeDefinitionRequestDefinitionFromJSON,
-    SaveTypeDefinitionRequestDefinitionFromJSONTyped,
-    SaveTypeDefinitionRequestDefinitionToJSON,
-    SaveTypeDefinitionRequestDefinitionToJSONTyped,
-} from './SaveTypeDefinitionRequestDefinition';
+    TypeDefinitionFromJSON,
+    TypeDefinitionFromJSONTyped,
+    TypeDefinitionToJSON,
+    TypeDefinitionToJSONTyped,
+} from './TypeDefinition';
 
 /**
  * 
@@ -32,13 +32,13 @@ export interface SaveTypeDefinitionRequest {
      * @type {number}
      * @memberof SaveTypeDefinitionRequest
      */
-    index?: number;
+    index?: number | null;
     /**
      * 
-     * @type {SaveTypeDefinitionRequestDefinition}
+     * @type {TypeDefinition}
      * @memberof SaveTypeDefinitionRequest
      */
-    definition: SaveTypeDefinitionRequestDefinition;
+    definition: TypeDefinition;
 }
 
 /**
@@ -60,7 +60,7 @@ export function SaveTypeDefinitionRequestFromJSONTyped(json: any, ignoreDiscrimi
     return {
         
         'index': json['index'] == null ? undefined : json['index'],
-        'definition': SaveTypeDefinitionRequestDefinitionFromJSON(json['definition']),
+        'definition': TypeDefinitionFromJSON(json['definition']),
     };
 }
 
@@ -76,7 +76,7 @@ export function SaveTypeDefinitionRequestToJSONTyped(value?: SaveTypeDefinitionR
     return {
         
         'index': value['index'],
-        'definition': SaveTypeDefinitionRequestDefinitionToJSON(value['definition']),
+        'definition': TypeDefinitionToJSON(value['definition']),
     };
 }
 

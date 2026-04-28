@@ -39,7 +39,7 @@ export interface Dynamic extends DefaultValue {
      * @type {DynamicDefaultFunction}
      * @memberof Dynamic
      */
-    _function?: DynamicDefaultFunction;
+    _function: DynamicDefaultFunction;
 }
 
 
@@ -48,6 +48,7 @@ export interface Dynamic extends DefaultValue {
  * Check if a given object implements the Dynamic interface.
  */
 export function instanceOfDynamic(value: object): value is Dynamic {
+    if (!('_function' in value) || value['_function'] === undefined) return false;
     return true;
 }
 
@@ -61,7 +62,7 @@ export function DynamicFromJSONTyped(json: any, ignoreDiscriminator: boolean): D
     }
     return {
         ...DefaultValueFromJSONTyped(json, true),
-        '_function': json['function'] == null ? undefined : DynamicDefaultFunctionFromJSON(json['function']),
+        '_function': DynamicDefaultFunctionFromJSON(json['function']),
     };
 }
 

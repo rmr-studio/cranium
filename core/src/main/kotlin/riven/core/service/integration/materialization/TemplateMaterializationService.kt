@@ -135,7 +135,7 @@ class TemplateMaterializationService(
             val softDeleted = softDeletedByKey[catalogType.key]
 
             if (softDeleted != null) {
-                val restoredEntity = restoreEntityType(softDeleted)
+                val restoredEntity = restoreEntityType(softDeleted, catalogType.schemaHash, catalogType.manifestId)
                 val restoredId = requireNotNull(restoredEntity.id)
                 relationshipService.createFallbackDefinition(restoredEntity.workspaceId!!, restoredId)
                 keyToIdMap[catalogType.key] = restoredId
@@ -175,6 +175,8 @@ class TemplateMaterializationService(
             semanticGroup = catalogType.semanticGroup,
             sourceType = SourceType.INTEGRATION,
             sourceIntegrationId = integrationDefinitionId,
+            sourceManifestId = catalogType.manifestId,
+            sourceSchemaHash = catalogType.schemaHash,
             readonly = true,
             `protected` = true,
             identifierKey = identifierKey,
@@ -194,11 +196,20 @@ class TemplateMaterializationService(
     }
 
     /**
-     * Restores a soft-deleted entity type by clearing the deleted flag and timestamp.
+     * Restores a soft-deleted entity type by clearing the deleted flag and timestamp, stamping the
+     * current source schema hash, and stamping the current source manifest ID. Stamping the manifest
+     * pointer here brings pre-provenance rows up to current reconciliation traceability — without it
+     * a row created before manifest provenance rolled out would stay untraceable after restore.
      */
-    private fun restoreEntityType(entity: EntityTypeEntity): EntityTypeEntity {
+    private fun restoreEntityType(
+        entity: EntityTypeEntity,
+        schemaHash: String?,
+        manifestId: UUID?,
+    ): EntityTypeEntity {
         entity.deleted = false
         entity.deletedAt = null
+        entity.sourceSchemaHash = schemaHash
+        entity.sourceManifestId = manifestId
         return entityTypeRepository.save(entity)
     }
 

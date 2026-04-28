@@ -45,7 +45,7 @@ export interface EntityReference {
      * @type {Array<ReferenceItemEntity>}
      * @memberof EntityReference
      */
-    reference?: Array<ReferenceItemEntity>;
+    reference?: Array<ReferenceItemEntity> | null;
 }
 
 

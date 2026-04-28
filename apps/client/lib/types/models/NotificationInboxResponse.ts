@@ -38,7 +38,7 @@ export interface NotificationInboxResponse {
      * @type {string}
      * @memberof NotificationInboxResponse
      */
-    nextCursor?: string;
+    nextCursor?: string | null;
     /**
      * 
      * @type {number}

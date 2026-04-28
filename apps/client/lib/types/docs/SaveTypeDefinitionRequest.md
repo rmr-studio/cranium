@@ -7,7 +7,7 @@
 Name | Type
 ------------ | -------------
 `index` | number
-`definition` | [SaveTypeDefinitionRequestDefinition](SaveTypeDefinitionRequestDefinition.md)
+`definition` | [TypeDefinition](TypeDefinition.md)
 
 ## Example
 

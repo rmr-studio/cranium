@@ -25,7 +25,8 @@ export enum SourceType {
     Workflow = 'WORKFLOW',
     IdentityMatch = 'IDENTITY_MATCH',
     Template = 'TEMPLATE',
-    Projected = 'PROJECTED'
+    Projected = 'PROJECTED',
+    Connector = 'CONNECTOR'
 }
 
 

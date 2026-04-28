@@ -76,7 +76,7 @@ export interface Entity {
      * @type {Array<string>}
      * @memberof Entity
      */
-    validationErrors?: Array<string>;
+    validationErrors?: Array<string> | null;
     /**
      * 
      * @type {string}
@@ -88,25 +88,25 @@ export interface Entity {
      * @type {Date}
      * @memberof Entity
      */
-    createdAt?: Date;
+    createdAt?: Date | null;
     /**
      * 
      * @type {Date}
      * @memberof Entity
      */
-    updatedAt?: Date;
+    updatedAt?: Date | null;
     /**
      * 
      * @type {string}
      * @memberof Entity
      */
-    createdBy?: string;
+    createdBy?: string | null;
     /**
      * 
      * @type {string}
      * @memberof Entity
      */
-    updatedBy?: string;
+    updatedBy?: string | null;
     /**
      * 
      * @type {SourceType}
@@ -118,31 +118,31 @@ export interface Entity {
      * @type {string}
      * @memberof Entity
      */
-    sourceIntegrationId?: string;
+    sourceIntegrationId?: string | null;
     /**
      * 
      * @type {string}
      * @memberof Entity
      */
-    sourceExternalId?: string;
+    sourceExternalId?: string | null;
     /**
      * 
      * @type {string}
      * @memberof Entity
      */
-    sourceUrl?: string;
+    sourceUrl?: string | null;
     /**
      * 
      * @type {Date}
      * @memberof Entity
      */
-    firstSyncedAt?: Date;
+    firstSyncedAt?: Date | null;
     /**
      * 
      * @type {Date}
      * @memberof Entity
      */
-    lastSyncedAt?: Date;
+    lastSyncedAt?: Date | null;
     /**
      * 
      * @type {number}

@@ -4,15 +4,20 @@ import { Button } from '@riven/ui/button';
 import { Input } from '@riven/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { BusinessType, DefinitionCategory } from '@/lib/types/workspace';
+import { DefinitionCategory } from '@/lib/types/workspace';
 import { cn } from '@riven/utils';
-import { Plus, RotateCcw, X } from 'lucide-react';
+import { ChevronDown, Plus, RotateCcw, X } from 'lucide-react';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   useOnboardStoreApi,
@@ -37,11 +42,6 @@ export interface DefinitionEntry {
 
 export interface DefinitionsLiveData {
   definitions: DefinitionEntry[];
-  businessType?: BusinessType;
-}
-
-interface WorkspaceLiveData {
-  businessType?: BusinessType;
 }
 
 export const DefinitionsStepForm: FC = () => {
@@ -53,16 +53,10 @@ export const DefinitionsStepForm: FC = () => {
     () => storeApi.getState().liveData['definitions'] as DefinitionsLiveData | undefined,
   );
 
-  const workspaceLiveData = storeApi.getState().liveData['workspace'] as
-    | WorkspaceLiveData
-    | undefined;
-  const businessType = workspaceLiveData?.businessType;
-
   const [definitions, setDefinitions] = useState<DefinitionEntry[]>(() => {
-    if (restoredData?.definitions?.length && restoredData?.businessType === businessType) return restoredData.definitions;
+    if (restoredData?.definitions?.length) return restoredData.definitions;
 
-    const defaults = businessType ? DEFINITION_DEFAULTS[businessType] ?? [] : [];
-    return defaults.map((d) => ({
+    return DEFINITION_DEFAULTS.map((d) => ({
       id: crypto.randomUUID(),
       term: d.term,
       definition: d.defaultDefinition,
@@ -72,10 +66,10 @@ export const DefinitionsStepForm: FC = () => {
     }));
   });
 
-  const defaultDefinitionMap = useMemo(() => {
-    const defaults = businessType ? DEFINITION_DEFAULTS[businessType] ?? [] : [];
-    return new Map(defaults.map((d) => [d.term, d.defaultDefinition]));
-  }, [businessType]);
+  const defaultDefinitionMap = useMemo(
+    () => new Map(DEFINITION_DEFAULTS.map((d) => [d.term, d.defaultDefinition])),
+    [],
+  );
 
   // Optional step — always valid
   useEffect(() => {
@@ -85,7 +79,7 @@ export const DefinitionsStepForm: FC = () => {
 
   // Sync liveData
   useEffect(() => {
-    setLiveData('definitions', { definitions, businessType });
+    setLiveData('definitions', { definitions });
   }, [definitions, setLiveData]);
 
   const updateDefinition = useCallback((index: number, value: string) => {
@@ -146,102 +140,130 @@ export const DefinitionsStepForm: FC = () => {
   );
 
   return (
-    <div className="flex flex-col gap-6">
-      {grouped.map(({ category, items }) => (
-        <div key={category} className="flex flex-col gap-3">
-          <div className="flex flex-col gap-0.5">
-            <p className="font-mono text-muted-foreground text-xs font-bold uppercase tracking-widest">
-              {CATEGORY_LABELS[category]}
-            </p>
-            <p className="text-muted-foreground text-xs">
-              {CATEGORY_HELP_TEXT[category]}
-            </p>
-          </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {items.map(({ originalIndex, id, term, definition, isCustom, defaultDefinition }) => {
-              const isModified =
-                !isCustom && defaultDefinition != null && definition !== defaultDefinition;
+    <div className="flex flex-col gap-3">
+      {grouped.map(({ category, items }) => {
+        const customizedCount = items.filter(
+          (d) => !d.isCustom && d.defaultDefinition != null && d.definition !== d.defaultDefinition,
+        ).length;
 
-              return (
-                <div
-                  key={id}
-                  className="bg-card flex flex-col gap-2 rounded-lg border p-4"
-                >
-                  {isCustom ? (
-                    <div className="flex items-center gap-2">
-                      <Input
-                        value={term}
-                        onChange={(e) => updateCustomTerm(originalIndex, e.target.value)}
-                        placeholder="Term name"
-                        className="text-sm font-semibold"
-                      />
-                      <Select
-                        value={category}
-                        onValueChange={(v) =>
-                          updateCustomCategory(originalIndex, v as DefinitionCategory)
-                        }
-                      >
-                        <SelectTrigger className="w-36" size="sm">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {CATEGORY_ORDER.map((cat) => (
-                            <SelectItem key={cat} value={cat}>
-                              {CATEGORY_LABELS[cat]}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="size-8 shrink-0"
-                        onClick={() => removeCustomTerm(originalIndex)}
-                        aria-label="Remove term"
-                      >
-                        <X className="size-4" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-sm font-semibold">{term}</span>
-                      <div className="flex items-center gap-1.5">
-                        <span
-                          className={cn('text-xs', isModified ? 'text-foreground font-medium' : 'text-muted-foreground')}
-                        >
-                          {isModified ? 'Customized' : 'Default'}
-                        </span>
-                        {isModified && (
+        return (
+          <Collapsible
+            key={category}
+            defaultOpen
+            className="border-border/60 bg-card/40 group/collapsible rounded-lg border"
+          >
+            <CollapsibleTrigger className="hover:bg-muted/40 flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-left transition-colors">
+              <div className="flex flex-col gap-0.5">
+                <div className="flex items-center gap-2">
+                  <p className="text-muted-foreground font-mono text-xs font-bold tracking-widest uppercase">
+                    {CATEGORY_LABELS[category]}
+                  </p>
+                  <span className="text-muted-foreground bg-muted/60 rounded-full px-1.5 py-0.5 font-mono text-[10px]">
+                    {items.length}
+                  </span>
+                  {customizedCount > 0 && (
+                    <span className="text-foreground bg-primary/10 rounded-full px-1.5 py-0.5 font-mono text-[10px]">
+                      {customizedCount} edited
+                    </span>
+                  )}
+                </div>
+                <p className="text-muted-foreground text-xs">
+                  {CATEGORY_HELP_TEXT[category]}
+                </p>
+              </div>
+              <ChevronDown className="text-muted-foreground size-4 shrink-0 transition-transform group-data-[state=closed]/collapsible:-rotate-90" />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-hidden">
+              <div className="grid grid-cols-1 gap-3 px-4 pt-1 pb-4 sm:grid-cols-2">
+                {items.map(({ originalIndex, id, term, definition, isCustom, defaultDefinition }) => {
+                  const isModified =
+                    !isCustom && defaultDefinition != null && definition !== defaultDefinition;
+
+                  return (
+                    <div
+                      key={id}
+                      className="bg-background flex flex-col gap-2 rounded-lg border p-3"
+                    >
+                      {isCustom ? (
+                        <div className="flex items-center gap-2">
+                          <Input
+                            value={term}
+                            onChange={(e) => updateCustomTerm(originalIndex, e.target.value)}
+                            placeholder="Term name"
+                            className="text-sm font-semibold"
+                          />
+                          <Select
+                            value={category}
+                            onValueChange={(v) =>
+                              updateCustomCategory(originalIndex, v as DefinitionCategory)
+                            }
+                          >
+                            <SelectTrigger className="w-32" size="sm">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {CATEGORY_ORDER.map((cat) => (
+                                <SelectItem key={cat} value={cat}>
+                                  {CATEGORY_LABELS[cat]}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                           <Button
                             type="button"
                             variant="ghost"
                             size="icon"
-                            className="size-6 shrink-0"
-                            onClick={() => resetToDefault(originalIndex)}
-                            aria-label="Reset to default"
+                            className="size-8 shrink-0"
+                            onClick={() => removeCustomTerm(originalIndex)}
+                            aria-label="Remove term"
                           >
-                            <RotateCcw className="size-3" />
+                            <X className="size-4" />
                           </Button>
-                        )}
-                      </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="truncate text-sm font-semibold">{term}</span>
+                          <div className="flex shrink-0 items-center gap-1.5">
+                            <span
+                              className={cn(
+                                'text-xs',
+                                isModified ? 'text-foreground font-medium' : 'text-muted-foreground',
+                              )}
+                            >
+                              {isModified ? 'Customized' : 'Default'}
+                            </span>
+                            {isModified && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="size-6 shrink-0"
+                                onClick={() => resetToDefault(originalIndex)}
+                                aria-label="Reset to default"
+                              >
+                                <RotateCcw className="size-3" />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      <Textarea
+                        value={definition}
+                        onChange={(e) => updateDefinition(originalIndex, e.target.value)}
+                        placeholder={`What does ${term || 'this term'} mean to your business?`}
+                        rows={2}
+                        className="resize-none text-sm"
+                      />
                     </div>
-                  )}
-                  <Textarea
-                    value={definition}
-                    onChange={(e) => updateDefinition(originalIndex, e.target.value)}
-                    placeholder={`What does ${term || 'this term'} mean to your business?`}
-                    rows={2}
-                    className="resize-none text-sm"
-                  />
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      ))}
+                  );
+                })}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+        );
+      })}
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 pt-1">
         <Button
           type="button"
           variant="ghost"

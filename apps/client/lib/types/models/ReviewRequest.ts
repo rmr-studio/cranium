@@ -39,7 +39,7 @@ export interface ReviewRequest extends NotificationContent {
      * @type {string}
      * @memberof ReviewRequest
      */
-    contextSummary?: string;
+    contextSummary?: string | null;
     /**
      * 
      * @type {ReviewPriority}

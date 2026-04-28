@@ -64,7 +64,7 @@ export interface WorkflowDefinition {
      * @type {string}
      * @memberof WorkflowDefinition
      */
-    description?: string;
+    description?: string | null;
     /**
      * 
      * @type {WorkflowDefinitionStatus}
@@ -94,25 +94,25 @@ export interface WorkflowDefinition {
      * @type {Date}
      * @memberof WorkflowDefinition
      */
-    createdAt?: Date;
+    createdAt?: Date | null;
     /**
      * 
      * @type {Date}
      * @memberof WorkflowDefinition
      */
-    updatedAt?: Date;
+    updatedAt?: Date | null;
     /**
      * 
      * @type {string}
      * @memberof WorkflowDefinition
      */
-    createdBy?: string;
+    createdBy?: string | null;
     /**
      * 
      * @type {string}
      * @memberof WorkflowDefinition
      */
-    updatedBy?: string;
+    updatedBy?: string | null;
 }
 
 

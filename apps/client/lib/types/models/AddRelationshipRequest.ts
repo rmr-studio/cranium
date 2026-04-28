@@ -38,13 +38,13 @@ export interface AddRelationshipRequest {
      * @type {string}
      * @memberof AddRelationshipRequest
      */
-    definitionId?: string;
+    definitionId?: string | null;
     /**
      * 
      * @type {string}
      * @memberof AddRelationshipRequest
      */
-    semanticContext?: string;
+    semanticContext?: string | null;
     /**
      * 
      * @type {SourceType}

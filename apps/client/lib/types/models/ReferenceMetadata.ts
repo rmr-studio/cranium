@@ -20,6 +20,20 @@ import {
     BlockReferenceFetchPolicyToJSON,
     BlockReferenceFetchPolicyToJSONTyped,
 } from './BlockReferenceFetchPolicy';
+import type { Entity } from './Entity';
+import {
+    EntityFromJSON,
+    EntityFromJSONTyped,
+    EntityToJSON,
+    EntityToJSONTyped,
+} from './Entity';
+import type { BlockListConfiguration } from './BlockListConfiguration';
+import {
+    BlockListConfigurationFromJSON,
+    BlockListConfigurationFromJSONTyped,
+    BlockListConfigurationToJSON,
+    BlockListConfigurationToJSONTyped,
+} from './BlockListConfiguration';
 import type { BlockMetadataType } from './BlockMetadataType';
 import {
     BlockMetadataTypeFromJSON,
@@ -27,6 +41,34 @@ import {
     BlockMetadataTypeToJSON,
     BlockMetadataTypeToJSONTyped,
 } from './BlockMetadataType';
+import type { ListDisplayConfig } from './ListDisplayConfig';
+import {
+    ListDisplayConfigFromJSON,
+    ListDisplayConfigFromJSONTyped,
+    ListDisplayConfigToJSON,
+    ListDisplayConfigToJSONTyped,
+} from './ListDisplayConfig';
+import type { ReferenceItem } from './ReferenceItem';
+import {
+    ReferenceItemFromJSON,
+    ReferenceItemFromJSONTyped,
+    ReferenceItemToJSON,
+    ReferenceItemToJSONTyped,
+} from './ReferenceItem';
+import type { Projection } from './Projection';
+import {
+    ProjectionFromJSON,
+    ProjectionFromJSONTyped,
+    ProjectionToJSON,
+    ProjectionToJSONTyped,
+} from './Projection';
+import type { Presentation } from './Presentation';
+import {
+    PresentationFromJSON,
+    PresentationFromJSONTyped,
+    PresentationToJSON,
+    PresentationToJSONTyped,
+} from './Presentation';
 import type { BlockMeta } from './BlockMeta';
 import {
     BlockMetaFromJSON,
@@ -34,6 +76,13 @@ import {
     BlockMetaToJSON,
     BlockMetaToJSONTyped,
 } from './BlockMeta';
+import type { ListConfig } from './ListConfig';
+import {
+    ListConfigFromJSON,
+    ListConfigFromJSONTyped,
+    ListConfigToJSON,
+    ListConfigToJSONTyped,
+} from './ListConfig';
 
 /**
  * 
@@ -77,6 +126,72 @@ export interface ReferenceMetadata {
      * @memberof ReferenceMetadata
      */
     path: string;
+    /**
+     * 
+     * @type {Presentation}
+     * @memberof ReferenceMetadata
+     */
+    presentation: Presentation;
+    /**
+     * 
+     * @type {Array<ReferenceItem>}
+     * @memberof ReferenceMetadata
+     */
+    items: Array<ReferenceItem>;
+    /**
+     * 
+     * @type {Projection}
+     * @memberof ReferenceMetadata
+     */
+    projection: Projection;
+    /**
+     * 
+     * @type {Entity}
+     * @memberof ReferenceMetadata
+     */
+    listType?: Entity | null;
+    /**
+     * 
+     * @type {ListDisplayConfig}
+     * @memberof ReferenceMetadata
+     */
+    display: ListDisplayConfig;
+    /**
+     * 
+     * @type {ListConfig}
+     * @memberof ReferenceMetadata
+     */
+    config: ListConfig;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ReferenceMetadata
+     */
+    allowDuplicates: boolean;
+    /**
+     * 
+     * @type {number}
+     * @memberof ReferenceMetadata
+     */
+    expandDepth: number;
+    /**
+     * 
+     * @type {ReferenceItem}
+     * @memberof ReferenceMetadata
+     */
+    item: ReferenceItem;
+    /**
+     * 
+     * @type {object}
+     * @memberof ReferenceMetadata
+     */
+    data: object;
+    /**
+     * 
+     * @type {BlockListConfiguration}
+     * @memberof ReferenceMetadata
+     */
+    listConfig?: BlockListConfiguration | null;
 }
 
 
@@ -91,6 +206,15 @@ export function instanceOfReferenceMetadata(value: object): value is ReferenceMe
     if (!('type' in value) || value['type'] === undefined) return false;
     if (!('fetchPolicy' in value) || value['fetchPolicy'] === undefined) return false;
     if (!('path' in value) || value['path'] === undefined) return false;
+    if (!('presentation' in value) || value['presentation'] === undefined) return false;
+    if (!('items' in value) || value['items'] === undefined) return false;
+    if (!('projection' in value) || value['projection'] === undefined) return false;
+    if (!('display' in value) || value['display'] === undefined) return false;
+    if (!('config' in value) || value['config'] === undefined) return false;
+    if (!('allowDuplicates' in value) || value['allowDuplicates'] === undefined) return false;
+    if (!('expandDepth' in value) || value['expandDepth'] === undefined) return false;
+    if (!('item' in value) || value['item'] === undefined) return false;
+    if (!('data' in value) || value['data'] === undefined) return false;
     return true;
 }
 
@@ -110,6 +234,17 @@ export function ReferenceMetadataFromJSONTyped(json: any, ignoreDiscriminator: b
         'type': BlockMetadataTypeFromJSON(json['type']),
         'fetchPolicy': BlockReferenceFetchPolicyFromJSON(json['fetchPolicy']),
         'path': json['path'],
+        'presentation': PresentationFromJSON(json['presentation']),
+        'items': ((json['items'] as Array<any>).map(ReferenceItemFromJSON)),
+        'projection': ProjectionFromJSON(json['projection']),
+        'listType': json['listType'] == null ? undefined : EntityFromJSON(json['listType']),
+        'display': ListDisplayConfigFromJSON(json['display']),
+        'config': ListConfigFromJSON(json['config']),
+        'allowDuplicates': json['allowDuplicates'],
+        'expandDepth': json['expandDepth'],
+        'item': ReferenceItemFromJSON(json['item']),
+        'data': json['data'],
+        'listConfig': json['listConfig'] == null ? undefined : BlockListConfigurationFromJSON(json['listConfig']),
     };
 }
 
@@ -130,6 +265,17 @@ export function ReferenceMetadataToJSONTyped(value?: ReferenceMetadata | null, i
         'type': BlockMetadataTypeToJSON(value['type']),
         'fetchPolicy': BlockReferenceFetchPolicyToJSON(value['fetchPolicy']),
         'path': value['path'],
+        'presentation': PresentationToJSON(value['presentation']),
+        'items': ((value['items'] as Array<any>).map(ReferenceItemToJSON)),
+        'projection': ProjectionToJSON(value['projection']),
+        'listType': EntityToJSON(value['listType']),
+        'display': ListDisplayConfigToJSON(value['display']),
+        'config': ListConfigToJSON(value['config']),
+        'allowDuplicates': value['allowDuplicates'],
+        'expandDepth': value['expandDepth'],
+        'item': ReferenceItemToJSON(value['item']),
+        'data': value['data'],
+        'listConfig': BlockListConfigurationToJSON(value['listConfig']),
     };
 }
 

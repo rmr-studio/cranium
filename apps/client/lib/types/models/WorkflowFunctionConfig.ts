@@ -39,25 +39,25 @@ export interface WorkflowFunctionConfig {
      * @type {number}
      * @memberof WorkflowFunctionConfig
      */
-    version?: number;
+    version: number;
     /**
      * 
      * @type {Array<WorkflowNodeConfigField>}
      * @memberof WorkflowFunctionConfig
      */
-    configSchema?: Array<WorkflowNodeConfigField>;
+    configSchema: Array<WorkflowNodeConfigField>;
     /**
      * 
      * @type {{ [key: string]: object; }}
      * @memberof WorkflowFunctionConfig
      */
-    config?: { [key: string]: object; };
+    config: { [key: string]: object; };
     /**
      * 
      * @type {WorkflowNodeType}
      * @memberof WorkflowFunctionConfig
      */
-    type?: WorkflowNodeType;
+    type: WorkflowNodeType;
 }
 
 
@@ -66,6 +66,10 @@ export interface WorkflowFunctionConfig {
  * Check if a given object implements the WorkflowFunctionConfig interface.
  */
 export function instanceOfWorkflowFunctionConfig(value: object): value is WorkflowFunctionConfig {
+    if (!('version' in value) || value['version'] === undefined) return false;
+    if (!('configSchema' in value) || value['configSchema'] === undefined) return false;
+    if (!('config' in value) || value['config'] === undefined) return false;
+    if (!('type' in value) || value['type'] === undefined) return false;
     return true;
 }
 
@@ -79,10 +83,10 @@ export function WorkflowFunctionConfigFromJSONTyped(json: any, ignoreDiscriminat
     }
     return {
         
-        'version': json['version'] == null ? undefined : json['version'],
-        'configSchema': json['configSchema'] == null ? undefined : ((json['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldFromJSON)),
-        'config': json['config'] == null ? undefined : json['config'],
-        'type': json['type'] == null ? undefined : WorkflowNodeTypeFromJSON(json['type']),
+        'version': json['version'],
+        'configSchema': ((json['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldFromJSON)),
+        'config': json['config'],
+        'type': WorkflowNodeTypeFromJSON(json['type']),
     };
 }
 
@@ -98,7 +102,7 @@ export function WorkflowFunctionConfigToJSONTyped(value?: WorkflowFunctionConfig
     return {
         
         'version': value['version'],
-        'configSchema': value['configSchema'] == null ? undefined : ((value['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldToJSON)),
+        'configSchema': ((value['configSchema'] as Array<any>).map(WorkflowNodeConfigFieldToJSON)),
         'config': value['config'],
         'type': WorkflowNodeTypeToJSON(value['type']),
     };

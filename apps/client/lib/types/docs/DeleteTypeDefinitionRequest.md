@@ -6,7 +6,7 @@
 
 Name | Type
 ------------ | -------------
-`definition` | [DeleteTypeDefinitionRequestDefinition](DeleteTypeDefinitionRequestDefinition.md)
+`definition` | [TypeDefinition](TypeDefinition.md)
 
 ## Example
 

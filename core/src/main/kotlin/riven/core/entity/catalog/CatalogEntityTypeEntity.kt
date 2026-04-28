@@ -74,6 +74,9 @@ data class CatalogEntityTypeEntity(
     @Column(name = "columns", columnDefinition = "jsonb", nullable = true)
     var columns: List<Map<String, Any>>? = null,
 
+    @Column(name = "schema_hash", length = 64)
+    var schemaHash: String? = null,
+
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: ZonedDateTime = ZonedDateTime.now(),
 
@@ -84,6 +87,7 @@ data class CatalogEntityTypeEntity(
 
     fun toModel(semanticMetadata: List<CatalogSemanticMetadataModel>) = CatalogEntityTypeModel(
         id = requireNotNull(id) { "CatalogEntityTypeEntity.id must not be null when converting to CatalogEntityTypeModel" },
+        manifestId = manifestId,
         key = key,
         displayNameSingular = displayNameSingular,
         displayNamePlural = displayNamePlural,
@@ -95,6 +99,7 @@ data class CatalogEntityTypeEntity(
         readonly = readonly,
         schema = schema,
         columns = columns,
+        schemaHash = schemaHash,
         semanticMetadata = semanticMetadata
     )
 }

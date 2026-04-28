@@ -32,7 +32,7 @@ export interface SaveWorkspaceRequest {
      * @type {string}
      * @memberof SaveWorkspaceRequest
      */
-    id?: string;
+    id?: string | null;
     /**
      * 
      * @type {string}

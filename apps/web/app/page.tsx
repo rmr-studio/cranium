@@ -3,11 +3,7 @@ import { getAllPosts, getFeaturedPost } from '@/lib/blog';
 import dynamic from 'next/dynamic';
 
 import { Hero } from '@/components/feature-modules/landing/hero/components/hero';
-const DashboardShowcase = dynamic(() =>
-  import('@/components/feature-modules/landing/dashboard/components/dashboard-showcase').then(
-    (m) => m.DashboardShowcase,
-  ),
-);
+
 const CrossDomainIntelligence = dynamic(() =>
   import('@/components/feature-modules/landing/cross-domain-intelligence/cross-domain-section').then(
     (m) => m.CrossDomainIntelligence,
@@ -20,21 +16,26 @@ const KnowledgeRuleBase = dynamic(() =>
   ),
 );
 
+const PlatformSection = dynamic(() =>
+  import('@/components/feature-modules/landing/platform/platform').then((m) => m.PlatformSection),
+);
+
+const LayersSection = dynamic(() =>
+  import('@/components/feature-modules/landing/layers/layer').then((m) => m.LayersSection),
+);
+
 const TimeSaved = dynamic(() =>
   import('@/components/feature-modules/landing/time-saved/components/time-saved').then(
     (m) => m.TimeSaved,
   ),
 );
+
 const CohortBehaviour = dynamic(() =>
   import('@/components/feature-modules/landing/valuable-cohorts/valuable-cohorts').then(
     (m) => m.CohortBehaviour,
   ),
 );
-const DailyActions = dynamic(() =>
-  import('@/components/feature-modules/landing/actions/components/daily-actions').then(
-    (m) => m.DailyActions,
-  ),
-);
+
 const Faq = dynamic(() =>
   import('@/components/feature-modules/landing/faq/components/faq').then((m) => m.Faq),
 );
@@ -49,15 +50,18 @@ export default async function Home() {
   return (
     <main className="min-h-screen overflow-x-clip">
       <Hero />
-      <KnowledgeRuleBase />
-      <TimeSaved />
-      <CohortBehaviour />
-      <DashboardShowcase />
-      <CrossDomainIntelligence />
-      <DailyActions />
-      <FeaturedPosts featured={featured} recent={recent} />
-      <Faq preview />
-      <Waitlist />
+      <section className="relative mx-auto w-full lg:max-w-[min(100dvw,var(--breakpoint-3xl))]">
+        <PlatformSection />
+        <TimeSaved />
+        <LayersSection />
+        <KnowledgeRuleBase />
+        <CohortBehaviour />
+        <CrossDomainIntelligence />
+
+        <FeaturedPosts featured={featured} recent={recent} />
+        <Faq preview />
+        <Waitlist />
+      </section>
     </main>
   );
 }

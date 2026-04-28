@@ -36,7 +36,7 @@ export interface ConfirmUploadRequest {
      * @type {{ [key: string]: string; }}
      * @memberof ConfirmUploadRequest
      */
-    metadata?: { [key: string]: string; };
+    metadata?: { [key: string]: string; } | null;
 }
 
 /**

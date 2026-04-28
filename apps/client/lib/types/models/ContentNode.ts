@@ -13,13 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
-import type { Node } from './Node';
+import type { ReferencePayload } from './ReferencePayload';
 import {
-    NodeFromJSON,
-    NodeFromJSONTyped,
-    NodeToJSON,
-    NodeToJSONTyped,
-} from './Node';
+    ReferencePayloadFromJSON,
+    ReferencePayloadFromJSONTyped,
+    ReferencePayloadToJSON,
+    ReferencePayloadToJSONTyped,
+} from './ReferencePayload';
 import type { NodeType } from './NodeType';
 import {
     NodeTypeFromJSON,
@@ -61,10 +61,16 @@ export interface ContentNode {
     type: NodeType;
     /**
      * 
-     * @type {Array<Node>}
+     * @type {Array<object>}
      * @memberof ContentNode
      */
-    children?: Array<Node>;
+    children?: Array<object> | null;
+    /**
+     * 
+     * @type {ReferencePayload}
+     * @memberof ContentNode
+     */
+    reference: ReferencePayload;
 }
 
 
@@ -76,6 +82,7 @@ export function instanceOfContentNode(value: object): value is ContentNode {
     if (!('block' in value) || value['block'] === undefined) return false;
     if (!('warnings' in value) || value['warnings'] === undefined) return false;
     if (!('type' in value) || value['type'] === undefined) return false;
+    if (!('reference' in value) || value['reference'] === undefined) return false;
     return true;
 }
 
@@ -92,7 +99,8 @@ export function ContentNodeFromJSONTyped(json: any, ignoreDiscriminator: boolean
         'block': BlockFromJSON(json['block']),
         'warnings': json['warnings'],
         'type': NodeTypeFromJSON(json['type']),
-        'children': json['children'] == null ? undefined : ((json['children'] as Array<any>).map(NodeFromJSON)),
+        'children': json['children'] == null ? undefined : json['children'],
+        'reference': ReferencePayloadFromJSON(json['reference']),
     };
 }
 
@@ -110,7 +118,8 @@ export function ContentNodeToJSONTyped(value?: ContentNode | null, ignoreDiscrim
         'block': BlockToJSON(value['block']),
         'warnings': value['warnings'],
         'type': NodeTypeToJSON(value['type']),
-        'children': value['children'] == null ? undefined : ((value['children'] as Array<any>).map(NodeToJSON)),
+        'children': value['children'],
+        'reference': ReferencePayloadToJSON(value['reference']),
     };
 }
 

@@ -39,13 +39,13 @@ export interface Signature {
      * @type {SignatureHeaderType}
      * @memberof Signature
      */
-    signatureHeader?: SignatureHeaderType;
+    signatureHeader: SignatureHeaderType;
     /**
      * 
      * @type {SignatureAlgorithmType}
      * @memberof Signature
      */
-    signatureAlgorithm?: SignatureAlgorithmType;
+    signatureAlgorithm: SignatureAlgorithmType;
 }
 
 
@@ -54,6 +54,8 @@ export interface Signature {
  * Check if a given object implements the Signature interface.
  */
 export function instanceOfSignature(value: object): value is Signature {
+    if (!('signatureHeader' in value) || value['signatureHeader'] === undefined) return false;
+    if (!('signatureAlgorithm' in value) || value['signatureAlgorithm'] === undefined) return false;
     return true;
 }
 
@@ -67,8 +69,8 @@ export function SignatureFromJSONTyped(json: any, ignoreDiscriminator: boolean):
     }
     return {
         
-        'signatureHeader': json['signatureHeader'] == null ? undefined : SignatureHeaderTypeFromJSON(json['signatureHeader']),
-        'signatureAlgorithm': json['signatureAlgorithm'] == null ? undefined : SignatureAlgorithmTypeFromJSON(json['signatureAlgorithm']),
+        'signatureHeader': SignatureHeaderTypeFromJSON(json['signatureHeader']),
+        'signatureAlgorithm': SignatureAlgorithmTypeFromJSON(json['signatureAlgorithm']),
     };
 }
 

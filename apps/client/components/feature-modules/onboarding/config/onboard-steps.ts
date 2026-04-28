@@ -1,4 +1,3 @@
-import { DefinitionsPreview } from '@/components/feature-modules/onboarding/components/previews/definitions-preview';
 import { ProfilePreview } from '@/components/feature-modules/onboarding/components/previews/profile-preview';
 import { TeamPreview } from '@/components/feature-modules/onboarding/components/previews/team-preview';
 import { WorkspacePreview } from '@/components/feature-modules/onboarding/components/previews/workspace-preview';
@@ -38,7 +37,7 @@ export const ONBOARD_STEPS: OnboardStepConfig[] = [
     description: 'Define your business language',
     optional: true,
     cameraX: SECTION_WIDTH * 2,
-    PreviewComponent: DefinitionsPreview,
+    PreviewComponent: () => null,
   },
   {
     id: 'channels',

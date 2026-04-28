@@ -76,13 +76,6 @@ import {
     QueryPaginationToJSON,
     QueryPaginationToJSONTyped,
 } from './QueryPagination';
-import type { WorkflowScheduleTriggerConfigInterval } from './WorkflowScheduleTriggerConfigInterval';
-import {
-    WorkflowScheduleTriggerConfigIntervalFromJSON,
-    WorkflowScheduleTriggerConfigIntervalFromJSONTyped,
-    WorkflowScheduleTriggerConfigIntervalToJSON,
-    WorkflowScheduleTriggerConfigIntervalToJSONTyped,
-} from './WorkflowScheduleTriggerConfigInterval';
 import type { OperationType } from './OperationType';
 import {
     OperationTypeFromJSON,
@@ -97,13 +90,6 @@ import {
     WorkflowActionTypeToJSON,
     WorkflowActionTypeToJSONTyped,
 } from './WorkflowActionType';
-import type { WorkflowScheduleTriggerConfigTimeZone } from './WorkflowScheduleTriggerConfigTimeZone';
-import {
-    WorkflowScheduleTriggerConfigTimeZoneFromJSON,
-    WorkflowScheduleTriggerConfigTimeZoneFromJSONTyped,
-    WorkflowScheduleTriggerConfigTimeZoneToJSON,
-    WorkflowScheduleTriggerConfigTimeZoneToJSONTyped,
-} from './WorkflowScheduleTriggerConfigTimeZone';
 import type { AuthenticationType } from './AuthenticationType';
 import {
     AuthenticationTypeFromJSON,

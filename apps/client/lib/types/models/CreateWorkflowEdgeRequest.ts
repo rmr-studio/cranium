@@ -36,7 +36,7 @@ export interface CreateWorkflowEdgeRequest {
      * @type {string}
      * @memberof CreateWorkflowEdgeRequest
      */
-    label?: string;
+    label?: string | null;
 }
 
 /**

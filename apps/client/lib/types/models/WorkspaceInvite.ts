@@ -63,7 +63,7 @@ export interface WorkspaceInvite {
      * @type {string}
      * @memberof WorkspaceInvite
      */
-    invitedBy?: string;
+    invitedBy?: string | null;
     /**
      * 
      * @type {Date}

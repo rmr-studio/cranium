@@ -21,6 +21,7 @@ object CatalogTestFactory {
         semanticMetadata: List<CatalogSemanticMetadataModel> = emptyList(),
     ) = CatalogEntityTypeModel(
         id = UUID.randomUUID(),
+        manifestId = UUID.randomUUID(),
         key = key,
         displayNameSingular = singular,
         displayNamePlural = plural,
@@ -31,6 +32,7 @@ object CatalogTestFactory {
         readonly = false,
         schema = schema,
         columns = null,
+        schemaHash = null,
         semanticMetadata = semanticMetadata,
     )
 

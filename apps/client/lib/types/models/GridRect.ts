@@ -36,7 +36,7 @@ export interface GridRect {
      * @type {number}
      * @memberof GridRect
      */
-    margin?: number;
+    margin?: number | null;
     /**
      * 
      * @type {number}

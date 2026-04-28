@@ -155,7 +155,7 @@ export interface EntityType {
      * @type {string}
      * @memberof EntityType
      */
-    sourceIntegrationId?: string;
+    sourceIntegrationId?: string | null;
     /**
      * 
      * @type {boolean}
@@ -167,7 +167,7 @@ export interface EntityType {
      * @type {string}
      * @memberof EntityType
      */
-    workspaceId?: string;
+    workspaceId?: string | null;
     /**
      * 
      * @type {SchemaUUID}
@@ -179,7 +179,7 @@ export interface EntityType {
      * @type {ColumnConfiguration}
      * @memberof EntityType
      */
-    columnConfiguration?: ColumnConfiguration;
+    columnConfiguration?: ColumnConfiguration | null;
     /**
      * 
      * @type {Array<EntityTypeAttributeColumn>}
@@ -203,31 +203,31 @@ export interface EntityType {
      * @type {SemanticMetadataBundle}
      * @memberof EntityType
      */
-    semantics?: SemanticMetadataBundle;
+    semantics?: SemanticMetadataBundle | null;
     /**
      * 
      * @type {Date}
      * @memberof EntityType
      */
-    createdAt?: Date;
+    createdAt?: Date | null;
     /**
      * 
      * @type {Date}
      * @memberof EntityType
      */
-    updatedAt?: Date;
+    updatedAt?: Date | null;
     /**
      * 
      * @type {string}
      * @memberof EntityType
      */
-    createdBy?: string;
+    createdBy?: string | null;
     /**
      * 
      * @type {string}
      * @memberof EntityType
      */
-    updatedBy?: string;
+    updatedBy?: string | null;
 }
 
 

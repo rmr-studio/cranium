@@ -42,23 +42,23 @@ import {
  */
 export interface EntityQueryRequest {
     /**
-     * Filter tree for narrowing results. Null returns all entities.
+     * 
      * @type {QueryFilter}
      * @memberof EntityQueryRequest
      */
-    filter?: QueryFilter;
+    filter?: QueryFilter | null;
     /**
-     * Pagination and sorting options. Defaults to limit=100, offset=0.
+     * 
      * @type {QueryPagination}
      * @memberof EntityQueryRequest
      */
-    pagination: QueryPagination;
+    pagination: QueryPagination | null;
     /**
-     * Projection for selecting which attributes/relationships to include.
+     * 
      * @type {QueryProjection}
      * @memberof EntityQueryRequest
      */
-    projection?: QueryProjection;
+    projection?: QueryProjection | null;
     /**
      * Whether to include totalCount in the response. Set to false for scroll-pagination requests where the frontend already has the count from the initial load.
      * @type {boolean}

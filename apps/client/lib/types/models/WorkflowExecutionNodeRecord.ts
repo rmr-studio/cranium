@@ -57,7 +57,7 @@ export interface WorkflowExecutionNodeRecord {
      * @type {WorkflowNode}
      * @memberof WorkflowExecutionNodeRecord
      */
-    node?: WorkflowNode;
+    node?: WorkflowNode | null;
     /**
      * 
      * @type {number}
@@ -81,13 +81,13 @@ export interface WorkflowExecutionNodeRecord {
      * @type {Date}
      * @memberof WorkflowExecutionNodeRecord
      */
-    completedAt?: Date;
+    completedAt?: Date | null;
     /**
      * 
      * @type {string}
      * @memberof WorkflowExecutionNodeRecord
      */
-    duration?: string;
+    duration?: string | null;
     /**
      * 
      * @type {number}
@@ -99,19 +99,19 @@ export interface WorkflowExecutionNodeRecord {
      * @type {object}
      * @memberof WorkflowExecutionNodeRecord
      */
-    input?: object;
+    input?: object | null;
     /**
      * 
      * @type {object}
      * @memberof WorkflowExecutionNodeRecord
      */
-    output?: object;
+    output?: object | null;
     /**
      * 
      * @type {object}
      * @memberof WorkflowExecutionNodeRecord
      */
-    error?: object;
+    error?: object | null;
 }
 
 

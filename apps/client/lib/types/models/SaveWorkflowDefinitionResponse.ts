@@ -32,13 +32,13 @@ export interface SaveWorkflowDefinitionResponse {
      * @type {WorkflowDefinition}
      * @memberof SaveWorkflowDefinitionResponse
      */
-    definition?: WorkflowDefinition;
+    definition?: WorkflowDefinition | null;
     /**
      * 
      * @type {Array<string>}
      * @memberof SaveWorkflowDefinitionResponse
      */
-    errors?: Array<string>;
+    errors?: Array<string> | null;
     /**
      * 
      * @type {boolean}

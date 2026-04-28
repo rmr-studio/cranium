@@ -33,6 +33,7 @@ import riven.core.repository.entity.RelationshipTargetRuleRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.activity.log
 import riven.core.service.auth.AuthTokenService
+import riven.core.service.catalog.SchemaReconciliationService
 import riven.core.service.entity.EntityTypeSemanticMetadataService
 import riven.core.util.ServiceUtil
 import java.util.*
@@ -55,6 +56,7 @@ class EntityTypeService(
     private val activityService: ActivityService,
     private val semanticMetadataService: EntityTypeSemanticMetadataService,
     private val protectionGuard: EntityTypeProtectionGuard,
+    private val schemaReconciliationService: SchemaReconciliationService,
 ) {
 
     /**
@@ -377,11 +379,12 @@ class EntityTypeService(
 
     /**
      * Get all entity types for a workspace, enriched with relationship definitions,
-     * semantic metadata, and derived columns.
+     * semantic metadata, and derived columns. Triggers lazy schema reconciliation
+     * for catalog-sourced entity types before enrichment.
      */
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
     fun getEntityTypes(workspaceId: UUID): List<EntityType> {
-        val entityTypes = getWorkspaceEntityTypes(workspaceId)
+        val entityTypes = reconcileAndLoadEntityTypes(workspaceId)
         val entityTypeIds = entityTypes.map { it.id }
 
         val relationshipMap = entityTypeRelationshipService.getDefinitionsForEntityTypes(workspaceId, entityTypeIds)
@@ -400,6 +403,20 @@ class EntityTypeService(
                 columns = assembleColumns(et.schema, relationships, et.columnConfiguration, readonly = et.readonly),
             )
         }
+    }
+
+    /**
+     * Loads entity type entities from the repository, triggers schema reconciliation
+     * for catalog-sourced types, then converts to domain models.
+     */
+    private fun reconcileAndLoadEntityTypes(workspaceId: UUID): List<EntityType> {
+        val entities = ServiceUtil.findManyResults {
+            entityTypeRepository.findByworkspaceId(workspaceId)
+        }
+
+        schemaReconciliationService.reconcileIfNeeded(workspaceId, entities)
+
+        return entities.map { it.toModel() }
     }
 
     /**
@@ -430,6 +447,16 @@ class EntityTypeService(
         return ServiceUtil.findManyResults {
             entityTypeRepository.findByworkspaceId(workspaceId)
         }.map { it.toModel() }
+    }
+
+    /**
+     * Get raw entity type entities for a workspace (used by schema health endpoint).
+     */
+    @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
+    fun getWorkspaceEntityTypeEntities(workspaceId: UUID): List<EntityTypeEntity> {
+        return ServiceUtil.findManyResults {
+            entityTypeRepository.findByworkspaceId(workspaceId)
+        }
     }
 
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")

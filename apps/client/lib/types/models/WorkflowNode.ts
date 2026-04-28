@@ -63,7 +63,7 @@ export interface WorkflowNode {
      * @type {string}
      * @memberof WorkflowNode
      */
-    description?: string;
+    description?: string | null;
     /**
      * 
      * @type {SaveWorkflowNodeRequestConfig}

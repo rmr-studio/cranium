@@ -45,25 +45,25 @@ export interface DeleteEntityRequest {
      * @type {string}
      * @memberof DeleteEntityRequest
      */
-    entityTypeId?: string;
+    entityTypeId?: string | null;
     /**
      * 
      * @type {Array<string>}
      * @memberof DeleteEntityRequest
      */
-    entityIds?: Array<string>;
+    entityIds?: Array<string> | null;
     /**
      * 
      * @type {QueryFilter}
      * @memberof DeleteEntityRequest
      */
-    filter?: QueryFilter;
+    filter?: QueryFilter | null;
     /**
      * 
      * @type {Array<string>}
      * @memberof DeleteEntityRequest
      */
-    excludeIds?: Array<string>;
+    excludeIds?: Array<string> | null;
 }
 
 

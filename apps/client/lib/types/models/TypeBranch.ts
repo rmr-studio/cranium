@@ -28,23 +28,24 @@ import {
  */
 export interface TypeBranch {
     /**
-     * 
+     * UUID of the entity type this branch matches.
      * @type {string}
      * @memberof TypeBranch
      */
-    entityTypeId?: string;
+    entityTypeId: string;
     /**
      * 
      * @type {QueryFilter}
      * @memberof TypeBranch
      */
-    filter?: QueryFilter;
+    filter?: QueryFilter | null;
 }
 
 /**
  * Check if a given object implements the TypeBranch interface.
  */
 export function instanceOfTypeBranch(value: object): value is TypeBranch {
+    if (!('entityTypeId' in value) || value['entityTypeId'] === undefined) return false;
     return true;
 }
 
@@ -58,7 +59,7 @@ export function TypeBranchFromJSONTyped(json: any, ignoreDiscriminator: boolean)
     }
     return {
         
-        'entityTypeId': json['entityTypeId'] == null ? undefined : json['entityTypeId'],
+        'entityTypeId': json['entityTypeId'],
         'filter': json['filter'] == null ? undefined : QueryFilterFromJSON(json['filter']),
     };
 }

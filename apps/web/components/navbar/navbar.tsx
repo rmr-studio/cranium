@@ -66,7 +66,7 @@ export function Navbar() {
       <nav
         data-navbar=""
         {...(isInverted ? { 'data-inverted': '' } : {})}
-        className="mx-auto h-2 w-full bg-background md:h-4"
+        className="mx-auto h-2 w-full bg-background/40 backdrop-blur-2xl md:h-4"
       >
         <div className="clamp w-inherit mx-auto flex h-full grow border-x" />
       </nav>
@@ -74,7 +74,7 @@ export function Navbar() {
       <nav
         data-navbar=""
         {...(isInverted ? { 'data-inverted': '' } : {})}
-        className={`paper-lite flex h-16 w-full items-center justify-between border-y bg-background shadow-lg md:h-14`}
+        className={`flex h-16 w-full items-center justify-between border-y bg-background/40 shadow-lg backdrop-blur-2xl md:h-14`}
       >
         {/* Inner content clamped to panel width */}
         <div className="clamp mx-auto flex h-full w-full items-center justify-between border-x">
@@ -82,17 +82,17 @@ export function Navbar() {
           <div className="flex items-center">
             <Link href="/" className="flex shrink-0 gap-1 px-3 md:px-4">
               <Logo
-                size={30}
-                className="mt-0.5 mr-1 rounded-md"
+                size={20}
+                className="mt-1 rounded-md"
                 primaryClassName="fill-logo-primary"
                 secondaryClassName="fill-logo-secondary"
                 tertiaryClassName="fill-logo-tertiary"
               />
-              <div className="mt-1 font-serif text-[2rem] tracking-tighter text-primary">Riven</div>
+              <div className="text-2xl tracking-tighter text-primary">riven</div>
             </Link>
 
             {/* Nav Links - desktop only */}
-            <div className="mt-0.5 hidden items-center md:flex">
+            <div className="mt-1 hidden items-center md:flex">
               <NavigationMenu>
                 <NavigationMenuList>
                   {/* Features */}
@@ -156,7 +156,7 @@ export function Navbar() {
                   scrollToSection('waitlist');
                 }}
               >
-                <CtaButton size="sm">
+                <CtaButton size="sm" className="bg-background text-foreground hover:bg-accent/40">
                   <span className="hidden sm:block">Join the waitlist</span>
                   <span className="sm:hidden">Get Started</span>
                 </CtaButton>

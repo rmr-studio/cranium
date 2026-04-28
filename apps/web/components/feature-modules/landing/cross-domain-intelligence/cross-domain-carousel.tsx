@@ -120,7 +120,7 @@ export function CrossDomainCarousel() {
   );
 
   return (
-    <div className="dark relative w-full py-12">
+    <div className="relative w-full py-12">
       <Carousel
         setApi={setApi}
         opts={{

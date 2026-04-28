@@ -64,7 +64,7 @@ function CohortSubPanel() {
   return (
     <ShowcaseSubPanel>
       {/* Header */}
-      <div className="paper-lite flex h-12 shrink-0 items-center border-b border-border px-4">
+      <div className="flex h-12 shrink-0 items-center border-b border-border px-4">
         <span className="text-sm font-semibold text-foreground">Most Valuable Cohort</span>
       </div>
 
@@ -203,7 +203,7 @@ const TIMELINE_EVENTS: CohortTimelineEvent[] = [
 
 function CohortContent() {
   return (
-    <div className="glass-panel relative flex flex-1 flex-col overflow-hidden backdrop-blur-xl">
+    <div className="relative flex flex-1 flex-col overflow-hidden bg-amber-50/70 backdrop-blur-xl">
       {/* Breadcrumb bar */}
       <div className="flex h-12 shrink-0 items-center border-b border-border px-6">
         <MockBreadcrumb items={['Workspace', 'Cohorts', 'Elena Vasquez']} />
@@ -242,7 +242,7 @@ function CohortContent() {
         </div>
 
         {/* Pattern Card */}
-        <div className="mt-6 rounded-lg border border-border bg-card p-5">
+        <div className="mt-6 rounded-lg border border-border bg-background p-5 shadow-lg">
           <div className="flex items-start gap-4">
             <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-green-400/10">
               <Sparkles className="size-5 text-green-400" />
@@ -328,10 +328,7 @@ function CohortContent() {
 
 export function MockCohortBehaviours() {
   return (
-    <div
-      className="dark flex overflow-hidden rounded-xl border border-primary/50"
-      style={{ height: 950 }}
-    >
+    <div className="flex overflow-hidden rounded-xl" style={{ height: 950 }}>
       <ShowcaseIconRail icons={NAV_ICONS} />
       <CohortSubPanel />
       <CohortContent />

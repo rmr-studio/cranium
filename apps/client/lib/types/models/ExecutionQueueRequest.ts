@@ -57,19 +57,19 @@ export interface ExecutionQueueRequest {
      * @type {string}
      * @memberof ExecutionQueueRequest
      */
-    entityId?: string;
+    entityId?: string | null;
     /**
      * 
      * @type {string}
      * @memberof ExecutionQueueRequest
      */
-    workflowDefinitionId?: string;
+    workflowDefinitionId?: string | null;
     /**
      * 
      * @type {string}
      * @memberof ExecutionQueueRequest
      */
-    executionId?: string;
+    executionId?: string | null;
     /**
      * 
      * @type {ExecutionQueueStatus}
@@ -87,13 +87,13 @@ export interface ExecutionQueueRequest {
      * @type {Date}
      * @memberof ExecutionQueueRequest
      */
-    claimedAt?: Date;
+    claimedAt?: Date | null;
     /**
      * 
      * @type {Date}
      * @memberof ExecutionQueueRequest
      */
-    dispatchedAt?: Date;
+    dispatchedAt?: Date | null;
     /**
      * 
      * @type {number}
@@ -105,7 +105,7 @@ export interface ExecutionQueueRequest {
      * @type {string}
      * @memberof ExecutionQueueRequest
      */
-    lastError?: string;
+    lastError?: string | null;
 }
 
 

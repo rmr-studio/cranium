@@ -12,8 +12,6 @@ spring:
     hibernate:
       ddl-auto: none
     show-sql: ${riven.include-stack-trace}
-  flyway:
-    enabled: false
   security:
     oauth2:
       resourceserver:
@@ -57,23 +55,6 @@ riven:
   workflow:
     engine:
       target: ${TEMPORAL_SERVER_ADDRESS}
-    retry:
-      integration-sync:
-        max-attempts: 3
-        initial-interval-seconds: 30
-        backoff-coefficient: 2.0
-        max-interval-seconds: 120
-      http-action:
-        max-attempts: 3
-        initial-interval-seconds: 2
-        backoff-coefficient: 2.0
-        max-interval-seconds: 60
-        non-retryable-status-codes: [400, 401, 403, 404, 422]
-      crud-action:
-        max-attempts: 2
-        initial-interval-seconds: 1
-        backoff-coefficient: 2.0
-        max-interval-seconds: 10
   enrichment:
     provider: ${ENRICHMENT_PROVIDER:openai}
     vector-dimensions: ${ENRICHMENT_VECTOR_DIMENSIONS:1536}

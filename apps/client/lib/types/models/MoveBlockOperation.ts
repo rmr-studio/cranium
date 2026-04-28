@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { Node } from './Node';
+import {
+    NodeFromJSON,
+    NodeFromJSONTyped,
+    NodeToJSON,
+    NodeToJSONTyped,
+} from './Node';
 import type { BlockOperationType } from './BlockOperationType';
 import {
     BlockOperationTypeFromJSON,
@@ -41,16 +48,58 @@ export interface MoveBlockOperation {
     type: BlockOperationType;
     /**
      * 
-     * @type {string}
+     * @type {Node}
      * @memberof MoveBlockOperation
      */
-    fromParentId?: string;
+    block: Node;
     /**
      * 
      * @type {string}
      * @memberof MoveBlockOperation
      */
-    toParentId?: string;
+    parentId: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof MoveBlockOperation
+     */
+    index?: number | null;
+    /**
+     * 
+     * @type {{ [key: string]: string; }}
+     * @memberof MoveBlockOperation
+     */
+    childrenIds: { [key: string]: string; };
+    /**
+     * 
+     * @type {string}
+     * @memberof MoveBlockOperation
+     */
+    fromParentId?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof MoveBlockOperation
+     */
+    toParentId?: string | null;
+    /**
+     * 
+     * @type {Node}
+     * @memberof MoveBlockOperation
+     */
+    updatedContent: Node;
+    /**
+     * 
+     * @type {number}
+     * @memberof MoveBlockOperation
+     */
+    fromIndex: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof MoveBlockOperation
+     */
+    toIndex: number;
 }
 
 
@@ -61,6 +110,12 @@ export interface MoveBlockOperation {
 export function instanceOfMoveBlockOperation(value: object): value is MoveBlockOperation {
     if (!('blockId' in value) || value['blockId'] === undefined) return false;
     if (!('type' in value) || value['type'] === undefined) return false;
+    if (!('block' in value) || value['block'] === undefined) return false;
+    if (!('parentId' in value) || value['parentId'] === undefined) return false;
+    if (!('childrenIds' in value) || value['childrenIds'] === undefined) return false;
+    if (!('updatedContent' in value) || value['updatedContent'] === undefined) return false;
+    if (!('fromIndex' in value) || value['fromIndex'] === undefined) return false;
+    if (!('toIndex' in value) || value['toIndex'] === undefined) return false;
     return true;
 }
 
@@ -76,8 +131,15 @@ export function MoveBlockOperationFromJSONTyped(json: any, ignoreDiscriminator: 
         
         'blockId': json['blockId'],
         'type': BlockOperationTypeFromJSON(json['type']),
+        'block': NodeFromJSON(json['block']),
+        'parentId': json['parentId'],
+        'index': json['index'] == null ? undefined : json['index'],
+        'childrenIds': json['childrenIds'],
         'fromParentId': json['fromParentId'] == null ? undefined : json['fromParentId'],
         'toParentId': json['toParentId'] == null ? undefined : json['toParentId'],
+        'updatedContent': NodeFromJSON(json['updatedContent']),
+        'fromIndex': json['fromIndex'],
+        'toIndex': json['toIndex'],
     };
 }
 
@@ -94,8 +156,15 @@ export function MoveBlockOperationToJSONTyped(value?: MoveBlockOperation | null,
         
         'blockId': value['blockId'],
         'type': BlockOperationTypeToJSON(value['type']),
+        'block': NodeToJSON(value['block']),
+        'parentId': value['parentId'],
+        'index': value['index'],
+        'childrenIds': value['childrenIds'],
         'fromParentId': value['fromParentId'],
         'toParentId': value['toParentId'],
+        'updatedContent': NodeToJSON(value['updatedContent']),
+        'fromIndex': value['fromIndex'],
+        'toIndex': value['toIndex'],
     };
 }
 

@@ -27,6 +27,13 @@ import {
     EntityToJSON,
     EntityToJSONTyped,
 } from './Entity';
+import type { BlockListConfiguration } from './BlockListConfiguration';
+import {
+    BlockListConfigurationFromJSON,
+    BlockListConfigurationFromJSONTyped,
+    BlockListConfigurationToJSON,
+    BlockListConfigurationToJSONTyped,
+} from './BlockListConfiguration';
 import type { BlockMetadataType } from './BlockMetadataType';
 import {
     BlockMetadataTypeFromJSON,
@@ -109,18 +116,6 @@ export interface EntityReferenceMetadata {
     type: BlockMetadataType;
     /**
      * 
-     * @type {BlockReferenceFetchPolicy}
-     * @memberof EntityReferenceMetadata
-     */
-    fetchPolicy: BlockReferenceFetchPolicy;
-    /**
-     * 
-     * @type {string}
-     * @memberof EntityReferenceMetadata
-     */
-    path: string;
-    /**
-     * 
      * @type {Presentation}
      * @memberof EntityReferenceMetadata
      */
@@ -142,7 +137,7 @@ export interface EntityReferenceMetadata {
      * @type {Entity}
      * @memberof EntityReferenceMetadata
      */
-    listType?: Entity;
+    listType?: Entity | null;
     /**
      * 
      * @type {ListDisplayConfig}
@@ -161,6 +156,42 @@ export interface EntityReferenceMetadata {
      * @memberof EntityReferenceMetadata
      */
     allowDuplicates: boolean;
+    /**
+     * 
+     * @type {number}
+     * @memberof EntityReferenceMetadata
+     */
+    expandDepth: number;
+    /**
+     * 
+     * @type {ReferenceItem}
+     * @memberof EntityReferenceMetadata
+     */
+    item: ReferenceItem;
+    /**
+     * 
+     * @type {object}
+     * @memberof EntityReferenceMetadata
+     */
+    data: object;
+    /**
+     * 
+     * @type {BlockListConfiguration}
+     * @memberof EntityReferenceMetadata
+     */
+    listConfig?: BlockListConfiguration | null;
+    /**
+     * 
+     * @type {BlockReferenceFetchPolicy}
+     * @memberof EntityReferenceMetadata
+     */
+    fetchPolicy: BlockReferenceFetchPolicy;
+    /**
+     * 
+     * @type {string}
+     * @memberof EntityReferenceMetadata
+     */
+    path: string;
 }
 
 
@@ -173,14 +204,17 @@ export function instanceOfEntityReferenceMetadata(value: object): value is Entit
     if (!('meta' in value) || value['meta'] === undefined) return false;
     if (!('readonly' in value) || value['readonly'] === undefined) return false;
     if (!('type' in value) || value['type'] === undefined) return false;
-    if (!('fetchPolicy' in value) || value['fetchPolicy'] === undefined) return false;
-    if (!('path' in value) || value['path'] === undefined) return false;
     if (!('presentation' in value) || value['presentation'] === undefined) return false;
     if (!('items' in value) || value['items'] === undefined) return false;
     if (!('projection' in value) || value['projection'] === undefined) return false;
     if (!('display' in value) || value['display'] === undefined) return false;
     if (!('config' in value) || value['config'] === undefined) return false;
     if (!('allowDuplicates' in value) || value['allowDuplicates'] === undefined) return false;
+    if (!('expandDepth' in value) || value['expandDepth'] === undefined) return false;
+    if (!('item' in value) || value['item'] === undefined) return false;
+    if (!('data' in value) || value['data'] === undefined) return false;
+    if (!('fetchPolicy' in value) || value['fetchPolicy'] === undefined) return false;
+    if (!('path' in value) || value['path'] === undefined) return false;
     return true;
 }
 
@@ -198,8 +232,6 @@ export function EntityReferenceMetadataFromJSONTyped(json: any, ignoreDiscrimina
         'meta': BlockMetaFromJSON(json['meta']),
         'readonly': json['readonly'],
         'type': BlockMetadataTypeFromJSON(json['type']),
-        'fetchPolicy': BlockReferenceFetchPolicyFromJSON(json['fetchPolicy']),
-        'path': json['path'],
         'presentation': PresentationFromJSON(json['presentation']),
         'items': ((json['items'] as Array<any>).map(ReferenceItemFromJSON)),
         'projection': ProjectionFromJSON(json['projection']),
@@ -207,6 +239,12 @@ export function EntityReferenceMetadataFromJSONTyped(json: any, ignoreDiscrimina
         'display': ListDisplayConfigFromJSON(json['display']),
         'config': ListConfigFromJSON(json['config']),
         'allowDuplicates': json['allowDuplicates'],
+        'expandDepth': json['expandDepth'],
+        'item': ReferenceItemFromJSON(json['item']),
+        'data': json['data'],
+        'listConfig': json['listConfig'] == null ? undefined : BlockListConfigurationFromJSON(json['listConfig']),
+        'fetchPolicy': BlockReferenceFetchPolicyFromJSON(json['fetchPolicy']),
+        'path': json['path'],
     };
 }
 
@@ -225,8 +263,6 @@ export function EntityReferenceMetadataToJSONTyped(value?: EntityReferenceMetada
         'meta': BlockMetaToJSON(value['meta']),
         'readonly': value['readonly'],
         'type': BlockMetadataTypeToJSON(value['type']),
-        'fetchPolicy': BlockReferenceFetchPolicyToJSON(value['fetchPolicy']),
-        'path': value['path'],
         'presentation': PresentationToJSON(value['presentation']),
         'items': ((value['items'] as Array<any>).map(ReferenceItemToJSON)),
         'projection': ProjectionToJSON(value['projection']),
@@ -234,6 +270,12 @@ export function EntityReferenceMetadataToJSONTyped(value?: EntityReferenceMetada
         'display': ListDisplayConfigToJSON(value['display']),
         'config': ListConfigToJSON(value['config']),
         'allowDuplicates': value['allowDuplicates'],
+        'expandDepth': value['expandDepth'],
+        'item': ReferenceItemToJSON(value['item']),
+        'data': value['data'],
+        'listConfig': BlockListConfigurationToJSON(value['listConfig']),
+        'fetchPolicy': BlockReferenceFetchPolicyToJSON(value['fetchPolicy']),
+        'path': value['path'],
     };
 }
 

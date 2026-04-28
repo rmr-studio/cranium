@@ -28,17 +28,18 @@ import {
  */
 export interface Template extends FilterValue {
     /**
-     * 
+     * Template expression using workflow context.
      * @type {string}
      * @memberof Template
      */
-    expression?: string;
+    expression: string;
 }
 
 /**
  * Check if a given object implements the Template interface.
  */
 export function instanceOfTemplate(value: object): value is Template {
+    if (!('expression' in value) || value['expression'] === undefined) return false;
     return true;
 }
 
@@ -52,7 +53,7 @@ export function TemplateFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
     }
     return {
         ...FilterValueFromJSONTyped(json, true),
-        'expression': json['expression'] == null ? undefined : json['expression'],
+        'expression': json['expression'],
     };
 }
 

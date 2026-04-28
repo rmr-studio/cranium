@@ -4,7 +4,7 @@ import { cn } from '@riven/utils';
 import { FC } from 'react';
 
 interface WorkspaceIconProps {
-  name: string;
+  name?: string;
   avatarUrl?: string;
   className?: string;
 }
@@ -15,14 +15,14 @@ export const WorkspaceIcon: FC<WorkspaceIconProps> = ({ name, avatarUrl, classNa
   return (
     <div
       className={cn(
-        'flex size-8 items-center justify-center overflow-hidden rounded-md bg-primary text-sm font-bold text-primary-foreground dark:bg-muted-foreground',
+        'flex size-8 items-center justify-center overflow-hidden rounded-md text-sm font-bold text-primary-foreground',
         className,
       )}
     >
       {avatarUrl ? (
         <img src={avatarUrl} alt={name} className="size-full object-cover" />
       ) : (
-        letter
+        <div className="size-8 bg-primary dark:bg-muted-foreground">{letter}</div>
       )}
     </div>
   );

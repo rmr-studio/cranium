@@ -35,7 +35,7 @@ const example = {
   "status": null,
   "startedAt": null,
   "completedAt": null,
-  "duration": PT2H30M,
+  "duration": null,
   "attempt": null,
   "input": null,
   "output": null,

@@ -24,13 +24,13 @@ export interface ResizableOptions {
      * @type {string}
      * @memberof ResizableOptions
      */
-    handles?: string;
+    handles?: string | null;
     /**
      * 
      * @type {boolean}
      * @memberof ResizableOptions
      */
-    autoHide?: boolean;
+    autoHide?: boolean | null;
 }
 
 /**

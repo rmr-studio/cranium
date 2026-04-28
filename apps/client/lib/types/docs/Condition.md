@@ -8,7 +8,7 @@ Name | Type
 ------------ | -------------
 `op` | [Op](Op.md)
 `left` | [ConditionLeft](ConditionLeft.md)
-`right` | [ConditionLeft](ConditionLeft.md)
+`right` | [ConditionRight](ConditionRight.md)
 
 ## Example
 

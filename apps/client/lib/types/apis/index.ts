@@ -1,7 +1,9 @@
 /* tslint:disable */
 /* eslint-disable */
+export * from './AvatarsApi';
 export * from './BlockApi';
-export * from './DevApi';
+export * from './CustomSourceMappingApi';
+export * from './DataConnectorApi';
 export * from './EntityApi';
 export * from './IdentityApi';
 export * from './IntegrationsApi';

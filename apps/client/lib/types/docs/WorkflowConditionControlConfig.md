@@ -24,8 +24,8 @@ import type { WorkflowConditionControlConfig } from ''
 // TODO: Update the object below with actual values
 const example = {
   "version": null,
-  "expression": null,
-  "contextEntityId": null,
+  "expression": entity.status == 'active' && entity.balance > 0,
+  "contextEntityId": {{ steps.fetch_account.output.entityId }},
   "timeoutSeconds": null,
   "configSchema": null,
   "config": null,

@@ -59,7 +59,7 @@ export interface ListConfig {
      * @type {SortSpec}
      * @memberof ListConfig
      */
-    sort?: SortSpec;
+    sort?: SortSpec | null;
     /**
      * 
      * @type {Array<FilterSpec>}

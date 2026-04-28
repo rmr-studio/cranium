@@ -24,19 +24,19 @@ export interface ThemeTokens {
      * @type {string}
      * @memberof ThemeTokens
      */
-    variant?: string;
+    variant?: string | null;
     /**
      * 
      * @type {string}
      * @memberof ThemeTokens
      */
-    colorRole?: string;
+    colorRole?: string | null;
     /**
      * 
      * @type {string}
      * @memberof ThemeTokens
      */
-    tone?: string;
+    tone?: string | null;
 }
 
 /**

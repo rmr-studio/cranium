@@ -28,19 +28,19 @@ import {
  */
 export interface EntityQuery {
     /**
-     * 
+     * UUID of the entity type to query.
      * @type {string}
      * @memberof EntityQuery
      */
-    entityTypeId?: string;
+    entityTypeId: string;
     /**
      * 
      * @type {QueryFilter}
      * @memberof EntityQuery
      */
-    filter?: QueryFilter;
+    filter?: QueryFilter | null;
     /**
-     * 
+     * Maximum depth for nested relationship traversal. Applies to entire query tree.
      * @type {number}
      * @memberof EntityQuery
      */
@@ -51,6 +51,7 @@ export interface EntityQuery {
  * Check if a given object implements the EntityQuery interface.
  */
 export function instanceOfEntityQuery(value: object): value is EntityQuery {
+    if (!('entityTypeId' in value) || value['entityTypeId'] === undefined) return false;
     return true;
 }
 
@@ -64,7 +65,7 @@ export function EntityQueryFromJSONTyped(json: any, ignoreDiscriminator: boolean
     }
     return {
         
-        'entityTypeId': json['entityTypeId'] == null ? undefined : json['entityTypeId'],
+        'entityTypeId': json['entityTypeId'],
         'filter': json['filter'] == null ? undefined : QueryFilterFromJSON(json['filter']),
         'maxDepth': json['maxDepth'] == null ? undefined : json['maxDepth'],
     };

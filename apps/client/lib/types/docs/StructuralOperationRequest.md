@@ -8,7 +8,7 @@ Name | Type
 ------------ | -------------
 `id` | string
 `timestamp` | Date
-`data` | [StructuralOperationRequestData](StructuralOperationRequestData.md)
+`data` | [BlockOperation](BlockOperation.md)
 
 ## Example
 

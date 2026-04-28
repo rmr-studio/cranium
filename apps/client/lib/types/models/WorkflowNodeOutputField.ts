@@ -50,7 +50,7 @@ export interface WorkflowNodeOutputField {
      * @type {string}
      * @memberof WorkflowNodeOutputField
      */
-    description?: string;
+    description?: string | null;
     /**
      * 
      * @type {boolean}
@@ -62,13 +62,13 @@ export interface WorkflowNodeOutputField {
      * @type {object}
      * @memberof WorkflowNodeOutputField
      */
-    exampleValue?: object;
+    exampleValue?: object | null;
     /**
      * 
      * @type {string}
      * @memberof WorkflowNodeOutputField
      */
-    entityTypeId?: string;
+    entityTypeId?: string | null;
 }
 
 

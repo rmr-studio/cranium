@@ -13,13 +13,6 @@
  */
 
 import { mapValues } from '../runtime';
-import type { DefaultValue } from './DefaultValue';
-import {
-    DefaultValueFromJSON,
-    DefaultValueFromJSONTyped,
-    DefaultValueToJSON,
-    DefaultValueToJSONTyped,
-} from './DefaultValue';
 import type { OptionSortingType } from './OptionSortingType';
 import {
     OptionSortingTypeFromJSON,
@@ -27,6 +20,13 @@ import {
     OptionSortingTypeToJSON,
     OptionSortingTypeToJSONTyped,
 } from './OptionSortingType';
+import type { SchemaOptionsDefaultValue } from './SchemaOptionsDefaultValue';
+import {
+    SchemaOptionsDefaultValueFromJSON,
+    SchemaOptionsDefaultValueFromJSONTyped,
+    SchemaOptionsDefaultValueToJSON,
+    SchemaOptionsDefaultValueToJSONTyped,
+} from './SchemaOptionsDefaultValue';
 
 /**
  * 
@@ -36,70 +36,70 @@ import {
 export interface SchemaOptions {
     /**
      * 
-     * @type {DefaultValue}
+     * @type {SchemaOptionsDefaultValue}
      * @memberof SchemaOptions
      */
-    defaultValue?: DefaultValue;
+    defaultValue?: SchemaOptionsDefaultValue | null;
     /**
      * 
      * @type {string}
      * @memberof SchemaOptions
      */
-    prefix?: string;
+    prefix?: string | null;
     /**
      * 
      * @type {string}
      * @memberof SchemaOptions
      */
-    regex?: string;
+    regex?: string | null;
     /**
      * 
      * @type {Array<string>}
      * @memberof SchemaOptions
      */
-    _enum?: Array<string>;
+    _enum?: Array<string> | null;
     /**
      * 
      * @type {OptionSortingType}
      * @memberof SchemaOptions
      */
-    enumSorting?: OptionSortingType;
+    enumSorting?: OptionSortingType | null;
     /**
      * 
      * @type {number}
      * @memberof SchemaOptions
      */
-    minLength?: number;
+    minLength?: number | null;
     /**
      * 
      * @type {number}
      * @memberof SchemaOptions
      */
-    maxLength?: number;
+    maxLength?: number | null;
     /**
      * 
      * @type {number}
      * @memberof SchemaOptions
      */
-    minimum?: number;
+    minimum?: number | null;
     /**
      * 
      * @type {number}
      * @memberof SchemaOptions
      */
-    maximum?: number;
+    maximum?: number | null;
     /**
      * 
      * @type {Date}
      * @memberof SchemaOptions
      */
-    minDate?: Date;
+    minDate?: Date | null;
     /**
      * 
      * @type {Date}
      * @memberof SchemaOptions
      */
-    maxDate?: Date;
+    maxDate?: Date | null;
 }
 
 
@@ -121,7 +121,7 @@ export function SchemaOptionsFromJSONTyped(json: any, ignoreDiscriminator: boole
     }
     return {
         
-        'defaultValue': json['defaultValue'] == null ? undefined : DefaultValueFromJSON(json['defaultValue']),
+        'defaultValue': json['defaultValue'] == null ? undefined : SchemaOptionsDefaultValueFromJSON(json['defaultValue']),
         'prefix': json['prefix'] == null ? undefined : json['prefix'],
         'regex': json['regex'] == null ? undefined : json['regex'],
         '_enum': json['enum'] == null ? undefined : json['enum'],
@@ -146,7 +146,7 @@ export function SchemaOptionsToJSONTyped(value?: SchemaOptions | null, ignoreDis
 
     return {
         
-        'defaultValue': DefaultValueToJSON(value['defaultValue']),
+        'defaultValue': SchemaOptionsDefaultValueToJSON(value['defaultValue']),
         'prefix': value['prefix'],
         'regex': value['regex'],
         'enum': value['_enum'],

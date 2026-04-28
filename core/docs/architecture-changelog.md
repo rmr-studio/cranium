@@ -37,6 +37,28 @@
 - `EnrichmentConfigurationProperties` — Typed properties for `riven.enrichment.*`
 - `EntityEmbeddingEntity` / `EntityEmbeddingModel` / `EntityEmbeddingRepository` — Persistence trio for vector embeddings
 
+## [2026-04-09] — Schema Reconciliation for Workspace Entity Types
+
+**Domains affected:** Entity, Catalog, Workspace
+**What changed:**
+
+- Added `SchemaReconciliationService` in `service.catalog` — compares workspace entity types against catalog definitions using content hashing, auto-applies non-breaking changes (field additions, metadata updates), flags breaking changes for admin confirmation
+- Added `SchemaHashUtil` utility object for deterministic SHA-256 hashing with canonicalized JSON (sorted keys, normalized numerics)
+- Added `WorkspaceSchemaController` with `GET /schema-health` and `POST /schema-reconcile` endpoints for admin visibility and breaking change confirmation
+- Added `sourceSchemaHash`, `pendingSchemaUpdate`, `sourceManifestId` columns to `entity_types` table; `schema_hash` to `catalog_entity_types` table
+- Modified `EntityTypeService.getEntityTypes()` to trigger lazy reconciliation via new `reconcileAndLoadEntityTypes()` private method
+- Modified `ManifestUpsertService` to compute per-entity-type schema hashes on catalog upsert
+- Modified `TemplateMaterializationService` and `TemplateInstallationService` to stamp `sourceSchemaHash` and `sourceManifestId` at materialization time
+- Added `FIELD_ADDED` and `METADATA_CHANGED` to `EntityTypeChangeType` enum
+- Added `SchemaReconciliationModels.kt` with health/diff/impact data classes
+
+**New cross-domain dependencies:** yes — Entity domain now depends on Catalog domain via `SchemaReconciliationService` (EntityTypeService → SchemaReconciliationService → CatalogEntityTypeRepository)
+**New components introduced:**
+
+- `SchemaReconciliationService` — core diff engine and auto-apply/breaking change logic
+- `SchemaHashUtil` — canonical hash computation utility
+- `WorkspaceSchemaController` — schema health and reconciliation API endpoints
+
 ## [2026-04-09] — Note Embedding Pipeline + Entity-Spanning Notes
 
 **Domains affected:** Note, Integration, Catalog

@@ -42,7 +42,8 @@ object CatalogFactory {
         iconColour: IconColour = IconColour.NEUTRAL,
         semanticGroup: SemanticGroup = SemanticGroup.UNCATEGORIZED,
         schema: Map<String, Any> = mapOf("type" to "object"),
-        columns: List<Map<String, Any>> = listOf(mapOf("key" to "name", "label" to "Name"))
+        columns: List<Map<String, Any>> = listOf(mapOf("key" to "name", "label" to "Name")),
+        schemaHash: String? = null
     ) = CatalogEntityTypeEntity(
         id = id,
         manifestId = manifestId,
@@ -53,7 +54,8 @@ object CatalogFactory {
         iconColour = iconColour,
         semanticGroup = semanticGroup,
         schema = schema,
-        columns = columns
+        columns = columns,
+        schemaHash = schemaHash
     )
 
     fun createRelationshipEntity(

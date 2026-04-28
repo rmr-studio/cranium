@@ -1,10 +1,8 @@
 import { Footer } from '@/components/footer';
 import { Navbar } from '@/components/navbar';
-import { getCdnUrl } from '@/lib/cdn-image-loader';
 import { AuthProvider } from '@/providers/auth-provider';
 import { QueryProvider } from '@/providers/query-provider';
 
-import { ThemeProvider } from '@/providers/theme-provider';
 import { GoogleTagManager } from '@next/third-parties/google';
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono, Space_Mono } from 'next/font/google';
@@ -157,30 +155,20 @@ export default function RootLayout({
         <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
       )}
       <body
-        className={`paper-lite ${geistSans.variable} ${redaction.variable} ${geistMono.variable} ${spaceMono.variable} relative min-h-screen antialiased`}
-        style={
-          {
-            '--paper-texture': `url(${getCdnUrl('images/black-paper.webp')})`,
-          } as React.CSSProperties
-        }
+        className={` ${geistSans.variable} ${redaction.variable} ${geistMono.variable} ${spaceMono.variable} relative min-h-screen antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          themes={['light', 'dark']}
-          disableTransitionOnChange
-        >
-          <QueryProvider>
-            <AuthProvider>
+        <QueryProvider>
+          <AuthProvider>
+            <section>
               <Navbar />
-              <section className="relative mx-auto w-full lg:max-w-[min(100dvw,var(--breakpoint-3xl))]">
-                {children}
-              </section>
-              <Footer />
-            </AuthProvider>
-          </QueryProvider>
-          <Toaster richColors position="bottom-right" />
-        </ThemeProvider>
+
+              {children}
+            </section>
+
+            <Footer />
+          </AuthProvider>
+        </QueryProvider>
+        <Toaster richColors position="bottom-right" />
       </body>
     </html>
   );

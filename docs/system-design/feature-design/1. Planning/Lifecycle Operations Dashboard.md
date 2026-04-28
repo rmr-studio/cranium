@@ -11,9 +11,9 @@ Domains:
   - "[[riven/docs/system-design/domains/Knowledge/Knowledge]]"
   - "[[riven/docs/system-design/domains/Entities/Entities]]"
 blocked by:
-  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Lifecycle Domain Model]]"
-  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]]"
-  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Data Chunking and Enrichment Pipeline]]"
+  - "[[riven/docs/system-design/feature-design/4. Completed/Lifecycle Domain Model]]"
+  - "[[riven/docs/system-design/feature-design/4. Completed/Three-Tier Entity Model and Lifecycle Spine]]"
+  - "[[riven/docs/system-design/feature-design/1. Planning/Data Chunking and Enrichment Pipeline]]"
 ---
 # Feature: Lifecycle Operations Dashboard
 
@@ -58,11 +58,11 @@ A default workspace view that shows operational metrics grouped by lifecycle dom
 
 ## Related Documents
 
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Lifecycle Domain Model]] — metrics grouped by lifecycle domain
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Knowledge Layer Sub-Agents]] — signals surfaced on dashboard
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Lifecycle Domain Coverage Indicator]] — shows connectivity gaps
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Churn Retrospective Timeline]] — drill-in diagnostic from churn signals
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Dashboard Metrics Pre-computation Layer]] — TODO for performance at scale
+- [[riven/docs/system-design/feature-design/4. Completed/Lifecycle Domain Model]] — metrics grouped by lifecycle domain
+- [[riven/docs/system-design/feature-design/5. Backlog/Knowledge Layer Sub-Agents]] — signals surfaced on dashboard
+- [[riven/docs/system-design/feature-design/1. Planning/Lifecycle Domain Coverage Indicator]] — shows connectivity gaps
+- [[riven/docs/system-design/feature-design/5. Backlog/Churn Retrospective Timeline]] — drill-in diagnostic from churn signals
+- [[riven/docs/system-design/feature-design/1. Planning/Dashboard Metrics Pre-computation Layer]] — TODO for performance at scale
 - CEO Plan: Lifecycle Vertical Scoping (2026-03-18)
 
 ---

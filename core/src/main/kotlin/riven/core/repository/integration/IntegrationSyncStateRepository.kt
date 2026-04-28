@@ -3,6 +3,7 @@ package riven.core.repository.integration
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import riven.core.entity.integration.IntegrationSyncStateEntity
+import riven.core.enums.integration.SyncKeyType
 import java.util.*
 
 /**
@@ -13,9 +14,16 @@ interface IntegrationSyncStateRepository : JpaRepository<IntegrationSyncStateEnt
     @Query("SELECT s FROM IntegrationSyncStateEntity s WHERE s.integrationConnectionId = :connectionId")
     fun findByIntegrationConnectionId(connectionId: UUID): List<IntegrationSyncStateEntity>
 
-    @Query("SELECT s FROM IntegrationSyncStateEntity s WHERE s.integrationConnectionId = :connectionId AND s.entityTypeId = :entityTypeId")
+    @Query("SELECT s FROM IntegrationSyncStateEntity s WHERE s.integrationConnectionId = :connectionId AND s.entityTypeId = :entityTypeId AND (s.syncKey IS NULL)")
     fun findByIntegrationConnectionIdAndEntityTypeId(
         connectionId: UUID,
         entityTypeId: UUID
+    ): IntegrationSyncStateEntity?
+
+    @Query("SELECT s FROM IntegrationSyncStateEntity s WHERE s.integrationConnectionId = :connectionId AND s.entityTypeId = :entityTypeId AND s.syncKey = :syncKey")
+    fun findByIntegrationConnectionIdAndEntityTypeIdAndSyncKey(
+        connectionId: UUID,
+        entityTypeId: UUID,
+        syncKey: SyncKeyType,
     ): IntegrationSyncStateEntity?
 }

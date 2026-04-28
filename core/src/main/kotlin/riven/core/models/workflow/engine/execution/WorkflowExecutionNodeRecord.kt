@@ -1,6 +1,7 @@
 package riven.core.models.workflow.engine.execution
 
 import riven.core.enums.workflow.WorkflowStatus
+import riven.core.models.common.json.JsonValue
 import riven.core.models.workflow.node.WorkflowNode
 import java.time.Duration
 import java.time.ZonedDateTime
@@ -20,8 +21,8 @@ data class WorkflowExecutionNodeRecord(
     override val duration: Duration? = null,
     val attempt: Int,
 
-    override val input: Any?,
-    override val output: Any?,
-    override val error: Any?
+    override val input: JsonValue,
+    override val output: JsonValue,
+    override val error: JsonValue
 
 ) : ExecutionRecord

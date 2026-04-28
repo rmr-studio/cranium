@@ -1,7 +1,7 @@
 package riven.core.filter.ratelimit
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.readValue
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.github.bucket4j.Bucket
@@ -58,7 +58,9 @@ class RateLimitFilterTest {
             .maximumSize(properties.cacheMaxSize)
             .expireAfterAccess(properties.cacheExpireMinutes, TimeUnit.MINUTES)
             .build()
-        objectMapper = ObjectMapper().findAndRegisterModules()
+        objectMapper = tools.jackson.databind.json.JsonMapper.builder()
+            .addModule(tools.jackson.module.kotlin.KotlinModule.Builder().build())
+            .build()
         exceededCounter = mock()
         filterErrorCounter = mock()
         kLogger = mock()
@@ -198,7 +200,7 @@ class RateLimitFilterTest {
 
             val body = objectMapper.readValue<Map<String, Any>>(response.contentAsString)
             assertEquals("RATE_LIMIT_EXCEEDED", body["error"])
-            assertEquals("TOO_MANY_REQUESTS", body["statusCode"])
+            assertEquals("429 TOO_MANY_REQUESTS", body["statusCode"])
             assertTrue((body["message"] as String).startsWith("Too many requests"))
         }
     }

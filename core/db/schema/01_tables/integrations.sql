@@ -87,9 +87,12 @@ CREATE TABLE IF NOT EXISTS integration_sync_state (
     last_records_failed       INTEGER,
     last_pipeline_step        VARCHAR(50),
     projection_result         JSONB,
+    sync_key                  VARCHAR(100),
     created_at                TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at                TIMESTAMPTZ NOT NULL DEFAULT now(),
-    UNIQUE(integration_connection_id, entity_type_id)
+    updated_at                TIMESTAMPTZ NOT NULL DEFAULT now()
+    -- Uniqueness enforced via two partial unique indexes in 02_indexes/integration_indexes.sql
+    -- (Postgres UNIQUE treats NULLs as distinct, which would permit duplicate rows for
+    -- sync_key IS NULL; partial indexes make NULL deterministic.)
 );
 
 -- =====================================================

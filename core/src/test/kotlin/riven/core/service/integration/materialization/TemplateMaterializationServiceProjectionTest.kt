@@ -1,6 +1,6 @@
 package riven.core.service.integration.materialization
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -17,7 +17,7 @@ import riven.core.enums.integration.SourceType
 import riven.core.entity.entity.EntityTypeEntity
 import riven.core.entity.entity.RelationshipTargetRuleEntity
 import riven.core.entity.integration.ProjectionRuleEntity
-import riven.core.lifecycle.CoreModelRegistry
+import riven.core.models.core.CoreModelRegistry
 import riven.core.repository.catalog.CatalogEntityTypeRepository
 import riven.core.repository.catalog.CatalogRelationshipRepository
 import riven.core.repository.catalog.CatalogRelationshipTargetRuleRepository

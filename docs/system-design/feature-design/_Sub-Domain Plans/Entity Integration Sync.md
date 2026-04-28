@@ -182,7 +182,7 @@ graph LR
 | Phase | Features | Rationale |
 |-------|----------|-----------|
 | 1 | [[Entity Provenance Tracking]], [[riven/docs/system-design/feature-design/3. Active/Integration Access Layer]] | Foundation — provenance columns and integration infrastructure unblock everything |
-| 2 | [[riven/docs/system-design/feature-design/1. Planning/Integration Schema Mapping]] | Core capability — transform external data into entity payloads |
+| 2 | [[riven/docs/system-design/feature-design/5. Backlog/Integration Schema Mapping]] | Core capability — transform external data into entity payloads |
 | 3 | [[riven/docs/system-design/flows/Integration Data Sync Pipeline]] | End-to-end pipeline: webhook ingestion, Temporal sync, batch dedup, health aggregation |
 | 4 | [[Integration Identity Resolution System]] | Enhanced matching beyond source_external_id (deterministic + probabilistic) |
 | 5 | User-Facing Provenance + Conflict Management | UI for match review, provenance transparency |
@@ -256,9 +256,9 @@ graph LR
 ## 10. Related Documents
 
 - [[riven/docs/system-design/feature-design/3. Active/Integration Access Layer]]
-- [[riven/docs/system-design/feature-design/1. Planning/Integration Schema Mapping]]
+- [[riven/docs/system-design/feature-design/5. Backlog/Integration Schema Mapping]]
 - [[riven/docs/system-design/feature-design/2. Planned/Identity Resolution System]]
-- [[riven/docs/system-design/feature-design/3. Active/Predefined Integration Entity Types]]
+- [[riven/docs/system-design/feature-design/4. Completed/Predefined Integration Entity Types]]
 - [[riven/docs/system-design/decisions/ADR-001 Nango as Integration Infrastructure]]
 - [[riven/docs/system-design/decisions/ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]
 - [[Flow Integration Connection Lifecycle]]

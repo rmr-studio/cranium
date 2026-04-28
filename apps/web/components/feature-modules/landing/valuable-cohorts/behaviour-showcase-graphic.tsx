@@ -19,7 +19,7 @@ export const CohortBehaviourShowcase = () => {
   return (
     <div
       ref={containerRef}
-      className="pointer-events-none relative w-full -translate-x-64 translate-y-8 scale-50 sm:translate-x-12 md:scale-100 md:px-12 lg:translate-x-0 lg:translate-y-0"
+      className="pointer-events-none relative w-full -translate-x-64 translate-y-8 scale-60 sm:translate-x-12 sm:scale-100 md:px-12 lg:translate-x-0 lg:translate-y-0"
     >
       <div
         className="origin-top-left"

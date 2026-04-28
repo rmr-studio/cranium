@@ -27,7 +27,11 @@ export const DatePickerWidget: FC<FormWidgetProps<string>> = ({
 
   const handleChange = (date: Date | undefined) => {
     if (date) {
-      onChange(date.toISOString());
+      // Format as YYYY-MM-DD to match the backend's expected date format
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const dd = String(date.getDate()).padStart(2, '0');
+      onChange(`${yyyy}-${mm}-${dd}`);
     } else {
       onChange('');
     }

@@ -9,7 +9,7 @@ Updated:
 Domains:
   - "[[riven/docs/system-design/domains/Knowledge/Knowledge]]"
 blocked by:
-  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Data Chunking and Enrichment Pipeline]]"
+  - "[[riven/docs/system-design/feature-design/1. Planning/Data Chunking and Enrichment Pipeline]]"
   - "[[Semantically Imbued Entity Attributes]]"
 ---
 # Feature: Querying and Reasoning - Data Extraction 

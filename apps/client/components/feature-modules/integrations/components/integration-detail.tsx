@@ -1,24 +1,32 @@
 'use client';
 
-import { useMemo } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { useParams } from 'next/navigation';
-import { ArrowLeft, Puzzle, Check, Clock } from 'lucide-react';
-import { toast } from 'sonner';
-import { Button } from '@riven/ui/button';
-import { Badge } from '@riven/ui/badge';
 import { IntegrationDetailSkeleton } from '@/components/feature-modules/integrations/components/integration-detail-skeleton';
-import { useIntegrations } from '@/components/feature-modules/integrations/hooks/query/use-integrations';
-import { useIntegrationStatus } from '@/components/feature-modules/integrations/hooks/query/use-integration-status';
-import { useDisableIntegration } from '@/components/feature-modules/integrations/hooks/mutation/use-disable-integration';
-import { ConnectionStatus } from '@/lib/types/integration';
 import { IntegrationDisconnectDialog } from '@/components/feature-modules/integrations/components/integration-disconnect-dialog';
+import { useDisableIntegration } from '@/components/feature-modules/integrations/hooks/mutation/use-disable-integration';
+import { useIntegrationStatus } from '@/components/feature-modules/integrations/hooks/query/use-integration-status';
+import { useIntegrations } from '@/components/feature-modules/integrations/hooks/query/use-integrations';
+import { ConnectionStatus } from '@/lib/types/integration';
+import { Badge } from '@riven/ui/badge';
+import { Button } from '@riven/ui/button';
+import { ArrowLeft, Check, Clock, Puzzle } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { useMemo } from 'react';
+import { toast } from 'sonner';
 
 export function IntegrationDetail() {
   const { workspaceId, slug } = useParams<{ workspaceId: string; slug: string }>();
-  const { data: integrations, isLoading: isLoadingIntegrations, isError: isIntegrationsError } = useIntegrations();
-  const { data: connections, isLoading: isLoadingStatus, isError: isStatusError } = useIntegrationStatus(workspaceId);
+  const {
+    data: integrations,
+    isLoading: isLoadingIntegrations,
+    isError: isIntegrationsError,
+  } = useIntegrations();
+  const {
+    data: connections,
+    isLoading: isLoadingStatus,
+    isError: isStatusError,
+  } = useIntegrationStatus(workspaceId);
   const disableMutation = useDisableIntegration(workspaceId);
 
   const integration = useMemo(
@@ -47,7 +55,9 @@ export function IntegrationDetail() {
       <div className="flex flex-col items-center justify-center gap-4 py-24">
         <Puzzle className="h-12 w-12 text-muted-foreground/40" />
         <p className="text-lg font-medium text-foreground">Failed to load integration</p>
-        <p className="text-sm text-muted-foreground">Something went wrong. Please try refreshing the page.</p>
+        <p className="text-sm text-muted-foreground">
+          Something went wrong. Please try refreshing the page.
+        </p>
         <Link href={backHref} className="text-sm text-muted-foreground hover:text-foreground">
           &larr; Back to Integrations
         </Link>

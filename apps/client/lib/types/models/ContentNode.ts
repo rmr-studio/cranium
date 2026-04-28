@@ -49,16 +49,16 @@ export interface ContentNode {
     block: Block;
     /**
      * 
-     * @type {NodeType}
-     * @memberof ContentNode
-     */
-    type: NodeType;
-    /**
-     * 
      * @type {Array<string>}
      * @memberof ContentNode
      */
     warnings: Array<string>;
+    /**
+     * 
+     * @type {NodeType}
+     * @memberof ContentNode
+     */
+    type: NodeType;
     /**
      * 
      * @type {Array<Node>}
@@ -74,8 +74,8 @@ export interface ContentNode {
  */
 export function instanceOfContentNode(value: object): value is ContentNode {
     if (!('block' in value) || value['block'] === undefined) return false;
-    if (!('type' in value) || value['type'] === undefined) return false;
     if (!('warnings' in value) || value['warnings'] === undefined) return false;
+    if (!('type' in value) || value['type'] === undefined) return false;
     return true;
 }
 
@@ -90,8 +90,8 @@ export function ContentNodeFromJSONTyped(json: any, ignoreDiscriminator: boolean
     return {
         
         'block': BlockFromJSON(json['block']),
-        'type': NodeTypeFromJSON(json['type']),
         'warnings': json['warnings'],
+        'type': NodeTypeFromJSON(json['type']),
         'children': json['children'] == null ? undefined : ((json['children'] as Array<any>).map(NodeFromJSON)),
     };
 }
@@ -108,8 +108,8 @@ export function ContentNodeToJSONTyped(value?: ContentNode | null, ignoreDiscrim
     return {
         
         'block': BlockToJSON(value['block']),
-        'type': NodeTypeToJSON(value['type']),
         'warnings': value['warnings'],
+        'type': NodeTypeToJSON(value['type']),
         'children': value['children'] == null ? undefined : ((value['children'] as Array<any>).map(NodeToJSON)),
     };
 }

@@ -8,5 +8,6 @@ enum class SourceType {
     WORKFLOW,
     IDENTITY_MATCH,
     TEMPLATE,
-    PROJECTED
+    PROJECTED,
+    CONNECTOR,
 }

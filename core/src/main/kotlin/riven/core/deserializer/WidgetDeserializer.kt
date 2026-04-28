@@ -1,10 +1,9 @@
 package riven.core.deserializer
 
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.databind.DeserializationContext
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.core.JsonParser
+import tools.jackson.databind.DeserializationContext
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.ValueDeserializer
 import riven.core.models.block.layout.RenderContent
 import riven.core.models.block.layout.TreeLayout
 import riven.core.models.block.layout.Widget
@@ -13,13 +12,12 @@ import riven.core.models.block.layout.Widget
  * Custom deserializer for Widget that handles the stringified content field from Gridstack.
  * Gridstack stores the content as a JSON string, so we need to parse it twice.
  */
-class WidgetDeserializer() : JsonDeserializer<Widget>() {
+class WidgetDeserializer() : ValueDeserializer<Widget>() {
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext): Widget {
-        val mapper: ObjectMapper = p.codec as ObjectMapper
-        val node: JsonNode = p.codec.readTree(p)
+        val node: JsonNode = ctxt.readTree(p) as JsonNode
 
         // Parse standard fields
-        val id = node.get("id").asText()
+        val id = node.get("id").asString()
         val x = node.get("x").asInt()
         val y = node.get("y").asInt()
         val w = node.get("w").asInt()
@@ -40,23 +38,27 @@ class WidgetDeserializer() : JsonDeserializer<Widget>() {
 
         // Parse content - handle both string and object formats
         val content: RenderContent? = node.get("content")?.let { contentNode ->
-            if (contentNode.isTextual) {
+            if (contentNode.isString) {
                 // Content is a JSON string, parse it
-                val contentJson = contentNode.asText()
+                val contentJson = contentNode.asString()
                 if (contentJson.isNotBlank()) {
-                    mapper.readValue(contentJson, RenderContent::class.java)
+                    // Re-parse the embedded JSON string through the same mapper.
+                    val embeddedTree = ctxt.tokenStreamFactory()
+                        .createParser(ctxt, contentJson)
+                        .use { embeddedParser -> ctxt.readTree(embeddedParser) }
+                    ctxt.readTreeAsValue(embeddedTree, RenderContent::class.java)
                 } else {
                     null
                 }
             } else {
                 // Content is already an object, deserialize directly
-                mapper.treeToValue(contentNode, RenderContent::class.java)
+                ctxt.readTreeAsValue(contentNode, RenderContent::class.java)
             }
         }
 
         // Parse nested subGridOpts
         val subGridOpts: TreeLayout? = node.get("subGridOpts")?.let { subGridNode ->
-            mapper.treeToValue(subGridNode, TreeLayout::class.java)
+            ctxt.readTreeAsValue(subGridNode, TreeLayout::class.java)
         }
 
         return Widget(

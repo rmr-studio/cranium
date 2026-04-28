@@ -1,6 +1,7 @@
 package riven.core.models.workflow.engine.execution
 
 import riven.core.enums.workflow.WorkflowStatus
+import riven.core.models.common.json.JsonValue
 import java.time.Duration
 import java.time.ZonedDateTime
 import java.util.*
@@ -17,7 +18,7 @@ sealed interface ExecutionRecord {
 
     // Execution Records
     // TODO: Replace with proper payload types
-    val error: Any?
-    val input: Any?
-    val output: Any?
+    val error: JsonValue
+    val input: JsonValue
+    val output: JsonValue
 }

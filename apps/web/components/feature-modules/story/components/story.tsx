@@ -1,23 +1,14 @@
 import { Section } from '@/components/ui/section';
-import { ShaderContainer, ThemeStaticImages } from '@/components/ui/shader-container';
+import { ShaderContainer, type ShaderColors } from '@/components/ui/shader-container';
 import { ArrowRight, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 
 export const Story = () => {
-  const gradients: ThemeStaticImages = {
-    light: 'images/texture/static-gradient-4.webp',
-    dark: 'images/texture/static-gradient-4.webp',
-  };
+  const gradient = 'images/texture/static-gradient-4.webp';
 
-  const shaders = {
-    light: {
-      base: '#7d1441',
-      colors: ['#1a6080', '#3a8aaa', '#78b8cc'] as [string, string, string],
-    },
-    dark: {
-      base: '#7d1441',
-      colors: ['#0f3d5c', '#1a2a3f', '#0d1f2d'] as [string, string, string],
-    },
+  const shaders: ShaderColors = {
+    base: '#7d1441',
+    colors: ['#1a6080', '#3a8aaa', '#78b8cc'],
   };
 
   return (
@@ -28,8 +19,8 @@ export const Story = () => {
         </h1>
 
         <ShaderContainer
-          className="relative z-0 mt-8 mb-4 ml-0! px-0 py-4 shadow-lg shadow-foreground/40 dark:border dark:shadow-none"
-          staticImages={gradients}
+          className=":border :shadow-none relative z-0 mt-8 mb-4 ml-0! px-0 py-4 shadow-lg shadow-foreground/40"
+          staticImage={gradient}
           shaders={shaders}
         >
           <Link

@@ -9,7 +9,7 @@ Updated:
 Domains:
   - "[[riven/docs/system-design/domains/Entities/Entities]]"
 blocked by:
-  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]]"
+  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/5. Backlog/Three-Tier Entity Model and Lifecycle Spine]]"
 ---
 # Feature: Aggregation Query Benchmark
 
@@ -124,7 +124,7 @@ CREATE INDEX idx_entities_workspace_type_active ON entities(workspace_id, type_i
 ## Related Documents
 
 - [[SQL Aggregation Column Engine]] — the feature this benchmark validates
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Three-Tier Entity Model and Lifecycle Spine]] — provides the entity type definitions and aggregation declarations
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/5. Backlog/Three-Tier Entity Model and Lifecycle Spine]] — provides the entity type definitions and aggregation declarations
 - [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Dashboard Metrics Pre-computation Layer]] — fallback if SQL aggregation proves insufficient
 - [[Hub Entity Batch Loading]] — batch fan-out pattern also benefits from benchmark results
 - Eng Review: Lifecycle Spine (2026-03-25) — outside voice identified this as a critical risk

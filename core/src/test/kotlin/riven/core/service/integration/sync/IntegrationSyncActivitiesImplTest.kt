@@ -104,6 +104,9 @@ class IntegrationSyncActivitiesImplTest {
             entityTypeRepository: EntityTypeRepository,
             integrationHealthService: IntegrationHealthService,
             entityProjectionService: riven.core.service.ingestion.EntityProjectionService,
+            noteEmbeddingService: riven.core.service.note.NoteEmbeddingService,
+            objectMapper: tools.jackson.databind.ObjectMapper,
+            resourceLoader: org.springframework.core.io.ResourceLoader,
             transactionTemplate: TransactionTemplate,
             logger: KLogger,
         ): IntegrationSyncActivitiesImpl {
@@ -123,6 +126,9 @@ class IntegrationSyncActivitiesImplTest {
                 entityTypeRepository = entityTypeRepository,
                 integrationHealthService = integrationHealthService,
                 entityProjectionService = entityProjectionService,
+                noteEmbeddingService = noteEmbeddingService,
+                objectMapper = objectMapper,
+                resourceLoader = resourceLoader,
                 transactionTemplate = transactionTemplate,
                 logger = logger,
             ) {
@@ -178,6 +184,15 @@ class IntegrationSyncActivitiesImplTest {
 
     @MockitoBean
     private lateinit var entityProjectionService: riven.core.service.ingestion.EntityProjectionService
+
+    @MockitoBean
+    private lateinit var noteEmbeddingService: riven.core.service.note.NoteEmbeddingService
+
+    @MockitoBean
+    private lateinit var objectMapper: tools.jackson.databind.ObjectMapper
+
+    @MockitoBean
+    private lateinit var resourceLoader: org.springframework.core.io.ResourceLoader
 
     @MockitoBean
     private lateinit var transactionTemplate: TransactionTemplate

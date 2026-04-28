@@ -2,8 +2,7 @@
 
 import { LinkProps, NavbarProps } from '@/lib/interface';
 import { Logo } from '@riven/ui/logo';
-import { ThemeToggle } from '@riven/ui/theme-toggle';
-import { Github, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import Link from 'next/link';
 import React, { Dispatch, FC, useEffect, useState } from 'react';
 import { Button } from './button';
@@ -63,21 +62,14 @@ export const MobileNavbar: FC<MobileNavbarExtendedProps> = ({
         }}
       >
         {/* Header */}
-        <div className="paper-lite flex items-center justify-between px-6 pt-5 pb-3">
+        <div className="flex items-center justify-between px-6 pt-5 pb-3">
           <div className="flex items-center gap-3">
             <Link href="/" onClick={() => setIsOpen(false)} className="flex items-center gap-1.5">
               <Logo size={22} className="fill-logo-primary" />
               <span className="mt-0.5 text-lg font-bold text-logo-primary">Riven</span>
             </Link>
-            <Link
-              href="https://github.com/rmr-studio/riven"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="ml-1 text-muted-foreground transition-colors hover:text-foreground"
-            >
-              <Github className="size-[18px]" />
-            </Link>
-            <ThemeToggle />
+           
+           
           </div>
           <Button
             variant="ghost"

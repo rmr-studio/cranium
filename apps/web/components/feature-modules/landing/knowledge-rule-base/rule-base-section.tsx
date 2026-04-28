@@ -2,7 +2,7 @@
 
 import { Section } from '@/components/ui/section';
 import { SectionDivider } from '@/components/ui/section-divider';
-import { ShaderContainer, ThemeStaticImages } from '@/components/ui/shader-container';
+import { ShaderContainer, type ShaderColors } from '@/components/ui/shader-container';
 import { FC } from 'react';
 
 import {
@@ -19,24 +19,15 @@ import {
 // ── Main Export ──────────────────────────────────────────────────────
 
 export const RuleBaseSection: FC = () => {
-  const dashboardShaders = {
-    light: {
-      base: '#9e4a5c',
-      colors: ['#1a6080', '#1e1218', '#c4a882'] as [string, string, string],
-    },
-    dark: {
-      base: '#8dbaa4',
-      colors: ['#0f3d5c', '#1a2a3f', '#0d1f2d'] as [string, string, string],
-    },
+  const dashboardShaders: ShaderColors = {
+    base: '#fbc4ff',
+    colors: ['#6c83ab', '#3b2245'],
   };
 
-  const gradients: ThemeStaticImages = {
-    light: 'images/texture/static-gradient-4.webp',
-    dark: 'images/texture/static-gradient-4.webp',
-  };
+  const gradient = 'images/texture/static-gradient-4.webp';
 
   return (
-    <Section id="features" size={24} className="mx-0! px-0!">
+    <Section id="features" size={24} className="mx-0! overflow-hidden px-0! pb-30">
       <style>{`
         @keyframes scroll-left {
           from { transform: translateX(0); }
@@ -67,9 +58,9 @@ export const RuleBaseSection: FC = () => {
 
       <div className="mt-40 w-full">
         <ShaderContainer
-          staticImages={gradients}
+          staticImage={gradient}
           shaders={dashboardShaders}
-          className="relative z-30 mx-0! w-full overflow-visible rounded-none border-none! px-0! py-0! shadow-lg shadow-foreground/40 3xl:rounded-l-lg dark:shadow-none"
+          className=":shadow-none relative z-30 mx-0! w-full overflow-visible rounded-none border-none! px-0! py-0! shadow-lg shadow-foreground/40 3xl:rounded-l-lg"
         >
           <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-black/60 via-black/25 to-transparent md:w-40" />
           <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-black/60 via-black/25 to-transparent md:w-40" />
@@ -88,13 +79,13 @@ export const RuleBaseSection: FC = () => {
               prompts={QUERY_PROMPTS}
               label="Query"
               startDelay={500}
-              className="absolute! -top-14 h-32 sm:left-16"
+              className="absolute! -top-14 right-4 left-4 h-32 lg:right-auto lg:left-16"
             />
             <TypewriterPrompt
               prompts={RULE_PROMPTS}
               label="Automate"
               startDelay={1000}
-              className="absolute! -bottom-18 h-40 sm:right-24 sm:-bottom-14 sm:h-32"
+              className="xs:-bottom-14 absolute! -bottom-18 left-4 h-40 sm:h-32 lg:right-24 lg:left-auto"
             />
           </div>
         </ShaderContainer>

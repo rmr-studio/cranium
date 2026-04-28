@@ -73,7 +73,7 @@ A layered approach combining system-level inference (reducing the need for manua
 
 ### Dependencies
 
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/2. Planned/Semantic Metadata Foundation]] — The `entity_type_semantic_metadata` table and `SemanticAttributeClassification` enum must exist (already shipped)
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/4. Completed/Semantic Metadata Foundation]] — The `entity_type_semantic_metadata` table and `SemanticAttributeClassification` enum must exist (already shipped)
 - [[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]] — The matching pipeline (trigger, candidates, scoring, suggestions) must be functional (already shipped in identity-resolution milestone v1.0)
 
 ---
@@ -194,7 +194,7 @@ Add attribute name heuristics to the entity type editor. Surface inline prompts 
 
 ## Related Documents
 
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/2. Planned/Semantic Metadata Foundation]] — The semantic metadata layer that stores IDENTIFIER classifications
+- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/4. Completed/Semantic Metadata Foundation]] — The semantic metadata layer that stores IDENTIFIER classifications
 - [[riven/docs/system-design/domains/Identity Resolution/Identity Resolution]] — The identity matching pipeline that consumes IDENTIFIER classifications
 - [[riven/docs/system-design/domains/Identity Resolution/Clusters/Clusters]] — Identity clusters formed from confirmed match suggestions
 - [[riven/docs/system-design/domains/Entities/Type Definitions/EntityTypeService]] — Entity type creation and attribute management

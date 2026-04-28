@@ -1,6 +1,6 @@
 package riven.core.service.integration.materialization
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -18,8 +18,7 @@ import riven.core.enums.core.DataFormat
 import riven.core.enums.core.DataType
 import riven.core.enums.integration.SourceType
 import riven.core.exceptions.NotFoundException
-import riven.core.lifecycle.CoreModelRegistry
-import riven.core.models.common.Icon
+import riven.core.models.core.CoreModelRegistry
 import riven.core.models.common.validation.Schema
 import riven.core.models.entity.EntityTypeSchema
 import riven.core.models.entity.configuration.ColumnConfiguration

@@ -100,5 +100,5 @@ No official Java/Kotlin SDK exists for Nango -- integration is via direct REST A
 
 - [[riven/docs/system-design/feature-design/3. Active/Integration Access Layer]]
 - [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]]
-- [[riven/docs/system-design/feature-design/1. Planning/Integration Schema Mapping]]
+- [[riven/docs/system-design/feature-design/5. Backlog/Integration Schema Mapping]]
 - [[riven/docs/system-design/flows/Integration Connection Lifecycle]]

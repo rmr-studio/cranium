@@ -1,21 +1,23 @@
 package riven.core.service.entity.query
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
-import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
-import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration
+import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
+import riven.core.configuration.util.ObjectMapperConfig
 import org.springframework.data.auditing.DateTimeProvider
 import org.springframework.data.domain.AuditorAware
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
-import org.springframework.boot.autoconfigure.domain.EntityScan
+import org.springframework.boot.persistence.autoconfigure.EntityScan
 import riven.core.configuration.properties.QueryConfigurationProperties
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
@@ -74,6 +76,7 @@ import javax.sql.DataSource
 @EnableJpaRepositories(basePackages = ["riven.core.repository.entity"])
 @EntityScan("riven.core.entity")
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider", dateTimeProviderRef = "dateTimeProvider")
+@Import(ObjectMapperConfig::class) // Boot 4 JacksonAutoConfiguration is @ConditionalOnClass(tools.jackson...) — gated on Jackson 3; app uses Jackson 2, so the ObjectMapper bean must be imported explicitly
 class EntityQueryIntegrationTestConfig {
 
     @Bean
@@ -121,9 +124,7 @@ class EntityQueryIntegrationTestConfig {
         entityAttributeRepository: riven.core.repository.entity.EntityAttributeRepository,
     ) = riven.core.service.entity.EntityAttributeService(
         entityAttributeRepository,
-        com.fasterxml.jackson.databind.ObjectMapper().apply {
-            findAndRegisterModules()
-        },
+        tools.jackson.databind.json.JsonMapper.builder().build(),
         org.mockito.Mockito.mock(io.github.oshai.kotlinlogging.KLogger::class.java),
     )
 

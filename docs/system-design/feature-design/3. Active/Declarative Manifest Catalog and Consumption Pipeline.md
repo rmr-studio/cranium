@@ -24,7 +24,7 @@ Additionally, shared models (`models/`) need to be independently installable int
 
 ### Proposed Solution
 
-A global catalog table model (no workspace scope, no RLS — following the `integration_definitions` precedent from [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/3. Active/Integration Access Layer]]) that stores all manifest-loaded definitions. A manifest loader upserts definitions on startup. A clone service copies catalog entries into workspace-scoped tables when a user selects a template, installs a model, or connects an integration.
+A global catalog table model (no workspace scope, no RLS — following the `integration_definitions` precedent from [[riven/docs/system-design/feature-design/3. Active/Integration Access Layer]]) that stores all manifest-loaded definitions. A manifest loader upserts definitions on startup. A clone service copies catalog entries into workspace-scoped tables when a user selects a template, installs a model, or connects an integration.
 
 ### Success Criteria
 
@@ -164,7 +164,7 @@ Integration manifests only.
 | Entity | Change | Rationale |
 |--------|--------|-----------|
 | `entity_types` | Add `source_manifest_key` column (VARCHAR nullable) | Track which catalog manifest a cloned entity type originated from. NULL for user-created types. Used for reference/audit only — does not constrain editing. |
-| `entity_types` | Add `readonly` column (BOOLEAN DEFAULT FALSE) | Prevent modification of integration-derived entity types (per [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/3. Active/Predefined Integration Entity Types]]) |
+| `entity_types` | Add `readonly` column (BOOLEAN DEFAULT FALSE) | Prevent modification of integration-derived entity types (per [[riven/docs/system-design/feature-design/4. Completed/Predefined Integration Entity Types]]) |
 
 ### Data Ownership
 
@@ -514,10 +514,10 @@ No existing data affected. Catalog tables are populated fresh by the manifest lo
 ## Related Documents
 
 - [[riven/docs/system-design/decisions/ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/3. Active/Integration Access Layer]]
-- [[riven/docs/system-design/feature-design/1. Planning/Integration Schema Mapping]]
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/3. Active/Predefined Integration Entity Types]]
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/3. Active/Semantic Metadata Baked Entity Data Model Templates]]
+- [[riven/docs/system-design/feature-design/3. Active/Integration Access Layer]]
+- [[riven/docs/system-design/feature-design/5. Backlog/Integration Schema Mapping]]
+- [[riven/docs/system-design/feature-design/4. Completed/Predefined Integration Entity Types]]
+- [[riven/docs/system-design/feature-design/4. Completed/Semantic Metadata Baked Entity Data Model Templates]]
 - [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]]
 - [[riven/docs/system-design/feature-design/2. Planned/Semantic Metadata Foundation]]
 - [[Connected Entities for READONLY Entity Types]]

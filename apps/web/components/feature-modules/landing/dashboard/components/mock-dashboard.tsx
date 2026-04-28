@@ -142,7 +142,7 @@ export const MockDashboard: FC<ClassNameProps> = ({ className }) => {
         }}
       >
         <div className="relative flex" style={{ height }}>
-          <div className="dark flex overflow-hidden rounded-xl" style={{ height: 1050 }}>
+          <div className="flex overflow-hidden rounded-xl" style={{ height: 1050 }}>
             <ShowcaseIconRail icons={DASHBOARD_NAV_ICONS} />
             <DashboardContent />
           </div>

@@ -2,8 +2,9 @@ package riven.core.models.common
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver
+import tools.jackson.databind.annotation.JsonTypeIdResolver
 import riven.core.configuration.util.CaseInsensitiveTypeIdResolver
+import riven.core.models.common.json.JsonValue
 
 /** Simple boolean predicate */
 data class Condition(
@@ -22,5 +23,5 @@ enum class Op { EXISTS, EQUALS, NOT_EQUALS, GT, GTE, LT, LTE, IN, NOT_IN, EMPTY,
 )
 sealed class Operand {
     data class Path(val path: String) : Operand()       // same JSONPath-ish as DataPath
-    data class Value(val value: Any?) : Operand()
+    data class Value(val value: JsonValue) : Operand()
 }

@@ -8,6 +8,7 @@ import {
 } from '@/lib/types/entity';
 import { z } from 'zod';
 import { exists } from '../utils';
+import { resolveDefaultValue } from './default-value.util';
 import { attributeTypes } from './schema.util';
 
 /**
@@ -217,9 +218,12 @@ export function buildRelationshipFieldSchema(relationship: RelationshipDefinitio
  * Get default value for a schema field
  */
 export function getDefaultValueForSchema(schema: SchemaUUID): unknown {
-  // Check for custom default value in options first
-  if (schema.options?._default !== undefined && schema.options?._default !== null) {
-    return schema.options._default;
+  // Check for custom default value in options first. If the custom default
+  // cannot be resolved (e.g. unknown dynamic function), fall through to the
+  // type-based fallback instead of returning undefined.
+  if (schema.options?.defaultValue != null) {
+    const resolved = resolveDefaultValue(schema.options.defaultValue);
+    if (resolved !== undefined) return resolved;
   }
 
   const attributeType = attributeTypes[schema.key];

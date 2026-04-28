@@ -1,7 +1,7 @@
 package riven.core.models.request.entity.type
 
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.ValueDeserializer
+import tools.jackson.databind.annotation.JsonDeserialize
 import io.swagger.v3.oas.annotations.media.DiscriminatorMapping
 import io.swagger.v3.oas.annotations.media.Schema
 import riven.core.enums.entity.EntityTypeRequestDefinition
@@ -12,7 +12,7 @@ import java.util.*
     name = "DeleteAttributeDefinitionRequest",
     description = "Request to remove a schema attribute definition for an entity type"
 )
-@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonDeserialize(using = ValueDeserializer.None::class)
 data class DeleteAttributeDefinitionRequest(
     override val key: String,
     override val id: UUID,
@@ -25,7 +25,7 @@ data class DeleteAttributeDefinitionRequest(
     name = "DeleteRelationshipDefinitionRequest",
     description = "Request to remove a relationship definition for an entity type"
 )
-@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonDeserialize(using = ValueDeserializer.None::class)
 data class DeleteRelationshipDefinitionRequest(
     override val key: String,
     override val id: UUID,

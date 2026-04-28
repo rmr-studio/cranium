@@ -1,8 +1,8 @@
 package riven.core.entity.block
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.readValue
 import riven.core.enums.block.layout.RenderType
 import riven.core.enums.block.node.NodeType
 import riven.core.models.block.layout.RenderContent

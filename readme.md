@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://cdn.riven.software/images/og-image.png" alt="Riven Dashboard" width="100%" />
+  <img src="https://cdn.riven.software/images/og-image.jpg" alt="Riven Dashboard" width="100%" />
 </p>
 <h1 align="center">Riven</h1>
 

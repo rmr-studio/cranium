@@ -10,15 +10,54 @@ import java.util.*
 
 interface NoteRepository : JpaRepository<NoteEntity, UUID> {
 
-    // ------ Entity-scoped queries (existing) ------
-
-    fun findByEntityIdAndWorkspaceIdOrderByCreatedAtDesc(entityId: UUID, workspaceId: UUID): List<NoteEntity>
+    // ------ Entity-scoped queries (via note_entity_attachments join) ------
 
     @Query(
-        value = "SELECT * FROM notes WHERE entity_id = :entityId AND workspace_id = :workspaceId AND search_vector @@ plainto_tsquery('english', :searchTerm) ORDER BY created_at DESC",
+        """
+        SELECT n FROM NoteEntity n
+        WHERE n.workspaceId = :workspaceId
+        AND EXISTS (
+            SELECT 1 FROM NoteEntityAttachment a
+            WHERE a.noteId = n.id AND a.entityId = :entityId
+        )
+        ORDER BY n.createdAt DESC
+        """
+    )
+    fun findByEntityIdAndWorkspaceId(
+        @Param("entityId") entityId: UUID,
+        @Param("workspaceId") workspaceId: UUID,
+    ): List<NoteEntity>
+
+    @Query(
+        value = """
+            SELECT n.* FROM notes n
+            JOIN note_entity_attachments nea ON nea.note_id = n.id
+            WHERE nea.entity_id = :entityId
+              AND n.workspace_id = :workspaceId
+              AND n.search_vector @@ plainto_tsquery('english', :searchTerm)
+            ORDER BY n.created_at DESC
+        """,
         nativeQuery = true
     )
-    fun searchByEntityIdAndWorkspaceId(entityId: UUID, workspaceId: UUID, searchTerm: String): List<NoteEntity>
+    fun searchByEntityIdAndWorkspaceId(
+        @Param("entityId") entityId: UUID,
+        @Param("workspaceId") workspaceId: UUID,
+        @Param("searchTerm") searchTerm: String,
+    ): List<NoteEntity>
+
+    @Query(
+        """
+        SELECT n FROM NoteEntity n
+        WHERE n.workspaceId = :workspaceId
+        AND n.sourceIntegrationId = :sourceIntegrationId
+        AND n.sourceExternalId = :sourceExternalId
+        """
+    )
+    fun findByWorkspaceIdAndSourceIntegrationIdAndSourceExternalId(
+        @Param("workspaceId") workspaceId: UUID,
+        @Param("sourceIntegrationId") sourceIntegrationId: UUID,
+        @Param("sourceExternalId") sourceExternalId: String,
+    ): NoteEntity?
 
     // ------ Workspace-scoped queries ------
 
@@ -95,4 +134,25 @@ interface NoteRepository : JpaRepository<NoteEntity, UUID> {
         nativeQuery = true
     )
     fun findEntityContext(@Param("entityIds") entityIds: List<UUID>): List<Array<Any?>>
+
+    /**
+     * Finds integration notes that have no attachments (unattached) for reconciliation.
+     * These are notes whose target entities hadn't synced yet when the note was created.
+     */
+    @Query(
+        value = """
+            SELECT n FROM NoteEntity n
+            WHERE n.workspaceId = :workspaceId
+            AND n.sourceType = riven.core.enums.note.NoteSourceType.INTEGRATION
+            AND n.sourceIntegrationId = :integrationId
+            AND n.pendingAssociations IS NOT NULL
+            AND NOT EXISTS (
+                SELECT 1 FROM NoteEntityAttachment a WHERE a.noteId = n.id
+            )
+        """
+    )
+    fun findUnattachedIntegrationNotes(
+        @Param("workspaceId") workspaceId: UUID,
+        @Param("integrationId") integrationId: UUID,
+    ): List<NoteEntity>
 }

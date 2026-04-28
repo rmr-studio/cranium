@@ -200,7 +200,7 @@ class NangoClientWrapper(
     /**
      * Adds retry logic for transient failures (rate limits and server errors).
      */
-    private fun <T> Mono<T>.withNangoRetry(): Mono<T> {
+    private fun <T : Any> Mono<T>.withNangoRetry(): Mono<T> {
         return this.retryWhen(
             Retry.backoff(3, Duration.ofSeconds(2))
                 .filter { it is RateLimitException || it is TransientNangoException }

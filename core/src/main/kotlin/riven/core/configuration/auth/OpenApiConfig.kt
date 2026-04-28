@@ -1,5 +1,6 @@
 package riven.core.configuration.auth
 
+import io.swagger.v3.core.converter.ModelConverters
 import io.swagger.v3.core.jackson.ModelResolver
 import io.swagger.v3.oas.annotations.OpenAPIDefinition
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -29,6 +30,7 @@ class OpenApiConfig {
 
     init {
         ModelResolver.enumsAsRef = true
+        ModelConverters.getInstance().addConverter(AnyTypeModelConverter())
     }
 
 

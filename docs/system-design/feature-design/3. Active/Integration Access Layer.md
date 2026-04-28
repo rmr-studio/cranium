@@ -528,9 +528,9 @@ Flyway manages execution order automatically. Migration V001 runs before V003 an
 - [[riven/docs/system-design/decisions/ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]
 - [[Flow Integration Connection Lifecycle]]
 - [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]]
-- [[riven/docs/system-design/feature-design/1. Planning/Integration Schema Mapping]]
+- [[riven/docs/system-design/feature-design/5. Backlog/Integration Schema Mapping]]
 - [[riven/docs/system-design/feature-design/2. Planned/Identity Resolution System]]
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/3. Active/Predefined Integration Entity Types]]
+- [[riven/docs/system-design/feature-design/4. Completed/Predefined Integration Entity Types]]
 - [[riven/docs/system-design/domains/Entities/Entities]]
 - [[riven/docs/system-design/domains/Workspaces & Users/Workspaces & Users]]
 

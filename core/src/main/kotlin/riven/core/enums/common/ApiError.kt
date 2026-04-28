@@ -53,4 +53,13 @@ enum class ApiError {
 
     @JsonProperty("RATE_LIMIT_EXCEEDED")
     RATE_LIMIT_EXCEEDED,
+
+    @JsonProperty("SSRF_REJECTED")
+    SSRF_REJECTED,
+
+    @JsonProperty("ROLE_VERIFICATION_FAILED")
+    ROLE_VERIFICATION_FAILED,
+
+    @JsonProperty("MAPPING_VALIDATION_FAILED")
+    MAPPING_VALIDATION_FAILED,
 }

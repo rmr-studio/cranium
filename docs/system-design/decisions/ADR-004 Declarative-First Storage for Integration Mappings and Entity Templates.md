@@ -19,7 +19,7 @@ The system requires two categories of reusable entity type definitions that must
 
 Both categories share the same core requirement: definitions must be **statically stored**, **reusable across workspaces**, **version-controlled**, and **extensible by the community** without requiring deep application knowledge.
 
-The existing architecture has an unresolved tension. [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-001 Nango as Integration Infrastructure]] established that the integration catalog is database-stored to avoid redeployment when adding new integrations. But the [[riven/docs/system-design/feature-design/1. Planning/Integration Schema Mapping]] feature design implies per-integration code — each integration platform having "its own interface definition" for entity type templates and schema mapping guides. This effectively reintroduces the redeployment problem: every new integration or mapping change requires a code change, a build, and a release.
+The existing architecture has an unresolved tension. [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-001 Nango as Integration Infrastructure]] established that the integration catalog is database-stored to avoid redeployment when adding new integrations. But the [[riven/docs/system-design/feature-design/5. Backlog/Integration Schema Mapping]] feature design implies per-integration code — each integration platform having "its own interface definition" for entity type templates and schema mapping guides. This effectively reintroduces the redeployment problem: every new integration or mapping change requires a code change, a build, and a release.
 
 Additionally, the application is **self-hostable and open source**. This creates two specific extensibility requirements:
 - **Community contributors** need to be able to add new integrations and templates without deep Kotlin/Spring Boot expertise
@@ -420,9 +420,9 @@ Expose REST endpoints that allow self-hosters to register custom integrations an
 
 ## Related
 
-- [[riven/docs/system-design/feature-design/1. Planning/Integration Schema Mapping]]
-- [[riven/docs/system-design/feature-design/3. Active/Predefined Integration Entity Types]]
-- [[riven/docs/system-design/feature-design/3. Active/Semantic Metadata Baked Entity Data Model Templates]]
+- [[riven/docs/system-design/feature-design/5. Backlog/Integration Schema Mapping]]
+- [[riven/docs/system-design/feature-design/4. Completed/Predefined Integration Entity Types]]
+- [[riven/docs/system-design/feature-design/4. Completed/Semantic Metadata Baked Entity Data Model Templates]]
 - [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]]
 - [[riven/docs/system-design/feature-design/3. Active/Integration Access Layer]]
 - [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-001 Nango as Integration Infrastructure]]

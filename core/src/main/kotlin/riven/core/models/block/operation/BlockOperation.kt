@@ -1,6 +1,6 @@
 package riven.core.models.block.operation
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.annotation.JsonDeserialize
 import io.swagger.v3.oas.annotations.media.Schema
 import riven.core.deserializer.BlockOperationDeserializer
 import riven.core.enums.block.request.BlockOperationType

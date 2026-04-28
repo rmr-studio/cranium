@@ -1,8 +1,8 @@
 package riven.core.models.workflow.node.config.controls
 
 import com.fasterxml.jackson.annotation.JsonTypeName
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.ValueDeserializer
+import tools.jackson.databind.annotation.JsonDeserialize
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.media.Schema
 import riven.core.enums.common.icon.IconType
@@ -73,7 +73,7 @@ private val log = KotlinLogging.logger {}
     description = "Configuration for CONDITION control flow nodes."
 )
 @JsonTypeName("workflow_condition_control")
-@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonDeserialize(using = ValueDeserializer.None::class)
 data class WorkflowConditionControlConfig(
     override val version: Int = 1,
 

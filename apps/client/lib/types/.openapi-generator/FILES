@@ -1,4 +1,5 @@
 apis/BlockApi.ts
+apis/DevApi.ts
 apis/EntityApi.ts
 apis/IdentityApi.ts
 apis/IntegrationsApi.ts
@@ -87,6 +88,7 @@ docs/CursorPageWorkspaceNote.md
 docs/DataFormat.md
 docs/DataPath.md
 docs/DataType.md
+docs/DefaultValue.md
 docs/DefinitionCategory.md
 docs/DefinitionSource.md
 docs/DefinitionStatus.md
@@ -97,9 +99,13 @@ docs/DeleteEntityResponse.md
 docs/DeleteRelationshipDefinitionRequest.md
 docs/DeleteTypeDefinitionRequest.md
 docs/DeleteTypeDefinitionRequestDefinition.md
+docs/DevApi.md
+docs/DevSeedResponse.md
 docs/DisableIntegrationRequest.md
 docs/DisplayName.md
 docs/DraggableOptions.md
+docs/Dynamic.md
+docs/DynamicDefaultFunction.md
 docs/Entity.md
 docs/EntityApi.md
 docs/EntityAttribute.md
@@ -123,6 +129,7 @@ docs/EntityType.md
 docs/EntityTypeAttributeColumn.md
 docs/EntityTypeImpactResponse.md
 docs/EntityTypeRequestDefinition.md
+docs/EntityTypeSeedDetail.md
 docs/EntityTypeSemanticMetadata.md
 docs/ExecutionJobType.md
 docs/ExecutionQueueRequest.md
@@ -260,6 +267,7 @@ docs/SortDirection.md
 docs/SortSpec.md
 docs/SourceType.md
 docs/StartWorkflowExecutionRequest.md
+docs/Static.md
 docs/StorageApi.md
 docs/StorageDomain.md
 docs/StructuralOperationRequest.md
@@ -424,6 +432,7 @@ models/CursorPageWorkspaceNote.ts
 models/DataFormat.ts
 models/DataPath.ts
 models/DataType.ts
+models/DefaultValue.ts
 models/DefinitionCategory.ts
 models/DefinitionSource.ts
 models/DefinitionStatus.ts
@@ -434,9 +443,12 @@ models/DeleteEntityResponse.ts
 models/DeleteRelationshipDefinitionRequest.ts
 models/DeleteTypeDefinitionRequest.ts
 models/DeleteTypeDefinitionRequestDefinition.ts
+models/DevSeedResponse.ts
 models/DisableIntegrationRequest.ts
 models/DisplayName.ts
 models/DraggableOptions.ts
+models/Dynamic.ts
+models/DynamicDefaultFunction.ts
 models/Entity.ts
 models/EntityAttribute.ts
 models/EntityAttributePayload.ts
@@ -459,6 +471,7 @@ models/EntityType.ts
 models/EntityTypeAttributeColumn.ts
 models/EntityTypeImpactResponse.ts
 models/EntityTypeRequestDefinition.ts
+models/EntityTypeSeedDetail.ts
 models/EntityTypeSemanticMetadata.ts
 models/ExecutionJobType.ts
 models/ExecutionQueueRequest.ts
@@ -590,6 +603,7 @@ models/SortDirection.ts
 models/SortSpec.ts
 models/SourceType.ts
 models/StartWorkflowExecutionRequest.ts
+models/Static.ts
 models/StorageDomain.ts
 models/StructuralOperationRequest.ts
 models/StructuralOperationRequestData.ts

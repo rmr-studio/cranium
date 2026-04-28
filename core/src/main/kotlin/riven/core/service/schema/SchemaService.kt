@@ -1,9 +1,9 @@
 package riven.core.service.schema
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.networknt.schema.JsonSchemaFactory
-import com.networknt.schema.SpecVersion
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.ObjectMapper
+import com.networknt.schema.SchemaRegistry
+import com.networknt.schema.SpecificationVersion
 import org.springframework.stereotype.Service
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.common.validation.ValidationScope
@@ -26,7 +26,7 @@ private const val MAX_ERRORS = 200
 class SchemaService(
     private val objectMapper: ObjectMapper
 ) {
-    private val schemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)
+    private val schemaRegistry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09)
 
     /**
      * Validates a payload against the given BlockSchema and returns any validation error messages.
@@ -51,7 +51,7 @@ class SchemaService(
         val schemaMap = schema.toJsonSchema(allowAdditionalProperties = scope == ValidationScope.SOFT)
         val schemaNode: JsonNode = objectMapper.valueToTree(schemaMap)
         val payloadNode: JsonNode = objectMapper.valueToTree(payload)
-        val jsonSchema = schemaFactory.getSchema(schemaNode)
+        val jsonSchema = schemaRegistry.getSchema(schemaNode)
         jsonSchema.validate(payloadNode).forEach { errors.add(it.message) }
 
         // Step 2: Custom recursive checks

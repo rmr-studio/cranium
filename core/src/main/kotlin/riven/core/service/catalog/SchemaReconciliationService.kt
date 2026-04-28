@@ -3,7 +3,10 @@ package riven.core.service.catalog
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
+import org.springframework.transaction.PlatformTransactionManager
+import org.springframework.transaction.TransactionDefinition
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.support.TransactionTemplate
 import riven.core.entity.catalog.CatalogEntityTypeEntity
 import riven.core.entity.entity.EntityTypeEntity
 import riven.core.enums.activity.Activity
@@ -50,10 +53,22 @@ class SchemaReconciliationService(
     private val entityAttributeRepository: EntityAttributeRepository,
     private val activityService: ActivityService,
     private val authTokenService: AuthTokenService,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     /** Process-local concurrency guard keyed by entity type ID. */
     private val reconciliationLocks = ConcurrentHashMap<UUID, Boolean>()
+
+    /**
+     * Each per-entity-type apply runs in its own physical transaction so a failure on
+     * one entity rolls back only that iteration's writes — successful prior iterations
+     * remain committed. REQUIRES_NEW is used because [applyAllChangesForEntityType] is a
+     * private method on this bean, so an annotation-based propagation override would be
+     * bypassed by the AOP proxy.
+     */
+    private val requiresNewTemplate = TransactionTemplate(transactionManager).apply {
+        propagationBehavior = TransactionDefinition.PROPAGATION_REQUIRES_NEW
+    }
 
     // ------ Public Reconciliation Entry Point ------
 
@@ -600,7 +615,8 @@ class SchemaReconciliationService(
 
         for (entityType in entityTypes) {
             try {
-                val result = applyAllChangesForEntityType(entityType)
+                val result = requiresNewTemplate.execute { applyAllChangesForEntityType(entityType) }
+                    ?: error("TransactionTemplate.execute returned null for entity type ${entityType.id}")
                 reconciled.add(result)
 
                 logReconciliationActivity(
@@ -708,69 +724,64 @@ class SchemaReconciliationService(
     // ------ Health Status ------
 
     private fun buildHealthStatus(entityType: EntityTypeEntity): EntityTypeHealthStatus {
-        val entityTypeId = requireNotNull(entityType.id) { "EntityTypeEntity ID must not be null" }
         val catalogEntry = lookupCatalogEntry(entityType)
-
         if (catalogEntry == null || entityType.attributeKeyMapping == null) {
-            return EntityTypeHealthStatus(
-                entityTypeId = entityTypeId,
-                entityTypeKey = entityType.key,
-                displayName = entityType.displayNameSingular,
-                status = SchemaHealthStatusType.UNKNOWN,
-                sourceSchemaHash = entityType.sourceSchemaHash,
-                catalogSchemaHash = null,
-                pendingChanges = emptyList(),
-            )
+            return unknownStatus(entityType)
         }
-
-        val hashMatch = entityType.sourceSchemaHash == catalogEntry.schemaHash
-
-        if (hashMatch && !entityType.pendingSchemaUpdate) {
-            return EntityTypeHealthStatus(
-                entityTypeId = entityTypeId,
-                entityTypeKey = entityType.key,
-                displayName = entityType.displayNameSingular,
-                status = SchemaHealthStatusType.UP_TO_DATE,
-                sourceSchemaHash = entityType.sourceSchemaHash,
-                catalogSchemaHash = catalogEntry.schemaHash,
-                pendingChanges = emptyList(),
-            )
+        if (entityType.sourceSchemaHash == catalogEntry.schemaHash && !entityType.pendingSchemaUpdate) {
+            return upToDateStatus(entityType, catalogEntry)
         }
-
         val changes = computeSchemaDiff(catalogEntry.schema, entityType.schema, entityType.attributeKeyMapping!!)
-
-        // Legacy entity types (sourceSchemaHash == null) may be structurally identical to catalog even
-        // though their hash hasn't been stamped yet. Treat empty diff as UP_TO_DATE so the health endpoint
-        // doesn't surface false drift; the actual hash stamp is performed by reconcileIfNeeded.
         if (changes.isEmpty()) {
-            return EntityTypeHealthStatus(
-                entityTypeId = entityTypeId,
-                entityTypeKey = entityType.key,
-                displayName = entityType.displayNameSingular,
-                status = SchemaHealthStatusType.UP_TO_DATE,
-                sourceSchemaHash = catalogEntry.schemaHash,
-                catalogSchemaHash = catalogEntry.schemaHash,
-                pendingChanges = emptyList(),
-            )
+            return upToDateStatus(entityType, catalogEntry, sourceHashOverride = catalogEntry.schemaHash)
         }
+        return pendingStatus(entityType, catalogEntry, changes)
+    }
 
+    private fun unknownStatus(entityType: EntityTypeEntity): EntityTypeHealthStatus {
+        val entityTypeId = requireNotNull(entityType.id) { "EntityTypeEntity ID must not be null" }
+        return EntityTypeHealthStatus(
+            entityTypeId = entityTypeId,
+            entityTypeKey = entityType.key,
+            displayName = entityType.displayNameSingular,
+            status = SchemaHealthStatusType.UNKNOWN,
+            sourceSchemaHash = entityType.sourceSchemaHash,
+            catalogSchemaHash = null,
+            pendingChanges = emptyList(),
+        )
+    }
+
+    /**
+     * Builds the UP_TO_DATE response. Used by both the hash-match fast path (override = null →
+     * reports the entity's stored hash) and the empty-diff legacy path where the entity is
+     * structurally identical to catalog but its stored hash hasn't been stamped yet
+     * (override = catalogEntry.schemaHash so the response reflects equivalence rather than hash
+     * provenance — actual stamp happens in reconcileIfNeeded).
+     */
+    private fun upToDateStatus(
+        entityType: EntityTypeEntity,
+        catalogEntry: CatalogEntityTypeEntity,
+        sourceHashOverride: String? = null,
+    ): EntityTypeHealthStatus {
+        val entityTypeId = requireNotNull(entityType.id) { "EntityTypeEntity ID must not be null" }
+        return EntityTypeHealthStatus(
+            entityTypeId = entityTypeId,
+            entityTypeKey = entityType.key,
+            displayName = entityType.displayNameSingular,
+            status = SchemaHealthStatusType.UP_TO_DATE,
+            sourceSchemaHash = sourceHashOverride ?: entityType.sourceSchemaHash,
+            catalogSchemaHash = catalogEntry.schemaHash,
+            pendingChanges = emptyList(),
+        )
+    }
+
+    private fun pendingStatus(
+        entityType: EntityTypeEntity,
+        catalogEntry: CatalogEntityTypeEntity,
+        changes: List<SchemaChange>,
+    ): EntityTypeHealthStatus {
+        val entityTypeId = requireNotNull(entityType.id) { "EntityTypeEntity ID must not be null" }
         val hasBreaking = changes.any { it.breaking }
-
-        val pendingChanges = changes.map { change ->
-            val affectedCount = if (change.workspaceAttributeId != null) {
-                entityAttributeRepository.countByTypeIdAndAttributeId(entityTypeId, change.workspaceAttributeId)
-            } else {
-                0L
-            }
-            PendingSchemaChange(
-                type = change.type,
-                attributeKey = change.attributeKey,
-                description = change.description,
-                breaking = change.breaking,
-                affectedEntityCount = affectedCount,
-            )
-        }
-
         return EntityTypeHealthStatus(
             entityTypeId = entityTypeId,
             entityTypeKey = entityType.key,
@@ -778,7 +789,25 @@ class SchemaReconciliationService(
             status = if (hasBreaking) SchemaHealthStatusType.PENDING_BREAKING else SchemaHealthStatusType.PENDING_NON_BREAKING,
             sourceSchemaHash = entityType.sourceSchemaHash,
             catalogSchemaHash = catalogEntry.schemaHash,
-            pendingChanges = pendingChanges,
+            pendingChanges = computePendingChangesWithCounts(entityTypeId, changes),
+        )
+    }
+
+    private fun computePendingChangesWithCounts(
+        entityTypeId: UUID,
+        changes: List<SchemaChange>,
+    ): List<PendingSchemaChange> = changes.map { change ->
+        val affectedCount = if (change.workspaceAttributeId != null) {
+            entityAttributeRepository.countByTypeIdAndAttributeId(entityTypeId, change.workspaceAttributeId)
+        } else {
+            0L
+        }
+        PendingSchemaChange(
+            type = change.type,
+            attributeKey = change.attributeKey,
+            description = change.description,
+            breaking = change.breaking,
+            affectedEntityCount = affectedCount,
         )
     }
 

@@ -8,7 +8,7 @@ Updated:
 Domains:
   - "[[riven/docs/system-design/domains/Knowledge/Knowledge]]"
 blocked by:
-  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Knowledge Layer Sub-Agents]]"
+  - "[[riven/docs/system-design/feature-design/5. Backlog/Knowledge Layer Sub-Agents]]"
 ---
 # Feature: Extrapolate Agentic Perspectives from Entity Schema
 

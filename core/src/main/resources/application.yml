@@ -9,7 +9,6 @@ spring:
     url: ${POSTGRES_DB_JDBC}
     driver-class-name: org.postgresql.Driver
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
     show-sql: ${riven.include-stack-trace}
@@ -41,6 +40,9 @@ riven:
   nango:
     secret-key: ${NANGO_SECRET_KEY:}
     base-url: ${NANGO_BASE_URL:https://api.nango.dev}
+  connector:
+    enabled: ${CONNECTOR_ENABLED:true}
+    credential-encryption-key: ${RIVEN_CREDENTIAL_ENCRYPTION_KEY:}
   rate-limit:
     enabled: ${RATE_LIMIT_ENABLED:true}
     authenticated-rpm: ${RATE_LIMIT_AUTHENTICATED_RPM:200}
@@ -112,5 +114,6 @@ storage:
 springdoc:
   api-docs:
     path: /docs/v3/api-docs
+    version: openapi_3_0
   swagger-ui:
     path: /docs/swagger-ui.html

@@ -1,14 +1,14 @@
 package riven.core.service.ingestion
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
-import org.springframework.boot.autoconfigure.domain.EntityScan
-import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
-import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+import org.springframework.boot.persistence.autoconfigure.EntityScan
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration
+import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
@@ -108,6 +108,10 @@ object ProjectionTestContainer {
                 riven.core.service.workflow.queue.WorkflowExecutionQueueService::class,
                 riven.core.service.identity.IdentityMatchQueueProcessorService::class,
                 riven.core.service.identity.IdentityMatchDispatcherService::class,
+                // NangoAdapter requires NangoClientWrapper (in riven.core.service.integration,
+                // which is not scanned by this config — Nango HTTP layer is intentionally
+                // excluded from the projection pipeline tests).
+                riven.core.service.ingestion.adapter.nango.NangoAdapter::class,
             ]
         ),
     ],
@@ -178,6 +182,7 @@ class ProjectionPipelineIntegrationTestConfig {
         "spring.jpa.hibernate.ddl-auto=none",
         "spring.main.allow-bean-definition-overriding=true",
         "riven.manifests.auto-load=false",
+        "riven.connector.enabled=false",
     ]
 )
 @Testcontainers

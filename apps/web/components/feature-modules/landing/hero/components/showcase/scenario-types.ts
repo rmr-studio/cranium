@@ -34,4 +34,5 @@ export interface ShowcaseScenario {
   kbAnalysedCards: { icon: React.ReactNode; title: string; detail: string }[];
   kbIdentified: React.ReactNode;
   kbResponse: React.ReactNode;
+  kbIntegrations?: { icon: React.ReactNode; label: string }[];
 }

@@ -17,7 +17,7 @@ export function KnowledgeShowcase() {
         }}
       >
         <div className="relative" style={{ height: DESKTOP_HEIGHT }}>
-          <div className="dark relative z-10 origin-top-left" style={{ height: 940 }}>
+          <div className="relative z-10 origin-top-left" style={{ height: 940 }}>
             <MockKnowledgePanel
               scenario={customerScenario}
               className="translate-y-30 lg:translate-y-10"

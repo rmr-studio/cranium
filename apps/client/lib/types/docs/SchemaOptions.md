@@ -6,7 +6,7 @@
 
 Name | Type
 ------------ | -------------
-`_default` | object
+`defaultValue` | [DefaultValue](DefaultValue.md)
 `prefix` | string
 `regex` | string
 `_enum` | Array&lt;string&gt;
@@ -25,7 +25,7 @@ import type { SchemaOptions } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "_default": null,
+  "defaultValue": null,
   "prefix": null,
   "regex": null,
   "_enum": null,

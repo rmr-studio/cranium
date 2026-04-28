@@ -158,7 +158,7 @@ class IdentityResolutionService(
 
             for (attr in entityAttrs) {
                 if (attr.attributeId in identifierAttrIds) {
-                    val textValue = attr.value?.get("value")?.asText()
+                    val textValue = attr.value?.get("value")?.asString()
                     if (!textValue.isNullOrBlank()) {
                         identifierValueToEntityId[textValue] = entityId
                     }
@@ -177,7 +177,7 @@ class IdentityResolutionService(
         identifierValueToEntityId: Map<String, UUID>,
         matchingAttributes: List<EntityAttributeEntity>,
     ): Map<UUID, ResolutionResult> {
-        val matchesByValue = matchingAttributes.groupBy { it.value?.get("value")?.asText() }
+        val matchesByValue = matchingAttributes.groupBy { it.value?.get("value")?.asString() }
         val results = mutableMapOf<UUID, ResolutionResult>()
 
         for ((textValue, integrationEntityId) in identifierValueToEntityId) {

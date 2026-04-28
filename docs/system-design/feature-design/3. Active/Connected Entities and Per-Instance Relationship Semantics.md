@@ -462,7 +462,7 @@ If `ConnectedEntityService` fails, only fallback link management is affected. Ty
 ## Related Documents
 
 - [[Connected Entities for READONLY Entity Types]] — Original quick design (superseded by this document)
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/3. Active/Entity Type Polymorphic Relationship Support for Semantic Categories]] — Related: semantic category matching for target rules
+- [[riven/docs/system-design/feature-design/3. Active/Entity Type Polymorphic Relationship Support for Semantic Categories]] — Related: semantic category matching for target rules
 - [[riven/docs/system-design/feature-design/2. Planned/Identity Resolution System]] — Primary consumer of fallback links
 - [[riven/docs/system-design/feature-design/2. Planned/Semantic Metadata Foundation]] — Provides definition-level semantic text inherited by relationship instances
 - [[riven/docs/system-design/domains/Entities/Entity Semantics/Entity Semantics]] — Subdomain owning semantic metadata

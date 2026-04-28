@@ -1,9 +1,9 @@
 package riven.core.deserializer
 
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.databind.DeserializationContext
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.JsonNode
+import tools.jackson.core.JsonParser
+import tools.jackson.databind.DeserializationContext
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.ValueDeserializer
 import riven.core.enums.workflow.*
 import riven.core.models.workflow.node.config.*
 import riven.core.models.workflow.node.config.actions.*
@@ -37,9 +37,9 @@ import riven.core.util.getEnumFromField
  *
  * Based on the proven Block system pattern (see [MetadataDeserializer]).
  */
-class WorkflowNodeConfigDeserializer : JsonDeserializer<WorkflowNodeConfig>() {
+class WorkflowNodeConfigDeserializer : ValueDeserializer<WorkflowNodeConfig>() {
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext): WorkflowNodeConfig {
-        val node = p.codec.readTree<JsonNode>(p)
+        val node = ctxt.readTree(p) as JsonNode
 
         // Level 1: Extract main category
         val nodeType = ctxt.getEnumFromField<WorkflowNodeType>(
@@ -91,10 +91,10 @@ class WorkflowNodeConfigDeserializer : JsonDeserializer<WorkflowNodeConfig>() {
         )
 
         return when (subType) {
-            WorkflowTriggerType.ENTITY_EVENT -> p.codec.treeToValue(node, WorkflowEntityEventTriggerConfig::class.java)
-            WorkflowTriggerType.SCHEDULE -> p.codec.treeToValue(node, WorkflowScheduleTriggerConfig::class.java)
-            WorkflowTriggerType.WEBHOOK -> p.codec.treeToValue(node, WorkflowWebhookTriggerConfig::class.java)
-            WorkflowTriggerType.FUNCTION -> p.codec.treeToValue(node, WorkflowFunctionTriggerConfig::class.java)
+            WorkflowTriggerType.ENTITY_EVENT -> ctxt.readTreeAsValue(node, WorkflowEntityEventTriggerConfig::class.java)
+            WorkflowTriggerType.SCHEDULE -> ctxt.readTreeAsValue(node, WorkflowScheduleTriggerConfig::class.java)
+            WorkflowTriggerType.WEBHOOK -> ctxt.readTreeAsValue(node, WorkflowWebhookTriggerConfig::class.java)
+            WorkflowTriggerType.FUNCTION -> ctxt.readTreeAsValue(node, WorkflowFunctionTriggerConfig::class.java)
         }
     }
 
@@ -104,21 +104,21 @@ class WorkflowNodeConfigDeserializer : JsonDeserializer<WorkflowNodeConfig>() {
      */
     private fun deserializeActionConfig(
         p: JsonParser,
-        ctx: DeserializationContext,
+        ctxt: DeserializationContext,
         node: JsonNode
     ): WorkflowActionConfig {
-        val subType = ctx.getEnumFromField<WorkflowActionType>(
+        val subType = ctxt.getEnumFromField<WorkflowActionType>(
             node,
             "subType",
             WorkflowActionConfig::class.java
         )
 
         return when (subType) {
-            WorkflowActionType.CREATE_ENTITY -> p.codec.treeToValue(node, WorkflowCreateEntityActionConfig::class.java)
-            WorkflowActionType.UPDATE_ENTITY -> p.codec.treeToValue(node, WorkflowUpdateEntityActionConfig::class.java)
-            WorkflowActionType.DELETE_ENTITY -> p.codec.treeToValue(node, WorkflowDeleteEntityActionConfig::class.java)
-            WorkflowActionType.QUERY_ENTITY -> p.codec.treeToValue(node, WorkflowQueryEntityActionConfig::class.java)
-            WorkflowActionType.HTTP_REQUEST -> p.codec.treeToValue(node, WorkflowHttpRequestActionConfig::class.java)
+            WorkflowActionType.CREATE_ENTITY -> ctxt.readTreeAsValue(node, WorkflowCreateEntityActionConfig::class.java)
+            WorkflowActionType.UPDATE_ENTITY -> ctxt.readTreeAsValue(node, WorkflowUpdateEntityActionConfig::class.java)
+            WorkflowActionType.DELETE_ENTITY -> ctxt.readTreeAsValue(node, WorkflowDeleteEntityActionConfig::class.java)
+            WorkflowActionType.QUERY_ENTITY -> ctxt.readTreeAsValue(node, WorkflowQueryEntityActionConfig::class.java)
+            WorkflowActionType.HTTP_REQUEST -> ctxt.readTreeAsValue(node, WorkflowHttpRequestActionConfig::class.java)
             else -> TODO()
         }
     }
@@ -129,19 +129,19 @@ class WorkflowNodeConfigDeserializer : JsonDeserializer<WorkflowNodeConfig>() {
      */
     private fun deserializeControlConfig(
         p: JsonParser,
-        ctx: DeserializationContext,
+        ctxt: DeserializationContext,
         node: JsonNode
     ): WorkflowControlConfig {
-        val subType = ctx.getEnumFromField<WorkflowControlType>(
+        val subType = ctxt.getEnumFromField<WorkflowControlType>(
             node,
             "subType",
             WorkflowControlConfig::class.java
         )
 
         return when (subType) {
-            WorkflowControlType.CONDITION -> p.codec.treeToValue(node, WorkflowConditionControlConfig::class.java)
+            WorkflowControlType.CONDITION -> ctxt.readTreeAsValue(node, WorkflowConditionControlConfig::class.java)
             // TODO: Add SWITCH, LOOP, PARALLEL in Phase 5+
-            else -> ctx.reportInputMismatch(
+            else -> ctxt.reportInputMismatch(
                 WorkflowControlConfig::class.java,
                 "Deserialization for CONTROL_FLOW subType '$subType' is not yet implemented."
             )
@@ -182,6 +182,6 @@ class WorkflowNodeConfigDeserializer : JsonDeserializer<WorkflowNodeConfig>() {
     ): WorkflowFunctionConfig {
         // FUNCTION category has no subtypes
         // Return the single concrete implementation
-        return p.codec.treeToValue(node, WorkflowFunctionConfig::class.java)
+        return ctxt.readTreeAsValue(node, WorkflowFunctionConfig::class.java)
     }
 }

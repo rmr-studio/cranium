@@ -79,7 +79,7 @@ class WebSocketSecurityInterceptor(
             ?: throw AccessDeniedException("Subscription to unknown destination '$destination' is not allowed")
 
         val hasAccess = auth.authorities.any { authority ->
-            authority.authority.startsWith("ROLE_${workspaceId}_")
+            authority.authority?.startsWith("ROLE_${workspaceId}_") == true
         }
 
         if (!hasAccess) {

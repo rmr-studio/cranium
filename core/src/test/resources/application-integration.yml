@@ -10,7 +10,6 @@ spring:
       ddl-auto: create-drop
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: false
   flyway:
@@ -34,6 +33,9 @@ riven:
   supabase-key: fake-supabase-key-for-integration-tests
   web-origin: http://localhost:3000
   include-stack-trace: false
+  connector:
+    enabled: true
+    credential-encryption-key: 07b4f399f390a1ff9226d2b66f8c3b3a03f0fa89cae1b928e83ee47e6addfe12
   workflow:
     engine:
       target: localhost:7233

@@ -1,6 +1,7 @@
 package riven.core.models.block.tree
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.ValueDeserializer
 import io.swagger.v3.oas.annotations.media.DiscriminatorMapping
 import io.swagger.v3.oas.annotations.media.Schema
 import riven.core.deserializer.NodeDeserializer
@@ -19,7 +20,7 @@ sealed interface Node {
     name = "ContentNode",
     description = "Content node containing a block with optional children"
 )
-@JsonDeserialize(using = com.fasterxml.jackson.databind.JsonDeserializer.None::class)
+@JsonDeserialize(using = tools.jackson.databind.ValueDeserializer.None::class)
 data class ContentNode(
     override val block: Block,
     override val warnings: List<String> = emptyList(),
@@ -33,7 +34,7 @@ data class ContentNode(
     name = "ReferenceNode",
     description = "Reference node containing a block with entity or block tree references"
 )
-@JsonDeserialize(using = com.fasterxml.jackson.databind.JsonDeserializer.None::class)
+@JsonDeserialize(using = tools.jackson.databind.ValueDeserializer.None::class)
 data class ReferenceNode(
     override val block: Block,
     override val warnings: List<String> = emptyList(),

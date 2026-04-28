@@ -1,6 +1,6 @@
 package riven.core.service.integration.materialization
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -36,6 +36,7 @@ import riven.core.repository.entity.RelationshipTargetRuleRepository
 import riven.core.service.entity.EntityTypeSemanticMetadataService
 import riven.core.service.entity.type.EntityTypeRelationshipService
 import riven.core.service.entity.type.EntityTypeSequenceService
+import riven.core.service.util.factory.entity.EntityFactory
 import java.util.*
 
 /**
@@ -404,7 +405,7 @@ class TemplateMaterializationServiceTest {
      */
     @Test
     fun `materializeIntegrationTemplates - stamps sourceManifestId and sourceSchemaHash on restored entity type`() {
-        val softDeletedEntityType = EntityTypeEntity(
+        val softDeletedEntityType = EntityFactory.createEntityType(
             id = UUID.randomUUID(),
             key = "hubspot-contact",
             displayNameSingular = "HubSpot Contact",
@@ -417,7 +418,7 @@ class TemplateMaterializationServiceTest {
             readonly = true,
             schema = riven.core.models.common.validation.Schema(
                 key = SchemaType.OBJECT,
-                type = DataType.OBJECT
+                type = DataType.OBJECT,
             ),
         )
         val catalogWithHash = catalogContactType.copy(schemaHash = "catalog-hash-v1")

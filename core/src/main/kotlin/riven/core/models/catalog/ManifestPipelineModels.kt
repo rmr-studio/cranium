@@ -1,6 +1,6 @@
 package riven.core.models.catalog
 
-import com.fasterxml.jackson.databind.JsonNode
+import tools.jackson.databind.JsonNode
 import riven.core.enums.catalog.ManifestType
 import riven.core.enums.entity.EntityRelationshipCardinality
 import riven.core.enums.entity.LifecycleDomain

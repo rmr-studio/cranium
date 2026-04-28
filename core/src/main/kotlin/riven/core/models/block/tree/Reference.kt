@@ -1,7 +1,7 @@
 package riven.core.models.block.tree
 
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.ValueDeserializer
+import tools.jackson.databind.annotation.JsonDeserialize
 import io.swagger.v3.oas.annotations.media.Schema
 import riven.core.deserializer.ReferencePayloadDeserializer
 import riven.core.enums.block.node.BlockReferenceWarning
@@ -20,7 +20,7 @@ sealed interface ReferencePayload {
     name = "EntityReference",
     description = "Reference to one or more of an workspace's entities (e.g. teams, projects, clients)"
 )
-@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonDeserialize(using = ValueDeserializer.None::class)
 data class EntityReference(
     val reference: List<ReferenceItem<Entity>>? = null
 ) : ReferencePayload {
@@ -31,7 +31,7 @@ data class EntityReference(
     name = "BlockTreeReference",
     description = "Reference to another block tree"
 )
-@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonDeserialize(using = ValueDeserializer.None::class)
 data class BlockTreeReference(
     val reference: ReferenceItem<BlockTree>? = null
 ) : ReferencePayload {

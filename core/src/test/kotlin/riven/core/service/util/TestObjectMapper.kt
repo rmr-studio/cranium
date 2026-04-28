@@ -1,32 +1,26 @@
 package riven.core.service.util
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import java.text.DateFormat
+import tools.jackson.databind.DeserializationFeature
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.cfg.DateTimeFeature
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.module.kotlin.KotlinModule
 import java.text.SimpleDateFormat
+import java.util.TimeZone
 
 object TestObjectMapper {
 
-
-    /**
-     * Creates a preconfigured Jackson ObjectMapper with Kotlin and Java Time support.
-     *
-     * The mapper uses UTC and the pattern "yyyy-MM-dd'T'HH:mm:ss.SSSZ" for date formatting,
-     * ignores unknown properties during deserialization, and writes dates as ISO-8601 strings
-     * instead of timestamps.
-     *
-     * @return A configured `ObjectMapper`.
-     */
+    /** Preconfigured Jackson 3 mapper — Kotlin + auto-registered JSR-310 + UTC ISO-8601 dates. */
     fun init(): ObjectMapper {
-        val dateFormat: DateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-        dateFormat.timeZone = java.util.TimeZone.getTimeZone("UTC")
-
-        return ObjectMapper().registerKotlinModule().findAndRegisterModules()
-            .setDateFormat(dateFormat)
-            .registerModules(JavaTimeModule())
-            .configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .configure(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
+        return JsonMapper.builder()
+            .addModule(KotlinModule.Builder().build())
+            .defaultDateFormat(dateFormat)
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .build()
     }
 
     val objectMapper: ObjectMapper = init()

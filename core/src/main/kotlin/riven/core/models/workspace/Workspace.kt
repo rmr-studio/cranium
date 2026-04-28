@@ -1,7 +1,7 @@
 package riven.core.models.workspace
 
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.ValueDeserializer
+import tools.jackson.databind.annotation.JsonDeserialize
 import io.swagger.v3.oas.annotations.media.Schema
 import riven.core.entity.util.AuditableModel
 import riven.core.enums.workspace.WorkspaceDisplay
@@ -10,7 +10,7 @@ import java.time.ZonedDateTime
 import java.util.*
 
 @Schema(requiredProperties = ["id", "name"])
-@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonDeserialize(using = ValueDeserializer.None::class)
 data class Workspace(
 
     val id: UUID,

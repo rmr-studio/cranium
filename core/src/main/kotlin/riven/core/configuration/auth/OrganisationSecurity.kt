@@ -35,7 +35,7 @@ class WorkspaceSecurity {
                 return false
             }
 
-            return it.authorities.any { claim -> claim.authority.startsWith("ROLE_$workspaceId") }
+            return it.authorities.any { claim -> claim.authority?.startsWith("ROLE_$workspaceId") == true }
         }
     }
 
@@ -51,7 +51,7 @@ class WorkspaceSecurity {
                 return false
             }
 
-            it.authorities.firstOrNull { claim -> claim.authority.startsWith("ROLE_$workspaceId") } ?: return false
+            it.authorities.firstOrNull { claim -> claim.authority?.startsWith("ROLE_$workspaceId") == true } ?: return false
         }.toString()
 
         return WorkspaceRoles.fromString(claim.removePrefix("ROLE_${workspaceId}_")).authority >= targetRole.authority
@@ -69,7 +69,7 @@ class WorkspaceSecurity {
                 return false
             }
 
-            it.authorities.firstOrNull { claim -> claim.authority.startsWith("ROLE_$workspaceId") } ?: return false
+            it.authorities.firstOrNull { claim -> claim.authority?.startsWith("ROLE_$workspaceId") == true } ?: return false
         }.toString()
 
         return WorkspaceRoles.fromString(claim.removePrefix("ROLE_${workspaceId}_")).authority > targetRole.authority
@@ -87,7 +87,7 @@ class WorkspaceSecurity {
     }
 
     fun isUpdatingSelf(memberId: UUID): Boolean {
-        return SecurityContextHolder.getContext().authentication.principal.let {
+        return SecurityContextHolder.getContext().authentication?.principal.let {
             if (it !is Jwt) {
                 return false
             }

@@ -5,6 +5,7 @@ import jakarta.persistence.*
 import org.hibernate.annotations.Type
 import riven.core.enums.workflow.WorkflowStatus
 import riven.core.enums.workflow.WorkflowTriggerType
+import riven.core.models.common.json.JsonValue
 import riven.core.models.workflow.engine.execution.WorkflowExecutionRecord
 import java.time.Duration
 import java.time.ZonedDateTime
@@ -44,15 +45,15 @@ data class WorkflowExecutionEntity(
 
     @Type(JsonBinaryType::class)
     @Column(name = "error", columnDefinition = "jsonb")
-    val error: Any?,
+    val error: JsonValue,
 
     @Type(JsonBinaryType::class)
     @Column(name = "input", columnDefinition = "jsonb")
-    val input: Any?,
+    val input: JsonValue,
 
     @Type(JsonBinaryType::class)
     @Column(name = "output", columnDefinition = "jsonb")
-    val output: Any?
+    val output: JsonValue
 ) {
     fun toModel(): WorkflowExecutionRecord {
         val id: UUID = requireNotNull(this.id)

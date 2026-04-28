@@ -10,8 +10,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
 import riven.core.configuration.properties.ApplicationConfigurationProperties
-import com.fasterxml.jackson.core.JsonProcessingException
+import tools.jackson.core.JacksonException
 import riven.core.enums.common.ApiError
+import riven.core.exceptions.connector.MappingValidationException
+import riven.core.exceptions.connector.ReadOnlyVerificationException
+import riven.core.exceptions.connector.SsrfRejectedException
 import riven.core.exceptions.query.QueryExecutionException
 import riven.core.exceptions.query.QueryFilterException
 import riven.core.models.response.common.ErrorResponse
@@ -123,8 +126,8 @@ class ExceptionHandler(private val logger: KLogger, private val config: Applicat
         }
     }
 
-    @ExceptionHandler(JsonProcessingException::class)
-    fun handleJsonProcessingException(ex: JsonProcessingException): ResponseEntity<ErrorResponse> {
+    @ExceptionHandler(JacksonException::class)
+    fun handleJacksonException(ex: JacksonException): ResponseEntity<ErrorResponse> {
         storeExceptionForAnalytics(ex)
         return ErrorResponse(
             statusCode = HttpStatus.BAD_REQUEST,
@@ -238,6 +241,47 @@ class ExceptionHandler(private val logger: KLogger, private val config: Applicat
             statusCode = HttpStatus.BAD_GATEWAY,
             error = ApiError.STORAGE_PROVIDER_ERROR,
             message = ex.message ?: "Storage provider encountered an error",
+            stackTrace = config.includeStackTrace.takeIf { it }?.let { ex.stackTraceToString() }
+        ).also { logger.error { it } }.let {
+            ResponseEntity(it, it.statusCode)
+        }
+    }
+
+    // ------ Data Connector Connection Exception Handlers ------
+
+    @ExceptionHandler(SsrfRejectedException::class)
+    fun handleSsrfRejectedException(ex: SsrfRejectedException): ResponseEntity<ErrorResponse> {
+        storeExceptionForAnalytics(ex)
+        return ErrorResponse(
+            statusCode = HttpStatus.BAD_REQUEST,
+            error = ApiError.SSRF_REJECTED,
+            message = ex.message ?: "Host rejected",
+            stackTrace = config.includeStackTrace.takeIf { it }?.let { ex.stackTraceToString() }
+        ).also { logger.error { it } }.let {
+            ResponseEntity(it, it.statusCode)
+        }
+    }
+
+    @ExceptionHandler(MappingValidationException::class)
+    fun handleMappingValidationException(ex: MappingValidationException): ResponseEntity<ErrorResponse> {
+        storeExceptionForAnalytics(ex)
+        return ErrorResponse(
+            statusCode = HttpStatus.BAD_REQUEST,
+            error = ApiError.MAPPING_VALIDATION_FAILED,
+            message = ex.message ?: "Mapping validation failed",
+            stackTrace = config.includeStackTrace.takeIf { it }?.let { ex.stackTraceToString() }
+        ).also { logger.error { it } }.let {
+            ResponseEntity(it, it.statusCode)
+        }
+    }
+
+    @ExceptionHandler(ReadOnlyVerificationException::class)
+    fun handleReadOnlyVerificationException(ex: ReadOnlyVerificationException): ResponseEntity<ErrorResponse> {
+        storeExceptionForAnalytics(ex)
+        return ErrorResponse(
+            statusCode = HttpStatus.BAD_REQUEST,
+            error = ApiError.ROLE_VERIFICATION_FAILED,
+            message = ex.message ?: "Role verification failed",
             stackTrace = config.includeStackTrace.takeIf { it }?.let { ex.stackTraceToString() }
         ).also { logger.error { it } }.let {
             ResponseEntity(it, it.statusCode)

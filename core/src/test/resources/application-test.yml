@@ -29,6 +29,9 @@ spring:
 riven:
   rate-limit:
     enabled: false
+  connector:
+    enabled: true
+    credential-encryption-key: 07b4f399f390a1ff9226d2b66f8c3b3a03f0fa89cae1b928e83ee47e6addfe12
   posthog:
     enabled: false
   websocket:

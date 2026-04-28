@@ -11,9 +11,9 @@ Domains:
   - "[[riven/docs/system-design/domains/Knowledge/Knowledge]]"
   - "[[riven/docs/system-design/domains/Catalog/Catalog]]"
 blocked by:
-  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Prompt Construction for Knowledge Model Queries]]"
-  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Data Extraction and Retrieval from Queries]]"
-  - "[[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Lifecycle Domain Model]]"
+  - "[[riven/docs/system-design/feature-design/1. Planning/Prompt Construction for Knowledge Model Queries]]"
+  - "[[riven/docs/system-design/feature-design/1. Planning/Data Extraction and Retrieval from Queries]]"
+  - "[[riven/docs/system-design/feature-design/4. Completed/Lifecycle Domain Model]]"
 ---
 # Feature: Pre-written Lifecycle Queries
 
@@ -63,10 +63,10 @@ Defined in the manifest system as `queryTemplates` within lifecycle spine manife
 
 ## Related Documents
 
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Prompt Construction for Knowledge Model Queries]] — execution engine for queries
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Data Extraction and Retrieval from Queries]] — retrieval pipeline queries depend on
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/feature-design/1. Planning/Lifecycle Domain Model]] — queries scoped to lifecycle domains
-- [[riven/docs/system-design/feature-design/3. Active/Semantic Metadata Baked Entity Data Model Templates]] — queries shipped alongside templates
+- [[riven/docs/system-design/feature-design/1. Planning/Prompt Construction for Knowledge Model Queries]] — execution engine for queries
+- [[riven/docs/system-design/feature-design/1. Planning/Data Extraction and Retrieval from Queries]] — retrieval pipeline queries depend on
+- [[riven/docs/system-design/feature-design/4. Completed/Lifecycle Domain Model]] — queries scoped to lifecycle domains
+- [[riven/docs/system-design/feature-design/4. Completed/Semantic Metadata Baked Entity Data Model Templates]] — queries shipped alongside templates
 - CEO Plan: Lifecycle Vertical Scoping (2026-03-18)
 
 ---

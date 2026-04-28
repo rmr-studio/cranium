@@ -1,8 +1,8 @@
 package riven.core.enums.workspace
 
-import riven.core.lifecycle.B2C_SAAS_MODELS
-import riven.core.lifecycle.CoreModelSet
-import riven.core.lifecycle.DTC_ECOMMERCE_MODELS
+import riven.core.models.core.B2C_SAAS_MODELS
+import riven.core.models.core.CoreModelSet
+import riven.core.models.core.DTC_ECOMMERCE_MODELS
 
 /**
  * Business type selected during onboarding. Determines which core lifecycle

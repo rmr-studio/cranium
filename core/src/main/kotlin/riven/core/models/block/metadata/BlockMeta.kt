@@ -8,7 +8,7 @@ import riven.core.models.common.json.JsonObject
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class BlockMeta(
     var validationErrors: List<String> = emptyList(),
-    @param:Schema(type = "object", additionalProperties = Schema.AdditionalPropertiesValue.TRUE)
+    @get:Schema(type = "object", implementation = Any::class)
     val computedFields: JsonObject? = null,    // optional server-computed values for UI summaries
     var lastValidatedVersion: Int? = null      // BlockType.version used for last validation
 )

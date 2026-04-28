@@ -62,7 +62,7 @@ data class BlockRenderStructure(
 data class BlockComponentNode(
     val id: String,
     val type: ComponentType,
-    @param:Schema(type = "object", additionalProperties = Schema.AdditionalPropertiesValue.TRUE)
+    @get:Schema(type = "object", implementation = Any::class)
     val props: JsonObject = mapOf(),
     val bindings: List<BlockBinding> = emptyList(),
     val slots: Map<String, List<String>>? = null, // slotKey -> [childComponentId,...]

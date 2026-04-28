@@ -39,4 +39,5 @@ enum class Activity {
     @JsonProperty("IDENTITY_CLUSTER") IDENTITY_CLUSTER,
     @JsonProperty("NOTE") NOTE,
     @JsonProperty("BUSINESS_DEFINITION") BUSINESS_DEFINITION,
+    @JsonProperty("DATA_CONNECTOR_CONNECTION") DATA_CONNECTOR_CONNECTION,
 }

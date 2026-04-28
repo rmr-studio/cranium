@@ -6,10 +6,15 @@ import { useWorkspaceStore } from '@/components/feature-modules/workspace/provid
 import { Logo } from '@riven/ui/logo';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@riven/ui/tooltip';
 import { cn } from '@riven/utils';
+import { useIsMobile } from '@riven/hooks';
 import { BookOpen, Building2, CogIcon, SquareDashedMousePointer, StickyNote, TrendingUpDown } from 'lucide-react';
-import { Kbd, KbdGroup } from '../kbd';
-import { Skeleton } from '../skeleton';
-import { type PanelId, useIconRail } from './icon-rail-context';
+import { Kbd, KbdGroup } from '@/components/ui/kbd';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  useSelectedPanel,
+  useSidePanelActions,
+} from '@/components/ui/sidebar/context/side-panel-provider';
+import type { PanelId } from '@/components/ui/sidebar/types/side-panel.types';
 
 interface RailButton {
   id: PanelId;
@@ -47,7 +52,9 @@ function SelectedWorkspaceIcon() {
 }
 
 export function IconRail() {
-  const { selectedPanel, togglePanel, isMobile } = useIconRail();
+  const selectedPanel = useSelectedPanel();
+  const { togglePanel } = useSidePanelActions();
+  const isMobile = useIsMobile();
 
   if (isMobile) return null;
 

@@ -7,9 +7,14 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.test.context.bean.override.mockito.MockitoBean
+import org.springframework.transaction.PlatformTransactionManager
+import org.springframework.transaction.TransactionDefinition
+import org.springframework.transaction.TransactionStatus
+import org.springframework.transaction.support.SimpleTransactionStatus
 import riven.core.configuration.auth.WorkspaceSecurity
 import riven.core.enums.activity.Activity
 import riven.core.enums.common.validation.SchemaType
@@ -61,7 +66,22 @@ import java.util.*
 class SchemaReconciliationServiceTest : BaseServiceTest() {
 
     @Configuration
-    class TestConfig
+    class TestConfig {
+        /**
+         * Inline no-op PlatformTransactionManager so [SchemaReconciliationService]'s
+         * REQUIRES_NEW TransactionTemplate executes its callback without needing a real
+         * transactional resource. Rollback semantics are exercised via the callback's
+         * thrown exception, which TransactionTemplate rethrows after invoking rollback.
+         */
+        @Bean
+        fun transactionManager(): PlatformTransactionManager = object : PlatformTransactionManager {
+            override fun getTransaction(definition: TransactionDefinition?): TransactionStatus =
+                SimpleTransactionStatus(true)
+
+            override fun commit(status: TransactionStatus) {}
+            override fun rollback(status: TransactionStatus) {}
+        }
+    }
 
     @MockitoBean
     private lateinit var catalogEntityTypeRepository: CatalogEntityTypeRepository
@@ -1324,6 +1344,92 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
 
             assertEquals(1, result.reconciled.size)
             assertEquals(matchingId, result.reconciled[0].entityTypeId)
+        }
+
+        /**
+         * Regression: previously each per-entity-type apply ran inside the outer @Transactional, so a
+         * RuntimeException thrown for one entity poisoned the surrounding transaction and rolled back
+         * the writes of any successful sibling iterations even though [ReconciliationResult.errors]
+         * implied partial progress. The fix wraps each iteration in a REQUIRES_NEW TransactionTemplate
+         * so a thrown exception only rolls back the failing iteration.
+         *
+         * The test exercises this contract by having entity B's deleteAllByTypeIdAndAttributeId throw,
+         * and asserting that A still appears in `reconciled` and that A's save was committed (i.e. not
+         * rolled back) while B's id surfaces in `errors`.
+         */
+        @Test
+        fun `failed entity type does not roll back successful sibling iterations`() {
+            val idA = UUID.randomUUID()
+            val idB = UUID.randomUUID()
+            val (workspaceSchemaA, mappingA, uuidMapA) = buildWorkspaceSchema(
+                mapOf(
+                    "email" to SchemaAttrDef(label = "Email"),
+                    "phone" to SchemaAttrDef(label = "Phone"),
+                )
+            )
+            val (workspaceSchemaB, mappingB, uuidMapB) = buildWorkspaceSchema(
+                mapOf(
+                    "email" to SchemaAttrDef(label = "Email"),
+                    "phone" to SchemaAttrDef(label = "Phone"),
+                )
+            )
+            val catalogSchema = buildCatalogSchema(
+                mapOf("email" to CatalogAttrDef(label = "Email"))
+            )
+            val entityA = EntityFactory.createEntityType(
+                id = idA,
+                key = "type-a",
+                workspaceId = workspaceId,
+                sourceManifestId = manifestId,
+                attributeKeyMapping = mappingA,
+                schema = workspaceSchemaA,
+                pendingSchemaUpdate = true,
+                sourceSchemaHash = "old-hash",
+            )
+            val entityB = EntityFactory.createEntityType(
+                id = idB,
+                key = "type-b",
+                workspaceId = workspaceId,
+                sourceManifestId = manifestId,
+                attributeKeyMapping = mappingB,
+                schema = workspaceSchemaB,
+                pendingSchemaUpdate = true,
+                sourceSchemaHash = "old-hash",
+            )
+            val catalogA = CatalogFactory.createEntityTypeEntity(
+                manifestId = manifestId,
+                key = entityA.key,
+                schema = catalogSchema,
+                schemaHash = "new-hash",
+            )
+            val catalogB = CatalogFactory.createEntityTypeEntity(
+                manifestId = manifestId,
+                key = entityB.key,
+                schema = catalogSchema,
+                schemaHash = "new-hash",
+            )
+
+            whenever(entityTypeRepository.findAllById(listOf(idA, idB)))
+                .thenReturn(listOf(entityA, entityB))
+            whenever(catalogEntityTypeRepository.findByManifestIdAndKey(manifestId, entityA.key))
+                .thenReturn(catalogA)
+            whenever(catalogEntityTypeRepository.findByManifestIdAndKey(manifestId, entityB.key))
+                .thenReturn(catalogB)
+            whenever(entityAttributeRepository.deleteAllByTypeIdAndAttributeId(eq(idB), eq(uuidMapB["phone"]!!)))
+                .thenThrow(RuntimeException("simulated delete failure for B"))
+            whenever(entityTypeRepository.save(any())).thenAnswer { it.arguments[0] }
+
+            val result = service.applyBreakingChanges(
+                workspaceId, listOf(idA, idB), impactConfirmed = true,
+            ) as ReconciliationResult
+
+            assertEquals(1, result.reconciled.size)
+            assertEquals(idA, result.reconciled[0].entityTypeId)
+            assertEquals(1, result.errors.size)
+            assertTrue(result.errors[0].contains(idB.toString()))
+            verify(entityAttributeRepository).deleteAllByTypeIdAndAttributeId(idA, uuidMapA["phone"]!!)
+            verify(entityTypeRepository).save(entityA)
+            verify(entityTypeRepository, never()).save(entityB)
         }
     }
 

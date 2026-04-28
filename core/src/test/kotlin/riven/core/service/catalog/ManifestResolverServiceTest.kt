@@ -1,8 +1,9 @@
 package riven.core.service.catalog
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.module.kotlin.KotlinModule
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -23,7 +24,7 @@ class ManifestResolverServiceTest {
 
     @BeforeEach
     fun setUp() {
-        objectMapper = ObjectMapper().registerModule(KotlinModule.Builder().build())
+        objectMapper = JsonMapper.builder().addModule(KotlinModule.Builder().build()).build()
         logger = mock()
         service = ManifestResolverService(objectMapper, logger)
     }

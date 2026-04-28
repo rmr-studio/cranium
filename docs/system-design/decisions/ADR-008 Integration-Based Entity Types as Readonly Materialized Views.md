@@ -155,4 +155,4 @@ Keep physical separation but create database views that join integration entitie
 - [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]]
 - [[riven/docs/system-design/feature-design/3. Active/Integration Access Layer]]
 - [[riven/docs/system-design/flows/Integration Connection Lifecycle]]
-- [[riven/docs/system-design/feature-design/3. Active/Predefined Integration Entity Types]]
+- [[riven/docs/system-design/feature-design/4. Completed/Predefined Integration Entity Types]]

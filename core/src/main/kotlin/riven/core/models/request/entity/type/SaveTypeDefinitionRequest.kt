@@ -1,7 +1,7 @@
 package riven.core.models.request.entity.type
 
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.ValueDeserializer
+import tools.jackson.databind.annotation.JsonDeserialize
 import io.swagger.v3.oas.annotations.media.DiscriminatorMapping
 import io.swagger.v3.oas.annotations.media.Schema
 import riven.core.enums.common.icon.IconColour
@@ -16,7 +16,7 @@ import java.util.*
     name = "SaveAttributeDefinitionRequest",
     description = "Request to save a schema attribute definition for an entity type"
 )
-@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonDeserialize(using = ValueDeserializer.None::class)
 data class SaveAttributeDefinitionRequest(
     override val key: String,
     override val id: UUID,
@@ -31,7 +31,7 @@ data class SaveAttributeDefinitionRequest(
     name = "SaveRelationshipDefinitionRequest",
     description = "Request to save a relationship definition for an entity type"
 )
-@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonDeserialize(using = ValueDeserializer.None::class)
 data class SaveRelationshipDefinitionRequest(
     override val key: String,
     override val id: UUID? = null,

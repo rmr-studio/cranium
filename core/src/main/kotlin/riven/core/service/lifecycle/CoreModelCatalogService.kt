@@ -4,7 +4,7 @@ import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
-import riven.core.lifecycle.CoreModelRegistry
+import riven.core.models.core.CoreModelRegistry
 import riven.core.service.catalog.ManifestCatalogHealthIndicator
 import riven.core.service.catalog.ManifestUpsertService
 

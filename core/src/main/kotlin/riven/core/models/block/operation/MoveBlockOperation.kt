@@ -1,13 +1,13 @@
 package riven.core.models.block.operation
 
 import com.fasterxml.jackson.annotation.JsonTypeName
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.ValueDeserializer
+import tools.jackson.databind.annotation.JsonDeserialize
 import riven.core.enums.block.request.BlockOperationType
 import java.util.*
 
 @JsonTypeName("MOVE_BLOCK")
-@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonDeserialize(using = ValueDeserializer.None::class)
 data class MoveBlockOperation(
     override val blockId: UUID,
     val fromParentId: UUID? = null,

@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS "workspaces"
     "default_currency" VARCHAR(3)       NOT NULL DEFAULT 'AUD',
     "avatar_url"       TEXT,
     "member_count"     INTEGER          NOT NULL DEFAULT 0,
+    "connotation_enabled" BOOLEAN       NOT NULL DEFAULT FALSE,
 
     "created_at"       TIMESTAMP WITH TIME ZONE  DEFAULT CURRENT_TIMESTAMP,
     "updated_at"       TIMESTAMP WITH TIME ZONE  DEFAULT CURRENT_TIMESTAMP,

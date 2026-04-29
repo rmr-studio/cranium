@@ -69,6 +69,17 @@ class WorkspaceService(
     }
 
     /**
+     * Whether the workspace has opted into SENTIMENT-axis sentiment analysis during
+     * enrichment. Default false. RELATIONAL and STRUCTURAL axes are unaffected.
+     */
+    @Throws(NotFoundException::class)
+    @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
+    fun isConnotationEnabled(workspaceId: UUID): Boolean {
+        val workspace = findOrThrow { workspaceRepository.findById(workspaceId) }
+        return workspace.connotationEnabled
+    }
+
+    /**
      * Creates or updates a workspace, then uploads avatar outside the transaction boundary
      * to prevent orphaned files on rollback.
      */

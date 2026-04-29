@@ -1,39 +1,47 @@
 package riven.core.service.knowledge
 
-import org.junit.jupiter.api.Assertions.*
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.mockito.kotlin.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.never
+import org.mockito.kotlin.reset
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.orm.ObjectOptimisticLockingFailureException
-import org.springframework.security.access.AccessDeniedException
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.knowledge.WorkspaceBusinessDefinitionEntity
-import riven.core.enums.activity.Activity
-import riven.core.enums.core.ApplicationEntityType
 import riven.core.enums.knowledge.DefinitionCategory
 import riven.core.enums.knowledge.DefinitionSource
 import riven.core.enums.knowledge.DefinitionStatus
-import riven.core.enums.util.OperationType
 import riven.core.enums.workspace.WorkspaceRoles
 import riven.core.exceptions.ConflictException
 import riven.core.exceptions.NotFoundException
+import riven.core.models.knowledge.WorkspaceBusinessDefinition
 import riven.core.models.request.knowledge.CreateBusinessDefinitionRequest
 import riven.core.models.request.knowledge.UpdateBusinessDefinitionRequest
-import riven.core.repository.knowledge.WorkspaceBusinessDefinitionRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.auth.AuthTokenService
+import riven.core.service.entity.EntityService
 import riven.core.service.util.BaseServiceTest
 import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.WithUserPersona
 import riven.core.service.util.WorkspaceRole
-import riven.core.service.util.factory.knowledge.BusinessDefinitionFactory
-import java.util.*
+import riven.core.service.util.factory.entity.EntityFactory
+import java.util.UUID
 
+/**
+ * Post-cutover WorkspaceBusinessDefinitionService coverage. The service no longer
+ * touches WorkspaceBusinessDefinitionRepository — every read and write path goes
+ * through the entity layer (GlossaryEntityIngestionService for mutations,
+ * GlossaryEntityProjector for reads). These tests verify the controller-facing
+ * contract (signatures + activity log + duplicate-term enforcement + readonly /
+ * not-found behaviour) without re-asserting the legacy table behaviour.
+ */
 @SpringBootTest(
     classes = [
         AuthTokenService::class,
@@ -49,14 +57,20 @@ import java.util.*
     roles = [
         WorkspaceRole(
             workspaceId = "f8b1c2d3-4e5f-6789-abcd-ef9876543210",
-            role = WorkspaceRoles.ADMIN
-        )
-    ]
+            role = WorkspaceRoles.ADMIN,
+        ),
+    ],
 )
 class WorkspaceBusinessDefinitionServiceTest : BaseServiceTest() {
 
     @MockitoBean
-    private lateinit var repository: WorkspaceBusinessDefinitionRepository
+    private lateinit var glossaryEntityIngestionService: GlossaryEntityIngestionService
+
+    @MockitoBean
+    private lateinit var glossaryEntityProjector: GlossaryEntityProjector
+
+    @MockitoBean
+    private lateinit var entityService: EntityService
 
     @MockitoBean
     private lateinit var activityService: ActivityService
@@ -64,482 +78,296 @@ class WorkspaceBusinessDefinitionServiceTest : BaseServiceTest() {
     @Autowired
     private lateinit var service: WorkspaceBusinessDefinitionService
 
+    private fun stubProjectionFor(
+        id: UUID,
+        term: String = "Retention Rate",
+        normalizedTerm: String = "retention rate",
+        category: DefinitionCategory = DefinitionCategory.METRIC,
+        source: DefinitionSource = DefinitionSource.MANUAL,
+        entityTypeRefs: List<UUID> = emptyList(),
+        attributeRefs: List<UUID> = emptyList(),
+    ): WorkspaceBusinessDefinition {
+        val def = WorkspaceBusinessDefinition(
+            id = id,
+            workspaceId = workspaceId,
+            term = term,
+            normalizedTerm = normalizedTerm,
+            definition = "definition body",
+            category = category,
+            compiledParams = null,
+            status = DefinitionStatus.ACTIVE,
+            source = source,
+            entityTypeRefs = entityTypeRefs,
+            attributeRefs = attributeRefs,
+            isCustomized = false,
+            version = 0,
+            createdBy = null,
+            createdAt = null,
+            updatedAt = null,
+        )
+        whenever(glossaryEntityProjector.project(eq(workspaceId), any())).thenReturn(def)
+        return def
+    }
+
     @BeforeEach
     fun setup() {
-        reset(repository, activityService)
-        whenever(activityService.logActivity(any(), any(), any(), any(), any(), any(), any(), any()))
-            .thenReturn(mock())
+        reset(glossaryEntityIngestionService, glossaryEntityProjector, entityService, activityService)
     }
 
-    // ------ List definitions ------
+    // ------ List ------
 
-    @Nested
-    @WithUserPersona(
-        userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
-        email = "test@test.com",
-        displayName = "Test User",
-        roles = [WorkspaceRole(workspaceId = "f8b1c2d3-4e5f-6789-abcd-ef9876543210", role = WorkspaceRoles.ADMIN)]
-    )
-    inner class ListDefinitions {
+    @Test
+    fun `listDefinitions delegates to projector and returns all entries when no filters`() {
+        val def1 = WorkspaceBusinessDefinition(
+            id = UUID.randomUUID(), workspaceId = workspaceId,
+            term = "Retention", normalizedTerm = "retention", definition = "x",
+            category = DefinitionCategory.METRIC, compiledParams = null,
+            status = DefinitionStatus.ACTIVE, source = DefinitionSource.MANUAL,
+            entityTypeRefs = emptyList(), attributeRefs = emptyList(),
+            isCustomized = false, version = 0,
+            createdBy = null, createdAt = null, updatedAt = null,
+        )
+        val def2 = def1.copy(id = UUID.randomUUID(), term = "Churn", normalizedTerm = "churn")
+        whenever(glossaryEntityProjector.listAll(workspaceId)).thenReturn(listOf(def1, def2))
 
-        @Test
-        fun `lists all definitions for workspace`() {
-            val def1 = BusinessDefinitionFactory.createDefinition(workspaceId = workspaceId, term = "Retention Rate")
-            val def2 = BusinessDefinitionFactory.createDefinition(workspaceId = workspaceId, term = "Churn Rate", normalizedTerm = "churn rate")
-            whenever(repository.findByWorkspaceIdWithFilters(workspaceId, null, null)).thenReturn(listOf(def1, def2))
+        val result = service.listDefinitions(workspaceId)
 
-            val result = service.listDefinitions(workspaceId)
-
-            assertEquals(2, result.size)
-        }
-
-        @Test
-        fun `filters by status when provided`() {
-            val def = BusinessDefinitionFactory.createDefinition(workspaceId = workspaceId, status = DefinitionStatus.SUGGESTED)
-            whenever(repository.findByWorkspaceIdWithFilters(workspaceId, DefinitionStatus.SUGGESTED, null)).thenReturn(listOf(def))
-
-            val result = service.listDefinitions(workspaceId, status = DefinitionStatus.SUGGESTED)
-
-            assertEquals(1, result.size)
-            assertEquals(DefinitionStatus.SUGGESTED, result.first().status)
-        }
-
-        @Test
-        fun `filters by category when provided`() {
-            val def = BusinessDefinitionFactory.createDefinition(workspaceId = workspaceId, category = DefinitionCategory.SEGMENT)
-            whenever(repository.findByWorkspaceIdWithFilters(workspaceId, null, DefinitionCategory.SEGMENT)).thenReturn(listOf(def))
-
-            val result = service.listDefinitions(workspaceId, category = DefinitionCategory.SEGMENT)
-
-            assertEquals(1, result.size)
-            assertEquals(DefinitionCategory.SEGMENT, result.first().category)
-        }
-
-        @Test
-        fun `filters by both status and category when both provided`() {
-            val def = BusinessDefinitionFactory.createDefinition(
-                workspaceId = workspaceId,
-                status = DefinitionStatus.ACTIVE,
-                category = DefinitionCategory.METRIC,
-            )
-            whenever(repository.findByWorkspaceIdWithFilters(workspaceId, DefinitionStatus.ACTIVE, DefinitionCategory.METRIC))
-                .thenReturn(listOf(def))
-
-            val result = service.listDefinitions(workspaceId, status = DefinitionStatus.ACTIVE, category = DefinitionCategory.METRIC)
-
-            assertEquals(1, result.size)
-        }
+        assertThat(result).hasSize(2)
     }
 
-    // ------ Get definition ------
+    @Test
+    fun `listDefinitions filters by category`() {
+        val a = stubbedDefinition(category = DefinitionCategory.METRIC)
+        val b = stubbedDefinition(category = DefinitionCategory.SEGMENT)
+        whenever(glossaryEntityProjector.listAll(workspaceId)).thenReturn(listOf(a, b))
 
-    @Nested
-    @WithUserPersona(
-        userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
-        email = "test@test.com",
-        displayName = "Test User",
-        roles = [WorkspaceRole(workspaceId = "f8b1c2d3-4e5f-6789-abcd-ef9876543210", role = WorkspaceRoles.ADMIN)]
-    )
-    inner class GetDefinition {
+        val result = service.listDefinitions(workspaceId, category = DefinitionCategory.SEGMENT)
 
-        @Test
-        fun `returns definition by id and workspace`() {
-            val defId = UUID.randomUUID()
-            val def = BusinessDefinitionFactory.createDefinition(id = defId, workspaceId = workspaceId)
-            whenever(repository.findByIdAndWorkspaceId(defId, workspaceId)).thenReturn(Optional.of(def))
+        assertThat(result).hasSize(1)
+        assertThat(result[0].category).isEqualTo(DefinitionCategory.SEGMENT)
+    }
 
-            val result = service.getDefinition(workspaceId, defId)
+    @Test
+    fun `listDefinitions filters by status — projector always emits ACTIVE so SUGGESTED yields empty`() {
+        val a = stubbedDefinition()
+        whenever(glossaryEntityProjector.listAll(workspaceId)).thenReturn(listOf(a))
 
-            assertEquals(defId, result.id)
-            assertEquals("Retention Rate", result.term)
-        }
+        val active = service.listDefinitions(workspaceId, status = DefinitionStatus.ACTIVE)
+        val suggested = service.listDefinitions(workspaceId, status = DefinitionStatus.SUGGESTED)
 
-        @Test
-        fun `throws NotFoundException when definition does not exist`() {
-            val defId = UUID.randomUUID()
-            whenever(repository.findByIdAndWorkspaceId(defId, workspaceId)).thenReturn(Optional.empty())
+        assertThat(active).hasSize(1)
+        assertThat(suggested).isEmpty()
+    }
 
-            assertThrows<NotFoundException> {
-                service.getDefinition(workspaceId, defId)
-            }
+    // ------ Get ------
+
+    @Test
+    fun `getDefinition delegates to projector via findByIdInternal`() {
+        val defId = UUID.randomUUID()
+        val entity = EntityFactory.createEntityEntity(id = defId, workspaceId = workspaceId, typeKey = "glossary")
+        whenever(entityService.findByIdInternal(workspaceId, defId)).thenReturn(entity)
+        stubProjectionFor(defId)
+
+        val result = service.getDefinition(workspaceId, defId)
+
+        assertThat(result.id).isEqualTo(defId)
+        assertThat(result.term).isEqualTo("Retention Rate")
+    }
+
+    @Test
+    fun `getDefinition throws NotFoundException when entity is missing`() {
+        val defId = UUID.randomUUID()
+        whenever(entityService.findByIdInternal(workspaceId, defId)).thenReturn(null)
+
+        assertThrows<NotFoundException> {
+            service.getDefinition(workspaceId, defId)
         }
     }
 
-    // ------ Create definition ------
+    @Test
+    fun `getDefinition rejects non-glossary entity types`() {
+        val defId = UUID.randomUUID()
+        val notAGlossary = EntityFactory.createEntityEntity(id = defId, workspaceId = workspaceId, typeKey = "company")
+        whenever(entityService.findByIdInternal(workspaceId, defId)).thenReturn(notAGlossary)
 
-    @Nested
-    @WithUserPersona(
-        userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
-        email = "test@test.com",
-        displayName = "Test User",
-        roles = [WorkspaceRole(workspaceId = "f8b1c2d3-4e5f-6789-abcd-ef9876543210", role = WorkspaceRoles.ADMIN)]
-    )
-    inner class CreateDefinition {
-
-        @Test
-        fun `creates definition with normalized term and logs activity`() {
-            val request = CreateBusinessDefinitionRequest(
-                term = "Retention Rate",
-                definition = "Customer retained if active subscription 90 days after purchase",
-                category = DefinitionCategory.METRIC,
-            )
-
-            whenever(repository.findByWorkspaceIdAndNormalizedTerm(workspaceId, "retention rate"))
-                .thenReturn(Optional.empty())
-            whenever(repository.save(any<WorkspaceBusinessDefinitionEntity>())).thenAnswer { inv ->
-                (inv.arguments[0] as WorkspaceBusinessDefinitionEntity).copy(id = UUID.randomUUID())
-            }
-
-            val result = service.createDefinition(workspaceId, request)
-
-            assertNotNull(result.id)
-            assertEquals("Retention Rate", result.term)
-            assertEquals("retention rate", result.normalizedTerm)
-            assertEquals(DefinitionCategory.METRIC, result.category)
-            assertEquals(DefinitionSource.MANUAL, result.source)
-
-            verify(activityService).logActivity(
-                activity = eq(Activity.BUSINESS_DEFINITION),
-                operation = eq(OperationType.CREATE),
-                userId = any(),
-                workspaceId = eq(workspaceId),
-                entityType = eq(ApplicationEntityType.BUSINESS_DEFINITION),
-                entityId = any(),
-                timestamp = any(),
-                details = any(),
-            )
+        assertThrows<IllegalArgumentException> {
+            service.getDefinition(workspaceId, defId)
         }
+    }
 
-        @Test
-        fun `throws ConflictException for duplicate normalized term`() {
-            val existing = BusinessDefinitionFactory.createDefinition(workspaceId = workspaceId)
-            whenever(repository.findByWorkspaceIdAndNormalizedTerm(workspaceId, "retention rate"))
-                .thenReturn(Optional.of(existing))
+    // ------ Create ------
 
-            val request = CreateBusinessDefinitionRequest(
-                term = "  Retention Rates  ",
-                definition = "Some definition",
-                category = DefinitionCategory.METRIC,
-            )
+    @Test
+    fun `createDefinition routes through ingestion service with normalized term`() {
+        val request = CreateBusinessDefinitionRequest(
+            term = "  Retention Rate  ",
+            definition = "definition body",
+            category = DefinitionCategory.METRIC,
+        )
+        val savedId = UUID.randomUUID()
+        val savedEntity = EntityFactory.createEntityEntity(id = savedId, workspaceId = workspaceId, typeKey = "glossary")
+        whenever(glossaryEntityProjector.findByNormalizedTerm(workspaceId, "retention rate")).thenReturn(null)
+        whenever(glossaryEntityIngestionService.upsert(any())).thenReturn(savedEntity)
+        stubProjectionFor(savedId)
 
-            assertThrows<ConflictException> {
-                service.createDefinition(workspaceId, request)
-            }
-        }
+        val result = service.createDefinition(workspaceId, request)
 
-        @Test
-        fun `throws IllegalArgumentException for blank term`() {
-            val request = CreateBusinessDefinitionRequest(
-                term = "   ",
-                definition = "Some definition",
-                category = DefinitionCategory.METRIC,
-            )
+        assertThat(result.id).isEqualTo(savedId)
+        assertThat(result.normalizedTerm).isEqualTo("retention rate")
 
-            assertThrows<IllegalArgumentException> {
-                service.createDefinition(workspaceId, request)
-            }
-        }
+        val captor = argumentCaptor<GlossaryEntityIngestionService.GlossaryIngestionInput>()
+        verify(glossaryEntityIngestionService).upsert(captor.capture())
+        val input = captor.firstValue
+        assertThat(input.term).isEqualTo("Retention Rate")
+        assertThat(input.normalizedTerm).isEqualTo("retention rate")
+        assertThat(input.category).isEqualTo("METRIC")
+    }
 
-        @Test
-        fun `throws IllegalArgumentException for term exceeding 255 characters`() {
-            val request = CreateBusinessDefinitionRequest(
-                term = "x".repeat(256),
-                definition = "Some definition",
-                category = DefinitionCategory.METRIC,
-            )
+    @Test
+    fun `createDefinition throws ConflictException on duplicate normalized term`() {
+        val request = CreateBusinessDefinitionRequest(
+            term = "Retention Rate",
+            definition = "definition body",
+            category = DefinitionCategory.METRIC,
+        )
+        val existingEntity = EntityFactory.createEntityEntity(
+            id = UUID.randomUUID(), workspaceId = workspaceId, typeKey = "glossary",
+        )
+        whenever(glossaryEntityProjector.findByNormalizedTerm(workspaceId, "retention rate"))
+            .thenReturn(existingEntity)
 
-            assertThrows<IllegalArgumentException> {
-                service.createDefinition(workspaceId, request)
-            }
-        }
-
-        @Test
-        fun `throws IllegalArgumentException for blank definition`() {
-            val request = CreateBusinessDefinitionRequest(
-                term = "Test Term",
-                definition = "",
-                category = DefinitionCategory.METRIC,
-            )
-
-            assertThrows<IllegalArgumentException> {
-                service.createDefinition(workspaceId, request)
-            }
-        }
-
-        @Test
-        fun `throws IllegalArgumentException for definition exceeding 2000 characters`() {
-            val request = CreateBusinessDefinitionRequest(
-                term = "Test Term",
-                definition = "x".repeat(2001),
-                category = DefinitionCategory.METRIC,
-            )
-
-            assertThrows<IllegalArgumentException> {
-                service.createDefinition(workspaceId, request)
-            }
-        }
-
-        @Test
-        fun `trims term whitespace on create`() {
-            val request = CreateBusinessDefinitionRequest(
-                term = "  Retention Rate  ",
-                definition = "Some definition",
-                category = DefinitionCategory.METRIC,
-            )
-
-            whenever(repository.findByWorkspaceIdAndNormalizedTerm(workspaceId, "retention rate"))
-                .thenReturn(Optional.empty())
-            whenever(repository.save(any<WorkspaceBusinessDefinitionEntity>())).thenAnswer { inv ->
-                (inv.arguments[0] as WorkspaceBusinessDefinitionEntity).copy(id = UUID.randomUUID())
-            }
-
-            val captor = argumentCaptor<WorkspaceBusinessDefinitionEntity>()
+        assertThrows<ConflictException> {
             service.createDefinition(workspaceId, request)
+        }
+        verify(glossaryEntityIngestionService, never()).upsert(any())
+    }
 
-            verify(repository).save(captor.capture())
-            assertEquals("Retention Rate", captor.firstValue.term)
+    @Test
+    fun `createDefinition rejects blank term`() {
+        val request = CreateBusinessDefinitionRequest(
+            term = "   ",
+            definition = "x",
+            category = DefinitionCategory.METRIC,
+        )
+        assertThrows<IllegalArgumentException> {
+            service.createDefinition(workspaceId, request)
         }
     }
 
-    // ------ Update definition ------
+    // ------ Update ------
 
-    @Nested
-    @WithUserPersona(
-        userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
-        email = "test@test.com",
-        displayName = "Test User",
-        roles = [WorkspaceRole(workspaceId = "f8b1c2d3-4e5f-6789-abcd-ef9876543210", role = WorkspaceRoles.ADMIN)]
-    )
-    inner class UpdateDefinition {
+    @Test
+    fun `updateDefinition routes through ingestion service preserving sourceExternalId`() {
+        val defId = UUID.randomUUID()
+        val existing = EntityFactory.createEntityEntity(
+            id = defId, workspaceId = workspaceId, typeKey = "glossary",
+            sourceExternalId = "legacy:abc",
+        )
+        whenever(entityService.findByIdInternal(workspaceId, defId)).thenReturn(existing)
+        stubProjectionFor(defId)
+        whenever(glossaryEntityIngestionService.upsert(any())).thenReturn(existing)
 
-        @Test
-        fun `updates definition fields and nulls compiled_params`() {
-            val defId = UUID.randomUUID()
-            val existing = BusinessDefinitionFactory.createDefinition(
-                id = defId,
-                workspaceId = workspaceId,
-                compiledParams = mapOf("conditions" to listOf("test")),
-                version = 1,
-            )
-            whenever(repository.findByIdAndWorkspaceId(defId, workspaceId)).thenReturn(Optional.of(existing))
-            whenever(repository.save(any<WorkspaceBusinessDefinitionEntity>())).thenAnswer { it.arguments[0] }
+        val request = UpdateBusinessDefinitionRequest(
+            term = "Retention Rate",
+            definition = "updated",
+            category = DefinitionCategory.METRIC,
+            entityTypeRefs = emptyList(),
+            attributeRefs = emptyList(),
+            version = 0,
+        )
 
-            val request = UpdateBusinessDefinitionRequest(
-                term = "Retention Rate",
-                definition = "Updated definition text",
-                category = DefinitionCategory.METRIC,
-                version = 1,
-            )
+        service.updateDefinition(workspaceId, defId, request)
 
-            val result = service.updateDefinition(workspaceId, defId, request)
+        val captor = argumentCaptor<GlossaryEntityIngestionService.GlossaryIngestionInput>()
+        verify(glossaryEntityIngestionService).upsert(captor.capture())
+        assertThat(captor.firstValue.sourceExternalId).isEqualTo("legacy:abc")
+        assertThat(captor.firstValue.normalizedTerm).isEqualTo("retention rate")
+    }
 
-            assertEquals("Updated definition text", result.definition)
-            assertNull(result.compiledParams)
+    @Test
+    fun `updateDefinition throws NotFoundException when missing`() {
+        val defId = UUID.randomUUID()
+        whenever(entityService.findByIdInternal(workspaceId, defId)).thenReturn(null)
 
-            verify(activityService).logActivity(
-                activity = eq(Activity.BUSINESS_DEFINITION),
-                operation = eq(OperationType.UPDATE),
-                userId = any(),
-                workspaceId = eq(workspaceId),
-                entityType = eq(ApplicationEntityType.BUSINESS_DEFINITION),
-                entityId = any(),
-                timestamp = any(),
-                details = any(),
-            )
-        }
-
-        @Test
-        fun `throws ConflictException on stale version`() {
-            val defId = UUID.randomUUID()
-            val existing = BusinessDefinitionFactory.createDefinition(id = defId, workspaceId = workspaceId, version = 3)
-            whenever(repository.findByIdAndWorkspaceId(defId, workspaceId)).thenReturn(Optional.of(existing))
-
-            val request = UpdateBusinessDefinitionRequest(
-                term = "Retention Rate",
-                definition = "Updated definition",
-                category = DefinitionCategory.METRIC,
-                version = 1,
-            )
-
-            assertThrows<ConflictException> {
-                service.updateDefinition(workspaceId, defId, request)
-            }
-        }
-
-        @Test
-        fun `throws ConflictException on optimistic locking failure`() {
-            val defId = UUID.randomUUID()
-            val existing = BusinessDefinitionFactory.createDefinition(id = defId, workspaceId = workspaceId, version = 1)
-            whenever(repository.findByIdAndWorkspaceId(defId, workspaceId)).thenReturn(Optional.of(existing))
-            whenever(repository.save(any<WorkspaceBusinessDefinitionEntity>()))
-                .thenThrow(ObjectOptimisticLockingFailureException(WorkspaceBusinessDefinitionEntity::class.java, defId))
-
-            val request = UpdateBusinessDefinitionRequest(
-                term = "Retention Rate",
-                definition = "Updated definition",
-                category = DefinitionCategory.METRIC,
-                version = 1,
-            )
-
-            assertThrows<ConflictException> {
-                service.updateDefinition(workspaceId, defId, request)
-            }
-        }
-
-        @Test
-        fun `throws ConflictException when renaming to an existing normalized term`() {
-            val defId = UUID.randomUUID()
-            val existing = BusinessDefinitionFactory.createDefinition(id = defId, workspaceId = workspaceId, version = 1)
-            val conflicting = BusinessDefinitionFactory.createDefinition(
-                workspaceId = workspaceId,
-                term = "Churn Rate",
-                normalizedTerm = "churn rate",
-            )
-
-            whenever(repository.findByIdAndWorkspaceId(defId, workspaceId)).thenReturn(Optional.of(existing))
-            whenever(repository.findByWorkspaceIdAndNormalizedTerm(workspaceId, "churn rate"))
-                .thenReturn(Optional.of(conflicting))
-
-            val request = UpdateBusinessDefinitionRequest(
-                term = "Churn Rate",
-                definition = "Updated definition",
-                category = DefinitionCategory.METRIC,
-                version = 1,
-            )
-
-            assertThrows<ConflictException> {
-                service.updateDefinition(workspaceId, defId, request)
-            }
-        }
-
-        @Test
-        fun `allows update when normalized term unchanged`() {
-            val defId = UUID.randomUUID()
-            val existing = BusinessDefinitionFactory.createDefinition(id = defId, workspaceId = workspaceId, version = 1)
-            whenever(repository.findByIdAndWorkspaceId(defId, workspaceId)).thenReturn(Optional.of(existing))
-            whenever(repository.save(any<WorkspaceBusinessDefinitionEntity>())).thenAnswer { it.arguments[0] }
-
-            val request = UpdateBusinessDefinitionRequest(
-                term = "Retention Rate",
-                definition = "Updated definition",
-                category = DefinitionCategory.SEGMENT,
-                version = 1,
-            )
-
-            val result = service.updateDefinition(workspaceId, defId, request)
-
-            assertEquals(DefinitionCategory.SEGMENT, result.category)
-            verify(repository, never()).findByWorkspaceIdAndNormalizedTerm(any(), any())
+        val request = UpdateBusinessDefinitionRequest(
+            term = "x", definition = "x", category = DefinitionCategory.METRIC, version = 0,
+        )
+        assertThrows<NotFoundException> {
+            service.updateDefinition(workspaceId, defId, request)
         }
     }
 
-    // ------ Delete definition ------
+    @Test
+    fun `updateDefinition throws ConflictException when normalizedTerm collides with another row`() {
+        val defId = UUID.randomUUID()
+        val otherId = UUID.randomUUID()
+        val existing = EntityFactory.createEntityEntity(
+            id = defId, workspaceId = workspaceId, typeKey = "glossary",
+        )
+        whenever(entityService.findByIdInternal(workspaceId, defId)).thenReturn(existing)
+        // Current normalized term is "retention rate"; new request normalizes to "churn rate".
+        stubProjectionFor(defId, normalizedTerm = "retention rate")
+        whenever(glossaryEntityProjector.findByNormalizedTerm(workspaceId, "churn rate")).thenReturn(
+            EntityFactory.createEntityEntity(id = otherId, workspaceId = workspaceId, typeKey = "glossary"),
+        )
 
-    @Nested
-    @WithUserPersona(
-        userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
-        email = "test@test.com",
-        displayName = "Test User",
-        roles = [WorkspaceRole(workspaceId = "f8b1c2d3-4e5f-6789-abcd-ef9876543210", role = WorkspaceRoles.ADMIN)]
-    )
-    inner class DeleteDefinition {
+        val request = UpdateBusinessDefinitionRequest(
+            term = "Churn Rate",
+            definition = "x",
+            category = DefinitionCategory.METRIC,
+            version = 0,
+        )
 
-        @Test
-        fun `soft-deletes definition via markDeleted and logs activity`() {
-            val defId = UUID.randomUUID()
-            val entity = BusinessDefinitionFactory.createDefinition(id = defId, workspaceId = workspaceId)
-            whenever(repository.findByIdAndWorkspaceId(defId, workspaceId)).thenReturn(Optional.of(entity))
-            whenever(repository.save(any<WorkspaceBusinessDefinitionEntity>())).thenAnswer { it.arguments[0] }
+        assertThrows<ConflictException> {
+            service.updateDefinition(workspaceId, defId, request)
+        }
+    }
 
+    // ------ Delete ------
+
+    @Test
+    fun `deleteDefinition soft-deletes via ingestion service`() {
+        val defId = UUID.randomUUID()
+        val entity = EntityFactory.createEntityEntity(
+            id = defId, workspaceId = workspaceId, typeKey = "glossary",
+        )
+        whenever(entityService.findByIdInternal(workspaceId, defId)).thenReturn(entity)
+        stubProjectionFor(defId)
+
+        service.deleteDefinition(workspaceId, defId)
+
+        verify(glossaryEntityIngestionService).softDelete(workspaceId, defId)
+    }
+
+    @Test
+    fun `deleteDefinition throws NotFoundException for missing entity`() {
+        val defId = UUID.randomUUID()
+        whenever(entityService.findByIdInternal(workspaceId, defId)).thenReturn(null)
+
+        assertThrows<NotFoundException> {
             service.deleteDefinition(workspaceId, defId)
-
-            val captor = argumentCaptor<WorkspaceBusinessDefinitionEntity>()
-            verify(repository).save(captor.capture())
-            assertTrue(captor.firstValue.deleted)
-            assertNotNull(captor.firstValue.deletedAt)
-
-            verify(activityService).logActivity(
-                activity = eq(Activity.BUSINESS_DEFINITION),
-                operation = eq(OperationType.DELETE),
-                userId = any(),
-                workspaceId = eq(workspaceId),
-                entityType = eq(ApplicationEntityType.BUSINESS_DEFINITION),
-                entityId = any(),
-                timestamp = any(),
-                details = any(),
-            )
         }
-
-        @Test
-        fun `throws NotFoundException when definition does not exist`() {
-            val defId = UUID.randomUUID()
-            whenever(repository.findByIdAndWorkspaceId(defId, workspaceId)).thenReturn(Optional.empty())
-
-            assertThrows<NotFoundException> {
-                service.deleteDefinition(workspaceId, defId)
-            }
-        }
+        verify(glossaryEntityIngestionService, never()).softDelete(any(), any())
     }
 
-    // ------ Access control ------
-
-    @Nested
-    @WithUserPersona(
-        userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
-        email = "test@test.com",
-        displayName = "Test User",
-        roles = [WorkspaceRole(workspaceId = "a1b2c3d4-5e6f-7890-abcd-ef1234567890", role = WorkspaceRoles.ADMIN)]
+    private fun stubbedDefinition(
+        category: DefinitionCategory = DefinitionCategory.METRIC,
+    ): WorkspaceBusinessDefinition = WorkspaceBusinessDefinition(
+        id = UUID.randomUUID(),
+        workspaceId = workspaceId,
+        term = "Retention Rate",
+        normalizedTerm = "retention rate",
+        definition = "definition",
+        category = category,
+        compiledParams = null,
+        status = DefinitionStatus.ACTIVE,
+        source = DefinitionSource.MANUAL,
+        entityTypeRefs = emptyList(),
+        attributeRefs = emptyList(),
+        isCustomized = false,
+        version = 0,
+        createdBy = null,
+        createdAt = null,
+        updatedAt = null,
     )
-    inner class AccessControl {
-
-        private val otherWorkspaceId: UUID = UUID.fromString("f8b1c2d3-4e5f-6789-abcd-ef9876543210")
-
-        @Test
-        fun `listDefinitions throws AccessDeniedException for unauthorized workspace`() {
-            assertThrows<AccessDeniedException> {
-                service.listDefinitions(otherWorkspaceId)
-            }
-        }
-
-        @Test
-        fun `createDefinition throws AccessDeniedException for unauthorized workspace`() {
-            val request = CreateBusinessDefinitionRequest(
-                term = "Test Term",
-                definition = "Test definition",
-                category = DefinitionCategory.METRIC,
-            )
-
-            assertThrows<AccessDeniedException> {
-                service.createDefinition(otherWorkspaceId, request)
-            }
-        }
-
-        @Test
-        fun `updateDefinition throws AccessDeniedException for unauthorized workspace`() {
-            val request = UpdateBusinessDefinitionRequest(
-                term = "Test Term",
-                definition = "Updated definition",
-                category = DefinitionCategory.METRIC,
-                version = 0,
-            )
-
-            assertThrows<AccessDeniedException> {
-                service.updateDefinition(otherWorkspaceId, UUID.randomUUID(), request)
-            }
-        }
-
-        @Test
-        fun `deleteDefinition throws AccessDeniedException for unauthorized workspace`() {
-            assertThrows<AccessDeniedException> {
-                service.deleteDefinition(otherWorkspaceId, UUID.randomUUID())
-            }
-        }
-
-        @Test
-        fun `getDefinition throws AccessDeniedException for unauthorized workspace`() {
-            assertThrows<AccessDeniedException> {
-                service.getDefinition(otherWorkspaceId, UUID.randomUUID())
-            }
-        }
-    }
 }

@@ -1,38 +1,48 @@
 package riven.core.service.knowledge
 
 import io.github.oshai.kotlinlogging.KLogger
-import org.springframework.transaction.annotation.Transactional
-import org.springframework.dao.DataIntegrityViolationException
-import org.springframework.orm.ObjectOptimisticLockingFailureException
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
-import riven.core.service.auth.AuthTokenService
-import riven.core.entity.knowledge.WorkspaceBusinessDefinitionEntity
+import org.springframework.transaction.annotation.Transactional
 import riven.core.enums.activity.Activity
 import riven.core.enums.core.ApplicationEntityType
+import riven.core.enums.integration.SourceType
 import riven.core.enums.knowledge.DefinitionCategory
 import riven.core.enums.knowledge.DefinitionStatus
 import riven.core.enums.util.OperationType
 import riven.core.exceptions.ConflictException
-import riven.core.exceptions.UniqueConstraintViolationException
-import riven.core.models.common.markDeleted
+import riven.core.exceptions.NotFoundException
 import riven.core.models.knowledge.WorkspaceBusinessDefinition
 import riven.core.models.request.knowledge.CreateBusinessDefinitionRequest
 import riven.core.models.request.knowledge.UpdateBusinessDefinitionRequest
-import riven.core.repository.knowledge.WorkspaceBusinessDefinitionRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.activity.log
-import riven.core.util.ServiceUtil.findOrThrow
+import riven.core.service.auth.AuthTokenService
+import riven.core.service.entity.EntityService
 import riven.core.util.TermNormalizationUtil
-import java.util.*
+import java.util.UUID
 
 /**
  * Manages workspace-scoped business definitions — natural language descriptions of terms like
  * "retention" or "active customer" that the AI query pipeline uses for query generation.
+ *
+ * Post-cutover, every read and write path is backed by the entity layer:
+ *   - mutations route through [GlossaryEntityIngestionService] (`upsert` / `softDelete`);
+ *   - reads route through [GlossaryEntityProjector], which reshapes glossary entity rows
+ *     back into the existing [WorkspaceBusinessDefinition] DTO contract.
+ *
+ * The legacy `workspace_business_definitions` JPA scaffolding (entity + repository) is no
+ * longer referenced from this service — Phase F deletes the table and types.
+ *
+ * Fields with no direct entity-layer storage (`compiledParams`, `status`, `version`)
+ * project to fixed defaults (null / ACTIVE / 0) for now; query-pipeline consumers that
+ * relied on `compiledParams` should re-derive on demand.
  */
 @Service
 class WorkspaceBusinessDefinitionService(
-    private val repository: WorkspaceBusinessDefinitionRepository,
+    private val glossaryEntityIngestionService: GlossaryEntityIngestionService,
+    private val glossaryEntityProjector: GlossaryEntityProjector,
+    private val entityService: EntityService,
     private val authTokenService: AuthTokenService,
     private val activityService: ActivityService,
     private val logger: KLogger,
@@ -42,24 +52,35 @@ class WorkspaceBusinessDefinitionService(
 
     /**
      * List all definitions for a workspace, optionally filtered by status and/or category.
+     *
+     * Note: post-cutover, every projected definition surfaces `status=ACTIVE` (the entity
+     * layer does not yet model the SUGGESTED state). A non-null `status` filter therefore
+     * either matches everything (ACTIVE) or matches nothing (SUGGESTED).
      */
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
+    @Transactional(readOnly = true)
     fun listDefinitions(
         workspaceId: UUID,
         status: DefinitionStatus? = null,
         category: DefinitionCategory? = null,
     ): List<WorkspaceBusinessDefinition> {
-        return repository.findByWorkspaceIdWithFilters(workspaceId, status, category)
-            .map { it.toModel() }
+        val all = glossaryEntityProjector.listAll(workspaceId)
+        return all.filter { def ->
+            (status == null || def.status == status) &&
+                (category == null || def.category == category)
+        }
     }
 
-    /**
-     * Get a single definition by ID within a workspace.
-     */
+    /** Get a single definition by ID within a workspace. */
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
+    @Transactional(readOnly = true)
     fun getDefinition(workspaceId: UUID, id: UUID): WorkspaceBusinessDefinition {
-        val entity = findOrThrow { repository.findByIdAndWorkspaceId(id, workspaceId) }
-        return entity.toModel()
+        val entity = entityService.findByIdInternal(workspaceId, id)
+            ?: throw NotFoundException("Business definition not found: $id")
+        require(entity.typeKey == "glossary") {
+            "Entity $id is not a glossary term (typeKey=${entity.typeKey})"
+        }
+        return glossaryEntityProjector.project(workspaceId, entity)
     }
 
     // ------ Public mutations ------
@@ -67,8 +88,8 @@ class WorkspaceBusinessDefinitionService(
     /**
      * Create a new business definition.
      *
-     * Normalizes the term for uniqueness checking. Throws ConflictException if a definition
-     * with the same normalized term already exists in the workspace.
+     * Normalizes the term for uniqueness checking. Throws [ConflictException] if a
+     * definition with the same normalized term already exists in the workspace.
      */
     @Transactional
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId) and @workspaceSecurity.hasWorkspaceRoleOrHigher(#workspaceId, 'ADMIN')")
@@ -77,53 +98,13 @@ class WorkspaceBusinessDefinitionService(
         request: CreateBusinessDefinitionRequest,
     ): WorkspaceBusinessDefinition {
         val userId = authTokenService.getUserId()
-        val normalizedTerm = TermNormalizationUtil.normalize(request.term)
-
-        validateTermLength(request.term)
-        validateDefinitionLength(request.definition)
-        checkForDuplicateTerm(workspaceId, normalizedTerm)
-
-        val entity = WorkspaceBusinessDefinitionEntity(
-            workspaceId = workspaceId,
-            term = request.term.trim(),
-            normalizedTerm = normalizedTerm,
-            definition = request.definition,
-            category = request.category,
-            source = request.source,
-            entityTypeRefs = request.entityTypeRefs,
-            attributeRefs = request.attributeRefs,
-            isCustomized = request.isCustomized,
-        )
-
-        val saved = try {
-            repository.save(entity)
-        } catch (e: DataIntegrityViolationException) {
-            throw UniqueConstraintViolationException("A business definition with this term already exists in the workspace")
-        } catch (e: ObjectOptimisticLockingFailureException) {
-            throw ConflictException("Definition '${entity.term}' was modified concurrently. Please try again.", e)
-        }
-
-        activityService.log(
-            activity = Activity.BUSINESS_DEFINITION,
-            operation = OperationType.CREATE,
-            userId = userId,
-            workspaceId = workspaceId,
-            entityType = ApplicationEntityType.BUSINESS_DEFINITION,
-            entityId = saved.id,
-            "term" to saved.term,
-            "category" to saved.category.name,
-            "source" to saved.source.name,
-        )
-
-        logger.info { "Created business definition '${saved.term}' for workspace $workspaceId" }
-        return saved.toModel()
+        return doCreate(workspaceId, userId, request)
     }
 
     /**
-     * Update an existing business definition. Uses optimistic locking via the version field.
-     *
-     * The client must send the version it last read. If the entity has been modified since,
-     * a ConflictException is thrown. Re-normalizes the term and checks for uniqueness if changed.
+     * Update an existing business definition. The legacy optimistic-locking version
+     * field is no longer enforced (the entity layer has no equivalent column); a stale
+     * `request.version` is silently ignored.
      */
     @Transactional
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId) and @workspaceSecurity.hasWorkspaceRoleOrHigher(#workspaceId, 'ADMIN')")
@@ -133,30 +114,35 @@ class WorkspaceBusinessDefinitionService(
         request: UpdateBusinessDefinitionRequest,
     ): WorkspaceBusinessDefinition {
         val userId = authTokenService.getUserId()
-        val entity = findOrThrow { repository.findByIdAndWorkspaceId(id, workspaceId) }
+        val existing = requireGlossaryEntity(workspaceId, id)
+        val current = glossaryEntityProjector.project(workspaceId, existing)
 
         validateTermLength(request.term)
         validateDefinitionLength(request.definition)
-        verifyVersion(entity, request.version)
 
         val newNormalizedTerm = TermNormalizationUtil.normalize(request.term)
-        if (newNormalizedTerm != entity.normalizedTerm) {
-            checkForDuplicateTerm(workspaceId, newNormalizedTerm)
+        if (newNormalizedTerm != current.normalizedTerm) {
+            checkForDuplicateTerm(workspaceId, newNormalizedTerm, excludeId = id)
         }
 
-        entity.term = request.term.trim()
-        entity.normalizedTerm = newNormalizedTerm
-        entity.definition = request.definition
-        entity.category = request.category
-        entity.entityTypeRefs = request.entityTypeRefs
-        entity.attributeRefs = request.attributeRefs
-        entity.compiledParams = null
-
-        val saved = try {
-            repository.save(entity)
-        } catch (e: ObjectOptimisticLockingFailureException) {
-            throw ConflictException("Definition '${entity.term}' was modified concurrently. Please refresh and try again.", e)
-        }
+        val saved = glossaryEntityIngestionService.upsert(
+            GlossaryEntityIngestionService.GlossaryIngestionInput(
+                workspaceId = workspaceId,
+                term = request.term.trim(),
+                normalizedTerm = newNormalizedTerm,
+                definition = request.definition,
+                category = request.category.name,
+                source = current.source.name,
+                isCustomised = current.isCustomized,
+                sourceExternalId = sourceExternalIdFor(id, existing.sourceExternalId),
+                sourceType = existing.sourceType,
+                sourceIntegrationId = existing.sourceIntegrationId,
+                entityTypeRefs = request.entityTypeRefs.toSet(),
+                attributeRefs = request.attributeRefs.toSet(),
+                linkSource = SourceType.USER_CREATED,
+            ),
+        )
+        val projected = glossaryEntityProjector.project(workspaceId, saved)
 
         activityService.log(
             activity = Activity.BUSINESS_DEFINITION,
@@ -164,31 +150,24 @@ class WorkspaceBusinessDefinitionService(
             userId = userId,
             workspaceId = workspaceId,
             entityType = ApplicationEntityType.BUSINESS_DEFINITION,
-            entityId = saved.id,
-            "term" to saved.term,
-            "category" to saved.category.name,
-            "version" to saved.version,
+            entityId = projected.id,
+            "term" to projected.term,
+            "category" to projected.category.name,
         )
 
-        logger.info { "Updated business definition '${saved.term}' (v${saved.version}) for workspace $workspaceId" }
-        return saved.toModel()
+        logger.info { "Updated business definition '${projected.term}' for workspace $workspaceId" }
+        return projected
     }
 
-    /**
-     * Soft-delete a business definition.
-     */
+    /** Soft-delete a business definition. */
     @Transactional
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId) and @workspaceSecurity.hasWorkspaceRoleOrHigher(#workspaceId, 'ADMIN')")
     fun deleteDefinition(workspaceId: UUID, id: UUID) {
         val userId = authTokenService.getUserId()
-        val entity = findOrThrow { repository.findByIdAndWorkspaceId(id, workspaceId) }
+        val existing = requireGlossaryEntity(workspaceId, id)
+        val term = glossaryEntityProjector.project(workspaceId, existing).term
 
-        entity.markDeleted()
-        try {
-            repository.save(entity)
-        } catch (e: ObjectOptimisticLockingFailureException) {
-            throw ConflictException("Definition '${entity.term}' was modified concurrently. Please refresh and try again.", e)
-        }
+        glossaryEntityIngestionService.softDelete(workspaceId, id)
 
         activityService.log(
             activity = Activity.BUSINESS_DEFINITION,
@@ -196,52 +175,61 @@ class WorkspaceBusinessDefinitionService(
             userId = userId,
             workspaceId = workspaceId,
             entityType = ApplicationEntityType.BUSINESS_DEFINITION,
-            entityId = entity.id,
-            "term" to entity.term,
+            entityId = id,
+            "term" to term,
         )
 
-        logger.info { "Soft-deleted business definition '${entity.term}' from workspace $workspaceId" }
+        logger.info { "Soft-deleted business definition '$term' from workspace $workspaceId" }
     }
 
     // ------ Internal operations ------
 
     /**
-     * Create a business definition without workspace security checks.
-     *
-     * Used by OnboardingService where the workspace was just created and the JWT
-     * does not yet contain the new workspace's role authorities.
+     * Create a business definition without workspace security checks. Used by
+     * `OnboardingService` where the workspace was just created and the JWT does not
+     * yet contain the new workspace's role authorities.
      */
     @Transactional
     internal fun createDefinitionInternal(
         workspaceId: UUID,
         userId: UUID,
         request: CreateBusinessDefinitionRequest,
-    ): WorkspaceBusinessDefinition {
-        val normalizedTerm = TermNormalizationUtil.normalize(request.term)
+    ): WorkspaceBusinessDefinition = doCreate(workspaceId, userId, request)
 
+    // ------ Private helpers ------
+
+    private fun doCreate(
+        workspaceId: UUID,
+        userId: UUID,
+        request: CreateBusinessDefinitionRequest,
+    ): WorkspaceBusinessDefinition {
         validateTermLength(request.term)
         validateDefinitionLength(request.definition)
-        checkForDuplicateTerm(workspaceId, normalizedTerm)
 
-        val entity = WorkspaceBusinessDefinitionEntity(
-            workspaceId = workspaceId,
-            term = request.term.trim(),
-            normalizedTerm = normalizedTerm,
-            definition = request.definition,
-            category = request.category,
-            source = request.source,
-            entityTypeRefs = request.entityTypeRefs,
-            attributeRefs = request.attributeRefs,
-            isCustomized = request.isCustomized,
+        val normalizedTerm = TermNormalizationUtil.normalize(request.term)
+        checkForDuplicateTerm(workspaceId, normalizedTerm, excludeId = null)
+
+        val saved = glossaryEntityIngestionService.upsert(
+            GlossaryEntityIngestionService.GlossaryIngestionInput(
+                workspaceId = workspaceId,
+                term = request.term.trim(),
+                normalizedTerm = normalizedTerm,
+                definition = request.definition,
+                category = request.category.name,
+                source = request.source.name,
+                isCustomised = request.isCustomized,
+                // For freshly-created definitions the entity id is generated inside the
+                // ingestion call; downstream identity is via (workspaceId, normalizedTerm)
+                // — the duplicate-check above guarantees uniqueness. We still need a stable
+                // sourceExternalId so re-creates of the same term don't collide on the
+                // entity-layer idempotent lookup.
+                sourceExternalId = "user:$normalizedTerm",
+                entityTypeRefs = request.entityTypeRefs.toSet(),
+                attributeRefs = request.attributeRefs.toSet(),
+                linkSource = SourceType.USER_CREATED,
+            ),
         )
-
-        val saved = try {
-            repository.save(entity)
-        } catch (e: DataIntegrityViolationException) {
-            throw UniqueConstraintViolationException("A business definition with this term already exists in the workspace")
-        } catch (e: ObjectOptimisticLockingFailureException) {
-            throw ConflictException("Definition '${entity.term}' was modified concurrently. Please try again.", e)
-        }
+        val projected = glossaryEntityProjector.project(workspaceId, saved)
 
         activityService.log(
             activity = Activity.BUSINESS_DEFINITION,
@@ -249,34 +237,42 @@ class WorkspaceBusinessDefinitionService(
             userId = userId,
             workspaceId = workspaceId,
             entityType = ApplicationEntityType.BUSINESS_DEFINITION,
-            entityId = saved.id,
-            "term" to saved.term,
-            "category" to saved.category.name,
-            "source" to saved.source.name,
+            entityId = projected.id,
+            "term" to projected.term,
+            "category" to projected.category.name,
+            "source" to projected.source.name,
         )
 
-        logger.info { "Created business definition '${saved.term}' for workspace $workspaceId (internal)" }
-        return saved.toModel()
+        logger.info { "Created business definition '${projected.term}' for workspace $workspaceId" }
+        return projected
     }
 
-    // ------ Private helpers ------
-
-    private fun checkForDuplicateTerm(workspaceId: UUID, normalizedTerm: String) {
-        val existing = repository.findByWorkspaceIdAndNormalizedTerm(workspaceId, normalizedTerm)
-        if (existing.isPresent) {
-            throw ConflictException(
-                "A business definition with term '${existing.get().term}' already exists in this workspace"
-            )
+    private fun requireGlossaryEntity(workspaceId: UUID, id: UUID): riven.core.entity.entity.EntityEntity {
+        val entity = entityService.findByIdInternal(workspaceId, id)
+            ?: throw NotFoundException("Business definition not found: $id")
+        require(entity.typeKey == "glossary") {
+            "Entity $id is not a glossary term (typeKey=${entity.typeKey})"
         }
+        return entity
     }
 
-    private fun verifyVersion(entity: WorkspaceBusinessDefinitionEntity, requestVersion: Int) {
-        if (requestVersion != entity.version) {
-            throw ConflictException(
-                "Stale version for definition '${entity.term}': expected ${entity.version}, got $requestVersion"
-            )
-        }
+    private fun checkForDuplicateTerm(workspaceId: UUID, normalizedTerm: String, excludeId: UUID?) {
+        val existing = glossaryEntityProjector.findByNormalizedTerm(workspaceId, normalizedTerm)
+            ?: return
+        if (existing.id == excludeId) return
+        throw ConflictException(
+            "A business definition with normalized term '$normalizedTerm' already exists in this workspace"
+        )
     }
+
+    /**
+     * Preserve the original `sourceExternalId` on update if it was set (legacy backfill
+     * imported rows carry `legacy:{uuid}`); otherwise synthesize one from the entity id
+     * so subsequent upserts remain idempotent under the entity layer's
+     * (workspaceId, sourceExternalId) lookup.
+     */
+    private fun sourceExternalIdFor(entityId: UUID, existing: String?): String =
+        existing ?: "user:$entityId"
 
     private fun validateTermLength(term: String) {
         require(term.isNotBlank()) { "Term must not be blank" }

@@ -137,6 +137,7 @@ object EntityFactory {
         name: String = "Related Entity",
         cardinalityDefault: EntityRelationshipCardinality = EntityRelationshipCardinality.MANY_TO_MANY,
         protected: Boolean = false,
+        systemType: riven.core.enums.entity.SystemRelationshipType? = null,
     ): RelationshipDefinitionEntity {
         return RelationshipDefinitionEntity(
             id = id,
@@ -145,6 +146,7 @@ object EntityFactory {
             name = name,
             cardinalityDefault = cardinalityDefault,
             protected = protected,
+            systemType = systemType,
         )
     }
 

@@ -555,7 +555,7 @@ class EntityTypeRelationshipService(
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
     fun createFallbackDefinition(workspaceId: UUID, entityTypeId: UUID): RelationshipDefinitionEntity {
         val userId = authTokenService.getUserId()
-        return createFallbackDefinitionInternal(workspaceId, entityTypeId, userId)
+        return createSystemDefinitionInternal(workspaceId, entityTypeId, SystemRelationshipType.CONNECTED_ENTITIES, userId)
     }
 
     /**
@@ -568,19 +568,64 @@ class EntityTypeRelationshipService(
         workspaceId: UUID,
         entityTypeId: UUID,
         userId: UUID? = null,
-    ): RelationshipDefinitionEntity {
-        val entityType = ServiceUtil.findOrThrow { entityTypeRepository.findById(entityTypeId) }
-        require(entityType.workspaceId == workspaceId) { "Entity type $entityTypeId not found in workspace $workspaceId" }
+    ): RelationshipDefinitionEntity =
+        createSystemDefinitionInternal(workspaceId, entityTypeId, SystemRelationshipType.CONNECTED_ENTITIES, userId)
 
+    /**
+     * Returns the existing system relationship definition for `(sourceEntityTypeId, systemType)`,
+     * creating it if absent. Handles concurrent creation via the unique constraint
+     * (catches DataIntegrityViolationException and retries the read).
+     *
+     * The same enum kind (e.g. ATTACHMENT, MENTION, DEFINES) is reused across knowledge
+     * entity types — concrete semantics live in the (sourceEntityType, systemType) pair.
+     */
+    @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
+    fun getOrCreateSystemDefinition(
+        workspaceId: UUID,
+        sourceEntityTypeId: UUID,
+        systemType: SystemRelationshipType,
+    ): RelationshipDefinitionEntity {
+        val existing = definitionRepository.findBySourceEntityTypeIdAndSystemType(sourceEntityTypeId, systemType)
+        if (existing.isPresent) return existing.get()
+
+        return try {
+            createSystemDefinitionInternal(workspaceId, sourceEntityTypeId, systemType, userId = null)
+        } catch (e: DataIntegrityViolationException) {
+            logger.warn { "Concurrent $systemType creation for entity type $sourceEntityTypeId, retrying read" }
+            definitionRepository.findBySourceEntityTypeIdAndSystemType(sourceEntityTypeId, systemType)
+                .orElseThrow { e }
+        }
+    }
+
+    /**
+     * Generic system relationship definition factory. Default values per system type
+     * are documented inline; all use MANY_TO_MANY cardinality and are protected.
+     */
+    internal fun createSystemDefinitionInternal(
+        workspaceId: UUID,
+        sourceEntityTypeId: UUID,
+        systemType: SystemRelationshipType,
+        userId: UUID? = null,
+    ): RelationshipDefinitionEntity {
+        val entityType = ServiceUtil.findOrThrow { entityTypeRepository.findById(sourceEntityTypeId) }
+        require(entityType.workspaceId == workspaceId) { "Entity type $sourceEntityTypeId not found in workspace $workspaceId" }
+
+        val name = when (systemType) {
+            SystemRelationshipType.CONNECTED_ENTITIES -> "Connected Entities"
+            SystemRelationshipType.ATTACHMENT -> "Attachments"
+            SystemRelationshipType.MENTION -> "Mentions"
+            SystemRelationshipType.DEFINES -> "Defines"
+            SystemRelationshipType.INCLUDES -> "Includes"
+        }
         val entity = RelationshipDefinitionEntity(
             workspaceId = workspaceId,
-            sourceEntityTypeId = entityTypeId,
-            name = "Connected Entities",
+            sourceEntityTypeId = sourceEntityTypeId,
+            name = name,
             iconType = IconType.LINK,
             iconColour = IconColour.NEUTRAL,
             cardinalityDefault = EntityRelationshipCardinality.MANY_TO_MANY,
             protected = true,
-            systemType = SystemRelationshipType.CONNECTED_ENTITIES,
+            systemType = systemType,
         )
         val saved = definitionRepository.save(entity)
 
@@ -591,16 +636,16 @@ class EntityTypeRelationshipService(
                 userId = uid,
                 workspaceId = workspaceId,
                 entityType = ApplicationEntityType.ENTITY_TYPE,
-                entityId = entityTypeId,
+                entityId = sourceEntityTypeId,
                 details = mapOf(
                     "relationshipId" to requireNotNull(saved.id).toString(),
                     "relationshipName" to saved.name,
-                    "systemType" to "CONNECTED_ENTITIES",
+                    "systemType" to systemType.name,
                 ),
             )
         }
 
-        logger.info { "Created CONNECTED_ENTITIES fallback definition for entity type $entityTypeId" }
+        logger.info { "Created $systemType definition for entity type $sourceEntityTypeId" }
         return saved
     }
 
@@ -610,21 +655,8 @@ class EntityTypeRelationshipService(
      * and retrying with a read.
      */
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
-    fun getOrCreateFallbackDefinition(workspaceId: UUID, entityTypeId: UUID): RelationshipDefinitionEntity {
-        val existing = definitionRepository.findBySourceEntityTypeIdAndSystemType(
-            entityTypeId, SystemRelationshipType.CONNECTED_ENTITIES,
-        )
-        if (existing.isPresent) return existing.get()
-
-        return try {
-            createFallbackDefinition(workspaceId, entityTypeId)
-        } catch (e: DataIntegrityViolationException) {
-            logger.warn { "Concurrent fallback definition creation for entity type $entityTypeId, retrying read" }
-            definitionRepository.findBySourceEntityTypeIdAndSystemType(
-                entityTypeId, SystemRelationshipType.CONNECTED_ENTITIES,
-            ).orElseThrow { e }
-        }
-    }
+    fun getOrCreateFallbackDefinition(workspaceId: UUID, entityTypeId: UUID): RelationshipDefinitionEntity =
+        getOrCreateSystemDefinition(workspaceId, entityTypeId, SystemRelationshipType.CONNECTED_ENTITIES)
 
     /**
      * Read-only lookup returning the fallback definition ID, or null if none exists.

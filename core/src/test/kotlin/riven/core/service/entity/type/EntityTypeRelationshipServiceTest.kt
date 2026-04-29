@@ -15,6 +15,7 @@ import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.entity.entity.EntityTypeEntity
 import riven.core.enums.entity.EntityRelationshipCardinality
+import riven.core.enums.entity.SystemRelationshipType
 import riven.core.enums.integration.SourceType
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.enums.workspace.WorkspaceRoles
@@ -767,6 +768,47 @@ class EntityTypeRelationshipServiceTest : BaseServiceTest() {
         val result = service.getDefinitionsForEntityType(workspaceId, entityTypeId)
 
         assertTrue(result.isEmpty())
+    }
+
+    // ------ System Relationship Definitions ------
+
+    @Test
+    fun `getOrCreateSystemDefinition - creates ATTACHMENT when missing`() {
+        val noteTypeId = UUID.randomUUID()
+        val noteEntityType = EntityFactory.createEntityType(id = noteTypeId, workspaceId = workspaceId, key = "note")
+        whenever(definitionRepository.findBySourceEntityTypeIdAndSystemType(noteTypeId, SystemRelationshipType.ATTACHMENT))
+            .thenReturn(Optional.empty())
+        whenever(entityTypeRepository.findById(noteTypeId)).thenReturn(Optional.of(noteEntityType))
+        whenever(definitionRepository.save(any<RelationshipDefinitionEntity>())).thenAnswer { invocation ->
+            val entity = invocation.arguments[0] as RelationshipDefinitionEntity
+            if (entity.id == null) entity.copy(id = UUID.randomUUID()) else entity
+        }
+
+        val result = service.getOrCreateSystemDefinition(workspaceId, noteTypeId, SystemRelationshipType.ATTACHMENT)
+
+        assertEquals(SystemRelationshipType.ATTACHMENT, result.systemType)
+        assertEquals("Attachments", result.name)
+        assertTrue(result.protected)
+    }
+
+    @Test
+    fun `getOrCreateSystemDefinition - returns existing when present`() {
+        val noteTypeId = UUID.randomUUID()
+        val existingId = UUID.randomUUID()
+        val existing = EntityFactory.createRelationshipDefinitionEntity(
+            id = existingId,
+            workspaceId = workspaceId,
+            sourceEntityTypeId = noteTypeId,
+            name = "Attachments",
+            systemType = SystemRelationshipType.ATTACHMENT,
+        )
+        whenever(definitionRepository.findBySourceEntityTypeIdAndSystemType(noteTypeId, SystemRelationshipType.ATTACHMENT))
+            .thenReturn(Optional.of(existing))
+
+        val result = service.getOrCreateSystemDefinition(workspaceId, noteTypeId, SystemRelationshipType.ATTACHMENT)
+
+        assertEquals(existingId, result.id)
+        verify(definitionRepository, never()).save(any<RelationshipDefinitionEntity>())
     }
 
     // ------ Readonly Guard Tests ------

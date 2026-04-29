@@ -12,6 +12,7 @@ import riven.core.enums.core.ApplicationEntityType
 import riven.core.enums.core.DataFormat
 import riven.core.enums.core.DataType
 import riven.core.enums.core.DynamicDefaultFunction
+import riven.core.enums.entity.SystemRelationshipType
 import riven.core.models.common.validation.DefaultValue
 import riven.core.enums.integration.SourceType
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
@@ -257,6 +258,7 @@ class TemplateInstallationService(
             )
 
             relationshipService.createFallbackDefinitionInternal(workspaceId, savedId)
+            seedKnowledgeRelationships(workspaceId, catalogType.key, savedId)
 
             entity.schema.properties?.forEach { (attrId, attrSchema) ->
                 if (attrSchema.key == SchemaType.ID) {
@@ -276,6 +278,23 @@ class TemplateInstallationService(
         }
 
         return results
+    }
+
+    /**
+     * Per-key system relationship seed list for KNOWLEDGE entity types.
+     * Adding a new KNOWLEDGE type means adding one entry here; the seeding
+     * loop is otherwise type-agnostic.
+     */
+    private val knowledgeSystemEdges: Map<String, List<SystemRelationshipType>> = mapOf(
+        "note" to listOf(SystemRelationshipType.ATTACHMENT, SystemRelationshipType.MENTION),
+        "glossary" to listOf(SystemRelationshipType.DEFINES, SystemRelationshipType.MENTION),
+    )
+
+    private fun seedKnowledgeRelationships(workspaceId: UUID, key: String, entityTypeId: UUID) {
+        val edges = knowledgeSystemEdges[key] ?: return
+        edges.forEach { edge ->
+            relationshipService.createSystemDefinitionInternal(workspaceId, entityTypeId, edge)
+        }
     }
 
     /**
@@ -301,6 +320,7 @@ class TemplateInstallationService(
             key = catalogType.key,
             displayNameSingular = catalogType.displayNameSingular,
             displayNamePlural = catalogType.displayNamePlural,
+            role = catalogType.role,
             iconType = catalogType.iconType,
             iconColour = catalogType.iconColour,
             semanticGroup = catalogType.semanticGroup,

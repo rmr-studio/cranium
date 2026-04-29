@@ -7,6 +7,7 @@ import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.models.core.AttributeSemantics
 import riven.core.models.core.CoreModelAttribute
 import riven.core.models.core.ProjectionAcceptRule
@@ -22,6 +23,7 @@ object OrderLineItemModel : riven.core.models.core.CoreModelDefinition(
     displayNamePlural = "Line Items",
     iconType = IconType.LIST,
     iconColour = IconColour.GREEN,
+    role = EntityTypeRole.CATALOG,
     semanticGroup = SemanticGroup.LINE_ITEM,
     lifecycleDomain = LifecycleDomain.BILLING,
     identifierKey = "quantity",

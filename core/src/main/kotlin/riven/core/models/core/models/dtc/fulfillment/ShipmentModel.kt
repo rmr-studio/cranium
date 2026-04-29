@@ -4,6 +4,7 @@ import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
@@ -23,6 +24,7 @@ object ShipmentModel : riven.core.models.core.CoreModelDefinition(
     iconColour = IconColour.BLUE,
     semanticGroup = SemanticGroup.SHIPMENT,
     lifecycleDomain = LifecycleDomain.FULFILLMENT,
+    role = EntityTypeRole.CATALOG,
     identifierKey = "tracking-number",
     semanticDefinition = "A package in transit from the warehouse to the customer. Tracks lane, service level, and status through delivery.",
     semanticTags = listOf("fulfillment", "shipping", "logistics"),

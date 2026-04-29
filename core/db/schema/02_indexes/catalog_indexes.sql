@@ -9,6 +9,7 @@ CREATE INDEX IF NOT EXISTS idx_manifest_catalog_type ON manifest_catalog(manifes
 -- =====================================================
 
 CREATE INDEX IF NOT EXISTS idx_catalog_entity_types_manifest ON catalog_entity_types(manifest_id);
+CREATE INDEX IF NOT EXISTS idx_catalog_entity_types_surface_role ON catalog_entity_types(surface_role);
 
 -- =====================================================
 -- CATALOG RELATIONSHIPS INDEXES

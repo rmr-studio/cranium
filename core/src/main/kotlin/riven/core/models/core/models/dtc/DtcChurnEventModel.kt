@@ -7,6 +7,7 @@ import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.models.common.validation.SchemaOptions
 import riven.core.models.core.AttributeSemantics
 import riven.core.models.core.CoreModelAttribute
@@ -25,6 +26,7 @@ object DtcChurnEventModel : riven.core.models.core.CoreModelDefinition(
     iconColour = IconColour.RED,
     semanticGroup = SemanticGroup.FINANCIAL,
     lifecycleDomain = LifecycleDomain.RETENTION,
+    role = EntityTypeRole.CATALOG,
     identifierKey = "reason",
     semanticDefinition = "Records when and why a customer stopped purchasing. The terminal lifecycle event for DTC ecommerce, with revenue impact tracking.",
     semanticTags = listOf("churn", "retention", "lifecycle", "revenue"),

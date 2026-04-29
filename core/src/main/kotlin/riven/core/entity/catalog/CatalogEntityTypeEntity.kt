@@ -6,6 +6,7 @@ import org.hibernate.annotations.Type
 import org.hibernate.annotations.UpdateTimestamp
 import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.models.catalog.CatalogEntityTypeModel
@@ -60,6 +61,10 @@ data class CatalogEntityTypeEntity(
     @Column(name = "lifecycle_domain", nullable = false)
     val lifecycleDomain: LifecycleDomain = LifecycleDomain.UNCATEGORIZED,
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "surface_role", nullable = false)
+    val role: EntityTypeRole = EntityTypeRole.CATALOG,
+
     @Column(name = "identifier_key")
     val identifierKey: String? = null,
 
@@ -95,6 +100,7 @@ data class CatalogEntityTypeEntity(
         iconColour = iconColour,
         semanticGroup = semanticGroup,
         lifecycleDomain = lifecycleDomain,
+        role = role,
         identifierKey = identifierKey,
         readonly = readonly,
         schema = schema,

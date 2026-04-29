@@ -4,6 +4,7 @@ import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
@@ -22,6 +23,7 @@ object CollectionModel : riven.core.models.core.CoreModelDefinition(
     iconColour = IconColour.ORANGE,
     semanticGroup = SemanticGroup.COLLECTION,
     lifecycleDomain = LifecycleDomain.COMMERCE,
+    role = EntityTypeRole.CATALOG,
     identifierKey = "handle",
     semanticDefinition = "A merchandising grouping of products — mirrors Shopify collections (manual or rules-based).",
     semanticTags = listOf("catalogue", "merchandising", "collection"),

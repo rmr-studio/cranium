@@ -4,6 +4,7 @@ import riven.core.enums.catalog.ManifestType
 import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.entity.EntityRelationshipCardinality
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticGroup
@@ -52,6 +53,7 @@ data class CatalogEntityTypeModel(
     val iconColour: IconColour,
     val semanticGroup: SemanticGroup,
     val lifecycleDomain: LifecycleDomain = LifecycleDomain.UNCATEGORIZED,
+    val role: EntityTypeRole = EntityTypeRole.CATALOG,
     val identifierKey: String?,
     val readonly: Boolean,
     val schema: Map<String, Any>,

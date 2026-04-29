@@ -4,6 +4,7 @@ import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
@@ -24,6 +25,7 @@ object ReturnModel : riven.core.models.core.CoreModelDefinition(
     iconColour = IconColour.RED,
     semanticGroup = SemanticGroup.TRANSACTION,
     lifecycleDomain = LifecycleDomain.RETENTION,
+    role = EntityTypeRole.CATALOG,
     identifierKey = "rma-number",
     semanticDefinition = "A product return. Captures the classified return reason, refund amount, and link to the originating order.",
     semanticTags = listOf("return", "refund", "retention"),

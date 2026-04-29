@@ -2,6 +2,7 @@ package riven.core.models.core.models.dtc
 
 import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.models.core.ProjectionAcceptRule
@@ -19,6 +20,7 @@ object DtcCustomerModel : riven.core.models.core.CoreModelDefinition(
     iconColour = IconColour.BLUE,
     semanticGroup = SemanticGroup.CUSTOMER,
     lifecycleDomain = LifecycleDomain.UNCATEGORIZED,
+    role = EntityTypeRole.CATALOG,
     identifierKey = "email",
     semanticDefinition = "A customer represents a person who purchases directly from the business. Customers are the central entity around which orders, support, and engagement activities are organised.",
     semanticTags = listOf("crm", "contact", "revenue", "lifecycle"),

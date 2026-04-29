@@ -4,6 +4,7 @@ import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
@@ -23,6 +24,7 @@ object AdCreativeModel : riven.core.models.core.CoreModelDefinition(
     iconColour = IconColour.PURPLE,
     semanticGroup = SemanticGroup.CREATIVE,
     lifecycleDomain = LifecycleDomain.MARKETING,
+    role = EntityTypeRole.CATALOG,
     identifierKey = "name",
     semanticDefinition = "A creative asset used by one or more campaigns. Tracks creative-level performance and lifecycle (fatigue, refresh cadence).",
     semanticTags = listOf("marketing", "creative", "asset"),

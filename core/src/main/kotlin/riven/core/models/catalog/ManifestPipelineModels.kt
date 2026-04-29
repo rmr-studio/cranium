@@ -3,6 +3,7 @@ package riven.core.models.catalog
 import tools.jackson.databind.JsonNode
 import riven.core.enums.catalog.ManifestType
 import riven.core.enums.entity.EntityRelationshipCardinality
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.enums.entity.LifecycleDomain
 
 /** Output of ManifestScannerService -- parsed and schema-validated JSON. */
@@ -34,6 +35,7 @@ data class ResolvedEntityType(
     val iconColour: String,
     val semanticGroup: String,
     val lifecycleDomain: LifecycleDomain? = null,
+    val role: EntityTypeRole = EntityTypeRole.CATALOG,
     val identifierKey: String?,
     val readonly: Boolean,
     val schema: Map<String, Any>,

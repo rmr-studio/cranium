@@ -39,6 +39,8 @@ CREATE TABLE IF NOT EXISTS catalog_entity_types (
     icon_colour TEXT NOT NULL DEFAULT 'NEUTRAL',
     semantic_group TEXT NOT NULL DEFAULT 'UNCATEGORIZED',
     lifecycle_domain TEXT NOT NULL DEFAULT 'UNCATEGORIZED',
+    surface_role VARCHAR(20) NOT NULL DEFAULT 'CATALOG'
+        CHECK (surface_role IN ('CATALOG', 'KNOWLEDGE', 'SIGNAL')),
     identifier_key VARCHAR(255),
     readonly BOOLEAN NOT NULL DEFAULT FALSE,
     schema JSONB NOT NULL DEFAULT '{}'::jsonb,

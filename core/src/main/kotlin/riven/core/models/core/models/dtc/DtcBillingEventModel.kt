@@ -7,6 +7,7 @@ import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.models.common.validation.SchemaOptions
 import riven.core.models.core.AttributeSemantics
 import riven.core.models.core.CoreModelAttribute
@@ -25,6 +26,7 @@ object DtcBillingEventModel : riven.core.models.core.CoreModelDefinition(
     iconColour = IconColour.GREEN,
     semanticGroup = SemanticGroup.FINANCIAL,
     lifecycleDomain = LifecycleDomain.BILLING,
+    role = EntityTypeRole.CATALOG,
     identifierKey = "description",
     semanticDefinition = "A financial event in the ecommerce transaction lifecycle — purchases, refunds, credits, shipping fees, or adjustments.",
     semanticTags = listOf("billing", "finance", "revenue", "ecommerce"),

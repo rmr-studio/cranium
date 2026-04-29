@@ -179,7 +179,7 @@ class ProjectionPipelineIntegrationTestConfig {
 
     /**
      * Mock EnrichmentService bean — SchemaReconciliationService depends on it for the
-     * connotation envelope invalidation hook, but the projection pipeline tests do not
+     * connotation snapshot invalidation hook, but the projection pipeline tests do not
      * exercise enrichment. The full EnrichmentService graph (Temporal client, embedding
      * provider, etc.) is intentionally not wired into this config.
      */

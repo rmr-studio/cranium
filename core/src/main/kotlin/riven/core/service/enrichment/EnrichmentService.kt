@@ -24,14 +24,14 @@ import riven.core.enums.integration.SourceType
 import riven.core.exceptions.NotFoundException
 import riven.core.models.connotation.AttributeClassificationSnapshot
 import riven.core.models.connotation.ClusterMemberSnapshot
-import riven.core.models.connotation.ConnotationAxes
-import riven.core.models.connotation.ConnotationMetadataEnvelope
-import riven.core.models.connotation.RelationalAxis
+import riven.core.models.connotation.ConnotationMetadata
+import riven.core.models.connotation.ConnotationMetadataSnapshot
+import riven.core.models.connotation.RelationalMetadata
 import riven.core.models.connotation.RelationalReferenceResolution
 import riven.core.models.connotation.RelationshipSemanticDefinitionSnapshot
 import riven.core.models.connotation.RelationshipSummarySnapshot
-import riven.core.models.connotation.SentimentAxis
-import riven.core.models.connotation.StructuralAxis
+import riven.core.models.connotation.SentimentMetadata
+import riven.core.models.connotation.StructuralMetadata
 import riven.core.models.enrichment.EnrichmentAttributeContext
 import riven.core.models.enrichment.EnrichmentClusterMemberContext
 import riven.core.models.enrichment.EnrichmentContext
@@ -60,18 +60,18 @@ import java.util.*
  * Orchestration service for the entity embedding enrichment pipeline.
  *
  * Manages the full queue lifecycle from embeddability gating through
- * semantic-envelope assembly, Temporal dispatch, and embedding storage.
+ * semantic-snapshot assembly, Temporal dispatch, and embedding storage.
  *
  * Core responsibilities:
  * - [enqueueAndProcess] — embeddability gate + queue item creation + Temporal dispatch.
  * - [enqueueByEntityType] — bulk re-enrichment for every entity of a type (manifest reconciliation hook).
- * - [analyzeSemantics] — queue item claiming + assembly of the polymorphic semantic envelope
- *   (SENTIMENT placeholder + RELATIONAL + STRUCTURAL axes) and persistence to `entity_connotation`.
- *   Returns a transient [EnrichmentContext] for downstream activities; the persisted envelope is
- *   the source of truth for non-pipeline consumers.
+ * - [analyzeSemantics] — queue item claiming + assembly of the polymorphic semantic snapshot
+ *   (SENTIMENT placeholder + RELATIONAL + STRUCTURAL metadata categories) and persistence to
+ *   `entity_connotation`. Returns a transient [EnrichmentContext] for downstream activities; the
+ *   persisted snapshot is the source of truth for non-pipeline consumers.
  * - [storeEmbedding] — embedding upsert + queue item completion.
  *
- * **Concurrency posture:** envelope persistence uses an atomic
+ * **Concurrency posture:** snapshot persistence uses an atomic
  * `INSERT ... ON CONFLICT (entity_id) DO UPDATE` keyed by `entity_id`, so concurrent writers
  * always converge to a single row and race only for last-write-wins on the payload. Each writer's
  * own view is internally consistent at fetch time; the surviving row reflects whichever transaction
@@ -138,7 +138,7 @@ class EnrichmentService(
     /**
      * Bulk-enqueue ENRICHMENT items for every non-INTEGRATION, non-deleted entity of [entityTypeId]
      * in [workspaceId]. Hooked from [riven.core.service.catalog.SchemaReconciliationService] when
-     * a manifest schema change invalidates the STRUCTURAL axis snapshots stored in
+     * a manifest schema change invalidates the STRUCTURAL metadata snapshots stored in
      * `entity_connotation`.
      *
      * Backed by a single `INSERT ... SELECT` in [ExecutionQueueRepository.enqueueEnrichmentByEntityType]
@@ -194,17 +194,17 @@ class EnrichmentService(
     // ------ Activity-Called Methods ------
 
     /**
-     * Claims a queue item, computes the polymorphic semantic envelope (SENTIMENT placeholder +
-     * RELATIONAL + STRUCTURAL axes), persists it to `entity_connotation`, and returns a transient
-     * [EnrichmentContext] for downstream activities.
+     * Claims a queue item, computes the polymorphic semantic snapshot (SENTIMENT placeholder +
+     * RELATIONAL + STRUCTURAL metadata categories), persists it to `entity_connotation`, and
+     * returns a transient [EnrichmentContext] for downstream activities.
      *
      * Marks the queue item as CLAIMED (idempotent on retry — accepts CLAIMED status too).
      * Loads entity, entity type, semantic metadata, attributes, and relationships in batch
      * queries to avoid N+1 patterns.
      *
-     * The persisted envelope is "as of last enrichment" — a snapshot, not a live view. Consumers
-     * needing live state must query the underlying tables. Last-write-wins on concurrent writes;
-     * see class KDoc for concurrency posture.
+     * The persisted snapshot is "as of last enrichment" — a point-in-time view, not a live one.
+     * Consumers needing live state must query the underlying tables. Last-write-wins on concurrent
+     * writes; see class KDoc for concurrency posture.
      *
      * @param queueItemId The enrichment queue row to process
      * @return Complete context snapshot for downstream activities
@@ -248,7 +248,7 @@ class EnrichmentService(
             relationshipDefinitions = relationshipDefinitions,
         )
 
-        persistConnotationEnvelope(entityId, entity.workspaceId, entityType, context)
+        persistConnotationSnapshot(entityId, entity.workspaceId, entityType, context)
 
         return context
     }
@@ -573,42 +573,42 @@ class EnrichmentService(
                 )
             }
 
-    // ------ Connotation Envelope Persistence ------
+    // ------ Connotation Snapshot Persistence ------
 
     /**
-     * Builds the [ConnotationMetadataEnvelope] from the freshly assembled [EnrichmentContext]
+     * Builds the [ConnotationMetadataSnapshot] from the freshly assembled [EnrichmentContext]
      * and upserts it to `entity_connotation` (delete-then-insert, mirroring the embedding
-     * upsert pattern). Phase A populates RELATIONAL + STRUCTURAL axes deterministically; the
-     * SENTIMENT axis is a placeholder ([ConnotationStatus.NOT_APPLICABLE]) until Phase B
-     * activates the Tier 1 mapper.
+     * upsert pattern). Phase A populates RELATIONAL + STRUCTURAL metadata deterministically;
+     * the SENTIMENT metadata is a placeholder ([ConnotationStatus.NOT_APPLICABLE]) until Phase
+     * B activates the Tier 1 mapper.
      */
-    private fun persistConnotationEnvelope(
+    private fun persistConnotationSnapshot(
         entityId: UUID,
         workspaceId: UUID,
         entityType: EntityTypeEntity,
         context: EnrichmentContext,
     ) {
         val now = ZonedDateTime.now()
-        val envelope = ConnotationMetadataEnvelope(
-            envelopeVersion = "v1",
-            axes = ConnotationAxes(
-                sentiment = SentimentAxis(),
-                relational = buildRelationalAxis(context, now),
-                structural = buildStructuralAxis(context, entityType, now),
+        val snapshot = ConnotationMetadataSnapshot(
+            snapshotVersion = "v1",
+            metadata = ConnotationMetadata(
+                sentiment = SentimentMetadata(),
+                relational = buildRelationalMetadata(context, now),
+                structural = buildStructuralMetadata(context, entityType, now),
             ),
             embeddedAt = now,
         )
 
-        val envelopeJson = objectMapper.writeValueAsString(envelope)
-        entityConnotationRepository.upsertByEntityId(entityId, workspaceId, envelopeJson, now)
+        val snapshotJson = objectMapper.writeValueAsString(snapshot)
+        entityConnotationRepository.upsertByEntityId(entityId, workspaceId, snapshotJson, now)
 
-        logger.debug { "Persisted connotation envelope for entity $entityId" }
+        logger.debug { "Persisted connotation snapshot for entity $entityId" }
     }
 
     /**
-     * Builds the RELATIONAL axis snapshot from already-computed enrichment context.
+     * Builds the RELATIONAL metadata snapshot from already-computed enrichment context.
      */
-    private fun buildRelationalAxis(context: EnrichmentContext, snapshotAt: ZonedDateTime): RelationalAxis {
+    private fun buildRelationalMetadata(context: EnrichmentContext, snapshotAt: ZonedDateTime): RelationalMetadata {
         val relationshipSummaries = context.relationshipSummaries.map { summary ->
             RelationshipSummarySnapshot(
                 definitionId = summary.definitionId.toString(),
@@ -638,7 +638,7 @@ class EnrichmentService(
                     )
                 }
         }
-        return RelationalAxis(
+        return RelationalMetadata(
             relationshipSummaries = relationshipSummaries,
             clusterMembers = clusterMembers,
             relationalReferenceResolutions = resolutions,
@@ -647,14 +647,14 @@ class EnrichmentService(
     }
 
     /**
-     * Builds the STRUCTURAL axis snapshot — entity type metadata, attribute classifications,
+     * Builds the STRUCTURAL metadata snapshot — entity type metadata, attribute classifications,
      * and relationship semantic definitions captured at embed time.
      */
-    private fun buildStructuralAxis(
+    private fun buildStructuralMetadata(
         context: EnrichmentContext,
         entityType: EntityTypeEntity,
         snapshotAt: ZonedDateTime,
-    ): StructuralAxis {
+    ): StructuralMetadata {
         val attributeClassifications = context.attributes.map { attr ->
             AttributeClassificationSnapshot(
                 attributeId = attr.attributeId.toString(),
@@ -669,7 +669,7 @@ class EnrichmentService(
                 definitionText = definition.definition,
             )
         }
-        return StructuralAxis(
+        return StructuralMetadata(
             entityTypeName = entityType.displayNameSingular,
             semanticGroup = entityType.semanticGroup,
             lifecycleDomain = entityType.lifecycleDomain,

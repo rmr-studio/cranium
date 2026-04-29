@@ -20,13 +20,14 @@ import java.time.ZonedDateTime
 import java.util.TimeZone
 
 /**
- * Jackson round-trip + forward-compat coverage for [ConnotationMetadataEnvelope].
+ * Jackson round-trip + forward-compat coverage for [ConnotationMetadataSnapshot].
  *
- * The envelope is persisted as JSONB via Hypersistence's JsonBinaryType. Round-trip parity
- * matters because the envelope is the source of truth for non-pipeline consumers (frontend
- * display, debug tooling, future Layer 4 axes); shape drift breaks downstream readers.
+ * The snapshot is persisted as JSONB via Hypersistence's JsonBinaryType. Round-trip parity
+ * matters because the snapshot is the source of truth for non-pipeline consumers (frontend
+ * display, debug tooling, future Layer 4 metadata categories); shape drift breaks downstream
+ * readers.
  */
-class ConnotationMetadataEnvelopeTest {
+class ConnotationMetadataSnapshotTest {
 
     private val mapper = JsonMapper.builder()
         .addModule(KotlinModule.Builder().build())
@@ -37,13 +38,13 @@ class ConnotationMetadataEnvelopeTest {
         .build()
 
     @Test
-    fun `Phase A envelope (placeholder SENTIMENT, populated RELATIONAL+STRUCTURAL) round-trips through Jackson`() {
+    fun `Phase A snapshot (placeholder SENTIMENT, populated RELATIONAL+STRUCTURAL) round-trips through Jackson`() {
         val now = ZonedDateTime.parse("2026-04-29T12:00:00Z")
-        val envelope = ConnotationMetadataEnvelope(
-            envelopeVersion = "v1",
-            axes = ConnotationAxes(
-                sentiment = SentimentAxis(),
-                relational = RelationalAxis(
+        val snapshot = ConnotationMetadataSnapshot(
+            snapshotVersion = "v1",
+            metadata = ConnotationMetadata(
+                sentiment = SentimentMetadata(),
+                relational = RelationalMetadata(
                     relationshipSummaries = listOf(
                         RelationshipSummarySnapshot(
                             definitionId = "def-1",
@@ -65,7 +66,7 @@ class ConnotationMetadataEnvelopeTest {
                     ),
                     snapshotAt = now,
                 ),
-                structural = StructuralAxis(
+                structural = StructuralMetadata(
                     entityTypeName = "Customer",
                     semanticGroup = SemanticGroup.CUSTOMER,
                     lifecycleDomain = LifecycleDomain.ACQUISITION,
@@ -91,19 +92,19 @@ class ConnotationMetadataEnvelopeTest {
             embeddedAt = now,
         )
 
-        val json = mapper.writeValueAsString(envelope)
-        val restored = mapper.readValue(json, ConnotationMetadataEnvelope::class.java)
+        val json = mapper.writeValueAsString(snapshot)
+        val restored = mapper.readValue(json, ConnotationMetadataSnapshot::class.java)
 
-        assertEquals(envelope, restored)
+        assertEquals(snapshot, restored)
     }
 
     @Test
-    fun `envelope JSON has axes keyed by SENTIMENT, RELATIONAL, STRUCTURAL`() {
-        val envelope = ConnotationMetadataEnvelope(
-            axes = ConnotationAxes(
-                sentiment = SentimentAxis(),
-                relational = RelationalAxis(snapshotAt = ZonedDateTime.now()),
-                structural = StructuralAxis(
+    fun `snapshot JSON has metadata keyed by SENTIMENT, RELATIONAL, STRUCTURAL`() {
+        val snapshot = ConnotationMetadataSnapshot(
+            metadata = ConnotationMetadata(
+                sentiment = SentimentMetadata(),
+                relational = RelationalMetadata(snapshotAt = ZonedDateTime.now()),
+                structural = StructuralMetadata(
                     entityTypeName = "T",
                     semanticGroup = SemanticGroup.UNCATEGORIZED,
                     lifecycleDomain = LifecycleDomain.UNCATEGORIZED,
@@ -114,12 +115,12 @@ class ConnotationMetadataEnvelopeTest {
             embeddedAt = ZonedDateTime.now(),
         )
 
-        val json = mapper.writeValueAsString(envelope)
+        val json = mapper.writeValueAsString(snapshot)
 
-        assertTrue(json.contains("\"SENTIMENT\""), "JSON should contain SENTIMENT axis key")
-        assertTrue(json.contains("\"RELATIONAL\""), "JSON should contain RELATIONAL axis key")
-        assertTrue(json.contains("\"STRUCTURAL\""), "JSON should contain STRUCTURAL axis key")
-        assertTrue(json.contains("\"envelopeVersion\":\"v1\""), "JSON should contain envelopeVersion v1")
+        assertTrue(json.contains("\"SENTIMENT\""), "JSON should contain SENTIMENT key")
+        assertTrue(json.contains("\"RELATIONAL\""), "JSON should contain RELATIONAL key")
+        assertTrue(json.contains("\"STRUCTURAL\""), "JSON should contain STRUCTURAL key")
+        assertTrue(json.contains("\"snapshotVersion\":\"v1\""), "JSON should contain snapshotVersion v1")
     }
 
     @Test
@@ -127,15 +128,15 @@ class ConnotationMetadataEnvelopeTest {
         val now = ZonedDateTime.parse("2026-04-29T12:00:00Z")
         val futureJson = """
             {
-              "envelopeVersion": "v1",
-              "axes": {
+              "snapshotVersion": "v1",
+              "metadata": {
                 "SENTIMENT": {
                   "status": "NOT_APPLICABLE",
                   "stalenessModel": "ON_SOURCE_TEXT_CHANGE",
                   "themes": [],
                   "futureFieldOnSentiment": "ignore-me"
                 },
-                "FUTURE_AXIS": { "x": 1 },
+                "FUTURE_CATEGORY": { "x": 1 },
                 "STRUCTURAL": {
                   "entityTypeName": "Customer",
                   "semanticGroup": "CUSTOMER",
@@ -151,20 +152,20 @@ class ConnotationMetadataEnvelopeTest {
             }
         """.trimIndent()
 
-        val restored = mapper.readValue(futureJson, ConnotationMetadataEnvelope::class.java)
+        val restored = mapper.readValue(futureJson, ConnotationMetadataSnapshot::class.java)
 
-        assertEquals("v1", restored.envelopeVersion)
-        assertEquals(ConnotationStatus.NOT_APPLICABLE, restored.axes.sentiment?.status)
-        assertNull(restored.axes.relational, "RELATIONAL axis is absent in this fixture")
-        assertEquals("Customer", restored.axes.structural?.entityTypeName)
+        assertEquals("v1", restored.snapshotVersion)
+        assertEquals(ConnotationStatus.NOT_APPLICABLE, restored.metadata.sentiment?.status)
+        assertNull(restored.metadata.relational, "RELATIONAL metadata is absent in this fixture")
+        assertEquals("Customer", restored.metadata.structural?.entityTypeName)
     }
 
     @Test
-    fun `defaults - SentimentAxis defaults to NOT_APPLICABLE status and ON_SOURCE_TEXT_CHANGE staleness`() {
-        val sentiment = SentimentAxis()
+    fun `defaults - SentimentMetadata defaults to NOT_APPLICABLE status and ON_SOURCE_TEXT_CHANGE staleness`() {
+        val sentiment = SentimentMetadata()
 
         assertEquals(ConnotationStatus.NOT_APPLICABLE, sentiment.status)
-        assertEquals(AxisStalenessModel.ON_SOURCE_TEXT_CHANGE, sentiment.stalenessModel)
+        assertEquals(MetadataStalenessModel.ON_SOURCE_TEXT_CHANGE, sentiment.stalenessModel)
         assertNull(sentiment.sentiment)
         assertNull(sentiment.sentimentLabel)
         assertTrue(sentiment.themes.isEmpty())

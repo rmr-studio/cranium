@@ -11,7 +11,7 @@ import java.util.UUID
  *
  * Declares four independently retryable steps:
  * 1. [analyzeSemantics] — claims queue item, assembles the entity context, and persists the
- *    polymorphic semantic envelope (`entity_connotation`).
+ *    polymorphic semantic snapshot (`entity_connotation`).
  * 2. [constructEnrichedText] — builds semantic text from context
  * 3. [generateEmbedding] — calls EmbeddingProvider to produce a vector
  * 4. [storeEmbedding] — upserts the vector and marks queue COMPLETED
@@ -24,7 +24,7 @@ import java.util.UUID
 interface EnrichmentActivities {
 
     /**
-     * Claims the queue item, persists the polymorphic semantic envelope to `entity_connotation`,
+     * Claims the queue item, persists the polymorphic semantic snapshot to `entity_connotation`,
      * and returns a transient [EnrichmentContext] for downstream activities.
      */
     @ActivityMethod

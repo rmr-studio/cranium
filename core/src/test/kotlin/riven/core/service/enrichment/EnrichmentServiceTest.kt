@@ -25,7 +25,7 @@ import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
-import riven.core.models.connotation.AxisStalenessModel
+import riven.core.models.connotation.MetadataStalenessModel
 import riven.core.enums.connotation.ConnotationStatus
 import riven.core.enums.integration.SourceType
 import riven.core.exceptions.NotFoundException
@@ -121,13 +121,13 @@ class EnrichmentServiceTest : BaseServiceTest() {
     }
 
     /**
-     * Capture the JSON envelope passed to upsertByEntityId and deserialize it.
+     * Capture the JSON snapshot passed to upsertByEntityId and deserialize it.
      * Verifies the call's entity/workspace identifiers match expectations.
      */
-    private fun captureUpsertedEnvelope(
+    private fun captureUpsertedSnapshot(
         entityId: UUID,
         workspaceId: UUID,
-    ): riven.core.models.connotation.ConnotationMetadataEnvelope {
+    ): riven.core.models.connotation.ConnotationMetadataSnapshot {
         val jsonCaptor = argumentCaptor<String>()
         verify(entityConnotationRepository).upsertByEntityId(
             eq(entityId),
@@ -137,7 +137,7 @@ class EnrichmentServiceTest : BaseServiceTest() {
         )
         return objectMapper.readValue(
             jsonCaptor.firstValue,
-            riven.core.models.connotation.ConnotationMetadataEnvelope::class.java,
+            riven.core.models.connotation.ConnotationMetadataSnapshot::class.java,
         )
     }
 
@@ -942,15 +942,15 @@ class EnrichmentServiceTest : BaseServiceTest() {
     }
 
     // ------------------------------------------------------------------
-    // analyzeSemantics: connotation envelope persistence (Phase A)
+    // analyzeSemantics: connotation snapshot persistence (Phase A)
     // ------------------------------------------------------------------
 
     /**
-     * Phase A: every analyzeSemantics call upserts a connotation envelope into entity_connotation.
+     * Phase A: every analyzeSemantics call upserts a connotation snapshot into entity_connotation.
      * Persistence is a single atomic INSERT ... ON CONFLICT DO UPDATE keyed by entity_id.
      */
     @Test
-    fun `analyzeSemantics persists connotation envelope on every run`() {
+    fun `analyzeSemantics persists connotation snapshot on every run`() {
         val queueItemId = UUID.randomUUID()
         val entityId = UUID.randomUUID()
         val typeId = UUID.randomUUID()
@@ -969,17 +969,17 @@ class EnrichmentServiceTest : BaseServiceTest() {
 
         enrichmentService.analyzeSemantics(queueItemId)
 
-        val envelope = captureUpsertedEnvelope(entityId, workspaceId)
-        assertEquals("v1", envelope.envelopeVersion)
+        val snapshot = captureUpsertedSnapshot(entityId, workspaceId)
+        assertEquals("v1", snapshot.snapshotVersion)
         verify(entityConnotationRepository, never()).save(any())
     }
 
     /**
-     * Phase A: SENTIMENT axis is a placeholder (NOT_APPLICABLE) until Phase B activates the
-     * Tier 1 mapper. RELATIONAL + STRUCTURAL axes are populated deterministically.
+     * Phase A: SENTIMENT metadata is a placeholder (NOT_APPLICABLE) until Phase B activates the
+     * Tier 1 mapper. RELATIONAL + STRUCTURAL metadata are populated deterministically.
      */
     @Test
-    fun `analyzeSemantics envelope has placeholder SENTIMENT and populated RELATIONAL+STRUCTURAL axes`() {
+    fun `analyzeSemantics snapshot has placeholder SENTIMENT and populated RELATIONAL+STRUCTURAL metadata`() {
         val queueItemId = UUID.randomUUID()
         val entityId = UUID.randomUUID()
         val typeId = UUID.randomUUID()
@@ -998,31 +998,31 @@ class EnrichmentServiceTest : BaseServiceTest() {
 
         enrichmentService.analyzeSemantics(queueItemId)
 
-        val envelope = captureUpsertedEnvelope(entityId, workspaceId)
+        val snapshot = captureUpsertedSnapshot(entityId, workspaceId)
 
-        val sentiment = requireNotNull(envelope.axes.sentiment)
+        val sentiment = requireNotNull(snapshot.metadata.sentiment)
         assertEquals(ConnotationStatus.NOT_APPLICABLE, sentiment.status)
         assertNull(sentiment.sentiment)
         assertNull(sentiment.sentimentLabel)
-        assertEquals(AxisStalenessModel.ON_SOURCE_TEXT_CHANGE, sentiment.stalenessModel)
+        assertEquals(MetadataStalenessModel.ON_SOURCE_TEXT_CHANGE, sentiment.stalenessModel)
 
-        val relational = requireNotNull(envelope.axes.relational)
-        assertEquals(AxisStalenessModel.ON_NEIGHBOR_CHANGE, relational.stalenessModel)
+        val relational = requireNotNull(snapshot.metadata.relational)
+        assertEquals(MetadataStalenessModel.ON_NEIGHBOR_CHANGE, relational.stalenessModel)
         assertNotNull(relational.snapshotAt)
 
-        val structural = requireNotNull(envelope.axes.structural)
+        val structural = requireNotNull(snapshot.metadata.structural)
         assertEquals("Customer", structural.entityTypeName)
         assertEquals(SemanticGroup.UNCATEGORIZED, structural.semanticGroup)
         assertEquals(LifecycleDomain.UNCATEGORIZED, structural.lifecycleDomain)
-        assertEquals(AxisStalenessModel.ON_TYPE_METADATA_CHANGE, structural.stalenessModel)
+        assertEquals(MetadataStalenessModel.ON_TYPE_METADATA_CHANGE, structural.stalenessModel)
     }
 
     /**
-     * STRUCTURAL axis snapshots schema version + attribute classifications + relationship
+     * STRUCTURAL metadata snapshots schema version + attribute classifications + relationship
      * semantic definitions captured at embed time. Used by manifest reconciliation to detect drift.
      */
     @Test
-    fun `analyzeSemantics STRUCTURAL axis snapshots schema version and attribute classifications`() {
+    fun `analyzeSemantics STRUCTURAL metadata snapshots schema version and attribute classifications`() {
         val queueItemId = UUID.randomUUID()
         val entityId = UUID.randomUUID()
         val typeId = UUID.randomUUID()
@@ -1050,8 +1050,8 @@ class EnrichmentServiceTest : BaseServiceTest() {
 
         enrichmentService.analyzeSemantics(queueItemId)
 
-        val envelope = captureUpsertedEnvelope(entityId, workspaceId)
-        val structural = requireNotNull(envelope.axes.structural)
+        val snapshot = captureUpsertedSnapshot(entityId, workspaceId)
+        val structural = requireNotNull(snapshot.metadata.structural)
         assertEquals(7, structural.schemaVersion)
         assertEquals(1, structural.attributeClassifications.size)
         val attrSnapshot = structural.attributeClassifications[0]
@@ -1067,7 +1067,7 @@ class EnrichmentServiceTest : BaseServiceTest() {
 
     /**
      * enqueueByEntityType delegates to the batched ExecutionQueueRepository INSERT...SELECT and
-     * returns the inserted-row count. Used by SchemaReconciliationService to invalidate envelopes
+     * returns the inserted-row count. Used by SchemaReconciliationService to invalidate snapshots
      * after a manifest-driven schema change.
      */
     @Test

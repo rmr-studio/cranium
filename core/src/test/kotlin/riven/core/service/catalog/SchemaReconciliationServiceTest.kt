@@ -1901,7 +1901,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
         }
     }
 
-    // ------ Connotation envelope invalidation hook ------
+    // ------ Connotation snapshot invalidation hook ------
 
     @Nested
     @WithUserPersona(

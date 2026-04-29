@@ -1,11 +1,11 @@
 -- =====================================================
 -- ENTITY CONNOTATION TABLE
 -- =====================================================
--- Stores per-entity polymorphic semantic envelope (SENTIMENT, RELATIONAL,
--- STRUCTURAL axes) captured at last enrichment time. One envelope per entity.
--- System-managed: no soft-delete, no audit columns. The envelope is internally
--- system-write-only and intentionally lives on a sibling table to avoid
--- polluting entities.audit fields when re-enrichment writes occur.
+-- Stores per-entity polymorphic semantic snapshot (SENTIMENT, RELATIONAL,
+-- STRUCTURAL metadata categories) captured at last enrichment time. One snapshot
+-- per entity. System-managed: no soft-delete, no audit columns. The snapshot is
+-- internally system-write-only and intentionally lives on a sibling table to
+-- avoid polluting entities.audit fields when re-enrichment writes occur.
 CREATE TABLE IF NOT EXISTS public.entity_connotation
 (
     "id"                    UUID PRIMARY KEY         DEFAULT uuid_generate_v4(),
@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS public.entity_connotation
     "created_at"            TIMESTAMPTZ NOT NULL     DEFAULT CURRENT_TIMESTAMP,
     "updated_at"            TIMESTAMPTZ NOT NULL     DEFAULT CURRENT_TIMESTAMP,
 
-    -- One envelope per entity (upsert pattern)
+    -- One snapshot per entity (upsert pattern)
     UNIQUE (entity_id),
 
     -- Composite FK enforces that entity_id and workspace_id agree with the

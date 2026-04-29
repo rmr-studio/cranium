@@ -8,16 +8,16 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import org.hibernate.annotations.Type
-import riven.core.models.connotation.ConnotationMetadataEnvelope
+import riven.core.models.connotation.ConnotationMetadataSnapshot
 import java.time.ZonedDateTime
 import java.util.UUID
 
 /**
  * JPA entity for the `entity_connotation` table.
  *
- * Persists the polymorphic semantic envelope (SENTIMENT + RELATIONAL + STRUCTURAL axes)
- * captured at last enrichment time. One row per entity (upsert pattern via UNIQUE on
- * `entity_id`).
+ * Persists the polymorphic semantic snapshot (SENTIMENT + RELATIONAL + STRUCTURAL metadata
+ * categories) captured at last enrichment time. One row per entity (upsert pattern via UNIQUE
+ * on `entity_id`).
  *
  * System-managed: does NOT extend AuditableEntity, does NOT implement SoftDeletable.
  * Living on a sibling table avoids polluting `entities.last_modified_at` / `last_modified_by`
@@ -39,7 +39,7 @@ data class EntityConnotationEntity(
 
     @Type(JsonBinaryType::class)
     @Column(name = "connotation_metadata", columnDefinition = "jsonb", nullable = false)
-    val connotationMetadata: ConnotationMetadataEnvelope,
+    val connotationMetadata: ConnotationMetadataSnapshot,
 
     @Column(name = "created_at", nullable = false, columnDefinition = "timestamptz")
     val createdAt: ZonedDateTime = ZonedDateTime.now(),

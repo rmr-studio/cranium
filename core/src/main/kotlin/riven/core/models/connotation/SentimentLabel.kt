@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * Coarse-grained categorical sentiment label derived from the numeric sentiment
- * score on the SENTIMENT axis. Mapping happens in `ConnotationTier1Mapper` (Phase B).
+ * score on the SENTIMENT metadata. Mapping happens in `ConnotationTier1Mapper` (Phase B).
  */
 enum class SentimentLabel {
     @JsonProperty("VERY_NEGATIVE")

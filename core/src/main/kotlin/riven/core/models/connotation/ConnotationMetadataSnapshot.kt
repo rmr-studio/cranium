@@ -11,57 +11,57 @@ import riven.core.enums.integration.SourceType
 import java.time.ZonedDateTime
 
 /**
- * Polymorphic semantic envelope persisted in `entity_connotation.connotation_metadata`.
+ * Polymorphic semantic snapshot persisted in `entity_connotation.connotation_metadata`.
  *
- * Captures three orthogonal axes computed at last enrichment time:
+ * Captures three orthogonal categories computed at last enrichment time:
  * - SENTIMENT — text sentiment score + themes (populated by Tier 1 in Phase B; placeholder in Phase A).
  * - RELATIONAL — relationship summaries, cluster membership, RELATIONAL_REFERENCE resolutions.
  * - STRUCTURAL — entity type metadata, attribute classifications, relationship semantic definitions.
  *
- * The envelope is a snapshot — "as of last enrichment", not a live view. Consumers needing live
- * state must query the underlying tables. Last-write-wins on concurrent writes (queue dedup
- * minimises this in practice).
+ * The snapshot is "as of last enrichment", not a live view. Consumers needing live state must query
+ * the underlying tables. Last-write-wins on concurrent writes (queue dedup minimises this in
+ * practice).
  *
- * @property envelopeVersion Forward-compat insurance. v0 (missing) means "treat as v1".
- * @property axes Map of axis name → axis payload. SENTIMENT, RELATIONAL, STRUCTURAL (Phase A).
- * @property embeddedAt Timestamp the envelope was assembled and persisted.
+ * @property snapshotVersion Forward-compat insurance. v0 (missing) means "treat as v1".
+ * @property metadata Container of the three metadata categories. SENTIMENT, RELATIONAL, STRUCTURAL (Phase A).
+ * @property embeddedAt Timestamp the snapshot was assembled and persisted.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class ConnotationMetadataEnvelope(
-    @JsonProperty("envelopeVersion")
-    val envelopeVersion: String = "v1",
+data class ConnotationMetadataSnapshot(
+    @JsonProperty("snapshotVersion")
+    val snapshotVersion: String = "v1",
 
-    @JsonProperty("axes")
-    val axes: ConnotationAxes,
+    @JsonProperty("metadata")
+    val metadata: ConnotationMetadata,
 
     @JsonProperty("embeddedAt")
     val embeddedAt: ZonedDateTime,
 )
 
 /**
- * Container for the three axes of a connotation envelope.
+ * Container for the three metadata categories of a connotation snapshot.
  *
- * Each axis is independently populated; a missing axis means "not computed yet".
- * SENTIMENT is the only axis whose population is gated on a workspace flag and tier configuration;
- * RELATIONAL and STRUCTURAL are deterministic and always populated post-Phase-A.
+ * Each category is independently populated; a missing category means "not computed yet".
+ * SENTIMENT is the only category whose population is gated on a workspace flag and tier
+ * configuration; RELATIONAL and STRUCTURAL are deterministic and always populated post-Phase-A.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class ConnotationAxes(
+data class ConnotationMetadata(
     @JsonProperty("SENTIMENT")
-    val sentiment: SentimentAxis? = null,
+    val sentiment: SentimentMetadata? = null,
 
     @JsonProperty("RELATIONAL")
-    val relational: RelationalAxis? = null,
+    val relational: RelationalMetadata? = null,
 
     @JsonProperty("STRUCTURAL")
-    val structural: StructuralAxis? = null,
+    val structural: StructuralMetadata? = null,
 )
 
 /**
- * SENTIMENT axis — text sentiment score, label, themes, and analysis provenance.
+ * SENTIMENT metadata — text sentiment score, label, themes, and analysis provenance.
  *
  * In Phase A all sentiment fields are null and [status] is `NOT_APPLICABLE`. Phase B's
- * Tier 1 mapper populates this axis when an entity type's manifest declares
+ * Tier 1 mapper populates this category when an entity type's manifest declares
  * connotationSignals.
  *
  * @property sentiment Normalized sentiment score in `[-1.0, 1.0]`. Null pre-Phase-B.
@@ -70,12 +70,12 @@ data class ConnotationAxes(
  * @property analysisVersion Version identifier of the active sentiment analysis configuration.
  * @property analysisModel Model identifier (e.g. manifest mapper name, Ollama model, LLM model).
  * @property analysisTier Tier classification. Null pre-Phase-B.
- * @property status Lifecycle status of this axis. Drives Phase B retry semantics.
+ * @property status Lifecycle status of this category. Drives Phase B retry semantics.
  * @property stalenessModel Documented invalidation trigger class. Metadata only — not enforced in Phase A.
  * @property analyzedAt Timestamp the sentiment fields were computed. Null pre-Phase-B.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class SentimentAxis(
+data class SentimentMetadata(
     @JsonProperty("sentiment")
     val sentiment: Double? = null,
 
@@ -98,21 +98,21 @@ data class SentimentAxis(
     val status: ConnotationStatus = ConnotationStatus.NOT_APPLICABLE,
 
     @JsonProperty("stalenessModel")
-    val stalenessModel: AxisStalenessModel = AxisStalenessModel.ON_SOURCE_TEXT_CHANGE,
+    val stalenessModel: MetadataStalenessModel = MetadataStalenessModel.ON_SOURCE_TEXT_CHANGE,
 
     @JsonProperty("analyzedAt")
     val analyzedAt: ZonedDateTime? = null,
 )
 
 /**
- * RELATIONAL axis — neighbor summary information already computed during enrichment context fetch.
+ * RELATIONAL metadata — neighbor summary information already computed during enrichment context fetch.
  *
  * Persisted as a snapshot so non-enrichment consumers (frontend display, debug tooling, future
- * Layer 4 axes) can read the relational shape without re-querying. Note: the underlying data is
- * also queryable live from `entity_relationships` — this axis is the snapshot-as-of-embed view.
+ * Layer 4 categories) can read the relational shape without re-querying. Note: the underlying data
+ * is also queryable live from `entity_relationships` — this category is the snapshot-as-of-embed view.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class RelationalAxis(
+data class RelationalMetadata(
     @JsonProperty("relationshipSummaries")
     val relationshipSummaries: List<RelationshipSummarySnapshot> = emptyList(),
 
@@ -123,7 +123,7 @@ data class RelationalAxis(
     val relationalReferenceResolutions: List<RelationalReferenceResolution> = emptyList(),
 
     @JsonProperty("stalenessModel")
-    val stalenessModel: AxisStalenessModel = AxisStalenessModel.ON_NEIGHBOR_CHANGE,
+    val stalenessModel: MetadataStalenessModel = MetadataStalenessModel.ON_NEIGHBOR_CHANGE,
 
     @JsonProperty("snapshotAt")
     val snapshotAt: ZonedDateTime,
@@ -169,7 +169,7 @@ data class RelationalReferenceResolution(
 )
 
 /**
- * STRUCTURAL axis — entity type, lifecycle, and semantic definition snapshot at embed time.
+ * STRUCTURAL metadata — entity type, lifecycle, and semantic definition snapshot at embed time.
  *
  * Mirrors `EntityTypeSemanticMetadataEntity` / `RelationshipDefinitionEntity` /
  * `EntityTypeEntity` columns, but captures the per-entity view of which definitions
@@ -177,7 +177,7 @@ data class RelationalReferenceResolution(
  * the schema reconciliation hook.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class StructuralAxis(
+data class StructuralMetadata(
     @JsonProperty("entityTypeName")
     val entityTypeName: String,
 
@@ -200,7 +200,7 @@ data class StructuralAxis(
     val relationshipSemanticDefinitions: List<RelationshipSemanticDefinitionSnapshot> = emptyList(),
 
     @JsonProperty("stalenessModel")
-    val stalenessModel: AxisStalenessModel = AxisStalenessModel.ON_TYPE_METADATA_CHANGE,
+    val stalenessModel: MetadataStalenessModel = MetadataStalenessModel.ON_TYPE_METADATA_CHANGE,
 
     @JsonProperty("snapshotAt")
     val snapshotAt: ZonedDateTime,
@@ -231,12 +231,12 @@ data class RelationshipSemanticDefinitionSnapshot(
 )
 
 /**
- * Trigger class describing when an axis's snapshot becomes stale.
+ * Trigger class describing when a metadata category's snapshot becomes stale.
  *
  * Documentation only — not enforced by any code path in Phase A. Future invalidation tooling
- * uses these values to decide which envelopes to refresh.
+ * uses these values to decide which snapshots to refresh.
  */
-enum class AxisStalenessModel {
+enum class MetadataStalenessModel {
     @JsonProperty("ON_SOURCE_TEXT_CHANGE")
     ON_SOURCE_TEXT_CHANGE,
 

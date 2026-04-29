@@ -105,7 +105,7 @@ interface ExecutionQueueRepository : JpaRepository<ExecutionQueueEntity, UUID> {
 
     /**
      * Bulk-enqueue ENRICHMENT items for every non-INTEGRATION, non-deleted entity of a given type
-     * in a workspace. Used by manifest reconciliation to invalidate envelopes after a schema change.
+     * in a workspace. Used by manifest reconciliation to invalidate snapshots after a schema change.
      *
      * Single `INSERT ... SELECT` to avoid N+1 at high entity-type cardinality. The partial unique
      * index `uq_execution_queue_pending_identity_match` deduplicates against existing PENDING rows

@@ -3,7 +3,7 @@ package riven.core.models.connotation
 import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
- * Tier of analysis used to populate the SENTIMENT axis.
+ * Tier of analysis used to populate the SENTIMENT metadata.
  *
  * - TIER_1 — deterministic source mapper from manifest connotationSignals (Phase B).
  * - TIER_2 — local Ollama classifier (deferred until Layer 4 needs FREETEXT-only coverage).

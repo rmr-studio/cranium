@@ -75,6 +75,13 @@ class EnrichmentWorkflowImplTest {
             }
         }
 
+        /**
+         * Also protects the Phase B connotation hook: `analyzeSemantics` is the activity
+         * that calls `EnrichmentService.persistConnotationEnvelope` (which routes through
+         * `ConnotationAnalysisService` for the SENTIMENT axis). Removing the call here
+         * would silently disable connotation analysis. Envelope-level assertions live in
+         * `EnrichmentServiceTest` and `ConnotationPipelineIntegrationTest`.
+         */
         @Test
         fun `embed calls all 4 activities in sequence`() {
             val activities = mock<EnrichmentActivities>()

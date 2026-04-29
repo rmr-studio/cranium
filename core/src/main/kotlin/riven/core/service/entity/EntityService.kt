@@ -474,7 +474,9 @@ class EntityService(
      * toward the desired [targetEntityIds] set. Used by the knowledge ingestion layer to
      * reconcile system relationships (`ATTACHMENT`, `MENTION`, `DEFINES`) on every upsert.
      *
-     * `targetKind` is informational until Phase C (Task 16) materialises the column.
+     * `targetKind` selects ENTITY (default), ENTITY_TYPE or ATTRIBUTE rows; reconciliation
+     * only sweeps existing rows whose kind matches the supplied value, so glossary DEFINES
+     * batches at different kinds on the same definition row do not clobber each other.
      */
     @Transactional
     fun replaceRelationshipsInternal(

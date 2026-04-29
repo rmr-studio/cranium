@@ -3,6 +3,7 @@ package riven.core.entity.entity
 import jakarta.persistence.*
 import org.hibernate.annotations.SQLRestriction
 import riven.core.entity.util.AuditableSoftDeletableEntity
+import riven.core.enums.entity.RelationshipTargetKind
 import riven.core.enums.integration.SourceType
 import riven.core.models.entity.EntityRelationship
 import java.util.*
@@ -44,6 +45,17 @@ data class EntityRelationshipEntity(
     @Enumerated(EnumType.STRING)
     @Column(name = "link_source", nullable = false)
     val linkSource: SourceType = SourceType.USER_CREATED,
+
+    /**
+     * What kind of object [targetId] points at. Defaults to [RelationshipTargetKind.ENTITY]
+     * (an entities row); knowledge-domain edges (e.g. glossary `DEFINES`) may point at an
+     * entity type or a single attribute on an entity type instead. The `entity_relationships`
+     * row carries no FK on `target_entity_id` precisely so non-ENTITY targets can reference
+     * `entity_types` / attribute UUIDs without violating referential integrity.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "target_kind", nullable = false)
+    val targetKind: RelationshipTargetKind = RelationshipTargetKind.ENTITY,
 
 ) : AuditableSoftDeletableEntity() {
 

@@ -123,9 +123,10 @@ class EntityRelationshipService(
      * through the JWT-bound CRUD path. New rows carry the supplied [linkSource] so downstream
      * consumers can distinguish user-authored vs integration-sourced edges.
      *
-     * `targetKind` is informational on this branch — Phase C (Task 16) materialises the
-     * `target_kind` column on `entity_relationships`. Until then, non-ENTITY targets are
-     * still persisted but undistinguished at the schema level.
+     * `targetKind` distinguishes ENTITY edges (default) from glossary-style `DEFINES` edges
+     * pointing at an entity type or attribute (`ENTITY_TYPE` / `ATTRIBUTE`). Persisted on
+     * the `entity_relationships.target_kind` column so projectors can split DEFINES rows
+     * by target shape.
      */
     @Transactional
     fun replaceForDefinition(
@@ -134,14 +135,17 @@ class EntityRelationshipService(
         definitionId: UUID,
         targetEntityIds: Set<UUID>,
         linkSource: SourceType,
-        @Suppress("UNUSED_PARAMETER") targetKind: RelationshipTargetKind = RelationshipTargetKind.ENTITY,
+        targetKind: RelationshipTargetKind = RelationshipTargetKind.ENTITY,
     ) {
         val existing = entityRelationshipRepository.findAllBySourceIdAndDefinitionIdForUpdate(sourceId, definitionId)
+            .filter { it.targetKind == targetKind }
         val existingTargetIds = existing.map { it.targetId }.toSet()
 
         val toRemove = existingTargetIds - targetEntityIds
         if (toRemove.isNotEmpty()) {
-            entityRelationshipRepository.deleteAllBySourceIdAndDefinitionIdAndTargetIdIn(sourceId, definitionId, toRemove)
+            entityRelationshipRepository.deleteAllBySourceIdAndDefinitionIdAndTargetKindAndTargetIdIn(
+                sourceId, definitionId, targetKind, toRemove,
+            )
         }
 
         val toAdd = targetEntityIds - existingTargetIds
@@ -154,6 +158,7 @@ class EntityRelationshipService(
                 targetId = targetId,
                 definitionId = definitionId,
                 linkSource = linkSource,
+                targetKind = targetKind,
             )
         }
         entityRelationshipRepository.saveAll(newRelationships)

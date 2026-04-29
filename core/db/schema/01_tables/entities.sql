@@ -170,8 +170,19 @@ CREATE TABLE IF NOT EXISTS public.entity_relationships
     "id"                         UUID PRIMARY KEY         DEFAULT uuid_generate_v4(),
     "workspace_id"               UUID    NOT NULL REFERENCES workspaces (id) ON DELETE CASCADE,
     "source_entity_id"           UUID    NOT NULL REFERENCES entities (id) ON DELETE CASCADE,
-    "target_entity_id"           UUID    NOT NULL REFERENCES entities (id) ON DELETE CASCADE,
+    -- NOTE: target_entity_id has NO foreign key — when target_kind != 'ENTITY' the row references
+    -- a row in entity_types or an attribute UUID inside entity_types.attribute_key_mapping rather
+    -- than an entities row. Referential integrity for non-ENTITY targets is enforced at the
+    -- service layer (knowledge ingestion / projector) instead of by a database constraint.
+    "target_entity_id"           UUID    NOT NULL,
     "relationship_definition_id" UUID    NOT NULL REFERENCES relationship_definitions (id) ON DELETE RESTRICT,
+
+    -- Kind of object the target_entity_id points at. ENTITY (default) is an entities row,
+    -- ENTITY_TYPE is an entity_types row, ATTRIBUTE is an attribute UUID on an entity type.
+    -- Used by glossary DEFINES edges to point at structural targets without inflating the
+    -- entities table with synthetic rows.
+    "target_kind"                VARCHAR(20) NOT NULL     DEFAULT 'ENTITY'
+        CHECK (target_kind IN ('ENTITY', 'ENTITY_TYPE', 'ATTRIBUTE')),
 
     -- Semantic context for fallback connections (why these entities are linked)
     "semantic_context"           TEXT                     DEFAULT NULL,

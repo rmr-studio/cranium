@@ -27,9 +27,9 @@ interface KnowledgeIngestionInput {
  *
  * `targetKind` defaults to [RelationshipTargetKind.ENTITY]. Knowledge subclasses
  * (e.g. glossary `DEFINES`) may emit batches with [RelationshipTargetKind.ENTITY_TYPE]
- * or [RelationshipTargetKind.ATTRIBUTE]. Phase C (Task 16) materialises the column
- * on `entity_relationships`; until then non-ENTITY batches are accepted but only
- * persisted as plain ENTITY rows.
+ * or [RelationshipTargetKind.ATTRIBUTE]; the kind is materialised on the
+ * `entity_relationships.target_kind` column so projectors can route DEFINES edges by
+ * the shape of their target.
  */
 data class KnowledgeRelationshipBatch(
     val systemType: SystemRelationshipType,

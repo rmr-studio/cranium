@@ -79,6 +79,19 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
     fun deleteAllBySourceIdAndDefinitionIdAndTargetIdIn(sourceId: UUID, definitionId: UUID, targetIds: Collection<UUID>)
 
     /**
+     * Hard-delete relationships by source entity, definition ID, and target kind where target
+     * is in the given list. Used by the knowledge ingestion path so glossary DEFINES batches
+     * targeting different `target_kind` values on the same definition do not delete each
+     * other's rows.
+     */
+    fun deleteAllBySourceIdAndDefinitionIdAndTargetKindAndTargetIdIn(
+        sourceId: UUID,
+        definitionId: UUID,
+        targetKind: riven.core.enums.entity.RelationshipTargetKind,
+        targetIds: Collection<UUID>,
+    )
+
+    /**
      * Find all relationships for a target entity with a specific definition ID (inverse lookup).
      */
     @Query("""

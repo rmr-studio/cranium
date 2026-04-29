@@ -83,13 +83,27 @@ abstract class AbstractKnowledgeEntityIngestionService<TInput : KnowledgeIngesti
                 )
             }
 
-    private fun idempotentLookup(input: TInput): EntityEntity? {
+    /**
+     * Idempotency lookup keyed on `sourceExternalId`.
+     *
+     * Two shapes are supported:
+     *   - integration-sourced inputs: `(workspaceId, sourceIntegrationId, sourceExternalId)`
+     *     uniquely identifies the entity (matches the ingestion path used by
+     *     [riven.core.service.note.NoteEmbeddingService]);
+     *   - workspace-internal inputs (e.g. glossary backfill, where there is no integration):
+     *     `(workspaceId, sourceExternalId)` is used. Subclasses scope their own external-id
+     *     namespace (e.g. `legacy:{uuid}`) to avoid cross-type collisions.
+     */
+    protected open fun idempotentLookup(input: TInput): EntityEntity? {
+        val externalId = input.sourceExternalId ?: return null
         val integrationId = input.sourceIntegrationId
-        val externalId = input.sourceExternalId
-        if (integrationId == null || externalId == null) return null
-        return entityRepository.findByWorkspaceIdAndSourceIntegrationIdAndSourceExternalIdIn(
-            input.workspaceId, integrationId, listOf(externalId),
-        ).firstOrNull()
+        if (integrationId != null) {
+            return entityRepository.findByWorkspaceIdAndSourceIntegrationIdAndSourceExternalIdIn(
+                input.workspaceId, integrationId, listOf(externalId),
+            ).firstOrNull()
+        }
+        return entityRepository.findByWorkspaceIdAndSourceExternalId(input.workspaceId, externalId)
+            .firstOrNull { it.typeKey == entityTypeKey }
     }
 
     private fun syncRelationship(

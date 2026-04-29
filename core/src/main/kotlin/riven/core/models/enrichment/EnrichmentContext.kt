@@ -54,6 +54,14 @@ data class EnrichmentContext(
     val referencedEntityIdentifiers: Map<UUID, String> = emptyMap(),
     /** Semantic definitions for each relationship type — used in Section 6 of enriched text. */
     val relationshipDefinitions: List<EnrichmentRelationshipDefinitionContext> = emptyList(),
+    /**
+     * Snapshot of the SENTIMENT axis written for this enrichment cycle. Null when
+     * the workspace has not opted in or the entity type has no manifest connotation
+     * signals (envelope axis remains at NOT_APPLICABLE in that case). Forwarded only
+     * when the analyzed status is ANALYZED — FAILED/NOT_APPLICABLE axes are not
+     * surfaced to the text builder.
+     */
+    val sentiment: riven.core.models.connotation.SentimentAxis? = null,
 )
 
 /**

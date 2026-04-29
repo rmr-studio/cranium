@@ -3,6 +3,7 @@ package riven.core.service.enrichment
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
+import riven.core.models.connotation.SentimentAxis
 import riven.core.models.enrichment.EnrichedTextResult
 import riven.core.models.enrichment.EnrichmentAttributeContext
 import riven.core.models.enrichment.EnrichmentContext
@@ -40,6 +41,7 @@ class SemanticTextBuilderService(
 
     companion object {
         private const val CHAR_BUDGET = 27_000
+        private const val MAX_CONNOTATION_SECTION_CHARS = 300
         private val DATE_FORMATTER = DateTimeFormatter.ofPattern("MMMM d, yyyy")
     }
 
@@ -68,9 +70,10 @@ class SemanticTextBuilderService(
         val fullRelationships = buildRelationshipSummariesSection(context)
         val fullCluster = buildClusterContextSection(context)
         val fullDefinitions = buildRelationshipSemanticDefinitionsSection(context)
+        val fullConnotation = context.sentiment?.let { buildConnotationContextSection(it) }
 
         val mandatoryLength = sections.sumOf { it.length } + (sections.size - 1) * 2
-        val remaining = listOfNotNull(fullAttributes, fullRelationships, fullCluster, fullDefinitions)
+        val remaining = listOfNotNull(fullAttributes, fullRelationships, fullCluster, fullDefinitions, fullConnotation)
         val totalFull = mandatoryLength + remaining.sumOf { it.length } + remaining.size * 2
 
         if (totalFull <= CHAR_BUDGET) {
@@ -270,6 +273,21 @@ class SemanticTextBuilderService(
         if (definitionLines.isEmpty()) return null
 
         return (listOf("## Relationship Definitions") + definitionLines).joinToString("\n")
+    }
+
+    /**
+     * Section 7: Connotation Context. Emitted when the enrichment context carries an
+     * ANALYZED SENTIMENT axis. Bounded ≤ MAX_CONNOTATION_SECTION_CHARS to prevent runaway
+     * theme lists from inflating the text.
+     */
+    private fun buildConnotationContextSection(sentiment: SentimentAxis): String {
+        val score = sentiment.sentiment?.let { "%.2f".format(it) } ?: "—"
+        val label = sentiment.sentimentLabel?.name ?: "UNKNOWN"
+        val themesText = sentiment.themes.joinToString(", ").let {
+            if (it.isEmpty()) "" else " | Themes: $it"
+        }
+        val raw = "## Connotation Context\nSentiment: $label ($score)$themesText"
+        return raw.take(MAX_CONNOTATION_SECTION_CHARS)
     }
 
     // ------ Private formatting helpers ------

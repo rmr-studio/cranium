@@ -27,6 +27,7 @@ import riven.core.models.connotation.AttributeClassificationSnapshot
 import riven.core.models.connotation.ClusterMemberSnapshot
 import riven.core.models.connotation.ConnotationAxes
 import riven.core.models.connotation.ConnotationMetadataEnvelope
+import riven.core.models.connotation.ConnotationStatus
 import riven.core.models.connotation.RelationalAxis
 import riven.core.models.connotation.RelationalReferenceResolution
 import riven.core.models.connotation.RelationshipSemanticDefinitionSnapshot
@@ -235,6 +236,8 @@ class EnrichmentService(
         val referencedEntityIdentifiers = resolveReferencedEntityIdentifiers(attributes)
         val relationshipDefinitions = loadRelationshipDefinitions(allMetadata, definitions)
 
+        val sentimentAxis = resolveSentimentAxis(entityId, entity.workspaceId, entityType)
+
         val context = EnrichmentContext(
             queueItemId = queueItemId,
             entityId = entityId,
@@ -250,9 +253,10 @@ class EnrichmentService(
             clusterMembers = clusterMembers,
             referencedEntityIdentifiers = referencedEntityIdentifiers,
             relationshipDefinitions = relationshipDefinitions,
+            sentiment = if (sentimentAxis.status == ConnotationStatus.ANALYZED) sentimentAxis else null,
         )
 
-        persistConnotationEnvelope(entityId, entity.workspaceId, entityType, context)
+        persistConnotationEnvelope(entityId, entity.workspaceId, entityType, context, sentimentAxis)
 
         return context
     }
@@ -591,12 +595,13 @@ class EnrichmentService(
         workspaceId: UUID,
         entityType: EntityTypeEntity,
         context: EnrichmentContext,
+        sentimentAxis: SentimentAxis,
     ) {
         val now = ZonedDateTime.now()
         val envelope = ConnotationMetadataEnvelope(
             envelopeVersion = "v1",
             axes = ConnotationAxes(
-                sentiment = resolveSentimentAxis(entityId, workspaceId, entityType),
+                sentiment = sentimentAxis,
                 relational = buildRelationalAxis(context, now),
                 structural = buildStructuralAxis(context, entityType, now),
             ),

@@ -4,6 +4,8 @@ import tools.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.mockito.kotlin.*
 import riven.core.entity.catalog.*
 import riven.core.enums.catalog.ManifestType
@@ -13,6 +15,7 @@ import riven.core.enums.entity.EntityRelationshipCardinality
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.models.catalog.*
+import riven.core.models.connotation.AnalysisTier
 import riven.core.repository.catalog.*
 import java.security.MessageDigest
 import java.time.ZonedDateTime
@@ -269,6 +272,66 @@ class ManifestUpsertServiceTest {
         })
     }
 
+    // ------ Connotation Signals ------
+
+    @Test
+    fun `upsertManifest persists connotationSignals when ResolvedEntityType has them`() {
+        val signals = ConnotationSignals(
+            tier = AnalysisTier.TIER_1,
+            sentimentAttribute = "rating",
+            sentimentScale = SentimentScale(
+                sourceMin = 1.0,
+                sourceMax = 5.0,
+                targetMin = -1.0,
+                targetMax = 1.0,
+                mappingType = ScaleMappingType.LINEAR
+            ),
+            themeAttributes = listOf("tags")
+        )
+        val resolved = createResolvedManifest(
+            entityTypes = listOf(createResolvedEntityType(connotationSignals = signals))
+        )
+
+        whenever(manifestCatalogRepository.findByKeyAndManifestType("test-key", ManifestType.TEMPLATE))
+            .thenReturn(null)
+        whenever(manifestCatalogRepository.save(any<ManifestCatalogEntity>()))
+            .thenAnswer { invocation ->
+                val entity = invocation.getArgument<ManifestCatalogEntity>(0)
+                entity.copy(id = manifestId)
+            }
+        mockEmptyChildren()
+        mockChildSaves()
+
+        service.upsertManifest(resolved)
+
+        val captor = argumentCaptor<List<CatalogEntityTypeEntity>>()
+        verify(catalogEntityTypeRepository).saveAll(captor.capture())
+        assertEquals(signals, captor.firstValue.single().connotationSignals)
+    }
+
+    @Test
+    fun `upsertManifest persists null connotationSignals when ResolvedEntityType has none`() {
+        val resolved = createResolvedManifest(
+            entityTypes = listOf(createResolvedEntityType(connotationSignals = null))
+        )
+
+        whenever(manifestCatalogRepository.findByKeyAndManifestType("test-key", ManifestType.TEMPLATE))
+            .thenReturn(null)
+        whenever(manifestCatalogRepository.save(any<ManifestCatalogEntity>()))
+            .thenAnswer { invocation ->
+                val entity = invocation.getArgument<ManifestCatalogEntity>(0)
+                entity.copy(id = manifestId)
+            }
+        mockEmptyChildren()
+        mockChildSaves()
+
+        service.upsertManifest(resolved)
+
+        val captor = argumentCaptor<List<CatalogEntityTypeEntity>>()
+        verify(catalogEntityTypeRepository).saveAll(captor.capture())
+        assertNull(captor.firstValue.single().connotationSignals)
+    }
+
     // ------ Helpers ------
 
     private fun createResolvedManifest(
@@ -289,7 +352,8 @@ class ManifestUpsertServiceTest {
     )
 
     private fun createResolvedEntityType(
-        semantics: ResolvedSemantics? = null
+        semantics: ResolvedSemantics? = null,
+        connotationSignals: ConnotationSignals? = null
     ) = ResolvedEntityType(
         key = "customer",
         displayNameSingular = "Customer",
@@ -301,7 +365,8 @@ class ManifestUpsertServiceTest {
         readonly = false,
         schema = mapOf("name" to mapOf("key" to "TEXT", "type" to "string")),
         columns = null,
-        semantics = semantics
+        semantics = semantics,
+        connotationSignals = connotationSignals
     )
 
     private fun createNormalizedRelationship() = NormalizedRelationship(

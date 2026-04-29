@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.connotation.EntityConnotationEntity
 import riven.core.entity.enrichment.EntityEmbeddingEntity
 import riven.core.entity.workflow.ExecutionQueueEntity
 import riven.core.entity.entity.EntityEntity
@@ -27,7 +26,7 @@ import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.models.connotation.AxisStalenessModel
-import riven.core.models.connotation.ConnotationStatus
+import riven.core.enums.connotation.ConnotationStatus
 import riven.core.enums.integration.SourceType
 import riven.core.exceptions.NotFoundException
 import riven.core.models.common.validation.Schema
@@ -63,6 +62,7 @@ import java.util.*
         WorkspaceSecurity::class,
         SecurityTestConfig::class,
         EnrichmentService::class,
+        riven.core.configuration.util.ObjectMapperConfig::class,
     ]
 )
 class EnrichmentServiceTest : BaseServiceTest() {
@@ -112,9 +112,33 @@ class EnrichmentServiceTest : BaseServiceTest() {
     @Autowired
     private lateinit var enrichmentService: EnrichmentService
 
+    @Autowired
+    private lateinit var objectMapper: tools.jackson.databind.ObjectMapper
+
     @BeforeEach
     fun setUp() {
         whenever(enrichmentProperties.vectorDimensions).thenReturn(1536)
+    }
+
+    /**
+     * Capture the JSON envelope passed to upsertByEntityId and deserialize it.
+     * Verifies the call's entity/workspace identifiers match expectations.
+     */
+    private fun captureUpsertedEnvelope(
+        entityId: UUID,
+        workspaceId: UUID,
+    ): riven.core.models.connotation.ConnotationMetadataEnvelope {
+        val jsonCaptor = argumentCaptor<String>()
+        verify(entityConnotationRepository).upsertByEntityId(
+            eq(entityId),
+            eq(workspaceId),
+            jsonCaptor.capture(),
+            any(),
+        )
+        return objectMapper.readValue(
+            jsonCaptor.firstValue,
+            riven.core.models.connotation.ConnotationMetadataEnvelope::class.java,
+        )
     }
 
     // ------------------------------------------------------------------
@@ -923,7 +947,7 @@ class EnrichmentServiceTest : BaseServiceTest() {
 
     /**
      * Phase A: every analyzeSemantics call upserts a connotation envelope into entity_connotation.
-     * delete-then-insert mirrors the embedding upsert pattern.
+     * Persistence is a single atomic INSERT ... ON CONFLICT DO UPDATE keyed by entity_id.
      */
     @Test
     fun `analyzeSemantics persists connotation envelope on every run`() {
@@ -945,13 +969,9 @@ class EnrichmentServiceTest : BaseServiceTest() {
 
         enrichmentService.analyzeSemantics(queueItemId)
 
-        verify(entityConnotationRepository).deleteByEntityId(entityId)
-        val captor = ArgumentCaptor.forClass(EntityConnotationEntity::class.java)
-        verify(entityConnotationRepository).save(captor.capture())
-        val saved = captor.value
-        assertEquals(entityId, saved.entityId)
-        assertEquals(workspaceId, saved.workspaceId)
-        assertEquals("v1", saved.connotationMetadata.envelopeVersion)
+        val envelope = captureUpsertedEnvelope(entityId, workspaceId)
+        assertEquals("v1", envelope.envelopeVersion)
+        verify(entityConnotationRepository, never()).save(any())
     }
 
     /**
@@ -978,9 +998,7 @@ class EnrichmentServiceTest : BaseServiceTest() {
 
         enrichmentService.analyzeSemantics(queueItemId)
 
-        val captor = ArgumentCaptor.forClass(EntityConnotationEntity::class.java)
-        verify(entityConnotationRepository).save(captor.capture())
-        val envelope = captor.value.connotationMetadata
+        val envelope = captureUpsertedEnvelope(entityId, workspaceId)
 
         val sentiment = requireNotNull(envelope.axes.sentiment)
         assertEquals(ConnotationStatus.NOT_APPLICABLE, sentiment.status)
@@ -994,8 +1012,8 @@ class EnrichmentServiceTest : BaseServiceTest() {
 
         val structural = requireNotNull(envelope.axes.structural)
         assertEquals("Customer", structural.entityTypeName)
-        assertEquals(SemanticGroup.UNCATEGORIZED.name, structural.semanticGroup)
-        assertEquals(LifecycleDomain.UNCATEGORIZED.name, structural.lifecycleDomain)
+        assertEquals(SemanticGroup.UNCATEGORIZED, structural.semanticGroup)
+        assertEquals(LifecycleDomain.UNCATEGORIZED, structural.lifecycleDomain)
         assertEquals(AxisStalenessModel.ON_TYPE_METADATA_CHANGE, structural.stalenessModel)
     }
 
@@ -1032,16 +1050,15 @@ class EnrichmentServiceTest : BaseServiceTest() {
 
         enrichmentService.analyzeSemantics(queueItemId)
 
-        val captor = ArgumentCaptor.forClass(EntityConnotationEntity::class.java)
-        verify(entityConnotationRepository).save(captor.capture())
-        val structural = requireNotNull(captor.value.connotationMetadata.axes.structural)
+        val envelope = captureUpsertedEnvelope(entityId, workspaceId)
+        val structural = requireNotNull(envelope.axes.structural)
         assertEquals(7, structural.schemaVersion)
         assertEquals(1, structural.attributeClassifications.size)
         val attrSnapshot = structural.attributeClassifications[0]
         assertEquals(attrId.toString(), attrSnapshot.attributeId)
         assertEquals("Email", attrSnapshot.semanticLabel)
-        assertEquals("IDENTIFIER", attrSnapshot.classification)
-        assertEquals("TEXT", attrSnapshot.schemaType)
+        assertEquals(SemanticAttributeClassification.IDENTIFIER, attrSnapshot.classification)
+        assertEquals(SchemaType.TEXT, attrSnapshot.schemaType)
     }
 
     // ------------------------------------------------------------------

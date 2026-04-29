@@ -76,7 +76,13 @@ CREATE TABLE IF NOT EXISTS public.entities
     "sync_version"          BIGINT      NOT NULL     DEFAULT 0,
 
     -- Denormalized count of notes for faster access (trigger-maintained)
-    "note_count"            INTEGER     NOT NULL     DEFAULT 0
+    "note_count"            INTEGER     NOT NULL     DEFAULT 0,
+
+    -- Composite uniqueness so sibling tables (e.g. entity_connotation) can declare a
+    -- composite FK on (id, workspace_id) and enforce that the workspace_id of any
+    -- referencing row matches the entity it points at. id alone is already PK; this
+    -- adds the (id, workspace_id) pair as a unique key for FK targets.
+    UNIQUE (id, workspace_id)
 );
 
 -- =====================================================

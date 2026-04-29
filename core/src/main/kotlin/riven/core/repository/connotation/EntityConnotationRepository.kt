@@ -6,14 +6,16 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import riven.core.entity.connotation.EntityConnotationEntity
+import java.time.ZonedDateTime
 import java.util.UUID
 
 /**
  * Repository for [EntityConnotationEntity].
  *
- * One envelope per entity. Use [findByEntityId] for the canonical lookup; saves
- * follow the upsert pattern (find → copy → save, or delete-then-insert when
- * the prior row's id is unknown).
+ * One envelope per entity, enforced by `UNIQUE(entity_id)`. Writes go through
+ * [upsertByEntityId] — a single atomic `INSERT ... ON CONFLICT DO UPDATE`
+ * statement so concurrent writers cannot collide on the unique constraint or
+ * partially overwrite each other's envelope.
  */
 @Repository
 interface EntityConnotationRepository : JpaRepository<EntityConnotationEntity, UUID> {
@@ -28,10 +30,36 @@ interface EntityConnotationRepository : JpaRepository<EntityConnotationEntity, U
     fun findByEntityId(@Param("entityId") entityId: UUID): EntityConnotationEntity?
 
     /**
-     * Hard-delete the connotation envelope for a given entity. Used by the
-     * upsert pattern in [riven.core.service.enrichment.EnrichmentService.analyzeSemantics].
+     * Atomic upsert keyed by `entity_id`.
+     *
+     * `INSERT ... ON CONFLICT (entity_id) DO UPDATE` guarantees a single resulting
+     * row regardless of concurrent writers, with last-write-wins semantics on the
+     * envelope payload, workspace, and `updated_at`. JPQL has no upsert so this
+     * is expressed as native SQL per CLAUDE.md ("Reserve native SQL for cases
+     * where JPQL is genuinely insufficient").
+     *
+     * @param entityId The entity UUID this envelope describes
+     * @param workspaceId The workspace the entity belongs to
+     * @param envelopeJson The serialised [riven.core.models.connotation.ConnotationMetadataEnvelope]
+     * @param now The timestamp to write into `created_at` (insert path) and `updated_at` (both paths)
+     * @return Number of rows affected (always 1)
      */
     @Modifying
-    @Query("DELETE FROM EntityConnotationEntity e WHERE e.entityId = :entityId")
-    fun deleteByEntityId(@Param("entityId") entityId: UUID)
+    @Query(
+        value = """
+            INSERT INTO entity_connotation (entity_id, workspace_id, connotation_metadata, created_at, updated_at)
+            VALUES (:entityId, :workspaceId, CAST(:envelopeJson AS jsonb), :now, :now)
+            ON CONFLICT (entity_id) DO UPDATE
+            SET connotation_metadata = EXCLUDED.connotation_metadata,
+                workspace_id = EXCLUDED.workspace_id,
+                updated_at = EXCLUDED.updated_at
+        """,
+        nativeQuery = true,
+    )
+    fun upsertByEntityId(
+        @Param("entityId") entityId: UUID,
+        @Param("workspaceId") workspaceId: UUID,
+        @Param("envelopeJson") envelopeJson: String,
+        @Param("now") now: ZonedDateTime,
+    ): Int
 }

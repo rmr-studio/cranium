@@ -19,6 +19,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.datasource.DriverManagerDataSource
+import org.springframework.orm.jpa.JpaTransactionManager
+import org.springframework.transaction.PlatformTransactionManager
+import jakarta.persistence.EntityManagerFactory
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
@@ -117,6 +120,18 @@ object ProjectionTestContainer {
     ],
 )
 class ProjectionPipelineIntegrationTestConfig {
+
+    /**
+     * Explicit JPA transaction manager. Boot 4's auto-configured `transactionManager` bean
+     * resolves to `DataSourceTransactionManager` here (likely an autoconfig-ordering edge case
+     * triggered by this test's selective ComponentScan + `@EnableJpaRepositories`), which opens
+     * a JDBC transaction without binding an EntityManager — the inner `EntityManager.persist`
+     * call then sees `isActualTransactionActive() == false` and throws `TransactionRequiredException`.
+     * Registering `JpaTransactionManager` explicitly bypasses the conflict.
+     */
+    @Bean
+    fun transactionManager(emf: EntityManagerFactory): PlatformTransactionManager =
+        JpaTransactionManager(emf)
 
     @Bean
     fun auditorProvider(): AuditorAware<UUID> = AuditorAware { Optional.empty() }

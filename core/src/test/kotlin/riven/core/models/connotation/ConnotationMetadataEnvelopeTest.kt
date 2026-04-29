@@ -4,6 +4,12 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import riven.core.enums.common.validation.SchemaType
+import riven.core.enums.connotation.ConnotationStatus
+import riven.core.enums.entity.LifecycleDomain
+import riven.core.enums.entity.semantics.SemanticAttributeClassification
+import riven.core.enums.entity.semantics.SemanticGroup
+import riven.core.enums.integration.SourceType
 import tools.jackson.databind.DeserializationFeature
 import tools.jackson.databind.MapperFeature
 import tools.jackson.databind.cfg.DateTimeFeature
@@ -48,7 +54,7 @@ class ConnotationMetadataEnvelopeTest {
                         )
                     ),
                     clusterMembers = listOf(
-                        ClusterMemberSnapshot(sourceType = "ZENDESK", entityTypeName = "Customer"),
+                        ClusterMemberSnapshot(sourceType = SourceType.INTEGRATION, entityTypeName = "Customer"),
                     ),
                     relationalReferenceResolutions = listOf(
                         RelationalReferenceResolution(
@@ -61,16 +67,16 @@ class ConnotationMetadataEnvelopeTest {
                 ),
                 structural = StructuralAxis(
                     entityTypeName = "Customer",
-                    semanticGroup = "CUSTOMER",
-                    lifecycleDomain = "ACQUISITION",
+                    semanticGroup = SemanticGroup.CUSTOMER,
+                    lifecycleDomain = LifecycleDomain.ACQUISITION,
                     entityTypeDefinition = "Person who has purchased a product",
                     schemaVersion = 7,
                     attributeClassifications = listOf(
                         AttributeClassificationSnapshot(
                             attributeId = "attr-1",
                             semanticLabel = "Email",
-                            classification = "IDENTIFIER",
-                            schemaType = "TEXT",
+                            classification = SemanticAttributeClassification.IDENTIFIER,
+                            schemaType = SchemaType.TEXT,
                         ),
                     ),
                     relationshipSemanticDefinitions = listOf(
@@ -99,8 +105,8 @@ class ConnotationMetadataEnvelopeTest {
                 relational = RelationalAxis(snapshotAt = ZonedDateTime.now()),
                 structural = StructuralAxis(
                     entityTypeName = "T",
-                    semanticGroup = "G",
-                    lifecycleDomain = "D",
+                    semanticGroup = SemanticGroup.UNCATEGORIZED,
+                    lifecycleDomain = LifecycleDomain.UNCATEGORIZED,
                     schemaVersion = 1,
                     snapshotAt = ZonedDateTime.now(),
                 ),

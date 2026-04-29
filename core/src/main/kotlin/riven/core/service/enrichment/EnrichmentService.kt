@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.support.TransactionSynchronization
 import org.springframework.transaction.support.TransactionSynchronizationManager
+import tools.jackson.databind.ObjectMapper
 import riven.core.configuration.properties.EnrichmentConfigurationProperties
 import riven.core.configuration.workflow.TemporalWorkerConfiguration
-import riven.core.entity.connotation.EntityConnotationEntity
 import riven.core.entity.enrichment.EntityEmbeddingEntity
 import riven.core.entity.entity.EntityTypeEntity
 import riven.core.entity.entity.EntityTypeSemanticMetadataEntity
@@ -71,10 +71,12 @@ import java.util.*
  *   the source of truth for non-pipeline consumers.
  * - [storeEmbedding] — embedding upsert + queue item completion.
  *
- * **Concurrency posture:** Two concurrent `analyzeSemantics` runs on the same entity write to
- * `entity_connotation` last-write-wins. The envelope is system-write-only, every writer's view
- * is internally consistent at fetch time, and last write reflects most-recent neighbor/payload
- * state. Existing queue dedup (in [enqueueAndProcess]) prevents most concurrent writes.
+ * **Concurrency posture:** envelope persistence uses an atomic
+ * `INSERT ... ON CONFLICT (entity_id) DO UPDATE` keyed by `entity_id`, so concurrent writers
+ * always converge to a single row and race only for last-write-wins on the payload. Each writer's
+ * own view is internally consistent at fetch time; the surviving row reflects whichever transaction
+ * commits last. Existing queue dedup (in [enqueueAndProcess]) makes overlap rare in practice but
+ * is no longer load-bearing for correctness.
  */
 @Service
 class EnrichmentService(
@@ -92,6 +94,7 @@ class EnrichmentService(
     private val embeddingProvider: EmbeddingProvider,
     private val enrichmentProperties: EnrichmentConfigurationProperties,
     private val workflowClient: WorkflowClient,
+    private val objectMapper: ObjectMapper,
     private val logger: KLogger,
 ) {
 
@@ -596,16 +599,8 @@ class EnrichmentService(
             embeddedAt = now,
         )
 
-        entityConnotationRepository.deleteByEntityId(entityId)
-        entityConnotationRepository.save(
-            EntityConnotationEntity(
-                entityId = entityId,
-                workspaceId = workspaceId,
-                connotationMetadata = envelope,
-                createdAt = now,
-                updatedAt = now,
-            )
-        )
+        val envelopeJson = objectMapper.writeValueAsString(envelope)
+        entityConnotationRepository.upsertByEntityId(entityId, workspaceId, envelopeJson, now)
 
         logger.debug { "Persisted connotation envelope for entity $entityId" }
     }
@@ -625,7 +620,7 @@ class EnrichmentService(
         }
         val clusterMembers = context.clusterMembers.map { member ->
             ClusterMemberSnapshot(
-                sourceType = member.sourceType.name,
+                sourceType = member.sourceType,
                 entityTypeName = member.entityTypeName,
             )
         }
@@ -664,8 +659,8 @@ class EnrichmentService(
             AttributeClassificationSnapshot(
                 attributeId = attr.attributeId.toString(),
                 semanticLabel = attr.semanticLabel,
-                classification = attr.classification?.name,
-                schemaType = attr.schemaType.name,
+                classification = attr.classification,
+                schemaType = attr.schemaType,
             )
         }
         val relationshipDefinitions = context.relationshipDefinitions.map { definition ->
@@ -676,8 +671,8 @@ class EnrichmentService(
         }
         return StructuralAxis(
             entityTypeName = entityType.displayNameSingular,
-            semanticGroup = entityType.semanticGroup.name,
-            lifecycleDomain = entityType.lifecycleDomain.name,
+            semanticGroup = entityType.semanticGroup,
+            lifecycleDomain = entityType.lifecycleDomain,
             entityTypeDefinition = context.entityTypeDefinition,
             schemaVersion = entityType.version,
             attributeClassifications = attributeClassifications,

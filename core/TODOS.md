@@ -115,6 +115,24 @@
 
 ## Backend
 
+### Tighten RLS write policies on system-managed tables to service_role
+
+**What:** Sweep all `db/schema/05_rls/*.sql` files where the table is system-managed (write-gated at app layer) and split the existing `FOR ALL TO authenticated` policies into a SELECT-only policy for `authenticated` plus a separate write policy scoped to `service_role`. Confirmed scope: `entity_connotation`, `entity_embeddings`, and any other tables whose own SQL header notes "system-write-only" or equivalent.
+
+**Why:** Defense-in-depth. Today, write gating relies entirely on the application layer. If a workspace member ever obtained a direct DB connection as the `authenticated` role, they could mutate envelope/embedding rows. RLS should enforce the same intent the app already enforces.
+
+**Pros:** Closes a defense-in-depth gap consistently across all system-managed tables. Aligns RLS with the file-level comments that already describe these tables as "system code paths only."
+
+**Cons:** Requires confirming the backend Postgres role used by the app is `service_role` (or whatever role we choose for system writes). May involve deployment / connection-string work. Done piecemeal it diverges; must be done as one sweep.
+
+**Context:** Raised by CodeRabbit on PR #195 against `entity_connotation_rls.sql`. Audited 05_rls/ at the time: every file uses `FOR ALL TO authenticated` and `service_role` appears nowhere. Decided to keep the existing pattern on PR #195 (added clarifying comment instead) and capture the broader change as a TODO so it can be done consistently across all system-managed tables in one pass.
+
+**Effort:** M (human ~2-3 days for sweep + role/deployment work) / S (CC ~30 min for SQL changes; the role-switching piece needs a human)
+**Priority:** P2
+**Depends on:** Confirmation of backend Postgres role for system writes
+
+---
+
 ### Migrate EntityQueryService to cursor-based pagination
 
 **What:** Refactor EntityQueryService from LIMIT/OFFSET to cursor-based seek pagination using the shared `CursorPagination` utility.

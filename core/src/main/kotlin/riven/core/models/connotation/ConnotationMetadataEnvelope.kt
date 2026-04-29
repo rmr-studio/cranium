@@ -2,6 +2,12 @@ package riven.core.models.connotation
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import riven.core.enums.common.validation.SchemaType
+import riven.core.enums.connotation.ConnotationStatus
+import riven.core.enums.entity.LifecycleDomain
+import riven.core.enums.entity.semantics.SemanticAttributeClassification
+import riven.core.enums.entity.semantics.SemanticGroup
+import riven.core.enums.integration.SourceType
 import java.time.ZonedDateTime
 
 /**
@@ -144,7 +150,7 @@ data class RelationshipSummarySnapshot(
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class ClusterMemberSnapshot(
     @JsonProperty("sourceType")
-    val sourceType: String,
+    val sourceType: SourceType,
 
     @JsonProperty("entityTypeName")
     val entityTypeName: String,
@@ -176,10 +182,10 @@ data class StructuralAxis(
     val entityTypeName: String,
 
     @JsonProperty("semanticGroup")
-    val semanticGroup: String,
+    val semanticGroup: SemanticGroup,
 
     @JsonProperty("lifecycleDomain")
-    val lifecycleDomain: String,
+    val lifecycleDomain: LifecycleDomain,
 
     @JsonProperty("entityTypeDefinition")
     val entityTypeDefinition: String? = null,
@@ -209,10 +215,10 @@ data class AttributeClassificationSnapshot(
     val semanticLabel: String,
 
     @JsonProperty("classification")
-    val classification: String? = null,
+    val classification: SemanticAttributeClassification? = null,
 
     @JsonProperty("schemaType")
-    val schemaType: String,
+    val schemaType: SchemaType,
 )
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

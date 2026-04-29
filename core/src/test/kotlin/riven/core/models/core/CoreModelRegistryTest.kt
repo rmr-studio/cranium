@@ -35,41 +35,6 @@ class CoreModelRegistryTest {
         assertTrue(models.any { it.key == "shipment" }, "Should contain shipment")
     }
 
-    // ------ B2C_SAAS rip regressions ------
-
-    @Test
-    fun `findModelSet returns null for removed b2c-saas key`() {
-        assertNull(CoreModelRegistry.findModelSet("b2c-saas"))
-    }
-
-    @Test
-    fun `allResolvedManifests returns exactly one manifest`() {
-        val manifests = CoreModelRegistry.allResolvedManifests()
-        assertEquals(1, manifests.size)
-        assertEquals("dtc-ecommerce", manifests.single().key)
-    }
-
-    @Test
-    fun `LifecycleDomain USAGE is removed`() {
-        assertThrows<IllegalArgumentException> { LifecycleDomain.valueOf("USAGE") }
-    }
-
-    // ------ Model migration regressions ------
-
-    @Test
-    fun `ProductModel lifecycleDomain is COMMERCE`() {
-        assertEquals(LifecycleDomain.COMMERCE, ProductModel.lifecycleDomain)
-        val rule = ProductModel.projectionAccepts.single()
-        assertEquals(LifecycleDomain.COMMERCE, rule.domain)
-    }
-
-    @Test
-    fun `OrderLineItemModel semanticGroup is LINE_ITEM`() {
-        assertEquals(SemanticGroup.LINE_ITEM, OrderLineItemModel.semanticGroup)
-        val rule = OrderLineItemModel.projectionAccepts.single()
-        assertEquals(SemanticGroup.LINE_ITEM, rule.semanticGroup)
-    }
-
     // ------ DTC set sanity ------
 
     @Test

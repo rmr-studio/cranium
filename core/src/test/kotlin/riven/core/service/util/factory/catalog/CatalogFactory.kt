@@ -8,6 +8,9 @@ import riven.core.enums.entity.EntityRelationshipCardinality
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
+import riven.core.models.catalog.ConnotationSignals
+import riven.core.models.catalog.ScaleMappingType
+import riven.core.models.catalog.SentimentScale
 import java.util.*
 
 object CatalogFactory {
@@ -43,6 +46,7 @@ object CatalogFactory {
         semanticGroup: SemanticGroup = SemanticGroup.UNCATEGORIZED,
         schema: Map<String, Any> = mapOf("type" to "object"),
         columns: List<Map<String, Any>> = listOf(mapOf("key" to "name", "label" to "Name")),
+        connotationSignals: ConnotationSignals? = null,
         schemaHash: String? = null
     ) = CatalogEntityTypeEntity(
         id = id,
@@ -55,7 +59,47 @@ object CatalogFactory {
         semanticGroup = semanticGroup,
         schema = schema,
         columns = columns,
+        connotationSignals = connotationSignals,
         schemaHash = schemaHash
+    )
+
+    /**
+     * Convenience helper for tests that need a CatalogEntityTypeEntity with
+     * a specific (or null) connotation signals payload.
+     */
+    fun catalogEntityTypeEntityWithSignals(
+        signals: ConnotationSignals?,
+        manifestId: UUID = UUID.randomUUID(),
+    ): CatalogEntityTypeEntity = createEntityTypeEntity(
+        manifestId = manifestId,
+        connotationSignals = signals,
+    )
+
+    /** Realistic default ConnotationSignals payload for tests. */
+    fun connotationSignals(
+        tier: String = "ACCURATE",
+        sentimentAttribute: String = "rating",
+        sentimentScale: SentimentScale = sentimentScale(),
+        themeAttributes: List<String> = listOf("review_text"),
+    ) = ConnotationSignals(
+        tier = tier,
+        sentimentAttribute = sentimentAttribute,
+        sentimentScale = sentimentScale,
+        themeAttributes = themeAttributes,
+    )
+
+    fun sentimentScale(
+        sourceMin: Double = 1.0,
+        sourceMax: Double = 5.0,
+        targetMin: Double = -1.0,
+        targetMax: Double = 1.0,
+        mappingType: ScaleMappingType = ScaleMappingType.LINEAR,
+    ) = SentimentScale(
+        sourceMin = sourceMin,
+        sourceMax = sourceMax,
+        targetMin = targetMin,
+        targetMax = targetMax,
+        mappingType = mappingType,
     )
 
     fun createRelationshipEntity(

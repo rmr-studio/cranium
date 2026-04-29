@@ -38,8 +38,39 @@ data class ResolvedEntityType(
     val readonly: Boolean,
     val schema: Map<String, Any>,
     val columns: List<Map<String, Any>>?,
-    val semantics: ResolvedSemantics?
+    val semantics: ResolvedSemantics?,
+    val connotationSignals: ConnotationSignals? = null,
 )
+
+/**
+ * Optional manifest-level connotation configuration for an entity type.
+ *
+ * Declares which source attribute carries sentiment-bearing data and how to map it
+ * to the unified `[-1.0, +1.0]` sentiment score consumed by the
+ * [riven.core.models.connotation.SentimentAxis] of the connotation envelope.
+ */
+data class ConnotationSignals(
+    val tier: String,
+    val sentimentAttribute: String,
+    val sentimentScale: SentimentScale,
+    val themeAttributes: List<String> = emptyList(),
+)
+
+data class SentimentScale(
+    val sourceMin: Double,
+    val sourceMax: Double,
+    val targetMin: Double,
+    val targetMax: Double,
+    val mappingType: ScaleMappingType,
+)
+
+enum class ScaleMappingType {
+    @com.fasterxml.jackson.annotation.JsonProperty("LINEAR")
+    LINEAR,
+
+    @com.fasterxml.jackson.annotation.JsonProperty("THRESHOLD")
+    THRESHOLD,
+}
 
 data class ResolvedSemantics(
     val definition: String?,

@@ -129,15 +129,15 @@ class SingleIntegrationProjectionTest : ProjectionPipelineIntegrationTestBase() 
 
         val emailAttr = attributes.find { it.attributeId == emailAttrId }
         assertNotNull(emailAttr, "Customer should have email attribute")
-        assertEquals("detailed@test.com", emailAttr!!.value?.get("value")?.asText())
+        assertEquals("detailed@test.com", emailAttr!!.value.get("value")?.asString())
 
         val firstnameAttr = attributes.find { it.attributeId == firstnameAttrId }
         assertNotNull(firstnameAttr, "Customer should have firstname attribute")
-        assertEquals("Jane", firstnameAttr!!.value?.get("value")?.asText())
+        assertEquals("Jane", firstnameAttr!!.value.get("value")?.asString())
 
         val lastnameAttr = attributes.find { it.attributeId == lastnameAttrId }
         assertNotNull(lastnameAttr, "Customer should have lastname attribute")
-        assertEquals("Doe", lastnameAttr!!.value?.get("value")?.asText())
+        assertEquals("Doe", lastnameAttr!!.value.get("value")?.asString())
     }
 
     // ------ Test 3: Re-sync updates existing core entity (source wins) ------
@@ -182,7 +182,7 @@ class SingleIntegrationProjectionTest : ProjectionPipelineIntegrationTestBase() 
         val attributes = getEntityAttributes(customerId)
         val firstnameAttr = attributes.find { it.attributeId == firstnameAttrId }
         assertNotNull(firstnameAttr, "Customer should have firstname attribute after re-sync")
-        assertEquals("UpdatedName", firstnameAttr!!.value?.get("value")?.asText(),
+        assertEquals("UpdatedName", firstnameAttr!!.value?.get("value")?.asString(),
             "Firstname should be updated to new value (source wins)")
     }
 
@@ -220,7 +220,7 @@ class SingleIntegrationProjectionTest : ProjectionPipelineIntegrationTestBase() 
         val attributes = getEntityAttributes(existingCustomerId)
         val emailAttr = attributes.find { it.attributeId == emailAttrId }
         assertNotNull(emailAttr, "Customer should have updated email attribute")
-        assertEquals("updated@test.com", emailAttr!!.value?.get("value")?.asText())
+        assertEquals("updated@test.com", emailAttr!!.value?.get("value")?.asString())
     }
 
     // ------ Test 5: Identity resolution by IDENTIFIER attribute matches existing entity ------

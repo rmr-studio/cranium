@@ -132,7 +132,7 @@ class EntityProjectionServiceTest : BaseServiceTest() {
         workspaceId = workspaceId,
         typeId = targetEntityTypeId,
         attributeId = attributeId,
-        value = JsonNodeFactory.instance.textNode(value),
+        value = JsonNodeFactory.instance.stringNode(value),
     )
 
     @BeforeEach

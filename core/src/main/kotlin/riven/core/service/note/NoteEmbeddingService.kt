@@ -19,6 +19,7 @@ import riven.core.repository.note.NoteEntityAttachmentRepository
 import riven.core.repository.note.NoteRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.activity.log
+import riven.core.service.auth.AuthTokenService
 import riven.core.service.note.converter.HtmlToBlockConverter
 import riven.core.service.note.converter.NoteContentConverter
 import riven.core.service.note.converter.PlaintextToBlockConverter
@@ -48,7 +49,7 @@ class NoteEmbeddingService(
 ) {
 
     companion object {
-        val SYSTEM_USER_ID: UUID = UUID(0, 0)
+        val SYSTEM_USER_ID: UUID = AuthTokenService.SYSTEM_USER_ID
         const val MAX_BODY_SIZE = 1_048_576 // 1MB
     }
 

@@ -3,19 +3,19 @@ package riven.core.models.connotation
 import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
- * Tier of analysis used to populate the SENTIMENT metadata.
+ * Analysis strategy used to populate the SENTIMENT metadata.
  *
- * - TIER_1 — deterministic source mapper from manifest connotationSignals (Phase B).
- * - TIER_2 — local Ollama classifier (deferred until Layer 4 needs FREETEXT-only coverage).
- * - TIER_3 — LLM API inference (deferred — no email/Slack manifests yet).
+ * - DETERMINISTIC — manifest-driven source mapper from `connotationSignals` (Phase B).
+ * - CLASSIFIER — local Ollama classifier (deferred until Layer 4 needs FREETEXT-only coverage).
+ * - INFERENCE — LLM API inference (deferred — no email/Slack manifests yet).
  */
 enum class AnalysisTier {
-    @JsonProperty("TIER_1")
-    TIER_1,
+    @JsonProperty("DETERMINISTIC")
+    DETERMINISTIC,
 
-    @JsonProperty("TIER_2")
-    TIER_2,
+    @JsonProperty("CLASSIFIER")
+    CLASSIFIER,
 
-    @JsonProperty("TIER_3")
-    TIER_3,
+    @JsonProperty("INFERENCE")
+    INFERENCE,
 }

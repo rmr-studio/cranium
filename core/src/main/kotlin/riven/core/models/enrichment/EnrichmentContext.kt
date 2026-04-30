@@ -4,6 +4,7 @@ import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.common.validation.SchemaType
+import riven.core.models.connotation.SentimentMetadata
 import java.util.*
 
 /**
@@ -54,6 +55,14 @@ data class EnrichmentContext(
     val referencedEntityIdentifiers: Map<UUID, String> = emptyMap(),
     /** Semantic definitions for each relationship type — used in Section 6 of enriched text. */
     val relationshipDefinitions: List<EnrichmentRelationshipDefinitionContext> = emptyList(),
+    /**
+     * Snapshot of the SENTIMENT metadata written for this enrichment cycle. Null when
+     * the workspace has not opted in or the entity type has no manifest connotation
+     * signals (snapshot SENTIMENT remains at NOT_APPLICABLE in that case). Forwarded only
+     * when the analyzed status is ANALYZED — FAILED/NOT_APPLICABLE outcomes are not
+     * surfaced to the text builder.
+     */
+    val sentiment: SentimentMetadata? = null,
 )
 
 /**

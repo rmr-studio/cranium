@@ -10,6 +10,14 @@ import java.util.*
 @Service
 open class AuthTokenService(private val logger: KLogger) {
 
+    companion object {
+        /**
+         * Seeded `system` user (`db/schema/07_seeds/system_users.sql`) — used as the actor for
+         * mutations performed in JWT-less contexts (Temporal activities, scheduled jobs).
+         */
+        val SYSTEM_USER_ID: UUID = UUID(0, 0)
+    }
+
     /**
      * Retrieves the JWT from the security context.
      */
@@ -38,6 +46,19 @@ open class AuthTokenService(private val logger: KLogger) {
                 UUID.fromString(it.toString())
             }
         }
+    }
+
+    /**
+     * Returns the JWT user ID when a JWT is present in the security context, or
+     * [SYSTEM_USER_ID] otherwise. Use in services that may run inside a Temporal activity or
+     * other background context with no authenticated principal.
+     */
+    open fun getUserIdOrSystem(): UUID {
+        val authentication = SecurityContextHolder.getContext().authentication
+        if (authentication == null || authentication.principal !is Jwt) {
+            return SYSTEM_USER_ID
+        }
+        return getUserId()
     }
 
 

@@ -5,8 +5,10 @@ import org.springframework.stereotype.Service
 import riven.core.enums.catalog.ManifestType
 import riven.core.exceptions.NotFoundException
 import riven.core.models.catalog.CatalogEntityTypeModel
+import riven.core.models.catalog.ConnotationSignals
 import riven.core.models.catalog.ManifestDetail
 import riven.core.repository.catalog.*
+import riven.core.repository.entity.EntityTypeRepository
 import java.util.*
 
 /**
@@ -24,6 +26,7 @@ class ManifestCatalogService(
     private val catalogRelationshipTargetRuleRepository: CatalogRelationshipTargetRuleRepository,
     private val catalogSemanticMetadataRepository: CatalogSemanticMetadataRepository,
     private val catalogFieldMappingRepository: CatalogFieldMappingRepository,
+    private val entityTypeRepository: EntityTypeRepository,
     private val logger: KLogger
 ) {
 
@@ -81,6 +84,30 @@ class ManifestCatalogService(
 
         val entityTypes = catalogEntityTypeRepository.findByManifestId(manifestId)
         return hydrateEntityTypes(entityTypes)
+    }
+
+    /**
+     * Resolve the [ConnotationSignals] declared on the integration manifest entry that
+     * corresponds to a workspace's entity type, if any.
+     *
+     * Lazy-resolves through [EntityTypeRepository] (entity domain) to find the workspace
+     * entity type's `sourceManifestId` and `key`, then looks up the matching catalog row.
+     * This introduces a cross-domain dependency from catalog -> entity which is intentional:
+     * the connotation pipeline needs a single entry point keyed by workspace entity type id.
+     *
+     * Returns null when:
+     * - The entity type does not exist.
+     * - The entity type has no `sourceManifestId` (user-created -- not derived from a manifest).
+     * - No catalog row matches the (manifestId, key) pair.
+     * - The catalog row exists but the manifest entry omits `connotationSignals`.
+     *
+     * Callers should treat null as "no Tier 1 mapping configured -- leave SENTIMENT axis at NOT_APPLICABLE".
+     */
+    fun getConnotationSignalsForEntityType(entityTypeId: UUID): ConnotationSignals? {
+        val entityType = entityTypeRepository.findById(entityTypeId).orElse(null) ?: return null
+        val manifestId = entityType.sourceManifestId ?: return null
+        val catalog = catalogEntityTypeRepository.findByManifestIdAndKey(manifestId, entityType.key) ?: return null
+        return catalog.connotationSignals
     }
 
     // ------ Private Helpers ------

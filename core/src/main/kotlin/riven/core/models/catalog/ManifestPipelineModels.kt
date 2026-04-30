@@ -1,9 +1,11 @@
 package riven.core.models.catalog
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import tools.jackson.databind.JsonNode
 import riven.core.enums.catalog.ManifestType
 import riven.core.enums.entity.EntityRelationshipCardinality
 import riven.core.enums.entity.LifecycleDomain
+import riven.core.models.connotation.AnalysisTier
 
 /** Output of ManifestScannerService -- parsed and schema-validated JSON. */
 data class ScannedManifest(
@@ -38,8 +40,39 @@ data class ResolvedEntityType(
     val readonly: Boolean,
     val schema: Map<String, Any>,
     val columns: List<Map<String, Any>>?,
-    val semantics: ResolvedSemantics?
+    val semantics: ResolvedSemantics?,
+    val connotationSignals: ConnotationSignals? = null,
 )
+
+/**
+ * Optional manifest-level connotation configuration for an entity type.
+ *
+ * Declares which source attribute carries sentiment-bearing data and how to map it
+ * to the unified `[-1.0, +1.0]` sentiment score consumed by the
+ * [riven.core.models.connotation.SentimentMetadata] of the connotation snapshot.
+ */
+data class ConnotationSignals(
+    val tier: AnalysisTier,
+    val sentimentAttribute: String,
+    val sentimentScale: SentimentScale,
+    val themeAttributes: List<String> = emptyList(),
+)
+
+data class SentimentScale(
+    val sourceMin: Double,
+    val sourceMax: Double,
+    val targetMin: Double,
+    val targetMax: Double,
+    val mappingType: ScaleMappingType,
+)
+
+enum class ScaleMappingType {
+    @JsonProperty("LINEAR")
+    LINEAR,
+
+    @JsonProperty("THRESHOLD")
+    THRESHOLD,
+}
 
 data class ResolvedSemantics(
     val definition: String?,

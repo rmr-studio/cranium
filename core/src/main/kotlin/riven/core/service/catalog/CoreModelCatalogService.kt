@@ -1,15 +1,13 @@
-package riven.core.service.lifecycle
+package riven.core.service.catalog
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
 import riven.core.models.core.CoreModelRegistry
-import riven.core.service.catalog.ManifestCatalogHealthIndicator
-import riven.core.service.catalog.ManifestUpsertService
 
 /**
- * Populates the manifest catalog with core lifecycle model definitions at boot time.
+ * Populates the manifest catalog with kotlin defined core model definitions at boot time if current versions are not up to date with the schema hash.
  *
  * Runs on ApplicationReadyEvent alongside ManifestLoaderService (both synchronous on the
  * event thread, order depends on Spring bean ordering). Both paths converge at

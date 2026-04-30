@@ -155,6 +155,7 @@ class ManifestUpsertService(
                 readonly = et.readonly,
                 schema = et.schema,
                 columns = et.columns,
+                connotationSignals = et.connotationSignals,
                 schemaHash = SchemaHashUtil.computeSchemaHash(et.schema)
             )
         }

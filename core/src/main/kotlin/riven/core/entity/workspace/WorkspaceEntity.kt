@@ -38,6 +38,9 @@ data class WorkspaceEntity(
     @Column(name = "plan", nullable = false)
     var plan: WorkspacePlan = WorkspacePlan.FREE, // Default plan is FREE
 
+    @Column(name = "connotation_enabled", nullable = false)
+    val connotationEnabled: Boolean = false,
+
     ) : AuditableSoftDeletableEntity() {
     fun toModel(audit: Boolean = true): Workspace {
         val id = requireNotNull(this.id) { "WorkspaceEntity must have a non-null id" }
@@ -47,7 +50,8 @@ data class WorkspaceEntity(
             plan = this.plan,
             defaultCurrency = this.defaultCurrency,
             avatarUrl = AvatarUrlResolver.workspaceAvatarUrl(id, this.avatarUrl),
-            memberCount = this.memberCount
+            memberCount = this.memberCount,
+            connotationEnabled = this.connotationEnabled
         ).also {
             if (audit) {
                 it.createdAt = this.createdAt

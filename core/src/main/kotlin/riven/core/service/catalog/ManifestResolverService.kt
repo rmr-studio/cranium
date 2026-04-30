@@ -1,5 +1,6 @@
 package riven.core.service.catalog
 
+import tools.jackson.core.JacksonException
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.databind.node.ArrayNode
@@ -89,8 +90,12 @@ class ManifestResolverService(
             )
         } else null
 
+        val entityTypeKey = json.get("key")?.asString()
+        val connotationSignals = json.get("connotationSignals")
+            ?.let { parseConnotationSignals(it, attributesMap.keys, entityTypeKey) }
+
         return ResolvedEntityType(
-            key = json.get("key")?.asString() ?: "",
+            key = entityTypeKey ?: "",
             displayNameSingular = displayName?.get("singular")?.asString() ?: "",
             displayNamePlural = displayName?.get("plural")?.asString() ?: "",
             iconType = icon?.get("type")?.asString() ?: "BOX",
@@ -103,8 +108,63 @@ class ManifestResolverService(
             readonly = json.get("readonly")?.asBoolean() ?: readonlyDefault,
             schema = attributesMap,
             columns = null,
-            semantics = semantics
+            semantics = semantics,
+            connotationSignals = connotationSignals
         )
+    }
+
+    /**
+     * Parses and cross-validates a `connotationSignals` block against the entity type's
+     * declared attributes. Returns null (with a WARN log) on any cross-validation failure
+     * or malformed payload — consistent with relationship/field-mapping handling.
+     * Structural rejection happens earlier at JSON-schema validation time.
+     */
+    private fun parseConnotationSignals(
+        node: JsonNode,
+        knownAttributeKeys: Set<String>,
+        entityTypeKey: String?,
+    ): ConnotationSignals? {
+        val signals = try {
+            objectMapper.treeToValue(node, ConnotationSignals::class.java)
+        } catch (e: JacksonException) {
+            logger.warn { "Entity type '$entityTypeKey' has malformed connotationSignals: ${e.message} — skipping" }
+            return null
+        }
+
+        if (signals.sentimentAttribute !in knownAttributeKeys) {
+            logger.warn {
+                "Entity type '$entityTypeKey' connotationSignals.sentimentAttribute " +
+                    "'${signals.sentimentAttribute}' does not match any declared attribute — skipping"
+            }
+            return null
+        }
+
+        val unknownThemes = signals.themeAttributes.filterNot { it in knownAttributeKeys }
+        if (unknownThemes.isNotEmpty()) {
+            logger.warn {
+                "Entity type '$entityTypeKey' connotationSignals.themeAttributes contain unknown " +
+                    "attribute keys: $unknownThemes — skipping"
+            }
+            return null
+        }
+
+        val scale = signals.sentimentScale
+        if (scale.sourceMin >= scale.sourceMax) {
+            logger.warn {
+                "Entity type '$entityTypeKey' connotationSignals.sentimentScale requires sourceMin < sourceMax " +
+                    "(got ${scale.sourceMin} >= ${scale.sourceMax}) — skipping"
+            }
+            return null
+        }
+        if (scale.targetMin >= scale.targetMax) {
+            logger.warn {
+                "Entity type '$entityTypeKey' connotationSignals.sentimentScale requires targetMin < targetMax " +
+                    "(got ${scale.targetMin} >= ${scale.targetMax}) — skipping"
+            }
+            return null
+        }
+
+        return signals
     }
 
     // ------ Relationship Resolution ------

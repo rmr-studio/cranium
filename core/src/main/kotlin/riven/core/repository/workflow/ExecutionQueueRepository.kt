@@ -131,4 +131,49 @@ interface ExecutionQueueRepository : JpaRepository<ExecutionQueueEntity, UUID> {
         @Param("entityTypeId") entityTypeId: UUID,
         @Param("workspaceId") workspaceId: UUID,
     ): Int
+
+    /**
+     * Enqueue ENRICHMENT items for every entity in [workspaceId] whose persisted
+     * connotation snapshot's `metadata.<metadataKey>.analysisVersion` does NOT match
+     * [currentVersion].
+     *
+     * `IS DISTINCT FROM` covers both "different version" and "null version stamp" without
+     * special-casing nulls. Excludes entities that don't yet have a connotation snapshot row
+     * (those should be enqueued via the regular [enqueueEnrichmentByEntityType] path).
+     *
+     * The [metadataKey] parameter is the JSON key used inside `connotation_metadata.metadata` —
+     * the persisted snapshot shape uses uppercase metadata-type names (e.g. `"SENTIMENT"`,
+     * `"RELATIONAL"`, `"STRUCTURAL"`) per the `@JsonProperty` declarations on
+     * [riven.core.models.connotation.ConnotationMetadata]. Callers must pass the matching
+     * uppercase key — passing `"sentiment"` will match zero rows.
+     *
+     * Skips soft-deleted entities. Idempotent via `ON CONFLICT DO NOTHING` against the
+     * partial unique index `uq_execution_queue_pending_identity_match` — running twice
+     * inserts no duplicates while a prior PENDING row still exists.
+     *
+     * @param metadataKey JSONB key of the metadata category to compare (e.g. `"SENTIMENT"`).
+     * @param currentVersion Active analysis version string from configuration. Rows whose
+     *   persisted version differs from this (including null) are enqueued.
+     * @param workspaceId Workspace to scope the enqueue to.
+     * @return Count of rows actually inserted (excludes skipped duplicates and rows already
+     *   matching [currentVersion]).
+     */
+    @Modifying
+    @Query(
+        """
+        INSERT INTO execution_queue (workspace_id, entity_id, job_type, status)
+        SELECT ec.workspace_id, ec.entity_id, 'ENRICHMENT', 'PENDING'
+        FROM entity_connotation ec
+        JOIN entities e ON e.id = ec.entity_id AND e.deleted = false
+        WHERE ec.workspace_id = :workspaceId
+          AND (ec.connotation_metadata -> 'metadata' -> :metadataKey ->> 'analysisVersion') IS DISTINCT FROM :currentVersion
+        ON CONFLICT DO NOTHING
+        """,
+        nativeQuery = true,
+    )
+    fun enqueueByMetadataVersionMismatch(
+        @Param("metadataKey") metadataKey: String,
+        @Param("currentVersion") currentVersion: String,
+        @Param("workspaceId") workspaceId: UUID,
+    ): Int
 }

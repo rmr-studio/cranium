@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import riven.core.models.catalog.ResolvedManifest
+import riven.core.service.catalog.CoreModelCatalogService
 import riven.core.service.catalog.ManifestCatalogHealthIndicator
 import riven.core.service.catalog.ManifestUpsertService
 

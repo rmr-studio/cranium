@@ -5,7 +5,9 @@ enum class OperationType {
     UPDATE,
     DELETE,
     READ,
-    RESTORE;
+    RESTORE,
+    ANALYZE,
+    REANALYZE;
 
     companion object {
         fun fromString(value: String): OperationType? {

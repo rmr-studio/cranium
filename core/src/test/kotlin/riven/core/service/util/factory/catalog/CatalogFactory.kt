@@ -5,16 +5,21 @@ import riven.core.enums.catalog.ManifestType
 import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.entity.EntityRelationshipCardinality
+import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
+import riven.core.models.catalog.ConnotationSignals
+import riven.core.models.catalog.ScaleMappingType
+import riven.core.models.catalog.SentimentScale
+import riven.core.models.connotation.AnalysisTier
 import java.util.*
 
 object CatalogFactory {
 
     fun createManifestEntity(
         type: ManifestType,
-        id: UUID = UUID.randomUUID(),
+        id: UUID? = UUID.randomUUID(),
         key: String = "test-manifest",
         name: String = "Test Manifest",
         description: String = "A test manifest",
@@ -34,15 +39,19 @@ object CatalogFactory {
 
     fun createEntityTypeEntity(
         manifestId: UUID,
-        id: UUID = UUID.randomUUID(),
+        id: UUID? = UUID.randomUUID(),
         key: String = "test-entity-type",
         displayNameSingular: String = "Test Entity",
         displayNamePlural: String = "Test Entities",
         iconType: IconType = IconType.CIRCLE_DASHED,
         iconColour: IconColour = IconColour.NEUTRAL,
         semanticGroup: SemanticGroup = SemanticGroup.UNCATEGORIZED,
+        lifecycleDomain: LifecycleDomain = LifecycleDomain.UNCATEGORIZED,
+        identifierKey: String? = null,
+        readonly: Boolean = false,
         schema: Map<String, Any> = mapOf("type" to "object"),
         columns: List<Map<String, Any>> = listOf(mapOf("key" to "name", "label" to "Name")),
+        connotationSignals: ConnotationSignals? = null,
         schemaHash: String? = null
     ) = CatalogEntityTypeEntity(
         id = id,
@@ -53,9 +62,52 @@ object CatalogFactory {
         iconType = iconType,
         iconColour = iconColour,
         semanticGroup = semanticGroup,
+        lifecycleDomain = lifecycleDomain,
+        identifierKey = identifierKey,
+        readonly = readonly,
         schema = schema,
         columns = columns,
+        connotationSignals = connotationSignals,
         schemaHash = schemaHash
+    )
+
+    /**
+     * Convenience helper for tests that need a CatalogEntityTypeEntity with
+     * a specific (or null) connotation signals payload.
+     */
+    fun catalogEntityTypeEntityWithSignals(
+        signals: ConnotationSignals?,
+        manifestId: UUID = UUID.randomUUID(),
+    ): CatalogEntityTypeEntity = createEntityTypeEntity(
+        manifestId = manifestId,
+        connotationSignals = signals,
+    )
+
+    /** Realistic default ConnotationSignals payload for tests. */
+    fun connotationSignals(
+        tier: AnalysisTier = AnalysisTier.DETERMINISTIC,
+        sentimentAttribute: String = "rating",
+        sentimentScale: SentimentScale = sentimentScale(),
+        themeAttributes: List<String> = listOf("review_text"),
+    ) = ConnotationSignals(
+        tier = tier,
+        sentimentAttribute = sentimentAttribute,
+        sentimentScale = sentimentScale,
+        themeAttributes = themeAttributes,
+    )
+
+    fun sentimentScale(
+        sourceMin: Double = 1.0,
+        sourceMax: Double = 5.0,
+        targetMin: Double = -1.0,
+        targetMax: Double = 1.0,
+        mappingType: ScaleMappingType = ScaleMappingType.LINEAR,
+    ) = SentimentScale(
+        sourceMin = sourceMin,
+        sourceMax = sourceMax,
+        targetMin = targetMin,
+        targetMax = targetMax,
+        mappingType = mappingType,
     )
 
     fun createRelationshipEntity(

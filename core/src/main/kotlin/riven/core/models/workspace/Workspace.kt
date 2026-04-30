@@ -19,6 +19,7 @@ data class Workspace(
     var defaultCurrency: Currency = Currency.getInstance("AUD"), // Default currency for the workspace
     var avatarUrl: String? = null,
     val memberCount: Int,
+    val connotationEnabled: Boolean = false,
 
     override var createdAt: ZonedDateTime? = null,
     override var updatedAt: ZonedDateTime? = null,

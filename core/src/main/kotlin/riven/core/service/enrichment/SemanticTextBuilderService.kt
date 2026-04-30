@@ -3,6 +3,8 @@ package riven.core.service.enrichment
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
+
+import riven.core.models.connotation.SentimentMetadata
 import riven.core.models.enrichment.EnrichedTextResult
 import riven.core.models.enrichment.EnrichmentAttributeContext
 import riven.core.models.enrichment.EnrichmentContext
@@ -31,7 +33,8 @@ import kotlin.math.abs
  * When the combined text would exceed the 27,000-character budget, sections are progressively
  * removed or compacted in priority order: remove Section 6, compact Section 5, compact Section 4,
  * then drop FREETEXT and RELATIONAL_REFERENCE attributes from Section 3.
- * Sections 1 and 2 are never truncated.
+ * Sections 1 and 2 are never truncated. The Connotation Context section is bounded at
+ * [MAX_CONNOTATION_SECTION_CHARS] and is preserved through every truncation step.
  */
 @Service
 class SemanticTextBuilderService(
@@ -40,6 +43,7 @@ class SemanticTextBuilderService(
 
     companion object {
         private const val CHAR_BUDGET = 27_000
+        private const val MAX_CONNOTATION_SECTION_CHARS = 300
         private val DATE_FORMATTER = DateTimeFormatter.ofPattern("MMMM d, yyyy")
     }
 
@@ -68,9 +72,10 @@ class SemanticTextBuilderService(
         val fullRelationships = buildRelationshipSummariesSection(context)
         val fullCluster = buildClusterContextSection(context)
         val fullDefinitions = buildRelationshipSemanticDefinitionsSection(context)
+        val fullConnotation: String? = context.sentiment?.let { buildConnotationContextSection(it) }
 
         val mandatoryLength = sections.sumOf { it.length } + (sections.size - 1) * 2
-        val remaining = listOfNotNull(fullAttributes, fullRelationships, fullCluster, fullDefinitions)
+        val remaining = listOfNotNull(fullAttributes, fullRelationships, fullCluster, fullDefinitions, fullConnotation)
         val totalFull = mandatoryLength + remaining.sumOf { it.length } + remaining.size * 2
 
         if (totalFull <= CHAR_BUDGET) {
@@ -80,29 +85,34 @@ class SemanticTextBuilderService(
             // Progressive truncation — apply each step and check budget
             truncated = true
 
+            // Connotation is bounded at MAX_CONNOTATION_SECTION_CHARS so it's safe to retain
+            // through every truncation step — long entities are precisely the ones most likely
+            // to need sentiment context preserved. Place last so the assembled order matches
+            // the full-quality path (definitions/connotation tail).
+
             // Step 1: Try without Section 6
-            val withoutDefs = listOfNotNull(fullAttributes, fullRelationships, fullCluster)
+            val withoutDefs = listOfNotNull(fullAttributes, fullRelationships, fullCluster, fullConnotation)
             val totalStep1 = mandatoryLength + withoutDefs.sumOf { it.length } + withoutDefs.size * 2
             if (totalStep1 <= CHAR_BUDGET) {
                 sections.addAll(withoutDefs)
             } else {
                 // Step 2: Compact Section 5 (cluster → source names only)
                 val compactCluster = buildClusterContextCompact(context)
-                val step2Sections = listOfNotNull(fullAttributes, fullRelationships, compactCluster)
+                val step2Sections = listOfNotNull(fullAttributes, fullRelationships, compactCluster, fullConnotation)
                 val totalStep2 = mandatoryLength + step2Sections.sumOf { it.length } + step2Sections.size * 2
                 if (totalStep2 <= CHAR_BUDGET) {
                     sections.addAll(step2Sections)
                 } else {
                     // Step 3: Compact Section 4 (relationship summaries → count + last activity only)
                     val compactRelationships = buildRelationshipSummariesCompact(context)
-                    val step3Sections = listOfNotNull(fullAttributes, compactRelationships, compactCluster)
+                    val step3Sections = listOfNotNull(fullAttributes, compactRelationships, compactCluster, fullConnotation)
                     val totalStep3 = mandatoryLength + step3Sections.sumOf { it.length } + step3Sections.size * 2
                     if (totalStep3 <= CHAR_BUDGET) {
                         sections.addAll(step3Sections)
                     } else {
                         // Step 4: Drop FREETEXT and RELATIONAL_REFERENCE from Section 3
                         val reducedAttributes = buildAttributesSectionReduced(context)
-                        val step4Sections = listOfNotNull(reducedAttributes, compactRelationships, compactCluster)
+                        val step4Sections = listOfNotNull(reducedAttributes, compactRelationships, compactCluster, fullConnotation)
                         sections.addAll(step4Sections)
                     }
                 }
@@ -270,6 +280,21 @@ class SemanticTextBuilderService(
         if (definitionLines.isEmpty()) return null
 
         return (listOf("## Relationship Definitions") + definitionLines).joinToString("\n")
+    }
+
+    /**
+     * Section 7: Connotation Context. Emitted when the enrichment context carries an
+     * ANALYZED SENTIMENT axis. Bounded ≤ MAX_CONNOTATION_SECTION_CHARS to prevent runaway
+     * theme lists from inflating the text.
+     */
+    private fun buildConnotationContextSection(sentiment: SentimentMetadata): String {
+        val score = sentiment.sentiment?.let { "%.2f".format(it) } ?: "—"
+        val label = sentiment.sentimentLabel?.name ?: "UNKNOWN"
+        val themesText = sentiment.themes.joinToString(", ").let {
+            if (it.isEmpty()) "" else " | Themes: $it"
+        }
+        val raw = "## Connotation Context\nSentiment: $label ($score)$themesText"
+        return raw.take(MAX_CONNOTATION_SECTION_CHARS)
     }
 
     // ------ Private formatting helpers ------

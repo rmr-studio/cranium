@@ -14,7 +14,7 @@ import java.time.ZonedDateTime
  * Polymorphic semantic snapshot persisted in `entity_connotation.connotation_metadata`.
  *
  * Captures three orthogonal categories computed at last enrichment time:
- * - SENTIMENT — text sentiment score + themes (populated by Tier 1 in Phase B; placeholder in Phase A).
+ * - SENTIMENT — text sentiment score + themes (populated by DETERMINISTIC tier in Phase B; placeholder in Phase A).
  * - RELATIONAL — relationship summaries, cluster membership, RELATIONAL_REFERENCE resolutions.
  * - STRUCTURAL — entity type metadata, attribute classifications, relationship semantic definitions.
  *
@@ -28,13 +28,13 @@ import java.time.ZonedDateTime
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class ConnotationMetadataSnapshot(
-    @JsonProperty("snapshotVersion")
+    @param:JsonProperty("snapshotVersion")
     val snapshotVersion: String = "v1",
 
-    @JsonProperty("metadata")
+    @param:JsonProperty("metadata")
     val metadata: ConnotationMetadata,
 
-    @JsonProperty("embeddedAt")
+    @param:JsonProperty("embeddedAt")
     val embeddedAt: ZonedDateTime,
 )
 
@@ -47,13 +47,13 @@ data class ConnotationMetadataSnapshot(
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class ConnotationMetadata(
-    @JsonProperty("SENTIMENT")
+    @param:JsonProperty("SENTIMENT")
     val sentiment: SentimentMetadata? = null,
 
-    @JsonProperty("RELATIONAL")
+    @param:JsonProperty("RELATIONAL")
     val relational: RelationalMetadata? = null,
 
-    @JsonProperty("STRUCTURAL")
+    @param:JsonProperty("STRUCTURAL")
     val structural: StructuralMetadata? = null,
 )
 
@@ -61,7 +61,7 @@ data class ConnotationMetadata(
  * SENTIMENT metadata — text sentiment score, label, themes, and analysis provenance.
  *
  * In Phase A all sentiment fields are null and [status] is `NOT_APPLICABLE`. Phase B's
- * Tier 1 mapper populates this category when an entity type's manifest declares
+ * DETERMINISTIC mapper populates this category when an entity type's manifest declares
  * connotationSignals.
  *
  * @property sentiment Normalized sentiment score in `[-1.0, 1.0]`. Null pre-Phase-B.
@@ -76,31 +76,31 @@ data class ConnotationMetadata(
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class SentimentMetadata(
-    @JsonProperty("sentiment")
+    @param:JsonProperty("sentiment")
     val sentiment: Double? = null,
 
-    @JsonProperty("sentimentLabel")
+    @param:JsonProperty("sentimentLabel")
     val sentimentLabel: SentimentLabel? = null,
 
-    @JsonProperty("themes")
+    @param:JsonProperty("themes")
     val themes: List<String> = emptyList(),
 
-    @JsonProperty("analysisVersion")
+    @param:JsonProperty("analysisVersion")
     val analysisVersion: String? = null,
 
-    @JsonProperty("analysisModel")
+    @param:JsonProperty("analysisModel")
     val analysisModel: String? = null,
 
-    @JsonProperty("analysisTier")
+    @param:JsonProperty("analysisTier")
     val analysisTier: AnalysisTier? = null,
 
-    @JsonProperty("status")
+    @param:JsonProperty("status")
     val status: ConnotationStatus = ConnotationStatus.NOT_APPLICABLE,
 
-    @JsonProperty("stalenessModel")
+    @param:JsonProperty("stalenessModel")
     val stalenessModel: MetadataStalenessModel = MetadataStalenessModel.ON_SOURCE_TEXT_CHANGE,
 
-    @JsonProperty("analyzedAt")
+    @param:JsonProperty("analyzedAt")
     val analyzedAt: ZonedDateTime? = null,
 )
 
@@ -113,58 +113,58 @@ data class SentimentMetadata(
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class RelationalMetadata(
-    @JsonProperty("relationshipSummaries")
+    @param:JsonProperty("relationshipSummaries")
     val relationshipSummaries: List<RelationshipSummarySnapshot> = emptyList(),
 
-    @JsonProperty("clusterMembers")
+    @param:JsonProperty("clusterMembers")
     val clusterMembers: List<ClusterMemberSnapshot> = emptyList(),
 
-    @JsonProperty("relationalReferenceResolutions")
+    @param:JsonProperty("relationalReferenceResolutions")
     val relationalReferenceResolutions: List<RelationalReferenceResolution> = emptyList(),
 
-    @JsonProperty("stalenessModel")
+    @param:JsonProperty("stalenessModel")
     val stalenessModel: MetadataStalenessModel = MetadataStalenessModel.ON_NEIGHBOR_CHANGE,
 
-    @JsonProperty("snapshotAt")
+    @param:JsonProperty("snapshotAt")
     val snapshotAt: ZonedDateTime,
 )
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class RelationshipSummarySnapshot(
-    @JsonProperty("definitionId")
+    @param:JsonProperty("definitionId")
     val definitionId: String,
 
-    @JsonProperty("definitionName")
+    @param:JsonProperty("definitionName")
     val definitionName: String,
 
-    @JsonProperty("count")
+    @param:JsonProperty("count")
     val count: Int,
 
-    @JsonProperty("topCategories")
+    @param:JsonProperty("topCategories")
     val topCategories: List<String> = emptyList(),
 
-    @JsonProperty("latestActivityAt")
+    @param:JsonProperty("latestActivityAt")
     val latestActivityAt: String? = null,
 )
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class ClusterMemberSnapshot(
-    @JsonProperty("sourceType")
+    @param:JsonProperty("sourceType")
     val sourceType: SourceType,
 
-    @JsonProperty("entityTypeName")
+    @param:JsonProperty("entityTypeName")
     val entityTypeName: String,
 )
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class RelationalReferenceResolution(
-    @JsonProperty("attributeId")
+    @param:JsonProperty("attributeId")
     val attributeId: String,
 
-    @JsonProperty("targetEntityId")
+    @param:JsonProperty("targetEntityId")
     val targetEntityId: String,
 
-    @JsonProperty("targetIdentifierValue")
+    @param:JsonProperty("targetIdentifierValue")
     val targetIdentifierValue: String,
 )
 
@@ -178,55 +178,55 @@ data class RelationalReferenceResolution(
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class StructuralMetadata(
-    @JsonProperty("entityTypeName")
+    @param:JsonProperty("entityTypeName")
     val entityTypeName: String,
 
-    @JsonProperty("semanticGroup")
+    @param:JsonProperty("semanticGroup")
     val semanticGroup: SemanticGroup,
 
-    @JsonProperty("lifecycleDomain")
+    @param:JsonProperty("lifecycleDomain")
     val lifecycleDomain: LifecycleDomain,
 
-    @JsonProperty("entityTypeDefinition")
+    @param:JsonProperty("entityTypeDefinition")
     val entityTypeDefinition: String? = null,
 
-    @JsonProperty("schemaVersion")
+    @param:JsonProperty("schemaVersion")
     val schemaVersion: Int,
 
-    @JsonProperty("attributeClassifications")
+    @param:JsonProperty("attributeClassifications")
     val attributeClassifications: List<AttributeClassificationSnapshot> = emptyList(),
 
-    @JsonProperty("relationshipSemanticDefinitions")
+    @param:JsonProperty("relationshipSemanticDefinitions")
     val relationshipSemanticDefinitions: List<RelationshipSemanticDefinitionSnapshot> = emptyList(),
 
-    @JsonProperty("stalenessModel")
+    @param:JsonProperty("stalenessModel")
     val stalenessModel: MetadataStalenessModel = MetadataStalenessModel.ON_TYPE_METADATA_CHANGE,
 
-    @JsonProperty("snapshotAt")
+    @param:JsonProperty("snapshotAt")
     val snapshotAt: ZonedDateTime,
 )
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class AttributeClassificationSnapshot(
-    @JsonProperty("attributeId")
+    @param:JsonProperty("attributeId")
     val attributeId: String,
 
-    @JsonProperty("semanticLabel")
+    @param:JsonProperty("semanticLabel")
     val semanticLabel: String,
 
-    @JsonProperty("classification")
+    @param:JsonProperty("classification")
     val classification: SemanticAttributeClassification? = null,
 
-    @JsonProperty("schemaType")
+    @param:JsonProperty("schemaType")
     val schemaType: SchemaType,
 )
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class RelationshipSemanticDefinitionSnapshot(
-    @JsonProperty("definitionName")
+    @param:JsonProperty("definitionName")
     val definitionName: String,
 
-    @JsonProperty("definitionText")
+    @param:JsonProperty("definitionText")
     val definitionText: String? = null,
 )
 

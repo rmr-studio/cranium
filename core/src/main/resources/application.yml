@@ -74,6 +74,8 @@ riven:
     send-timeout-ms: 15000
   query:
     timeout-seconds: 10
+  connotation:
+    deterministic-current-version: v1
 storage:
   provider: local
   local:

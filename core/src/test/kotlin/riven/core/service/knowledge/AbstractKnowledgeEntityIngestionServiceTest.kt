@@ -119,9 +119,10 @@ class AbstractKnowledgeEntityIngestionServiceTest {
             workspaceId = eq(workspaceId),
             sourceEntityId = eq(requireNotNull(saved.id)),
             relationshipDefinitionId = eq(systemDefinitionId),
-            targetEntityIds = eq(setOf(target)),
+            targetIds = eq(setOf(target)),
             linkSource = eq(SourceType.USER_CREATED),
             targetKind = eq(RelationshipTargetKind.ENTITY),
+            targetParentId = eq(null),
         )
     }
 

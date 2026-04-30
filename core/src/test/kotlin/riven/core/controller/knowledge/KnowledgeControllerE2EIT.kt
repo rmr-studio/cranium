@@ -23,6 +23,7 @@ import riven.core.enums.knowledge.DefinitionCategory
 import riven.core.enums.knowledge.DefinitionSource
 import riven.core.enums.knowledge.DefinitionStatus
 import riven.core.exceptions.ExceptionHandler
+import riven.core.models.knowledge.AttributeRef
 import riven.core.models.knowledge.WorkspaceBusinessDefinition
 import riven.core.service.entity.EntityTypeSemanticMetadataService
 import riven.core.service.entity.type.EntityTypeService
@@ -94,7 +95,7 @@ class KnowledgeControllerE2EIT {
         status = DefinitionStatus.ACTIVE,
         source = DefinitionSource.MANUAL,
         entityTypeRefs = listOf(typeRefId),
-        attributeRefs = listOf(attrRefId),
+        attributeRefs = listOf(AttributeRef(attributeId = attrRefId, ownerEntityTypeId = typeRefId)),
         isCustomized = false,
         version = 0,
         createdBy = null,
@@ -117,7 +118,8 @@ class KnowledgeControllerE2EIT {
             .andExpect(jsonPath("$[0].status").value("ACTIVE"))
             .andExpect(jsonPath("$[0].source").value("MANUAL"))
             .andExpect(jsonPath("$[0].entityTypeRefs[0]").value(typeRefId.toString()))
-            .andExpect(jsonPath("$[0].attributeRefs[0]").value(attrRefId.toString()))
+            .andExpect(jsonPath("$[0].attributeRefs[0].attributeId").value(attrRefId.toString()))
+            .andExpect(jsonPath("$[0].attributeRefs[0].ownerEntityTypeId").value(typeRefId.toString()))
             .andExpect(jsonPath("$[0].isCustomized").value(false))
             .andExpect(jsonPath("$[0].version").value(0))
     }
@@ -169,7 +171,7 @@ class KnowledgeControllerE2EIT {
                 "category" to "METRIC",
                 "source" to "MANUAL",
                 "entityTypeRefs" to listOf(typeRefId.toString()),
-                "attributeRefs" to listOf(attrRefId.toString()),
+                "attributeRefs" to listOf(mapOf("attributeId" to attrRefId.toString(), "ownerEntityTypeId" to typeRefId.toString())),
                 "isCustomized" to false,
             ),
         )
@@ -196,7 +198,7 @@ class KnowledgeControllerE2EIT {
                 "definition" to "updated body",
                 "category" to "METRIC",
                 "entityTypeRefs" to listOf(typeRefId.toString()),
-                "attributeRefs" to listOf(attrRefId.toString()),
+                "attributeRefs" to listOf(mapOf("attributeId" to attrRefId.toString(), "ownerEntityTypeId" to typeRefId.toString())),
                 "version" to 0,
             ),
         )

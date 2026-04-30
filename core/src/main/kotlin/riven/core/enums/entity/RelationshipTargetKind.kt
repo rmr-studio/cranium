@@ -5,15 +5,16 @@ package riven.core.enums.entity
  *
  * Default targets are entity instances ([ENTITY]). Knowledge-domain edges (e.g. glossary
  * `DEFINES`) may point at structural objects rather than data rows: an entity type
- * ([ENTITY_TYPE]) or a single attribute of an entity type ([ATTRIBUTE]).
+ * ([ENTITY_TYPE]), a single attribute of an entity type ([ATTRIBUTE]), or a relationship
+ * definition owned by an entity type ([RELATIONSHIP]).
  *
- * Phase B (Note Graduation) declares the enum; the corresponding `entity_relationships.target_kind`
- * column is added by Phase C (Glossary Graduation, Task 16). Until Phase C lands, only [ENTITY]
- * is materialised — non-ENTITY values pass through the abstract ingestion base for forward-compat
- * but are not yet persisted.
+ * For the sub-reference target_kinds ([ATTRIBUTE], [RELATIONSHIP]), the row carries
+ * `target_parent_id` populated with the owning entity_type id; for [ENTITY] / [ENTITY_TYPE]
+ * `target_parent_id` is null.
  */
 enum class RelationshipTargetKind {
     ENTITY,
     ENTITY_TYPE,
     ATTRIBUTE,
+    RELATIONSHIP,
 }

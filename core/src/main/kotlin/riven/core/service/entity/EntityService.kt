@@ -470,30 +470,37 @@ class EntityService(
     }
 
     /**
-     * System-driven relationship replace. Drives all rows for `(sourceEntityId, relationshipDefinitionId)`
-     * toward the desired [targetEntityIds] set. Used by the knowledge ingestion layer to
+     * System-driven relationship replace. Drives all rows for `(sourceEntityId, relationshipDefinitionId, targetKind)`
+     * toward the desired [targetIds] set. Used by the knowledge ingestion layer to
      * reconcile system relationships (`ATTACHMENT`, `MENTION`, `DEFINES`) on every upsert.
      *
-     * `targetKind` selects ENTITY (default), ENTITY_TYPE or ATTRIBUTE rows; reconciliation
-     * only sweeps existing rows whose kind matches the supplied value, so glossary DEFINES
-     * batches at different kinds on the same definition row do not clobber each other.
+     * `targetKind` selects ENTITY (default), ENTITY_TYPE, ATTRIBUTE, or RELATIONSHIP rows;
+     * reconciliation only sweeps existing rows whose kind matches the supplied value, so
+     * glossary DEFINES batches at different kinds on the same definition row do not
+     * clobber each other.
+     *
+     * For sub-reference target_kinds (ATTRIBUTE, RELATIONSHIP), [targetParentId] is the owning
+     * entity_type id; required by the entity_relationships CHECK constraint. NULL for ENTITY /
+     * ENTITY_TYPE.
      */
     @Transactional
     fun replaceRelationshipsInternal(
         workspaceId: UUID,
         sourceEntityId: UUID,
         relationshipDefinitionId: UUID,
-        targetEntityIds: Set<UUID>,
+        targetIds: Set<UUID>,
         linkSource: SourceType,
         targetKind: RelationshipTargetKind = RelationshipTargetKind.ENTITY,
+        targetParentId: UUID? = null,
     ) {
         entityRelationshipService.replaceForDefinition(
             workspaceId = workspaceId,
             sourceId = sourceEntityId,
             definitionId = relationshipDefinitionId,
-            targetEntityIds = targetEntityIds,
+            targetIds = targetIds,
             linkSource = linkSource,
             targetKind = targetKind,
+            targetParentId = targetParentId,
         )
     }
 

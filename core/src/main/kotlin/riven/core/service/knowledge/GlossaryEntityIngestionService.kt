@@ -6,6 +6,7 @@ import riven.core.entity.entity.EntityTypeEntity
 import riven.core.enums.entity.RelationshipTargetKind
 import riven.core.enums.entity.SystemRelationshipType
 import riven.core.enums.integration.SourceType
+import riven.core.models.knowledge.AttributeRef
 import riven.core.repository.entity.EntityRepository
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.service.entity.EntityService
@@ -49,7 +50,7 @@ class GlossaryEntityIngestionService(
         val isCustomised: Boolean,
         override val sourceExternalId: String,
         val entityTypeRefs: Set<UUID> = emptySet(),
-        val attributeRefs: Set<UUID> = emptySet(),
+        val attributeRefs: List<AttributeRef> = emptyList(),
         val mentionedEntityIds: Set<UUID> = emptySet(),
         override val sourceType: SourceType = SourceType.USER_CREATED,
         override val sourceIntegrationId: UUID? = null,
@@ -69,17 +70,49 @@ class GlossaryEntityIngestionService(
         attributeId(entityType, "is_customised") to input.isCustomised,
     )
 
-    override fun relationshipBatches(input: GlossaryIngestionInput): List<KnowledgeRelationshipBatch> =
-        listOf(
-            // DEFINES edges fan out across two target_kinds; both reuse the same definition row.
-            KnowledgeRelationshipBatch(
-                SystemRelationshipType.DEFINES, input.entityTypeRefs, RelationshipTargetKind.ENTITY_TYPE,
-            ),
-            KnowledgeRelationshipBatch(
-                SystemRelationshipType.DEFINES, input.attributeRefs, RelationshipTargetKind.ATTRIBUTE,
-            ),
-            KnowledgeRelationshipBatch(
-                SystemRelationshipType.MENTION, input.mentionedEntityIds, RelationshipTargetKind.ENTITY,
-            ),
-        )
+    override fun relationshipBatches(input: GlossaryIngestionInput): List<KnowledgeRelationshipBatch> {
+        // DEFINES edges fan out across multiple target_kinds; all reuse the same definition row.
+        // ATTRIBUTE rows are split per owning entity_type so each batch can carry the correct
+        // `targetParentId` required by the entity_relationships CHECK constraint. When the
+        // input carries no attribute refs we still emit a single empty ATTRIBUTE batch so
+        // existing rows get reconciled away.
+        val attributeBatches = if (input.attributeRefs.isEmpty()) {
+            listOf(
+                KnowledgeRelationshipBatch(
+                    systemType = SystemRelationshipType.DEFINES,
+                    targetIds = emptySet(),
+                    targetKind = RelationshipTargetKind.ATTRIBUTE,
+                ),
+            )
+        } else {
+            input.attributeRefs
+                .groupBy { it.ownerEntityTypeId }
+                .map { (ownerEntityTypeId, refs) ->
+                    KnowledgeRelationshipBatch(
+                        systemType = SystemRelationshipType.DEFINES,
+                        targetIds = refs.map { it.attributeId }.toSet(),
+                        targetKind = RelationshipTargetKind.ATTRIBUTE,
+                        targetParentId = ownerEntityTypeId,
+                    )
+                }
+        }
+
+        return buildList {
+            add(
+                KnowledgeRelationshipBatch(
+                    systemType = SystemRelationshipType.DEFINES,
+                    targetIds = input.entityTypeRefs,
+                    targetKind = RelationshipTargetKind.ENTITY_TYPE,
+                ),
+            )
+            addAll(attributeBatches)
+            add(
+                KnowledgeRelationshipBatch(
+                    systemType = SystemRelationshipType.MENTION,
+                    targetIds = input.mentionedEntityIds,
+                    targetKind = RelationshipTargetKind.ENTITY,
+                ),
+            )
+        }
+    }
 }

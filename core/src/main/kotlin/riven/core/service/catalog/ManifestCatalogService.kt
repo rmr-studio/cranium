@@ -101,7 +101,7 @@ class ManifestCatalogService(
      * - No catalog row matches the (manifestId, key) pair.
      * - The catalog row exists but the manifest entry omits `connotationSignals`.
      *
-     * Callers should treat null as "no Tier 1 mapping configured -- leave SENTIMENT axis at NOT_APPLICABLE".
+     * Callers should treat null as "no Tier 1 mapping configured -- leave SENTIMENT metadata at NOT_APPLICABLE".
      */
     fun getConnotationSignalsForEntityType(entityTypeId: UUID): ConnotationSignals? {
         val entityType = entityTypeRepository.findById(entityTypeId).orElse(null) ?: return null

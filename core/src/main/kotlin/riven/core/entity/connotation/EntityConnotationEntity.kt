@@ -8,7 +8,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import org.hibernate.annotations.Type
-import riven.core.models.connotation.ConnotationMetadataSnapshot
+import riven.core.models.connotation.EntityMetadataSnapshot
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -39,7 +39,7 @@ data class EntityConnotationEntity(
 
     @Type(JsonBinaryType::class)
     @Column(name = "connotation_metadata", columnDefinition = "jsonb", nullable = false)
-    val connotationMetadata: ConnotationMetadataSnapshot,
+    val connotationMetadata: EntityMetadataSnapshot,
 
     @Column(name = "created_at", nullable = false, columnDefinition = "timestamptz")
     val createdAt: ZonedDateTime = ZonedDateTime.now(),

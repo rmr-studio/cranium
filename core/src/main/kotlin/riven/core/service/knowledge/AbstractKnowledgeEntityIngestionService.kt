@@ -119,9 +119,10 @@ abstract class AbstractKnowledgeEntityIngestionService<TInput : KnowledgeIngesti
             workspaceId = workspaceId,
             sourceEntityId = sourceId,
             relationshipDefinitionId = requireNotNull(def.id) { "system relationship definition id must not be null" },
-            targetEntityIds = batch.targetEntityIds,
+            targetIds = batch.targetIds,
             linkSource = linkSource,
             targetKind = batch.targetKind,
+            targetParentId = batch.targetParentId,
         )
     }
 

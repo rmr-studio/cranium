@@ -20,14 +20,14 @@ import java.time.ZonedDateTime
 import java.util.TimeZone
 
 /**
- * Jackson round-trip + forward-compat coverage for [ConnotationMetadataSnapshot].
+ * Jackson round-trip + forward-compat coverage for [EntityMetadataSnapshot].
  *
  * The snapshot is persisted as JSONB via Hypersistence's JsonBinaryType. Round-trip parity
  * matters because the snapshot is the source of truth for non-pipeline consumers (frontend
  * display, debug tooling, future Layer 4 metadata categories); shape drift breaks downstream
  * readers.
  */
-class ConnotationMetadataSnapshotTest {
+class EntityMetadataSnapshotTest {
 
     private val mapper = JsonMapper.builder()
         .addModule(KotlinModule.Builder().build())
@@ -40,9 +40,9 @@ class ConnotationMetadataSnapshotTest {
     @Test
     fun `Phase A snapshot (placeholder SENTIMENT, populated RELATIONAL+STRUCTURAL) round-trips through Jackson`() {
         val now = ZonedDateTime.parse("2026-04-29T12:00:00Z")
-        val snapshot = ConnotationMetadataSnapshot(
+        val snapshot = EntityMetadataSnapshot(
             snapshotVersion = "v1",
-            metadata = ConnotationMetadata(
+            metadata = EntityMetadata(
                 sentiment = SentimentMetadata(),
                 relational = RelationalMetadata(
                     relationshipSummaries = listOf(
@@ -93,15 +93,15 @@ class ConnotationMetadataSnapshotTest {
         )
 
         val json = mapper.writeValueAsString(snapshot)
-        val restored = mapper.readValue(json, ConnotationMetadataSnapshot::class.java)
+        val restored = mapper.readValue(json, EntityMetadataSnapshot::class.java)
 
         assertEquals(snapshot, restored)
     }
 
     @Test
     fun `snapshot JSON has metadata keyed by SENTIMENT, RELATIONAL, STRUCTURAL`() {
-        val snapshot = ConnotationMetadataSnapshot(
-            metadata = ConnotationMetadata(
+        val snapshot = EntityMetadataSnapshot(
+            metadata = EntityMetadata(
                 sentiment = SentimentMetadata(),
                 relational = RelationalMetadata(snapshotAt = ZonedDateTime.now()),
                 structural = StructuralMetadata(
@@ -152,7 +152,7 @@ class ConnotationMetadataSnapshotTest {
             }
         """.trimIndent()
 
-        val restored = mapper.readValue(futureJson, ConnotationMetadataSnapshot::class.java)
+        val restored = mapper.readValue(futureJson, EntityMetadataSnapshot::class.java)
 
         assertEquals("v1", restored.snapshotVersion)
         assertEquals(ConnotationStatus.NOT_APPLICABLE, restored.metadata.sentiment?.status)

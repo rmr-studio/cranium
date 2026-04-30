@@ -59,7 +59,7 @@ class RelationshipSqlGenerator {
      * @param paramGen Generator for unique parameter names and table aliases (shared across query)
      * @param entityAlias Table alias for the entity being filtered. Defaults to `"e"` (root entity).
      *   For nested subqueries, this will be the target entity alias from the parent subquery.
-     * @param direction Query direction — FORWARD correlates on `source_entity_id`, INVERSE on `target_entity_id`.
+     * @param direction Query direction — FORWARD correlates on `source_entity_id`, INVERSE on `target_id`.
      *   The caller resolves direction based on whether the queried entity type is the source or a target.
      * @param nestedFilterVisitor Optional lambda for processing nested filters inside TargetMatches
      *   and TargetTypeMatches conditions. Signature: `(filter, paramGen, entityAlias) -> SqlFragment`.
@@ -176,7 +176,7 @@ class RelationshipSqlGenerator {
      *     SELECT 1 FROM entity_relationships r_0
      *     WHERE r_0.source_entity_id = e.id
      *       AND r_0.relationship_definition_id = :rel_1
-     *       AND r_0.target_entity_id IN (:te_2)
+     *       AND r_0.target_id IN (:te_2)
      *       AND r_0.deleted = false
      * )
      * ```
@@ -238,7 +238,7 @@ class RelationshipSqlGenerator {
      * ```sql
      * EXISTS (
      *     SELECT 1 FROM entity_relationships r_0
-     *     JOIN entities t_1 ON r_0.target_entity_id = t_1.id AND t_1.deleted = false
+     *     JOIN entities t_1 ON r_0.target_id = t_1.id AND t_1.deleted = false
      *     WHERE r_0.source_entity_id = e.id
      *       AND r_0.relationship_definition_id = :rel_2
      *       AND r_0.deleted = false
@@ -289,7 +289,7 @@ class RelationshipSqlGenerator {
      * ```sql
      * EXISTS (
      *     SELECT 1 FROM entity_relationships r_0
-     *     JOIN entities t_1 ON r_0.target_entity_id = t_1.id AND t_1.deleted = false
+     *     JOIN entities t_1 ON r_0.target_id = t_1.id AND t_1.deleted = false
      *     WHERE r_0.source_entity_id = e.id
      *       AND r_0.relationship_definition_id = :rel_2
      *       AND r_0.deleted = false
@@ -363,7 +363,7 @@ class RelationshipSqlGenerator {
      * (EXISTS (SELECT 1 FROM entity_relationships r_0
      *          WHERE r_0.source_entity_id = e.id AND r_0.deleted = false)
      *  OR EXISTS (SELECT 1 FROM entity_relationships r_1
-     *             WHERE r_1.target_entity_id = e.id AND r_1.deleted = false))
+     *             WHERE r_1.target_id = e.id AND r_1.deleted = false))
      * ```
      */
     fun generateIsRelatedTo(
@@ -396,7 +396,7 @@ class RelationshipSqlGenerator {
             append("    WHERE $fwdAlias.source_entity_id = $entityAlias.id AND $fwdAlias.deleted = false\n")
             append(")${connector}${prefix}EXISTS (\n")
             append("    SELECT 1 FROM entity_relationships $invAlias\n")
-            append("    WHERE $invAlias.target_entity_id = $entityAlias.id AND $invAlias.deleted = false\n")
+            append("    WHERE $invAlias.target_id = $entityAlias.id AND $invAlias.deleted = false\n")
             append("))")
         }
         return SqlFragment(sql = sql, parameters = emptyMap())
@@ -408,13 +408,13 @@ class RelationshipSqlGenerator {
  */
 private fun QueryDirection.correlationColumn(): String = when (this) {
     QueryDirection.FORWARD -> "source_entity_id"
-    QueryDirection.INVERSE -> "target_entity_id"
+    QueryDirection.INVERSE -> "target_id"
 }
 
 /**
  * Returns the opposite column (the "related" side).
  */
 private fun QueryDirection.oppositeColumn(): String = when (this) {
-    QueryDirection.FORWARD -> "target_entity_id"
+    QueryDirection.FORWARD -> "target_id"
     QueryDirection.INVERSE -> "source_entity_id"
 }

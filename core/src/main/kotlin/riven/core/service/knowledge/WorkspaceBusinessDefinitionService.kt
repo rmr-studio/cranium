@@ -138,7 +138,7 @@ class WorkspaceBusinessDefinitionService(
                 sourceType = existing.sourceType,
                 sourceIntegrationId = existing.sourceIntegrationId,
                 entityTypeRefs = request.entityTypeRefs.toSet(),
-                attributeRefs = request.attributeRefs.toSet(),
+                attributeRefs = request.attributeRefs,
                 linkSource = SourceType.USER_CREATED,
             ),
         )
@@ -225,7 +225,7 @@ class WorkspaceBusinessDefinitionService(
                 // entity-layer idempotent lookup.
                 sourceExternalId = "user:$normalizedTerm",
                 entityTypeRefs = request.entityTypeRefs.toSet(),
-                attributeRefs = request.attributeRefs.toSet(),
+                attributeRefs = request.attributeRefs,
                 linkSource = SourceType.USER_CREATED,
             ),
         )

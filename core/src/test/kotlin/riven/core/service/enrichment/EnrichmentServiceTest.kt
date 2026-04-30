@@ -148,7 +148,7 @@ class EnrichmentServiceTest : BaseServiceTest() {
     private fun captureUpsertedSnapshot(
         entityId: UUID,
         workspaceId: UUID,
-    ): riven.core.models.connotation.ConnotationMetadataSnapshot {
+    ): riven.core.models.connotation.EntityMetadataSnapshot {
         val jsonCaptor = argumentCaptor<String>()
         verify(entityConnotationRepository).upsertByEntityId(
             eq(entityId),
@@ -158,7 +158,7 @@ class EnrichmentServiceTest : BaseServiceTest() {
         )
         return objectMapper.readValue(
             jsonCaptor.firstValue,
-            riven.core.models.connotation.ConnotationMetadataSnapshot::class.java,
+            riven.core.models.connotation.EntityMetadataSnapshot::class.java,
         )
     }
 

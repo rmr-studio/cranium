@@ -115,8 +115,8 @@ class EntityRelationshipService(
     }
 
     /**
-     * System-side replace: drives all rows for `(sourceId, definitionId)` toward the desired
-     * `targetEntityIds` set, hard-deleting absent targets and inserting new ones.
+     * System-side replace: drives all rows for `(sourceId, definitionId, targetKind)` toward
+     * the desired `targetIds` set, hard-deleting absent targets and inserting new ones.
      *
      * Used by the knowledge ingestion layer ([riven.core.service.knowledge.AbstractKnowledgeEntityIngestionService])
      * to reconcile system relationships (`ATTACHMENT`, `MENTION`, `DEFINES`) without going
@@ -124,31 +124,51 @@ class EntityRelationshipService(
      * consumers can distinguish user-authored vs integration-sourced edges.
      *
      * `targetKind` distinguishes ENTITY edges (default) from glossary-style `DEFINES` edges
-     * pointing at an entity type or attribute (`ENTITY_TYPE` / `ATTRIBUTE`). Persisted on
-     * the `entity_relationships.target_kind` column so projectors can split DEFINES rows
-     * by target shape.
+     * pointing at an entity type, attribute, or relationship definition. Persisted on the
+     * `entity_relationships.target_kind` column so projectors can split DEFINES rows by
+     * target shape.
+     *
+     * For sub-reference target_kinds (ATTRIBUTE, RELATIONSHIP), [targetParentId] is the owning
+     * entity_type id and is required by the entity_relationships CHECK constraint. NULL for
+     * ENTITY / ENTITY_TYPE.
      */
     @Transactional
     fun replaceForDefinition(
         workspaceId: UUID,
         sourceId: UUID,
         definitionId: UUID,
-        targetEntityIds: Set<UUID>,
+        targetIds: Set<UUID>,
         linkSource: SourceType,
         targetKind: RelationshipTargetKind = RelationshipTargetKind.ENTITY,
+        targetParentId: UUID? = null,
     ) {
+        val parentRequired = targetKind == RelationshipTargetKind.ATTRIBUTE ||
+            targetKind == RelationshipTargetKind.RELATIONSHIP
+        if (parentRequired && targetIds.isNotEmpty()) {
+            require(targetParentId != null) {
+                "targetParentId must be non-null when inserting ATTRIBUTE/RELATIONSHIP rows " +
+                    "(got targetKind=$targetKind)"
+            }
+        }
+        if (!parentRequired) {
+            require(targetParentId == null) {
+                "targetParentId must be null for ENTITY/ENTITY_TYPE target kinds " +
+                    "(got targetKind=$targetKind, targetParentId=$targetParentId)"
+            }
+        }
+
         val existing = entityRelationshipRepository.findAllBySourceIdAndDefinitionIdForUpdate(sourceId, definitionId)
             .filter { it.targetKind == targetKind }
         val existingTargetIds = existing.map { it.targetId }.toSet()
 
-        val toRemove = existingTargetIds - targetEntityIds
+        val toRemove = existingTargetIds - targetIds
         if (toRemove.isNotEmpty()) {
             entityRelationshipRepository.deleteAllBySourceIdAndDefinitionIdAndTargetKindAndTargetIdIn(
                 sourceId, definitionId, targetKind, toRemove,
             )
         }
 
-        val toAdd = targetEntityIds - existingTargetIds
+        val toAdd = targetIds - existingTargetIds
         if (toAdd.isEmpty()) return
 
         val newRelationships = toAdd.map { targetId ->
@@ -156,6 +176,7 @@ class EntityRelationshipService(
                 workspaceId = workspaceId,
                 sourceId = sourceId,
                 targetId = targetId,
+                targetParentId = targetParentId,
                 definitionId = definitionId,
                 linkSource = linkSource,
                 targetKind = targetKind,

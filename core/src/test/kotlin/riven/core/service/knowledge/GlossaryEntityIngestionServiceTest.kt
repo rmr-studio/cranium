@@ -15,6 +15,7 @@ import riven.core.enums.entity.EntityRelationshipCardinality
 import riven.core.enums.entity.RelationshipTargetKind
 import riven.core.enums.entity.SystemRelationshipType
 import riven.core.enums.integration.SourceType
+import riven.core.models.knowledge.AttributeRef
 import riven.core.repository.entity.EntityRepository
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.service.entity.EntityService
@@ -130,7 +131,7 @@ class GlossaryEntityIngestionServiceTest {
             isCustomised = false,
             sourceExternalId = "legacy:abc",
             entityTypeRefs = setOf(typeRefA, typeRefB),
-            attributeRefs = setOf(attrRef),
+            attributeRefs = listOf(AttributeRef(attributeId = attrRef, ownerEntityTypeId = typeRefA)),
             mentionedEntityIds = setOf(mentionTarget),
         )
 
@@ -164,25 +165,28 @@ class GlossaryEntityIngestionServiceTest {
             workspaceId = eq(workspaceId),
             sourceEntityId = eq(requireNotNull(savedEntity.id)),
             relationshipDefinitionId = eq(definesDefinitionId),
-            targetEntityIds = eq(setOf(typeRefA, typeRefB)),
+            targetIds = eq(setOf(typeRefA, typeRefB)),
             linkSource = eq(SourceType.USER_CREATED),
             targetKind = eq(RelationshipTargetKind.ENTITY_TYPE),
+            targetParentId = eq(null),
         )
         verify(entityService).replaceRelationshipsInternal(
             workspaceId = eq(workspaceId),
             sourceEntityId = eq(requireNotNull(savedEntity.id)),
             relationshipDefinitionId = eq(definesDefinitionId),
-            targetEntityIds = eq(setOf(attrRef)),
+            targetIds = eq(setOf(attrRef)),
             linkSource = eq(SourceType.USER_CREATED),
             targetKind = eq(RelationshipTargetKind.ATTRIBUTE),
+            targetParentId = eq(typeRefA),
         )
         verify(entityService).replaceRelationshipsInternal(
             workspaceId = eq(workspaceId),
             sourceEntityId = eq(requireNotNull(savedEntity.id)),
             relationshipDefinitionId = eq(mentionDefinitionId),
-            targetEntityIds = eq(setOf(mentionTarget)),
+            targetIds = eq(setOf(mentionTarget)),
             linkSource = eq(SourceType.USER_CREATED),
             targetKind = eq(RelationshipTargetKind.ENTITY),
+            targetParentId = eq(null),
         )
     }
 
@@ -238,23 +242,26 @@ class GlossaryEntityIngestionServiceTest {
         verify(entityService).replaceRelationshipsInternal(
             workspaceId = eq(workspaceId), sourceEntityId = any(),
             relationshipDefinitionId = eq(definesDefinitionId),
-            targetEntityIds = eq(emptySet()),
+            targetIds = eq(emptySet()),
             linkSource = eq(SourceType.USER_CREATED),
             targetKind = eq(RelationshipTargetKind.ENTITY_TYPE),
+            targetParentId = eq(null),
         )
         verify(entityService).replaceRelationshipsInternal(
             workspaceId = eq(workspaceId), sourceEntityId = any(),
             relationshipDefinitionId = eq(definesDefinitionId),
-            targetEntityIds = eq(emptySet()),
+            targetIds = eq(emptySet()),
             linkSource = eq(SourceType.USER_CREATED),
             targetKind = eq(RelationshipTargetKind.ATTRIBUTE),
+            targetParentId = eq(null),
         )
         verify(entityService).replaceRelationshipsInternal(
             workspaceId = eq(workspaceId), sourceEntityId = any(),
             relationshipDefinitionId = eq(mentionDefinitionId),
-            targetEntityIds = eq(emptySet()),
+            targetIds = eq(emptySet()),
             linkSource = eq(SourceType.USER_CREATED),
             targetKind = eq(RelationshipTargetKind.ENTITY),
+            targetParentId = eq(null),
         )
     }
 }

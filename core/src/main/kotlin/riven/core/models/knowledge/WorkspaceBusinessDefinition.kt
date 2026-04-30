@@ -17,7 +17,7 @@ data class WorkspaceBusinessDefinition(
     val status: DefinitionStatus,
     val source: DefinitionSource,
     val entityTypeRefs: List<UUID>,
-    val attributeRefs: List<UUID>,
+    val attributeRefs: List<AttributeRef>,
     val isCustomized: Boolean,
     val version: Int,
     val createdBy: UUID?,

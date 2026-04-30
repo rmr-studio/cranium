@@ -4,6 +4,7 @@ import riven.core.entity.knowledge.WorkspaceBusinessDefinitionEntity
 import riven.core.enums.knowledge.DefinitionCategory
 import riven.core.enums.knowledge.DefinitionSource
 import riven.core.enums.knowledge.DefinitionStatus
+import riven.core.models.knowledge.AttributeRef
 import java.util.*
 
 object BusinessDefinitionFactory {
@@ -19,7 +20,7 @@ object BusinessDefinitionFactory {
         source: DefinitionSource = DefinitionSource.MANUAL,
         compiledParams: Map<String, Any>? = null,
         entityTypeRefs: List<UUID> = emptyList(),
-        attributeRefs: List<UUID> = emptyList(),
+        attributeRefs: List<AttributeRef> = emptyList(),
         isCustomized: Boolean = false,
         version: Int = 0,
         deleted: Boolean = false,

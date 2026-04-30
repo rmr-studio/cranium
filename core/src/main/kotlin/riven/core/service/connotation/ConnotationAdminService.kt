@@ -45,7 +45,7 @@ class ConnotationAdminService(
      * @return Number of ENRICHMENT queue rows inserted.
      */
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
-    fun reanalyzeWhereVersionMismatch(
+    fun reanalyzeWhereMetadataVersionMismatch(
         metadataType: ConnotationMetadataType,
         tier: AnalysisTier,
         workspaceId: UUID,

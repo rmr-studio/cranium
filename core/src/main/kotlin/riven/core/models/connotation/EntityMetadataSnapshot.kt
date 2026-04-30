@@ -27,12 +27,12 @@ import java.time.ZonedDateTime
  * @property embeddedAt Timestamp the snapshot was assembled and persisted.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class ConnotationMetadataSnapshot(
+data class EntityMetadataSnapshot(
     @param:JsonProperty("snapshotVersion")
     val snapshotVersion: String = "v1",
 
     @param:JsonProperty("metadata")
-    val metadata: ConnotationMetadata,
+    val metadata: EntityMetadata,
 
     @param:JsonProperty("embeddedAt")
     val embeddedAt: ZonedDateTime,
@@ -46,7 +46,7 @@ data class ConnotationMetadataSnapshot(
  * configuration; RELATIONAL and STRUCTURAL are deterministic and always populated post-Phase-A.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class ConnotationMetadata(
+data class EntityMetadata(
     @param:JsonProperty("SENTIMENT")
     val sentiment: SentimentMetadata? = null,
 

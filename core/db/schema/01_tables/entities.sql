@@ -176,19 +176,30 @@ CREATE TABLE IF NOT EXISTS public.entity_relationships
     "id"                         UUID PRIMARY KEY         DEFAULT uuid_generate_v4(),
     "workspace_id"               UUID    NOT NULL REFERENCES workspaces (id) ON DELETE CASCADE,
     "source_entity_id"           UUID    NOT NULL REFERENCES entities (id) ON DELETE CASCADE,
-    -- NOTE: target_entity_id has NO foreign key — when target_kind != 'ENTITY' the row references
-    -- a row in entity_types or an attribute UUID inside entity_types.attribute_key_mapping rather
+    -- NOTE: target_id has NO foreign key — when target_kind != 'ENTITY' the row references
+    -- a row in entity_types, an attribute UUID, or a relationship_definition UUID rather
     -- than an entities row. Referential integrity for non-ENTITY targets is enforced at the
     -- service layer (knowledge ingestion / projector) instead of by a database constraint.
-    "target_entity_id"           UUID    NOT NULL,
+    "target_id"                  UUID    NOT NULL,
     "relationship_definition_id" UUID    NOT NULL REFERENCES relationship_definitions (id) ON DELETE RESTRICT,
 
-    -- Kind of object the target_entity_id points at. ENTITY (default) is an entities row,
-    -- ENTITY_TYPE is an entity_types row, ATTRIBUTE is an attribute UUID on an entity type.
+    -- Kind of object the target_id points at. ENTITY (default) is an entities row,
+    -- ENTITY_TYPE is an entity_types row, ATTRIBUTE is an attribute UUID on an entity type,
+    -- RELATIONSHIP is a relationship_definition UUID owned by an entity type.
     -- Used by glossary DEFINES edges to point at structural targets without inflating the
     -- entities table with synthetic rows.
     "target_kind"                VARCHAR(20) NOT NULL     DEFAULT 'ENTITY'
-        CHECK (target_kind IN ('ENTITY', 'ENTITY_TYPE', 'ATTRIBUTE')),
+        CHECK (target_kind IN ('ENTITY', 'ENTITY_TYPE', 'ATTRIBUTE', 'RELATIONSHIP')),
+
+    -- For sub-reference target_kinds (ATTRIBUTE, RELATIONSHIP), this is the owning entity_type
+    -- the attribute or relationship belongs to. NULL for ENTITY and ENTITY_TYPE target_kinds
+    -- (where target_id is itself a top-level identifier). Enables efficient inbound queries
+    -- of "DEFINES edges targeting attribute X owned by entity_type Y".
+    "target_parent_id"           UUID             REFERENCES entity_types (id) ON DELETE RESTRICT,
+    CONSTRAINT entity_relationships_target_parent_kind_chk CHECK (
+        (target_kind IN ('ATTRIBUTE', 'RELATIONSHIP') AND target_parent_id IS NOT NULL)
+     OR (target_kind IN ('ENTITY', 'ENTITY_TYPE')      AND target_parent_id IS NULL)
+    ),
 
     -- Semantic context for fallback connections (why these entities are linked)
     "semantic_context"           TEXT                     DEFAULT NULL,

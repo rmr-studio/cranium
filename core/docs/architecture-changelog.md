@@ -1,5 +1,26 @@
 # Architecture Changelog
 
+## [2026-04-30] — Knowledge-plane assembly PR1 (Phase -1 rename + Phase 0 schema cleanup)
+
+**Domains affected:** Connotation (type rename), Entity (entity_relationships polymorphism cleanup), Knowledge (glossary attribute refs carry parent type)
+
+**What changed:**
+
+- Renamed `ConnotationMetadataSnapshot` → `EntityMetadataSnapshot` and `ConnotationMetadata` → `EntityMetadata`. File path moved to `models/connotation/EntityMetadataSnapshot.kt`. `entity_connotation` table name + `connotation_metadata` JSONB column intentionally untouched (schema-level rename out of plan scope).
+- Renamed `ConnotationAdminService.reanalyzeWhereVersionMismatch` → `reanalyzeWhereMetadataVersionMismatch`. Dropped "envelope"/"axis" vocabulary from KDoc, log lines, and test descriptions in renamed-type touchpoints.
+- Renamed `entity_relationships.target_entity_id` column → `target_id`. Added `target_parent_id UUID NULL REFERENCES entity_types(id) ON DELETE RESTRICT`, populated when `target_kind IN ('ATTRIBUTE','RELATIONSHIP')`, NULL otherwise. CHECK constraint `entity_relationships_target_parent_kind_chk` enforces conditional nullability. Partial index `idx_entity_relationships_reverse_target` on `(workspace_id, target_id, target_kind) WHERE target_kind <> 'ENTITY' AND deleted = false`.
+- Added `RELATIONSHIP` value to `RelationshipTargetKind` enum and the `entity_relationships.target_kind` CHECK list. Used by future glossary `DEFINES` edges that point at relationship definitions.
+- Updated `EntityRelationshipEntity` JPA mapping (column rename + `target_parent_id`), `EntityRelationship` domain model (added `targetId`, `targetParentId`, `targetKind`), and all `EntityRelationshipRepository` JPQL/native queries (column rename inside native SQL).
+- Updated `RelationshipSqlGenerator` (entity-query SQL) to emit `target_id` instead of `target_entity_id` in JOIN/WHERE clauses; entity_constraints.sql unique index renamed accordingly.
+- Refactored `KnowledgeRelationshipBatch`: renamed `targetEntityIds` → `targetIds`, added `targetParentId: UUID?`. `EntityService.replaceRelationshipsInternal` and `EntityRelationshipService.replaceForDefinition` propagate the parent through to inserts and validate parent-required iff `targetKind IN (ATTRIBUTE, RELATIONSHIP)`.
+- Refactored glossary attribute references: `attributeRefs: List<UUID>` → `List<AttributeRef>` where `AttributeRef(attributeId, ownerEntityTypeId)`. Cascaded through `WorkspaceBusinessDefinition` (model + JPA + JSONB column shape), request DTOs (`CreateBusinessDefinitionRequest`, `UpdateBusinessDefinitionRequest`), `GlossaryEntityIngestionService` input + relationshipBatches (groups attributes by owning entity_type per batch), `GlossaryEntityProjector` (reads `target_parent_id` back into `AttributeRef` instances), and the glossary backfill activity.
+
+**New cross-domain dependencies:** no — refactor stays within existing Connotation / Entity / Knowledge boundaries.
+
+**New components introduced:**
+
+- `AttributeRef` (in `riven.core.models.knowledge`) — pair-shaped reference carrying `attributeId` + `ownerEntityTypeId` for any consumer that needs to materialise `entity_relationships` rows with `target_kind = 'ATTRIBUTE'` and a non-null `target_parent_id`.
+
 ## [2026-04-29] — Entity Connotation Pipeline Phase A (Polymorphic Semantic Snapshot)
 
 **Domains affected:** Knowledge (Enrichment Pipeline extended with snapshot persistence), Catalog (manifest reconciliation hook), Workflows (Temporal activity rename), Connotation (new sibling subdomain populated)

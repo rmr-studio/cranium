@@ -114,7 +114,7 @@ class GlossaryBackfillActivitiesImpl(
                 isCustomised = definition.isCustomized,
                 sourceExternalId = "legacy:${requireNotNull(definition.id) { "definition.id" }}",
                 entityTypeRefs = definition.entityTypeRefs.toSet(),
-                attributeRefs = definition.attributeRefs.toSet(),
+                attributeRefs = definition.attributeRefs,
             ),
         )
         return MigrationOutcome.MIGRATED

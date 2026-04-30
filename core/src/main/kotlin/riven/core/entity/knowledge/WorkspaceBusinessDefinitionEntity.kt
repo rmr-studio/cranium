@@ -8,6 +8,7 @@ import riven.core.entity.util.AuditableSoftDeletableEntity
 import riven.core.enums.knowledge.DefinitionCategory
 import riven.core.enums.knowledge.DefinitionSource
 import riven.core.enums.knowledge.DefinitionStatus
+import riven.core.models.knowledge.AttributeRef
 import riven.core.models.knowledge.WorkspaceBusinessDefinition
 import java.util.*
 
@@ -62,7 +63,7 @@ data class WorkspaceBusinessDefinitionEntity(
 
     @Type(JsonBinaryType::class)
     @Column(name = "attribute_refs", columnDefinition = "jsonb", nullable = false)
-    var attributeRefs: List<UUID> = emptyList(),
+    var attributeRefs: List<AttributeRef> = emptyList(),
 
     @Column(name = "is_customised", nullable = false)
     var isCustomized: Boolean = false,

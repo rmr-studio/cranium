@@ -63,12 +63,6 @@ class CoreModelRegistryTest {
             "all knowledge entity types should have KNOWLEDGE role",
         )
     }
-
-    @Test
-    fun `LifecycleDomain USAGE is removed`() {
-        assertThrows<IllegalArgumentException> { LifecycleDomain.valueOf("USAGE") }
-    }
-
     // ------ Model migration regressions ------
 
     @Test

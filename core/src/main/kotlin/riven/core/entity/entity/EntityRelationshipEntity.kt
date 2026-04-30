@@ -16,7 +16,7 @@ import java.util.*
     name = "entity_relationships",
     indexes = [
         Index(name = "idx_entity_relationships_source", columnList = "workspace_id, source_entity_id"),
-        Index(name = "idx_entity_relationships_target", columnList = "workspace_id, target_entity_id"),
+        Index(name = "idx_entity_relationships_target", columnList = "workspace_id, target_id"),
         Index(name = "idx_entity_relationships_definition", columnList = "relationship_definition_id"),
     ]
 )
@@ -33,8 +33,16 @@ data class EntityRelationshipEntity(
     @Column(name = "source_entity_id", nullable = false, columnDefinition = "uuid")
     val sourceId: UUID,
 
-    @Column(name = "target_entity_id", nullable = false, columnDefinition = "uuid")
+    @Column(name = "target_id", nullable = false, columnDefinition = "uuid")
     val targetId: UUID,
+
+    /**
+     * For sub-reference [targetKind]s ([RelationshipTargetKind.ATTRIBUTE], [RelationshipTargetKind.RELATIONSHIP])
+     * this is the owning entity_type id. NULL for [RelationshipTargetKind.ENTITY] / [RelationshipTargetKind.ENTITY_TYPE].
+     * Database CHECK enforces the conditional nullability.
+     */
+    @Column(name = "target_parent_id", columnDefinition = "uuid")
+    val targetParentId: UUID? = null,
 
     @Column(name = "relationship_definition_id", nullable = false, columnDefinition = "uuid")
     val definitionId: UUID,
@@ -49,9 +57,10 @@ data class EntityRelationshipEntity(
     /**
      * What kind of object [targetId] points at. Defaults to [RelationshipTargetKind.ENTITY]
      * (an entities row); knowledge-domain edges (e.g. glossary `DEFINES`) may point at an
-     * entity type or a single attribute on an entity type instead. The `entity_relationships`
-     * row carries no FK on `target_entity_id` precisely so non-ENTITY targets can reference
-     * `entity_types` / attribute UUIDs without violating referential integrity.
+     * entity type, a single attribute on an entity type, or a relationship definition
+     * instead. The `entity_relationships` row carries no FK on `target_id` precisely so
+     * non-ENTITY targets can reference `entity_types` / attribute UUIDs / relationship
+     * definition UUIDs without violating referential integrity.
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "target_kind", nullable = false)
@@ -69,7 +78,9 @@ data class EntityRelationshipEntity(
             workspaceId = this.workspaceId,
             definitionId = this.definitionId,
             sourceEntityId = this.sourceId,
-            targetEntityId = this.targetId,
+            targetId = this.targetId,
+            targetParentId = this.targetParentId,
+            targetKind = this.targetKind,
             semanticContext = this.semanticContext,
             linkSource = this.linkSource,
             createdAt = if (audit) this.createdAt else null,

@@ -217,7 +217,7 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
             deleted_at = CURRENT_TIMESTAMP
         WHERE
             (source_entity_id = ANY(:ids)
-            or target_entity_id = ANY(:ids))
+            or target_id = ANY(:ids))
             AND workspace_id = :workspaceId
             AND deleted = false
         RETURNING *
@@ -246,7 +246,7 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
                 e.type_key as typeKey,
                 COALESCE(ea.value #>> '{}', e.id::text) as label
             FROM entity_relationships r
-            JOIN entities e ON r.target_entity_id = e.id
+            JOIN entities e ON r.target_id = e.id
             LEFT JOIN entity_attributes ea ON ea.entity_id = e.id AND ea.attribute_id = e.identifier_key AND ea.deleted = false
             JOIN relationship_definitions rd ON r.relationship_definition_id = rd.id AND rd.deleted = false
             WHERE r.source_entity_id = :sourceId
@@ -274,7 +274,7 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
                 e.type_key as typeKey,
                 COALESCE(ea.value #>> '{}', e.id::text) as label
             FROM entity_relationships r
-            JOIN entities e ON r.target_entity_id = e.id
+            JOIN entities e ON r.target_id = e.id
             LEFT JOIN entity_attributes ea ON ea.entity_id = e.id AND ea.attribute_id = e.identifier_key AND ea.deleted = false
             JOIN relationship_definitions rd ON r.relationship_definition_id = rd.id AND rd.deleted = false
             WHERE r.source_entity_id = ANY(:ids)
@@ -289,7 +289,7 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
     /**
      * Find inverse entity links where the given entity is a target.
      *
-     * The sourceEntityId column aliases r.target_entity_id (the entity being viewed),
+     * The sourceEntityId column aliases r.target_id (the entity being viewed),
      * keeping the EntityLink contract consistent.
      */
     @Query(
@@ -298,7 +298,7 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
                 e.id as id,
                 e.workspace_id as workspaceId,
                 r.relationship_definition_id as definitionId,
-                r.target_entity_id as sourceEntityId,
+                r.target_id as sourceEntityId,
                 e.icon_type as iconType,
                 e.icon_colour as iconColour,
                 e.type_key as typeKey,
@@ -307,9 +307,9 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
             JOIN entities e ON r.source_entity_id = e.id
             LEFT JOIN entity_attributes ea ON ea.entity_id = e.id AND ea.attribute_id = e.identifier_key AND ea.deleted = false
             JOIN relationship_definitions rd ON r.relationship_definition_id = rd.id AND rd.deleted = false
-            JOIN entities target_e ON r.target_entity_id = target_e.id
+            JOIN entities target_e ON r.target_id = target_e.id
             LEFT JOIN relationship_target_rules rtr ON rtr.relationship_definition_id = r.relationship_definition_id
-            WHERE r.target_entity_id = :targetId
+            WHERE r.target_id = :targetId
             AND (
                 rtr.target_entity_type_id = target_e.type_id
                 OR rd.system_type = :systemType
@@ -331,7 +331,7 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
                 e.id as id,
                 e.workspace_id as workspaceId,
                 r.relationship_definition_id as definitionId,
-                r.target_entity_id as sourceEntityId,
+                r.target_id as sourceEntityId,
                 e.icon_type as iconType,
                 e.icon_colour as iconColour,
                 e.type_key as typeKey,
@@ -341,8 +341,8 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
             LEFT JOIN entity_attributes ea ON ea.entity_id = e.id AND ea.attribute_id = e.identifier_key AND ea.deleted = false
             JOIN relationship_definitions rd ON r.relationship_definition_id = rd.id AND rd.deleted = false
             LEFT JOIN relationship_target_rules rtr ON rtr.relationship_definition_id = r.relationship_definition_id
-            JOIN entities target_e ON r.target_entity_id = target_e.id
-            WHERE r.target_entity_id = ANY(:ids)
+            JOIN entities target_e ON r.target_id = target_e.id
+            WHERE r.target_id = ANY(:ids)
             AND (
                 rtr.target_entity_type_id = target_e.type_id
                 OR rd.system_type = :systemType

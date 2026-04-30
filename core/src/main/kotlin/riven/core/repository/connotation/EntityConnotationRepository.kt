@@ -40,7 +40,7 @@ interface EntityConnotationRepository : JpaRepository<EntityConnotationEntity, U
      *
      * @param entityId The entity UUID this snapshot describes
      * @param workspaceId The workspace the entity belongs to
-     * @param snapshotJson The serialised [riven.core.models.connotation.ConnotationMetadataSnapshot]
+     * @param snapshotJson The serialised [riven.core.models.connotation.EntityMetadataSnapshot]
      * @param now The timestamp to write into `created_at` (insert path) and `updated_at` (both paths)
      * @return Number of rows affected (always 1)
      */

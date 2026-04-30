@@ -9,6 +9,7 @@ import riven.core.enums.knowledge.DefinitionCategory
 import riven.core.enums.knowledge.DefinitionSource
 import riven.core.enums.knowledge.DefinitionStatus
 import riven.core.models.entity.payload.EntityAttributePrimitivePayload
+import riven.core.models.knowledge.AttributeRef
 import riven.core.models.knowledge.WorkspaceBusinessDefinition
 import riven.core.repository.entity.EntityRelationshipRepository
 import riven.core.repository.entity.EntityRepository
@@ -122,11 +123,20 @@ class GlossaryEntityProjector(
      * `target_kind` to populate the legacy [WorkspaceBusinessDefinition.entityTypeRefs]
      * and [WorkspaceBusinessDefinition.attributeRefs] lists.
      */
-    private fun readDefinesEdges(sourceId: UUID): Pair<List<UUID>, List<UUID>> {
+    private fun readDefinesEdges(sourceId: UUID): Pair<List<UUID>, List<AttributeRef>> {
         val rows = entityRelationshipRepository
             .findBySourceIdAndDefinitionSystemType(sourceId, SystemRelationshipType.DEFINES)
         val typeRefs = rows.filter { it.targetKind == RelationshipTargetKind.ENTITY_TYPE }.map { it.targetId }
-        val attrRefs = rows.filter { it.targetKind == RelationshipTargetKind.ATTRIBUTE }.map { it.targetId }
+        val attrRefs = rows
+            .filter { it.targetKind == RelationshipTargetKind.ATTRIBUTE }
+            .map { row ->
+                AttributeRef(
+                    attributeId = row.targetId,
+                    ownerEntityTypeId = requireNotNull(row.targetParentId) {
+                        "ATTRIBUTE-kind relationship row ${row.id} missing target_parent_id"
+                    },
+                )
+            }
         return typeRefs to attrRefs
     }
 

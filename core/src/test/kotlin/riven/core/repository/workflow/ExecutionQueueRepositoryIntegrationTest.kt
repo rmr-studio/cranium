@@ -33,8 +33,8 @@ import riven.core.entity.connotation.EntityConnotationEntity
 import riven.core.enums.connotation.ConnotationStatus
 import riven.core.enums.workflow.ExecutionJobType
 import riven.core.enums.workflow.ExecutionQueueStatus
-import riven.core.models.connotation.ConnotationMetadata
-import riven.core.models.connotation.ConnotationMetadataSnapshot
+import riven.core.models.connotation.EntityMetadata
+import riven.core.models.connotation.EntityMetadataSnapshot
 import riven.core.models.connotation.SentimentMetadata
 import riven.core.repository.connotation.EntityConnotationRepository
 import riven.core.service.util.SchemaInitializer
@@ -233,9 +233,9 @@ class ExecutionQueueRepositoryIntegrationTest {
     }
 
     private fun saveMetadata(entityId: UUID, sentimentVersion: String?) {
-        val snapshot = ConnotationMetadataSnapshot(
+        val snapshot = EntityMetadataSnapshot(
             snapshotVersion = "v1",
-            metadata = ConnotationMetadata(
+            metadata = EntityMetadata(
                 sentiment = SentimentMetadata(
                     analysisVersion = sentimentVersion,
                     status = ConnotationStatus.NOT_APPLICABLE,
@@ -291,7 +291,7 @@ class ExecutionQueueRepositoryIntegrationTest {
     }
 
     /**
-     * Envelopes that have never been analysed lack an `analysisVersion` stamp (null).
+     * Snapshots that have never been analysed lack an `analysisVersion` stamp (null).
      * `IS DISTINCT FROM` treats null as different from any concrete version, so these
      * rows must also be enqueued. Without `IS DISTINCT FROM` (i.e. plain `<>`) the
      * comparison would yield SQL null and the row would silently be skipped.
@@ -415,8 +415,8 @@ class ExecutionQueueRepositoryIntegrationTest {
             otherEntityId, otherWorkspaceId, otherEntityTypeId,
             "queue_repo_other_type", identifierKey,
         )
-        val snapshot2 = ConnotationMetadataSnapshot(
-            metadata = ConnotationMetadata(
+        val snapshot2 = EntityMetadataSnapshot(
+            metadata = EntityMetadata(
                 sentiment = SentimentMetadata(
                     analysisVersion = "v0",
                     status = ConnotationStatus.NOT_APPLICABLE,

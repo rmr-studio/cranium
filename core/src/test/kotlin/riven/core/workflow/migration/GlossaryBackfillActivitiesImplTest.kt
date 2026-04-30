@@ -14,6 +14,7 @@ import org.springframework.transaction.support.TransactionCallback
 import org.springframework.transaction.support.TransactionTemplate
 import riven.core.enums.knowledge.DefinitionCategory
 import riven.core.enums.knowledge.DefinitionSource
+import riven.core.models.knowledge.AttributeRef
 import riven.core.repository.knowledge.WorkspaceBusinessDefinitionRepository
 import riven.core.service.knowledge.GlossaryEntityIngestionService
 import riven.core.service.util.factory.entity.EntityFactory
@@ -57,7 +58,7 @@ class GlossaryBackfillActivitiesImplTest {
     fun `migrateBatch upserts a GlossaryIngestionInput for each definition`() {
         val definitionId = UUID.randomUUID()
         val typeRef = UUID.randomUUID()
-        val attrRef = UUID.randomUUID()
+        val attrRef = AttributeRef(attributeId = UUID.randomUUID(), ownerEntityTypeId = typeRef)
         val legacy = BusinessDefinitionFactory.createDefinition(
             id = definitionId,
             workspaceId = workspaceId,

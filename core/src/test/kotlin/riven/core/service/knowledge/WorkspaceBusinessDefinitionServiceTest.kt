@@ -21,6 +21,7 @@ import riven.core.enums.knowledge.DefinitionStatus
 import riven.core.enums.workspace.WorkspaceRoles
 import riven.core.exceptions.ConflictException
 import riven.core.exceptions.NotFoundException
+import riven.core.models.knowledge.AttributeRef
 import riven.core.models.knowledge.WorkspaceBusinessDefinition
 import riven.core.models.request.knowledge.CreateBusinessDefinitionRequest
 import riven.core.models.request.knowledge.UpdateBusinessDefinitionRequest
@@ -85,7 +86,7 @@ class WorkspaceBusinessDefinitionServiceTest : BaseServiceTest() {
         category: DefinitionCategory = DefinitionCategory.METRIC,
         source: DefinitionSource = DefinitionSource.MANUAL,
         entityTypeRefs: List<UUID> = emptyList(),
-        attributeRefs: List<UUID> = emptyList(),
+        attributeRefs: List<AttributeRef> = emptyList(),
     ): WorkspaceBusinessDefinition {
         val def = WorkspaceBusinessDefinition(
             id = id,

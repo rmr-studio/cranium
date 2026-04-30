@@ -43,13 +43,20 @@ CREATE INDEX IF NOT EXISTS idx_entity_relationships_workspace_source
 
 DROP INDEX IF EXISTS idx_entity_relationships_workspace_target;
 CREATE INDEX IF NOT EXISTS idx_entity_relationships_workspace_target
-    ON entity_relationships (workspace_id, target_entity_id)
+    ON entity_relationships (workspace_id, target_id)
     WHERE deleted = FALSE AND deleted_at IS NULL;
 
 DROP INDEX IF EXISTS idx_entity_relationships_definition;
 CREATE INDEX IF NOT EXISTS idx_entity_relationships_definition
     ON entity_relationships (relationship_definition_id)
     WHERE deleted = FALSE AND deleted_at IS NULL;
+
+-- Reverse-DEFINES lookup: incoming edges targeting an entity_type / attribute / relationship.
+-- Excludes ENTITY rows since those are covered by idx_entity_relationships_workspace_target.
+DROP INDEX IF EXISTS idx_entity_relationships_reverse_target;
+CREATE INDEX IF NOT EXISTS idx_entity_relationships_reverse_target
+    ON entity_relationships (workspace_id, target_id, target_kind)
+    WHERE target_kind <> 'ENTITY' AND deleted = FALSE;
 
 -- Entity Integration Source Indexes
 CREATE INDEX IF NOT EXISTS idx_entities_source_integration

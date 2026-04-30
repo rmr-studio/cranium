@@ -122,9 +122,10 @@ class NoteEntityIngestionServiceTest {
             workspaceId = eq(workspaceId),
             sourceEntityId = eq(requireNotNull(savedEntity.id)),
             relationshipDefinitionId = eq(systemDefinitionId),
-            targetEntityIds = eq(setOf(target1, target2)),
+            targetIds = eq(setOf(target1, target2)),
             linkSource = eq(SourceType.USER_CREATED),
             targetKind = eq(RelationshipTargetKind.ENTITY),
+            targetParentId = eq(null),
         )
     }
 }

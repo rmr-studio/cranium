@@ -1,0 +1,927 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - navigation [ref=e4]
+      - navigation [ref=e6]:
+        - generic [ref=e7]:
+          - generic [ref=e8]:
+            - link "riven" [ref=e9] [cursor=pointer]:
+              - /url: /
+              - img [ref=e10]
+              - generic [ref=e14]: riven
+            - navigation "Main" [ref=e16]:
+              - list [ref=e18]:
+                - link "Features" [ref=e19] [cursor=pointer]:
+                  - /url: /#features
+                  - generic [ref=e20]: Features
+                - listitem [ref=e21]:
+                  - button "Resources" [ref=e22]:
+                    - text: Resources
+                    - img [ref=e23]
+          - link "Join the waitlist" [ref=e26] [cursor=pointer]:
+            - /url: /#waitlist
+            - button "Join the waitlist" [ref=e30]:
+              - generic [ref=e31]: Join the waitlist
+    - main [ref=e32]:
+      - generic [ref=e33]:
+        - generic [ref=e50]:
+          - generic [ref=e51]:
+            - generic [ref=e55]: The proactive AI company brain for ecomm ops
+            - heading "The Brain That Never Sleeps" [level=1] [ref=e56]
+          - generic [ref=e57]: The connective layers bringing in context from every creak and crevice of your business, surfacing, executing monitoring and learning from the most impactful opportunities, trends, and risks, before they even arise.
+          - generic [ref=e58]:
+            - link "Talk To The Founders" [ref=e59] [cursor=pointer]:
+              - /url: https://calendly.com/jared-rmr/30min
+              - button "Talk To The Founders" [ref=e60]:
+                - img [ref=e61]
+                - text: Talk To The Founders
+            - button "Join the Waitlist" [ref=e63]:
+              - img [ref=e64]
+              - text: Join the Waitlist
+        - generic [ref=e69]:
+          - complementary [ref=e70]:
+            - generic [ref=e72]: Your workspace
+            - generic [ref=e74]: Threads
+            - generic [ref=e76]: Mentions
+            - generic [ref=e78]: Saved items
+            - generic [ref=e80]: More
+            - generic [ref=e82]: Channels
+            - generic [ref=e83]: Add channel
+            - generic [ref=e85]: Direct messages
+            - generic [ref=e87]: Apps
+            - generic [ref=e89]: Riven
+          - main [ref=e90]:
+            - generic [ref=e92]: Riven
+            - generic [ref=e94]:
+              - generic [ref=e95]:
+                - generic [ref=e96]: R
+                - generic [ref=e97]:
+                  - generic [ref=e98]:
+                    - generic [ref=e99]: Riven
+                    - generic [ref=e100]: APP
+                    - generic [ref=e101]: 11:56
+                  - paragraph [ref=e102]: "Morning. Here's what to start the week:"
+                  - list [ref=e103]:
+                    - listitem [ref=e104]: Reminder — you still owe @George feedback on the latest design ticket.
+                    - listitem [ref=e105]: Found 4 updates to the product requirements doc based on last week's meetings.
+                    - listitem [ref=e106]: "@Terry is waiting on review for the auth bug."
+                    - listitem [ref=e107]: Standup in 10 minutes — notes coming shortly.
+              - generic [ref=e108]:
+                - generic [ref=e109]: E
+                - generic [ref=e110]:
+                  - generic [ref=e111]:
+                    - generic [ref=e112]: Edwin R
+                    - generic [ref=e113]: 11:57
+                  - paragraph [ref=e114]: Thanks. What are the updates for that doc?
+        - generic [ref=e115]:
+          - generic [ref=e116]:
+            - generic [ref=e119]: One Platform
+            - generic [ref=e121]:
+              - heading "An End-to-End Platform From Signal to Agent Deployment." [level=2] [ref=e122]:
+                - text: An End-to-End Platform
+                - text: From Signal to Agent Deployment.
+              - paragraph [ref=e123]: Go from time-consuming process to working agent in minutes. Connect your data sources, ask questions in plain English, and deploy AI agents that take action on your behalf. All in one platform, no code required.
+            - generic [ref=e124]:
+              - button "Feedback Intelligence Agentic Product Ops" [pressed] [ref=e125]:
+                - img [ref=e127]
+                - generic [ref=e130]:
+                  - generic [ref=e131]: Feedback Intelligence
+                  - generic [ref=e132]: Agentic Product Ops
+              - button "Campaign Intelligence Competitive scraping, auto-optimise" [ref=e133]:
+                - img [ref=e135]
+                - generic [ref=e138]:
+                  - generic [ref=e139]: Campaign Intelligence
+                  - generic [ref=e140]: Competitive scraping, auto-optimise
+              - button "Cohort Retention Segment, salvage, win-back" [ref=e141]:
+                - img [ref=e143]
+                - generic [ref=e148]:
+                  - generic [ref=e149]: Cohort Retention
+                  - generic [ref=e150]: Segment, salvage, win-back
+          - generic [ref=e151]:
+            - img [ref=e153]
+            - generic [ref=e155]:
+              - generic [ref=e157]:
+                - article [ref=e158]:
+                  - generic [ref=e159]:
+                    - img [ref=e161]
+                    - heading "Cluster feedback themes" [level=3] [ref=e164]
+                  - list [ref=e165]:
+                    - listitem [ref=e166]:
+                      - generic [ref=e168]:
+                        - text: When
+                        - generic [ref=e169]:
+                          - img [ref=e170]
+                          - generic [ref=e173]: tickets
+                        - text: spike
+                        - generic [ref=e174]:
+                          - img [ref=e175]
+                          - generic [ref=e177]: ">3σ WoW"
+                    - listitem [ref=e178]:
+                      - generic [ref=e180]:
+                        - text: Cluster themes across
+                        - generic [ref=e181]:
+                          - img [ref=e182]
+                          - generic [ref=e185]: orders
+                        - text: and NPS detractors
+                    - listitem [ref=e186]:
+                      - generic [ref=e188]:
+                        - text: Flag
+                        - strong [ref=e189]: packaging damage
+                        - text: as top driver (68% of tickets)
+                - article [ref=e190]:
+                  - generic [ref=e191]:
+                    - img [ref=e193]
+                    - heading "Tag VIP + churn-risk" [level=3] [ref=e195]
+                  - list [ref=e196]:
+                    - listitem [ref=e197]:
+                      - generic [ref=e199]:
+                        - text: When
+                        - generic [ref=e200]:
+                          - img [ref=e201]
+                          - generic [ref=e204]: customer
+                        - text: matches AOV > $150, 5+ orders
+                    - listitem [ref=e205]:
+                      - generic [ref=e207]:
+                        - text: Apply
+                        - generic [ref=e208]:
+                          - img [ref=e209]
+                          - generic [ref=e211]: VIP
+                        - text: tag, route to senior CS in
+                        - generic [ref=e212]:
+                          - img [ref=e213]
+                          - generic [ref=e216]: Gorgias
+                    - listitem [ref=e217]:
+                      - generic [ref=e219]:
+                        - text: Cross-reference
+                        - generic [ref=e220]:
+                          - img [ref=e221]
+                          - generic [ref=e224]: Stripe
+                        - text: refund history for churn risk
+                - article [ref=e225]:
+                  - generic [ref=e226]:
+                    - img [ref=e228]
+                    - heading "Research + action brief" [level=3] [ref=e230]
+                  - list [ref=e231]:
+                    - listitem [ref=e232]:
+                      - generic [ref=e234]:
+                        - text: Research
+                        - generic [ref=e235]:
+                          - img [ref=e236]
+                          - generic [ref=e239]: competitor packaging
+                        - text: with web agent
+                    - listitem [ref=e240]:
+                      - generic [ref=e242]:
+                        - text: Estimate COGS impact
+                        - strong [ref=e243]: +$0.14/unit
+                        - text: and retained revenue
+                    - listitem [ref=e244]:
+                      - generic [ref=e246]:
+                        - text: Draft brief, queue
+                        - generic [ref=e247]:
+                          - img [ref=e248]
+                          - generic [ref=e251]: Klaviyo apology flow
+                        - text: on approval
+                - article [ref=e252]:
+                  - generic [ref=e253]:
+                    - img [ref=e255]
+                    - heading "Orchestrate with HITL" [level=3] [ref=e259]
+                  - list [ref=e260]:
+                    - listitem [ref=e261]:
+                      - generic [ref=e263]:
+                        - text: Create ops task, draft supplier RFP, update
+                        - generic [ref=e264]:
+                          - img [ref=e265]
+                          - generic [ref=e268]: CS FAQ
+                    - listitem [ref=e269]:
+                      - generic [ref=e271]:
+                        - text: Schedule 30-day review; re-run
+                        - generic [ref=e272]:
+                          - img [ref=e273]
+                          - generic [ref=e275]: agent
+                        - text: on new signal
+                    - listitem [ref=e276]:
+                      - generic [ref=e278]:
+                        - text: "HITL gradient:"
+                        - strong [ref=e279]: auto / weekly / per-change
+                        - text: approvals
+              - generic [ref=e284]:
+                - generic [ref=e286]:
+                  - generic [ref=e288]: Workspace
+                  - generic [ref=e289]:
+                    - generic [ref=e290]: /
+                    - generic [ref=e291]: Knowledge Base
+                - generic [ref=e292]:
+                  - generic [ref=e294]:
+                    - img [ref=e295]
+                    - generic [ref=e297]:
+                      - text: What is driving the packaging complaint spike across
+                      - generic [ref=e298]:
+                        - img [ref=e299]
+                        - generic [ref=e302]: Gorgias
+                      - text: and NPS this week?
+                  - generic [ref=e304]:
+                    - generic [ref=e305]: Retrieved
+                    - generic [ref=e306]:
+                      - generic [ref=e307]: Gorgias · 47 tickets
+                      - generic [ref=e308]: Yotpo · 12 reviews
+                      - generic [ref=e309]: NPS · 3 detractors
+                      - generic [ref=e310]: Shopify · orders
+                      - generic [ref=e311]: +131 more
+                  - generic [ref=e313]:
+                    - generic [ref=e314]: Analysed
+                    - generic [ref=e315]:
+                      - paragraph [ref=e316]: Packaging complaints concentrated in VIP + churn-risk cohort
+                      - generic [ref=e317]:
+                        - generic [ref=e318]:
+                          - img [ref=e319]
+                          - generic [ref=e322]:
+                            - paragraph [ref=e323]: 47 tickets
+                            - paragraph [ref=e324]: +340% WoW
+                        - generic [ref=e325]:
+                          - img [ref=e326]
+                          - generic [ref=e328]:
+                            - paragraph [ref=e329]: 3 VIPs hit
+                            - paragraph [ref=e330]: AOV > $150, 5+ orders
+                  - generic [ref=e332]:
+                    - generic [ref=e333]: Identified
+                    - button "+ Q1 lightweight packaging change" [ref=e335]:
+                      - generic [ref=e336]: +
+                      - text: Q1 lightweight packaging change
+                  - generic [ref=e338]:
+                    - img [ref=e339]
+                    - generic [ref=e341]:
+                      - paragraph [ref=e342]:
+                        - text: The Q1 switch to lightweight packaging correlates with the spike. 68% of tickets mention damaged arrival, and
+                        - strong [ref=e343]: 3 VIP accounts
+                        - text: "plus 4 churn-risk accounts are impacted. Estimated exposure:"
+                        - strong [ref=e344]: $42K–$67K/yr
+                        - text: in replacement + VIP retention.
+                      - generic [ref=e345]:
+                        - paragraph [ref=e346]: Proposed action brief
+                        - paragraph [ref=e347]:
+                          - text: Switch to corrugated inserts for orders
+                          - generic [ref=e348]:
+                            - img [ref=e349]
+                            - generic [ref=e352]: ">$75"
+                          - text: . COGS impact
+                          - strong [ref=e353]: +$0.14/unit
+                          - text: . Auto-escalate VIP tickets to senior CS; draft personalised outreach for the 4 churn-risk accounts.
+                      - generic [ref=e354]:
+                        - paragraph [ref=e355]: Orchestrated on approval
+                        - paragraph [ref=e356]:
+                          - text: Creates ops task, drafts supplier RFP, updates CS FAQ, queues a
+                          - generic [ref=e357]:
+                            - img [ref=e358]
+                            - generic [ref=e361]: Klaviyo
+                          - text: apology flow, and schedules a 30-day review.
+                      - generic [ref=e362]:
+                        - generic [ref=e363]: Review brief
+                        - generic [ref=e364]: →
+                  - generic [ref=e367]:
+                    - img [ref=e369]
+                    - img [ref=e373]
+                    - img [ref=e377]
+                    - img [ref=e381]
+        - generic [ref=e385]:
+          - generic [ref=e386]:
+            - heading "Less Noise. More Action." [level=2] [ref=e387]
+            - paragraph [ref=e388]: Riven collapses the gap between signal and action. Agents watch the data, surface what matters, and execute the next step — so your team stops drowning in triage, meetings, and manual follow-ups, and starts moving at the speed of the business.
+          - generic [ref=e391]:
+            - generic [ref=e392]:
+              - paragraph [ref=e393]: Catching the signal
+              - paragraph [ref=e394]: Days, not minutes
+              - paragraph [ref=e395]: Churn risk, stalled deals, broken flows — by the time a human spots them in a dashboard, it's already a fire. Signals sit buried in noise until they cost you.
+            - generic [ref=e396]:
+              - paragraph [ref=e397]: Research & triage
+              - paragraph [ref=e398]: 4–6 hours per week
+              - paragraph [ref=e399]: Pulling context from Stripe, your CRM, and support to figure out what's actually happening before anyone can decide what to do about it.
+            - generic [ref=e400]:
+              - paragraph [ref=e401]: Meetings to align
+              - paragraph [ref=e402]: 5+ syncs per decision
+              - paragraph [ref=e403]: Standups, threads, and follow-ups to get everyone on the same page before a single action gets taken. Context-switching eats the day.
+            - generic [ref=e404]:
+              - paragraph [ref=e405]: Manual execution
+              - paragraph [ref=e406]: Every. Single. Time.
+              - paragraph [ref=e407]: Once you finally know what to do, someone still has to do it — send the email, update the CRM, flag the account, kick off the workflow.
+            - generic [ref=e408]:
+              - generic [ref=e409]:
+                - paragraph [ref=e410]: Close the loop
+                - paragraph [ref=e411]: What you reclaim
+                - paragraph [ref=e412]: Days of lag between something happening and someone acting on it. The meetings, the triage, the manual follow-through — compressed into a single autonomous loop.
+              - generic [ref=e413]:
+                - paragraph [ref=e414]: Days → minutes
+                - paragraph [ref=e415]: 5+ meetings
+                - paragraph [ref=e416]: 10+ hours back
+                - paragraph [ref=e417]: 1 autonomous loop
+        - generic [ref=e419]:
+          - generic [ref=e422]: Data Security
+          - generic [ref=e424]:
+            - heading "One (Secure) Platform." [level=2] [ref=e425]
+            - paragraph [ref=e426]: Feature controls, audit logs, and more. Gain complete oversight and control over all layers. From data collection to AI agent actions, know exactly what's happening, why and who. Your data, your rules, your security.
+          - generic [ref=e427]:
+            - img [ref=e429]
+            - img [ref=e431]
+          - generic [ref=e432]:
+            - generic [ref=e433]:
+              - paragraph [ref=e434]: Usage monitoring
+              - paragraph [ref=e435]: Track organization-wide credit usage in real time. Implement budget and quota controls to avoid surprises.
+            - generic [ref=e436]:
+              - paragraph [ref=e437]: Centralized access controls
+              - paragraph [ref=e438]: Set up your teams for automation success by ensuring the right people have access to the right tools at the right time.
+            - generic [ref=e439]:
+              - paragraph [ref=e440]: Human In The Loop
+              - paragraph [ref=e441]: Never lose control of whats important to your business. Get notified of important events and approve critical actions before they happen.
+        - generic [ref=e442]:
+          - generic [ref=e443]:
+            - generic [ref=e446]: Natural Language Rule Engine
+            - generic [ref=e448]:
+              - heading "Ask anything about your business. Action anything about your business." [level=2] [ref=e449]:
+                - text: Ask anything about your business.
+                - text: Action anything about your business.
+              - paragraph [ref=e450]: Type a question in plain English. Get the answer. Or turn the question into an action that runs while you sleep. No SQL, no code, no waiting.
+          - generic [ref=e455]:
+            - generic [ref=e456]:
+              - generic [ref=e458]:
+                - generic [ref=e459]:
+                  - paragraph [ref=e460]: Sales
+                  - paragraph [ref=e461]: Who are the most engaged accounts in the last 14 days?
+                - generic [ref=e462]:
+                  - paragraph [ref=e463]: Data & Analytics
+                  - paragraph [ref=e464]: Show me revenue and subscription growth.
+                - generic [ref=e465]:
+                  - paragraph [ref=e466]: Marketing
+                  - paragraph [ref=e467]: How many deals or opportunities are in our current campaign from a specific region?
+                - generic [ref=e468]:
+                  - paragraph [ref=e469]: Product
+                  - paragraph [ref=e470]: Show retention and feature adoption trends this month.
+                - generic [ref=e471]:
+                  - paragraph [ref=e472]: Customer Success
+                  - paragraph [ref=e473]: Which accounts have open tickets older than 7 days?
+                - generic [ref=e474]:
+                  - paragraph [ref=e475]: Finance
+                  - paragraph [ref=e476]: What is our MRR breakdown by plan tier?
+                - generic [ref=e477]:
+                  - paragraph [ref=e478]: Sales
+                  - paragraph [ref=e479]: Who are the most engaged accounts in the last 14 days?
+                - generic [ref=e480]:
+                  - paragraph [ref=e481]: Data & Analytics
+                  - paragraph [ref=e482]: Show me revenue and subscription growth.
+                - generic [ref=e483]:
+                  - paragraph [ref=e484]: Marketing
+                  - paragraph [ref=e485]: How many deals or opportunities are in our current campaign from a specific region?
+                - generic [ref=e486]:
+                  - paragraph [ref=e487]: Product
+                  - paragraph [ref=e488]: Show retention and feature adoption trends this month.
+                - generic [ref=e489]:
+                  - paragraph [ref=e490]: Customer Success
+                  - paragraph [ref=e491]: Which accounts have open tickets older than 7 days?
+                - generic [ref=e492]:
+                  - paragraph [ref=e493]: Finance
+                  - paragraph [ref=e494]: What is our MRR breakdown by plan tier?
+              - generic [ref=e496]:
+                - generic [ref=e497]:
+                  - paragraph [ref=e498]: Engineering
+                  - paragraph [ref=e499]: How many auth configs or connected accounts exist for provider X?
+                - generic [ref=e500]:
+                  - paragraph [ref=e501]: Operations
+                  - paragraph [ref=e502]: Which integrations had sync failures this week?
+                - generic [ref=e503]:
+                  - paragraph [ref=e504]: Retention
+                  - paragraph [ref=e505]: Show customers with at least two visits or repeat usage in the last month.
+                - generic [ref=e506]:
+                  - paragraph [ref=e507]: Analytics
+                  - paragraph [ref=e508]: What is the average time to convert from trial to paid?
+                - generic [ref=e509]:
+                  - paragraph [ref=e510]: Growth
+                  - paragraph [ref=e511]: List accounts with declining engagement over the past quarter.
+                - generic [ref=e512]:
+                  - paragraph [ref=e513]: Product
+                  - paragraph [ref=e514]: How does performance or reliability compare across regions?
+                - generic [ref=e515]:
+                  - paragraph [ref=e516]: Engineering
+                  - paragraph [ref=e517]: How many auth configs or connected accounts exist for provider X?
+                - generic [ref=e518]:
+                  - paragraph [ref=e519]: Operations
+                  - paragraph [ref=e520]: Which integrations had sync failures this week?
+                - generic [ref=e521]:
+                  - paragraph [ref=e522]: Retention
+                  - paragraph [ref=e523]: Show customers with at least two visits or repeat usage in the last month.
+                - generic [ref=e524]:
+                  - paragraph [ref=e525]: Analytics
+                  - paragraph [ref=e526]: What is the average time to convert from trial to paid?
+                - generic [ref=e527]:
+                  - paragraph [ref=e528]: Growth
+                  - paragraph [ref=e529]: List accounts with declining engagement over the past quarter.
+                - generic [ref=e530]:
+                  - paragraph [ref=e531]: Product
+                  - paragraph [ref=e532]: How does performance or reliability compare across regions?
+            - generic [ref=e533]:
+              - generic [ref=e534]: Query
+              - generic [ref=e535]:
+                - paragraph
+            - generic [ref=e536]:
+              - generic [ref=e537]: Automate
+              - generic [ref=e538]:
+                - paragraph
+        - generic [ref=e539]:
+          - generic [ref=e540]:
+            - generic [ref=e543]: Cohort Behaviour
+            - generic [ref=e545]:
+              - heading "Your best customers are telling you something." [level=2] [ref=e546]
+              - paragraph [ref=e547]: They pay more. They stick around. They send their friends. Riven stitches their behaviour together across every connected source and shows you what they actually do differently. The key moments, the shared signals, the interactions they had. All together so you can double down on whatever keeps them coming back.
+          - generic [ref=e548]:
+            - img [ref=e550]
+            - generic [ref=e552]:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - img
+                        - navigation:
+                          - generic:
+                            - img
+                          - generic:
+                            - img
+                          - generic:
+                            - img
+                          - generic:
+                            - img
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic: Most Valuable Cohort
+                        - generic:
+                          - generic:
+                            - img
+                            - generic: Search records...
+                        - generic:
+                          - generic:
+                            - generic: Power users (3)
+                            - generic:
+                              - generic:
+                                - img
+                                - generic:
+                                  - generic: Elena Vasquez
+                                  - generic: LTV $4,280
+                              - generic:
+                                - img
+                                - generic:
+                                  - generic: Jordan Mitchell
+                                  - generic: LTV $3,910
+                              - generic:
+                                - img
+                                - generic:
+                                  - generic: Priya Sharma
+                                  - generic: LTV $3,640
+                          - generic:
+                            - generic: Rising stars (6)
+                            - generic:
+                              - generic:
+                                - img
+                                - generic:
+                                  - generic: Tobias Keller
+                                  - generic: LTV $2,180
+                              - generic:
+                                - img
+                                - generic:
+                                  - generic: Mei-Lin Chen
+                                  - generic: LTV $1,950
+                              - generic:
+                                - img
+                                - generic:
+                                  - generic: Aisha Okonkwo
+                                  - generic: LTV $1,820
+                              - generic:
+                                - img
+                                - generic:
+                                  - generic: Lucas Bergström
+                                  - generic: LTV $1,710
+                              - generic:
+                                - img
+                                - generic:
+                                  - generic: Sofia Reyes
+                                  - generic: LTV $1,560
+                              - generic:
+                                - img
+                                - generic:
+                                  - generic: Ryan Gallagher
+                                  - generic: LTV $1,430
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic: Workspace
+                            - generic:
+                              - generic: /
+                              - generic: Cohorts
+                            - generic:
+                              - generic: /
+                              - generic: Elena Vasquez
+                        - generic:
+                          - generic:
+                            - heading "Elena Vasquez" [level=2]
+                            - generic: Most Valuable
+                          - generic:
+                            - generic:
+                              - img
+                              - generic: Joined Jun 12, 2024
+                            - generic:
+                              - img
+                              - generic: Active 21 months - Pro Tier
+                            - generic:
+                              - img
+                              - generic: LTV 4,280
+                            - generic:
+                              - img
+                              - generic: Referral
+                          - generic:
+                            - generic:
+                              - generic:
+                                - img
+                              - generic:
+                                - paragraph: Retention pattern identified
+                                - paragraph: "Elena follows the high-value loop: repeat purchase within 30 days, cross-category expansion, then referral. 74% of customers matching this pattern retain for 24+ months."
+                                - generic:
+                                  - generic: View 42 matching customers
+                                  - img
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                              - generic:
+                                - generic:
+                                  - generic: Mar 28, 2026
+                                  - generic: Shopify
+                                - paragraph: "5th repeat purchase — Order #1247"
+                                - paragraph: Full-price purchase, no discount code. Average order value 28% above cohort mean.
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                              - generic:
+                                - generic:
+                                  - generic: Mar 18, 2026
+                                  - generic: Intercom
+                                - paragraph: NPS response — Score 10
+                                - paragraph: Left detailed qualitative feedback. Mentioned product quality and shipping speed.
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                              - generic:
+                                - generic:
+                                  - generic: Mar 12, 2026
+                                  - generic: Stripe
+                                - paragraph: Upgraded to annual plan
+                                - paragraph: Switched from monthly to annual billing. Locked in for 12 months.
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                              - generic:
+                                - generic:
+                                  - generic: Feb 26, 2026
+                                  - generic: Shopify
+                                - paragraph: Referred a new customer
+                                - paragraph: Referral link used by Jordan Mitchell, who converted within 48 hours.
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                              - generic:
+                                - generic:
+                                  - generic: Feb 14, 2026
+                                  - generic: Klaviyo
+                                - paragraph: Opened 3 emails this week
+                                - paragraph: Engaged with "New Arrivals", "Member Exclusive", and "Style Guide" campaigns.
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                              - generic:
+                                - generic:
+                                  - generic: Jan 30, 2026
+                                  - generic: Shopify
+                                - paragraph: "4th repeat purchase — Order #1180"
+                                - paragraph: Cross-category purchase (apparel + accessories). First accessories buy.
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                              - generic:
+                                - generic:
+                                  - generic: Jan 8, 2026
+                                  - generic: Stripe
+                                - paragraph: Subscription renewed
+                                - paragraph: Auto-renewed monthly plan. 14th consecutive successful payment.
+                        - generic:
+                          - generic:
+                            - img
+                            - paragraph: Suggested actions
+                          - generic:
+                            - generic:
+                              - img
+                              - generic: Launch cross-category starter kit
+                            - generic:
+                              - img
+                              - generic: Add referral reward incentive
+        - generic [ref=e553]:
+          - generic [ref=e554]:
+            - generic [ref=e557]: Cross Domain Intelligence
+            - generic [ref=e559]:
+              - heading "Insights that no single tool could see." [level=2] [ref=e560]
+              - paragraph [ref=e561]: Your CRM sees deals. Stripe sees payments. Intercom sees tickets. Riven sees the connection, and what to do next.
+          - generic [ref=e563]:
+            - generic:
+              - generic: Reel · Insights
+            - generic [ref=e564]:
+              - article [ref=e566]:
+                - generic [ref=e584]:
+                  - generic [ref=e585]:
+                    - generic [ref=e586]: riven.app
+                    - generic [ref=e587]:
+                      - text: Cross-domain
+                      - text: insight
+                  - heading "Retention pattern detection" [level=3] [ref=e598]
+                  - paragraph [ref=e599]: Your top-performing cohort — organic search signups — retains at 93% after 90 days, vs 71% for paid social. They complete onboarding 2.4x faster, file 60% fewer support tickets, and average $284 LTV — the signal to double down on.
+                  - generic [ref=e601]:
+                    - generic [ref=e602]:
+                      - img [ref=e603]
+                      - generic [ref=e606]: Company
+                    - generic [ref=e607]:
+                      - img [ref=e608]
+                      - generic [ref=e611]: Subscription
+                    - generic [ref=e612]:
+                      - img [ref=e613]
+                      - generic [ref=e621]: Support Ticket
+                    - generic [ref=e622]: +2 more
+                - generic [ref=e623]:
+                  - generic [ref=e624]:
+                    - img [ref=e625]
+                    - img [ref=e627]
+                    - img [ref=e629]
+                  - generic [ref=e632]:
+                    - generic [ref=e633]: 01 / 06
+                    - img [ref=e634]
+              - article [ref=e637]:
+                - generic [ref=e655]:
+                  - generic [ref=e656]:
+                    - generic [ref=e657]: riven.app
+                    - generic [ref=e658]:
+                      - text: Cross-domain
+                      - text: insight
+                  - heading "Acquisition channel profitability" [level=3] [ref=e669]
+                  - paragraph [ref=e670]: Customers acquired through paid search cost 2.8x more to support in their first 60 days than organic signups, but their average contract value is only 1.3x higher. Your effective CAC for paid search is $340 when accounting for support overhead — 62% higher than what Google Ads reports alone.
+                  - generic [ref=e672]:
+                    - generic [ref=e673]:
+                      - img [ref=e674]
+                      - generic [ref=e677]: Company
+                    - generic [ref=e678]:
+                      - img [ref=e679]
+                      - generic [ref=e682]: Marketing Campaign
+                    - generic [ref=e683]:
+                      - img [ref=e684]
+                      - generic [ref=e692]: Support Ticket
+                    - generic [ref=e693]: +2 more
+                - generic [ref=e694]:
+                  - generic [ref=e695]:
+                    - img [ref=e696]
+                    - img [ref=e698]
+                    - img [ref=e700]
+                  - generic [ref=e703]:
+                    - generic [ref=e704]: 02 / 06
+                    - img [ref=e705]
+              - article [ref=e708]:
+                - generic [ref=e726]:
+                  - generic [ref=e727]:
+                    - generic [ref=e728]: riven.app
+                    - generic [ref=e729]:
+                      - text: Cross-domain
+                      - text: insight
+                  - heading "Pricing tier misalignment" [level=3] [ref=e740]
+                  - paragraph [ref=e741]: 14 accounts on the Pro plan are consistently exceeding Enterprise-level usage thresholds — averaging 3.2x the API call limit and 2.1x the seat count. Combined, these represent $47,600 in unrealised annual upgrade revenue. None have been contacted by sales in the last 90 days.
+                  - generic [ref=e743]:
+                    - generic [ref=e744]:
+                      - img [ref=e745]
+                      - generic [ref=e748]: Company
+                    - generic [ref=e749]:
+                      - img [ref=e750]
+                      - generic [ref=e753]: Subscription
+                    - generic [ref=e754]:
+                      - img [ref=e755]
+                      - generic [ref=e758]: Feature Usage
+                    - generic [ref=e759]: +3 more
+                - generic [ref=e760]:
+                  - generic [ref=e761]:
+                    - img [ref=e762]
+                    - img [ref=e764]
+                    - img [ref=e766]
+                  - generic [ref=e769]:
+                    - generic [ref=e770]: 03 / 06
+                    - img [ref=e771]
+              - article [ref=e774]:
+                - generic [ref=e792]:
+                  - generic [ref=e793]:
+                    - generic [ref=e794]: riven.app
+                    - generic [ref=e795]:
+                      - text: Cross-domain
+                      - text: insight
+                  - heading "Internal bottleneck detection" [level=3] [ref=e806]
+                  - paragraph [ref=e807]: Sarah Chen has been assigned 74% of all critical support tickets this month across 8 accounts. Her average resolution time has increased from 2.1 hours to 6.8 hours over the past 3 weeks. 4 of her currently open tickets are linked to accounts with renewals in the next 14 days.
+                  - generic [ref=e809]:
+                    - generic [ref=e810]:
+                      - img [ref=e811]
+                      - generic [ref=e815]: Team Member
+                    - generic [ref=e816]:
+                      - img [ref=e817]
+                      - generic [ref=e825]: Support Ticket
+                    - generic [ref=e826]:
+                      - img [ref=e827]
+                      - generic [ref=e830]: Subscription Renewal
+                    - generic [ref=e831]: +2 more
+                - generic [ref=e832]:
+                  - generic [ref=e833]:
+                    - img [ref=e834]
+                    - img [ref=e836]
+                    - img [ref=e838]
+                  - generic [ref=e841]:
+                    - generic [ref=e842]: 04 / 06
+                    - img [ref=e843]
+              - article [ref=e846]:
+                - generic [ref=e864]:
+                  - generic [ref=e865]:
+                    - generic [ref=e866]: riven.app
+                    - generic [ref=e867]:
+                      - text: Cross-domain
+                      - text: insight
+                  - heading "Onboarding success signals" [level=3] [ref=e878]
+                  - paragraph [ref=e879]: Accounts that connect at least one integration within 7 days retain at 94% after 60 days. Of this month's 12 new accounts, 7 have already hit this milestone. The remaining 5 haven't connected yet — two are annual contracts worth a combined $31,200. Nudge them now while the pattern still holds.
+                  - generic [ref=e881]:
+                    - generic [ref=e882]:
+                      - img [ref=e883]
+                      - generic [ref=e886]: Company
+                    - generic [ref=e887]:
+                      - img [ref=e888]
+                      - generic [ref=e891]: Onboarding Checklist
+                    - generic [ref=e892]:
+                      - img [ref=e893]
+                      - generic [ref=e896]: Integration Log
+                    - generic [ref=e897]: +3 more
+                - generic [ref=e898]:
+                  - generic [ref=e899]:
+                    - img [ref=e900]
+                    - img [ref=e902]
+                    - img [ref=e904]
+                  - generic [ref=e907]:
+                    - generic [ref=e908]: 05 / 06
+                    - img [ref=e909]
+              - article [ref=e912]:
+                - generic [ref=e930]:
+                  - generic [ref=e931]:
+                    - generic [ref=e932]: riven.app
+                    - generic [ref=e933]:
+                      - text: Cross-domain
+                      - text: insight
+                  - heading "Vendor cost anomaly" [level=3] [ref=e944]
+                  - paragraph [ref=e945]: "Your total spend across Intercom, Slack, and AWS has increased 34% this quarter while active customer count grew only 8%. The primary driver is a 3x spike in Intercom message volume tied to 6 accounts that were migrated to a new API version last month. Estimated unnecessary cost: $2,400/mo."
+                  - generic [ref=e947]:
+                    - generic [ref=e948]:
+                      - img [ref=e949]
+                      - generic [ref=e952]: Invoice
+                    - generic [ref=e953]:
+                      - img [ref=e954]
+                      - generic [ref=e957]: Integration Health
+                    - generic [ref=e958]:
+                      - img [ref=e959]
+                      - generic [ref=e967]: Support Ticket
+                    - generic [ref=e968]: +3 more
+                - generic [ref=e969]:
+                  - generic [ref=e970]:
+                    - img [ref=e971]
+                    - img [ref=e973]
+                    - img [ref=e975]
+                  - generic [ref=e978]:
+                    - generic [ref=e979]: 06 / 06
+                    - img [ref=e980]
+            - generic: Scroll ↓
+        - generic [ref=e982]:
+          - heading "Latest from the blog" [level=2] [ref=e983]
+          - generic [ref=e984]:
+            - link [ref=e985] [cursor=pointer]:
+              - /url: /resources/blog/find-your-most-valuable-cohort
+              - article [ref=e986]:
+                - img "How to Find Your Most Valuable Customer Cohort in 30 Minutes" [ref=e988]
+                - generic [ref=e989]:
+                  - text: Operational Intelligence
+                  - heading "How to Find Your Most Valuable Customer Cohort in 30 Minutes" [level=3] [ref=e990]
+                  - paragraph [ref=e991]: Most operators analyse churn. The higher-leverage question is who stays and what they share across every tool in your stack. Here's how to trace it in an afternoon.
+            - generic [ref=e992]:
+              - link [ref=e993] [cursor=pointer]:
+                - /url: /resources/blog/which-channels-produce-customers-who-stay
+                - article [ref=e994]:
+                  - text: Operational Intelligence
+                  - heading "Which Channels Produce Customers Who Stay?" [level=3] [ref=e995]
+                  - paragraph [ref=e996]: Your best-performing channel by CAC might be your worst by 90-day retention. A framework for measuring true channel quality.
+                  - generic [ref=e997]: 9 min read
+              - link [ref=e998] [cursor=pointer]:
+                - /url: /resources/blog/you-are-the-api
+                - article [ref=e999]:
+                  - text: Operational Intelligence
+                  - 'heading "You Are the API: The Hidden Cost of Being the Human Integration Layer" [level=3] [ref=e1000]'
+                  - paragraph [ref=e1001]: DTC operators spend 9.3 hours per week being the glue between tools. Here are the 5 ways it is costing your business more than you think.
+                  - generic [ref=e1002]: 9 min read
+              - link [ref=e1003] [cursor=pointer]:
+                - /url: /resources/blog/tracking-churn-across-tools
+                - article [ref=e1004]:
+                  - text: Operational Intelligence
+                  - heading "How to Track Customer Churn When Your Data Lives in 6 Different Tools" [level=3] [ref=e1005]
+                  - paragraph [ref=e1006]: 52% of subscribers churn in year one, but no single tool shows you why. A cross-tool churn tracking framework for DTC operators.
+                  - generic [ref=e1007]: 14 min read
+          - link "View all posts →" [ref=e1009] [cursor=pointer]:
+            - /url: /resources/blog
+        - generic [ref=e1011]:
+          - heading "Frequently Asked Questions" [level=2] [ref=e1012]
+          - generic [ref=e1013]:
+            - heading "What does Riven actually do?" [level=3] [ref=e1015]:
+              - button "What does Riven actually do?" [ref=e1016]:
+                - text: What does Riven actually do?
+                - img
+            - heading "Who uses Riven?" [level=3] [ref=e1018]:
+              - button "Who uses Riven?" [ref=e1019]:
+                - text: Who uses Riven?
+                - img
+            - heading "Does Riven replace my existing tools?" [level=3] [ref=e1021]:
+              - button "Does Riven replace my existing tools?" [ref=e1022]:
+                - text: Does Riven replace my existing tools?
+                - img
+            - heading "How is this different from Notion, Airtable or other tool?" [level=3] [ref=e1024]:
+              - button "How is this different from Notion, Airtable or other tool?" [ref=e1025]:
+                - text: How is this different from Notion, Airtable or other tool?
+                - img
+            - heading "How does Riven ensure AI answers are accurate?" [level=3] [ref=e1027]:
+              - button "How does Riven ensure AI answers are accurate?" [ref=e1028]:
+                - text: How does Riven ensure AI answers are accurate?
+                - img
+            - heading "What happens when I join the waitlist?" [level=3] [ref=e1030]:
+              - button "What happens when I join the waitlist?" [ref=e1031]:
+                - text: What happens when I join the waitlist?
+                - img
+          - link "View all questions →" [ref=e1032] [cursor=pointer]:
+            - /url: /resources/faq
+        - generic [ref=e1036]:
+          - heading "Your next breakthrough, On Us" [level=2] [ref=e1037]
+          - generic [ref=e1038]:
+            - text: Join the waitlist, receive updates and secure your spot as a founding team and help shape the platform before it launches. Join the waitlist and lock in early-access pricing, with up to 50% off your first year when Riven goes live.
+            - generic [ref=e1039]: Takes under 2 minutes.
+          - button "Join the Waitlist" [ref=e1043] [cursor=pointer]:
+            - text: Join the Waitlist
+            - img [ref=e1044]
+  - contentinfo [ref=e1046]:
+    - generic [ref=e1047]:
+      - generic [ref=e1048]:
+        - generic [ref=e1049]:
+          - link "riven" [ref=e1050] [cursor=pointer]:
+            - /url: /
+            - img [ref=e1051]
+            - generic [ref=e1055]: riven
+          - generic [ref=e1056]: Move fast. Act fast. Grow Fast.
+        - generic [ref=e1057]:
+          - generic [ref=e1058]:
+            - heading "Socials" [level=3] [ref=e1059]
+            - list [ref=e1060]:
+              - listitem [ref=e1061]:
+                - link "X (Formerly Twitter)" [ref=e1062] [cursor=pointer]:
+                  - /url: https://x.com/withriven
+              - listitem [ref=e1063]:
+                - link "LinkedIn" [ref=e1064] [cursor=pointer]:
+                  - /url: https://linkedin.com/company/getriven
+          - generic [ref=e1065]:
+            - heading "Product" [level=3] [ref=e1066]
+            - list [ref=e1067]:
+              - listitem [ref=e1068]:
+                - link "Story" [ref=e1069] [cursor=pointer]:
+                  - /url: /story
+              - listitem [ref=e1070]:
+                - link "Blog" [ref=e1071] [cursor=pointer]:
+                  - /url: /resources/blog
+              - listitem [ref=e1072]:
+                - link "Changelog" [ref=e1073] [cursor=pointer]:
+                  - /url: /resources/blog/category/changelog
+              - listitem [ref=e1074]:
+                - link "FAQ" [ref=e1075] [cursor=pointer]:
+                  - /url: /resources/faq
+          - generic [ref=e1076]:
+            - heading "Legal" [level=3] [ref=e1077]
+            - list [ref=e1078]:
+              - listitem [ref=e1079]:
+                - link "Privacy Policy" [ref=e1080] [cursor=pointer]:
+                  - /url: /privacy
+      - paragraph [ref=e1082]: © 2026 Riven. All rights reserved.
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e1088] [cursor=pointer]:
+    - img [ref=e1089]
+  - alert [ref=e1092]

@@ -1,48 +1,56 @@
 'use client';
 
-import { CtaButton } from '@/components/ui/cta-button';
+import { Button } from '@/components/ui/button';
+import { GlowBorder } from '@/components/ui/glow-border';
 import { scrollToSection } from '@/lib/scroll';
-import { ArrowRight } from 'lucide-react';
-
+import { Mail, Phone } from 'lucide-react';
 import Link from 'next/link';
 
 export const HeroCopy = () => {
   return (
-    <div className="relative z-20 mt-10 items-center px-2 pb-4 sm:px-4 sm:pb-6 md:px-8 md:pt-8 md:pb-0 lg:px-0">
+    <div className="relative z-20 mx-auto mt-10 w-full max-w-full items-center rounded-lg px-4 sm:w-fit sm:px-0">
       <div>
-        <h1 className="text-center font-serif text-xl leading-[1.1] tracking-tighter text-primary/90 sm:text-3xl md:text-[3rem] xl:text-[4rem]">
-          Change is happening faster than ever.
-          <br />
-          <span className="text-center font-serif text-[2.75rem] leading-[1.1] tracking-tighter text-primary sm:text-5xl md:text-[5rem] lg:text-[5.5rem] xl:text-[6.5rem]">
-            Make sure you’re ahead of it.
-          </span>
+        <GlowBorder rounded="lg" className="mx-auto mb-8 w-fit max-w-11/12" opacity={70}>
+          <div className="mx-auto rounded-lg border border-primary/30 bg-card/90 px-2.5 py-1.5 font-display text-[clamp(0.60rem,3vw,0.875rem)] tracking-tight whitespace-nowrap text-content/80 sm:text-base">
+            AI proactive company brain for ecomm ops
+          </div>
+        </GlowBorder>
+        <h1 className="text-center font-bit text-[clamp(1.5rem,8.5vw,2.25rem)] leading-[0.8] text-primary/90 sm:text-3xl md:text-[4rem] xl:text-[6rem]">
+          The Brain <br className="sm:hidden" /> That Never Sleeps
         </h1>
       </div>
 
-      <h2
-        className={`mx-auto mt-4 max-w-xs text-center text-sm leading-[1.1] tracking-tighter text-heading/85 sm:max-w-3xl sm:px-0 sm:text-base md:mt-8 md:text-lg lg:mt-3 lg:text-xl`}
+      <div
+        className={`mx-auto mt-4 max-w-xs text-center font-display text-sm leading-[1.1] tracking-tighter text-heading/85 sm:max-w-3xl sm:px-0 sm:text-base md:mt-8 md:max-w-4xl lg:mt-3 xl:max-w-260`}
       >
-        Riven closes the gap between insight and action. A platform where powerful AI Agents meet
-        your entire customer lifecycle stack to execute powerful data driven actions. Surface the
-        trends, patterns and shifts that matter most to your business, and act on them in real-time
-        with AI Agents that you can build and deploy in minutes, no code required.
-      </h2>
+        The connective layers bringing in context from every creak and crevice of your brand.
+        surfacing, executing monitoring and learning from the most impactful opportunities, trends,
+        and risks, before they even arise.
+      </div>
 
-      <section
-        className={`relative flex w-full items-center justify-center sm:pt-0 md:items-start`}
-      >
+      <section className="relative z-[70] mt-8 flex w-full flex-col items-center justify-center gap-4 sm:flex-row">
+        <Link
+          href={'https://calendly.com/jared-rmr/30min'}
+          target="_blank"
+          className="w-auto cursor-pointer rounded-md"
+        >
+          <Button variant="outline" className="border-primary/70 font-display">
+            <Phone size={16} />
+            Talk To The Founders
+          </Button>
+        </Link>
         <Link
           href="/#waitlist"
-          className="mt-8 w-auto"
           onClick={(e) => {
             e.preventDefault();
             scrollToSection('waitlist');
           }}
+          className="hidden min-[360px]:block"
         >
-          <CtaButton className="order:1 paper-lite mx-auto justify-center border p-6 md:w-64">
-            <div className="font-sans text-lg font-semibold tracking-tight">Join the Waitlist</div>
-            <ArrowRight className="size-4" />
-          </CtaButton>
+          <Button className="border-primary/70 font-display" variant={'outline'}>
+            <Mail size={16} />
+            Join the Waitlist
+          </Button>
         </Link>
       </section>
     </div>

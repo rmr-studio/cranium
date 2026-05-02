@@ -6,9 +6,9 @@ export const Waitlist = () => {
     <Section
       size={24}
       id="waitlist"
-      className="flex items-center justify-center lg:max-w-[min(100dvw,var(--breakpoint-3xl))]"
+      className="mx-auto border-x border-x-content/25 2xl:max-w-[min(90dvw,var(--breakpoint-3xl))]"
     >
-      <WaitlistForm className="clamp relative z-10 p-4" />
+      <WaitlistForm className="relative z-10 p-4" />
     </Section>
   );
 };

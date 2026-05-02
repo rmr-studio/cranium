@@ -1,444 +1,143 @@
 'use client';
 
-import { CtaStep } from '@/components/feature-modules/waitlist/components/steps/1.cta';
-import { ContactStep } from '@/components/feature-modules/waitlist/components/steps/2.contact';
-import { BridgeStep } from '@/components/feature-modules/waitlist/components/steps/2b.bridge';
-import { BusinessOverviewStep } from '@/components/feature-modules/waitlist/components/steps/3.business-overview';
-import { PainPointsStep } from '@/components/feature-modules/waitlist/components/steps/4.pain-points';
-import {
-  IntegrationsStep,
-  INTEGRATIONS_STEP_CONFIG,
-} from '@/components/feature-modules/waitlist/components/steps/5.integrations';
-import {
-  InvolvementStep,
-  INVOLVEMENT_STEP_CONFIG,
-} from '@/components/feature-modules/waitlist/components/steps/7.involvement';
-import { SuccessStep } from '@/components/feature-modules/waitlist/components/steps/8.success';
-import {
-  slideTransition,
-  slideVariants,
-} from '@/components/feature-modules/waitlist/config/animation';
-import {
-  Step,
-  STEP_FIELDS,
-  STEP_NAMES,
-  TOTAL_FORM_STEPS,
-} from '@/components/feature-modules/waitlist/config/steps';
-import posthog from 'posthog-js';
 import { sendSlackNotification } from '@/app/actions/send-slack-notification';
-import { useWaitlistJoinMutation, useWaitlistUpdateMutation } from '@/hooks/use-waitlist-mutation';
+import { OkButton } from '@/components/feature-modules/waitlist/components/ok-button';
+import { useWaitlistJoinMutation } from '@/hooks/use-waitlist-mutation';
 import { cn } from '@/lib/utils';
-import { waitlistFormSchema, type WaitlistMultiStepFormData } from '@/lib/validations';
+import { waitlistJoinSchema, type WaitlistJoinData } from '@/lib/validations';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChevronLeft } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useState } from 'react';
+import posthog from 'posthog-js';
+import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-const PRESET_INTEGRATION_LABELS = new Set(
-  INTEGRATIONS_STEP_CONFIG.categories.flatMap((c) => c.options.map((o) => o.label)),
-);
+const INPUT_CLASS =
+  'w-full bg-transparent border-0 border-b border-foreground/20 pb-2 text-lg placeholder:text-muted-foreground/50 focus:outline-none focus:border-foreground/50 transition-colors';
+
+const INPUT_ERROR_CLASS = 'border-destructive focus:border-destructive';
 
 export function WaitlistForm({ className }: { className?: string }) {
-  const [currentStep, setCurrentStep] = useState<Step>(Step.CTA);
-  const [direction, setDirection] = useState(1);
-  const [showOtherInput, setShowOtherInput] = useState(false);
-  const [completedSurvey, setCompletedSurvey] = useState(false);
-  const [painPointsOther, setPainPointsOther] = useState('');
-
+  const [submitted, setSubmitted] = useState(false);
   const joinMutation = useWaitlistJoinMutation();
-  const updateMutation = useWaitlistUpdateMutation();
+  const emailRef = useRef<HTMLInputElement | null>(null);
 
-  const form = useForm<WaitlistMultiStepFormData>({
-    resolver: zodResolver(waitlistFormSchema),
-    defaultValues: {
-      name: '',
-      email: '',
-      businessOverview: '',
-      painPoints: [],
-      painPointsOther: '',
-      integrations: [],
-      involvement: undefined as unknown as 'WAITLIST' | 'EARLY_TESTING' | 'CALL_EARLY_TESTING',
-    },
+  const form = useForm<WaitlistJoinData>({
+    resolver: zodResolver(waitlistJoinSchema),
+    defaultValues: { name: '', email: '' },
     mode: 'onTouched',
   });
 
-  const { trigger, setValue, watch, formState } = form;
-  const selectedPainPoints = watch('painPoints');
-  const selectedIntegrations = watch('integrations');
-  const selectedInvolvement = watch('involvement');
+  const { register, handleSubmit, setError, formState } = form;
+  const { ref: emailRegRef, ...emailRest } = register('email');
 
-  // ── Navigation ──
-
-  const goForward = useCallback(() => {
-    posthog.capture('waitlist_step_completed', {
-      from_step: STEP_NAMES[currentStep],
-      to_step: STEP_NAMES[currentStep + 1],
-    });
-    setDirection(1);
-    setCurrentStep((prev) => prev + 1);
-  }, [currentStep]);
-
-  const goBack = useCallback(() => {
-    if (currentStep <= Step.BUSINESS_OVERVIEW) return;
-    posthog.capture('waitlist_step_back', {
-      from_step: STEP_NAMES[currentStep],
-      to_step: STEP_NAMES[currentStep - 1],
-    });
-    setDirection(-1);
-    setCurrentStep((prev) => prev - 1);
-  }, [currentStep]);
-
-  // ── Phase 1: Join ──
-
-  const handleJoin = useCallback(async () => {
-    const valid = await trigger(['name', 'email']);
-    if (!valid) return;
-
-    const { name, email } = form.getValues();
-    joinMutation.mutate(
-      { name, email },
-      {
-        onSuccess: () => {
-          posthog.capture('waitlist_joined', { email });
-
-          // Non-blocking Slack notification — failure is silent to user, captured in PostHog
-          sendSlackNotification({ type: 'join', name, email }).catch((err: Error) => {
-            posthog.capture('slack_notification_failed', { error: err.message });
-          });
-
-          setDirection(1);
-          setCurrentStep(Step.BRIDGE);
-        },
-        onError: (error: Error) => {
-          if (error.message.includes('already on the waitlist')) {
-            form.setError('email', { message: error.message });
-          }
-        },
-      },
-    );
-  }, [trigger, form, joinMutation]);
-
-  // ── Phase 2: Survey ──
-
-  const handleSurveyNext = useCallback(async () => {
-    const fields = STEP_FIELDS[currentStep];
-    if (fields) {
-      const valid = await trigger(fields);
-      if (!valid) return;
-    }
-    goForward();
-  }, [currentStep, trigger, goForward]);
-
-  const handleSurveySubmit = useCallback(async () => {
-    const valid = await trigger(['involvement']);
-    if (!valid) return;
-
-    const { email, businessOverview, painPoints, integrations, involvement } = form.getValues();
-
-    updateMutation.mutate(
-      {
-        email,
-        businessOverview,
-        painPoints,
-        painPointsOther: painPointsOther || undefined,
-        integrations,
-        involvement,
-      },
-      {
-        onSuccess: () => {
-          posthog.capture('waitlist_survey_submitted', {
-            pain_points: painPoints,
-            integrations,
-            involvement,
-          });
-
-          // Non-blocking Slack notification with full survey details
-          const name = form.getValues('name');
-          sendSlackNotification({
-            type: 'survey',
-            name,
-            email,
-            businessOverview: businessOverview || undefined,
-            painPoints,
-            painPointsOther: painPointsOther || undefined,
-            integrations,
-            involvement,
-          }).catch((err: Error) => {
-            posthog.capture('slack_notification_failed', { error: err.message });
-          });
-
-          setCompletedSurvey(true);
-          setDirection(1);
-          setCurrentStep(Step.SUCCESS);
-        },
-      },
-    );
-  }, [trigger, form, updateMutation, painPointsOther]);
-
-  const handleBridgeSkip = useCallback(() => {
-    posthog.capture('waitlist_survey_skipped');
-    setCompletedSurvey(false);
-    setDirection(1);
-    setCurrentStep(Step.SUCCESS);
-  }, []);
-
-  const handleOk = useCallback(async () => {
-    if (currentStep === Step.SUCCESS) return;
-    if (currentStep === Step.CTA) {
-      goForward();
-      return;
-    }
-    if (currentStep === Step.CONTACT) {
-      handleJoin();
-      return;
-    }
-    if (currentStep === Step.BRIDGE) {
-      goForward();
-      return;
-    }
-    if (currentStep === Step.INVOLVEMENT) {
-      handleSurveySubmit();
-    } else {
-      handleSurveyNext();
-    }
-  }, [currentStep, handleJoin, goForward, handleSurveySubmit, handleSurveyNext]);
-
-  // ── Selections ──
-
-  const selectInvolvement = useCallback(
-    (value: string) => {
-      setValue('involvement', value as 'WAITLIST' | 'EARLY_TESTING' | 'CALL_EARLY_TESTING', {
-        shouldValidate: true,
-      });
-    },
-    [setValue],
-  );
-
-  const togglePainPoint = useCallback(
-    (label: string) => {
-      const current = form.getValues('painPoints');
-      if (current.includes(label)) {
-        setValue(
-          'painPoints',
-          current.filter((p) => p !== label),
-          { shouldValidate: true },
-        );
-      } else if (current.length < 3) {
-        setValue('painPoints', [...current, label], { shouldValidate: true });
-      }
-    },
-    [form, setValue],
-  );
-
-  const toggleIntegration = useCallback(
-    (label: string) => {
-      const current = form.getValues('integrations');
-      const max = INTEGRATIONS_STEP_CONFIG.maxSelections;
-      if (current.includes(label)) {
-        setValue(
-          'integrations',
-          current.filter((i) => i !== label),
-          { shouldValidate: true },
-        );
-      } else if (current.length < max) {
-        setValue('integrations', [...current, label], {
-          shouldValidate: true,
+  const onSubmit = handleSubmit((data) => {
+    joinMutation.mutate(data, {
+      onSuccess: () => {
+        posthog.capture('waitlist_joined', { email: data.email });
+        sendSlackNotification(data).catch((err: Error) => {
+          posthog.capture('slack_notification_failed', { error: err.message });
         });
-      }
-    },
-    [form, setValue],
-  );
-
-  const addCustomIntegration = useCallback(
-    (label: string) => {
-      const current = form.getValues('integrations');
-      if (current.length < INTEGRATIONS_STEP_CONFIG.maxSelections && !current.includes(label)) {
-        setValue('integrations', [...current, label], { shouldValidate: true });
-      }
-    },
-    [form, setValue],
-  );
-
-  const removeCustomIntegration = useCallback(
-    (label: string) => {
-      const current = form.getValues('integrations');
-      setValue(
-        'integrations',
-        current.filter((i) => i !== label),
-        { shouldValidate: true },
-      );
-    },
-    [form, setValue],
-  );
-
-  const toggleOtherInput = useCallback(() => {
-    setShowOtherInput((prev) => {
-      if (prev) {
-        const current = form.getValues('integrations');
-        const presetOnly = current.filter((i) => PRESET_INTEGRATION_LABELS.has(i));
-        setValue('integrations', presetOnly, { shouldValidate: true });
-      }
-      return !prev;
+        setSubmitted(true);
+      },
+      onError: (error: Error) => {
+        if (error.message.includes('already on the waitlist')) {
+          setError('email', { message: error.message });
+        }
+      },
     });
-  }, [form, setValue]);
-
-  // ── Keyboard shortcuts ──
-
-  const isPending = joinMutation.isPending || updateMutation.isPending;
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (isPending) return;
-
-      const target = e.target as HTMLElement;
-      const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
-
-      if (e.key === 'Enter') {
-        if (isInput) return;
-        e.preventDefault();
-        handleOk();
-        return;
-      }
-
-      if (isInput) return;
-
-      const key = e.key.toUpperCase();
-      if (currentStep === Step.INVOLVEMENT) {
-        const option = INVOLVEMENT_STEP_CONFIG.options.find((o) => o.key === key);
-        if (option) selectInvolvement(option.value);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentStep, isPending, handleOk, selectInvolvement]);
-
-  // ── Progress ──
-
-  const surveyStepIndex = currentStep - Step.BUSINESS_OVERVIEW;
-  const showProgress = currentStep >= Step.BUSINESS_OVERVIEW && currentStep <= Step.INVOLVEMENT;
-  const progress = showProgress ? ((surveyStepIndex + 1) / TOTAL_FORM_STEPS) * 100 : 0;
-
-  // ── Render steps ──
-
-  const renderStep = () => {
-    switch (currentStep) {
-      case Step.CTA:
-        return <CtaStep onStart={goForward} />;
-      case Step.CONTACT:
-        return (
-          <ContactStep
-            form={form}
-            onJoin={handleJoin}
-            isPending={joinMutation.isPending}
-          />
-        );
-      case Step.BRIDGE:
-        return <BridgeStep onContinue={goForward} onSkip={handleBridgeSkip} />;
-      case Step.BUSINESS_OVERVIEW:
-        return <BusinessOverviewStep form={form} onNext={handleOk} />;
-      case Step.PAIN_POINTS:
-        return (
-          <PainPointsStep
-            selectedPainPoints={selectedPainPoints}
-            onToggle={togglePainPoint}
-            otherText={painPointsOther}
-            onOtherChange={setPainPointsOther}
-            onNext={handleOk}
-            error={formState.errors.painPoints?.message}
-          />
-        );
-      case Step.INTEGRATIONS:
-        return (
-          <IntegrationsStep
-            selectedIntegrations={selectedIntegrations}
-            onToggle={toggleIntegration}
-            onAddCustom={addCustomIntegration}
-            onRemoveCustom={removeCustomIntegration}
-            showOtherInput={showOtherInput}
-            onToggleOther={toggleOtherInput}
-            onNext={handleOk}
-            error={formState.errors.integrations?.message}
-          />
-        );
-      case Step.INVOLVEMENT:
-        return (
-          <InvolvementStep
-            selectedInvolvement={selectedInvolvement}
-            onSelect={selectInvolvement}
-            onSubmit={handleOk}
-            isPending={updateMutation.isPending}
-            error={formState.errors.involvement?.message}
-          />
-        );
-      case Step.SUCCESS:
-        return <SuccessStep completedSurvey={completedSurvey} />;
-      default:
-        return null;
-    }
-  };
-
-  const showBackButton =
-    currentStep >= Step.BUSINESS_OVERVIEW && currentStep <= Step.INVOLVEMENT;
+  });
 
   return (
     <div className={cn('mx-auto w-full max-w-5xl', className)}>
-      {/* Progress bar */}
-      <AnimatePresence>
-        {showProgress && (
+      <AnimatePresence mode="wait">
+        {submitted ? (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            key="success"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="mb-8 h-0.5 overflow-hidden rounded-full bg-foreground/8"
+            className="py-16 text-center md:py-24"
           >
             <motion.div
-              className="h-full rounded-full bg-teal-600"
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.4, ease: 'easeOut' }}
-            />
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
+            >
+              <CheckCircle2 className="mx-auto h-14 w-14 text-teal-500" />
+            </motion.div>
+            <h3 className="mt-6 text-2xl font-normal text-heading md:text-3xl">
+              You are on the list!
+            </h3>
+            <p className="mx-auto mt-3 max-w-md text-muted-foreground">
+              Thanks for joining the waitlist. We can&apos;t wait to share updates and exciting
+              features with you.
+            </p>
           </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Back button */}
-      <AnimatePresence>
-        {showBackButton && (
-          <motion.button
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+        ) : (
+          <motion.form
+            key="form"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            type="button"
-            onClick={goBack}
-            disabled={currentStep === Step.BUSINESS_OVERVIEW}
-            className={cn(
-              'mb-4 inline-flex items-center gap-1 text-sm transition-colors',
-              currentStep === Step.BUSINESS_OVERVIEW
-                ? 'cursor-not-allowed text-muted-foreground/40'
-                : 'cursor-pointer text-muted-foreground hover:text-foreground',
-            )}
+            onSubmit={onSubmit}
+            className="py-8"
           >
-            <ChevronLeft className="h-4 w-4" />
-            Back
-          </motion.button>
-        )}
-      </AnimatePresence>
+            <h2 className="px-2 text-center font-serif text-4xl leading-none tracking-tighter md:text-6xl"></h2>
+            <p className="mx-auto mt-5 mb-10 max-w-2xl px-4 text-center leading-tight tracking-tight text-muted-foreground sm:text-lg">
+              The fastest way to see how Riven transforms your e-commerce operations is to see how
+              it fits into your business.
+              Join the waitlist, and be the firs
+            </p>
 
-      {/* Step content */}
-      <AnimatePresence mode="wait" custom={direction}>
-        <motion.div
-          key={currentStep}
-          custom={direction}
-          variants={slideVariants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={slideTransition}
-        >
-          {renderStep()}
-        </motion.div>
+            <div className="mx-auto max-w-md space-y-6">
+              <div>
+                <label className="mb-1.5 block text-sm text-muted-foreground">Your name</label>
+                <input
+                  {...register('name')}
+                  placeholder="Jane Doe"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      emailRef.current?.focus();
+                    }
+                  }}
+                  className={cn(INPUT_CLASS, formState.errors.name && INPUT_ERROR_CLASS)}
+                />
+                {formState.errors.name && (
+                  <p className="mt-1.5 text-xs text-destructive">{formState.errors.name.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-sm text-muted-foreground">Your email</label>
+                <input
+                  {...emailRest}
+                  ref={(el) => {
+                    emailRegRef(el);
+                    emailRef.current = el;
+                  }}
+                  type="email"
+                  placeholder="jane@company.com"
+                  className={cn(INPUT_CLASS, formState.errors.email && INPUT_ERROR_CLASS)}
+                />
+                {formState.errors.email && (
+                  <p className="mt-1.5 text-xs text-destructive">
+                    {formState.errors.email.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="mt-8 flex items-center justify-end">
+                <OkButton
+                  onClick={onSubmit}
+                  label="Join the Waitlist"
+                  loading={joinMutation.isPending}
+                />
+              </div>
+            </div>
+          </motion.form>
+        )}
       </AnimatePresence>
     </div>
   );

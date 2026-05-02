@@ -41,12 +41,10 @@ const item: Variants = {
 
 export const MockKnowledgePanel: FC<Props> = ({ scenario, className }) => {
   return (
-    <div className={cn('relative', className)} style={{ width: 800 }}>
+    <div className={cn('relative w-full max-w-[800px]', className)}>
       {/* Main panel */}
-      <div
-        style={{ width: 800, height: 940 }}
-        className="relative flex flex-col rounded-xl bg-amber-50/40 shadow-xl backdrop-blur-xl"
-      >
+      <div className="relative flex h-[940px] w-full flex-col rounded-xl bg-card shadow-xl">
+
         {/* Breadcrumb */}
         <div className="border-b border-border px-5 pt-4 pb-3">
           <MockBreadcrumb items={['Workspace', 'Knowledge Base']} />

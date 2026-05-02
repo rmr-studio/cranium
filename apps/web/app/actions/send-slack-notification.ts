@@ -1,80 +1,9 @@
 'use server';
 
-type JoinPayload = {
-  type: 'join';
+type SlackPayload = {
   name: string;
   email: string;
 };
-
-type SurveyPayload = {
-  type: 'survey';
-  name: string;
-  email: string;
-  businessOverview?: string;
-  painPoints: string[];
-  painPointsOther?: string;
-  integrations: string[];
-  involvement: string;
-};
-
-type SlackPayload = JoinPayload | SurveyPayload;
-
-function buildJoinBlocks(payload: JoinPayload) {
-  return [
-    {
-      type: 'header',
-      text: { type: 'plain_text', text: 'New Waitlist Signup', emoji: true },
-    },
-    {
-      type: 'section',
-      fields: [
-        { type: 'mrkdwn', text: `*Name:*\n${payload.name}` },
-        { type: 'mrkdwn', text: `*Email:*\n${payload.email}` },
-      ],
-    },
-  ];
-}
-
-function buildSurveyBlocks(payload: SurveyPayload) {
-  const fields: { type: string; text: string }[] = [
-    { type: 'mrkdwn', text: `*Name:*\n${payload.name}` },
-    { type: 'mrkdwn', text: `*Email:*\n${payload.email}` },
-  ];
-
-  if (payload.businessOverview) {
-    fields.push({ type: 'mrkdwn', text: `*Business Overview:*\n${payload.businessOverview}` });
-  }
-
-  if (payload.painPoints.length > 0) {
-    const painText = payload.painPointsOther
-      ? [...payload.painPoints, `Other: ${payload.painPointsOther}`].join('\n• ')
-      : payload.painPoints.join('\n• ');
-    fields.push({ type: 'mrkdwn', text: `*Pain Points:*\n• ${painText}` });
-  }
-
-  if (payload.integrations.length > 0) {
-    fields.push({ type: 'mrkdwn', text: `*Integrations:*\n${payload.integrations.join(', ')}` });
-  }
-
-  fields.push({ type: 'mrkdwn', text: `*Involvement:*\n${payload.involvement}` });
-
-  return [
-    {
-      type: 'header',
-      text: { type: 'plain_text', text: 'Survey Completed', emoji: true },
-    },
-    {
-      type: 'section',
-      fields: fields.slice(0, 2),
-    },
-    ...(fields.length > 2
-      ? fields.slice(2).map((field) => ({
-          type: 'section' as const,
-          text: field,
-        }))
-      : []),
-  ];
-}
 
 export async function sendSlackNotification(
   payload: SlackPayload,
@@ -86,8 +15,19 @@ export async function sendSlackNotification(
   }
 
   try {
-    const blocks =
-      payload.type === 'join' ? buildJoinBlocks(payload) : buildSurveyBlocks(payload);
+    const blocks = [
+      {
+        type: 'header',
+        text: { type: 'plain_text', text: 'New Waitlist Signup', emoji: true },
+      },
+      {
+        type: 'section',
+        fields: [
+          { type: 'mrkdwn', text: `*Name:*\n${payload.name}` },
+          { type: 'mrkdwn', text: `*Email:*\n${payload.email}` },
+        ],
+      },
+    ];
 
     const response = await fetch(webhookUrl, {
       method: 'POST',

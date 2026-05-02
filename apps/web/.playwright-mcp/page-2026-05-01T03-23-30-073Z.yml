@@ -1,0 +1,650 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - navigation [ref=e4]
+      - navigation [ref=e6]:
+        - generic [ref=e7]:
+          - generic [ref=e8]:
+            - link "riven" [ref=e9] [cursor=pointer]:
+              - /url: /
+              - img [ref=e10]
+              - generic [ref=e14]: riven
+            - navigation "Main" [ref=e16]:
+              - list [ref=e18]:
+                - link "Features" [ref=e19] [cursor=pointer]:
+                  - /url: /#features
+                  - generic [ref=e20]: Features
+                - listitem [ref=e21]:
+                  - button "Resources" [ref=e22]:
+                    - text: Resources
+                    - img [ref=e23]
+          - link "Join the Waitlist" [ref=e26] [cursor=pointer]:
+            - /url: /#waitlist
+            - button "Join the Waitlist" [ref=e27]:
+              - img [ref=e28]
+              - text: Join the Waitlist
+    - main [ref=e31]:
+      - generic [ref=e34]:
+        - generic [ref=e51]:
+          - generic [ref=e52]:
+            - generic [ref=e56]: AI proactive company brain for ecomm ops
+            - heading "The Brain That Never Sleeps" [level=1] [ref=e57]
+          - generic [ref=e58]: The connective layers bringing in context from every creak and crevice of your brand. surfacing, executing monitoring and learning from the most impactful opportunities, trends, and risks, before they even arise.
+          - generic [ref=e59]:
+            - link "Talk To The Founders" [ref=e60] [cursor=pointer]:
+              - /url: https://calendly.com/jared-rmr/30min
+              - button "Talk To The Founders" [ref=e61]:
+                - img [ref=e62]
+                - text: Talk To The Founders
+            - button "Join the Waitlist" [ref=e64]:
+              - img [ref=e65]
+              - text: Join the Waitlist
+        - generic [ref=e71]:
+          - generic [ref=e72]:
+            - img [ref=e79]
+            - img [ref=e85]
+            - img [ref=e89]
+            - img [ref=e93]
+            - img [ref=e97]
+            - img [ref=e101]
+            - generic [ref=e104]: RM
+          - generic [ref=e105]:
+            - generic [ref=e106]:
+              - generic [ref=e107]:
+                - generic [ref=e108]: Workspace
+                - generic [ref=e109]: Olive & Orchard
+              - button [ref=e110]:
+                - img [ref=e111]
+            - generic [ref=e115]:
+              - img [ref=e116]
+              - generic [ref=e119]: Filter signals…
+              - generic [ref=e120]: ⌘K
+            - generic [ref=e121]:
+              - generic [ref=e122]:
+                - img [ref=e124]
+                - generic [ref=e127]: All signals
+                - generic [ref=e128]: "6"
+              - generic [ref=e129]:
+                - img [ref=e131]
+                - generic [ref=e133]: Pinned
+                - generic [ref=e134]: "2"
+              - generic [ref=e135]:
+                - img [ref=e137]
+                - generic [ref=e140]: Triggered actions
+                - generic [ref=e141]: "4"
+            - generic [ref=e142]:
+              - generic [ref=e143]:
+                - img [ref=e145]
+                - generic [ref=e147]: Live · 3
+              - generic [ref=e151]:
+                - generic [ref=e152]: Demand spike · Linen Field Tee
+                - generic [ref=e153]: Shopify · PostHog · Klaviyo · 14m ago
+              - generic [ref=e157]:
+                - generic [ref=e158]: Refund rate above target
+                - generic [ref=e159]: Stripe · Zendesk · 47m ago
+              - generic [ref=e163]:
+                - generic [ref=e164]: CAC drift · Meta retargeting
+                - generic [ref=e165]: Meta · GA4 · 2h ago
+              - generic [ref=e166]:
+                - img [ref=e168]
+                - generic [ref=e170]: Watching · 2
+              - generic [ref=e174]:
+                - generic [ref=e175]: Inventory cover < 14d · 4 SKUs
+                - generic [ref=e176]: Shopify · 3h ago
+              - generic [ref=e181]:
+                - generic [ref=e182]: NPS detractor cluster · sizing
+                - generic [ref=e183]: Delighted · Zendesk · Yesterday
+              - generic [ref=e184]:
+                - img [ref=e186]
+                - generic [ref=e188]: Resolved · 1
+          - generic [ref=e189]:
+            - generic [ref=e190]:
+              - img [ref=e192]
+              - img [ref=e195]
+              - img [ref=e198]
+              - generic [ref=e201]:
+                - generic [ref=e203]: Demand spike · Linen Field Tee
+                - generic [ref=e204]: High
+                - generic [ref=e206]: SIG-2041
+              - generic [ref=e207]:
+                - generic [ref=e209]: JT
+                - generic [ref=e211]: ER
+                - generic [ref=e213]: MO
+              - button [ref=e215]:
+                - img [ref=e216]
+                - text: Pin
+              - img [ref=e219]
+            - generic [ref=e224]:
+              - generic [ref=e227]: Today · 09:14
+              - generic [ref=e234]:
+                - generic [ref=e235]:
+                  - generic [ref=e236]: Riven
+                  - generic [ref=e237]: APP
+                  - generic [ref=e238]: 09:14
+                - generic [ref=e239]:
+                  - generic [ref=e240]:
+                    - text: Heads up — I'm raising a
+                    - strong [ref=e241]: demand spike signal
+                    - text: "on"
+                    - generic [ref=e242]: Linen Field Tee · Sand
+                    - text: . Demand intent and sell-through have both crossed your threshold in the last 36 hours.
+                  - generic [ref=e244]:
+                    - generic [ref=e245]:
+                      - img [ref=e246]
+                      - generic [ref=e249]: Signal · demand_spike
+                      - generic [ref=e250]: ↑ 36h window
+                    - generic [ref=e251]:
+                      - generic [ref=e252]:
+                        - generic [ref=e253]: Demand intent
+                        - generic [ref=e254]:
+                          - generic [ref=e255]: 3.4×
+                          - generic [ref=e256]: +241%
+                        - generic [ref=e257]: vs 14-day baseline
+                      - generic [ref=e258]:
+                        - generic [ref=e259]: Sell-through
+                        - generic [ref=e260]:
+                          - generic [ref=e261]: 62%
+                          - generic [ref=e262]: +48 pp
+                        - generic [ref=e263]: last 7 days
+                      - generic [ref=e264]:
+                        - generic [ref=e265]: Cover (days)
+                        - generic [ref=e266]:
+                          - generic [ref=e267]: "4.2"
+                          - generic [ref=e268]: −11.8
+                        - generic [ref=e269]: at current velocity
+                    - generic [ref=e270]:
+                      - img [ref=e271]
+                      - generic [ref=e274]: 14d intent · sell-through
+                      - generic [ref=e275]: 14 → 18 → 31 → 47
+                  - generic [ref=e276]:
+                    - strong [ref=e277]: Why this matters.
+                    - text: The last time this SKU tripped both thresholds was Feb 03 → Feb 09. We were out of stock for 4 days and the inventory log shows
+                    - strong [ref=e278]: 161 missed orders
+                    - text: (~$8,855 GMV) before the next replenishment landed.
+                  - generic [ref=e279]:
+                    - generic [ref=e280]:
+                      - generic [ref=e281]: Historical · stock-out
+                      - generic [ref=e282]: FEB 03 — FEB 09
+                    - generic [ref=e283]:
+                      - generic [ref=e284]:
+                        - generic [ref=e285]: "161"
+                        - generic [ref=e286]: missed orders
+                      - generic [ref=e287]:
+                        - generic [ref=e288]: $8,855
+                        - generic [ref=e289]: missed GMV
+                      - generic [ref=e290]:
+                        - generic [ref=e291]: 4 days
+                        - generic [ref=e292]: OOS duration
+                      - generic [ref=e293]:
+                        - generic [ref=e294]: 34%
+                        - generic [ref=e295]: conversion drop
+                  - generic [ref=e296]:
+                    - text: "In the Mar 18 ops weekly, the team agreed:"
+                    - emphasis [ref=e297]: “any SKU that crosses the demand threshold goes on pre-order before the next 48h.”
+                    - text: I've drafted the pre-order config based on that rule and historical cover.
+                  - generic [ref=e298]:
+                    - generic [ref=e299]:
+                      - img [ref=e300]
+                      - generic [ref=e303]: Proposed action
+                      - generic [ref=e304]: derives from weekly-ops/2026-03-18
+                    - generic [ref=e305]:
+                      - generic [ref=e306]: Open pre-order for 600 units
+                      - generic [ref=e307]:
+                        - text: Cover the 32-day supplier lead-time gap based on projected velocity. Pre-order page goes live to inbound traffic; PO drafted to
+                        - strong [ref=e308]: Mira Textiles
+                        - text: .
+                      - generic [ref=e309]:
+                        - generic [ref=e310]: Volume
+                        - generic [ref=e311]: 600 units (90% of last reorder × spike multiplier)
+                        - generic [ref=e312]: Pre-order page
+                        - generic [ref=e313]: Shopify · ships May 28
+                        - generic [ref=e314]: PO draft
+                        - generic [ref=e315]: Mira Textiles · $4,860 · NET-30
+                        - generic [ref=e316]: Customer email
+                        - generic [ref=e317]: Klaviyo · “back in stock” → low-cover segment
+                      - generic [ref=e318]:
+                        - button [ref=e319]:
+                          - img [ref=e320]
+                          - text: Approve & run
+                        - button [ref=e322]: Edit volume
+                        - button [ref=e323]: Snooze 24h
+                        - generic [ref=e324]: 1 of 4 steps will auto-execute
+              - generic [ref=e325]:
+                - generic [ref=e326]: ER
+                - generic [ref=e327]:
+                  - generic [ref=e328]:
+                    - generic [ref=e329]: Edwin Reyes
+                    - generic [ref=e330]: 09:18
+                  - generic [ref=e331]: How sure are we on the demand intent number? Last time the spike was driven by a single TikTok and it cooled off in 3 days.
+              - generic [ref=e337]:
+                - generic [ref=e338]:
+                  - generic [ref=e339]: Riven
+                  - generic [ref=e340]: APP
+                  - generic [ref=e341]: 09:18
+                - generic [ref=e343]:
+                  - text: Different shape this time. Confidence
+                  - strong [ref=e344]: "0.84"
+                  - text: — the spike is distributed across 6 channels rather than one viral source. Sell-through is also moving in lockstep with intent (corr 0.71 over 14d). See full reasoning →
+            - generic [ref=e346]:
+              - generic [ref=e347]:
+                - img [ref=e349]
+                - img [ref=e353]
+                - img [ref=e356]
+                - img [ref=e358]
+              - generic [ref=e361]: Reply to signal · use /run to execute proposed action
+              - generic [ref=e362]:
+                - img [ref=e364]
+                - img [ref=e366]
+                - img [ref=e369]
+                - img [ref=e373]
+                - img [ref=e377]
+                - button [ref=e380]:
+                  - img [ref=e381]
+                  - text: Send
+          - generic [ref=e384]:
+            - generic [ref=e385]:
+              - generic [ref=e390]:
+                - generic [ref=e391]: Riven · context
+                - generic [ref=e392]: SIG-2041 · Demand spike
+              - img [ref=e394]
+              - img [ref=e399]
+            - generic [ref=e402]:
+              - generic [ref=e403]:
+                - generic [ref=e404]: Primary entity
+                - generic [ref=e405]:
+                  - generic [ref=e407]:
+                    - generic [ref=e408]: LFT
+                    - generic [ref=e409]:
+                      - generic [ref=e410]: Linen Field Tee · Sand
+                      - generic [ref=e411]: SKU LFT-S-SND · Product entity
+                  - generic [ref=e412]:
+                    - generic [ref=e413]:
+                      - generic [ref=e414]: In stock
+                      - generic [ref=e415]: "84"
+                    - generic [ref=e416]:
+                      - generic [ref=e417]: On order
+                      - generic [ref=e418]: "0"
+                    - generic [ref=e419]:
+                      - generic [ref=e420]: Velocity
+                      - generic [ref=e421]: 20/d
+              - generic [ref=e422]:
+                - generic [ref=e423]:
+                  - text: Related entities
+                  - generic [ref=e424]: · 4
+                - generic [ref=e425]:
+                  - generic [ref=e426]:
+                    - generic [ref=e427]: MT
+                    - generic [ref=e428]:
+                      - generic [ref=e429]: Mira Textiles
+                      - generic [ref=e430]: Supplier · 32d lead time
+                    - img [ref=e431]
+                  - generic [ref=e433]:
+                    - generic [ref=e434]: FS
+                    - generic [ref=e435]:
+                      - generic [ref=e436]: SS26 · Field Series
+                      - generic [ref=e437]: Collection · 12 SKUs
+                    - img [ref=e438]
+                  - generic [ref=e440]:
+                    - generic [ref=e441]: LC
+                    - generic [ref=e442]:
+                      - generic [ref=e443]: Low-cover waitlist
+                      - generic [ref=e444]: Segment · 1,284 contacts
+                    - img [ref=e445]
+                  - generic [ref=e447]:
+                    - generic [ref=e448]: TT
+                    - generic [ref=e449]:
+                      - generic [ref=e450]: TT — Linen drop
+                      - generic [ref=e451]: Campaign · live · TikTok
+                    - img [ref=e452]
+              - generic [ref=e454]:
+                - generic [ref=e455]:
+                  - text: Integration data
+                  - generic [ref=e456]: · 5
+                - generic [ref=e457]:
+                  - generic [ref=e458]:
+                    - generic [ref=e459]: S
+                    - generic [ref=e460]:
+                      - generic [ref=e461]:
+                        - generic [ref=e462]: Shopify ·
+                        - text: Sales orders · 14d
+                      - generic [ref=e463]: sessions/PDP/SKU
+                    - generic [ref=e464]: +241%
+                  - generic [ref=e465]:
+                    - generic [ref=e466]: P
+                    - generic [ref=e467]:
+                      - generic [ref=e468]:
+                        - generic [ref=e469]: PostHog ·
+                        - text: add_to_cart events
+                      - generic [ref=e470]: 7d vs 28d baseline
+                    - generic [ref=e471]: +198%
+                  - generic [ref=e472]:
+                    - generic [ref=e473]: K
+                    - generic [ref=e474]:
+                      - generic [ref=e475]:
+                        - generic [ref=e476]: Klaviyo ·
+                        - text: “Notify me” subscriptions
+                      - generic [ref=e477]: past 36h
+                    - generic [ref=e478]: 540 new
+                  - generic [ref=e479]:
+                    - generic [ref=e480]: Z
+                    - generic [ref=e481]:
+                      - generic [ref=e482]:
+                        - generic [ref=e483]: Zendesk ·
+                        - text: “when restock” tickets
+                      - generic [ref=e484]: last 7d
+                    - generic [ref=e485]: 12 open
+                  - generic [ref=e486]:
+                    - generic [ref=e487]: S
+                    - generic [ref=e488]:
+                      - generic [ref=e489]:
+                        - generic [ref=e490]: Stripe ·
+                        - text: AOV on this SKU
+                      - generic [ref=e491]: +$3.10 vs avg
+                    - generic [ref=e492]: $54.98
+              - generic [ref=e493]:
+                - generic [ref=e494]:
+                  - text: Meeting note
+                  - generic [ref=e495]: · 1
+                - generic [ref=e496]:
+                  - generic [ref=e497]:
+                    - img [ref=e498]
+                    - generic [ref=e500]: Weekly ops · Mar 18
+                    - generic [ref=e501]: 5 attendees
+                  - generic [ref=e502]: // agreed Any SKU that crosses the demand-spike threshold goes on pre-order before the next 48h. Volume = 90% of last reorder × spike multiplier. Maya owns customer comms.
+                  - generic [ref=e503]:
+                    - generic [ref=e504]: ER
+                    - generic [ref=e505]: MO
+                    - generic [ref=e506]: JT
+                    - generic [ref=e507]: GL
+                    - generic [ref=e508]: TP
+                    - generic [ref=e509] [cursor=pointer]: Open transcript
+              - generic [ref=e510]:
+                - generic [ref=e511]:
+                  - text: Action items
+                  - generic [ref=e512]: · 4
+                - generic [ref=e513]:
+                  - generic [ref=e516]:
+                    - generic [ref=e517]: Open Shopify pre-order page · ships May 28
+                    - generic [ref=e518]:
+                      - generic [ref=e519]: Riven
+                      - generic [ref=e521]: AUTO
+                  - generic [ref=e524]:
+                    - generic [ref=e525]: Draft PO to Mira Textiles · 600u · NET-30
+                    - generic [ref=e526]:
+                      - generic [ref=e527]: Riven
+                      - generic [ref=e529]: AUTO
+                  - generic [ref=e532]:
+                    - generic [ref=e533]: Notify low-cover Klaviyo segment
+                    - generic [ref=e535]: Maya
+                  - generic [ref=e538]:
+                    - generic [ref=e539]: Confirm 32d lead time with supplier
+                    - generic [ref=e541]: Edwin
+        - generic [ref=e548]:
+          - generic [ref=e550]:
+            - heading "Powering Proactive E-Commerce Operations" [level=2] [ref=e551]
+            - paragraph [ref=e552]: Your CRM sees deals. Stripe sees payments. Intercom sees tickets. Riven sees the connection, and what to do next.
+          - generic [ref=e556]: Reel · Insights
+          - generic [ref=e564]:
+            - article [ref=e566]:
+              - img [ref=e570]
+              - generic [ref=e578]:
+                - generic [ref=e579]:
+                  - generic [ref=e580]: riven.app
+                  - generic [ref=e581]:
+                    - text: Cross-domain
+                    - text: insight
+                  - img [ref=e582]
+                - heading "Title 1" [level=3] [ref=e586]
+                - paragraph [ref=e587]: text text text text text text text text text text text text
+              - generic [ref=e588]:
+                - generic [ref=e589]:
+                  - img [ref=e590]
+                  - img [ref=e592]
+                  - img [ref=e594]
+                - generic [ref=e597]:
+                  - generic [ref=e598]: 01 / 05
+                  - img [ref=e599]
+            - article [ref=e602]:
+              - img [ref=e606]
+              - generic [ref=e614]:
+                - generic [ref=e615]:
+                  - generic [ref=e616]: riven.app
+                  - generic [ref=e617]:
+                    - text: Cross-domain
+                    - text: insight
+                  - img [ref=e618]
+                - heading "Title 2" [level=3] [ref=e622]
+                - paragraph [ref=e623]: text text text text text text text text text text text text
+              - generic [ref=e624]:
+                - generic [ref=e625]:
+                  - img [ref=e626]
+                  - img [ref=e628]
+                  - img [ref=e630]
+                - generic [ref=e633]:
+                  - generic [ref=e634]: 02 / 05
+                  - img [ref=e635]
+            - article [ref=e638]:
+              - img [ref=e642]
+              - generic [ref=e650]:
+                - generic [ref=e651]:
+                  - generic [ref=e652]: riven.app
+                  - generic [ref=e653]:
+                    - text: Cross-domain
+                    - text: insight
+                  - img [ref=e654]
+                - heading "Title 3" [level=3] [ref=e658]
+                - paragraph [ref=e659]: text text text text text text text text text text text text
+              - generic [ref=e660]:
+                - generic [ref=e661]:
+                  - img [ref=e662]
+                  - img [ref=e664]
+                  - img [ref=e666]
+                - generic [ref=e669]:
+                  - generic [ref=e670]: 03 / 05
+                  - img [ref=e671]
+            - article [ref=e674]:
+              - img [ref=e678]
+              - generic [ref=e686]:
+                - generic [ref=e687]:
+                  - generic [ref=e688]: riven.app
+                  - generic [ref=e689]:
+                    - text: Cross-domain
+                    - text: insight
+                  - img [ref=e690]
+                - heading "Title 4" [level=3] [ref=e694]
+                - paragraph [ref=e695]: text text text text text text text text text text text text
+              - generic [ref=e696]:
+                - generic [ref=e697]:
+                  - img [ref=e698]
+                  - img [ref=e700]
+                  - img [ref=e702]
+                - generic [ref=e705]:
+                  - generic [ref=e706]: 04 / 05
+                  - img [ref=e707]
+            - article [ref=e710]:
+              - img [ref=e714]
+              - generic [ref=e722]:
+                - generic [ref=e723]:
+                  - generic [ref=e724]: riven.app
+                  - generic [ref=e725]:
+                    - text: Cross-domain
+                    - text: insight
+                  - img [ref=e726]
+                - heading "Title 5" [level=3] [ref=e730]
+                - paragraph [ref=e731]: text text text text text text text text text text text text
+              - generic [ref=e732]:
+                - generic [ref=e733]:
+                  - img [ref=e734]
+                  - img [ref=e736]
+                  - img [ref=e738]
+                - generic [ref=e741]:
+                  - generic [ref=e742]: 05 / 05
+                  - img [ref=e743]
+          - generic [ref=e746]: Scroll ↓
+        - generic [ref=e750]:
+          - generic [ref=e751]:
+            - img [ref=e754]
+            - img [ref=e767]
+            - img [ref=e774]
+            - img [ref=e783]
+            - img [ref=e789]
+            - img [ref=e802]
+            - img [ref=e806]
+            - img [ref=e819]
+            - img [ref=e826]
+            - img [ref=e842]
+            - img [ref=e854]
+            - img [ref=e861]
+          - generic:
+            - generic: Integrations
+            - heading "Riven brings in context from everywhere" [level=2]
+            - paragraph: Plug in the systems you already run on. Riven listens, links, and learns across every tool — so context never gets lost between tabs.
+        - generic [ref=e868]:
+          - generic [ref=e869]:
+            - heading "What you get back with Riven." [level=2] [ref=e870]
+            - paragraph [ref=e871]: Agents watch the data, surface what matters, and execute the next step with context from your internal SOPS, meeting notes and brand guidelines. So your team stops drowning in triage, meetings, and manual follow-ups, and starts moving at the speed of the business.
+          - generic [ref=e874]:
+            - generic [ref=e875]:
+              - paragraph [ref=e876]: Catching the signal
+              - paragraph [ref=e877]: Minutes, not days
+              - paragraph [ref=e878]: Like a team member that doesn't sleep. Riven spots problems, patterns and opportunities before you even see them. Acting on it automaticlaly or giving you everything you need to act fast.
+            - generic [ref=e879]:
+              - paragraph [ref=e880]: Stop the research & triage
+              - paragraph [ref=e881]: 4–6 hours per week
+              - paragraph [ref=e882]: No more pulling context from Shopify, Klaviyo, Slack and Support to figure out what's actually happening before anyone can decide what to do about it.
+            - generic [ref=e883]:
+              - paragraph [ref=e884]: Reduce the meetings needed to align
+              - paragraph [ref=e885]: 5+ syncs per decision
+              - paragraph [ref=e886]: Standups, threads, and follow-ups to get everyone on the same page before a single action gets taken. Context-switching eats the day.
+            - generic [ref=e887]:
+              - paragraph [ref=e888]: No more manual execution
+              - paragraph [ref=e889]: Every. Single. Time.
+              - paragraph [ref=e890]: Riven studies the outcomes of past actions to know exactly what to do, and when, to get the best outcome. Then it does it, autonomously (or with your approval), every time.
+            - generic [ref=e891]:
+              - generic [ref=e892]:
+                - paragraph [ref=e893]: Close the loop
+                - paragraph [ref=e894]: What you reclaim
+                - paragraph [ref=e895]: Days of lag between something happening and someone acting on it. The meetings, the triage, the manual follow-through — compressed into a single autonomous loop.
+              - generic [ref=e896]:
+                - paragraph [ref=e897]: Improved customer loyalty
+                - paragraph [ref=e898]: Days → minutes
+                - paragraph [ref=e899]: 5+ meetings
+                - paragraph [ref=e900]: 10+ hours back
+                - paragraph [ref=e901]: 1 autonomous loop
+        - generic [ref=e902]:
+          - heading "Latest from the blog" [level=2] [ref=e903]
+          - generic [ref=e904]:
+            - link [ref=e905] [cursor=pointer]:
+              - /url: /resources/blog/find-your-most-valuable-cohort
+              - article [ref=e906]:
+                - img "How to Find Your Most Valuable Customer Cohort in 30 Minutes" [ref=e908]
+                - generic [ref=e909]:
+                  - text: Operational Intelligence
+                  - heading "How to Find Your Most Valuable Customer Cohort in 30 Minutes" [level=3] [ref=e910]
+                  - paragraph [ref=e911]: Most operators analyse churn. The higher-leverage question is who stays and what they share across every tool in your stack. Here's how to trace it in an afternoon.
+            - generic [ref=e912]:
+              - link [ref=e913] [cursor=pointer]:
+                - /url: /resources/blog/which-channels-produce-customers-who-stay
+                - article [ref=e914]:
+                  - text: Operational Intelligence
+                  - heading "Which Channels Produce Customers Who Stay?" [level=3] [ref=e915]
+                  - paragraph [ref=e916]: Your best-performing channel by CAC might be your worst by 90-day retention. A framework for measuring true channel quality.
+                  - generic [ref=e917]: 9 min read
+              - link [ref=e918] [cursor=pointer]:
+                - /url: /resources/blog/you-are-the-api
+                - article [ref=e919]:
+                  - text: Operational Intelligence
+                  - 'heading "You Are the API: The Hidden Cost of Being the Human Integration Layer" [level=3] [ref=e920]'
+                  - paragraph [ref=e921]: DTC operators spend 9.3 hours per week being the glue between tools. Here are the 5 ways it is costing your business more than you think.
+                  - generic [ref=e922]: 9 min read
+              - link [ref=e923] [cursor=pointer]:
+                - /url: /resources/blog/tracking-churn-across-tools
+                - article [ref=e924]:
+                  - text: Operational Intelligence
+                  - heading "How to Track Customer Churn When Your Data Lives in 6 Different Tools" [level=3] [ref=e925]
+                  - paragraph [ref=e926]: 52% of subscribers churn in year one, but no single tool shows you why. A cross-tool churn tracking framework for DTC operators.
+                  - generic [ref=e927]: 14 min read
+          - link "View all posts →" [ref=e929] [cursor=pointer]:
+            - /url: /resources/blog
+        - generic [ref=e931]:
+          - heading "Frequently Asked Questions" [level=2] [ref=e932]
+          - generic [ref=e933]:
+            - heading "What does Riven actually do?" [level=3] [ref=e935]:
+              - button "What does Riven actually do?" [ref=e936]:
+                - text: What does Riven actually do?
+                - img
+            - heading "Who uses Riven?" [level=3] [ref=e938]:
+              - button "Who uses Riven?" [ref=e939]:
+                - text: Who uses Riven?
+                - img
+            - heading "Does Riven replace my existing tools?" [level=3] [ref=e941]:
+              - button "Does Riven replace my existing tools?" [ref=e942]:
+                - text: Does Riven replace my existing tools?
+                - img
+            - heading "How is this different from Notion, Airtable or other tool?" [level=3] [ref=e944]:
+              - button "How is this different from Notion, Airtable or other tool?" [ref=e945]:
+                - text: How is this different from Notion, Airtable or other tool?
+                - img
+            - heading "How does Riven ensure AI answers are accurate?" [level=3] [ref=e947]:
+              - button "How does Riven ensure AI answers are accurate?" [ref=e948]:
+                - text: How does Riven ensure AI answers are accurate?
+                - img
+            - heading "What happens when I join the waitlist?" [level=3] [ref=e950]:
+              - button "What happens when I join the waitlist?" [ref=e951]:
+                - text: What happens when I join the waitlist?
+                - img
+          - link "View all questions →" [ref=e952] [cursor=pointer]:
+            - /url: /resources/faq
+        - generic [ref=e956]:
+          - heading "Your next breakthrough, On Us" [level=2] [ref=e957]
+          - generic [ref=e958]:
+            - text: Join the waitlist, receive updates and secure your spot as a founding team and help shape the platform before it launches. Join the waitlist and lock in early-access pricing, with up to 50% off your first year when Riven goes live.
+            - generic [ref=e959]: Takes under 2 minutes.
+          - button "Join the Waitlist" [ref=e963] [cursor=pointer]:
+            - text: Join the Waitlist
+            - img [ref=e964]
+  - contentinfo [ref=e966]:
+    - generic [ref=e967]:
+      - generic [ref=e968]:
+        - generic [ref=e969]:
+          - link "riven" [ref=e970] [cursor=pointer]:
+            - /url: /
+            - img [ref=e971]
+            - generic [ref=e975]: riven
+          - generic [ref=e976]: Think fast. Act fast. Grow Fast.
+        - generic [ref=e977]:
+          - generic [ref=e978]:
+            - heading "Socials" [level=3] [ref=e979]
+            - list [ref=e980]:
+              - listitem [ref=e981]:
+                - link "X (Formerly Twitter)" [ref=e982] [cursor=pointer]:
+                  - /url: https://x.com/withriven
+              - listitem [ref=e983]:
+                - link "LinkedIn" [ref=e984] [cursor=pointer]:
+                  - /url: https://linkedin.com/company/getriven
+          - generic [ref=e985]:
+            - heading "Product" [level=3] [ref=e986]
+            - list [ref=e987]:
+              - listitem [ref=e988]:
+                - link "Story" [ref=e989] [cursor=pointer]:
+                  - /url: /story
+              - listitem [ref=e990]:
+                - link "Blog" [ref=e991] [cursor=pointer]:
+                  - /url: /resources/blog
+              - listitem [ref=e992]:
+                - link "Changelog" [ref=e993] [cursor=pointer]:
+                  - /url: /resources/blog/category/changelog
+              - listitem [ref=e994]:
+                - link "FAQ" [ref=e995] [cursor=pointer]:
+                  - /url: /resources/faq
+          - generic [ref=e996]:
+            - heading "Legal" [level=3] [ref=e997]
+            - list [ref=e998]:
+              - listitem [ref=e999]:
+                - link "Privacy Policy" [ref=e1000] [cursor=pointer]:
+                  - /url: /privacy
+      - paragraph [ref=e1002]: © 2026 Riven. All rights reserved.
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e1008] [cursor=pointer]:
+    - img [ref=e1009]
+  - alert [ref=e1012]

@@ -1,0 +1,28 @@
+- generic [active] [ref=e1]:
+  - banner:
+    - generic [ref=e2]:
+      - link "Cosmos Logo" [ref=e3] [cursor=pointer]:
+        - /url: /
+        - img "Cosmos Logo" [ref=e4]
+      - button "Menu Open" [ref=e12] [cursor=pointer]:
+        - generic [ref=e13]: Menu
+        - img "Open" [ref=e14]
+    - generic [ref=e16]:
+      - combobox [ref=e17]:
+        - img [ref=e19]
+        - generic [ref=e22]:
+          - combobox [ref=e23]
+          - generic: Search Cosmos…
+        - generic [ref=e24]:
+          - button [ref=e25] [cursor=pointer]:
+            - img [ref=e27]
+          - button [ref=e30] [cursor=pointer]:
+            - img [ref=e32]
+      - textbox [ref=e41]
+    - generic [ref=e42]:
+      - link "Login" [ref=e43] [cursor=pointer]:
+        - /url: /login
+      - link "Sign up" [ref=e44] [cursor=pointer]:
+        - /url: /start
+  - main [ref=e45]
+  - alert [ref=e46]

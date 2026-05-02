@@ -14,8 +14,8 @@ export function FeaturedPosts({ featured, recent }: FeaturedPostsProps) {
   if (!featured) return null;
 
   return (
-    <section className="relative z-20 px-6 py-20 lg:px-12">
-      <h2 className="mb-12 font-serif text-3xl lg:text-6xl">Latest from the blog</h2>
+    <section className="relative z-20 mx-auto border-x border-x-content/25 px-6 py-20 lg:px-12 2xl:max-w-[min(90dvw,var(--breakpoint-3xl))]">
+      <h2 className="mb-12 font-bit text-3xl lg:text-6xl">Latest from the blog</h2>
 
       <div className="grid gap-8 lg:grid-cols-5">
         {/* Featured post — large with cover image */}

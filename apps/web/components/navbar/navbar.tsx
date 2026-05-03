@@ -61,7 +61,7 @@ export function Navbar() {
   }, []);
 
   return (
-    <header className="fixed top-0 right-0 left-0 z-80">
+    <header className="fixed top-0 right-0 left-0 z-90">
       <nav
         data-navbar=""
         data-inverted={isInverted || undefined}

@@ -3,7 +3,7 @@ import { Waitlist } from '@/components/feature-modules/waitlist/components/waitl
 
 export default function FaqPage() {
   return (
-    <main className="mt-18 min-h-screen overflow-x-clip">
+    <main className="mt-18 min-h-svh overflow-x-clip">
       <Faq />
       <Waitlist />
     </main>

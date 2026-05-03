@@ -44,8 +44,9 @@ function PortraitLayout() {
       <div className="mx-auto hidden w-5/6 md:block">
         <ChatCard />
       </div>
-
-      <FlowArrow />
+      <div className="hidden sm:block">
+        <FlowArrow />
+      </div>
 
       <div className="mx-auto flex flex-col space-y-8 sm:w-2/3">
         <MemoryCard compact />
@@ -334,7 +335,7 @@ const RUN_STEPS: RunStep[] = [
     icon: <BrandShopify size={12} />,
     iconBg: 'oklch(0.99 0.004 81)',
     what: 'Drafting pre-order · Shopify',
-    detail: 'Saved as draft · awaiting Edwin',
+    detail: 'Saved as draft · awaiting Jared',
     status: 'queue',
   },
 ];
@@ -425,7 +426,7 @@ function RunStatus({ status }: { status: RunStep['status'] }) {
 
 function MemoryCard({ compact }: { compact?: boolean } = {}) {
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card shadow-md">
+    <div className="h-full overflow-hidden rounded-lg border border-border bg-card shadow-md">
       <div
         className="flex items-center gap-2.5 px-3 py-2.5"
         style={{ background: 'var(--foreground)', color: 'oklch(0.97 0.008 92)' }}
@@ -444,7 +445,7 @@ function MemoryCard({ compact }: { compact?: boolean } = {}) {
             className="mt-0.5 truncate font-mono text-[9px] tracking-wider uppercase"
             style={{ opacity: 0.6 }}
           >
-            New memory · learned from Edwin
+            New memory · learned from Jared
           </div>
         </div>
         <span
@@ -469,7 +470,7 @@ function MemoryCard({ compact }: { compact?: boolean } = {}) {
 
         {!compact && (
           <MemRow label="Approval">
-            Edwin must approve <b className="font-semibold text-heading">step 4</b> before it runs.
+            Jared must approve <b className="font-semibold text-heading">step 4</b> before it runs.
           </MemRow>
         )}
       </div>
@@ -509,7 +510,7 @@ function TriggerPill({ children }: { children: React.ReactNode }) {
 
 function GlossaryCard({ compact }: { compact?: boolean } = {}) {
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card shadow-md">
+    <div className="hidden h-full flex-col overflow-hidden rounded-lg border border-border bg-card shadow-md sm:flex">
       <div className="border-b border-dashed border-border px-3 py-2.5">
         <div className="mb-1 flex items-center gap-2 font-mono text-[8.5px] tracking-wider text-muted-foreground uppercase">
           <span
@@ -527,7 +528,7 @@ function GlossaryCard({ compact }: { compact?: boolean } = {}) {
           hero SKU
         </div>
         <div className="mt-1 font-mono text-[9.5px] text-muted-foreground">
-          noun · merchandising · <em>defined by Edwin</em>
+          noun · merchandising · <em>defined by Jared</em>
         </div>
       </div>
 

@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 const items = [
   {
     label: 'Catching the signal',
-    metric: 'Action in minutes, not days',
+    metric: 'Action in days, not weeks or months.',
     description:
       "Like a team member that doesn't sleep. Riven spots problems, patterns and opportunities before you even see them. Acting on it automaticlaly or giving you everything you need to act fast.",
   },
@@ -86,27 +86,16 @@ export function TimeSaved() {
               </div>
 
               {/* Summary + compound stats (spans 2 columns) */}
-              <div className="col-span-2 flex flex-col justify-between border-l border-content/50 p-7 lg:flex-row lg:items-end lg:p-8">
-                <div>
-                  <p className="mb-2 font-display text-xs tracking-wide">Close the loop</p>
-                  <p className="mb-3 font-bit text-lg font-medium tracking-tight lg:text-xl">
-                    What you reclaim
-                  </p>
-                  <p className="font-display text-sm leading-[1.1] tracking-tighter text-content/90">
-                    Days of lag between something happening and someone acting on it. The meetings,
-                    the triage, the manual follow-through — compressed into a single autonomous
-                    loop.
-                  </p>
-                </div>
+              <div className="col-span-2 flex flex-col items-end justify-between space-y-8 border-l border-content/50 p-7 lg:p-8">
                 <div className="mt-6 shrink-0 space-y-0.5 font-light tracking-tight lg:mt-0 lg:pl-8 lg:text-right">
                   <p className="font-display text-3xl text-primary lg:text-4xl xl:text-5xl">
                     Improved customer loyalty
                   </p>
                   <p className="font-display text-3xl text-primary lg:text-4xl xl:text-5xl">
-                    Days → minutes
+                    Action in Weeks → Days
                   </p>
                   <p className="font-display text-3xl text-primary lg:text-4xl xl:text-5xl">
-                    5+ meetings
+                    Skip the useless meetings
                   </p>
                   <p className="font-display text-3xl text-primary lg:text-4xl xl:text-5xl">
                     10+ hours back
@@ -122,7 +111,7 @@ export function TimeSaved() {
         </div>
 
         {/* Mobile layout */}
-        <div className="flex flex-col gap-4 md:hidden">
+        <div className="flex flex-col gap-4 px-8 md:hidden">
           {items.map((item) => (
             <div key={item.label} className="border-l-2 border-content/50 py-4 pr-3 pl-5">
               <p className="font-bit text-base font-medium tracking-tight">{item.metric}</p>
@@ -132,17 +121,12 @@ export function TimeSaved() {
             </div>
           ))}
           <div className="border-l-2 border-content/50 py-4 pr-3 pl-5 font-bit">
-            <p className="font-bit text-base font-medium tracking-tight">What you reclaim</p>
-            <p className="mt-1.5 font-display text-sm leading-[1.1] tracking-tighter text-content/90">
-              Days of lag between something happening and someone acting on it. The meetings, the
-              triage, the manual follow-through — compressed into a single autonomous loop.
-            </p>
             <div className="mt-4 space-y-0.5 font-light tracking-tight">
               <p className="font-display text-2xl text-primary lg:text-4xl xl:text-5xl">
-                Days → minutes
+                Action in Weeks → Days
               </p>
               <p className="font-display text-2xl text-primary lg:text-4xl xl:text-5xl">
-                5+ meetings
+                Skip the useless meetings
               </p>
               <p className="font-display text-2xl text-primary lg:text-4xl xl:text-5xl">
                 10+ hours back

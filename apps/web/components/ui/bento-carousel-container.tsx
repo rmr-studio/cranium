@@ -398,7 +398,7 @@ export function BentoCarouselContainer({
                 <div
                   key={index}
                   data-slide
-                  className="h-[clamp(600px,80vh,1000px)] flex-shrink-0"
+                  className="h-[clamp(600px,80svh,1000px)] flex-shrink-0"
                   style={{
                     width: inset
                       ? isLast

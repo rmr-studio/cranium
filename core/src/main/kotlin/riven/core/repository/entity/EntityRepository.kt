@@ -117,4 +117,22 @@ interface EntityRepository : JpaRepository<EntityEntity, UUID> {
         sourceExternalIds: Collection<String>,
     ): List<EntityEntity>
 
+    /**
+     * Find integration-sourced entities of a given type-key whose `pending_associations`
+     * column is non-null. Used by the integration sync reconciliation pass to retry
+     * resolving foreign references after sibling rows arrive in later syncs.
+     */
+    @Query("""
+        SELECT e FROM EntityEntity e
+        WHERE e.workspaceId = :workspaceId
+          AND e.sourceIntegrationId = :sourceIntegrationId
+          AND e.typeKey = :typeKey
+          AND e.pendingAssociations IS NOT NULL
+    """)
+    fun findPendingAssociationsByTypeKey(
+        workspaceId: UUID,
+        sourceIntegrationId: UUID,
+        typeKey: String,
+    ): List<EntityEntity>
+
 }

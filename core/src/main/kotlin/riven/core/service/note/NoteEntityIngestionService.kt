@@ -2,6 +2,7 @@ package riven.core.service.note
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
+import riven.core.entity.entity.EntityEntity
 import riven.core.entity.entity.EntityTypeEntity
 import riven.core.enums.entity.SystemRelationshipType
 import riven.core.enums.integration.SourceType
@@ -49,6 +50,13 @@ class NoteEntityIngestionService(
         override val sourceExternalId: String? = null,
         override val linkSource: SourceType = SourceType.USER_CREATED,
         override val existingId: UUID? = null,
+        /**
+         * Unresolved foreign references captured at sync time. When non-null, persisted
+         * onto `entities.pending_associations` so the integration reconciliation pass can
+         * retry resolution after sibling rows arrive. Set to an empty map to explicitly
+         * clear the column on this upsert.
+         */
+        val pendingAssociations: Map<String, List<String>>? = null,
     ) : KnowledgeIngestionInput
 
     override fun buildAttributePayload(
@@ -62,4 +70,45 @@ class NoteEntityIngestionService(
 
     override fun relationshipBatches(input: NoteIngestionInput): List<KnowledgeRelationshipBatch> =
         listOf(KnowledgeRelationshipBatch(SystemRelationshipType.ATTACHMENT, input.targetEntityIds))
+
+    override fun postSave(saved: EntityEntity, input: NoteIngestionInput) {
+        val newValue = input.pendingAssociations?.takeIf { it.isNotEmpty() }
+        if (saved.pendingAssociations == newValue) return
+        saved.pendingAssociations = newValue
+        entityRepository.save(saved)
+    }
+
+    /**
+     * Reconcile attachments + clear `pending_associations` on an existing note entity without
+     * touching its attribute payload. Used by integration sync reconciliation passes that
+     * resolve previously-unattached notes once sibling target rows arrive.
+     */
+    @org.springframework.transaction.annotation.Transactional
+    open fun reconcileAttachments(
+        workspaceId: UUID,
+        entityId: UUID,
+        targetEntityIds: Set<UUID>,
+        linkSource: SourceType = SourceType.INTEGRATION,
+    ) {
+        val entity = entityRepository.findById(entityId).orElseThrow {
+            IllegalStateException("Note entity $entityId not found for reconciliation")
+        }
+        require(entity.workspaceId == workspaceId) {
+            "Note entity $entityId workspaceId=${entity.workspaceId} does not match expected $workspaceId"
+        }
+        val def = entityTypeRelationshipService.getOrCreateSystemDefinition(
+            workspaceId, entity.typeId, SystemRelationshipType.ATTACHMENT,
+        )
+        entityIngestionService.replaceRelationshipsInternal(
+            workspaceId = workspaceId,
+            sourceEntityId = entityId,
+            relationshipDefinitionId = requireNotNull(def.id) { "system relationship definition id must not be null" },
+            targetIds = targetEntityIds,
+            linkSource = linkSource,
+        )
+        if (entity.pendingAssociations != null) {
+            entity.pendingAssociations = null
+            entityRepository.save(entity)
+        }
+    }
 }

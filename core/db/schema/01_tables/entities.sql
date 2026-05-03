@@ -77,6 +77,12 @@ CREATE TABLE IF NOT EXISTS public.entities
     "last_synced_at"        TIMESTAMPTZ,
     "sync_version"          BIGINT      NOT NULL     DEFAULT 0,
 
+    -- Unresolved foreign references captured at integration sync time. Map of
+    -- association type → list of external IDs that did not resolve to local entities
+    -- when the row was upserted. Reconciliation passes (per integration domain) consume
+    -- this column to retry resolution after sibling rows arrive in later syncs.
+    "pending_associations"  JSONB,
+
     -- Composite uniqueness so sibling tables (e.g. entity_connotation) can declare a
     -- composite FK on (id, workspace_id) and enforce that the workspace_id of any
     -- referencing row matches the entity it points at. id alone is already PK; this

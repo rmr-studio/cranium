@@ -1,7 +1,9 @@
 package riven.core.entity.entity
 
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.SQLRestriction
+import org.hibernate.annotations.Type
 import riven.core.entity.util.AuditableSoftDeletableEntity
 import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
@@ -81,6 +83,10 @@ data class EntityEntity(
 
     @Column(name = "sync_version", nullable = false)
     var syncVersion: Long = 0,
+
+    @Type(JsonBinaryType::class)
+    @Column(name = "pending_associations", columnDefinition = "jsonb")
+    var pendingAssociations: Map<String, List<String>>? = null,
 ) : AuditableSoftDeletableEntity() {
     
     /**

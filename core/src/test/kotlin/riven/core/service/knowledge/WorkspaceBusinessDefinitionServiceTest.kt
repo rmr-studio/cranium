@@ -36,12 +36,10 @@ import riven.core.service.util.factory.entity.EntityFactory
 import java.util.UUID
 
 /**
- * Post-cutover WorkspaceBusinessDefinitionService coverage. The service no longer
- * touches WorkspaceBusinessDefinitionRepository — every read and write path goes
- * through the entity layer (GlossaryEntityIngestionService for mutations,
- * GlossaryEntityProjector for reads). These tests verify the controller-facing
- * contract (signatures + activity log + duplicate-term enforcement + readonly /
- * not-found behaviour) without re-asserting the legacy table behaviour.
+ * WorkspaceBusinessDefinitionService coverage. Every read and write path goes through
+ * the entity layer (GlossaryEntityIngestionService for mutations, GlossaryEntityProjector
+ * for reads). These tests verify the controller-facing contract (signatures + activity
+ * log + duplicate-term enforcement + readonly / not-found behaviour).
  */
 @SpringBootTest(
     classes = [

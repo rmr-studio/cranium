@@ -30,11 +30,9 @@ import riven.core.service.util.factory.entity.EntityFactory
 import java.util.UUID
 
 /**
- * Post-cutover NoteService coverage. The service no longer touches NoteRepository or
- * NoteEntityAttachmentRepository — every read and write path goes through the entity layer
+ * NoteService coverage. Every read and write path goes through the entity layer
  * (NoteEntityIngestionService for mutations, NoteEntityProjector for reads). These tests
- * verify the controller-facing contract (signatures + activity log + readonly enforcement)
- * without re-asserting the legacy join-table behaviour.
+ * verify the controller-facing contract (signatures + activity log + readonly enforcement).
  */
 @SpringBootTest(
     classes = [

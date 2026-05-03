@@ -101,6 +101,7 @@ Multi-tenant workspace-scoped backend API for a configurable data platform with 
 
 ## Database and Persistence
 
+- **Dev mode:** This project is in pre-production dev mode. Do **not** write data migrations, backfill workflows, or transitional dual-write paths unless the user explicitly asks. The database is wipeable — when a schema change makes existing data invalid, drop the table or wipe the database, do not write a migration. Schema files in `db/schema/` are the source of truth; edit them directly. Legacy code superseded by a refactor should be deleted in the same change, not retained behind a "Phase F decommission" placeholder.
 - **ORM:** Spring Data JPA with Hibernate. `ddl-auto: none` in production — schema is managed externally.
 - **Schema management:** Raw SQL files in `db/schema/` organized by numbered directories (`00_extensions/` through `09_grants/`). No Flyway or Liquibase. **Schema files are declarative, not incremental** — there are no migration scripts. Each SQL file represents the current desired state of its object. When a table definition changes (e.g. renaming or replacing a column), edit the original table file directly instead of creating a separate migration file. Migration tooling (Flyway/Liquibase) does not exist yet, so standalone migration scripts will not be executed and must not be created.
 - **Entity conventions:** Data classes annotated with `@Entity`, `@Table(name = "snake_case")`. Extend `AuditableEntity` for audit columns. Implement `SoftDeletable` for soft-delete support. Use `@Column(name = "snake_case")`.

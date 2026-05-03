@@ -6,7 +6,7 @@ import { MockBreadcrumb, TableHeader } from '@/components/ui/diagrams/brand-ui-p
 
 export function MockDataTable({ scenario }: { scenario: ShowcaseScenario }) {
   return (
-    <div className="glass-panel flex flex-1 flex-col border-l backdrop-blur-xl">
+    <div className="glass-panel flex flex-1 flex-col border-l">
       {/* Top bar: breadcrumb */}
       <div className="flex h-12 shrink-0 items-center justify-between border-b border-border px-6">
         <MockBreadcrumb items={['Home', '...', 'Entities', scenario.tableTitle]} />

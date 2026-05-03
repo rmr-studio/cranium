@@ -9,7 +9,7 @@ const Waitlist = dynamic(() =>
 
 export default function Home() {
   return (
-    <main className="min-h-screen overflow-x-clip">
+    <main className="min-h-svh overflow-x-clip">
       <Story />
       <Waitlist />
     </main>

@@ -1,35 +1,19 @@
 import { Footer } from '@/components/footer';
 import { Navbar } from '@/components/navbar';
+import { SmoothScrollProvider } from '@/components/smooth-scroll-provider';
 import { AuthProvider } from '@/providers/auth-provider';
 import { QueryProvider } from '@/providers/query-provider';
 
 import { GoogleTagManager } from '@next/third-parties/google';
 import type { Metadata, Viewport } from 'next';
-import { Geist, Geist_Mono, Space_Mono } from 'next/font/google';
-import localFont from 'next/font/local';
+import { DotGothic16, Geist, Geist_Mono, Space_Mono } from 'next/font/google';
 import { Toaster } from 'sonner';
 import './globals.css';
 
-const redaction = localFont({
-  src: [
-    {
-      path: '../public/fonts/redaction/webfonts/Redaction-Regular.woff2',
-      weight: '400',
-      style: 'normal',
-    },
-    {
-      path: '../public/fonts/redaction/webfonts/Redaction-Bold.woff2',
-      weight: '700',
-      style: 'normal',
-    },
-    {
-      path: '../public/fonts/redaction/webfonts/Redaction-Italic.woff2',
-      weight: '400',
-      style: 'italic',
-    },
-  ],
-  variable: '--font-redaction',
-  display: 'swap',
+const dotGothic = DotGothic16({
+  variable: '--font-dot-gothic',
+  subsets: ['latin'],
+  weight: ['400'],
 });
 
 const geistSans = Geist({
@@ -49,9 +33,9 @@ const spaceMono = Space_Mono({
   weight: ['400', '700'],
 });
 
-const SITE_TITLE = 'Riven | Autonomous Intelligence & Growth Platform';
+const SITE_TITLE = 'Riven | Proactive Company Brain for Ecommerce';
 const SITE_DESCRIPTION =
-  'Move fast. Act fast. Grow Fast. The next generation intelligence workspace for rapid growth. Connect your data, ask questions, generate insights, find your most valuable cohorts, take immediate action and track results — all in plain english, and all in one place.';
+  'Move fast. Act fast. Grow Fast. Riven builds the brain that brings context in from each tool, note and email you have ever sent. Finding, executing monitoring and learning from the most impactful opportunities, trends, problems and risks, before they even arise.';
 
 const ogImage = process.env.NEXT_PUBLIC_CDN_URL
   ? `${process.env.NEXT_PUBLIC_CDN_URL}/images/og-image.jpg`
@@ -79,14 +63,12 @@ export const metadata: Metadata = {
     'churn analysis',
     'churn retrospective',
     'unified customer data',
-    'SaaS analytics',
     'customer retention platform',
     'AI business intelligence',
     'Stripe CRM integration',
     'support data analytics',
     'plain English data queries',
     'operational intelligence',
-    'B2C SaaS tools',
     'DTC analytics',
   ],
 
@@ -155,17 +137,19 @@ export default function RootLayout({
         <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
       )}
       <body
-        className={` ${geistSans.variable} ${redaction.variable} ${geistMono.variable} ${spaceMono.variable} relative min-h-screen antialiased`}
+        className={` ${geistSans.variable} ${dotGothic.variable} ${geistMono.variable} ${spaceMono.variable} relative min-h-svh overflow-x-clip antialiased`}
       >
         <QueryProvider>
           <AuthProvider>
-            <section>
-              <Navbar />
+            <SmoothScrollProvider>
+              <section>
+                <Navbar />
 
-              {children}
-            </section>
+                {children}
+              </section>
 
-            <Footer />
+              <Footer />
+            </SmoothScrollProvider>
           </AuthProvider>
         </QueryProvider>
         <Toaster richColors position="bottom-right" />

@@ -1,11 +1,15 @@
 'use client';
 
+import { DitherTransition } from '@/components/ui/dither-transition';
 import { LinkProps, NavbarProps } from '@/lib/interface';
 import { Logo } from '@riven/ui/logo';
 import { X } from 'lucide-react';
 import Link from 'next/link';
 import React, { Dispatch, FC, useEffect, useState } from 'react';
 import { Button } from './button';
+
+const ENTER_MS = 820;
+const EXIT_MS = 560;
 
 interface MobileNavbarExtendedProps extends NavbarProps {
   open?: boolean;
@@ -15,7 +19,6 @@ interface MobileNavbarExtendedProps extends NavbarProps {
 
 export const MobileNavbar: FC<MobileNavbarExtendedProps> = ({
   links,
-  className,
   open: externalOpen,
   setOpen: externalSetOpen,
 }) => {
@@ -23,23 +26,29 @@ export const MobileNavbar: FC<MobileNavbarExtendedProps> = ({
   const isOpen = externalOpen !== undefined ? externalOpen : internalOpen;
   const setIsOpen = externalSetOpen !== undefined ? externalSetOpen : setInternalOpen;
 
-  // Track mounted state for CSS transition (mount → animate in, unmount after animate out)
-  const [mounted, setMounted] = useState(false);
+  const [mounted, setMounted] = useState(isOpen);
   const [visible, setVisible] = useState(false);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+
+  // React docs "storing info from previous renders" pattern: drive mount + visible
+  // off the isOpen prop edge during render so the dither rAF isn't racing a setState-in-effect.
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
+    if (isOpen) setMounted(true);
+    else setVisible(false);
+  }
 
   useEffect(() => {
-    if (isOpen) {
-      setMounted(true);
-      // Request animation frame to ensure the mount renders before adding visible class
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => setVisible(true));
-      });
-    } else {
-      setVisible(false);
-      const timer = setTimeout(() => setMounted(false), 400);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen]);
+    if (!mounted || !isOpen) return;
+    let inner = 0;
+    const outer = requestAnimationFrame(() => {
+      inner = requestAnimationFrame(() => setVisible(true));
+    });
+    return () => {
+      cancelAnimationFrame(outer);
+      cancelAnimationFrame(inner);
+    };
+  }, [mounted, isOpen]);
 
   if (!mounted) return null;
 
@@ -55,65 +64,67 @@ export const MobileNavbar: FC<MobileNavbarExtendedProps> = ({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="absolute right-0 bottom-0 left-2 z-[101] rounded-tl-md border-t border-border/20 bg-background transition-transform duration-[450ms]"
-        style={{
-          transform: visible ? 'translateY(0%)' : 'translateY(100%)',
-          transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
-        }}
+        className="absolute right-0 bottom-0 left-2 z-[101] overflow-hidden rounded-tl-md"
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-5 pb-3">
-          <div className="flex items-center gap-3">
-            <Link href="/" onClick={() => setIsOpen(false)} className="flex items-center gap-1.5">
-              <Logo size={22} className="fill-logo-primary" />
-              <span className="mt-0.5 text-lg font-bold text-logo-primary">Riven</span>
-            </Link>
-           
-           
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsOpen(false)}
-            className="size-9 text-muted-foreground hover:text-foreground"
-          >
-            <X className="size-5" />
-          </Button>
-        </div>
+        <DitherTransition
+          active={visible}
+          duration={visible ? ENTER_MS : EXIT_MS}
+          fillColor="var(--background)"
+          direction="bottom-up"
+          pattern="noise"
+          erosionWeight={0.42}
+          onExited={() => setMounted(false)}
+        />
 
-        {/* Links + CTA */}
-        <nav className="px-6 pt-4 pb-10">
-          <div className="ml-2">
-            {links.map((link, index) => (
-              <MobileNavLink
-                key={`mobile-link-${index}`}
-                toggle={setIsOpen}
-                label={link.label}
-                href={link.href}
-                external={link.external}
-                shouldCloseOnClick={link.shouldCloseOnClick}
-                style={{
-                  opacity: visible ? 1 : 0,
-                  transform: visible ? 'translateY(0)' : 'translateY(8px)',
-                  transition: `opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1) ${0.07 * index}s, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1) ${0.07 * index}s`,
-                }}
-              />
-            ))}
-            <MobileNavLink
-              key={`mobile-link-cta`}
-              toggle={setIsOpen}
-              label={'Join the waitlist'}
-              href="/#waitlist"
-              external={false}
-              shouldCloseOnClick={true}
-              style={{
-                opacity: visible ? 1 : 0,
-                transform: visible ? 'translateY(0)' : 'translateY(8px)',
-                transition: `opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1) ${0.07 * links.length}s, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1) ${0.07 * links.length}s`,
-              }}
-            />
+        <div
+          className="relative z-10 border-t border-border/20"
+          style={{
+            opacity: visible ? 1 : 0,
+            transition: visible
+              ? `opacity 220ms ease-out ${Math.round(ENTER_MS * 0.55)}ms`
+              : 'opacity 140ms ease-out',
+          }}
+        >
+          <div className="flex items-center justify-between px-6 pt-5 pb-3">
+            <div className="flex items-center gap-3">
+              <Link href="/" onClick={() => setIsOpen(false)} className="flex items-center gap-1.5">
+                <Logo size={22} className="fill-logo-primary" />
+                <span className="mt-0.5 text-lg font-bold text-logo-primary">Riven</span>
+              </Link>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsOpen(false)}
+              className="size-9 text-muted-foreground hover:text-foreground"
+            >
+              <X className="size-5" />
+            </Button>
           </div>
-        </nav>
+
+          <nav className="px-6 pt-4 pb-10">
+            <div className="ml-2">
+              {links.map((link, index) => (
+                <MobileNavLink
+                  key={`mobile-link-${index}`}
+                  toggle={setIsOpen}
+                  label={link.label}
+                  href={link.href}
+                  external={link.external}
+                  shouldCloseOnClick={link.shouldCloseOnClick}
+                />
+              ))}
+              <MobileNavLink
+                key="mobile-link-cta"
+                toggle={setIsOpen}
+                label="Join the waitlist"
+                href="/#waitlist"
+                external={false}
+                shouldCloseOnClick={true}
+              />
+            </div>
+          </nav>
+        </div>
       </div>
     </div>
   );
@@ -123,7 +134,6 @@ export const MobileNavbar: FC<MobileNavbarExtendedProps> = ({
 
 interface NavbarItemProps extends LinkProps {
   toggle: Dispatch<React.SetStateAction<boolean>>;
-  style?: React.CSSProperties;
 }
 
 const MobileNavLink: FC<NavbarItemProps> = ({
@@ -132,7 +142,6 @@ const MobileNavLink: FC<NavbarItemProps> = ({
   toggle,
   shouldCloseOnClick = true,
   external = false,
-  style,
 }) => {
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     const hash = href.includes('#') ? href.split('#')[1] : null;
@@ -150,17 +159,15 @@ const MobileNavLink: FC<NavbarItemProps> = ({
   };
 
   return (
-    <div style={style}>
-      <Link
-        href={href}
-        onClick={handleClick}
-        target={external ? '_blank' : '_self'}
-        className="group flex items-center border border-border border-t-transparent border-r-transparent py-3.5 pl-4 transition-colors hover:border-foreground/60"
-      >
-        <span className="text-lg font-semibold tracking-wide text-muted-foreground uppercase transition-colors group-hover:text-foreground">
-          {label}
-        </span>
-      </Link>
-    </div>
+    <Link
+      href={href}
+      onClick={handleClick}
+      target={external ? '_blank' : '_self'}
+      className="group flex items-center border border-border border-t-transparent border-r-transparent py-3.5 pl-4 transition-colors hover:border-foreground/60"
+    >
+      <span className="text-lg font-semibold tracking-wide text-muted-foreground uppercase transition-colors group-hover:text-foreground">
+        {label}
+      </span>
+    </Link>
   );
 };

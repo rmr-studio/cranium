@@ -18,6 +18,21 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async headers() {
+    const linkHeader = [
+      '</sitemap.xml>; rel="sitemap"; type="application/xml"',
+      '</resources/faq>; rel="service-doc"; type="text/html"',
+      '</resources/blog>; rel="describedby"; type="text/html"',
+      '</>; rel="describedby"; type="text/markdown"',
+    ].join(", ");
+
+    return [
+      {
+        source: "/",
+        headers: [{ key: "Link", value: linkHeader }],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

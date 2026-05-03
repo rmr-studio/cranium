@@ -1,5 +1,67 @@
 # Architecture Changelog
 
+## 2026-05-04 — Workspace full-text search (Notion-style ranked tsvector)
+
+**Domains affected:** Entity, Knowledge (downstream beneficiary)
+
+**What changed:**
+
+- Added `entities.search_vector tsvector` column + GIN index `idx_entities_search_vector`. Recomputed on every entity write — `setweight(to_tsvector(identifier), 'A') || setweight(to_tsvector(body), 'B')` where the identifier attribute is always weighted A and the body half concatenates every TEXT / EMAIL / URL / PHONE attribute on the type that is not flagged `excludeFromSearch`. Ranks via `ts_rank_cd` against `websearch_to_tsquery`.
+- New `EntitySearchService` (Spring service) owns both the recompute path and the workspace-scoped `search(workspaceId, query, typeIds?, limit)` query. Recompute reads attribute values directly from `entity_attributes` after persistence so the index source-of-truth is the post-save state, not the request payload. Recompute exceptions are swallowed and logged at debug — a search-index failure must never abort the surrounding entity save (notably matters on H2 in unit tests, which has no `tsvector`).
+- `EntityIngestionService.saveEntityInternal` calls `entitySearchService.recompute(...)` after `entityAttributeService.saveAttributes(...)` and the unique-value enforcement step.
+- `SchemaOptions` gains `excludeFromSearch: Boolean = false`. Convention-with-opt-out: every text-bearing attribute on an entity type feeds the body half by default; authors opt out per-attribute. The identifier attribute is always indexed regardless of the flag.
+- Subsumes the legacy `notes.search_vector` FTS path that was lost during the note → entity cutover (the in-memory `plaintext.contains(...)` fallback in `NoteEntityProjector.listNotes` can now be replaced by an `entitySearchService.search(...)` call scoped to the note type).
+
+**New cross-domain dependencies:** No (search is internal to the Entity domain; consumers call `EntitySearchService` directly).
+
+**New components introduced:**
+
+- `entities.search_vector tsvector` column + GIN index `idx_entities_search_vector` (partial on `deleted = false`).
+- `EntitySearchService` (`riven.core.service.entity.EntitySearchService`) — recompute + workspace-scoped FTS query. Single owner of the `tsvector` lifecycle.
+- `SchemaOptions.excludeFromSearch` — per-attribute opt-out flag honoured by the recompute path.
+
+## 2026-05-04 — Knowledge link projection on entity reads (replaces note_count)
+
+**Domains affected:** Entity, Knowledge
+
+**What changed:**
+
+- `Entity` model gains a top-level `knowledgeRefs: Map<typeKey, List<EntityLink>>`. Populated from inverse `ATTACHMENT` / `MENTION` / `DEFINES` edges where the source entity type carries `surface_role = KNOWLEDGE`. Replaces the dropped `entities.note_count` aggregate (commit `c82df2ec`) without re-introducing a maintenance trigger.
+- `EntityLink` extended with `direction: RelationshipDirection` (`FORWARD` / `INVERSE`) and `systemType: SystemRelationshipType?` so callers can disambiguate inbound knowledge edges from outbound user-defined relationships without re-fetching the relationship definition.
+- `EntityRelationshipService.findRelatedEntities` now returns a flat `List<EntityLink>` (single) / `Map<UUID, List<EntityLink>>` (batched). Partition into `relationships` vs. `knowledgeRefs` happens in `EntityEntity.toModel` via the new `List<EntityLink>.partitionForEntityProjection()` helper. The relationship-picker map remains scoped to forward edges + inverse `CONNECTED_ENTITIES` (no semantic shift for existing UI consumers).
+- `EntityRelationshipRepository.findInverseEntityLinksByTargetId{,In}` widened: predicate admits inverse rows when a `relationship_target_rule` matches *or* `system_type = CONNECTED_ENTITIES` *or* (`system_type IN (ATTACHMENT, MENTION, DEFINES)` AND the source entity type's `surface_role = KNOWLEDGE`). `target_kind = 'ENTITY'` is enforced so structural DEFINES edges (targeting `ENTITY_TYPE` / `ATTRIBUTE` / `RELATIONSHIP`) cannot leak into entity-instance lookups. Both forward and inverse queries now project `direction` + `systemType` columns.
+- Frontend `Entity.noteCount` retired in favour of deriving the count off `knowledgeRefs.note` filtered by `systemType === 'ATTACHMENT'`. `entity-data-table.tsx` updated; note save/delete mutation invalidations comment-corrected to reference `knowledgeRefs`.
+- `RelationshipDirection` enum added (`riven.core.enums.entity`) and surfaced in the frontend type bundle alongside the expanded `SystemRelationshipType` (`Attachment`, `Mention`, `Defines`, `Includes` now exported in addition to `ConnectedEntities`).
+
+**New cross-domain dependencies:** No (the existing Entity ↔ Knowledge edge already flowed through `entity_relationships`; this change widens the read projection only).
+
+**New components introduced:**
+
+- `riven.core.enums.entity.RelationshipDirection` — direction discriminator on relationship link rows.
+- `riven.core.models.entity.partitionForEntityProjection` (extension on `List<EntityLink>`) + `PartitionedEntityLinks` data class — single-pass partition used by `EntityEntity.toModel` and `EntityQueryFacadeService.hydrateRelationships` so the same routing rule is applied everywhere.
+
+## 2026-05-04 — Dev-mode legacy decommission (Phases D + F collapsed)
+
+**Domains affected:** Note, Knowledge, Entity, Workflow (migration removal), Integration sync
+
+**What changed:**
+
+- Project moved to dev-mode posture: `core/CLAUDE.md` Database section now explicitly forbids data migrations / backfill workflows / dual-write paths unless requested. Schema files are the source of truth and the database is wipeable. Legacy code superseded by a refactor must be deleted in the same change rather than left behind a "Phase F decommission" placeholder.
+- Deleted the entire `riven.core.workflow.migration` package: `NoteBackfillWorkflow*`, `NoteBackfillActivities*`, `GlossaryBackfillWorkflow*`, `GlossaryBackfillActivities*`, `BackfillIntegrityErrors`, plus the matching tests. `TemporalWorkerConfiguration` no longer registers the `migration` task queue or its activity beans.
+- Deleted the legacy notes / glossary tables and JPA scaffolding: `notes` + `note_entity_attachments` SQL files, `NoteEntity`, `NoteEntityAttachment`, `NoteRepository`, `NoteEntityAttachmentRepository`, `workspace_business_definitions` SQL file, `WorkspaceBusinessDefinitionEntity`, `WorkspaceBusinessDefinitionRepository`. Knowledge data is now exclusively entity-backed.
+- Phase D Task 20 done in the same change: `NoteEmbeddingService` rewritten to flow through `NoteEntityIngestionService` instead of `NoteRepository` / `NoteEntityAttachmentRepository`. Integration notes upsert as `entities` rows with `ATTACHMENT` relationships pointing at resolved targets; soft-delete replaces the previous hard-delete. Activity logging contract preserved.
+- New `entities.pending_associations` JSONB column persists unresolved foreign references captured at sync time. `NoteEntityIngestionService.NoteIngestionInput` carries `pendingAssociations`; `postSave` writes it to the saved entity. `NoteEntityIngestionService.reconcileAttachments` provides a relationship-only update path used by `NoteEmbeddingService.reconcileUnattachedNotes` so reconciliation retries don't blank attribute payloads.
+- `EntityRepository.findPendingAssociationsByTypeKey` returns integration-sourced entities of a given type-key whose `pending_associations` is non-null — replaces the old `notes.findUnattachedIntegrationNotes` derived query.
+- Deleted parity tests (`NoteParityIT`, `GlossaryParityIT`) and the legacy `NoteEmbeddingServiceTest` + `NoteFactory` + `BusinessDefinitionFactory` — all coupled to deleted JPA classes. Remaining knowledge-domain coverage (NoteServiceTest, WorkspaceBusinessDefinitionServiceTest, NoteControllerE2EIT, KnowledgeControllerE2EIT, NoteEntityIngestionServiceTest, GlossaryEntityIngestionServiceTest) exercises the entity-backed paths.
+
+**New cross-domain dependencies:** No (existing edges retained, legacy edges removed).
+
+**New components introduced:**
+
+- `entities.pending_associations` JSONB column + `EntityEntity.pendingAssociations` field — generic per-entity unresolved-reference store, consumed first by integration note sync but available to any future integration-sourced entity type.
+- `EntityRepository.findPendingAssociationsByTypeKey` — JPQL lookup for reconciliation passes.
+- `NoteEntityIngestionService.reconcileAttachments` — relationship-only update path that preserves attribute payload.
+
 ## 2026-05-02 — PR #198 Review Fixes (Knowledge Plane Hardening)
 
 **Domains affected:** Entity, Knowledge, Workflow (migration), Core models

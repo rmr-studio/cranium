@@ -294,7 +294,9 @@ export const EntityDataTable: FC<Props> = ({ entityType, className, workspaceId 
       renderExtra: (row: Row<EntityRow>) => {
         if (!isEntityRow(row.original)) return null;
         const entity = row.original._entity;
-        const noteCount = entity.noteCount ?? 0;
+        const noteCount = (entity.knowledgeRefs?.note ?? []).filter(
+          (ref) => ref.systemType === 'ATTACHMENT',
+        ).length;
         const hasNotes = noteCount > 0;
 
         return (

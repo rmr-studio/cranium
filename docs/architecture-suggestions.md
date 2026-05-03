@@ -1,5 +1,17 @@
 # Architecture Suggestions
 
+## 2026-05-04 — Knowledge link projection on entity reads
+
+**Trigger:** `Entity` model now exposes `knowledgeRefs: Map<typeKey, List<EntityLink>>` populated from inverse `ATTACHMENT` / `MENTION` / `DEFINES` edges on `surface_role = KNOWLEDGE` source types. `EntityLink` extended with `direction` + `systemType`. Replaces the dropped `entities.note_count` aggregate without re-introducing a maintenance trigger.
+
+**Affected vault notes:**
+
+- `system-design/domains/Entity/` — entity read projection contract documentation should mention the split between `relationships` (forward + inverse `CONNECTED_ENTITIES`) and `knowledgeRefs` (inverse knowledge kinds), and the partition rule encoded in `EntityEntity.toModel` / `partitionForEntityProjection`.
+- `system-design/domains/Knowledge/` — note/glossary/SOP/etc. surfacing on host entities is now a generic projection over `surface_role = KNOWLEDGE`. Any vault prose still framing this as note-specific should be generalised.
+- Any flow diagrams showing relationship traversal from a target entity inwards should annotate that knowledge edges flow into a separate model field, not into the relationship picker payload.
+
+**Suggested update:** Cover the `relationships` / `knowledgeRefs` split in the Entity domain doc, update knowledge-surfacing prose to reflect the open-ended taxonomy (notes, glossary, SOPs, memos, meetings…) keyed by source `typeKey`, and note the SQL predicate that admits inverse knowledge edges (defined definition target rule OR `system_type = CONNECTED_ENTITIES` OR knowledge edge from a `KNOWLEDGE`-surface source).
+
 ## 2026-04-28 — Semantic Analysis Layer reframe (entity connotation pipeline)
 
 **Trigger:** CEO review of `2026-04-18-entity-connotation-pipeline.md` reframed `connotation_metadata` from a flat sentiment record into a polymorphic snapshot of three orthogonal metadata categories (SENTIMENT, RELATIONAL, STRUCTURAL) populated by a renamed Activity 1 (`analyzeSemantics`). The change rebrands what was conceptually "connotation analysis" into a broader "Semantic Analysis Layer" that crystallizes the full per-entity semantic snapshot used to produce embeddings.

@@ -201,6 +201,7 @@ export * from './ReferencePayload';
 export * from './ReferenceType';
 export * from './Relationship';
 export * from './RelationshipDefinition';
+export * from './RelationshipDirection';
 export * from './RelationshipFilter';
 export * from './RelationshipResponse';
 export * from './RelationshipTargetRule';

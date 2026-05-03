@@ -35,7 +35,7 @@ export function useDeleteNoteMutation(workspaceId: string) {
       queryClient.invalidateQueries({
         queryKey: noteKeys.list(workspaceId, variables.entityId),
       });
-      // Invalidate entity queries so noteCount updates
+      // Invalidate entity queries so knowledgeRefs updates
       queryClient.invalidateQueries({
         queryKey: ['entities', workspaceId],
       });

@@ -33,7 +33,7 @@ export function useSaveNoteMutation(workspaceId: string) {
       queryClient.invalidateQueries({
         queryKey: noteKeys.list(workspaceId, variables.entityId),
       });
-      // Invalidate entity queries so noteCount updates
+      // Invalidate entity queries so knowledgeRefs updates
       if (!variables.noteId) {
         queryClient.invalidateQueries({
           queryKey: ['entities', workspaceId],

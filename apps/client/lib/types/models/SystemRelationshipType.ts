@@ -18,7 +18,11 @@
  * @enum {string}
  */
 export enum SystemRelationshipType {
-    ConnectedEntities = 'CONNECTED_ENTITIES'
+    ConnectedEntities = 'CONNECTED_ENTITIES',
+    Attachment = 'ATTACHMENT',
+    Mention = 'MENTION',
+    Defines = 'DEFINES',
+    Includes = 'INCLUDES'
 }
 
 

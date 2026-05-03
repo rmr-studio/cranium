@@ -13,12 +13,16 @@ import {
 
 export function SignalChat({ density = 'comfortable' }: { density?: 'comfortable' | 'compact' }) {
   return (
-    <div className="flex min-w-0 flex-1 flex-col bg-background">
+    <div className="flex min-w-0 flex-1 shrink-0 flex-col">
       <ChatHeader />
       <div
-        className={cn('flex-1 overflow-hidden', density === 'compact' ? 'px-4 py-4' : 'px-6 py-5')}
+        className={cn(
+          'relative flex-1 overflow-hidden',
+          density === 'compact' ? 'px-4 py-4' : 'px-6 py-5',
+        )}
       >
         <Thread />
+        <StaticScrollbar thumbTop="18%" thumbHeight="42%" />
       </div>
       <Composer />
     </div>
@@ -50,7 +54,7 @@ function ChatHeader() {
       </div>
       <span className="flex-1" />
       <div className="hidden items-center md:flex">
-        {['Jordan Tan', 'Edwin Reyes', 'Maya Okafor'].map((n, i) => (
+        {['Jordan Tan', 'Jared Tucker', 'Maya Okafor'].map((n, i) => (
           <span
             key={n}
             className="border-2 border-background"
@@ -117,7 +121,7 @@ function Thread() {
         <ProposedAction />
       </Message>
 
-      <Message author="Edwin Reyes" time="09:18">
+      <Message author="Jared Tucker" time="09:18">
         How sure are we on the demand intent number? Last time the spike was driven by a single
         TikTok and it cooled off in 3 days.
       </Message>
@@ -159,8 +163,10 @@ function Message({
 }) {
   const isRiven = author === 'Riven';
   return (
-    <div className="flex gap-3 text-[13px]">
-      {isRiven ? <Logo size={32} /> : <UserAvatar name={author} size={32} square />}
+    <div className="gap-3 text-xs sm:text-[13px]">
+      <div className="hidden sm:block">
+        {isRiven ? <Logo size={32} /> : <UserAvatar name={author} size={32} square />}
+      </div>
       <div className="min-w-0 flex-1">
         <div className="mb-1 flex items-baseline gap-2">
           <span className="text-sm font-semibold tracking-tight text-heading">{author}</span>
@@ -187,10 +193,12 @@ function SignalCard() {
         </SystemLabel>
         <span className="font-mono text-[10px] text-muted-foreground">↑ 36h window</span>
       </div>
-      <div className="grid grid-cols-3 border-b border-border">
+      <div className="grid grid-cols-2 border-b border-border sm:grid-cols-3">
         <Metric label="Demand intent" value="3.4×" delta="+241%" sub="vs 14-day baseline" />
         <Metric label="Sell-through" value="62%" delta="+48 pp" sub="last 7 days" border />
-        <Metric label="Cover (days)" value="4.2" delta="−11.8" sub="at current velocity" />
+        <div className="hidden sm:block">
+          <Metric label="Cover (days)" value="4.2" delta="−11.8" sub="at current velocity" />
+        </div>
       </div>
       <div className="flex items-center gap-2.5 px-3.5 py-2.5 text-[11px] text-muted-foreground">
         <Sparkline />
@@ -340,6 +348,26 @@ function ProposedAction() {
           </span>
         </div>
       </div>
+    </div>
+  );
+}
+
+function StaticScrollbar({
+  thumbTop,
+  thumbHeight,
+}: {
+  thumbTop: string;
+  thumbHeight: string;
+}) {
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute top-0 right-0 bottom-0 w-3 border-l border-border bg-card/60"
+    >
+      <div
+        className="absolute right-0.5 left-0.5 rounded-full bg-muted-foreground/30"
+        style={{ top: thumbTop, height: thumbHeight }}
+      />
     </div>
   );
 }

@@ -49,7 +49,7 @@ function LandscapeLayout() {
   return (
     <div
       className={cn(
-        'w-full overflow-hidden relative grid h-full rounded-lg border border-border p-4',
+        'relative grid h-full w-full overflow-hidden rounded-lg border border-border p-4',
         'bg-card bg-[radial-gradient(circle,oklch(0_0_0/0.07)_1px,transparent_1.2px)] bg-[length:14px_14px]',
       )}
     >
@@ -152,7 +152,7 @@ const RUN_STEPS: RunStep[] = [
     icon: <BrandShopify size={12} />,
     iconBg: 'oklch(0.99 0.004 81)',
     what: 'Drafting pre-order · Shopify',
-    detail: 'Saved as draft · awaiting Edwin',
+    detail: 'Saved as draft · awaiting Jared',
     status: 'queue',
   },
 ];
@@ -262,7 +262,7 @@ function MemoryCard({ compact }: { compact?: boolean } = {}) {
             className="mt-0.5 truncate font-mono text-[9px] tracking-wider uppercase"
             style={{ opacity: 0.6 }}
           >
-            New memory · learned from Edwin
+            New memory · learned from Jared
           </div>
         </div>
         <span
@@ -287,7 +287,7 @@ function MemoryCard({ compact }: { compact?: boolean } = {}) {
 
         {!compact && (
           <MemRow label="Approval">
-            Edwin must approve <b className="font-semibold text-heading">step 4</b> before it runs.
+            Jared must approve <b className="font-semibold text-heading">step 4</b> before it runs.
           </MemRow>
         )}
       </div>
@@ -345,7 +345,7 @@ function GlossaryCard({ compact }: { compact?: boolean } = {}) {
           hero SKU
         </div>
         <div className="mt-1 font-mono text-[9.5px] text-muted-foreground">
-          noun · merchandising · <em>defined by Edwin</em>
+          noun · merchandising · <em>defined by Jared</em>
         </div>
       </div>
 

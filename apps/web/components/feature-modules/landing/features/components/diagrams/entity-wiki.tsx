@@ -98,7 +98,7 @@ const SLACK: NodeContent = {
   id: 'slack',
   kind: 'Slack · #merch',
   title: 'Maya: "should we pull this from the homepage?"',
-  quote: 'Edwin → "let’s wait for the supplier QC report first."',
+  quote: 'Jared → "let’s wait for the supplier QC report first."',
   pill: { text: '8 msgs', tone: 'neutral' },
   icon: <BrandSlack size={14} />,
 };

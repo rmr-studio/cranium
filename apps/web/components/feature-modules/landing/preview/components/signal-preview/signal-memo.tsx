@@ -1,24 +1,50 @@
 import { cn } from '@/lib/utils';
 import { Logo } from '@riven/ui/logo';
-import type { ReactNode } from 'react';
+import { ClassNameProps } from '@riven/utils';
+import type { FC, ReactNode } from 'react';
 import { AppGlyph, ChatLink, Icon, icons, UserAvatar } from './primitives';
 
-export function SignalMemo({ className }: { className?: string }) {
+interface Props extends ClassNameProps {
+  compact?: boolean;
+}
+
+export const SignalMemo: FC<Props> = ({ className, compact }) => {
   return (
     <div
       className={cn(
-        'flex w-[19rem] shrink-0 flex-col border-l border-border bg-sidebar',
+        'flex w-[16rem] shrink-0 flex-col border-l border-border bg-sidebar',
         className,
       )}
     >
       <MemoHeader />
-      <div className="flex-1 overflow-hidden px-3.5 pt-3.5 pb-7">
-        <PrimaryEntityCard />
+      <div className="relative flex-1 overflow-hidden px-3.5 pt-3.5 pb-7">
+        {!compact && <PrimaryEntityCard />}
         <RelatedEntities />
         <IntegrationData />
-        <MeetingNote />
+        {!compact && <MeetingNote />}
         <ActionItems />
+        <StaticScrollbar thumbTop="6%" thumbHeight="48%" />
       </div>
+    </div>
+  );
+};
+
+function StaticScrollbar({
+  thumbTop,
+  thumbHeight,
+}: {
+  thumbTop: string;
+  thumbHeight: string;
+}) {
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute top-0 right-0 bottom-0 w-3 border-l border-border bg-card/60"
+    >
+      <div
+        className="absolute right-0.5 left-0.5 rounded-full bg-muted-foreground/30"
+        style={{ top: thumbTop, height: thumbHeight }}
+      />
     </div>
   );
 }
@@ -226,7 +252,7 @@ function MeetingNote() {
           Volume = 90% of last reorder × spike multiplier. Maya owns customer comms.
         </div>
         <div className="mt-2 flex items-center gap-1.5">
-          {['Edwin Reyes', 'Maya Okafor', 'Jordan Tan', 'George Lin', 'Terry Park'].map((n) => (
+          {['Jared Tucker', 'Maya Okafor', 'Jordan Tan', 'George Lin', 'Terry Park'].map((n) => (
             <UserAvatar key={n} name={n} size={16} />
           ))}
           <span className="flex-1" />
@@ -242,7 +268,7 @@ function ActionItems() {
     { text: 'Open Shopify pre-order page · ships May 28', owner: 'Riven', auto: true },
     { text: 'Draft PO to Mira Textiles · 600u · NET-30', owner: 'Riven', auto: true },
     { text: 'Notify low-cover Klaviyo segment', owner: 'Maya' },
-    { text: 'Confirm 32d lead time with supplier', owner: 'Edwin' },
+    { text: 'Confirm 32d lead time with supplier', owner: 'Jared' },
   ];
   return (
     <Section label="Action items" count={items.length}>

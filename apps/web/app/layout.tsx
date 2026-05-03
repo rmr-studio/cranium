@@ -137,7 +137,7 @@ export default function RootLayout({
         <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
       )}
       <body
-        className={` ${geistSans.variable} ${dotGothic.variable} ${geistMono.variable} ${spaceMono.variable} relative min-h-screen overflow-x-clip antialiased`}
+        className={` ${geistSans.variable} ${dotGothic.variable} ${geistMono.variable} ${spaceMono.variable} relative min-h-svh overflow-x-clip antialiased`}
       >
         <QueryProvider>
           <AuthProvider>

@@ -88,7 +88,7 @@ export function TerminalBody() {
 
       <Line>
         <ClaudeTag />
-        <span className="text-[oklch(0.65_0.01_92)]">Hey Edwin — what are we doing?</span>
+        <span className="text-[oklch(0.65_0.01_92)]">Hey Jared — what are we doing?</span>
       </Line>
 
       <Spacer />
@@ -121,7 +121,7 @@ export function TerminalBody() {
       <McpCard
         ns="riven"
         method="entities.upsert_batch"
-        meta="5 suppliers · author=edwin@olive-orchard.co"
+        meta="5 suppliers · author=Jared@olive-orchard.co"
       >
         <CheckLine name="Anvar Knits" detail="created · 14 SKUs auto-linked" />
         <CheckLine name="Hojo Print Co." detail="created · backup for screen-print" />

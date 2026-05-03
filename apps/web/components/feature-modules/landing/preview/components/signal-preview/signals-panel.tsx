@@ -1,15 +1,21 @@
 import { cn } from '@/lib/utils';
-import { Icon, SeverityDot, icons } from './primitives';
+import { ClassNameProps } from '@riven/utils';
+import { FC } from 'react';
 import type { Signal } from './data';
 import { SIGNALS } from './data';
+import { Icon, SeverityDot, icons } from './primitives';
 
-export function SignalsPanel({ activeId = 'sig-2041' }: { activeId?: string }) {
+interface Props extends ClassNameProps {
+  activeId?: string;
+}
+
+export const SignalsPanel: FC<Props> = ({ className, activeId }) => {
   const live = SIGNALS.filter((s) => s.state === 'live');
   const watch = SIGNALS.filter((s) => s.state === 'watch');
   const resolved = SIGNALS.filter((s) => s.state === 'resolved');
 
   return (
-    <div className="flex w-60 shrink-0 flex-col border-r border-border bg-sidebar">
+    <div className={cn('flex w-60 shrink-0 flex-col border-r border-border bg-sidebar', className)}>
       {/* workspace header */}
       <div className="flex items-center gap-2 border-b border-border px-3.5 py-3">
         <div className="min-w-0 flex-1">
@@ -59,7 +65,7 @@ export function SignalsPanel({ activeId = 'sig-2041' }: { activeId?: string }) {
       </div>
     </div>
   );
-}
+};
 
 function NavRow({
   icon,
@@ -77,7 +83,7 @@ function NavRow({
       </span>
       <span className="flex-1 truncate">{label}</span>
       {count != null && (
-        <span className="font-mono text-[11px] tabular-nums text-muted-foreground">{count}</span>
+        <span className="font-mono text-[11px] text-muted-foreground tabular-nums">{count}</span>
       )}
     </div>
   );

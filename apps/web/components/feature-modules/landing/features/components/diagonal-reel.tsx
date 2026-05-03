@@ -42,9 +42,9 @@ export function DiagonalReel({
     <div
       ref={sectionRef}
       className={cn('relative z-65 w-full bg-foreground', className)}
-      style={{ height: `${total * 100}vh` }}
+      style={{ height: `${total * 100}svh` }}
     >
-      <div className="sticky top-24 flex h-screen w-full flex-col bg-foreground">
+      <div className="sticky top-24 flex h-svh w-full flex-col bg-foreground">
         <div className="flex shrink-0 items-center justify-between px-3 py-4 sm:px-4 sm:py-5">
           <div className="flex items-center gap-2 font-mono text-xs tracking-widest text-zinc-500 uppercase">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-zinc-400" />

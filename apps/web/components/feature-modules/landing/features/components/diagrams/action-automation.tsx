@@ -1,15 +1,15 @@
 import { BrandShopify, BrandSlack } from '@/components/ui/diagrams/brand-icons';
 import { cn } from '@/lib/utils';
-import { Logo } from '@riven/ui/logo';
 import { Mail, Search } from 'lucide-react';
+import { ChatCard } from './action-memory';
 
 export function MockActionAutomation() {
   return (
-    <div className="flex w-full flex-col gap-2 px-3 pb-3 sm:px-4 sm:pb-4">
-      <div className="lg:hidden">
+    <div className="flex h-full w-full flex-col gap-2 px-3 pb-3 sm:px-4 sm:pb-4">
+      <div className="h-full lg:hidden">
         <PortraitLayout />
       </div>
-      <div className="hidden lg:block">
+      <div className="hidden h-full lg:block">
         <LandscapeLayout />
       </div>
     </div>
@@ -24,12 +24,12 @@ function PortraitLayout() {
   return (
     <div
       className={cn(
-        'relative flex w-full flex-col gap-3 overflow-hidden rounded-lg border border-border p-3',
+        'relative flex h-full w-full flex-col gap-3 overflow-hidden rounded-lg border border-border p-3',
         'bg-card bg-[radial-gradient(circle,oklch(0_0_0/0.07)_1px,transparent_1.2px)] bg-[length:14px_14px]',
       )}
     >
       <Stage n={1}>
-        <ChatCard compact />
+        <ChatCard />
       </Stage>
 
       <FlowArrow />
@@ -49,17 +49,15 @@ function LandscapeLayout() {
   return (
     <div
       className={cn(
-        'relative grid w-full grid-cols-12 gap-3 overflow-hidden rounded-lg border border-border p-4',
+        'w-full overflow-hidden relative grid h-full rounded-lg border border-border p-4',
         'bg-card bg-[radial-gradient(circle,oklch(0_0_0/0.07)_1px,transparent_1.2px)] bg-[length:14px_14px]',
       )}
     >
-      <div className="relative col-span-7">
-        <StageMarker n={1} />
+      <div className="absolute top-1/2 left-8 h-full w-full translate-x-24 -translate-y-[25%] md:scale-120 lg:w-1/2 xl:scale-130 3xl:scale-110">
         <ChatCard />
       </div>
-      <div className="col-span-5 flex flex-col gap-3">
+      <div className="absolute right-24 bottom-24 lg:scale-140">
         <div className="relative">
-          <StageMarker n={2} />
           <RunCard />
         </div>
       </div>
@@ -105,63 +103,6 @@ function FlowArrow() {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Card 1 — Chat extract
-// ---------------------------------------------------------------------------
-
-function ChatCard({ compact }: { compact?: boolean } = {}) {
-  return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card shadow-md">
-      <CardRibbon left="Chat · #merch-ops" right="Today · 14:02" />
-
-      <div className={cn('flex flex-col gap-3', compact ? 'px-3 py-3' : 'px-4 py-4')}>
-        <Message author="Riven" badge="APP" time="14:02" avatar={<></>}>
-          <span>I noticed </span>
-          <b className="text-heading">Linen Field Tee · Sand</b>
-          <span> just had a </span>
-          <SignalPill>demand spike</SignalPill>
-          <span> — but I don&apos;t know how you handle these.</span>
-          <div className="mt-2 rounded-md border border-dashed border-border bg-background px-2.5 py-2 text-[11px] leading-relaxed">
-            What counts as a <Term>&quot;hero SKU&quot;</Term> in your business?
-          </div>
-        </Message>
-
-        <Message author="Jared" time="14:05" avatar={<Avatar bg="oklch(0.7 0.12 348)">ER</Avatar>}>
-          <span>A </span>
-          <Term>hero SKU</Term>
-          <span>
-            {' '}
-            is anything in the top 5% of last-30d revenue. When demand spikes on a hero, do this
-            every time:
-          </span>
-          <Steps
-            items={[
-              <>
-                <b>Ping #merch-ops</b>, tag <Mention>@Maya</Mention>
-              </>,
-              <>
-                <b>Email Mira Textiles</b> for lead time + 600u quote
-              </>,
-              <>
-                <b>Run a competitor scan</b> on linen tees in our band
-              </>,
-              <>
-                <b>Draft a pre-order page</b> — wait for me
-              </>,
-            ]}
-          />
-        </Message>
-
-        {!compact && (
-          <Message author="Riven" badge="APP" time="14:05" avatar={<Logo size={18} />}>
-            Got it. Running it now and saving this as the standard for hero-SKU spikes →
-          </Message>
-        )}
-      </div>
-    </div>
-  );
-}
-
 function Avatar({ bg, children }: { bg: string; children: React.ReactNode }) {
   return (
     <div
@@ -170,95 +111,6 @@ function Avatar({ bg, children }: { bg: string; children: React.ReactNode }) {
     >
       {children}
     </div>
-  );
-}
-
-function Message({
-  author,
-  badge,
-  time,
-  avatar,
-  children,
-}: {
-  author: string;
-  badge?: string;
-  time: string;
-  avatar: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex gap-2.5 text-[12px]">
-      {avatar}
-      <div className="min-w-0 flex-1">
-        <div className="mb-1 flex items-baseline gap-2">
-          <span className="text-[12px] font-semibold tracking-tight text-heading">{author}</span>
-          {badge && (
-            <span
-              className="rounded-[3px] px-1 py-px font-mono text-[9px] font-bold tracking-wider"
-              style={{ background: 'var(--foreground)', color: 'oklch(0.97 0.008 92)' }}
-            >
-              {badge}
-            </span>
-          )}
-          <span className="font-mono text-[10px] text-muted-foreground">{time}</span>
-        </div>
-        <div className="leading-relaxed text-content">{children}</div>
-      </div>
-    </div>
-  );
-}
-
-function Steps({ items }: { items: React.ReactNode[] }) {
-  return (
-    <ol className="mt-2 space-y-0.5 rounded-md border border-border bg-card px-2.5 py-2 font-mono text-[10.5px] leading-relaxed text-content">
-      {items.map((item, i) => (
-        <li key={i} className="grid grid-cols-[14px_1fr] gap-1.5">
-          <span className="font-bold text-muted-foreground">{i + 1}.</span>
-          <span>{item}</span>
-        </li>
-      ))}
-    </ol>
-  );
-}
-
-function SignalPill({ children }: { children: React.ReactNode }) {
-  return (
-    <span
-      className="inline-flex items-center gap-1.5 rounded-full border px-2 py-px font-mono text-[10px]"
-      style={{
-        background: 'oklch(0.97 0.025 27)',
-        color: 'oklch(0.45 0.18 27)',
-        borderColor: 'oklch(0.85 0.08 27)',
-      }}
-    >
-      <span
-        className="inline-block h-1 w-1 rounded-full"
-        style={{ background: 'oklch(0.62 0.22 27)' }}
-      />
-      {children}
-    </span>
-  );
-}
-
-function Term({ children }: { children: React.ReactNode }) {
-  return (
-    <span
-      className="cursor-help underline underline-offset-2"
-      style={{ color: 'oklch(0.5 0.18 263)' }}
-    >
-      {children}
-    </span>
-  );
-}
-
-function Mention({ children }: { children: React.ReactNode }) {
-  return (
-    <span
-      className="rounded-[3px] px-1 font-medium"
-      style={{ background: 'oklch(0.92 0.04 263)', color: 'oklch(0.4 0.16 263)' }}
-    >
-      {children}
-    </span>
   );
 }
 
@@ -307,7 +159,7 @@ const RUN_STEPS: RunStep[] = [
 
 function RunCard({ compact }: { compact?: boolean } = {}) {
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card shadow-md">
+    <div className="w-full overflow-hidden rounded-lg border border-border bg-card shadow-md">
       <div
         className="flex items-center gap-2.5 border-b border-border px-3 py-2.5"
         style={{

@@ -1,8 +1,4 @@
-import {
-  BrandNotion,
-  BrandShopify,
-  BrandSlack,
-} from '@/components/ui/diagrams/brand-icons';
+import { BrandNotion, BrandShopify, BrandSlack } from '@/components/ui/diagrams/brand-icons';
 import { cn } from '@/lib/utils';
 import { BookOpen, CalendarDays, Star } from 'lucide-react';
 
@@ -109,12 +105,12 @@ const SLACK: NodeContent = {
 
 export function MockEntityWiki() {
   return (
-    <div className="flex w-full flex-col gap-2 px-3 pb-3 sm:px-4 sm:pb-4">
-      <div className="relative w-full lg:hidden">
-        <PortraitLayout className="aspect-[3/4]" />
+    <div className="flex h-full w-full flex-col gap-2 px-3 pb-3 sm:px-4 sm:pb-4">
+      <div className="relative h-full w-full lg:hidden">
+        <PortraitLayout />
       </div>
-      <div className="relative hidden w-full lg:block">
-        <LandscapeLayout className="aspect-[16/9]" />
+      <div className="relative hidden h-full w-full lg:block">
+        <LandscapeLayout />
       </div>
 
       <div className="hidden items-center gap-3 px-1 font-mono text-[10px] text-muted-foreground sm:flex">
@@ -169,10 +165,14 @@ const P_NODES: PortraitNode[] = [
 
 function cornerClasses(corner: PortraitNode['corner']) {
   switch (corner) {
-    case 'tl': return 'top-[2%] left-[2%]';
-    case 'tr': return 'top-[2%] right-[2%]';
-    case 'bl': return 'bottom-[2%] left-[2%]';
-    case 'br': return 'bottom-[2%] right-[2%]';
+    case 'tl':
+      return 'top-[2%] left-[2%]';
+    case 'tr':
+      return 'top-[2%] right-[2%]';
+    case 'bl':
+      return 'bottom-[2%] left-[2%]';
+    case 'br':
+      return 'bottom-[2%] right-[2%]';
   }
 }
 
@@ -180,8 +180,8 @@ function PortraitLayout({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'relative w-full overflow-hidden rounded-lg border border-border',
-        'bg-[radial-gradient(circle,oklch(0_0_0/0.07)_1px,transparent_1.2px)] bg-[length:14px_14px] bg-card',
+        'relative h-full w-full overflow-hidden rounded-lg border border-border',
+        'bg-card bg-[radial-gradient(circle,oklch(0_0_0/0.07)_1px,transparent_1.2px)] bg-[length:14px_14px]',
         className,
       )}
     >
@@ -196,7 +196,7 @@ function PortraitLayout({ className }: { className?: string }) {
       </svg>
 
       {/* Centre entity */}
-      <div className="absolute top-1/2 left-1/2 z-10 w-[clamp(160px,52%,280px)] -translate-x-1/2 -translate-y-1/2">
+      <div className="absolute top-1/2 left-1/2 z-10 w-[clamp(260px,52%,280px)] -translate-x-1/2 -translate-y-1/2">
         <EntityCard />
       </div>
 
@@ -235,20 +235,20 @@ function rightWire(fromX: number, fromY: number) {
 }
 
 const L_NODES: LandscapeNode[] = [
-  { node: SALES,    pos: { topPct: 4, leftPct: 1 },     wire: leftWire(250, 80) },
-  { node: REVIEW,   pos: { topPct: 4, rightPct: 1 },    wire: rightWire(750, 80) },
-  { node: GLOSSARY, pos: { topPct: 38, leftPct: 1 },    wire: leftWire(250, 290) },
-  { node: SLACK,    pos: { topPct: 38, rightPct: 1 },   wire: rightWire(750, 290) },
-  { node: NOTE,     pos: { bottomPct: 4, leftPct: 1 },  wire: leftWire(250, 520) },
-  { node: MEETING,  pos: { bottomPct: 4, rightPct: 1 }, wire: rightWire(750, 520) },
+  { node: SALES, pos: { topPct: 4, leftPct: 1 }, wire: leftWire(250, 80) },
+  { node: REVIEW, pos: { topPct: 4, rightPct: 1 }, wire: rightWire(750, 80) },
+  { node: GLOSSARY, pos: { topPct: 38, leftPct: 1 }, wire: leftWire(250, 290) },
+  { node: SLACK, pos: { topPct: 38, rightPct: 1 }, wire: rightWire(750, 290) },
+  { node: NOTE, pos: { bottomPct: 4, leftPct: 1 }, wire: leftWire(250, 520) },
+  { node: MEETING, pos: { bottomPct: 4, rightPct: 1 }, wire: rightWire(750, 520) },
 ];
 
 function LandscapeLayout({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'relative w-full overflow-hidden rounded-lg border border-border',
-        'bg-[radial-gradient(circle,oklch(0_0_0/0.07)_1px,transparent_1.2px)] bg-[length:14px_14px] bg-card',
+        'relative h-full w-full overflow-hidden rounded-lg border border-border',
+        'bg-card bg-[radial-gradient(circle,oklch(0_0_0/0.07)_1px,transparent_1.2px)] bg-[length:14px_14px]',
         className,
       )}
     >

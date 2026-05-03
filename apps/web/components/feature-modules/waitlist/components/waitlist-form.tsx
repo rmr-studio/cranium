@@ -83,11 +83,12 @@ export function WaitlistForm({ className }: { className?: string }) {
             onSubmit={onSubmit}
             className="py-8"
           >
-            <h2 className="px-2 text-center font-serif text-4xl leading-none tracking-tighter md:text-6xl"></h2>
+            <h2 className="text-center font-bit text-4xl leading-none tracking-tighter text-heading md:text-6xl">
+              Join the Waitlist
+            </h2>
             <p className="mx-auto mt-5 mb-10 max-w-2xl px-4 text-center leading-tight tracking-tight text-muted-foreground sm:text-lg">
               The fastest way to see how Riven transforms your e-commerce operations is to see how
-              it fits into your business.
-              Join the waitlist, and be the firs
+              it fits into your business. Join the waitlist, and be the firs
             </p>
 
             <div className="mx-auto max-w-md space-y-6">

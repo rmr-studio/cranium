@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 const items = [
   {
     label: 'Catching the signal',
-    metric: 'Minutes, not days',
+    metric: 'Action in minutes, not days',
     description:
       "Like a team member that doesn't sleep. Riven spots problems, patterns and opportunities before you even see them. Acting on it automaticlaly or giving you everything you need to act fast.",
   },
@@ -18,13 +18,13 @@ const items = [
   },
   {
     label: 'Reduce the meetings needed to align',
-    metric: '5+ syncs per decision',
+    metric: 'Cut the 5+ syncs per decision',
     description:
       'Standups, threads, and follow-ups to get everyone on the same page before a single action gets taken. Context-switching eats the day.',
   },
   {
     label: 'No more manual execution',
-    metric: 'Every. Single. Time.',
+    metric: 'Automate repetitive tasks',
     description:
       'Riven studies the outcomes of past actions to know exactly what to do, and when, to get the best outcome. Then it does it, autonomously (or with your approval), every time.',
   },
@@ -42,7 +42,7 @@ export function TimeSaved() {
         {/* Heading */}
         <div className="mb-14 px-8 sm:px-12 md:mb-20">
           <h2 className="font-bit text-2xl leading-none sm:text-4xl md:text-5xl lg:text-6xl">
-            What you get back with Riven.
+            What you get with Riven.
           </h2>
           <p className="mt-4 max-w-3xl font-display text-base leading-none tracking-tighter text-content/90">
             Agents watch the data, surface what matters, and execute the next step with context from

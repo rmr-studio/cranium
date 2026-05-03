@@ -1,35 +1,35 @@
 'use client';
 
+import { useIsMobile } from '@/hooks/use-is-mobile';
 import { cn } from '@/lib/utils';
 import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from 'motion/react';
-import { ReactNode, useRef } from 'react';
+import { useRef } from 'react';
 import { FeatureCard, FeatureCardProps } from './reel-card';
 
 export function DiagonalReel({
   cards = [],
-  header,
+
   className,
 }: {
   cards?: FeatureCardProps[];
-  header?: ReactNode;
   className?: string;
 }) {
   const total = cards.length;
   const sectionRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
+  const isMobile = useIsMobile('lg');
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start start', 'end end'],
   });
 
-  if (reduced) {
+  if (reduced || isMobile) {
     return (
       <div className={cn('flex w-full flex-col bg-foreground', className)}>
-        {header && <div className="-b border-white/15">{header}</div>}
-        <div className="flex flex-col gap-6 p-6">
+        <div className="flex flex-col gap-6 p-6 py-24">
           {cards.map((card, i) => (
-            <div key={card.title} className="flex aspect-[16/9] w-full max-w-[580px] self-center">
+            <div key={card.title} className="flex w-full">
               <FeatureCard key={card.title} card={card} index={i} total={total} static />
             </div>
           ))}
@@ -45,8 +45,6 @@ export function DiagonalReel({
       style={{ height: `${total * 100}vh` }}
     >
       <div className="sticky top-24 flex h-screen w-full flex-col bg-foreground">
-        {header && <div className="shrink-0">{header}</div>}
-
         <div className="flex shrink-0 items-center justify-between px-3 py-4 sm:px-4 sm:py-5">
           <div className="flex items-center gap-2 font-mono text-xs tracking-widest text-zinc-500 uppercase">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-zinc-400" />

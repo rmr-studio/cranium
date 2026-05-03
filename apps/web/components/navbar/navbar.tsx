@@ -2,7 +2,6 @@
 
 import { ResourcesMenu } from '@/components/navbar/resources-menu';
 import { Button } from '@/components/ui/button';
-import { CtaButton } from '@/components/ui/cta-button';
 import { MobileNavbar } from '@/components/ui/mobile-nav-menu';
 import {
   NavigationMenu,
@@ -129,9 +128,13 @@ export function Navbar() {
           <div className="flex items-center gap-1.5 px-2 md:gap-2 md:px-4">
             {!loading && user ? (
               <Link href={CLIENT_URL}>
-                <CtaButton size="sm">
-                  <span>Go to Dashboard</span>
-                </CtaButton>
+                <Button
+                  className="border-primary/70 bg-transparent px-1.5 py-0.5 font-display text-xs text-content hover:bg-accent hover:text-accent-foreground"
+                  variant={'outline'}
+                  size={'sm'}
+                >
+                  Go to Dashboard
+                </Button>
               </Link>
             ) : (
               <Link
@@ -143,7 +146,7 @@ export function Navbar() {
                 className="hidden min-[360px]:block"
               >
                 <Button
-                  className="border-primary/70 px-1.5 py-0.5 font-display text-xs"
+                  className="border-primary/70 bg-transparent px-1.5 py-0.5 font-display text-xs text-content hover:bg-accent hover:text-accent-foreground"
                   variant={'outline'}
                   size={'sm'}
                 >
@@ -157,7 +160,7 @@ export function Navbar() {
               variant={'outline'}
               size={'icon'}
               onClick={() => setMobileMenuOpen(true)}
-              className="size-8 shrink-0 cursor-pointer rounded-md border-primary/70 text-content hover:bg-transparent focus:bg-transparent md:hidden"
+              className="size-8 shrink-0 cursor-pointer rounded-md border-primary/70 bg-transparent text-content hover:bg-transparent focus:bg-transparent md:hidden"
               aria-label="Open menu"
             >
               <Menu className="size-4 text-content" />

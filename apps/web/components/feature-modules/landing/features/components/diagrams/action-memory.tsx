@@ -1,6 +1,7 @@
 import { BrandShopify, BrandSlack } from '@/components/ui/diagrams/brand-icons';
 import { cn } from '@/lib/utils';
 import { Logo } from '@riven/ui/logo';
+import { ClassNameProps } from '@riven/utils';
 import { Mail, Search } from 'lucide-react';
 
 /**
@@ -17,27 +18,12 @@ import { Mail, Search } from 'lucide-react';
 
 export function MockActionMemory() {
   return (
-    <div className="flex w-full flex-col gap-2 px-3 pb-3 sm:px-4 sm:pb-4">
-      <div className="lg:hidden">
+    <div className="flex h-full w-full flex-col gap-2 px-3 pb-3 sm:px-4 sm:pb-4">
+      <div className="h-full lg:hidden">
         <PortraitLayout />
       </div>
-      <div className="hidden lg:block">
+      <div className="hidden h-full lg:block">
         <LandscapeLayout />
-      </div>
-
-      <div className="hidden items-center gap-3 px-1 font-mono text-[10px] text-muted-foreground sm:flex">
-        <span className="inline-flex items-center gap-1.5">
-          <span className="inline-block h-px w-3 border-t border-dashed border-[oklch(0.5_0.005_92)]" />
-          taught once
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <span
-            className="inline-block h-1.5 w-1.5 rounded-full"
-            style={{ background: 'oklch(0.7 0.12 348)' }}
-          />
-          runs forever
-        </span>
-        <span className="ml-auto tabular-nums">v1 · learned today · 14:05</span>
       </div>
     </div>
   );
@@ -51,22 +37,20 @@ function PortraitLayout() {
   return (
     <div
       className={cn(
-        'relative flex w-full flex-col gap-3 overflow-hidden rounded-lg border border-border p-3',
+        'relative flex h-full w-full flex-col gap-3 overflow-hidden p-3 pt-8',
         'bg-card bg-[radial-gradient(circle,oklch(0_0_0/0.07)_1px,transparent_1.2px)] bg-[length:14px_14px]',
       )}
     >
-      <Stage n={1}>
-        <ChatCard compact />
-      </Stage>
+      <div className="mx-auto hidden w-5/6 md:block">
+        <ChatCard />
+      </div>
 
       <FlowArrow />
 
-      <Stage n={3}>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <MemoryCard compact />
-          <GlossaryCard compact />
-        </div>
-      </Stage>
+      <div className="mx-auto flex flex-col space-y-8 sm:w-2/3">
+        <MemoryCard compact />
+        <GlossaryCard compact />
+      </div>
     </div>
   );
 }
@@ -79,20 +63,18 @@ function LandscapeLayout() {
   return (
     <div
       className={cn(
-        'relative grid w-full grid-cols-12 gap-3 overflow-hidden rounded-lg border border-border p-4',
+        'relative grid h-full w-full gap-3 overflow-hidden rounded-lg border border-border p-4',
         'bg-card bg-[radial-gradient(circle,oklch(0_0_0/0.07)_1px,transparent_1.2px)] bg-[length:14px_14px]',
       )}
     >
-      <div className="relative col-span-7">
+      <div className="absolute top-1/2 left-8 h-full w-full translate-x-24 -translate-y-[25%] md:scale-120 lg:w-1/2 xl:scale-130 3xl:scale-110">
         <StageMarker n={1} />
         <ChatCard />
       </div>
-      <div className="col-span-5 flex flex-col gap-3">
-        <div className="absolute -bottom-8 left-1/3 grid grid-cols-2 gap-3">
-          <StageMarker n={3} />
-          <MemoryCard />
-          <GlossaryCard />
-        </div>
+      <div className="absolute right-12 bottom-12 flex flex-col space-y-4">
+        <StageMarker n={3} />
+        <MemoryCard />
+        <GlossaryCard />
       </div>
     </div>
   );
@@ -140,20 +122,37 @@ function FlowArrow() {
 // Card 1 — Chat extract
 // ---------------------------------------------------------------------------
 
-function ChatCard({ compact }: { compact?: boolean } = {}) {
+interface ChatCardProps extends ClassNameProps {
+  compact?: boolean;
+}
+
+export const ChatCard: React.FC<ChatCardProps> = ({ compact, className }) => {
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card shadow-md">
+    <div
+      className={cn(
+        'h-fit overflow-hidden rounded-lg border border-border bg-card shadow-md',
+        className,
+      )}
+    >
       <CardRibbon left="Chat · #merch-ops" right="Today · 14:02" />
 
       <div className={cn('flex flex-col gap-3', compact ? 'px-3 py-3' : 'px-4 py-4')}>
         <Message author="Riven" badge="APP" time="14:02" avatar={<></>}>
-          <span>I noticed </span>
+          <span>Flagging </span>
           <b className="text-heading">Linen Field Tee · Sand</b>
-          <span> just had a </span>
+          <span> — </span>
           <SignalPill>demand spike</SignalPill>
-          <span> — but I don&apos;t know how you handle these.</span>
+          <span>
+            {' '}
+            <b className="text-heading">+340%</b> units sold in the last 24h vs. 30d baseline (
+            <b className="text-heading">612 units</b>, 4.2× normal velocity). <Term>Inventory</Term>{' '}
+            at <b className="text-heading">18 days cover</b>, down from 41. Pulled from{' '}
+            <Term>Shopify</Term>, cross-referenced with <Term>Klaviyo</Term> campaign send 36h ago.
+          </span>
           <div className="mt-2 rounded-md border border-dashed border-border bg-background px-2.5 py-2 text-[11px] leading-relaxed">
-            What counts as a <Term>&quot;hero SKU&quot;</Term> in your business?
+            <b className="text-heading">No prior playbook in action memory</b> for a spike on this
+            product class — first time I&apos;ve seen this signal on a{' '}
+            <Term>&quot;hero SKU&quot;</Term>. How does the team handle it?
           </div>
         </Message>
 
@@ -195,7 +194,7 @@ function ChatCard({ compact }: { compact?: boolean } = {}) {
       </div>
     </div>
   );
-}
+};
 
 function Avatar({ bg, children }: { bg: string; children: React.ReactNode }) {
   return (

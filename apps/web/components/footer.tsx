@@ -1,6 +1,7 @@
 'use client';
 
 import { NAV_LINKS } from '@/lib/navigation';
+import { scrollToSection } from '@/lib/scroll';
 import { CornerDownRight } from 'lucide-react';
 import Link from 'next/link';
 
@@ -21,25 +22,24 @@ const socialLinks = [
 ];
 
 export function Footer() {
-  const currentYear = new Date().getFullYear();
-
   return (
-    <footer className="border-t border-t-content/35 bg-background">
-      <div className="flex items-center px-20 py-8">
-        <div className="w-32 font-display text-content">getriven.io</div>
+    <footer className="z-[0] border-t border-t-content/35 bg-background">
+      <div className="flex flex-col space-y-4 px-6 py-8 text-xs sm:flex-row sm:px-20 sm:text-sm">
+        <div className="w-fit text-start font-display text-content">getriven.io</div>
         <div className="w-fit font-display text-content">Proactive Ecommerce Company Brain</div>
-        <div className="grow text-end font-display text-content">
+        <div className="w-fit grow text-end font-display text-content">
           Think Fast. Act Fast. Grow Fast
         </div>
       </div>
-      <div className="flex items-start border-b border-content/30 px-20 py-8">
-        <div className="w-32 font-display text-content">
+      <div className="flex flex-wrap items-start gap-y-8 border-b border-content/30 px-6 py-8 sm:flex-nowrap sm:px-20">
+        <div className="w-1/2 font-display text-content sm:w-32">
           <h3 className="font-display text-xs font-bold tracking-[0.05em] text-foreground uppercase">
             Menu
           </h3>
           <ul className="flex flex-col">
             {footerLinks.product.map((link) => (
-              <li key={link.label}>
+              <li key={link.label} className="mx-0.5 flex items-center gap-2">
+                <CornerDownRight className="size-3 text-content" />
                 <Link
                   href={link.href}
                   onClick={(e) => {
@@ -57,8 +57,7 @@ export function Footer() {
             ))}
           </ul>
         </div>
-        <div className="w-32 font-display text-content">
-          {' '}
+        <div className="w-1/2 font-display text-content sm:w-32">
           <h3 className="font-display text-xs font-bold tracking-[0.05em] text-foreground uppercase">
             Follow
           </h3>
@@ -78,8 +77,8 @@ export function Footer() {
           </ul>
         </div>
 
-        <div className="flex w-auto grow justify-end font-display text-content">
-          <div className="w-68 font-display text-content">
+        <div className="flex w-full justify-start font-display text-content sm:w-auto sm:grow sm:justify-end">
+          <div className="font-display text-content sm:w-68">
             <h3 className="font-display text-xs font-bold tracking-[0.05em] text-foreground uppercase">
               Privacy & Terms
             </h3>

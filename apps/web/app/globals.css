@@ -226,9 +226,13 @@ nav[data-navbar] {
 nav[data-inverted] {
   --background: var(--nav-inv-background);
   --foreground: var(--nav-inv-foreground);
+  --content: var(--nav-inv-foreground);
   --muted-foreground: var(--nav-inv-muted-foreground);
   --border: var(--nav-inv-border);
+  --input: var(--nav-inv-border);
   --muted: var(--nav-inv-muted);
+  --accent: var(--nav-inv-muted);
+  --accent-foreground: var(--nav-inv-foreground);
   --primary: var(--nav-inv-primary);
   --logo-primary: var(--nav-inv-logo-primary);
   --logo-secondary: var(--nav-inv-logo-secondary);

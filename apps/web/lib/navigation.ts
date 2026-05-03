@@ -7,8 +7,6 @@ export interface NavLink {
 
 /** Flat list for mobile nav */
 export const NAV_LINKS_FLAT: NavLink[] = [
-  // { label: 'Solutions', href: '/solutions' },
-  { label: 'Story', href: '/story' },
   { label: 'Blog', href: '/resources/blog' },
   { label: 'Changelog', href: '/resources/blog/category/changelog' },
   { label: 'FAQ', href: '/resources/faq' },

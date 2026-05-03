@@ -78,13 +78,12 @@ export const FeatureCard: FC<Props> = ({
     <motion.div
       style={isStatic ? undefined : { x, y, scale, opacity, zIndex }}
       className={cn(
-        'flex items-stretch will-change-transform',
-        isStatic
-          ? 'relative aspect-[16/10] w-full'
-          : 'absolute inset-0 m-auto mx-4 aspect-[3/5] sm:mx-auto sm:w-[min(60vw,1080px)] lg:aspect-[4/3] lg:w-[min(70vw,1080px)]',
+        'flex min-w-0 items-stretch will-change-transform',
+        'mx-auto aspect-[3/5] w-full sm:w-[min(60vw,1080px)] md:w-[80vw] lg:aspect-[3/4] lg:w-[70vw] xl:aspect-[4/3] 3xl:w-[min(80vw,1200px)]',
+        isStatic ? 'relative' : 'absolute inset-0',
       )}
     >
-      <article className="flex h-full w-full flex-col overflow-hidden rounded-[20px] bg-zinc-950 text-zinc-200 shadow-2xl ring-1 shadow-black/50 ring-white/5">
+      <article className="flex h-full w-full flex-col overflow-hidden bg-zinc-950 text-zinc-200 shadow-2xl ring-1 shadow-black/50 ring-white/5">
         {/* Dark Instagram-style chrome */}
         <header className="flex items-center justify-end px-4 py-3">
           <div className="flex items-center gap-1">
@@ -105,7 +104,7 @@ export const FeatureCard: FC<Props> = ({
               {description}
             </span>
           </div>
-          <div className="overflow-hidden">{preview}</div>
+          <div className="h-full overflow-hidden">{preview}</div>
         </div>
 
         <footer className="flex items-center justify-between p-4 text-zinc-300/90">

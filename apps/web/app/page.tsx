@@ -16,8 +16,8 @@ const Features = dynamic(() =>
 );
 
 const Integrations = dynamic(() =>
-  import('@/components/feature-modules/landing/integrations/components/integrations').then(
-    (m) => m.Integrations,
+  import('@/components/feature-modules/landing/connections/components/connections').then(
+    (m) => m.Connections,
   ),
 );
 

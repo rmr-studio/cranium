@@ -1,3 +1,4 @@
+import { BrandIcons, Integration } from '@/components/ui/diagrams/brand-icons';
 import { cn } from '@/lib/utils';
 import { Logo } from '@riven/ui/logo';
 
@@ -15,8 +16,7 @@ export function MockCustomerQuery() {
     <div className="flex h-full w-full flex-col px-3 pb-3 sm:px-4 sm:pb-4">
       <div
         className={cn(
-          'relative w-full overflow-hidden rounded-lg border border-border bg-card shadow-md',
-          'aspect-[3/4] lg:aspect-[16/9]',
+          'relative h-full w-full overflow-hidden rounded-lg border border-border bg-card bg-[radial-gradient(circle,oklch(0_0_0/0.07)_1px,transparent_1.2px)] bg-[length:14px_14px] shadow-md',
         )}
       >
         <Chat />
@@ -32,7 +32,7 @@ export function MockCustomerQuery() {
 
 function Chat() {
   return (
-    <div className="absolute inset-0 w-full overflow-hidden p-3 sm:p-4 md:w-1/2">
+    <div className="absolute inset-0 m-8 h-fit w-full overflow-hidden rounded-lg border bg-card p-3 shadow-lg sm:p-4 lg:m-8 lg:w-1/2">
       {/* User question — right aligned bubble */}
       <div className="mb-3 ml-auto flex max-w-[85%] items-start gap-2 rounded-md border border-border bg-background p-2 sm:max-w-[78%] sm:p-2.5">
         <div className="flex-1 text-[10.5px] leading-snug tracking-tight text-heading sm:text-[11.5px]">
@@ -47,7 +47,6 @@ function Chat() {
           ER
         </div>
       </div>
-
       {/* Riven response head */}
       <div className="mb-2.5 flex items-center gap-2">
         <Logo size={20} />
@@ -94,7 +93,7 @@ function Chat() {
       />
 
       {/* Shopify metrics */}
-      <SourceBlock icon="S" iconBg="#5E8E3E" label="Shopify · customer + SKU" meta="customer 41208">
+      <SourceBlock icon="Shopify" label="Shopify · customer + SKU" meta="customer 41208">
         <div className="grid grid-cols-4 gap-px" style={{ background: 'var(--border)' }}>
           <Metric label="LTV" value="$847" />
           <Metric label="Refunds" value="14" hot />
@@ -104,7 +103,7 @@ function Chat() {
       </SourceBlock>
 
       {/* Zendesk tickets */}
-      <SourceBlock icon="Z" iconBg="#03363D" label="Zendesk · last 7d" meta="14 tickets">
+      <SourceBlock icon="Gorgias" label="Gorgias · last 7d" meta="14 tickets">
         <div className="px-2.5 pb-1.5">
           <Ticket
             id="#8421"
@@ -120,16 +119,10 @@ function Chat() {
       </SourceBlock>
 
       {/* Internal memo */}
-      <SourceBlock
-        icon="N"
-        iconBg="oklch(0.5 0.13 277)"
-        label="Internal · memos · meetings"
-        meta="3 references"
-      >
+      <SourceBlock icon="GoogleSheets" label="Internal · memos · meetings" meta="3 references">
         <MemoRow
           accent="oklch(0.55 0.13 145)"
-          badge="N"
-          badgeBg="oklch(0.55 0.13 145)"
+          icon="GoogleSheets"
           title="Memo · Refund & replacement playbook"
           meta="Notion · pinned by Maya"
           quote={
@@ -144,8 +137,7 @@ function Chat() {
         />
         <MemoRow
           accent="oklch(0.7 0.13 75)"
-          badge="M"
-          badgeBg="oklch(0.7 0.13 75)"
+          icon="GoogleMeet"
           title="Meeting · Weekly ops · Apr 22"
           meta="5 attendees"
           quote={
@@ -170,9 +162,8 @@ function RecsOverlay() {
   return (
     <div
       className={cn(
-        'absolute z-10 overflow-hidden rounded-lg border border-border bg-card',
-        '-right-12 -bottom-4',
-        'lg:right-6 lg:bottom-6 lg:left-auto lg:w-[58%]',
+        'absolute z-10 overflow-hidden rounded-lg border border-border bg-card pb-8 md:h-2/5',
+        '-bottom-[80%] left-0 md:right-6 md:bottom-6 lg:left-auto lg:w-[58%]',
       )}
       style={{
         boxShadow: '0 24px 48px -12px oklch(0 0 0 / 0.32), 0 8px 16px -8px oklch(0 0 0 / 0.22)',
@@ -182,12 +173,6 @@ function RecsOverlay() {
         className="flex items-center gap-2 px-3 py-2.5"
         style={{ background: 'var(--foreground)', color: 'oklch(0.97 0.008 92)' }}
       >
-        <span
-          className="flex h-5 w-5 shrink-0 items-center justify-center rounded text-[10px] font-bold"
-          style={{ background: 'oklch(1 0 0 / 0.12)' }}
-        >
-          ⚡
-        </span>
         <div className="flex-1">
           <div className="font-display text-[12px] leading-tight tracking-tight sm:text-[13px]">
             Recommended response &amp; follow-ups
@@ -199,23 +184,20 @@ function RecsOverlay() {
       </div>
 
       <RecRow
-        icon="@"
-        iconBg="oklch(0.55 0.13 145)"
+        icon="Gmail"
         title="Send templated apology + free replacement + 15% credit"
-        detail="Drafted in Edwin's voice · approved Apr 28 template"
+        detail="Drafted in Jared's voice · approved Apr 28 template"
         action={{ label: 'Review & send', primary: true }}
       />
       <RecRow
-        icon="S"
-        iconBg="#5E8E3E"
+        icon="Shopify"
         title="Auto-approve refund in Shopify · issue replacement"
         detail="Ships from stock · 15% credit · expires 90d"
         action={{ label: 'Run', primary: true }}
         secondary="Edit"
       />
       <RecRow
-        icon="#"
-        iconBg="#4A154B"
+        icon="Slack"
         title="Notify #merch-ops · tally now 15 on lot LFT-W11"
         detail="Tag @Maya with the new ticket + count"
         action={{ label: 'Send', primary: false }}
@@ -223,7 +205,6 @@ function RecsOverlay() {
     </div>
   );
 }
-
 
 function ToolsPill() {
   return (
@@ -281,25 +262,22 @@ function Finding({
 
 function SourceBlock({
   icon,
-  iconBg,
   label,
   meta,
   children,
 }: {
-  icon: string;
-  iconBg: string;
+  icon: Integration;
+
   label: string;
   meta: string;
   children: React.ReactNode;
 }) {
+  const Icon = BrandIcons[icon];
   return (
     <div className="my-2 overflow-hidden rounded-md border border-border bg-card">
       <div className="flex items-center gap-1.5 border-b border-border bg-background px-2.5 py-1.5">
-        <span
-          className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-[3px] font-mono text-[8px] font-bold text-white"
-          style={{ background: iconBg }}
-        >
-          {icon}
+        <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-[3px] font-mono text-[8px] font-bold text-white">
+          <Icon size={12} />
         </span>
         <span className="font-mono text-[9px] font-semibold tracking-wider text-heading uppercase sm:text-[10px]">
           {label}
@@ -368,27 +346,23 @@ function Ticket({ id, quote, who }: { id: string; quote: string; who: string }) 
 }
 
 function MemoRow({
-  badge,
-  badgeBg,
+  icon,
   title,
   meta,
   quote,
   accent,
 }: {
-  badge: string;
-  badgeBg: string;
+  icon: Integration;
   title: string;
   meta: string;
   quote: React.ReactNode;
   accent: string;
 }) {
+  const Icon = BrandIcons[icon];
   return (
     <div className="grid grid-cols-[20px_1fr] gap-2 border-b border-dashed border-border px-2.5 py-2 last:border-b-0">
-      <span
-        className="flex h-4 w-4 shrink-0 items-center justify-center rounded-[3px] font-mono text-[8px] font-bold text-white"
-        style={{ background: badgeBg }}
-      >
-        {badge}
+      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-[3px] font-mono text-[8px] font-bold text-white">
+        <Icon size={10} />
       </span>
       <div className="min-w-0">
         <div className="text-[10.5px] leading-tight font-semibold tracking-tight text-heading sm:text-[11.5px]">
@@ -418,26 +392,23 @@ function Highlight({ children }: { children: React.ReactNode }) {
 
 function RecRow({
   icon,
-  iconBg,
+
   title,
   detail,
   action,
   secondary,
 }: {
-  icon: string;
-  iconBg: string;
+  icon: Integration;
   title: string;
   detail: string;
   action: { label: string; primary: boolean };
   secondary?: string;
 }) {
+  const Icon = BrandIcons[icon];
   return (
     <div className="grid grid-cols-[20px_1fr_auto] items-start gap-2 border-b border-dashed border-border px-3 py-2 last:border-b-0">
-      <span
-        className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-[3px] font-mono text-[9px] font-bold text-white"
-        style={{ background: iconBg }}
-      >
-        {icon}
+      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-[3px] font-mono text-[9px] font-bold text-white">
+        <Icon size={12} />
       </span>
       <div className="min-w-0">
         <div className="text-[10.5px] leading-snug font-semibold tracking-tight text-heading sm:text-[11.5px]">

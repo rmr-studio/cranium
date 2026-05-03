@@ -10,12 +10,13 @@ Name | Type
 `key` | string
 `id` | string
 `type` | [EntityTypeRequestDefinition](EntityTypeRequestDefinition.md)
+`schema` | [SchemaUUID](SchemaUUID.md)
+`semantics` | [SaveSemanticMetadataRequest](SaveSemanticMetadataRequest.md)
 `name` | string
 `iconType` | [IconType](IconType.md)
 `iconColour` | [IconColour](IconColour.md)
 `cardinalityDefault` | [EntityRelationshipCardinality](EntityRelationshipCardinality.md)
 `targetRules` | [Array&lt;SaveTargetRuleRequest&gt;](SaveTargetRuleRequest.md)
-`semantics` | [SaveSemanticMetadataRequest](SaveSemanticMetadataRequest.md)
 
 ## Example
 
@@ -27,12 +28,13 @@ const example = {
   "key": null,
   "id": null,
   "type": null,
+  "schema": null,
+  "semantics": null,
   "name": null,
   "iconType": null,
   "iconColour": null,
   "cardinalityDefault": null,
   "targetRules": null,
-  "semantics": null,
 } satisfies SaveRelationshipDefinitionRequest
 
 console.log(example)

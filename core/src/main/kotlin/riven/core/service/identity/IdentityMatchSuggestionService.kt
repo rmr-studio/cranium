@@ -15,6 +15,7 @@ import riven.core.repository.identity.IdentityClusterMemberRepository
 import riven.core.repository.identity.IdentityClusterRepository
 import riven.core.repository.identity.MatchSuggestionRepository
 import riven.core.service.activity.ActivityService
+import riven.core.service.auth.AuthTokenService
 import riven.core.util.ServiceUtil.findOrThrow
 import java.math.BigDecimal
 import java.util.UUID
@@ -37,7 +38,7 @@ class IdentityMatchSuggestionService(
 
     companion object {
         /** Sentinel userId for system-triggered Temporal activities that have no JWT context. */
-        val SYSTEM_ACTOR_ID: UUID = UUID.fromString("00000000-0000-0000-0000-000000000000")
+        val SYSTEM_ACTOR_ID: UUID = AuthTokenService.SYSTEM_USER_ID
     }
 
     // ------ Public mutations ------

@@ -37,7 +37,7 @@ const InsightCard: FC<Props> = ({
   return (
     <div
       className={cn(
-        'flex flex-col justify-between rounded-sm border border-neutral-800 p-4 backdrop-blur-2xl',
+        'flex flex-col justify-between rounded-sm border border-neutral-800 p-4',
         accentBorder,
       )}
       style={{ minHeight }}
@@ -104,7 +104,7 @@ const ActionPill: React.FC<ChildNodeProps> = ({ children }) => {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-md border border-neutral-800 px-4 py-1.5 text-xs text-neutral-300 backdrop-blur-2xl',
+        'inline-flex items-center gap-1.5 rounded-md border border-neutral-800 px-4 py-1.5 text-xs text-neutral-300',
       )}
     >
       {children}
@@ -156,7 +156,7 @@ export const DashboardContent: FC<ClassNameProps> = ({ className }) => {
   return (
     <div
       className={cn(
-        'glass-panel relative flex flex-1 flex-col overflow-hidden backdrop-blur-xl',
+        'glass-panel relative flex flex-1 flex-col overflow-hidden',
         className,
       )}
     >
@@ -184,13 +184,8 @@ export const DashboardContent: FC<ClassNameProps> = ({ className }) => {
           >
             <p className="text-sm leading-relaxed text-neutral-200">
               312 customers acquired this quarter across 5 channels. Instagram volume up{' '}
-              <span className="font-semibold" style={{ color: 'oklch(0.65 0.17 145)' }}>
-                34%
-              </span>
-              , but churn rate is{' '}
-              <span className="font-semibold" style={{ color: 'oklch(0.577 0.245 27.325)' }}>
-                2.1x
-              </span>{' '}
+              <span className="font-semibold text-success">34%</span>, but churn rate is{' '}
+              <span className="font-semibold text-destructive">2.1x</span>{' '}
               the average. 3 at-risk segments flagged.
             </p>
           </InsightCard>
@@ -214,9 +209,7 @@ export const DashboardContent: FC<ClassNameProps> = ({ className }) => {
             <p className="text-sm leading-relaxed text-foreground/80">
               Best retention channel is{' '}
               <strong className="text-foreground">Organic / Direct</strong> at{' '}
-              <span className="font-semibold" style={{ color: 'oklch(0.65 0.17 145)' }}>
-                95%
-              </span>{' '}
+              <span className="font-semibold text-success">95%</span>{' '}
               90-day retention across two verticals
             </p>
           </InsightCard>
@@ -229,12 +222,7 @@ export const DashboardContent: FC<ClassNameProps> = ({ className }) => {
             <p className="text-sm text-foreground/80">
               Your current churn rate is 9.4% &amp; the 90-day trend is
             </p>
-            <p
-              className="mt-3 font-display text-4xl font-normal"
-              style={{ color: 'oklch(0.65 0.17 145)' }}
-            >
-              Improving
-            </p>
+            <p className="mt-3 font-display text-4xl font-normal text-success">Improving</p>
           </InsightCard>
 
           {/* Card 5: Lifecycle Coverage */}
@@ -258,7 +246,7 @@ export const DashboardContent: FC<ClassNameProps> = ({ className }) => {
           >
             <p className="text-sm leading-relaxed text-foreground/80">
               You currently have <strong className="text-foreground">47 at-risk</strong> and{' '}
-              <strong style={{ color: 'oklch(0.577 0.245 27.325)' }}>$34,200 ARR</strong> exposed in
+              <strong className="text-destructive">$34,200 ARR</strong> exposed in
               declining-engagement customers
             </p>
           </InsightCard>

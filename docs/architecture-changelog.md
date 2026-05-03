@@ -1,5 +1,56 @@
 # Architecture Changelog
 
+## 2026-04-29 — Entity Connotation Pipeline Phase B (Tier 1)
+
+**Domains affected:** Connotation, Enrichment, Catalog, Workspace, Workflow
+
+**What changed:**
+
+- `ConnotationAnalysisService` (workspace-scoped, `@PreAuthorize`) routes analysis to the tier declared in `ConnotationSignals.tier`. Tier 1 implemented; Tier 2/3 throw `NotImplementedError`. The service is a pure router — caller pre-resolves attribute values to keep it free of repository dependencies.
+- `ConnotationTier1Mapper` is a pure deterministic LINEAR/THRESHOLD scale mapper from a manifest-declared source attribute to the unified `[-1.0, +1.0]` sentiment score with a 5-bucket `SentimentLabel`. Failures encoded as typed `SentimentAnalysisOutcome.Failure`; caller persists `SentimentAxis(status = FAILED, ...)` rather than aborting.
+- `ConnotationAdminService.reanalyzeAxisWhereVersionMismatch(axis, tier, workspaceId)` enqueues every entity in a workspace whose persisted SENTIMENT-axis `analysisVersion` differs from the active config value. Backed by new `ExecutionQueueRepository.enqueueByAxisVersionMismatch` native query using `IS DISTINCT FROM` over `connotation_metadata->'axes'->'SENTIMENT'->>'analysisVersion'`.
+- `integration.schema.json` extended with optional `connotationSignals` block on `integrationEntityType` (`tier`, `sentimentAttribute`, `sentimentScale {sourceMin, sourceMax, targetMin, targetMax, mappingType: LINEAR|THRESHOLD}`, `themeAttributes`). `ManifestResolverService` cross-validates `sentimentAttribute` and `themeAttributes` against the entity type's declared attribute keys; failures log warn and drop the field rather than rejecting the manifest (consistent with existing relationship/field-mapping handling). Persisted via new `catalog_entity_types.connotation_signals` JSONB column.
+- New per-workspace `connotation_enabled` boolean column (default `false`) on `workspaces` gates SENTIMENT axis enrichment; RELATIONAL and STRUCTURAL axes always populate. Accessor `WorkspaceService.isConnotationEnabled(workspaceId)`.
+- `ConnotationAnalysisConfigurationProperties` (`riven.connotation.tier1-current-version`, default `v1`) controls the analysis-version stamp. Auto-discovered via existing `@ConfigurationPropertiesScan`.
+- `EnrichmentService.persistConnotationEnvelope` resolves the SENTIMENT axis through `ConnotationAnalysisService` when the workspace flag is enabled and the entity type has manifest signals. Otherwise leaves the axis at `NOT_APPLICABLE`. The pre-computed axis flows into both the persisted envelope and the transient `EnrichmentContext.sentiment` (only when status is `ANALYZED`).
+- `SemanticTextBuilderService` emits a "Connotation Context" section (≤ 300 chars) when the context carries an `ANALYZED` SENTIMENT axis. Lowest-priority optional section — last in section order, first to drop under truncation.
+- `activity_logs.operation` CHECK constraint extended to allow `ANALYZE` and `REANALYZE`; column widened to `VARCHAR(20)`. The previous CHECK would have blocked all connotation activity logs in production.
+- `ConnotationAxisName` enum (`SENTIMENT`, `RELATIONAL`, `STRUCTURAL`) — used by the admin op and future axis-targeted ops. Names match the UPPERCASE JSONB keys persisted in `entity_connotation.connotation_metadata` (per `@JsonProperty` on `ConnotationAxes`).
+- `OperationType.ANALYZE` and `OperationType.REANALYZE` added; `Activity.ENTITY_CONNOTATION` and `ApplicationEntityType.ENTITY_CONNOTATION` added.
+- Tier model `tier: AnalysisTier` (enum) on `ConnotationSignals` rather than `String` — applied the project's "enums over string literals" rule despite the plan typing it as `String`.
+
+**New cross-domain dependencies:** Yes
+- Enrichment → Connotation: `EnrichmentService` injects `ConnotationAnalysisService`.
+- Enrichment → Catalog: `EnrichmentService` injects `ManifestCatalogService` for `getConnotationSignalsForEntityType`.
+- Enrichment → Workspace: `EnrichmentService` injects `WorkspaceService.isConnotationEnabled`.
+- Catalog → Entity: `ManifestCatalogService` now injects `EntityTypeRepository` to resolve `entityTypeId → (sourceManifestId, key) → catalog_entity_type` for connotation-signal lookup. New edge from a previously global-only catalog service.
+- Connotation → Activity: `ConnotationAnalysisService` and `ConnotationAdminService` log via `ActivityService`.
+
+**New components introduced:**
+
+- `ConnotationAnalysisService` — workspace-scoped tier dispatcher; routes Tier 1, stubs 2/3.
+- `ConnotationTier1Mapper` — pure deterministic Tier 1 mapper (LINEAR/THRESHOLD).
+- `ConnotationAdminService` — admin op for SENTIMENT version-mismatch backfill.
+- `ConnotationAnalysisConfigurationProperties` — active versions per tier.
+- `ConnotationAxisName` enum.
+- `SentimentAnalysisOutcome` sealed class + `SentimentFailureReason` enum.
+- New repository method `ExecutionQueueRepository.enqueueByAxisVersionMismatch`.
+- New manifest catalog method `ManifestCatalogService.getConnotationSignalsForEntityType`.
+- New service accessor `WorkspaceService.isConnotationEnabled`.
+
+## 2026-04-28 — Schema Hash Numeric Canonicalization Format Change
+
+**Domains affected:** Catalog (schema reconciliation)
+
+**What changed:**
+
+- `SchemaHashUtil.canonicalize()` no longer routes numbers through `Number.toDouble()`. Numeric values now collapse to the canonical `BigDecimal(value.toString()).stripTrailingZeros().toPlainString()` representation, preserving precision for integers above 2^53 and eliminating hash collisions between distinct large longs.
+- Stored `entity_types.source_schema_hash` values written under the previous representation (e.g. `0.0` style for integral schema constants) will not match newly computed hashes for schemas containing numeric values. Existing reconciliation paths handle this as a legacy mismatch and re-stamp via the established legacy-stamping path.
+
+**New cross-domain dependencies:** No
+
+**New components introduced:** None — internal utility behavior change only.
+
 ## 2026-03-17 — Identity Match Dispatch Infrastructure and EntityService Event Publishing
 
 **Domains affected:** Identity, Entity, Workflow
@@ -114,3 +165,21 @@
 **New components introduced:**
 
 - Feature design document only — no code components introduced in this change. The document specifies components to be built across 5 implementation phases.
+
+## 2026-04-28 — Avatar Resolution Endpoint
+
+**Domains affected:** Storage, User, Workspace
+
+**What changed:**
+
+- Added public read endpoints `/api/v1/avatars/user/{userId}` and `/api/v1/avatars/workspace/{workspaceId}` that 302-redirect to a short-lived signed URL on the storage provider, replacing the previously unimplemented URLs synthesized by `AvatarUrlResolver`
+- Introduced `AvatarService` to translate user/workspace entity `avatarUrl` (storage key) into a signed URL via the configured `StorageProvider`, with HMAC fallback through `SignedUrlService` when the provider does not support native signed URLs
+- Responses set `Cache-Control: max-age=240, public` so browsers cache the redirect target slightly under the 5-minute signed URL expiry
+- Hardened `SupabaseStorageProvider` startup: `@PostConstruct ensureBucketExists` probes the configured bucket and best-effort creates it as private; failures (RLS denial under anon key, network errors) are logged and swallowed so the application still boots
+
+**New cross-domain dependencies:** Yes — Storage → User and Storage → Workspace: `AvatarService` reads `avatarUrl` from `UserRepository` and `WorkspaceRepository` to resolve avatar storage keys.
+
+**New components introduced:**
+
+- `AvatarController` — public REST controller exposing user/workspace avatar redirect endpoints
+- `AvatarService` — Spring service resolving user/workspace avatar storage keys to signed download URLs

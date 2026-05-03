@@ -6,7 +6,7 @@
 
 Name | Type
 ------------ | -------------
-`expr` | { [key: string]: any; }
+`expr` | object
 
 ## Example
 

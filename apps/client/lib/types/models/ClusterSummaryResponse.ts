@@ -36,7 +36,7 @@ export interface ClusterSummaryResponse {
      * @type {string}
      * @memberof ClusterSummaryResponse
      */
-    name?: string;
+    name?: string | null;
     /**
      * 
      * @type {number}

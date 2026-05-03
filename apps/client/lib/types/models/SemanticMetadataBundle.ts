@@ -32,7 +32,7 @@ export interface SemanticMetadataBundle {
      * @type {EntityTypeSemanticMetadata}
      * @memberof SemanticMetadataBundle
      */
-    entityType?: EntityTypeSemanticMetadata;
+    entityType?: EntityTypeSemanticMetadata | null;
     /**
      * 
      * @type {{ [key: string]: EntityTypeSemanticMetadata; }}

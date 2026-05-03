@@ -22,7 +22,7 @@ object OrderLineItemModel : riven.core.models.core.CoreModelDefinition(
     displayNamePlural = "Line Items",
     iconType = IconType.LIST,
     iconColour = IconColour.GREEN,
-    semanticGroup = SemanticGroup.TRANSACTION,
+    semanticGroup = SemanticGroup.LINE_ITEM,
     lifecycleDomain = LifecycleDomain.BILLING,
     identifierKey = "quantity",
     semanticDefinition = "An individual product entry within an order, capturing quantity, pricing, and discount for a specific product.",
@@ -30,7 +30,7 @@ object OrderLineItemModel : riven.core.models.core.CoreModelDefinition(
     projectionAccepts = listOf(
         ProjectionAcceptRule(
             domain = LifecycleDomain.BILLING,
-            semanticGroup = SemanticGroup.TRANSACTION,
+            semanticGroup = SemanticGroup.LINE_ITEM,
             relationshipName = ProjectionAcceptRule.SOURCE_DATA_RELATIONSHIP,
         ),
     ),

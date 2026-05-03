@@ -12,7 +12,6 @@ export const PANEL_IDS = [
   'knowledge',
   'notes',
   'billing',
-  'settings',
 ] as const;
 
 /**
@@ -63,6 +62,12 @@ export type SidePanelViewType = SidePanelView['type'];
 export interface PanelRegistryEntry {
   title: string;
   component: ComponentType;
+  /**
+   * When true, the SubPanel skips its default title/close header and the
+   * panel component is responsible for rendering its own header (including
+   * a close affordance).
+   */
+  hideHeader?: boolean;
 }
 
 /**

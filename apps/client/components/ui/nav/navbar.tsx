@@ -1,18 +1,18 @@
 'use client';
 
-import { DevToolsDropdown } from '@/components/feature-modules/dev/components/dev-tools-dropdown';
 import { UserProfileDropdown } from '@/components/feature-modules/user/components/avatar-dropdown';
 import { useProfile } from '@/components/feature-modules/user/hooks/use-profile';
 import { ConnectionStatus } from '@/components/feature-modules/workspace/components/connection-status';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useWorkspaceStore } from '@/components/feature-modules/workspace/provider/workspace-provider';
 import {
   usePanelOpen,
   useSidePanelActions,
 } from '@/components/ui/sidebar/context/side-panel-provider';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useIsMobile } from '@riven/hooks';
 import { Button } from '@riven/ui/button';
 import { ThemeToggle } from '@riven/ui/theme-toggle';
-import { useIsMobile } from '@riven/hooks';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { Menu, PanelLeftOpen } from 'lucide-react';
 import Link from 'next/link';
 import { FC } from 'react';
@@ -39,21 +39,14 @@ export const Navbar = () => {
       )}
       <AnimatePresence>
         {showReopenButton && (
-          <motion.div
-            initial={{ opacity: 0, width: 0 }}
-            animate={{ opacity: 1, width: 'auto' }}
-            exit={{ opacity: 0, width: 0 }}
-            transition={{ duration: 0.15, delay: 0.1 }}
-          >
-            <Button onClick={openPanel} variant="ghost" size="icon" aria-label="Open sidebar">
-              <PanelLeftOpen className="size-4" />
-            </Button>
-          </motion.div>
+          <Button onClick={openPanel} variant="ghost" size="icon" aria-label="Open sidebar">
+            <PanelLeftOpen className="size-4" />
+          </Button>
         )}
       </AnimatePresence>
       <div className="flex w-auto grow items-center justify-end space-x-2">
         <ConnectionStatus />
-        {process.env.NODE_ENV === 'development' && <DevToolsDropdown />}
+
         <ThemeToggle />
         <NavbarUserProfile />
       </div>
@@ -63,6 +56,7 @@ export const Navbar = () => {
 
 export const NavbarUserProfile: FC = () => {
   const { isLoadingAuth, isLoading, data: user } = useProfile();
+  const selectedWorkspaceId = useWorkspaceStore((s) => s.selectedWorkspaceId);
   if (isLoadingAuth || isLoading) return <Skeleton className="size-9 rounded-sm" />;
   if (!user)
     return (
@@ -75,5 +69,5 @@ export const NavbarUserProfile: FC = () => {
         </Button>
       </div>
     );
-  return <UserProfileDropdown user={user} />;
+  return <UserProfileDropdown user={user} workspaceId={selectedWorkspaceId} />;
 };

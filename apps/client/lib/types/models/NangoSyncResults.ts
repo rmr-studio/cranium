@@ -24,19 +24,19 @@ export interface NangoSyncResults {
      * @type {number}
      * @memberof NangoSyncResults
      */
-    added?: number;
+    added?: number | null;
     /**
      * 
      * @type {number}
      * @memberof NangoSyncResults
      */
-    updated?: number;
+    updated?: number | null;
     /**
      * 
      * @type {number}
      * @memberof NangoSyncResults
      */
-    deleted?: number;
+    deleted?: number | null;
 }
 
 /**

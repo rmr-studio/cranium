@@ -10,7 +10,7 @@ Name | Type
 `name` | string
 `workspaceId` | string
 `type` | [BlockType](BlockType.md)
-`payload` | [BlockPayload](BlockPayload.md)
+`payload` | [Metadata](Metadata.md)
 `validationErrors` | Array&lt;string&gt;
 `createdAt` | Date
 `updatedAt` | Date

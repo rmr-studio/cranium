@@ -30,7 +30,7 @@ export interface OnboardingProfile {
      * @type {string}
      * @memberof OnboardingProfile
      */
-    phone?: string;
+    phone?: string | null;
 }
 
 /**

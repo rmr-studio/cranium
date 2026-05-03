@@ -77,7 +77,7 @@ data class EntityAttributeEntity(
          */
         fun unwrapJsonNode(node: JsonNode): Any? = when {
             node.isNull -> null
-            node.isTextual -> node.textValue()
+            node.isString -> node.stringValue()
             node.isBoolean -> node.booleanValue()
             node.isNumber -> node.numberValue()
             node.isArray -> node.map { unwrapJsonNode(it) }

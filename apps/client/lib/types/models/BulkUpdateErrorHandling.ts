@@ -13,7 +13,7 @@
  */
 
 /**
- * 
+ * Error handling mode for individual entity update failures.
  * @export
  * @enum {string}
  */

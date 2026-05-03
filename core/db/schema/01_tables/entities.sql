@@ -25,6 +25,10 @@ CREATE TABLE IF NOT EXISTS public.entity_types
     "source_type"           VARCHAR(50) NOT NULL     DEFAULT 'USER_CREATED',
     "source_integration_id" UUID        REFERENCES integration_definitions (id) ON DELETE SET NULL,
     "readonly"              BOOLEAN     NOT NULL     DEFAULT FALSE,
+    -- Schema reconciliation fields
+    "source_schema_hash"    VARCHAR(64),
+    "pending_schema_update" BOOLEAN     NOT NULL     DEFAULT FALSE,
+    "source_manifest_id"    UUID        REFERENCES manifest_catalog (id) ON DELETE SET NULL,
     -- Denormalized count of entities of this type for faster access
     "count"                 INTEGER     NOT NULL     DEFAULT 0,
     "version"               INTEGER     NOT NULL     DEFAULT 1,
@@ -72,7 +76,13 @@ CREATE TABLE IF NOT EXISTS public.entities
     "sync_version"          BIGINT      NOT NULL     DEFAULT 0,
 
     -- Denormalized count of notes for faster access (trigger-maintained)
-    "note_count"            INTEGER     NOT NULL     DEFAULT 0
+    "note_count"            INTEGER     NOT NULL     DEFAULT 0,
+
+    -- Composite uniqueness so sibling tables (e.g. entity_connotation) can declare a
+    -- composite FK on (id, workspace_id) and enforce that the workspace_id of any
+    -- referencing row matches the entity it points at. id alone is already PK; this
+    -- adds the (id, workspace_id) pair as a unique key for FK targets.
+    UNIQUE (id, workspace_id)
 );
 
 -- =====================================================

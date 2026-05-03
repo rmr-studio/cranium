@@ -24,13 +24,13 @@ export interface ColumnOverride {
      * @type {number}
      * @memberof ColumnOverride
      */
-    width?: number;
+    width?: number | null;
     /**
      * 
      * @type {boolean}
      * @memberof ColumnOverride
      */
-    visible?: boolean;
+    visible?: boolean | null;
 }
 
 /**

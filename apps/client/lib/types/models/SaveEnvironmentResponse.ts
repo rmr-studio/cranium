@@ -38,13 +38,13 @@ export interface SaveEnvironmentResponse {
      * @type {string}
      * @memberof SaveEnvironmentResponse
      */
-    error?: string;
+    error?: string | null;
     /**
      * 
      * @type {number}
      * @memberof SaveEnvironmentResponse
      */
-    newVersion?: number;
+    newVersion?: number | null;
     /**
      * 
      * @type {boolean}
@@ -56,25 +56,25 @@ export interface SaveEnvironmentResponse {
      * @type {TreeLayout}
      * @memberof SaveEnvironmentResponse
      */
-    layout?: TreeLayout;
+    layout?: TreeLayout | null;
     /**
      * 
      * @type {number}
      * @memberof SaveEnvironmentResponse
      */
-    latestVersion?: number;
+    latestVersion?: number | null;
     /**
      * 
      * @type {string}
      * @memberof SaveEnvironmentResponse
      */
-    lastModifiedBy?: string;
+    lastModifiedBy?: string | null;
     /**
      * 
      * @type {Date}
      * @memberof SaveEnvironmentResponse
      */
-    lastModifiedAt?: Date;
+    lastModifiedAt?: Date | null;
     /**
      * 
      * @type {{ [key: string]: string; }}

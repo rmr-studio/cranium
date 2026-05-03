@@ -56,25 +56,25 @@ export interface BlockTreeLayout {
      * @type {Date}
      * @memberof BlockTreeLayout
      */
-    createdAt?: Date;
+    createdAt?: Date | null;
     /**
      * 
      * @type {Date}
      * @memberof BlockTreeLayout
      */
-    updatedAt?: Date;
+    updatedAt?: Date | null;
     /**
      * 
      * @type {string}
      * @memberof BlockTreeLayout
      */
-    createdBy?: string;
+    createdBy?: string | null;
     /**
      * 
      * @type {string}
      * @memberof BlockTreeLayout
      */
-    updatedBy?: string;
+    updatedBy?: string | null;
 }
 
 /**

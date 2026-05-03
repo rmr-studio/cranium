@@ -3,36 +3,27 @@ import { getAllPosts, getFeaturedPost } from '@/lib/blog';
 import dynamic from 'next/dynamic';
 
 import { Hero } from '@/components/feature-modules/landing/hero/components/hero';
+import { Preview } from '@/components/feature-modules/landing/preview/components/preview';
 
-const CrossDomainIntelligence = dynamic(() =>
-  import('@/components/feature-modules/landing/cross-domain-intelligence/cross-domain-section').then(
-    (m) => m.CrossDomainIntelligence,
+const Setup = dynamic(() =>
+  import('@/components/feature-modules/landing/setup/components/setup').then((m) => m.Setup),
+);
+
+const Features = dynamic(() =>
+  import('@/components/feature-modules/landing/features/components/features').then(
+    (m) => m.Features,
   ),
 );
 
-const KnowledgeRuleBase = dynamic(() =>
-  import('@/components/feature-modules/landing/knowledge-rule-base/rule-base-section').then(
-    (m) => m.RuleBaseSection,
+const Integrations = dynamic(() =>
+  import('@/components/feature-modules/landing/connections/components/connections').then(
+    (m) => m.Connections,
   ),
-);
-
-const PlatformSection = dynamic(() =>
-  import('@/components/feature-modules/landing/platform/platform').then((m) => m.PlatformSection),
-);
-
-const LayersSection = dynamic(() =>
-  import('@/components/feature-modules/landing/layers/layer').then((m) => m.LayersSection),
 );
 
 const TimeSaved = dynamic(() =>
   import('@/components/feature-modules/landing/time-saved/components/time-saved').then(
     (m) => m.TimeSaved,
-  ),
-);
-
-const CohortBehaviour = dynamic(() =>
-  import('@/components/feature-modules/landing/valuable-cohorts/valuable-cohorts').then(
-    (m) => m.CohortBehaviour,
   ),
 );
 
@@ -48,15 +39,31 @@ export default async function Home() {
   const recent = posts.filter((p) => p.slug !== featured?.slug).slice(0, 3);
 
   return (
-    <main className="min-h-screen overflow-x-clip">
-      <Hero />
-      <section className="relative mx-auto w-full lg:max-w-[min(100dvw,var(--breakpoint-3xl))]">
-        <PlatformSection />
+    <main className="relative min-h-screen overflow-x-clip">
+      <section className="fixed inset-0"></section>
+      <section
+        className="absolute inset-0 top-0 h-screen bg-white"
+        style={{
+          maskImage: 'linear-gradient(to bottom, transparent, black 0%, black 40%, transparent)',
+          WebkitMaskImage:
+            'linear-gradient(to bottom, transparent, black 0%, black 40%, transparent)',
+        }}
+      ></section>
+      <section className="relative mx-auto w-full">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 left-1/2 z-[70] w-full -translate-x-1/2 border-x border-x-neutral-500/40 2xl:max-w-[min(90vw,var(--breakpoint-3xl))]"
+        />
+        <Hero />
+        <div className="relative h-[16rem] sm:h-[20rem]">
+          <Preview />
+        </div>
+        <div className="relative h-full">
+          <Features />
+        </div>
+        <Integrations />
         <TimeSaved />
-        <LayersSection />
-        <KnowledgeRuleBase />
-        <CohortBehaviour />
-        <CrossDomainIntelligence />
+        <Setup />
 
         <FeaturedPosts featured={featured} recent={recent} />
         <Faq preview />

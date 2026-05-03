@@ -43,6 +43,8 @@ CREATE TABLE IF NOT EXISTS catalog_entity_types (
     readonly BOOLEAN NOT NULL DEFAULT FALSE,
     schema JSONB NOT NULL DEFAULT '{}'::jsonb,
     columns JSONB,
+    connotation_signals JSONB,
+    schema_hash VARCHAR(64),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 

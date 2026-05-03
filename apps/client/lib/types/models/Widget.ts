@@ -63,67 +63,67 @@ export interface Widget {
      * @type {number}
      * @memberof Widget
      */
-    h?: number;
+    h?: number | null;
     /**
      * 
      * @type {number}
      * @memberof Widget
      */
-    minW?: number;
+    minW?: number | null;
     /**
      * 
      * @type {number}
      * @memberof Widget
      */
-    minH?: number;
+    minH?: number | null;
     /**
      * 
      * @type {number}
      * @memberof Widget
      */
-    maxW?: number;
+    maxW?: number | null;
     /**
      * 
      * @type {number}
      * @memberof Widget
      */
-    maxH?: number;
+    maxH?: number | null;
     /**
      * 
      * @type {boolean}
      * @memberof Widget
      */
-    autoPosition?: boolean;
+    autoPosition?: boolean | null;
     /**
      * 
      * @type {boolean}
      * @memberof Widget
      */
-    locked?: boolean;
+    locked?: boolean | null;
     /**
      * 
      * @type {boolean}
      * @memberof Widget
      */
-    noResize?: boolean;
+    noResize?: boolean | null;
     /**
      * 
      * @type {boolean}
      * @memberof Widget
      */
-    noMove?: boolean;
+    noMove?: boolean | null;
     /**
      * 
      * @type {RenderContent}
      * @memberof Widget
      */
-    content?: RenderContent;
+    content?: RenderContent | null;
     /**
      * 
      * @type {TreeLayout}
      * @memberof Widget
      */
-    subGridOpts?: TreeLayout;
+    subGridOpts?: TreeLayout | null;
 }
 
 /**

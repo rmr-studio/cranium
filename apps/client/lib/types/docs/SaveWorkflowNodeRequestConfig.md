@@ -21,15 +21,15 @@ Name | Type
 `errorHandling` | [BulkUpdateErrorHandling](BulkUpdateErrorHandling.md)
 `url` | string
 `method` | [RequestMethodType](RequestMethodType.md)
-`headers` | { [key: string]: string; }
-`body` | { [key: string]: string; }
+`headers` | { [key: string]: string | null; }
+`body` | { [key: string]: string | null; }
 `key` | string
 `operation` | [OperationType](OperationType.md)
 `field` | Array&lt;string&gt;
 `expressions` | object
 `cronExpression` | string
-`interval` | [WorkflowScheduleTriggerConfigInterval](WorkflowScheduleTriggerConfigInterval.md)
-`timeZone` | [WorkflowScheduleTriggerConfigTimeZone](WorkflowScheduleTriggerConfigTimeZone.md)
+`interval` | string
+`timeZone` | string
 `authentication` | [AuthenticationType](AuthenticationType.md)
 `signature` | [Signature](Signature.md)
 `payloadSchema` | [SchemaString](SchemaString.md)
@@ -45,22 +45,22 @@ import type { SaveWorkflowNodeRequestConfig } from ''
 // TODO: Update the object below with actual values
 const example = {
   "version": null,
-  "entityTypeId": null,
-  "payload": null,
+  "entityTypeId": 550e8400-e29b-41d4-a716-446655440000,
+  "payload": {attr-uuid=New Value, status-uuid={{ steps.x.output.status }}},
   "timeoutSeconds": null,
   "configSchema": null,
   "config": null,
   "subType": null,
   "type": null,
-  "entityId": null,
+  "entityId": 550e8400-e29b-41d4-a716-446655440000,
   "query": null,
   "pagination": null,
   "projection": null,
   "errorHandling": null,
-  "url": null,
+  "url": https://api.example.com/users,
   "method": null,
-  "headers": null,
-  "body": null,
+  "headers": {Content-Type=application/json, Authorization=Bearer {{ steps.auth.output.token }}},
+  "body": {name={{ steps.user.output.name }}, email=user@example.com},
   "key": null,
   "operation": null,
   "field": null,
@@ -72,8 +72,8 @@ const example = {
   "signature": null,
   "payloadSchema": null,
   "schema": null,
-  "expression": null,
-  "contextEntityId": null,
+  "expression": entity.status == 'active' && entity.balance > 0,
+  "contextEntityId": {{ steps.fetch_account.output.entityId }},
 } satisfies SaveWorkflowNodeRequestConfig
 
 console.log(example)

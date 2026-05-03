@@ -20,13 +20,13 @@ import {
     BlockTypeToJSON,
     BlockTypeToJSONTyped,
 } from './BlockType';
-import type { BlockPayload } from './BlockPayload';
+import type { Metadata } from './Metadata';
 import {
-    BlockPayloadFromJSON,
-    BlockPayloadFromJSONTyped,
-    BlockPayloadToJSON,
-    BlockPayloadToJSONTyped,
-} from './BlockPayload';
+    MetadataFromJSON,
+    MetadataFromJSONTyped,
+    MetadataToJSON,
+    MetadataToJSONTyped,
+} from './Metadata';
 
 /**
  * 
@@ -45,7 +45,7 @@ export interface Block {
      * @type {string}
      * @memberof Block
      */
-    name?: string;
+    name?: string | null;
     /**
      * 
      * @type {string}
@@ -60,40 +60,40 @@ export interface Block {
     type: BlockType;
     /**
      * 
-     * @type {BlockPayload}
+     * @type {Metadata}
      * @memberof Block
      */
-    payload: BlockPayload;
+    payload: Metadata;
     /**
      * 
      * @type {Array<string>}
      * @memberof Block
      */
-    validationErrors?: Array<string>;
+    validationErrors?: Array<string> | null;
     /**
      * 
      * @type {Date}
      * @memberof Block
      */
-    createdAt?: Date;
+    createdAt?: Date | null;
     /**
      * 
      * @type {Date}
      * @memberof Block
      */
-    updatedAt?: Date;
+    updatedAt?: Date | null;
     /**
      * 
      * @type {string}
      * @memberof Block
      */
-    createdBy?: string;
+    createdBy?: string | null;
     /**
      * 
      * @type {string}
      * @memberof Block
      */
-    updatedBy?: string;
+    updatedBy?: string | null;
 }
 
 /**
@@ -121,7 +121,7 @@ export function BlockFromJSONTyped(json: any, ignoreDiscriminator: boolean): Blo
         'name': json['name'] == null ? undefined : json['name'],
         'workspaceId': json['workspaceId'],
         'type': BlockTypeFromJSON(json['type']),
-        'payload': BlockPayloadFromJSON(json['payload']),
+        'payload': MetadataFromJSON(json['payload']),
         'validationErrors': json['validationErrors'] == null ? undefined : json['validationErrors'],
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
         'updatedAt': json['updatedAt'] == null ? undefined : (new Date(json['updatedAt'])),
@@ -145,7 +145,7 @@ export function BlockToJSONTyped(value?: Block | null, ignoreDiscriminator: bool
         'name': value['name'],
         'workspaceId': value['workspaceId'],
         'type': BlockTypeToJSON(value['type']),
-        'payload': BlockPayloadToJSON(value['payload']),
+        'payload': MetadataToJSON(value['payload']),
         'validationErrors': value['validationErrors'],
         'createdAt': value['createdAt'] == null ? value['createdAt'] : value['createdAt'].toISOString(),
         'updatedAt': value['updatedAt'] == null ? value['updatedAt'] : value['updatedAt'].toISOString(),

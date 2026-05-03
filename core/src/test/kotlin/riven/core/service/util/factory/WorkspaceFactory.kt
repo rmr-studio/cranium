@@ -13,9 +13,11 @@ object WorkspaceFactory {
     fun createWorkspace(
         id: UUID = UUID.randomUUID(),
         name: String = "Test Workspace",
+        connotationEnabled: Boolean = false,
     ) = WorkspaceEntity(
         id = id,
         name = name,
+        connotationEnabled = connotationEnabled,
     )
 
     fun createWorkspaceMember(

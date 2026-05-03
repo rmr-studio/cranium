@@ -145,6 +145,43 @@
         },
         "semantics": {
           "$ref": "#/$defs/entityTypeSemantics"
+        },
+        "connotationSignals": {
+          "$ref": "#/$defs/connotationSignals"
+        }
+      }
+    },
+    "connotationSignals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tier", "sentimentAttribute", "sentimentScale"],
+      "properties": {
+        "tier": {
+          "type": "string",
+          "enum": ["DETERMINISTIC", "CLASSIFIER", "INFERENCE"]
+        },
+        "sentimentAttribute": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sentimentScale": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["sourceMin", "sourceMax", "targetMin", "targetMax", "mappingType"],
+          "properties": {
+            "sourceMin": { "type": "number" },
+            "sourceMax": { "type": "number" },
+            "targetMin": { "type": "number" },
+            "targetMax": { "type": "number" },
+            "mappingType": {
+              "type": "string",
+              "enum": ["LINEAR", "THRESHOLD"]
+            }
+          }
+        },
+        "themeAttributes": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
         }
       }
     },

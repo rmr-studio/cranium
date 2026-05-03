@@ -7,11 +7,14 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import riven.core.enums.common.validation.SchemaType
+import riven.core.enums.connotation.ConnotationStatus
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.integration.SourceType
-import riven.core.models.enrichment.EnrichedTextResult
+import riven.core.models.connotation.AnalysisTier
+import riven.core.models.connotation.SentimentLabel
+import riven.core.models.connotation.SentimentMetadata
 import riven.core.service.util.factory.enrichment.EnrichmentFactory
 import java.util.UUID
 import kotlin.test.assertContains
@@ -716,6 +719,68 @@ class SemanticTextBuilderServiceTest {
         }
     }
 
+    // ------ Section 7: Connotation Context ------
+
+    @Nested
+    inner class ConnotationContextSection {
+
+        @Test
+        fun `Connotation Context section emits when SENTIMENT is ANALYZED`() {
+            val sentiment = SentimentMetadata(
+                sentiment = 0.8,
+                sentimentLabel = SentimentLabel.VERY_POSITIVE,
+                themes = listOf("billing", "fast resolution"),
+                analysisTier = AnalysisTier.DETERMINISTIC,
+                status = ConnotationStatus.ANALYZED,
+            )
+            val context = EnrichmentFactory.enrichmentContext(sentiment = sentiment)
+
+            val result = service.buildText(context)
+
+            assertContains(result.text, "## Connotation Context")
+            assertContains(result.text, "Sentiment: VERY_POSITIVE")
+            assertContains(result.text, "0.80")
+            assertContains(result.text, "billing")
+            assertContains(result.text, "fast resolution")
+        }
+
+        @Test
+        fun `Connotation Context section is omitted when sentiment is null`() {
+            val context = EnrichmentFactory.enrichmentContext(sentiment = null)
+
+            val result = service.buildText(context)
+
+            assertFalse(
+                result.text.contains("Connotation Context"),
+                "Connotation Context should be absent when sentiment is null"
+            )
+        }
+
+        @Test
+        fun `Connotation Context section is bounded under 300 chars`() {
+            val longThemes = (1..50).map { "very-long-theme-name-with-many-characters-$it" }
+            val sentiment = SentimentMetadata(
+                sentiment = 0.5,
+                sentimentLabel = SentimentLabel.POSITIVE,
+                themes = longThemes,
+                analysisTier = AnalysisTier.DETERMINISTIC,
+                status = ConnotationStatus.ANALYZED,
+            )
+            val context = EnrichmentFactory.enrichmentContext(sentiment = sentiment)
+
+            val result = service.buildText(context)
+
+            val sectionText = result.text.substringAfter("## Connotation Context")
+                .let { if (it.contains("\n##")) it.substringBefore("\n##") else it }
+            // +"## Connotation Context".length to count the heading prefix that substringAfter strips
+            val totalSectionLength = "## Connotation Context".length + sectionText.length
+            assertTrue(
+                totalSectionLength <= 300,
+                "Connotation Context section should be bounded ≤ 300 chars, was $totalSectionLength"
+            )
+        }
+    }
+
     // ------ Task 2: Budget-aware truncation ------
 
     @Nested
@@ -839,6 +904,35 @@ class SemanticTextBuilderServiceTest {
 
             assertTrue(result.text.length <= 27_000,
                 "Final text should not exceed 27,000 chars, was ${result.text.length}")
+        }
+
+        /**
+         * Connotation section is bounded at 300 chars and survives every truncation step
+         * so long entities don't lose sentiment context. Verifies the section is still
+         * present at the deepest truncation step (Step 4 — reduced attributes).
+         */
+        @Test
+        fun `buildText preserves Connotation Context through all truncation steps`() {
+            val sentiment = SentimentMetadata(
+                sentiment = 0.8,
+                sentimentLabel = SentimentLabel.VERY_POSITIVE,
+                analysisVersion = "v1",
+                analysisTier = AnalysisTier.DETERMINISTIC,
+                status = ConnotationStatus.ANALYZED,
+            )
+            val base = massiveContext()
+            val context = EnrichmentFactory.enrichmentContext(
+                attributes = base.attributes,
+                relationshipSummaries = base.relationshipSummaries,
+                clusterMembers = base.clusterMembers,
+                relationshipDefinitions = base.relationshipDefinitions,
+                sentiment = sentiment,
+            )
+
+            val result = service.buildText(context)
+
+            assertTrue(result.truncated, "Massive context should trigger truncation")
+            assertContains(result.text, "## Connotation Context")
         }
     }
 }

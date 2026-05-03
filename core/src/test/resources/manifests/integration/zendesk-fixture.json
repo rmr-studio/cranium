@@ -1,0 +1,55 @@
+{
+  "manifestVersion": "1.0",
+  "key": "zendesk-fixture",
+  "name": "Zendesk Fixture",
+  "description": "Minimal Zendesk-style manifest fixture exercised by ConnotationPipelineIntegrationTest. Carries a single Review entity type with DETERMINISTIC LINEAR connotationSignals so the end-to-end SENTIMENT axis pipeline can be asserted on a real Postgres.",
+  "category": "SUPPORT",
+  "nangoProviderKey": "",
+  "iconUrl": "/integrations/zendesk.svg",
+  "entityTypes": [
+    {
+      "key": "zendesk-review",
+      "name": "Review",
+      "description": "A customer satisfaction review carrying a numeric score and tag list.",
+      "displayName": {
+        "singular": "Review",
+        "plural": "Reviews"
+      },
+      "icon": {
+        "type": "STAR",
+        "colour": "YELLOW"
+      },
+      "semanticGroup": "SUPPORT",
+      "identifierKey": "satisfaction_score",
+      "readonly": true,
+      "attributes": {
+        "satisfaction_score": {
+          "key": "NUMBER",
+          "label": "Satisfaction Score",
+          "type": "number",
+          "required": false,
+          "protected": true
+        },
+        "tags": {
+          "key": "TEXT",
+          "label": "Tags",
+          "type": "string",
+          "required": false,
+          "protected": true
+        }
+      },
+      "connotationSignals": {
+        "tier": "DETERMINISTIC",
+        "sentimentAttribute": "satisfaction_score",
+        "sentimentScale": {
+          "sourceMin": 1.0,
+          "sourceMax": 5.0,
+          "targetMin": -1.0,
+          "targetMax": 1.0,
+          "mappingType": "LINEAR"
+        },
+        "themeAttributes": ["tags"]
+      }
+    }
+  ]
+}

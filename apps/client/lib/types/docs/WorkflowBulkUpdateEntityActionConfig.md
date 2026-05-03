@@ -27,7 +27,7 @@ import type { WorkflowBulkUpdateEntityActionConfig } from ''
 const example = {
   "version": null,
   "query": null,
-  "payload": null,
+  "payload": {"attr-uuid":"New Value","status-uuid":"{{ steps.x.output.status }}"},
   "errorHandling": null,
   "pagination": null,
   "timeoutSeconds": null,

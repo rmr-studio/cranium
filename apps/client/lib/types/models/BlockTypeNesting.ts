@@ -24,7 +24,7 @@ export interface BlockTypeNesting {
      * @type {number}
      * @memberof BlockTypeNesting
      */
-    max?: number;
+    max?: number | null;
     /**
      * 
      * @type {Array<string>}

@@ -77,25 +77,25 @@ export interface BlockType {
      * @type {string}
      * @memberof BlockType
      */
-    sourceId?: string;
+    sourceId?: string | null;
     /**
      * 
      * @type {BlockTypeNesting}
      * @memberof BlockType
      */
-    nesting?: BlockTypeNesting;
+    nesting?: BlockTypeNesting | null;
     /**
      * 
      * @type {string}
      * @memberof BlockType
      */
-    description?: string;
+    description?: string | null;
     /**
      * 
      * @type {string}
      * @memberof BlockType
      */
-    workspaceId?: string;
+    workspaceId?: string | null;
     /**
      * 
      * @type {boolean}
@@ -131,25 +131,25 @@ export interface BlockType {
      * @type {Date}
      * @memberof BlockType
      */
-    createdAt?: Date;
+    createdAt?: Date | null;
     /**
      * 
      * @type {Date}
      * @memberof BlockType
      */
-    updatedAt?: Date;
+    updatedAt?: Date | null;
     /**
      * 
      * @type {string}
      * @memberof BlockType
      */
-    createdBy?: string;
+    createdBy?: string | null;
     /**
      * 
      * @type {string}
      * @memberof BlockType
      */
-    updatedBy?: string;
+    updatedBy?: string | null;
 }
 
 

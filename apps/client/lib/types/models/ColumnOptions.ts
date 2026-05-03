@@ -32,31 +32,31 @@ export interface ColumnOptions {
      * @type {Array<BreakpointConfig>}
      * @memberof ColumnOptions
      */
-    breakpoints?: Array<BreakpointConfig>;
+    breakpoints?: Array<BreakpointConfig> | null;
     /**
      * 
      * @type {string}
      * @memberof ColumnOptions
      */
-    layout?: string;
+    layout?: string | null;
     /**
      * 
      * @type {string}
      * @memberof ColumnOptions
      */
-    breakpointForWindow?: string;
+    breakpointForWindow?: string | null;
     /**
      * 
      * @type {number}
      * @memberof ColumnOptions
      */
-    columnMax?: number;
+    columnMax?: number | null;
     /**
      * 
      * @type {number}
      * @memberof ColumnOptions
      */
-    columnWidth?: number;
+    columnWidth?: number | null;
 }
 
 /**

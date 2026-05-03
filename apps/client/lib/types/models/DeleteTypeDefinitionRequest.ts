@@ -13,13 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
-import type { DeleteTypeDefinitionRequestDefinition } from './DeleteTypeDefinitionRequestDefinition';
+import type { TypeDefinition } from './TypeDefinition';
 import {
-    DeleteTypeDefinitionRequestDefinitionFromJSON,
-    DeleteTypeDefinitionRequestDefinitionFromJSONTyped,
-    DeleteTypeDefinitionRequestDefinitionToJSON,
-    DeleteTypeDefinitionRequestDefinitionToJSONTyped,
-} from './DeleteTypeDefinitionRequestDefinition';
+    TypeDefinitionFromJSON,
+    TypeDefinitionFromJSONTyped,
+    TypeDefinitionToJSON,
+    TypeDefinitionToJSONTyped,
+} from './TypeDefinition';
 
 /**
  * 
@@ -29,10 +29,10 @@ import {
 export interface DeleteTypeDefinitionRequest {
     /**
      * 
-     * @type {DeleteTypeDefinitionRequestDefinition}
+     * @type {TypeDefinition}
      * @memberof DeleteTypeDefinitionRequest
      */
-    definition: DeleteTypeDefinitionRequestDefinition;
+    definition: TypeDefinition;
 }
 
 /**
@@ -53,7 +53,7 @@ export function DeleteTypeDefinitionRequestFromJSONTyped(json: any, ignoreDiscri
     }
     return {
         
-        'definition': DeleteTypeDefinitionRequestDefinitionFromJSON(json['definition']),
+        'definition': TypeDefinitionFromJSON(json['definition']),
     };
 }
 
@@ -68,7 +68,7 @@ export function DeleteTypeDefinitionRequestToJSONTyped(value?: DeleteTypeDefinit
 
     return {
         
-        'definition': DeleteTypeDefinitionRequestDefinitionToJSON(value['definition']),
+        'definition': TypeDefinitionToJSON(value['definition']),
     };
 }
 

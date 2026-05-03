@@ -22,6 +22,10 @@ export enum IntegrationCategory {
     Payments = 'PAYMENTS',
     Support = 'SUPPORT',
     Email = 'EMAIL',
+    Marketing = 'MARKETING',
+    Social = 'SOCIAL',
+    Shipping = 'SHIPPING',
+    EcommercePlatform = 'ECOMMERCE_PLATFORM',
     Communication = 'COMMUNICATION',
     ProductAnalytics = 'PRODUCT_ANALYTICS',
     Other = 'OTHER'

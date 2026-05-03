@@ -49,23 +49,23 @@ import {
  */
 export interface Attribute extends QueryFilter {
     /**
-     * 
+     * UUID key of the attribute in the entity schema.
      * @type {string}
      * @memberof Attribute
      */
-    attributeId?: string;
+    attributeId: string;
     /**
      * 
      * @type {FilterOperator}
      * @memberof Attribute
      */
-    operator?: FilterOperator;
+    operator: FilterOperator;
     /**
      * 
      * @type {FilterValue}
      * @memberof Attribute
      */
-    value?: FilterValue;
+    value: FilterValue;
 }
 
 
@@ -74,6 +74,9 @@ export interface Attribute extends QueryFilter {
  * Check if a given object implements the Attribute interface.
  */
 export function instanceOfAttribute(value: object): value is Attribute {
+    if (!('attributeId' in value) || value['attributeId'] === undefined) return false;
+    if (!('operator' in value) || value['operator'] === undefined) return false;
+    if (!('value' in value) || value['value'] === undefined) return false;
     return true;
 }
 
@@ -87,9 +90,9 @@ export function AttributeFromJSONTyped(json: any, ignoreDiscriminator: boolean):
     }
     return {
         ...QueryFilterFromJSONTyped(json, true),
-        'attributeId': json['attributeId'] == null ? undefined : json['attributeId'],
-        'operator': json['operator'] == null ? undefined : FilterOperatorFromJSON(json['operator']),
-        'value': json['value'] == null ? undefined : FilterValueFromJSON(json['value']),
+        'attributeId': json['attributeId'],
+        'operator': FilterOperatorFromJSON(json['operator']),
+        'value': FilterValueFromJSON(json['value']),
     };
 }
 

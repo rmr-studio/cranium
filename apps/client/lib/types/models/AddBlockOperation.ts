@@ -13,13 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
-import type { AddBlockOperationAllOfBlock } from './AddBlockOperationAllOfBlock';
+import type { Node } from './Node';
 import {
-    AddBlockOperationAllOfBlockFromJSON,
-    AddBlockOperationAllOfBlockFromJSONTyped,
-    AddBlockOperationAllOfBlockToJSON,
-    AddBlockOperationAllOfBlockToJSONTyped,
-} from './AddBlockOperationAllOfBlock';
+    NodeFromJSON,
+    NodeFromJSONTyped,
+    NodeToJSON,
+    NodeToJSONTyped,
+} from './Node';
 import type { BlockOperationType } from './BlockOperationType';
 import {
     BlockOperationTypeFromJSON,
@@ -48,22 +48,58 @@ export interface AddBlockOperation {
     type: BlockOperationType;
     /**
      * 
-     * @type {AddBlockOperationAllOfBlock}
+     * @type {Node}
      * @memberof AddBlockOperation
      */
-    block: AddBlockOperationAllOfBlock;
+    block: Node;
     /**
      * 
      * @type {string}
      * @memberof AddBlockOperation
      */
-    parentId?: string;
+    parentId: string | null;
     /**
      * 
      * @type {number}
      * @memberof AddBlockOperation
      */
-    index?: number;
+    index?: number | null;
+    /**
+     * 
+     * @type {{ [key: string]: string; }}
+     * @memberof AddBlockOperation
+     */
+    childrenIds: { [key: string]: string; };
+    /**
+     * 
+     * @type {string}
+     * @memberof AddBlockOperation
+     */
+    fromParentId?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof AddBlockOperation
+     */
+    toParentId?: string | null;
+    /**
+     * 
+     * @type {Node}
+     * @memberof AddBlockOperation
+     */
+    updatedContent: Node;
+    /**
+     * 
+     * @type {number}
+     * @memberof AddBlockOperation
+     */
+    fromIndex: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof AddBlockOperation
+     */
+    toIndex: number;
 }
 
 
@@ -75,6 +111,11 @@ export function instanceOfAddBlockOperation(value: object): value is AddBlockOpe
     if (!('blockId' in value) || value['blockId'] === undefined) return false;
     if (!('type' in value) || value['type'] === undefined) return false;
     if (!('block' in value) || value['block'] === undefined) return false;
+    if (!('parentId' in value) || value['parentId'] === undefined) return false;
+    if (!('childrenIds' in value) || value['childrenIds'] === undefined) return false;
+    if (!('updatedContent' in value) || value['updatedContent'] === undefined) return false;
+    if (!('fromIndex' in value) || value['fromIndex'] === undefined) return false;
+    if (!('toIndex' in value) || value['toIndex'] === undefined) return false;
     return true;
 }
 
@@ -90,9 +131,15 @@ export function AddBlockOperationFromJSONTyped(json: any, ignoreDiscriminator: b
         
         'blockId': json['blockId'],
         'type': BlockOperationTypeFromJSON(json['type']),
-        'block': AddBlockOperationAllOfBlockFromJSON(json['block']),
-        'parentId': json['parentId'] == null ? undefined : json['parentId'],
+        'block': NodeFromJSON(json['block']),
+        'parentId': json['parentId'],
         'index': json['index'] == null ? undefined : json['index'],
+        'childrenIds': json['childrenIds'],
+        'fromParentId': json['fromParentId'] == null ? undefined : json['fromParentId'],
+        'toParentId': json['toParentId'] == null ? undefined : json['toParentId'],
+        'updatedContent': NodeFromJSON(json['updatedContent']),
+        'fromIndex': json['fromIndex'],
+        'toIndex': json['toIndex'],
     };
 }
 
@@ -109,9 +156,15 @@ export function AddBlockOperationToJSONTyped(value?: AddBlockOperation | null, i
         
         'blockId': value['blockId'],
         'type': BlockOperationTypeToJSON(value['type']),
-        'block': AddBlockOperationAllOfBlockToJSON(value['block']),
+        'block': NodeToJSON(value['block']),
         'parentId': value['parentId'],
         'index': value['index'],
+        'childrenIds': value['childrenIds'],
+        'fromParentId': value['fromParentId'],
+        'toParentId': value['toParentId'],
+        'updatedContent': NodeToJSON(value['updatedContent']),
+        'fromIndex': value['fromIndex'],
+        'toIndex': value['toIndex'],
     };
 }
 

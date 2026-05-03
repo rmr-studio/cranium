@@ -105,16 +105,24 @@ export const Faq = ({ preview = false }: FaqProps) => {
   const items = preview ? FAQ.slice(0, PREVIEW_COUNT) : FAQ;
 
   return (
-    <Section id="faqs" size={24}>
-      <div className="clamp relative z-10 flex flex-col">
-        <h2 className="text-center font-serif text-4xl leading-none tracking-tighter text-heading md:text-6xl">
+    <Section
+      id="faqs"
+      size={24}
+      className="mx-auto border-x border-x-content/25 2xl:max-w-[min(90dvw,var(--breakpoint-3xl))]"
+    >
+      <div className="relative z-10 flex flex-col">
+        <h2 className="text-center font-bit text-4xl leading-none tracking-tighter text-heading md:text-6xl">
           Frequently Asked Questions
         </h2>
         <Accordion type="single" collapsible className="mx-auto mt-10 w-full max-w-4xl px-4">
           {items.map((item, i) => (
             <AccordionItem key={i} value={`item-${i}`}>
-              <AccordionTrigger className="text-sm sm:text-base">{item.question}</AccordionTrigger>
-              <AccordionContent className="text-muted-foreground">{item.answer}</AccordionContent>
+              <AccordionTrigger className="font-display text-sm sm:text-base">
+                {item.question}
+              </AccordionTrigger>
+              <AccordionContent className="font-display text-muted-foreground">
+                {item.answer}
+              </AccordionContent>
             </AccordionItem>
           ))}
         </Accordion>

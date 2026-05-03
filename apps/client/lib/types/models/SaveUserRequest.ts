@@ -44,19 +44,19 @@ export interface SaveUserRequest {
      * @type {string}
      * @memberof SaveUserRequest
      */
-    phone?: string;
+    phone?: string | null;
     /**
      * 
      * @type {string}
      * @memberof SaveUserRequest
      */
-    defaultWorkspaceId?: string;
+    defaultWorkspaceId?: string | null;
     /**
      * 
      * @type {Date}
      * @memberof SaveUserRequest
      */
-    onboardingCompletedAt?: Date;
+    onboardingCompletedAt?: Date | null;
     /**
      * 
      * @type {boolean}
@@ -68,7 +68,7 @@ export interface SaveUserRequest {
      * @type {Array<AcquisitionChannel>}
      * @memberof SaveUserRequest
      */
-    acquisitionChannels?: Array<AcquisitionChannel>;
+    acquisitionChannels?: Array<AcquisitionChannel> | null;
 }
 
 /**

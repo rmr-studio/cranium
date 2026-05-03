@@ -5,7 +5,7 @@ export function MockActivityTimeline({ scenario }: { scenario: ShowcaseScenario 
   return (
     <div
       style={{ width: 520 }}
-      className="glass-panel relative flex flex-col rounded-xl border border-border shadow-lg backdrop-blur-xl"
+      className="glass-panel relative flex flex-col rounded-xl border border-border shadow-lg"
     >
       {/* Header breadcrumb */}
       <div className="border-b border-border px-5 pt-4 pb-2.5">

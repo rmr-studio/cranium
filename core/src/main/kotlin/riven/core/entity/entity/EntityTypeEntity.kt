@@ -75,6 +75,15 @@ data class EntityTypeEntity(
     @Column(name = "readonly", nullable = false)
     val readonly: Boolean = false,
 
+    @Column(name = "source_schema_hash", length = 64)
+    var sourceSchemaHash: String? = null,
+
+    @Column(name = "pending_schema_update", nullable = false)
+    var pendingSchemaUpdate: Boolean = false,
+
+    @Column(name = "source_manifest_id", columnDefinition = "uuid")
+    var sourceManifestId: UUID? = null,
+
     @Column(name = "identifier_key", nullable = false)
     val identifierKey: UUID,
 

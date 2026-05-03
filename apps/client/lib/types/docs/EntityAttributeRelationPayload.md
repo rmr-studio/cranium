@@ -8,6 +8,8 @@ An attribute payload representing a relationship to another entity, with a full 
 Name | Type
 ------------ | -------------
 `type` | [EntityPropertyType](EntityPropertyType.md)
+`value` | object
+`schemaType` | [SchemaType](SchemaType.md)
 `relations` | [Array&lt;EntityLink&gt;](EntityLink.md)
 
 ## Example
@@ -18,6 +20,8 @@ import type { EntityAttributeRelationPayload } from ''
 // TODO: Update the object below with actual values
 const example = {
   "type": null,
+  "value": null,
+  "schemaType": null,
   "relations": null,
 } satisfies EntityAttributeRelationPayload
 

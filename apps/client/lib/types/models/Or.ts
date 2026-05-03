@@ -49,11 +49,11 @@ import {
  */
 export interface Or extends QueryFilter {
     /**
-     * 
+     * List of conditions where at least one must match.
      * @type {Array<QueryFilter>}
      * @memberof Or
      */
-    conditions?: Array<QueryFilter>;
+    conditions: Array<QueryFilter>;
 }
 
 
@@ -62,6 +62,7 @@ export interface Or extends QueryFilter {
  * Check if a given object implements the Or interface.
  */
 export function instanceOfOr(value: object): value is Or {
+    if (!('conditions' in value) || value['conditions'] === undefined) return false;
     return true;
 }
 
@@ -75,7 +76,7 @@ export function OrFromJSONTyped(json: any, ignoreDiscriminator: boolean): Or {
     }
     return {
         ...QueryFilterFromJSONTyped(json, true),
-        'conditions': json['conditions'] == null ? undefined : ((json['conditions'] as Array<any>).map(QueryFilterFromJSON)),
+        'conditions': ((json['conditions'] as Array<any>).map(QueryFilterFromJSON)),
     };
 }
 
@@ -90,7 +91,7 @@ export function OrToJSONTyped(value?: Or | null, ignoreDiscriminator: boolean = 
 
     return {
         ...QueryFilterToJSONTyped(value, true),
-        'conditions': value['conditions'] == null ? undefined : ((value['conditions'] as Array<any>).map(QueryFilterToJSON)),
+        'conditions': ((value['conditions'] as Array<any>).map(QueryFilterToJSON)),
     };
 }
 

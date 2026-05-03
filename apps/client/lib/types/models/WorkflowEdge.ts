@@ -38,7 +38,7 @@ export interface WorkflowEdge {
      * @type {string}
      * @memberof WorkflowEdge
      */
-    label?: string;
+    label?: string | null;
     /**
      * 
      * @type {WorkflowNode}

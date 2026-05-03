@@ -13,10 +13,10 @@ import org.springframework.transaction.support.TransactionCallback
 import org.springframework.transaction.support.TransactionTemplate
 import riven.core.configuration.auth.WorkspaceSecurity
 import riven.core.enums.knowledge.DefinitionCategory
-import riven.core.enums.workspace.BusinessType
 import riven.core.enums.workspace.WorkspacePlan
 import riven.core.enums.workspace.WorkspaceRoles
 import riven.core.exceptions.ConflictException
+import riven.core.models.core.DTC_ECOMMERCE_MODELS
 import riven.core.models.request.knowledge.CreateBusinessDefinitionRequest
 import riven.core.models.request.onboarding.*
 import riven.core.models.request.user.SaveUserRequest
@@ -81,7 +81,6 @@ class OnboardingServiceTest : BaseServiceTest() {
             name = "Test User",
             phone = "1234567890",
         ),
-        businessType = BusinessType.B2C_SAAS,
         invites = invites,
         businessDefinitions = businessDefinitions,
     )
@@ -153,6 +152,19 @@ class OnboardingServiceTest : BaseServiceTest() {
             // Verify template installation uses internal (auth-bypass) method
             verify(templateInstallationService).installTemplateInternal(eq(newWorkspaceId), any(), eq(userId))
             verify(templateInstallationService, never()).installTemplate(any(), any())
+        }
+
+        @Test
+        fun `always installs DTC_ECOMMERCE manifest (no business-type branching)`() {
+            val request = defaultRequest()
+
+            onboardingService.completeOnboarding(request)
+
+            verify(templateInstallationService).installTemplateInternal(
+                eq(newWorkspaceId),
+                eq(DTC_ECOMMERCE_MODELS.manifestKey),
+                eq(userId),
+            )
         }
 
         @Test

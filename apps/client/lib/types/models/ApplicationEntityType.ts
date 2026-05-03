@@ -34,7 +34,8 @@ export enum ApplicationEntityType {
     MatchSuggestion = 'MATCH_SUGGESTION',
     IdentityCluster = 'IDENTITY_CLUSTER',
     Note = 'NOTE',
-    BusinessDefinition = 'BUSINESS_DEFINITION'
+    BusinessDefinition = 'BUSINESS_DEFINITION',
+    DataConnectorConnection = 'DATA_CONNECTOR_CONNECTION'
 }
 
 

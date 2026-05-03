@@ -27,4 +27,5 @@ enum class ApplicationEntityType {
     @JsonProperty("NOTE") NOTE,
     @JsonProperty("BUSINESS_DEFINITION") BUSINESS_DEFINITION,
     @JsonProperty("DATA_CONNECTOR_CONNECTION") DATA_CONNECTOR_CONNECTION,
+    @JsonProperty("ENTITY_CONNOTATION") ENTITY_CONNOTATION,
 }

@@ -2,7 +2,6 @@
 
 import { ResourcesMenu } from '@/components/navbar/resources-menu';
 import { Button } from '@/components/ui/button';
-import { CtaButton } from '@/components/ui/cta-button';
 import { MobileNavbar } from '@/components/ui/mobile-nav-menu';
 import {
   NavigationMenu,
@@ -16,7 +15,7 @@ import { scrollToHashOnLoad, scrollToSection } from '@/lib/scroll';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/providers/auth-provider';
 import { Logo } from '@riven/ui/logo';
-import { Menu } from 'lucide-react';
+import { Mail, Menu } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
@@ -62,33 +61,33 @@ export function Navbar() {
   }, []);
 
   return (
-    <header className="fixed top-0 right-0 left-0 z-50">
+    <header className="fixed top-0 right-0 left-0 z-80">
       <nav
         data-navbar=""
-        {...(isInverted ? { 'data-inverted': '' } : {})}
-        className="mx-auto h-2 w-full bg-background/40 backdrop-blur-2xl md:h-4"
+        data-inverted={isInverted || undefined}
+        className="mx-auto hidden h-2 w-full bg-background/40 backdrop-blur-2xl sm:block md:h-4"
       >
-        <div className="clamp w-inherit mx-auto flex h-full grow border-x" />
+        <div className="clamp w-inherit mx-auto flex h-full grow border-x border-x-content/15" />
       </nav>
       {/* Full-width navbar bar with top + bottom borders spanning the entire viewport */}
       <nav
         data-navbar=""
-        {...(isInverted ? { 'data-inverted': '' } : {})}
-        className={`flex h-16 w-full items-center justify-between border-y bg-background/40 shadow-lg backdrop-blur-2xl md:h-14`}
+        data-inverted={isInverted || undefined}
+        className="flex h-16 w-full items-center justify-between border-y bg-background/40 shadow-lg backdrop-blur-2xl md:h-14"
       >
         {/* Inner content clamped to panel width */}
-        <div className="clamp mx-auto flex h-full w-full items-center justify-between border-x">
+        <div className="clamp mx-auto flex h-full w-full items-center justify-between">
           {/* Left: Logo + Nav Links */}
           <div className="flex items-center">
             <Link href="/" className="flex shrink-0 gap-1 px-3 md:px-4">
               <Logo
-                size={20}
-                className="mt-1 rounded-md"
+                size={18}
+                className="mt-1.5 rounded-md"
                 primaryClassName="fill-logo-primary"
                 secondaryClassName="fill-logo-secondary"
                 tertiaryClassName="fill-logo-tertiary"
               />
-              <div className="text-2xl tracking-tighter text-primary">riven</div>
+              <div className="font-display text-2xl tracking-tighter text-primary">riven</div>
             </Link>
 
             {/* Nav Links - desktop only */}
@@ -118,21 +117,6 @@ export function Navbar() {
                     </NavigationMenuLink>
                   </NavigationMenuItem>
 
-                  <NavigationMenuItem asChild>
-                    <NavigationMenuLink
-                      asChild
-                      className={cn(
-                        navigationMenuTriggerStyle(),
-                        'hover:bg-transparent hover:font-semibold focus:bg-transparent',
-                      )}
-                    >
-                      <Link href="/story">
-                        <span className="nav-link-stable" data-text="Story">
-                          Story
-                        </span>
-                      </Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
                   {/* Resources */}
                   <ResourcesMenu />
                 </NavigationMenuList>
@@ -144,9 +128,13 @@ export function Navbar() {
           <div className="flex items-center gap-1.5 px-2 md:gap-2 md:px-4">
             {!loading && user ? (
               <Link href={CLIENT_URL}>
-                <CtaButton size="sm">
-                  <span>Go to Dashboard</span>
-                </CtaButton>
+                <Button
+                  className="border-primary/70 bg-transparent px-1.5 py-0.5 font-display text-xs text-content hover:bg-accent hover:text-accent-foreground"
+                  variant={'outline'}
+                  size={'sm'}
+                >
+                  Go to Dashboard
+                </Button>
               </Link>
             ) : (
               <Link
@@ -155,22 +143,27 @@ export function Navbar() {
                   e.preventDefault();
                   scrollToSection('waitlist');
                 }}
+                className="hidden min-[360px]:block"
               >
-                <CtaButton size="sm" className="bg-background text-foreground hover:bg-accent/40">
-                  <span className="hidden sm:block">Join the waitlist</span>
-                  <span className="sm:hidden">Get Started</span>
-                </CtaButton>
+                <Button
+                  className="border-primary/70 bg-transparent px-1.5 py-0.5 font-display text-xs text-content hover:bg-accent hover:text-accent-foreground"
+                  variant={'outline'}
+                  size={'sm'}
+                >
+                  <Mail size={14} />
+                  Join the Waitlist
+                </Button>
               </Link>
             )}
 
             <Button
-              variant={'ghost'}
+              variant={'outline'}
               size={'icon'}
               onClick={() => setMobileMenuOpen(true)}
-              className="size-8 shrink-0 cursor-pointer md:hidden"
+              className="size-8 shrink-0 cursor-pointer rounded-md border-primary/70 bg-transparent text-content hover:bg-transparent focus:bg-transparent md:hidden"
               aria-label="Open menu"
             >
-              <Menu className="size-6 text-primary" />
+              <Menu className="size-4 text-content" />
             </Button>
           </div>
         </div>

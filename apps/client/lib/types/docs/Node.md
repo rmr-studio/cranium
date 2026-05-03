@@ -9,6 +9,8 @@ Name | Type
 `block` | [Block](Block.md)
 `warnings` | Array&lt;string&gt;
 `type` | [NodeType](NodeType.md)
+`reference` | [ReferencePayload](ReferencePayload.md)
+`children` | Array&lt;object&gt;
 
 ## Example
 
@@ -20,6 +22,8 @@ const example = {
   "block": null,
   "warnings": null,
   "type": null,
+  "reference": null,
+  "children": null,
 } satisfies Node
 
 console.log(example)

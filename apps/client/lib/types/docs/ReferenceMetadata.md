@@ -12,6 +12,17 @@ Name | Type
 `type` | [BlockMetadataType](BlockMetadataType.md)
 `fetchPolicy` | [BlockReferenceFetchPolicy](BlockReferenceFetchPolicy.md)
 `path` | string
+`presentation` | [Presentation](Presentation.md)
+`items` | [Array&lt;ReferenceItem&gt;](ReferenceItem.md)
+`projection` | [Projection](Projection.md)
+`listType` | [Entity](Entity.md)
+`display` | [ListDisplayConfig](ListDisplayConfig.md)
+`config` | [ListConfig](ListConfig.md)
+`allowDuplicates` | boolean
+`expandDepth` | number
+`item` | [ReferenceItem](ReferenceItem.md)
+`data` | object
+`listConfig` | [BlockListConfiguration](BlockListConfiguration.md)
 
 ## Example
 
@@ -26,6 +37,17 @@ const example = {
   "type": null,
   "fetchPolicy": null,
   "path": null,
+  "presentation": null,
+  "items": null,
+  "projection": null,
+  "listType": null,
+  "display": null,
+  "config": null,
+  "allowDuplicates": null,
+  "expandDepth": null,
+  "item": null,
+  "data": null,
+  "listConfig": null,
 } satisfies ReferenceMetadata
 
 console.log(example)

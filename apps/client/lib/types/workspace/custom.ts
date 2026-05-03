@@ -8,7 +8,6 @@ export { WorkspaceInviteStatus } from "../models/WorkspaceInviteStatus";
 export { DefinitionCategory } from "../models/DefinitionCategory";
 export { DefinitionStatus } from "../models/DefinitionStatus";
 export { DefinitionSource } from "../models/DefinitionSource";
-export { BusinessType } from "../models/BusinessType";
 export { AcquisitionChannel } from "../models/AcquisitionChannel";
 
 import type { Workspace, WorkspaceInvite, WorkspaceRoles } from "./models";

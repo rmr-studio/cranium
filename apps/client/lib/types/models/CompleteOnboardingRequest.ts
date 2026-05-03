@@ -27,13 +27,6 @@ import {
     OnboardingInviteToJSON,
     OnboardingInviteToJSONTyped,
 } from './OnboardingInvite';
-import type { BusinessType } from './BusinessType';
-import {
-    BusinessTypeFromJSON,
-    BusinessTypeFromJSONTyped,
-    BusinessTypeToJSON,
-    BusinessTypeToJSONTyped,
-} from './BusinessType';
 import type { OnboardingWorkspace } from './OnboardingWorkspace';
 import {
     OnboardingWorkspaceFromJSON,
@@ -76,31 +69,23 @@ export interface CompleteOnboardingRequest {
     profile: OnboardingProfile;
     /**
      * 
-     * @type {BusinessType}
-     * @memberof CompleteOnboardingRequest
-     */
-    businessType: BusinessType;
-    /**
-     * 
      * @type {Array<OnboardingInvite>}
      * @memberof CompleteOnboardingRequest
      */
-    invites?: Array<OnboardingInvite>;
+    invites?: Array<OnboardingInvite> | null;
     /**
      * 
      * @type {Array<OnboardingBusinessDefinition>}
      * @memberof CompleteOnboardingRequest
      */
-    businessDefinitions?: Array<OnboardingBusinessDefinition>;
+    businessDefinitions?: Array<OnboardingBusinessDefinition> | null;
     /**
      * 
      * @type {Array<AcquisitionChannel>}
      * @memberof CompleteOnboardingRequest
      */
-    acquisitionChannels?: Array<AcquisitionChannel>;
+    acquisitionChannels?: Array<AcquisitionChannel> | null;
 }
-
-
 
 /**
  * Check if a given object implements the CompleteOnboardingRequest interface.
@@ -108,7 +93,6 @@ export interface CompleteOnboardingRequest {
 export function instanceOfCompleteOnboardingRequest(value: object): value is CompleteOnboardingRequest {
     if (!('workspace' in value) || value['workspace'] === undefined) return false;
     if (!('profile' in value) || value['profile'] === undefined) return false;
-    if (!('businessType' in value) || value['businessType'] === undefined) return false;
     return true;
 }
 
@@ -124,7 +108,6 @@ export function CompleteOnboardingRequestFromJSONTyped(json: any, ignoreDiscrimi
         
         'workspace': OnboardingWorkspaceFromJSON(json['workspace']),
         'profile': OnboardingProfileFromJSON(json['profile']),
-        'businessType': BusinessTypeFromJSON(json['businessType']),
         'invites': json['invites'] == null ? undefined : ((json['invites'] as Array<any>).map(OnboardingInviteFromJSON)),
         'businessDefinitions': json['businessDefinitions'] == null ? undefined : ((json['businessDefinitions'] as Array<any>).map(OnboardingBusinessDefinitionFromJSON)),
         'acquisitionChannels': json['acquisitionChannels'] == null ? undefined : ((json['acquisitionChannels'] as Array<any>).map(AcquisitionChannelFromJSON)),
@@ -144,7 +127,6 @@ export function CompleteOnboardingRequestToJSONTyped(value?: CompleteOnboardingR
         
         'workspace': OnboardingWorkspaceToJSON(value['workspace']),
         'profile': OnboardingProfileToJSON(value['profile']),
-        'businessType': BusinessTypeToJSON(value['businessType']),
         'invites': value['invites'] == null ? undefined : ((value['invites'] as Array<any>).map(OnboardingInviteToJSON)),
         'businessDefinitions': value['businessDefinitions'] == null ? undefined : ((value['businessDefinitions'] as Array<any>).map(OnboardingBusinessDefinitionToJSON)),
         'acquisitionChannels': value['acquisitionChannels'] == null ? undefined : ((value['acquisitionChannels'] as Array<any>).map(AcquisitionChannelToJSON)),

@@ -38,13 +38,13 @@ export interface CursorPageWorkspaceNote {
      * @type {string}
      * @memberof CursorPageWorkspaceNote
      */
-    nextCursor?: string;
+    nextCursor?: string | null;
     /**
      * 
      * @type {number}
      * @memberof CursorPageWorkspaceNote
      */
-    totalCount?: number;
+    totalCount?: number | null;
 }
 
 /**

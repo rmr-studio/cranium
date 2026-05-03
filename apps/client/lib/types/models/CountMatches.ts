@@ -53,13 +53,13 @@ export interface CountMatches extends RelationshipFilter {
      * @type {FilterOperator}
      * @memberof CountMatches
      */
-    operator?: FilterOperator;
+    operator: FilterOperator;
     /**
-     * 
+     * Count value to compare against.
      * @type {number}
      * @memberof CountMatches
      */
-    count?: number;
+    count: number;
 }
 
 
@@ -68,6 +68,8 @@ export interface CountMatches extends RelationshipFilter {
  * Check if a given object implements the CountMatches interface.
  */
 export function instanceOfCountMatches(value: object): value is CountMatches {
+    if (!('operator' in value) || value['operator'] === undefined) return false;
+    if (!('count' in value) || value['count'] === undefined) return false;
     return true;
 }
 
@@ -81,8 +83,8 @@ export function CountMatchesFromJSONTyped(json: any, ignoreDiscriminator: boolea
     }
     return {
         ...RelationshipFilterFromJSONTyped(json, true),
-        'operator': json['operator'] == null ? undefined : FilterOperatorFromJSON(json['operator']),
-        'count': json['count'] == null ? undefined : json['count'],
+        'operator': FilterOperatorFromJSON(json['operator']),
+        'count': json['count'],
     };
 }
 

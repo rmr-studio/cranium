@@ -19,7 +19,7 @@ import java.util.UUID
 /**
  * End-to-end integration test verifying projection across multiple integrations.
  *
- * Installs the B2C SaaS core model template and materializes both HubSpot and Zendesk
+ * Installs the DTC E-commerce core model template and materializes both HubSpot and Zendesk
  * integrations, then verifies:
  * 1. Cross-integration projection creates correct core entity types
  * 2. Projected entities can be linked through core model relationships
@@ -48,7 +48,7 @@ class CrossIntegrationProjectionTest : ProjectionPipelineIntegrationTestBase() {
     fun setup() {
         loadIntegrationManifests()
         createWorkspaceAndUser()
-        installCoreModelTemplate("b2c-saas")
+        installCoreModelTemplate("dtc-ecommerce")
 
         val hubspotDefId = createIntegrationDefinition("hubspot")
         materializeIntegration("hubspot", hubspotDefId)

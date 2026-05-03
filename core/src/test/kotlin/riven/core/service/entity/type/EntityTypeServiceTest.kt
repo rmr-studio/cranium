@@ -33,6 +33,7 @@ import riven.core.repository.entity.RelationshipDefinitionRepository
 import riven.core.repository.entity.RelationshipTargetRuleRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.auth.AuthTokenService
+import riven.core.service.catalog.SchemaReconciliationService
 import riven.core.service.entity.EntityTypeSemanticMetadataService
 import riven.core.service.util.BaseServiceTest
 import riven.core.service.util.WithUserPersona
@@ -93,6 +94,9 @@ class EntityTypeServiceTest : BaseServiceTest() {
     @MockitoBean
     private lateinit var semanticMetadataService: EntityTypeSemanticMetadataService
 
+    @MockitoBean
+    private lateinit var schemaReconciliationService: SchemaReconciliationService
+
     @Autowired
     private lateinit var service: EntityTypeService
 
@@ -107,6 +111,7 @@ class EntityTypeServiceTest : BaseServiceTest() {
             targetRuleRepository,
             activityService,
             semanticMetadataService,
+            schemaReconciliationService,
         )
     }
 
@@ -1086,6 +1091,50 @@ class EntityTypeServiceTest : BaseServiceTest() {
 
             assertEquals(0, result)
             verify(entityTypeRepository, never()).save(any<EntityTypeEntity>())
+        }
+    }
+
+    // ------ Reconciliation Wiring Tests ------
+
+    /**
+     * Regression: getEntityTypes was wired to call schemaReconciliationService.reconcileIfNeeded
+     * but no test verified the interaction. The new schemaReconciliationService mock also wasn't
+     * being reset in @BeforeEach, so stubbed verifications could leak between tests. The reset
+     * fix lives at the suite level; this nested class re-applies @WithUserPersona because nested
+     * inner classes don't inherit the outer one when the JWT principal is read at runtime.
+     */
+    @Nested
+    @WithUserPersona(
+        userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
+        email = "test@test.com",
+        displayName = "Test User",
+        roles = [
+            WorkspaceRole(
+                workspaceId = "f8b1c2d3-4e5f-6789-abcd-ef9876543210",
+                role = WorkspaceRoles.OWNER
+            )
+        ]
+    )
+    inner class Reconciliation {
+
+        @Test
+        fun `getEntityTypes invokes schemaReconciliationService reconcileIfNeeded with the loaded entities`() {
+            val entityTypeId = UUID.randomUUID()
+            val entity = EntityFactory.createEntityType(
+                id = entityTypeId,
+                workspaceId = workspaceId,
+            )
+
+            whenever(entityTypeRepository.findByworkspaceId(workspaceId))
+                .thenReturn(listOf(entity))
+            whenever(entityTypeRelationshipService.getDefinitionsForEntityTypes(eq(workspaceId), any()))
+                .thenReturn(emptyMap())
+            whenever(semanticMetadataService.getMetadataForEntityTypes(any()))
+                .thenReturn(emptyList())
+
+            service.getEntityTypes(workspaceId)
+
+            verify(schemaReconciliationService).reconcileIfNeeded(eq(workspaceId), eq(listOf(entity)))
         }
     }
 }

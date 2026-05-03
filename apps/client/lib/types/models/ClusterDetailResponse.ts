@@ -44,7 +44,7 @@ export interface ClusterDetailResponse {
      * @type {string}
      * @memberof ClusterDetailResponse
      */
-    name?: string;
+    name?: string | null;
     /**
      * 
      * @type {number}

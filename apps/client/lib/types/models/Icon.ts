@@ -39,13 +39,13 @@ export interface Icon {
      * @type {IconType}
      * @memberof Icon
      */
-    type?: IconType;
+    type: IconType;
     /**
      * 
      * @type {IconColour}
      * @memberof Icon
      */
-    colour?: IconColour;
+    colour: IconColour;
 }
 
 
@@ -54,6 +54,8 @@ export interface Icon {
  * Check if a given object implements the Icon interface.
  */
 export function instanceOfIcon(value: object): value is Icon {
+    if (!('type' in value) || value['type'] === undefined) return false;
+    if (!('colour' in value) || value['colour'] === undefined) return false;
     return true;
 }
 
@@ -67,8 +69,8 @@ export function IconFromJSONTyped(json: any, ignoreDiscriminator: boolean): Icon
     }
     return {
         
-        'type': json['type'] == null ? undefined : IconTypeFromJSON(json['type']),
-        'colour': json['colour'] == null ? undefined : IconColourFromJSON(json['colour']),
+        'type': IconTypeFromJSON(json['type']),
+        'colour': IconColourFromJSON(json['colour']),
     };
 }
 

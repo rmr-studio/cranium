@@ -7,11 +7,11 @@
 Name | Type
 ------------ | -------------
 `currencyCode` | string
-`numericCode` | number
-`numericCodeAsString` | string
 `displayName` | string
 `symbol` | string
 `defaultFractionDigits` | number
+`numericCode` | number
+`numericCodeAsString` | string
 
 ## Example
 
@@ -21,11 +21,11 @@ import type { WorkspaceDefaultCurrency } from ''
 // TODO: Update the object below with actual values
 const example = {
   "currencyCode": null,
-  "numericCode": null,
-  "numericCodeAsString": null,
   "displayName": null,
   "symbol": null,
   "defaultFractionDigits": null,
+  "numericCode": null,
+  "numericCodeAsString": null,
 } satisfies WorkspaceDefaultCurrency
 
 console.log(example)

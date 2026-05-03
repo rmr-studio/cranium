@@ -64,13 +64,13 @@ export interface User {
      * @type {string}
      * @memberof User
      */
-    phone?: string;
+    phone?: string | null;
     /**
      * 
      * @type {string}
      * @memberof User
      */
-    avatarUrl?: string;
+    avatarUrl?: string | null;
     /**
      * 
      * @type {Array<WorkspaceMember>}
@@ -82,19 +82,19 @@ export interface User {
      * @type {Workspace}
      * @memberof User
      */
-    defaultWorkspace?: Workspace;
+    defaultWorkspace?: Workspace | null;
     /**
      * 
      * @type {Date}
      * @memberof User
      */
-    onboardingCompletedAt?: Date;
+    onboardingCompletedAt?: Date | null;
     /**
      * 
      * @type {Array<AcquisitionChannel>}
      * @memberof User
      */
-    acquisitionChannels?: Array<AcquisitionChannel>;
+    acquisitionChannels?: Array<AcquisitionChannel> | null;
 }
 
 /**

@@ -39,7 +39,7 @@ export interface SaveWorkflowDefinitionRequest {
      * @type {string}
      * @memberof SaveWorkflowDefinitionRequest
      */
-    id?: string;
+    id?: string | null;
     /**
      * 
      * @type {string}
@@ -51,7 +51,7 @@ export interface SaveWorkflowDefinitionRequest {
      * @type {string}
      * @memberof SaveWorkflowDefinitionRequest
      */
-    description?: string;
+    description?: string | null;
     /**
      * 
      * @type {IconColour}

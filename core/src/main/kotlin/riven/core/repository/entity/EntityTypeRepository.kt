@@ -75,6 +75,8 @@ interface EntityTypeRepository : JpaRepository<EntityTypeEntity, UUID> {
             SET protected = true,
                 source_type = 'TEMPLATE',
                 lifecycle_domain = :lifecycleDomain,
+                source_manifest_id = :sourceManifestId,
+                source_schema_hash = :sourceSchemaHash,
                 updated_at = now()
             WHERE id = :entityTypeId
               AND workspace_id = :workspaceId
@@ -85,6 +87,8 @@ interface EntityTypeRepository : JpaRepository<EntityTypeEntity, UUID> {
         @Param("entityTypeId") entityTypeId: UUID,
         @Param("workspaceId") workspaceId: UUID,
         @Param("lifecycleDomain") lifecycleDomain: String,
+        @Param("sourceManifestId") sourceManifestId: UUID,
+        @Param("sourceSchemaHash") sourceSchemaHash: String?,
     ): Int
 
 }

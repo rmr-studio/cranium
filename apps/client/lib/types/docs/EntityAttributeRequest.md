@@ -6,7 +6,7 @@
 
 Name | Type
 ------------ | -------------
-`payload` | [EntityAttributeRequestPayload](EntityAttributeRequestPayload.md)
+`payload` | [EntityAttributePayload](EntityAttributePayload.md)
 
 ## Example
 

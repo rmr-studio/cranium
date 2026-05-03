@@ -1,13 +1,11 @@
 import { assemblePayload, OnboardingService } from '@/components/feature-modules/onboarding/service/onboarding.service';
-import { WorkspacePlan, WorkspaceRoles } from '@/lib/types/workspace';
-import { BusinessType, DefinitionCategory, AcquisitionChannel } from '@/lib/types/workspace';
+import { WorkspacePlan, WorkspaceRoles, DefinitionCategory, AcquisitionChannel } from '@/lib/types/workspace';
 
 describe('assemblePayload', () => {
   const baseProfile = { displayName: 'Jane Smith', phone: '+1234567890' };
   const baseWorkspace = {
     displayName: 'Acme Corp',
     plan: WorkspacePlan.Startup,
-    businessType: BusinessType.B2CSaas,
   };
 
   describe('happy path: all steps filled', () => {
@@ -49,14 +47,6 @@ describe('assemblePayload', () => {
         workspace: baseWorkspace,
       });
       expect(result.profile.phone).toBe('+1234567890');
-    });
-
-    it('includes businessType from workspace step', () => {
-      const result = assemblePayload({
-        profile: baseProfile,
-        workspace: baseWorkspace,
-      });
-      expect(result.businessType).toBe(BusinessType.B2CSaas);
     });
 
     it('includes invites from team step', () => {
@@ -224,7 +214,7 @@ describe('OnboardingService.completeOnboarding', () => {
   it('throws when session is null', async () => {
     const request = assemblePayload({
       profile: { displayName: 'Jane' },
-      workspace: { displayName: 'Acme', plan: WorkspacePlan.Free, businessType: BusinessType.DtcEcommerce },
+      workspace: { displayName: 'Acme', plan: WorkspacePlan.Free },
     });
     await expect(
       OnboardingService.completeOnboarding(null, request),

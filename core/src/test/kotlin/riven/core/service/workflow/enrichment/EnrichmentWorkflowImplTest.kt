@@ -75,10 +75,17 @@ class EnrichmentWorkflowImplTest {
             }
         }
 
+        /**
+         * Also protects the Phase B connotation hook: `analyzeSemantics` is the activity
+         * that calls `EnrichmentService.persistConnotationSnapshot` (which routes through
+         * `ConnotationAnalysisService` for the SENTIMENT category). Removing the call here
+         * would silently disable connotation analysis. Snapshot-level assertions live in
+         * `EnrichmentServiceTest` and `ConnotationPipelineIntegrationTest`.
+         */
         @Test
         fun `embed calls all 4 activities in sequence`() {
             val activities = mock<EnrichmentActivities>()
-            whenever(activities.fetchEntityContext(queueItemId)).thenReturn(context)
+            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(context)
             whenever(activities.constructEnrichedText(context)).thenReturn(enrichedTextResult)
             whenever(activities.generateEmbedding(enrichedTextResult.text)).thenReturn(embedding)
 
@@ -86,20 +93,20 @@ class EnrichmentWorkflowImplTest {
             workflow.embed(queueItemId)
 
             val order = inOrder(activities)
-            order.verify(activities).fetchEntityContext(queueItemId)
+            order.verify(activities).analyzeSemantics(queueItemId)
             order.verify(activities).constructEnrichedText(context)
             order.verify(activities).generateEmbedding(enrichedTextResult.text)
             order.verify(activities).storeEmbedding(queueItemId, context, embedding, enrichedTextResult.truncated)
         }
 
         @Test
-        fun `embed passes context from fetchEntityContext to constructEnrichedText`() {
+        fun `embed passes context from analyzeSemantics to constructEnrichedText`() {
             val activities = mock<EnrichmentActivities>()
             val specificContext = EnrichmentFactory.createEnrichmentContext(
                 queueItemId = queueItemId,
                 entityTypeName = "UniqueTypeName"
             )
-            whenever(activities.fetchEntityContext(queueItemId)).thenReturn(specificContext)
+            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(specificContext)
             whenever(activities.constructEnrichedText(specificContext)).thenReturn(enrichedTextResult)
             whenever(activities.generateEmbedding(enrichedTextResult.text)).thenReturn(embedding)
 
@@ -114,7 +121,7 @@ class EnrichmentWorkflowImplTest {
             val activities = mock<EnrichmentActivities>()
             val specificText = "## Specific enriched text for testing"
             val specificResult = EnrichmentModelFactory.enrichedTextResult(text = specificText, truncated = false)
-            whenever(activities.fetchEntityContext(queueItemId)).thenReturn(context)
+            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(context)
             whenever(activities.constructEnrichedText(context)).thenReturn(specificResult)
             whenever(activities.generateEmbedding(specificText)).thenReturn(embedding)
 
@@ -128,7 +135,7 @@ class EnrichmentWorkflowImplTest {
         fun `embed passes embedding from generateEmbedding to storeEmbedding`() {
             val activities = mock<EnrichmentActivities>()
             val specificEmbedding = floatArrayOf(0.9f, 0.8f, 0.7f, 0.6f)
-            whenever(activities.fetchEntityContext(queueItemId)).thenReturn(context)
+            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(context)
             whenever(activities.constructEnrichedText(context)).thenReturn(enrichedTextResult)
             whenever(activities.generateEmbedding(enrichedTextResult.text)).thenReturn(specificEmbedding)
 
@@ -146,7 +153,7 @@ class EnrichmentWorkflowImplTest {
                 text = "## Entity Type: Customer\n\nType: Customer",
                 truncated = true
             )
-            whenever(activities.fetchEntityContext(queueItemId)).thenReturn(context)
+            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(context)
             whenever(activities.constructEnrichedText(context)).thenReturn(truncatedResult)
             whenever(activities.generateEmbedding(truncatedResult.text)).thenReturn(embedding)
 

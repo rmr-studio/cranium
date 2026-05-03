@@ -30,8 +30,8 @@ open class EnrichmentWorkflowImpl : EnrichmentWorkflow {
 
         val stub = createActivitiesStub()
 
-        val context = stub.fetchEntityContext(queueItemId)
-        logger.info("Fetched entity context for queueItemId=$queueItemId entityId=${context.entityId}")
+        val context = stub.analyzeSemantics(queueItemId)
+        logger.info("Analyzed semantics for queueItemId=$queueItemId entityId=${context.entityId}")
 
         val result = stub.constructEnrichedText(context)
         logger.info("Constructed enriched text for queueItemId=$queueItemId length=${result.text.length} truncated=${result.truncated}")

@@ -40,7 +40,7 @@ export const ShowcaseSection = forwardRef<HTMLDivElement, ShowcaseSectionProps>(
 
             <div
               className={cn(
-                'grid grid-cols-1 gap-px lg:max-w-xl',
+                'grid grid-cols-1 gap-px 2xl:max-w-xl',
                 featureCols === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2',
               )}
             >

@@ -13,6 +13,14 @@
  */
 
 import { mapValues } from '../runtime';
+import type { NoteSourceType } from './NoteSourceType';
+import {
+    NoteSourceTypeFromJSON,
+    NoteSourceTypeFromJSONTyped,
+    NoteSourceTypeToJSON,
+    NoteSourceTypeToJSONTyped,
+} from './NoteSourceType';
+
 /**
  * 
  * @export
@@ -27,10 +35,10 @@ export interface Note {
     id: string;
     /**
      * 
-     * @type {string}
+     * @type {Array<string>}
      * @memberof Note
      */
-    entityId: string;
+    entityIds: Array<string>;
     /**
      * 
      * @type {string}
@@ -51,39 +59,55 @@ export interface Note {
     content: Array<{ [key: string]: object; }>;
     /**
      * 
-     * @type {Date}
+     * @type {NoteSourceType}
      * @memberof Note
      */
-    createdAt?: Date;
+    sourceType: NoteSourceType;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof Note
+     */
+    readonly: boolean;
     /**
      * 
      * @type {Date}
      * @memberof Note
      */
-    updatedAt?: Date;
+    createdAt?: Date | null;
+    /**
+     * 
+     * @type {Date}
+     * @memberof Note
+     */
+    updatedAt?: Date | null;
     /**
      * 
      * @type {string}
      * @memberof Note
      */
-    createdBy?: string;
+    createdBy?: string | null;
     /**
      * 
      * @type {string}
      * @memberof Note
      */
-    updatedBy?: string;
+    updatedBy?: string | null;
 }
+
+
 
 /**
  * Check if a given object implements the Note interface.
  */
 export function instanceOfNote(value: object): value is Note {
     if (!('id' in value) || value['id'] === undefined) return false;
-    if (!('entityId' in value) || value['entityId'] === undefined) return false;
+    if (!('entityIds' in value) || value['entityIds'] === undefined) return false;
     if (!('workspaceId' in value) || value['workspaceId'] === undefined) return false;
     if (!('title' in value) || value['title'] === undefined) return false;
     if (!('content' in value) || value['content'] === undefined) return false;
+    if (!('sourceType' in value) || value['sourceType'] === undefined) return false;
+    if (!('readonly' in value) || value['readonly'] === undefined) return false;
     return true;
 }
 
@@ -98,10 +122,12 @@ export function NoteFromJSONTyped(json: any, ignoreDiscriminator: boolean): Note
     return {
         
         'id': json['id'],
-        'entityId': json['entityId'],
+        'entityIds': json['entityIds'],
         'workspaceId': json['workspaceId'],
         'title': json['title'],
         'content': json['content'],
+        'sourceType': NoteSourceTypeFromJSON(json['sourceType']),
+        'readonly': json['readonly'],
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
         'updatedAt': json['updatedAt'] == null ? undefined : (new Date(json['updatedAt'])),
         'createdBy': json['createdBy'] == null ? undefined : json['createdBy'],
@@ -121,10 +147,12 @@ export function NoteToJSONTyped(value?: Note | null, ignoreDiscriminator: boolea
     return {
         
         'id': value['id'],
-        'entityId': value['entityId'],
+        'entityIds': value['entityIds'],
         'workspaceId': value['workspaceId'],
         'title': value['title'],
         'content': value['content'],
+        'sourceType': NoteSourceTypeToJSON(value['sourceType']),
+        'readonly': value['readonly'],
         'createdAt': value['createdAt'] == null ? value['createdAt'] : value['createdAt'].toISOString(),
         'updatedAt': value['updatedAt'] == null ? value['updatedAt'] : value['updatedAt'].toISOString(),
         'createdBy': value['createdBy'],

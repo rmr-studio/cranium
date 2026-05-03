@@ -1,5 +1,18 @@
 # Architecture Suggestions
 
+## 2026-04-28 — Semantic Analysis Layer reframe (entity connotation pipeline)
+
+**Trigger:** CEO review of `2026-04-18-entity-connotation-pipeline.md` reframed `connotation_metadata` from a flat sentiment record into a polymorphic snapshot of three orthogonal metadata categories (SENTIMENT, RELATIONAL, STRUCTURAL) populated by a renamed Activity 1 (`analyzeSemantics`). The change rebrands what was conceptually "connotation analysis" into a broader "Semantic Analysis Layer" that crystallizes the full per-entity semantic snapshot used to produce embeddings.
+
+**Affected vault notes:**
+
+- `feature-design/1. Planning/Entity Connotation Analysis.md` — Original feature design framed connotation as sentiment-only and explicitly distinguished "structural metadata" (already in embeddings) from "connotation" (sentiment, what data actually says). The reframe unifies these under one snapshot; Section 1 (Problem/Solution), Section 2 (Core Concepts → Connotation Metadata Schema), Section 3 (Data Flow → Connotation Analysis Pipeline diagram), Section 5 (Schema Changes), Section 6 (New Components) all need revision under the multi-category snapshot shape.
+- `system-design/domains/Knowledge/` — Knowledge domain documentation may reference connotation as a sentiment-only concept. The Semantic Analysis framing should be folded in if/when the Knowledge domain prose is updated.
+- Any vault note describing the enrichment workflow's first activity as `fetchEntityContext` — under the reframe the activity is renamed `analyzeSemantics` and its output is persisted, not ephemeral.
+- Any flow diagrams showing connotation analysis as a separate Activity 0 prepended to the existing workflow — under the reframe, connotation analysis IS Activity 1 (rescoped, not prepended), and produces a multi-category snapshot.
+
+**Suggested update:** Review and revise the Entity Connotation Analysis design doc under the Semantic Analysis Layer framing. Key conceptual shifts to capture: (1) connotation snapshot is now the per-entity semantic snapshot at embed time, not just a sentiment record; (2) RELATIONAL and STRUCTURAL metadata crystallize what was previously ephemeral computation in `EnrichmentService.fetchContext()`; (3) the persistence rationale (re-analysis without re-embedding, dual consumption, auditability) extends to all categories, not only sentiment; (4) per-category `stalenessModel` field documents the trigger class for future invalidation tooling without enforcing it; (5) Layer 4 / DTC Signal layer remain downstream consumers, not part of this layer. The CEO Review Addendum at the bottom of `2026-04-18-entity-connotation-pipeline.md` is the source of truth for the reframe pending vault authoring.
+
 ## 2026-02-21 — Entity Relationships Overhaul: Vault Updates Needed
 
 **Trigger:** Complete rewrite of relationship architecture — ORIGIN/REFERENCE sync replaced with table-based definitions

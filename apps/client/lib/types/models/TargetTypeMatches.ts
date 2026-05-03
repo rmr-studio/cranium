@@ -49,11 +49,11 @@ import {
  */
 export interface TargetTypeMatches extends RelationshipFilter {
     /**
-     * 
+     * Type-specific filter branches. At least one required.
      * @type {Array<TypeBranch>}
      * @memberof TargetTypeMatches
      */
-    branches?: Array<TypeBranch>;
+    branches: Array<TypeBranch>;
 }
 
 
@@ -62,6 +62,7 @@ export interface TargetTypeMatches extends RelationshipFilter {
  * Check if a given object implements the TargetTypeMatches interface.
  */
 export function instanceOfTargetTypeMatches(value: object): value is TargetTypeMatches {
+    if (!('branches' in value) || value['branches'] === undefined) return false;
     return true;
 }
 
@@ -75,7 +76,7 @@ export function TargetTypeMatchesFromJSONTyped(json: any, ignoreDiscriminator: b
     }
     return {
         ...RelationshipFilterFromJSONTyped(json, true),
-        'branches': json['branches'] == null ? undefined : ((json['branches'] as Array<any>).map(TypeBranchFromJSON)),
+        'branches': ((json['branches'] as Array<any>).map(TypeBranchFromJSON)),
     };
 }
 
@@ -90,7 +91,7 @@ export function TargetTypeMatchesToJSONTyped(value?: TargetTypeMatches | null, i
 
     return {
         ...RelationshipFilterToJSONTyped(value, true),
-        'branches': value['branches'] == null ? undefined : ((value['branches'] as Array<any>).map(TypeBranchToJSON)),
+        'branches': ((value['branches'] as Array<any>).map(TypeBranchToJSON)),
     };
 }
 

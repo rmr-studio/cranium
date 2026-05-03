@@ -9,6 +9,7 @@ package riven.core.enums.entity.semantics
  * - temporal: date or time value (e.g. created_at, founded_year)
  * - freetext: unstructured text (e.g. description, notes)
  * - relational_reference: a foreign-key-like reference to another entity
+ * - connotation_source: a source attribute the DETERMINISTIC tier reads to populate the SENTIMENT metadata
  */
 enum class SemanticAttributeClassification {
     IDENTIFIER,
@@ -16,5 +17,6 @@ enum class SemanticAttributeClassification {
     QUANTITATIVE,
     TEMPORAL,
     FREETEXT,
-    RELATIONAL_REFERENCE
+    RELATIONAL_REFERENCE,
+    CONNOTATION_SOURCE,
 }

@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { ReferencePayload } from './ReferencePayload';
+import {
+    ReferencePayloadFromJSON,
+    ReferencePayloadFromJSONTyped,
+    ReferencePayloadToJSON,
+    ReferencePayloadToJSONTyped,
+} from './ReferencePayload';
 import type { NodeType } from './NodeType';
 import {
     NodeTypeFromJSON,
@@ -27,13 +34,6 @@ import {
     BlockToJSON,
     BlockToJSONTyped,
 } from './Block';
-import type { ReferenceNodeAllOfReference1 } from './ReferenceNodeAllOfReference1';
-import {
-    ReferenceNodeAllOfReference1FromJSON,
-    ReferenceNodeAllOfReference1FromJSONTyped,
-    ReferenceNodeAllOfReference1ToJSON,
-    ReferenceNodeAllOfReference1ToJSONTyped,
-} from './ReferenceNodeAllOfReference1';
 
 /**
  * Reference node containing a block with entity or block tree references
@@ -61,10 +61,16 @@ export interface ReferenceNode {
     type: NodeType;
     /**
      * 
-     * @type {ReferenceNodeAllOfReference1}
+     * @type {Array<object>}
      * @memberof ReferenceNode
      */
-    reference: ReferenceNodeAllOfReference1;
+    children?: Array<object> | null;
+    /**
+     * 
+     * @type {ReferencePayload}
+     * @memberof ReferenceNode
+     */
+    reference: ReferencePayload;
 }
 
 
@@ -93,7 +99,8 @@ export function ReferenceNodeFromJSONTyped(json: any, ignoreDiscriminator: boole
         'block': BlockFromJSON(json['block']),
         'warnings': json['warnings'],
         'type': NodeTypeFromJSON(json['type']),
-        'reference': ReferenceNodeAllOfReference1FromJSON(json['reference']),
+        'children': json['children'] == null ? undefined : json['children'],
+        'reference': ReferencePayloadFromJSON(json['reference']),
     };
 }
 
@@ -111,7 +118,8 @@ export function ReferenceNodeToJSONTyped(value?: ReferenceNode | null, ignoreDis
         'block': BlockToJSON(value['block']),
         'warnings': value['warnings'],
         'type': NodeTypeToJSON(value['type']),
-        'reference': ReferenceNodeAllOfReference1ToJSON(value['reference']),
+        'children': value['children'],
+        'reference': ReferencePayloadToJSON(value['reference']),
     };
 }
 

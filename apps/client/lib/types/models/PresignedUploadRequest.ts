@@ -38,7 +38,7 @@ export interface PresignedUploadRequest {
      * @type {string}
      * @memberof PresignedUploadRequest
      */
-    contentType?: string;
+    contentType?: string | null;
 }
 
 

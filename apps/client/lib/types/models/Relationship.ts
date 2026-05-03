@@ -49,17 +49,17 @@ import {
  */
 export interface Relationship extends QueryFilter {
     /**
-     * 
+     * UUID of the relationship definition.
      * @type {string}
      * @memberof Relationship
      */
-    relationshipId?: string;
+    relationshipId: string;
     /**
      * 
      * @type {RelationshipFilter}
      * @memberof Relationship
      */
-    condition?: RelationshipFilter;
+    condition: RelationshipFilter;
 }
 
 
@@ -68,6 +68,8 @@ export interface Relationship extends QueryFilter {
  * Check if a given object implements the Relationship interface.
  */
 export function instanceOfRelationship(value: object): value is Relationship {
+    if (!('relationshipId' in value) || value['relationshipId'] === undefined) return false;
+    if (!('condition' in value) || value['condition'] === undefined) return false;
     return true;
 }
 
@@ -81,8 +83,8 @@ export function RelationshipFromJSONTyped(json: any, ignoreDiscriminator: boolea
     }
     return {
         ...QueryFilterFromJSONTyped(json, true),
-        'relationshipId': json['relationshipId'] == null ? undefined : json['relationshipId'],
-        'condition': json['condition'] == null ? undefined : RelationshipFilterFromJSON(json['condition']),
+        'relationshipId': json['relationshipId'],
+        'condition': RelationshipFilterFromJSON(json['condition']),
     };
 }
 

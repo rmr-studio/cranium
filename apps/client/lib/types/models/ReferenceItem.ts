@@ -30,13 +30,13 @@ export interface ReferenceItem {
      * @type {string}
      * @memberof ReferenceItem
      */
-    labelOverride?: string;
+    labelOverride?: string | null;
     /**
      * 
      * @type {string}
      * @memberof ReferenceItem
      */
-    badge?: string;
+    badge?: string | null;
 }
 
 /**

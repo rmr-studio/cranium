@@ -6,6 +6,7 @@ import io.github.jan.supabase.storage.Storage
 import io.github.jan.supabase.storage.storage
 import io.github.oshai.kotlinlogging.KLogger
 import io.ktor.http.ContentType
+import jakarta.annotation.PostConstruct
 import kotlinx.coroutines.runBlocking
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
@@ -43,6 +44,43 @@ class SupabaseStorageProvider(
 
     private val bucket: BucketApi
         get() = storagePlugin().from(bucketName)
+
+    // ------ Lifecycle ------
+
+    /**
+     * Probe the configured bucket at startup and best-effort create it if missing.
+     *
+     * Bucket creation requires a service-role key. When the configured key lacks admin
+     * permissions (e.g. anon key) creation will fail with an RLS violation — in that case
+     * the bucket must be created manually in the Supabase dashboard.
+     *
+     * This method never throws: a misconfigured bucket should not prevent the application
+     * from booting. Upload calls will surface the underlying error at request time.
+     */
+    @PostConstruct
+    fun ensureBucketExists() {
+        try {
+            runBlocking { storagePlugin().retrieveBucketById(bucketName) }
+            return
+        } catch (e: Exception) {
+            if (!isNotFound(e)) {
+                logger.warn(e) { "Failed to probe Supabase bucket '$bucketName'; storage operations may fail" }
+                return
+            }
+        }
+
+        try {
+            logger.info { "Bucket '$bucketName' not found, attempting to create it" }
+            runBlocking {
+                storagePlugin().createBucket(id = bucketName) { public = false }
+            }
+        } catch (e: Exception) {
+            logger.warn(e) {
+                "Failed to auto-create Supabase bucket '$bucketName'. " +
+                    "Create it manually in the Supabase dashboard, or configure a service-role key."
+            }
+        }
+    }
 
     // ------ Public Operations ------
 
@@ -149,21 +187,11 @@ class SupabaseStorageProvider(
     /**
      * Check Supabase Storage health by verifying the bucket exists.
      *
-     * Auto-creates the bucket as private if it does not exist.
+     * Bucket creation is handled at startup via [ensureBucketExists].
      */
     override fun healthCheck(): Boolean {
         return try {
-            runBlocking {
-                try {
-                    storagePlugin().retrieveBucketById(bucketName)
-                } catch (e: Exception) {
-                    if (!isNotFound(e)) throw e
-                    logger.info { "Bucket '$bucketName' not found, creating it" }
-                    storagePlugin().createBucket(id = bucketName) {
-                        public = false
-                    }
-                }
-            }
+            runBlocking { storagePlugin().retrieveBucketById(bucketName) }
             true
         } catch (e: Exception) {
             logger.warn { "Supabase storage health check failed: ${e.message}" }

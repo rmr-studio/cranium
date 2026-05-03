@@ -22,7 +22,7 @@ import type { RelationshipFilter } from ''
 // TODO: Update the object below with actual values
 const example = {
   "type": null,
-  "entityIds": null,
+  "entityIds": [550e8400-e29b-41d4-a716-446655440000, {{ steps.lookup.output.entityId }}],
   "filter": null,
   "branches": null,
   "operator": null,

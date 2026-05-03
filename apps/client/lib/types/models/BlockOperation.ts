@@ -12,45 +12,48 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { BlockOperationType } from './BlockOperationType';
+import type { AddBlockOperation } from './AddBlockOperation';
 import {
-    BlockOperationTypeFromJSON,
-    BlockOperationTypeFromJSONTyped,
-    BlockOperationTypeToJSON,
-    BlockOperationTypeToJSONTyped,
-} from './BlockOperationType';
+    instanceOfAddBlockOperation,
+    AddBlockOperationFromJSON,
+    AddBlockOperationFromJSONTyped,
+    AddBlockOperationToJSON,
+} from './AddBlockOperation';
+import type { MoveBlockOperation } from './MoveBlockOperation';
+import {
+    instanceOfMoveBlockOperation,
+    MoveBlockOperationFromJSON,
+    MoveBlockOperationFromJSONTyped,
+    MoveBlockOperationToJSON,
+} from './MoveBlockOperation';
+import type { RemoveBlockOperation } from './RemoveBlockOperation';
+import {
+    instanceOfRemoveBlockOperation,
+    RemoveBlockOperationFromJSON,
+    RemoveBlockOperationFromJSONTyped,
+    RemoveBlockOperationToJSON,
+} from './RemoveBlockOperation';
+import type { ReorderBlockOperation } from './ReorderBlockOperation';
+import {
+    instanceOfReorderBlockOperation,
+    ReorderBlockOperationFromJSON,
+    ReorderBlockOperationFromJSONTyped,
+    ReorderBlockOperationToJSON,
+} from './ReorderBlockOperation';
+import type { UpdateBlockOperation } from './UpdateBlockOperation';
+import {
+    instanceOfUpdateBlockOperation,
+    UpdateBlockOperationFromJSON,
+    UpdateBlockOperationFromJSONTyped,
+    UpdateBlockOperationToJSON,
+} from './UpdateBlockOperation';
 
 /**
+ * @type BlockOperation
  * 
  * @export
- * @interface BlockOperation
  */
-export interface BlockOperation {
-    /**
-     * 
-     * @type {string}
-     * @memberof BlockOperation
-     */
-    blockId: string;
-    /**
-     * 
-     * @type {BlockOperationType}
-     * @memberof BlockOperation
-     */
-    type: BlockOperationType;
-}
-
-
-
-/**
- * Check if a given object implements the BlockOperation interface.
- */
-export function instanceOfBlockOperation(value: object): value is BlockOperation {
-    if (!('blockId' in value) || value['blockId'] === undefined) return false;
-    if (!('type' in value) || value['type'] === undefined) return false;
-    return true;
-}
+export type BlockOperation = AddBlockOperation | MoveBlockOperation | RemoveBlockOperation | ReorderBlockOperation | UpdateBlockOperation;
 
 export function BlockOperationFromJSON(json: any): BlockOperation {
     return BlockOperationFromJSONTyped(json, false);
@@ -60,14 +63,28 @@ export function BlockOperationFromJSONTyped(json: any, ignoreDiscriminator: bool
     if (json == null) {
         return json;
     }
-    return {
-        
-        'blockId': json['blockId'],
-        'type': BlockOperationTypeFromJSON(json['type']),
-    };
+    if (typeof json !== 'object') {
+        return json;
+    }
+    if (instanceOfAddBlockOperation(json)) {
+        return AddBlockOperationFromJSONTyped(json, true);
+    }
+    if (instanceOfMoveBlockOperation(json)) {
+        return MoveBlockOperationFromJSONTyped(json, true);
+    }
+    if (instanceOfRemoveBlockOperation(json)) {
+        return RemoveBlockOperationFromJSONTyped(json, true);
+    }
+    if (instanceOfReorderBlockOperation(json)) {
+        return ReorderBlockOperationFromJSONTyped(json, true);
+    }
+    if (instanceOfUpdateBlockOperation(json)) {
+        return UpdateBlockOperationFromJSONTyped(json, true);
+    }
+    return {} as any;
 }
 
-export function BlockOperationToJSON(json: any): BlockOperation {
+export function BlockOperationToJSON(json: any): any {
     return BlockOperationToJSONTyped(json, false);
 }
 
@@ -75,11 +92,24 @@ export function BlockOperationToJSONTyped(value?: BlockOperation | null, ignoreD
     if (value == null) {
         return value;
     }
-
-    return {
-        
-        'blockId': value['blockId'],
-        'type': BlockOperationTypeToJSON(value['type']),
-    };
+    if (typeof value !== 'object') {
+        return value;
+    }
+    if (instanceOfAddBlockOperation(value)) {
+        return AddBlockOperationToJSON(value as AddBlockOperation);
+    }
+    if (instanceOfMoveBlockOperation(value)) {
+        return MoveBlockOperationToJSON(value as MoveBlockOperation);
+    }
+    if (instanceOfRemoveBlockOperation(value)) {
+        return RemoveBlockOperationToJSON(value as RemoveBlockOperation);
+    }
+    if (instanceOfReorderBlockOperation(value)) {
+        return ReorderBlockOperationToJSON(value as ReorderBlockOperation);
+    }
+    if (instanceOfUpdateBlockOperation(value)) {
+        return UpdateBlockOperationToJSON(value as UpdateBlockOperation);
+    }
+    return {};
 }
 

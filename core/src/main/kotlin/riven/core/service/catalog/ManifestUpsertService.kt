@@ -154,7 +154,9 @@ class ManifestUpsertService(
                 identifierKey = et.identifierKey,
                 readonly = et.readonly,
                 schema = et.schema,
-                columns = et.columns
+                columns = et.columns,
+                connotationSignals = et.connotationSignals,
+                schemaHash = SchemaHashUtil.computeSchemaHash(et.schema)
             )
         }
         val savedEntityTypes = catalogEntityTypeRepository.saveAll(entities)

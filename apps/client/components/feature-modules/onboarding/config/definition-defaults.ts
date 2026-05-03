@@ -1,4 +1,4 @@
-import { BusinessType, DefinitionCategory } from '@/lib/types/models';
+import { DefinitionCategory } from '@/lib/types/workspace';
 
 export interface DefaultDefinition {
   term: string;
@@ -6,83 +6,92 @@ export interface DefaultDefinition {
   defaultDefinition: string;
 }
 
-export const DEFINITION_DEFAULTS: Record<string, DefaultDefinition[]> = {
-  [BusinessType.DtcEcommerce]: [
-    {
-      term: 'Churned Customer',
-      category: DefinitionCategory.Metric,
-      defaultDefinition:
-        'A customer who has not made a purchase in the last 90 days.',
-    },
-    {
-      term: 'Repeat Customer',
-      category: DefinitionCategory.Segment,
-      defaultDefinition:
-        'A customer who has placed 2 or more orders, regardless of time period.',
-    },
-    {
-      term: 'VIP Customer',
-      category: DefinitionCategory.Segment,
-      defaultDefinition:
-        'A customer in the top 10% by lifetime revenue.',
-    },
-    {
-      term: 'Customer Lifetime Value',
-      category: DefinitionCategory.Metric,
-      defaultDefinition:
-        'Total revenue from a customer across all orders, measured from first purchase.',
-    },
-    {
-      term: 'Active Customer',
-      category: DefinitionCategory.Status,
-      defaultDefinition:
-        'A customer who has made at least one purchase in the last 90 days.',
-    },
-    {
-      term: 'Retention Rate',
-      category: DefinitionCategory.Metric,
-      defaultDefinition:
-        'The percentage of customers who made a repeat purchase within 12 months of their first order.',
-    },
-  ],
-  [BusinessType.B2CSaas]: [
-    {
-      term: 'Churned User',
-      category: DefinitionCategory.Metric,
-      defaultDefinition:
-        'A user whose subscription has been cancelled or expired for more than 30 days.',
-    },
-    {
-      term: 'Active User',
-      category: DefinitionCategory.Status,
-      defaultDefinition:
-        'A user who has logged in and performed at least one core action in the last 30 days.',
-    },
-    {
-      term: 'Net Revenue Retention',
-      category: DefinitionCategory.Metric,
-      defaultDefinition:
-        'Monthly recurring revenue from existing customers this month divided by their MRR 12 months ago, including expansion, contraction, and churn.',
-    },
-    {
-      term: 'Enterprise Customer',
-      category: DefinitionCategory.Segment,
-      defaultDefinition: 'A customer on an annual plan with 50 or more seats.',
-    },
-    {
-      term: 'Trial Conversion',
-      category: DefinitionCategory.Metric,
-      defaultDefinition:
-        'The percentage of users who convert to a paid plan within 14 days of trial start.',
-    },
-    {
-      term: 'Power User',
-      category: DefinitionCategory.Segment,
-      defaultDefinition:
-        'A user in the top 20% by feature usage frequency over the last 30 days.',
-    },
-  ],
-};
+export const DEFINITION_DEFAULTS: DefaultDefinition[] = [
+  {
+    term: 'AOV',
+    category: DefinitionCategory.Metric,
+    defaultDefinition:
+      'Average Order Value — total revenue divided by number of orders in a given period.',
+  },
+  {
+    term: 'LTV',
+    category: DefinitionCategory.Metric,
+    defaultDefinition:
+      'Customer Lifetime Value — total revenue from a customer across all orders, measured from first purchase.',
+  },
+  {
+    term: 'CAC',
+    category: DefinitionCategory.Metric,
+    defaultDefinition:
+      'Customer Acquisition Cost — paid-channel spend divided by number of new customers acquired.',
+  },
+  {
+    term: 'Blended CAC',
+    category: DefinitionCategory.Metric,
+    defaultDefinition:
+      'All marketing spend (paid + organic) divided by total new customers — the true all-in acquisition cost.',
+  },
+  {
+    term: 'ROAS',
+    category: DefinitionCategory.Metric,
+    defaultDefinition:
+      'Return on Ad Spend — revenue attributed to ads divided by ad spend for the same period.',
+  },
+  {
+    term: 'MER',
+    category: DefinitionCategory.Metric,
+    defaultDefinition:
+      'Marketing Efficiency Ratio — total revenue divided by total marketing spend across all channels.',
+  },
+  {
+    term: 'Repeat Purchase Rate',
+    category: DefinitionCategory.Metric,
+    defaultDefinition:
+      'The percentage of customers who have placed two or more orders within the last 12 months.',
+  },
+  {
+    term: 'First-Purchase Discount Rate',
+    category: DefinitionCategory.Metric,
+    defaultDefinition:
+      'The percentage of first-time customers who used a discount code on their initial order.',
+  },
+  {
+    term: 'Refund Rate',
+    category: DefinitionCategory.Metric,
+    defaultDefinition:
+      'The percentage of orders that result in a refund or return within 60 days.',
+  },
+  {
+    term: 'Cart Abandonment',
+    category: DefinitionCategory.Metric,
+    defaultDefinition:
+      'The percentage of shopping carts created that are not completed into a paid order.',
+  },
+  {
+    term: 'VIP Threshold',
+    category: DefinitionCategory.Segment,
+    defaultDefinition:
+      'The lifetime-revenue cutoff above which a customer is classified as VIP. Often set at the top 10% of customers by revenue.',
+  },
+  {
+    term: 'New Customer',
+    category: DefinitionCategory.Segment,
+    defaultDefinition:
+      'A customer whose earliest order occurred in the last 30 days and who has not yet placed a repeat order.',
+  },
+  {
+    term: 'Returning Customer',
+    category: DefinitionCategory.Segment,
+    defaultDefinition:
+      'A customer with two or more orders, with the most recent order within the last 90 days.',
+  },
+  {
+    term: 'Subscribe & Save Customer',
+    category: DefinitionCategory.Segment,
+    defaultDefinition:
+      'A customer currently enrolled in an active recurring subscription with at least one fulfilled delivery.',
+  },
+];
 
 export const CATEGORY_LABELS: Record<DefinitionCategory, string> = {
   [DefinitionCategory.Metric]: 'Metrics',

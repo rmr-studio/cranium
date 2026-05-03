@@ -12,15 +12,16 @@ import org.springframework.test.context.ActiveProfiles
 import org.testcontainers.junit.jupiter.Testcontainers
 import riven.core.entity.entity.EntityTypeEntity
 import riven.core.enums.integration.SourceType
-import riven.core.service.util.factory.entity.EntityFactory
+import riven.core.models.core.DTC_ECOMMERCE_MODELS
 import riven.core.models.entity.payload.EntityAttributePrimitivePayload
+import riven.core.service.util.factory.entity.EntityFactory
 import java.util.*
 
 /**
  * End-to-end integration test for the single-integration projection pipeline.
  *
  * Verifies the full flow: sync integration entities -> run projection -> verify core entities created/updated.
- * Uses a real PostgreSQL container with full schema, HubSpot manifest, and b2c-saas core model template.
+ * Uses a real PostgreSQL container with full schema, HubSpot manifest, and dtc-ecommerce core model template.
  */
 @SpringBootTest(
     classes = [ProjectionPipelineIntegrationTestConfig::class],
@@ -49,7 +50,7 @@ class SingleIntegrationProjectionTest : ProjectionPipelineIntegrationTestBase() 
     fun setup() {
         loadIntegrationManifests()
         createWorkspaceAndUser()
-        installCoreModelTemplate("b2c-saas")
+        installCoreModelTemplate(DTC_ECOMMERCE_MODELS.manifestKey)
         hubspotDefId = createIntegrationDefinition("hubspot")
         materializeIntegration("hubspot", hubspotDefId)
 
@@ -128,15 +129,15 @@ class SingleIntegrationProjectionTest : ProjectionPipelineIntegrationTestBase() 
 
         val emailAttr = attributes.find { it.attributeId == emailAttrId }
         assertNotNull(emailAttr, "Customer should have email attribute")
-        assertEquals("detailed@test.com", emailAttr!!.value?.get("value")?.asText())
+        assertEquals("detailed@test.com", emailAttr!!.value.get("value")?.asString())
 
         val firstnameAttr = attributes.find { it.attributeId == firstnameAttrId }
         assertNotNull(firstnameAttr, "Customer should have firstname attribute")
-        assertEquals("Jane", firstnameAttr!!.value?.get("value")?.asText())
+        assertEquals("Jane", firstnameAttr!!.value.get("value")?.asString())
 
         val lastnameAttr = attributes.find { it.attributeId == lastnameAttrId }
         assertNotNull(lastnameAttr, "Customer should have lastname attribute")
-        assertEquals("Doe", lastnameAttr!!.value?.get("value")?.asText())
+        assertEquals("Doe", lastnameAttr!!.value.get("value")?.asString())
     }
 
     // ------ Test 3: Re-sync updates existing core entity (source wins) ------
@@ -181,7 +182,7 @@ class SingleIntegrationProjectionTest : ProjectionPipelineIntegrationTestBase() 
         val attributes = getEntityAttributes(customerId)
         val firstnameAttr = attributes.find { it.attributeId == firstnameAttrId }
         assertNotNull(firstnameAttr, "Customer should have firstname attribute after re-sync")
-        assertEquals("UpdatedName", firstnameAttr!!.value?.get("value")?.asText(),
+        assertEquals("UpdatedName", firstnameAttr!!.value?.get("value")?.asString(),
             "Firstname should be updated to new value (source wins)")
     }
 
@@ -219,7 +220,7 @@ class SingleIntegrationProjectionTest : ProjectionPipelineIntegrationTestBase() 
         val attributes = getEntityAttributes(existingCustomerId)
         val emailAttr = attributes.find { it.attributeId == emailAttrId }
         assertNotNull(emailAttr, "Customer should have updated email attribute")
-        assertEquals("updated@test.com", emailAttr!!.value?.get("value")?.asText())
+        assertEquals("updated@test.com", emailAttr!!.value?.get("value")?.asString())
     }
 
     // ------ Test 5: Identity resolution by IDENTIFIER attribute matches existing entity ------

@@ -33,9 +33,9 @@ class EnrichmentActivitiesImpl(
     private val logger: KLogger,
 ) : EnrichmentActivities {
 
-    override fun fetchEntityContext(queueItemId: UUID): EnrichmentContext {
-        logger.info { "FetchEntityContext activity: queueItemId=$queueItemId" }
-        return enrichmentService.fetchContext(queueItemId)
+    override fun analyzeSemantics(queueItemId: UUID): EnrichmentContext {
+        logger.info { "AnalyzeSemantics activity: queueItemId=$queueItemId" }
+        return enrichmentService.analyzeSemantics(queueItemId)
     }
 
     override fun constructEnrichedText(context: EnrichmentContext): EnrichedTextResult {

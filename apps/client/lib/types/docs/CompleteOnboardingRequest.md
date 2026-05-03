@@ -8,7 +8,6 @@ Name | Type
 ------------ | -------------
 `workspace` | [OnboardingWorkspace](OnboardingWorkspace.md)
 `profile` | [OnboardingProfile](OnboardingProfile.md)
-`businessType` | [BusinessType](BusinessType.md)
 `invites` | [Array&lt;OnboardingInvite&gt;](OnboardingInvite.md)
 `businessDefinitions` | [Array&lt;OnboardingBusinessDefinition&gt;](OnboardingBusinessDefinition.md)
 `acquisitionChannels` | [Array&lt;AcquisitionChannel&gt;](AcquisitionChannel.md)
@@ -22,7 +21,6 @@ import type { CompleteOnboardingRequest } from ''
 const example = {
   "workspace": null,
   "profile": null,
-  "businessType": null,
   "invites": null,
   "businessDefinitions": null,
   "acquisitionChannels": null,

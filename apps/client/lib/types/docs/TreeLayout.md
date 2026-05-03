@@ -18,7 +18,7 @@ Name | Type
 `marginRight` | number
 `marginBottom` | number
 `marginLeft` | number
-`column` | [TreeLayoutColumn](TreeLayoutColumn.md)
+`column` | object
 `columnOpts` | [ColumnOptions](ColumnOptions.md)
 `disableDrag` | boolean
 `disableOneColumnMode` | boolean

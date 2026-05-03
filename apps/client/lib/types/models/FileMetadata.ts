@@ -80,7 +80,7 @@ export interface FileMetadata {
      * @type {{ [key: string]: string; }}
      * @memberof FileMetadata
      */
-    metadata?: { [key: string]: string; };
+    metadata?: { [key: string]: string; } | null;
     /**
      * 
      * @type {Date}

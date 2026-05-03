@@ -32,55 +32,55 @@ export interface WorkflowNodeConfigField {
      * @type {string}
      * @memberof WorkflowNodeConfigField
      */
-    key?: string;
+    key: string;
     /**
      * 
      * @type {string}
      * @memberof WorkflowNodeConfigField
      */
-    label?: string;
+    label: string;
     /**
      * 
      * @type {WorkflowNodeConfigFieldType}
      * @memberof WorkflowNodeConfigField
      */
-    type?: WorkflowNodeConfigFieldType;
+    type: WorkflowNodeConfigFieldType;
     /**
      * 
      * @type {boolean}
      * @memberof WorkflowNodeConfigField
      */
-    required?: boolean;
+    required: boolean;
     /**
      * 
      * @type {string}
      * @memberof WorkflowNodeConfigField
      */
-    description?: string;
+    description?: string | null;
     /**
      * 
      * @type {string}
      * @memberof WorkflowNodeConfigField
      */
-    placeholder?: string;
+    placeholder?: string | null;
     /**
      * 
      * @type {object}
      * @memberof WorkflowNodeConfigField
      */
-    defaultValue?: object;
+    defaultValue?: object | null;
     /**
      * 
      * @type {{ [key: string]: object; }}
      * @memberof WorkflowNodeConfigField
      */
-    validation?: { [key: string]: object; };
+    validation?: { [key: string]: object; } | null;
     /**
      * 
      * @type {{ [key: string]: string; }}
      * @memberof WorkflowNodeConfigField
      */
-    options?: { [key: string]: string; };
+    options?: { [key: string]: string; } | null;
 }
 
 
@@ -89,6 +89,10 @@ export interface WorkflowNodeConfigField {
  * Check if a given object implements the WorkflowNodeConfigField interface.
  */
 export function instanceOfWorkflowNodeConfigField(value: object): value is WorkflowNodeConfigField {
+    if (!('key' in value) || value['key'] === undefined) return false;
+    if (!('label' in value) || value['label'] === undefined) return false;
+    if (!('type' in value) || value['type'] === undefined) return false;
+    if (!('required' in value) || value['required'] === undefined) return false;
     return true;
 }
 
@@ -102,10 +106,10 @@ export function WorkflowNodeConfigFieldFromJSONTyped(json: any, ignoreDiscrimina
     }
     return {
         
-        'key': json['key'] == null ? undefined : json['key'],
-        'label': json['label'] == null ? undefined : json['label'],
-        'type': json['type'] == null ? undefined : WorkflowNodeConfigFieldTypeFromJSON(json['type']),
-        'required': json['required'] == null ? undefined : json['required'],
+        'key': json['key'],
+        'label': json['label'],
+        'type': WorkflowNodeConfigFieldTypeFromJSON(json['type']),
+        'required': json['required'],
         'description': json['description'] == null ? undefined : json['description'],
         'placeholder': json['placeholder'] == null ? undefined : json['placeholder'],
         'defaultValue': json['defaultValue'] == null ? undefined : json['defaultValue'],

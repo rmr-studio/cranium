@@ -13,6 +13,7 @@ import riven.core.enums.common.icon.IconType
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
 import riven.core.enums.entity.EntityRelationshipCardinality
+import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.integration.SourceType
 import riven.core.models.common.validation.Schema
@@ -26,7 +27,7 @@ object EntityFactory {
      * Creates an EntityTypeEntity with the given parameters and reasonable defaults.
      */
     fun createEntityType(
-        id: UUID = UUID.randomUUID(),
+        id: UUID? = UUID.randomUUID(),
         key: String = "test_entity",
         displayNameSingular: String = "Test Entity",
         displayNamePlural: String = "Test Entities",
@@ -39,9 +40,13 @@ object EntityFactory {
         readonly: Boolean = false,
         sourceType: SourceType = SourceType.USER_CREATED,
         sourceIntegrationId: UUID? = null,
+        sourceManifestId: UUID? = null,
+        sourceSchemaHash: String? = null,
+        pendingSchemaUpdate: Boolean = false,
         deleted: Boolean = false,
         identifierKey: UUID = schema.properties?.keys?.first() ?: UUID.randomUUID(),
         semanticGroup: SemanticGroup = SemanticGroup.UNCATEGORIZED,
+        lifecycleDomain: LifecycleDomain = LifecycleDomain.UNCATEGORIZED,
     ): EntityTypeEntity {
         val defaultConfig = columnConfiguration ?: ColumnConfiguration(
             order = schema.properties?.keys?.toList() ?: emptyList()
@@ -61,8 +66,12 @@ object EntityFactory {
             readonly = readonly,
             sourceType = sourceType,
             sourceIntegrationId = sourceIntegrationId,
+            sourceManifestId = sourceManifestId,
+            sourceSchemaHash = sourceSchemaHash,
+            pendingSchemaUpdate = pendingSchemaUpdate,
             identifierKey = identifierKey,
             semanticGroup = semanticGroup,
+            lifecycleDomain = lifecycleDomain,
         )
 
         if (deleted) {
@@ -171,7 +180,7 @@ object EntityFactory {
         typeId: UUID = UUID.randomUUID(),
         attributeId: UUID = UUID.randomUUID(),
         schemaType: SchemaType = SchemaType.TEXT,
-        value: JsonNode = JsonNodeFactory.instance.textNode("test-value"),
+        value: JsonNode = JsonNodeFactory.instance.stringNode("test-value"),
     ): EntityAttributeEntity {
         return EntityAttributeEntity(
             id = id,

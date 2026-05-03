@@ -24,13 +24,13 @@ export interface BatchItemResult {
      * @type {string}
      * @memberof BatchItemResult
      */
-    id?: string;
+    id?: string | null;
     /**
      * 
      * @type {string}
      * @memberof BatchItemResult
      */
-    filename?: string;
+    filename?: string | null;
     /**
      * 
      * @type {number}
@@ -42,7 +42,7 @@ export interface BatchItemResult {
      * @type {string}
      * @memberof BatchItemResult
      */
-    error?: string;
+    error?: string | null;
 }
 
 /**

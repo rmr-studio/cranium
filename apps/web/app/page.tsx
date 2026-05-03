@@ -3,7 +3,6 @@ import { getAllPosts, getFeaturedPost } from '@/lib/blog';
 import dynamic from 'next/dynamic';
 
 import { Hero } from '@/components/feature-modules/landing/hero/components/hero';
-import { Preview } from '@/components/feature-modules/landing/preview/components/preview';
 
 const Setup = dynamic(() =>
   import('@/components/feature-modules/landing/setup/components/setup').then((m) => m.Setup),
@@ -39,10 +38,9 @@ export default async function Home() {
   const recent = posts.filter((p) => p.slug !== featured?.slug).slice(0, 3);
 
   return (
-    <main className="relative min-h-screen overflow-x-clip">
-      <section className="fixed inset-0"></section>
+    <main className="relative min-h-svh overflow-x-clip">
       <section
-        className="absolute inset-0 top-0 h-screen bg-white"
+        className="absolute inset-0 top-0 h-svh bg-white"
         style={{
           maskImage: 'linear-gradient(to bottom, transparent, black 0%, black 40%, transparent)',
           WebkitMaskImage:
@@ -55,12 +53,9 @@ export default async function Home() {
           className="pointer-events-none absolute inset-y-0 left-1/2 z-[70] w-full -translate-x-1/2 border-x border-x-neutral-500/40 2xl:max-w-[min(90vw,var(--breakpoint-3xl))]"
         />
         <Hero />
-        <div className="relative h-[16rem] sm:h-[20rem]">
-          <Preview />
-        </div>
-        <div className="relative h-full">
-          <Features />
-        </div>
+
+        <Features />
+
         <Integrations />
         <TimeSaved />
         <Setup />

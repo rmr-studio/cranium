@@ -55,11 +55,11 @@ export function Features() {
         id="cross-domain-intelligence"
         navbarInverse
         size={24}
-        className="isolate z-50 mx-0! mt-[40rem] h-full bg-foreground px-0!"
+        className="isolate z-50 mx-0! h-full bg-foreground px-0! sm:mt-[40rem]"
       >
         <section
           data-navbar-inverse
-          className="absolute inset-x-0 -top-[40rem] z-30 h-[60rem]"
+          className="absolute inset-x-0 -top-[30rem] z-30 h-[30rem] lg:-top-[15rem] lg:h-[60rem]"
           aria-hidden
           ref={sectionRef}
         >
@@ -81,7 +81,7 @@ export function Features() {
               Shopify is the heart of your business. Riven is the brain.
             </p>
           </div>
-          <div className="border-y border-y-white/20">
+          <div className="z-60 border-y border-y-white/20">
             <DiagonalReel cards={cards} />
           </div>
         </section>

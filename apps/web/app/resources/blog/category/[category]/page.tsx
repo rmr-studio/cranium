@@ -39,7 +39,7 @@ export default async function CategoryPage({ params }: Props) {
   const latest = posts[0];
 
   return (
-    <main className="min-h-screen overflow-x-clip">
+    <main className="min-h-svh overflow-x-clip">
       <BlogHeroHeader
         post={latest}
         variant="category"

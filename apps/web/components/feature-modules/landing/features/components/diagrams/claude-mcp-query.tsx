@@ -59,7 +59,9 @@ export function TerminalBody() {
 
       <Line>
         <ClaudeTag />
-        <span className="text-[oklch(0.65_0.01_92)]">Morning Edwin — what are we digging into?</span>
+        <span className="text-[oklch(0.65_0.01_92)]">
+          Morning Jared — what are we digging into?
+        </span>
       </Line>
 
       <Spacer />
@@ -96,11 +98,7 @@ export function TerminalBody() {
         upstream.
       </ClaudeBlock>
 
-      <McpCard
-        ns="riven"
-        method="insights.surface"
-        meta="scope=klaviyo · since=2026-04-01"
-      >
+      <McpCard ns="riven" method="insights.surface" meta="scope=klaviyo · since=2026-04-01">
         <FindingLine
           tone="bad"
           name="Welcome Series"
@@ -117,7 +115,11 @@ export function TerminalBody() {
           name="Klaviyo + Meta overlap"
           detail="cross-touched buyers down 41%"
         />
-        <FindingLine tone="ok" name="Olive Oil 500ml" detail="reorder rate stable · not a SKU issue" />
+        <FindingLine
+          tone="ok"
+          name="Olive Oil 500ml"
+          detail="reorder rate stable · not a SKU issue"
+        />
       </McpCard>
 
       <ClaudeBlock>

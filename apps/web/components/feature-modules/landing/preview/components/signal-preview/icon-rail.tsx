@@ -1,11 +1,19 @@
 import { cn } from '@/lib/utils';
 import { Logo } from '@riven/ui/logo';
+import { ClassNameProps } from '@riven/utils';
+import { FC } from 'react';
 import { RAIL_ITEMS } from './data';
 import { Icon, icons } from './primitives';
 
-export function IconRail({ activeId = 'signals' }: { activeId?: string }) {
+interface Props extends ClassNameProps {
+  activeId?: string;
+}
+
+export const IconRail: FC<Props> = ({ className, activeId }) => {
   return (
-    <div className="flex w-14 shrink-0 flex-col items-center gap-1 bg-foreground py-3">
+    <div
+      className={cn('flex w-14 shrink-0 flex-col items-center gap-1 bg-foreground py-3', className)}
+    >
       <div className="mb-3">
         <Logo size={22} />
       </div>
@@ -27,7 +35,7 @@ export function IconRail({ activeId = 'signals' }: { activeId?: string }) {
       <span className="flex size-9 items-center justify-center rounded-md text-[oklch(0.7_0_0)]">
         <Icon size={18}>{icons.settings}</Icon>
       </span>
-    
+
       <span
         className="mt-1 flex size-7 items-center justify-center rounded-full font-mono text-[10px] font-bold tracking-tight text-black"
         style={{ background: 'oklch(0.7 0.12 348)' }}
@@ -36,4 +44,4 @@ export function IconRail({ activeId = 'signals' }: { activeId?: string }) {
       </span>
     </div>
   );
-}
+};

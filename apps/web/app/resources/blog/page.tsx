@@ -25,7 +25,7 @@ export default async function BlogPage() {
   const feedPosts = featured ? posts.filter((p) => p.slug !== featured.slug) : posts;
 
   return (
-    <main className="min-h-screen overflow-x-clip">
+    <main className="min-h-svh overflow-x-clip">
       {featured && <BlogHeroHeader post={featured} variant="overview" />}
       <div className="mx-auto max-w-5xl px-6 pt-12 pb-20 lg:px-8">
         <CategoryPills categories={categories} />

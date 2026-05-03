@@ -2,18 +2,18 @@
 
 import { HeroCopy } from '@/components/feature-modules/landing/hero/components/hero-copy';
 import { BGPattern } from '@/components/ui/background/grids';
-import { StarsBackground } from '@/components/ui/background/stars';
+import { Dither } from '@/components/ui/dither';
+import { useRef } from 'react';
+import { SignalPreview } from '../../preview/components/signal-preview';
 import { HeroBackground } from './hero-background';
 
-const STAR_COLOR = '#b34a7a';
-
 export function Hero() {
+  const sectionRef = useRef<HTMLDivElement>(null);
   return (
-    <StarsBackground starColor={STAR_COLOR} factor={0.01}>
-      {' '}
-      <section className="relative mx-auto h-svh w-full py-16 pt-20! lg:py-32">
+    <>
+      <section className="h-[min(60rem, 120vh)] relative mx-auto my-0! w-full py-0! pt-20! sm:py-16 lg:h-[clamp(50rem,100svh,80rem)] lg:py-32">
         {/* Dot pattern — visible at top, fades out toward middle */}
-        <section className="rouned-t-none absolute inset-x-0 inset-y-18 mx-auto overflow-hidden 2xl:max-w-[min(90vw,var(--breakpoint-3xl))]">
+        <section className="rouned-t-none absolute inset-x-0 inset-y-0 mx-auto max-h-[clamp(35rem,100svh,80rem)] overflow-hidden sm:inset-y-18 2xl:max-w-[min(90vw,var(--breakpoint-3xl))]">
           <HeroBackground
             className="z-0 h-full opacity-90"
             image={{
@@ -42,10 +42,26 @@ export function Hero() {
             WebkitMaskComposite: 'source-in' as string,
           }}
         />
-        <section className="absolute inset-0 top-12 z-[65] sm:top-1/5 3xl:py-24">
+
+        <section
+          className="absolute inset-x-0 -bottom-[10rem] z-0 hidden h-[40rem] sm:block"
+          aria-hidden
+          ref={sectionRef}
+        >
+          <Dither
+            sectionRef={sectionRef}
+            fillColor="oklch(0.95 0.007 81)"
+            pattern="noise"
+            seed={2}
+            direction="bottom-up"
+            startWeight={-0.5}
+          />
+        </section>
+        <section className="z-60 flex flex-col items-center space-y-48 sm:mt-32">
           <HeroCopy />
+          <SignalPreview />
         </section>
       </section>
-    </StarsBackground>
+    </>
   );
 }

@@ -40,7 +40,7 @@ export default async function Home() {
   return (
     <main className="relative min-h-svh overflow-x-clip">
       <section
-        className="absolute inset-0 top-0 h-svh bg-white"
+        className="absolute inset-0 top-0 h-[clamp(35rem,100svh,80rem)] bg-white"
         style={{
           maskImage: 'linear-gradient(to bottom, transparent, black 0%, black 40%, transparent)',
           WebkitMaskImage:

@@ -375,8 +375,8 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
      * The predicate admits inverse rows when any of the following hold:
      *  - a relationship_target_rule applies for the target's entity type (the
      *    source's relationship definition explicitly targets that type),
-     *  - the definition's `system_type` is `CONNECTED_ENTITIES` (the symmetric
-     *    fallback edge), or
+     *  - the definition's `system_type` is `SYSTEM_CONNECTION` (the symmetric
+     *    system connection edge), or
      *  - the definition's `system_type` is one of the knowledge edge kinds
      *    (`ATTACHMENT`, `MENTION`, `DEFINES`) AND the source entity's type has
      *    `surface_role = 'KNOWLEDGE'` — i.e. the row is a knowledge entity
@@ -410,7 +410,7 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
             AND r.target_kind = 'ENTITY'
             AND (
                 rtr.target_entity_type_id = target_e.type_id
-                OR rd.system_type = 'CONNECTED_ENTITIES'
+                OR rd.system_type = 'SYSTEM_CONNECTION'
                 OR (
                     rd.system_type IN ('ATTACHMENT', 'MENTION', 'DEFINES')
                     AND src_t.surface_role = 'KNOWLEDGE'
@@ -452,7 +452,7 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
             AND r.target_kind = 'ENTITY'
             AND (
                 rtr.target_entity_type_id = target_e.type_id
-                OR rd.system_type = 'CONNECTED_ENTITIES'
+                OR rd.system_type = 'SYSTEM_CONNECTION'
                 OR (
                     rd.system_type IN ('ATTACHMENT', 'MENTION', 'DEFINES')
                     AND src_t.surface_role = 'KNOWLEDGE'

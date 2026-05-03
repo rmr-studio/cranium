@@ -33,7 +33,7 @@ import java.util.UUID
  * Manages the human decision path for identity match suggestions.
  *
  * Handles confirming and rejecting match suggestions. Confirmation triggers:
- * - A CONNECTED_ENTITIES relationship between the two entities
+ * - A SYSTEM_CONNECTION relationship between the two entities
  * - 5-case cluster resolution (create, expand, or merge identity clusters)
  * - Activity logging and workspace-wide notification
  *
@@ -53,7 +53,7 @@ class IdentityConfirmationService(
     // ------ Public mutations ------
 
     /**
-     * Confirms a PENDING match suggestion, creating a CONNECTED_ENTITIES relationship
+     * Confirms a PENDING match suggestion, creating a SYSTEM_CONNECTION relationship
      * and managing the 5-case identity cluster resolution.
      *
      * @param workspaceId The workspace owning the suggestion.

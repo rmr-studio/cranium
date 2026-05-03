@@ -205,7 +205,7 @@ class TemplateInstallationService(
      *
      * Translates string-keyed manifest schemas into UUID-keyed internal schemas,
      * generates attribute UUIDs, resolves identifier keys, and initializes semantic
-     * metadata and fallback relationship definitions for each entity type.
+     * metadata and system connection definitions for each entity type.
      *
      * @return map from manifest entity type key to creation result (entity type ID + attribute key map)
      */
@@ -226,7 +226,7 @@ class TemplateInstallationService(
                 attributeIds = attributeKeyMap.values.toList(),
             )
 
-            relationshipService.createFallbackDefinition(workspaceId, savedId)
+            relationshipService.createSystemConnectionDefinition(workspaceId, savedId)
 
             // Initialize sequences for ID-type attributes
             entity.schema.properties?.forEach { (attrId, attrSchema) ->
@@ -269,7 +269,7 @@ class TemplateInstallationService(
                 attributeIds = attributeKeyMap.values.toList(),
             )
 
-            relationshipService.createFallbackDefinitionInternal(workspaceId, savedId)
+            relationshipService.createSystemConnectionDefinitionInternal(workspaceId, savedId)
             seedKnowledgeRelationships(workspaceId, catalogType.key, savedId)
 
             entity.schema.properties?.forEach { (attrId, attrSchema) ->

@@ -214,7 +214,7 @@ CREATE TABLE IF NOT EXISTS public.entity_relationships
      OR (target_kind IN ('ENTITY', 'ENTITY_TYPE')      AND target_parent_id IS NULL)
     ),
 
-    -- Semantic context for fallback connections (why these entities are linked)
+    -- Semantic context for system connections (why these entities are linked)
     "semantic_context"           TEXT                     DEFAULT NULL,
     -- Source of this link (USER_CREATED, INTEGRATION, etc.)
     "link_source"                TEXT    NOT NULL         DEFAULT 'USER_CREATED',

@@ -6,8 +6,8 @@ package riven.core.enums.entity
  * (sourceEntityType, systemType) pair on `relationship_definitions`.
  */
 enum class SystemRelationshipType {
-    /** Default fallback edge between any two entities — used when no domain-specific definition applies. */
-    CONNECTED_ENTITIES,
+    /** Default system-managed connection between any two entities — used when no domain-specific definition applies (e.g. picker-style ad-hoc links). */
+    SYSTEM_CONNECTION,
 
     /** Knowledge entity (note, memo, sop, ...) attached to one or more entities. */
     ATTACHMENT,

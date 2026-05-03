@@ -96,7 +96,7 @@ data class EntityEntity(
      * [links] is the flat list returned by
      * `EntityRelationshipService.findRelatedEntities` for this entity. It is
      * partitioned here into:
-     *  - `relationships`: outbound edges of any kind plus inbound `CONNECTED_ENTITIES`
+     *  - `relationships`: outbound edges of any kind plus inbound `SYSTEM_CONNECTION`
      *    edges, keyed by `definitionId`. Folded into `payload` as
      *    [EntityAttributeRelationPayload] entries (preserves the existing model
      *    shape for relationship-picker callers).

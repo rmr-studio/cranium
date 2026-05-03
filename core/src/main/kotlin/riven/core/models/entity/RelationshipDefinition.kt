@@ -21,6 +21,6 @@ data class RelationshipDefinition(
     val createdBy: UUID?,
     val updatedBy: UUID?,
 ) {
-    /** Polymorphic relationships are only supported for system-managed definitions (e.g. CONNECTED_ENTITIES). */
+    /** Polymorphic relationships are only supported for system-managed definitions (e.g. SYSTEM_CONNECTION). */
     val isPolymorphic: Boolean get() = systemType != null
 }

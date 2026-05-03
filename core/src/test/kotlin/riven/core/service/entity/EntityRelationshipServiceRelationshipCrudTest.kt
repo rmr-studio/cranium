@@ -80,18 +80,18 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
     private val targetEntityId = UUID.randomUUID()
     private val sourceEntityTypeId = UUID.randomUUID()
     private val targetEntityTypeId = UUID.randomUUID()
-    private val fallbackDefId = UUID.randomUUID()
+    private val systemConnectionDefId = UUID.randomUUID()
     private val typedDefId = UUID.randomUUID()
 
-    private fun buildFallbackDefinitionEntity(): RelationshipDefinitionEntity {
+    private fun buildSystemConnectionDefinitionEntity(): RelationshipDefinitionEntity {
         return EntityFactory.createRelationshipDefinitionEntity(
-            id = fallbackDefId,
+            id = systemConnectionDefId,
             workspaceId = workspaceId,
             sourceEntityTypeId = sourceEntityTypeId,
             name = "Connected Entities",
             cardinalityDefault = EntityRelationshipCardinality.MANY_TO_MANY,
             protected = true,
-        ).copy(systemType = SystemRelationshipType.CONNECTED_ENTITIES)
+        ).copy(systemType = SystemRelationshipType.SYSTEM_CONNECTION)
     }
 
     private fun buildTypedDefinition(
@@ -128,10 +128,10 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
         )
     }
 
-    // ------ addRelationship (fallback) ------
+    // ------ addRelationship (system connection) ------
 
     @Test
-    fun `addRelationship - no definitionId - creates fallback relationship`() {
+    fun `addRelationship - no definitionId - creates system connection relationship`() {
         val sourceEntity = EntityFactory.createEntityEntity(
             id = sourceEntityId,
             workspaceId = workspaceId,
@@ -141,7 +141,7 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
             id = targetEntityId,
             workspaceId = workspaceId,
         )
-        val fallbackDef = buildFallbackDefinitionEntity()
+        val systemConnectionDef = buildSystemConnectionDefinitionEntity()
         val request = AddRelationshipRequest(
             targetEntityId = targetEntityId,
             semanticContext = "works with",
@@ -150,11 +150,11 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
 
         whenever(entityRepository.findByIdAndWorkspaceId(sourceEntityId, workspaceId)).thenReturn(Optional.of(sourceEntity))
         whenever(entityRepository.findByIdAndWorkspaceId(targetEntityId, workspaceId)).thenReturn(Optional.of(targetEntity))
-        whenever(entityTypeRelationshipService.getOrCreateFallbackDefinition(workspaceId, sourceEntityTypeId))
-            .thenReturn(fallbackDef)
-        whenever(entityRelationshipRepository.findBySourceIdAndTargetIdAndDefinitionId(sourceEntityId, targetEntityId, fallbackDefId))
+        whenever(entityTypeRelationshipService.getOrCreateSystemConnectionDefinition(workspaceId, sourceEntityTypeId))
+            .thenReturn(systemConnectionDef)
+        whenever(entityRelationshipRepository.findBySourceIdAndTargetIdAndDefinitionId(sourceEntityId, targetEntityId, systemConnectionDefId))
             .thenReturn(emptyList())
-        whenever(entityRelationshipRepository.findBySourceIdAndTargetIdAndDefinitionId(targetEntityId, sourceEntityId, fallbackDefId))
+        whenever(entityRelationshipRepository.findBySourceIdAndTargetIdAndDefinitionId(targetEntityId, sourceEntityId, systemConnectionDefId))
             .thenReturn(emptyList())
         whenever(entityRelationshipRepository.save(any<EntityRelationshipEntity>())).thenAnswer { invocation ->
             val entity = invocation.arguments[0] as EntityRelationshipEntity
@@ -166,7 +166,7 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
         assertNotNull(result.id)
         assertEquals(sourceEntityId, result.sourceEntityId)
         assertEquals(targetEntityId, result.targetEntityId)
-        assertEquals(fallbackDefId, result.definitionId)
+        assertEquals(systemConnectionDefId, result.definitionId)
         assertEquals("Connected Entities", result.definitionName)
         assertEquals("works with", result.semanticContext)
         assertEquals(SourceType.USER_CREATED, result.linkSource)
@@ -174,7 +174,7 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
         verify(entityRelationshipRepository).save(argThat<EntityRelationshipEntity> {
             this.sourceId == sourceEntityId &&
                 this.targetId == targetEntityId &&
-                this.definitionId == fallbackDefId &&
+                this.definitionId == systemConnectionDefId &&
                 this.semanticContext == "works with" &&
                 this.linkSource == SourceType.USER_CREATED
         })
@@ -191,12 +191,12 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
             id = targetEntityId,
             workspaceId = workspaceId,
         )
-        val fallbackDef = buildFallbackDefinitionEntity()
+        val systemConnectionDef = buildSystemConnectionDefinitionEntity()
         val existingRel = EntityFactory.createRelationshipEntity(
             workspaceId = workspaceId,
             sourceId = sourceEntityId,
             targetId = targetEntityId,
-            definitionId = fallbackDefId,
+            definitionId = systemConnectionDefId,
         )
         val request = AddRelationshipRequest(
             targetEntityId = targetEntityId,
@@ -205,9 +205,9 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
 
         whenever(entityRepository.findByIdAndWorkspaceId(sourceEntityId, workspaceId)).thenReturn(Optional.of(sourceEntity))
         whenever(entityRepository.findByIdAndWorkspaceId(targetEntityId, workspaceId)).thenReturn(Optional.of(targetEntity))
-        whenever(entityTypeRelationshipService.getOrCreateFallbackDefinition(workspaceId, sourceEntityTypeId))
-            .thenReturn(fallbackDef)
-        whenever(entityRelationshipRepository.findBySourceIdAndTargetIdAndDefinitionId(sourceEntityId, targetEntityId, fallbackDefId))
+        whenever(entityTypeRelationshipService.getOrCreateSystemConnectionDefinition(workspaceId, sourceEntityTypeId))
+            .thenReturn(systemConnectionDef)
+        whenever(entityRelationshipRepository.findBySourceIdAndTargetIdAndDefinitionId(sourceEntityId, targetEntityId, systemConnectionDefId))
             .thenReturn(listOf(existingRel))
 
         assertThrows(ConflictException::class.java) {
@@ -228,7 +228,7 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
             id = targetEntityId,
             workspaceId = workspaceId,
         )
-        val fallbackDef = buildFallbackDefinitionEntity()
+        val systemConnectionDef = buildSystemConnectionDefinitionEntity()
         val request = AddRelationshipRequest(
             targetEntityId = targetEntityId,
             semanticContext = "reverse duplicate",
@@ -236,19 +236,19 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
 
         whenever(entityRepository.findByIdAndWorkspaceId(sourceEntityId, workspaceId)).thenReturn(Optional.of(sourceEntity))
         whenever(entityRepository.findByIdAndWorkspaceId(targetEntityId, workspaceId)).thenReturn(Optional.of(targetEntity))
-        whenever(entityTypeRelationshipService.getOrCreateFallbackDefinition(workspaceId, sourceEntityTypeId))
-            .thenReturn(fallbackDef)
+        whenever(entityTypeRelationshipService.getOrCreateSystemConnectionDefinition(workspaceId, sourceEntityTypeId))
+            .thenReturn(systemConnectionDef)
         // Forward check returns empty — no forward duplicate
-        whenever(entityRelationshipRepository.findBySourceIdAndTargetIdAndDefinitionId(sourceEntityId, targetEntityId, fallbackDefId))
+        whenever(entityRelationshipRepository.findBySourceIdAndTargetIdAndDefinitionId(sourceEntityId, targetEntityId, systemConnectionDefId))
             .thenReturn(emptyList())
         // Reverse check returns existing — target→source already exists
         val reverseRel = EntityFactory.createRelationshipEntity(
             workspaceId = workspaceId,
             sourceId = targetEntityId,
             targetId = sourceEntityId,
-            definitionId = fallbackDefId,
+            definitionId = systemConnectionDefId,
         )
-        whenever(entityRelationshipRepository.findBySourceIdAndTargetIdAndDefinitionId(targetEntityId, sourceEntityId, fallbackDefId))
+        whenever(entityRelationshipRepository.findBySourceIdAndTargetIdAndDefinitionId(targetEntityId, sourceEntityId, systemConnectionDefId))
             .thenReturn(listOf(reverseRel))
 
         assertThrows(ConflictException::class.java) {
@@ -473,11 +473,11 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
             workspaceId = workspaceId,
             typeId = sourceEntityTypeId,
         )
-        val fallbackRel = EntityFactory.createRelationshipEntity(
+        val systemConnectionRel = EntityFactory.createRelationshipEntity(
             workspaceId = workspaceId,
             sourceId = sourceEntityId,
             targetId = targetEntityId,
-            definitionId = fallbackDefId,
+            definitionId = systemConnectionDefId,
             semanticContext = "connected",
         )
         val typedRel = EntityFactory.createRelationshipEntity(
@@ -486,7 +486,7 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
             targetId = UUID.randomUUID(),
             definitionId = typedDefId,
         )
-        val fallbackDefEntity = buildFallbackDefinitionEntity()
+        val systemConnectionDefEntity = buildSystemConnectionDefinitionEntity()
         val typedDefEntity = EntityFactory.createRelationshipDefinitionEntity(
             id = typedDefId,
             workspaceId = workspaceId,
@@ -496,9 +496,9 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
 
         whenever(entityRepository.findByIdAndWorkspaceId(sourceEntityId, workspaceId)).thenReturn(Optional.of(entity))
         whenever(entityRelationshipRepository.findAllRelationshipsForEntity(sourceEntityId, workspaceId))
-            .thenReturn(listOf(fallbackRel, typedRel))
-        whenever(definitionRepository.findAllById(listOf(fallbackDefId, typedDefId)))
-            .thenReturn(listOf(fallbackDefEntity, typedDefEntity))
+            .thenReturn(listOf(systemConnectionRel, typedRel))
+        whenever(definitionRepository.findAllById(listOf(systemConnectionDefId, typedDefId)))
+            .thenReturn(listOf(systemConnectionDefEntity, typedDefEntity))
 
         val result = service.getRelationships(workspaceId, sourceEntityId)
 
@@ -566,16 +566,16 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
             workspaceId = workspaceId,
             sourceId = sourceEntityId,
             targetId = targetEntityId,
-            definitionId = fallbackDefId,
+            definitionId = systemConnectionDefId,
             semanticContext = "old context",
         )
-        val fallbackDef = buildFallbackDefinitionEntity()
+        val systemConnectionDef = buildSystemConnectionDefinitionEntity()
         val request = UpdateRelationshipRequest(semanticContext = "new context")
 
         whenever(entityRelationshipRepository.findByIdAndWorkspaceId(relationshipId, workspaceId))
             .thenReturn(Optional.of(relationship))
-        whenever(definitionRepository.findById(fallbackDefId))
-            .thenReturn(Optional.of(fallbackDef))
+        whenever(definitionRepository.findById(systemConnectionDefId))
+            .thenReturn(Optional.of(systemConnectionDef))
         whenever(entityRelationshipRepository.save(any<EntityRelationshipEntity>())).thenAnswer { invocation ->
             invocation.arguments[0] as EntityRelationshipEntity
         }
@@ -631,7 +631,7 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
             workspaceId = workspaceId,
             sourceId = sourceEntityId,
             targetId = targetEntityId,
-            definitionId = fallbackDefId,
+            definitionId = systemConnectionDefId,
             semanticContext = "to be deleted",
         )
 

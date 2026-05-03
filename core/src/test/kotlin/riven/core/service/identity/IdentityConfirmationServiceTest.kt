@@ -51,7 +51,7 @@ import java.util.UUID
  * Unit tests for [IdentityConfirmationService].
  *
  * Covers CONF-01 through CONF-05:
- * - CONF-01: Confirming creates a CONNECTED_ENTITIES relationship with SourceType.IDENTITY_MATCH
+ * - CONF-01: Confirming creates a SYSTEM_CONNECTION relationship with SourceType.IDENTITY_MATCH
  * - CONF-02: Cluster resolution is delegated to [IdentityClusterService.resolveClusterMembership]
  * - CONF-04: Rejecting transitions PENDING -> REJECTED with resolvedBy/At, rejectionSignals snapshot, soft-delete
  * - CONF-05: Invalid state transitions throw ConflictException (double-confirm, double-reject, cross-transitions)
@@ -738,7 +738,7 @@ class IdentityConfirmationServiceTest : BaseServiceTest() {
             sourceEntityId = UUID.randomUUID(),
             targetEntityId = UUID.randomUUID(),
             definitionId = UUID.randomUUID(),
-            definitionName = "CONNECTED_ENTITIES",
+            definitionName = "SYSTEM_CONNECTION",
             semanticContext = null,
             linkSource = riven.core.enums.integration.SourceType.IDENTITY_MATCH,
             createdAt = ZonedDateTime.now(),

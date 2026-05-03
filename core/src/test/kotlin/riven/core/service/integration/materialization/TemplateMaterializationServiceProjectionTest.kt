@@ -122,7 +122,7 @@ class TemplateMaterializationServiceProjectionTest {
             if (entity.id == null) entity.copy(id = UUID.randomUUID()) else entity
         }
 
-        whenever(relationshipService.createFallbackDefinition(any(), any())).thenReturn(
+        whenever(relationshipService.createSystemConnectionDefinition(any(), any())).thenReturn(
             EntityFactory.createRelationshipDefinitionEntity(workspaceId = workspaceId)
         )
 

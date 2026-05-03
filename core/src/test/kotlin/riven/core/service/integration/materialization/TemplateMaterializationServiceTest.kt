@@ -210,8 +210,8 @@ class TemplateMaterializationServiceTest {
         whenever(relationshipDefinitionRepository.findByWorkspaceIdAndSourceEntityTypeIdIn(eq(workspaceId), any()))
             .thenReturn(emptyList())
 
-        // Default: createFallbackDefinition returns a stub entity
-        whenever(relationshipService.createFallbackDefinition(any(), any())).thenReturn(
+        // Default: createSystemConnectionDefinition returns a stub entity
+        whenever(relationshipService.createSystemConnectionDefinition(any(), any())).thenReturn(
             RelationshipDefinitionEntity(
                 id = UUID.randomUUID(),
                 workspaceId = workspaceId,
@@ -665,7 +665,7 @@ class TemplateMaterializationServiceTest {
     }
 
     @Test
-    fun `materializeIntegrationTemplates - creates fallback relationship definition for each entity type`() {
+    fun `materializeIntegrationTemplates - creates system connection definition for each entity type`() {
         val contactEntityId = UUID.randomUUID()
         val companyEntityId = UUID.randomUUID()
 
@@ -685,8 +685,8 @@ class TemplateMaterializationServiceTest {
 
         service.materializeIntegrationTemplates(workspaceId, integrationSlug, integrationDefinitionId)
 
-        verify(relationshipService).createFallbackDefinition(workspaceId, contactEntityId)
-        verify(relationshipService).createFallbackDefinition(workspaceId, companyEntityId)
+        verify(relationshipService).createSystemConnectionDefinition(workspaceId, contactEntityId)
+        verify(relationshipService).createSystemConnectionDefinition(workspaceId, companyEntityId)
     }
 
     @Test
@@ -740,7 +740,7 @@ class TemplateMaterializationServiceTest {
     }
 
     @Test
-    fun `materializeIntegrationTemplates - skips semantic metadata but recreates fallback relationship for restored entity types`() {
+    fun `materializeIntegrationTemplates - skips semantic metadata but recreates system connection for restored entity types`() {
         val restoredId = UUID.randomUUID()
         val softDeletedEntityType = EntityTypeEntity(
             id = restoredId,
@@ -770,7 +770,7 @@ class TemplateMaterializationServiceTest {
         verify(semanticMetadataService, never()).initializeForEntityType(any(), any(), any())
         verify(sequenceService, never()).initializeSequence(any(), any())
 
-        // Fallback relationship SHOULD be recreated since the old one was soft-deleted
-        verify(relationshipService).createFallbackDefinition(workspaceId, restoredId)
+        // System connection definition SHOULD be recreated since the old one was soft-deleted
+        verify(relationshipService).createSystemConnectionDefinition(workspaceId, restoredId)
     }
 }

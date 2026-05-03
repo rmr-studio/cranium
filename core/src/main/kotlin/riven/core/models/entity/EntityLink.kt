@@ -47,7 +47,7 @@ private fun EntityLink.isInverseKnowledgeEdge(): Boolean =
 /**
  * Holder for the two-way partition of a flat link list:
  *  - [relationships] keyed by `definitionId` — outbound edges of any kind plus inbound
- *    `CONNECTED_ENTITIES` edges. This is what the relationship picker / connections UI consumes.
+ *    `SYSTEM_CONNECTION` edges. This is what the relationship picker / connections UI consumes.
  *  - [knowledgeRefs] keyed by source entity `typeKey` — inbound `ATTACHMENT` / `MENTION` /
  *    `DEFINES` edges from `surface_role = KNOWLEDGE` source types. Drives the knowledge
  *    badge count and the attached-knowledge panel.

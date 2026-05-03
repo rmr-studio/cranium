@@ -233,7 +233,7 @@ class EntityRelationshipService(
      *  - **Forward** edges: rows where the entity is the source (any system_type, any definition).
      *  - **Inverse** edges: rows where the entity is the target, admitted when either a
      *    relationship_target_rule applies, the definition's system_type is
-     *    `CONNECTED_ENTITIES`, or the definition's system_type is one of
+     *    `SYSTEM_CONNECTION`, or the definition's system_type is one of
      *    `ATTACHMENT` / `MENTION` / `DEFINES` *and* the source entity's type carries
      *    `surface_role = 'KNOWLEDGE'`. Knowledge inverse edges are how
      *    "notes attached to me" / "glossary terms defining me" surface on a target entity.
@@ -283,8 +283,8 @@ class EntityRelationshipService(
      * Adds a single relationship between two entities.
      *
      * When `definitionId` is provided, creates a typed relationship with target type
-     * validation and cardinality enforcement. When omitted, creates a fallback
-     * CONNECTED_ENTITIES relationship with bidirectional duplicate detection.
+     * validation and cardinality enforcement. When omitted, creates a
+     * SYSTEM_CONNECTION relationship with bidirectional duplicate detection.
      */
     @Transactional
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
@@ -437,10 +437,10 @@ class EntityRelationshipService(
             return request.definitionId to definition.name
         }
 
-        val fallbackDef = entityTypeRelationshipService.getOrCreateFallbackDefinition(workspaceId, sourceEntityTypeId)
-        val defId = requireNotNull(fallbackDef.id)
+        val systemConnectionDef = entityTypeRelationshipService.getOrCreateSystemConnectionDefinition(workspaceId, sourceEntityTypeId)
+        val defId = requireNotNull(systemConnectionDef.id)
         checkBidirectionalDuplicate(sourceEntityId, request.targetEntityId, defId)
-        return defId to fallbackDef.name
+        return defId to systemConnectionDef.name
     }
 
     private fun checkDirectionalDuplicate(sourceId: UUID, targetId: UUID, definitionId: UUID) {
@@ -465,7 +465,7 @@ class EntityRelationshipService(
     }
 
     /**
-     * Validates target type and enforces cardinality for typed (non-fallback) definitions.
+     * Validates target type and enforces cardinality for typed (non-system-connection) definitions.
      */
     private fun validateTypedRelationship(
         sourceEntityId: UUID,

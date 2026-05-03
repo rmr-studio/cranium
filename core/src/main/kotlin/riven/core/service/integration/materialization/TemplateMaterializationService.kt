@@ -137,7 +137,7 @@ class TemplateMaterializationService(
             if (softDeleted != null) {
                 val restoredEntity = restoreEntityType(softDeleted, catalogType.schemaHash, catalogType.manifestId)
                 val restoredId = requireNotNull(restoredEntity.id)
-                relationshipService.createFallbackDefinition(restoredEntity.workspaceId!!, restoredId)
+                relationshipService.createSystemConnectionDefinition(restoredEntity.workspaceId!!, restoredId)
                 keyToIdMap[catalogType.key] = restoredId
                 entityTypeSummaries.add(buildEntityTypeSummary(restoredEntity))
                 restored++
@@ -214,7 +214,7 @@ class TemplateMaterializationService(
     }
 
     /**
-     * Initializes semantic metadata, fallback relationship, and ID-type attribute sequences
+     * Initializes semantic metadata, system connection definition, and ID-type attribute sequences
      * for a newly created entity type. Brings materialization to parity with template installation.
      */
     private fun initializeEntityTypeMetadata(entityTypeId: UUID, workspaceId: UUID, schema: EntityTypeSchema) {
@@ -225,7 +225,7 @@ class TemplateMaterializationService(
             attributeIds = attributeIds
         )
 
-        relationshipService.createFallbackDefinition(workspaceId, entityTypeId)
+        relationshipService.createSystemConnectionDefinition(workspaceId, entityTypeId)
 
         schema.properties?.forEach { (attrId, attrSchema) ->
             if (attrSchema.key == SchemaType.ID) {

@@ -31,7 +31,7 @@ import java.util.*
     classes = [
         AuthTokenService::class,
         WorkspaceSecurity::class,
-        EntityTypeRelationshipServiceFallbackTest.TestConfig::class,
+        EntityTypeRelationshipServiceSystemConnectionTest.TestConfig::class,
         EntityTypeRelationshipService::class,
     ]
 )
@@ -46,7 +46,7 @@ import java.util.*
         )
     ]
 )
-class EntityTypeRelationshipServiceFallbackTest : BaseServiceTest() {
+class EntityTypeRelationshipServiceSystemConnectionTest : BaseServiceTest() {
 
     @Configuration
     class TestConfig
@@ -86,10 +86,10 @@ class EntityTypeRelationshipServiceFallbackTest : BaseServiceTest() {
         )
     }
 
-    // ------ createFallbackDefinition ------
+    // ------ createSystemConnectionDefinition ------
 
     @Test
-    fun `createFallbackDefinition - creates with correct properties`() {
+    fun `createSystemConnectionDefinition - creates with correct properties`() {
         val entityType = EntityFactory.createEntityType(id = entityTypeId, workspaceId = workspaceId)
         whenever(entityTypeRepository.findById(entityTypeId)).thenReturn(Optional.of(entityType))
         whenever(definitionRepository.save(any<RelationshipDefinitionEntity>())).thenAnswer { invocation ->
@@ -97,12 +97,12 @@ class EntityTypeRelationshipServiceFallbackTest : BaseServiceTest() {
             if (entity.id == null) entity.copy(id = UUID.randomUUID()) else entity
         }
 
-        val result = service.createFallbackDefinition(workspaceId, entityTypeId)
+        val result = service.createSystemConnectionDefinition(workspaceId, entityTypeId)
 
         assertNotNull(result.id)
         assertTrue(result.protected)
         assertEquals(EntityRelationshipCardinality.MANY_TO_MANY, result.cardinalityDefault)
-        assertEquals(SystemRelationshipType.CONNECTED_ENTITIES, result.systemType)
+        assertEquals(SystemRelationshipType.SYSTEM_CONNECTION, result.systemType)
         assertEquals(workspaceId, result.workspaceId)
         assertEquals(entityTypeId, result.sourceEntityTypeId)
         assertEquals("Connected Entities", result.name)
@@ -110,33 +110,33 @@ class EntityTypeRelationshipServiceFallbackTest : BaseServiceTest() {
         verify(definitionRepository).save(argThat<RelationshipDefinitionEntity> {
             this.protected &&
                 cardinalityDefault == EntityRelationshipCardinality.MANY_TO_MANY &&
-                systemType == SystemRelationshipType.CONNECTED_ENTITIES
+                systemType == SystemRelationshipType.SYSTEM_CONNECTION
         })
     }
 
     /**
-     * Regression test: verifies that createFallbackDefinition rejects an entity type
+     * Regression test: verifies that createSystemConnectionDefinition rejects an entity type
      * whose workspaceId does not match the requested workspaceId. Without the workspace
-     * ownership check in createFallbackDefinitionInternal, a caller could create fallback
+     * ownership check in createSystemConnectionDefinitionInternal, a caller could create system connection
      * definitions for entity types belonging to other workspaces.
      */
     @Test
-    fun `createFallbackDefinition - rejects entity type from different workspace`() {
+    fun `createSystemConnectionDefinition - rejects entity type from different workspace`() {
         val otherWorkspaceId = UUID.randomUUID()
         val entityType = EntityFactory.createEntityType(id = entityTypeId, workspaceId = otherWorkspaceId)
         whenever(entityTypeRepository.findById(entityTypeId)).thenReturn(Optional.of(entityType))
 
         assertThrows(IllegalArgumentException::class.java) {
-            service.createFallbackDefinition(workspaceId, entityTypeId)
+            service.createSystemConnectionDefinition(workspaceId, entityTypeId)
         }
 
         verify(definitionRepository, never()).save(any())
     }
 
-    // ------ getOrCreateFallbackDefinition ------
+    // ------ getOrCreateSystemConnectionDefinition ------
 
     @Test
-    fun `getOrCreateFallbackDefinition - returns existing when one already exists`() {
+    fun `getOrCreateSystemConnectionDefinition - returns existing when one already exists`() {
         val existingEntity = EntityFactory.createRelationshipDefinitionEntity(
             id = UUID.randomUUID(),
             workspaceId = workspaceId,
@@ -147,25 +147,25 @@ class EntityTypeRelationshipServiceFallbackTest : BaseServiceTest() {
 
         whenever(
             definitionRepository.findBySourceEntityTypeIdAndSystemType(
-                entityTypeId, SystemRelationshipType.CONNECTED_ENTITIES,
+                entityTypeId, SystemRelationshipType.SYSTEM_CONNECTION,
             )
         ).thenReturn(Optional.of(existingEntity))
 
-        val result = service.getOrCreateFallbackDefinition(workspaceId, entityTypeId)
+        val result = service.getOrCreateSystemConnectionDefinition(workspaceId, entityTypeId)
 
         assertEquals(existingEntity.id, result.id)
         verify(definitionRepository, never()).save(any())
     }
 
     @Test
-    fun `getOrCreateFallbackDefinition - handles concurrent creation with retry`() {
+    fun `getOrCreateSystemConnectionDefinition - handles concurrent creation with retry`() {
         val entityType = EntityFactory.createEntityType(id = entityTypeId, workspaceId = workspaceId)
         whenever(entityTypeRepository.findById(entityTypeId)).thenReturn(Optional.of(entityType))
 
         // First call: no existing definition
         whenever(
             definitionRepository.findBySourceEntityTypeIdAndSystemType(
-                entityTypeId, SystemRelationshipType.CONNECTED_ENTITIES,
+                entityTypeId, SystemRelationshipType.SYSTEM_CONNECTION,
             )
         ).thenReturn(Optional.empty())
             .thenReturn(Optional.of(
@@ -182,21 +182,21 @@ class EntityTypeRelationshipServiceFallbackTest : BaseServiceTest() {
         whenever(definitionRepository.save(any<RelationshipDefinitionEntity>()))
             .thenThrow(DataIntegrityViolationException("Duplicate key"))
 
-        val result = service.getOrCreateFallbackDefinition(workspaceId, entityTypeId)
+        val result = service.getOrCreateSystemConnectionDefinition(workspaceId, entityTypeId)
 
         assertNotNull(result.id)
         // Verify it attempted save, then retried with a read
         verify(definitionRepository).save(any())
         verify(definitionRepository, times(2))
             .findBySourceEntityTypeIdAndSystemType(
-                entityTypeId, SystemRelationshipType.CONNECTED_ENTITIES,
+                entityTypeId, SystemRelationshipType.SYSTEM_CONNECTION,
             )
     }
 
-    // ------ getFallbackDefinitionId ------
+    // ------ getSystemConnectionDefinitionId ------
 
     @Test
-    fun `getFallbackDefinitionId - returns UUID when fallback exists`() {
+    fun `getSystemConnectionDefinitionId - returns UUID when system connection exists`() {
         val defId = UUID.randomUUID()
         val existingEntity = EntityFactory.createRelationshipDefinitionEntity(
             id = defId,
@@ -208,24 +208,24 @@ class EntityTypeRelationshipServiceFallbackTest : BaseServiceTest() {
 
         whenever(
             definitionRepository.findBySourceEntityTypeIdAndSystemType(
-                entityTypeId, SystemRelationshipType.CONNECTED_ENTITIES,
+                entityTypeId, SystemRelationshipType.SYSTEM_CONNECTION,
             )
         ).thenReturn(Optional.of(existingEntity))
 
-        val result = service.getFallbackDefinitionId(entityTypeId)
+        val result = service.getSystemConnectionDefinitionId(entityTypeId)
 
         assertEquals(defId, result)
     }
 
     @Test
-    fun `getFallbackDefinitionId - returns null when no fallback exists`() {
+    fun `getSystemConnectionDefinitionId - returns null when no system connection exists`() {
         whenever(
             definitionRepository.findBySourceEntityTypeIdAndSystemType(
-                entityTypeId, SystemRelationshipType.CONNECTED_ENTITIES,
+                entityTypeId, SystemRelationshipType.SYSTEM_CONNECTION,
             )
         ).thenReturn(Optional.empty())
 
-        val result = service.getFallbackDefinitionId(entityTypeId)
+        val result = service.getSystemConnectionDefinitionId(entityTypeId)
 
         assertNull(result)
     }

@@ -932,7 +932,7 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
             on { getTypeKey() } doReturn "employee"
             on { getLabel() } doReturn "Alice"
             on { getDirection() } doReturn "INVERSE"
-            on { getSystemType() } doReturn SystemRelationshipType.CONNECTED_ENTITIES.name
+            on { getSystemType() } doReturn SystemRelationshipType.SYSTEM_CONNECTION.name
         }
 
         whenever(entityRelationshipRepository.findEntityLinksBySourceId(sourceEntityId, workspaceId))
@@ -988,7 +988,7 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
             on { getTypeKey() } doReturn "company"
             on { getLabel() } doReturn "Inverse Entity"
             on { getDirection() } doReturn "INVERSE"
-            on { getSystemType() } doReturn SystemRelationshipType.CONNECTED_ENTITIES.name
+            on { getSystemType() } doReturn SystemRelationshipType.SYSTEM_CONNECTION.name
         }
 
         whenever(entityRelationshipRepository.findEntityLinksBySourceId(sourceEntityId, workspaceId))

@@ -550,29 +550,32 @@ class EntityTypeRelationshipService(
     // ------ System Definitions ------
 
     /**
-     * Creates a CONNECTED_ENTITIES fallback definition for an entity type.
-     * Used at publish time to ensure every entity type has a system-managed connection definition.
+     * Creates a SYSTEM_CONNECTION definition for an entity type — the default
+     * system-managed link used for picker-style ad-hoc connections that have
+     * no domain-specific relationship definition.
+     *
+     * Used at publish time to ensure every entity type has a system connection definition.
      */
     @Transactional
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
-    fun createFallbackDefinition(workspaceId: UUID, entityTypeId: UUID): RelationshipDefinitionEntity {
+    fun createSystemConnectionDefinition(workspaceId: UUID, entityTypeId: UUID): RelationshipDefinitionEntity {
         val userId = authTokenService.getUserId()
-        return createSystemDefinitionInternal(workspaceId, entityTypeId, SystemRelationshipType.CONNECTED_ENTITIES, userId)
+        return createSystemDefinitionInternal(workspaceId, entityTypeId, SystemRelationshipType.SYSTEM_CONNECTION, userId)
     }
 
     /**
-     * Internal variant of [createFallbackDefinition] without @PreAuthorize.
+     * Internal variant of [createSystemConnectionDefinition] without @PreAuthorize.
      *
      * Used by [riven.core.service.catalog.TemplateInstallationService] during onboarding
      * when the JWT does not yet contain the new workspace's role authorities.
      */
     @Transactional
-    internal fun createFallbackDefinitionInternal(
+    internal fun createSystemConnectionDefinitionInternal(
         workspaceId: UUID,
         entityTypeId: UUID,
         userId: UUID? = null,
     ): RelationshipDefinitionEntity =
-        createSystemDefinitionInternal(workspaceId, entityTypeId, SystemRelationshipType.CONNECTED_ENTITIES, userId)
+        createSystemDefinitionInternal(workspaceId, entityTypeId, SystemRelationshipType.SYSTEM_CONNECTION, userId)
 
     /**
      * Returns the existing system relationship definition for `(sourceEntityTypeId, systemType)`,
@@ -647,7 +650,7 @@ class EntityTypeRelationshipService(
         require(entityType.workspaceId == workspaceId) { "Entity type $sourceEntityTypeId not found in workspace $workspaceId" }
 
         val name = when (systemType) {
-            SystemRelationshipType.CONNECTED_ENTITIES -> "Connected Entities"
+            SystemRelationshipType.SYSTEM_CONNECTION -> "Connected Entities"
             SystemRelationshipType.ATTACHMENT -> "Attachments"
             SystemRelationshipType.MENTION -> "Mentions"
             SystemRelationshipType.DEFINES -> "Defines"
@@ -686,20 +689,20 @@ class EntityTypeRelationshipService(
     }
 
     /**
-     * Returns the existing fallback definition or creates one if absent.
+     * Returns the existing system connection definition for an entity type or creates one if absent.
      * Handles concurrent creation via unique constraint by catching DataIntegrityViolationException
      * and retrying with a read.
      */
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
-    fun getOrCreateFallbackDefinition(workspaceId: UUID, entityTypeId: UUID): RelationshipDefinitionEntity =
-        getOrCreateSystemDefinition(workspaceId, entityTypeId, SystemRelationshipType.CONNECTED_ENTITIES)
+    fun getOrCreateSystemConnectionDefinition(workspaceId: UUID, entityTypeId: UUID): RelationshipDefinitionEntity =
+        getOrCreateSystemDefinition(workspaceId, entityTypeId, SystemRelationshipType.SYSTEM_CONNECTION)
 
     /**
-     * Read-only lookup returning the fallback definition ID, or null if none exists.
+     * Read-only lookup returning the system connection definition ID, or null if none exists.
      */
-    fun getFallbackDefinitionId(entityTypeId: UUID): UUID? {
+    fun getSystemConnectionDefinitionId(entityTypeId: UUID): UUID? {
         return definitionRepository.findBySourceEntityTypeIdAndSystemType(
-            entityTypeId, SystemRelationshipType.CONNECTED_ENTITIES,
+            entityTypeId, SystemRelationshipType.SYSTEM_CONNECTION,
         ).map { it.id }.orElse(null)
     }
 }

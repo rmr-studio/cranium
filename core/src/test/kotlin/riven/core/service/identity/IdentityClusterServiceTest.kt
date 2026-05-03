@@ -449,7 +449,7 @@ class IdentityClusterServiceTest : BaseServiceTest() {
             sourceEntityId = UUID.randomUUID(),
             targetEntityId = UUID.randomUUID(),
             definitionId = UUID.randomUUID(),
-            definitionName = "CONNECTED_ENTITIES",
+            definitionName = "SYSTEM_CONNECTION",
             semanticContext = null,
             linkSource = riven.core.enums.integration.SourceType.IDENTITY_MATCH,
             createdAt = ZonedDateTime.now(),

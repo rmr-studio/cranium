@@ -6,6 +6,7 @@ import riven.core.entity.entity.EntityTypeEntity
 import riven.core.enums.entity.SystemRelationshipType
 import riven.core.enums.integration.SourceType
 import riven.core.enums.knowledge.KnowledgeEntityTypeKey
+import riven.core.repository.entity.EntityRelationshipRepository
 import riven.core.repository.entity.EntityRepository
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.service.entity.EntityIngestionService
@@ -28,10 +29,11 @@ class NoteEntityIngestionService(
     entityIngestionService: EntityIngestionService,
     entityTypeRepository: EntityTypeRepository,
     entityRepository: EntityRepository,
+    entityRelationshipRepository: EntityRelationshipRepository,
     entityTypeRelationshipService: EntityTypeRelationshipService,
     logger: KLogger,
 ) : AbstractKnowledgeEntityIngestionService<NoteEntityIngestionService.NoteIngestionInput>(
-    entityIngestionService, entityTypeRepository, entityRepository, entityTypeRelationshipService, logger,
+    entityIngestionService, entityTypeRepository, entityRepository, entityRelationshipRepository, entityTypeRelationshipService, logger,
 ) {
 
     override val entityTypeKey: String = KnowledgeEntityTypeKey.NOTE.key

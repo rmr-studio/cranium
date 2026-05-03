@@ -89,7 +89,19 @@ class NoteEntityProjector(
         } else all
 
         val (cursorCreatedAt, cursorId) = CursorPagination.decodeCursor(cursor)
+        // Sort deterministically by (createdAt DESC, id DESC) before applying the cursor
+        // predicate and `.take(limit)`. The repository query orders by createdAt DESC only,
+        // so notes that share a millisecond would otherwise come back in undefined order and
+        // cursor pagination could duplicate or skip rows. The id tiebreaker matches the
+        // (createdAt, id) keyset emitted by the cursor encoder.
         val paged = filtered
+            .sortedWith(
+                compareByDescending<EntityEntity> {
+                    requireNotNull(it.createdAt) { "createdAt must not be null for cursor sort" }
+                }.thenByDescending {
+                    requireNotNull(it.id) { "id must not be null for cursor sort" }
+                }
+            )
             .filter { entity ->
                 val createdAt = entity.createdAt ?: return@filter false
                 val id = entity.id ?: return@filter false

@@ -149,6 +149,25 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
     )
 
     /**
+     * Find all relationships for a source entity scoped to a specific definition + target kind.
+     * Used by knowledge ingestion to enumerate existing parent-scoped rows so orphan
+     * `targetParentId` owners (parents removed from the input) can be reconciled away.
+     */
+    @Query(
+        """
+        SELECT r FROM EntityRelationshipEntity r
+        WHERE r.sourceId = :sourceId
+          AND r.definitionId = :definitionId
+          AND r.targetKind = :targetKind
+        """,
+    )
+    fun findAllBySourceIdAndDefinitionIdAndTargetKind(
+        sourceId: UUID,
+        definitionId: UUID,
+        targetKind: riven.core.enums.entity.RelationshipTargetKind,
+    ): List<EntityRelationshipEntity>
+
+    /**
      * Find all relationships for a target entity with a specific definition ID (inverse lookup).
      */
     @Query("""

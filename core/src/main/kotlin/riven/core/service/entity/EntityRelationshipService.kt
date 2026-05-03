@@ -142,6 +142,14 @@ class EntityRelationshipService(
         targetKind: RelationshipTargetKind = RelationshipTargetKind.ENTITY,
         targetParentId: UUID? = null,
     ) {
+        // Defense-in-depth: assert the source entity belongs to the supplied workspace before any
+        // read or delete. Without this, a system-bus caller passing a foreign sourceId could sweep
+        // that workspace's relationship rows.
+        val source = ServiceUtil.findOrThrow { entityRepository.findById(sourceId) }
+        require(source.workspaceId == workspaceId) {
+            "Source entity $sourceId not found in workspace $workspaceId"
+        }
+
         val parentRequired = targetKind == RelationshipTargetKind.ATTRIBUTE ||
             targetKind == RelationshipTargetKind.RELATIONSHIP
         if (parentRequired) {
@@ -200,10 +208,18 @@ class EntityRelationshipService(
      */
     @Transactional
     fun clearAllOfKindForDefinition(
+        workspaceId: UUID,
         sourceId: UUID,
         definitionId: UUID,
         targetKind: RelationshipTargetKind,
     ) {
+        // Defense-in-depth: assert workspace ownership before sweeping rows. Mirrors the guard on
+        // replaceForDefinitionInternal so the system-bus surface keeps tenancy invariants explicit.
+        val source = ServiceUtil.findOrThrow { entityRepository.findById(sourceId) }
+        require(source.workspaceId == workspaceId) {
+            "Source entity $sourceId not found in workspace $workspaceId"
+        }
+
         entityRelationshipRepository.deleteAllBySourceIdAndDefinitionIdAndTargetKind(
             sourceId, definitionId, targetKind,
         )

@@ -78,7 +78,6 @@ class NoteBackfillActivitiesImpl(
                     MigrationOutcome.MIGRATED -> migrated++
                     MigrationOutcome.SKIPPED -> skipped++
                 }
-                heartbeatSafe(noteId)
             } catch (e: DataIntegrityViolationException) {
                 if (isUniqueViolation(e)) {
                     logger.warn { "Note $noteId already migrated — skipping" }
@@ -90,6 +89,11 @@ class NoteBackfillActivitiesImpl(
             } catch (e: Exception) {
                 logger.error(e) { "Failed to migrate note $noteId" }
                 failed++
+            } finally {
+                // Heartbeat on every iteration regardless of success/skip/fail. Otherwise an
+                // exception-heavy batch never heartbeats and the activity exceeds Temporal's
+                // heartbeat timeout long before the batch finishes.
+                heartbeatSafe(noteId)
             }
         }
 

@@ -86,7 +86,7 @@ interface EntityRepository : JpaRepository<EntityEntity, UUID> {
         SELECT e FROM EntityEntity e
         WHERE e.workspaceId = :workspaceId
           AND e.typeKey = :typeKey
-        ORDER BY e.createdAt DESC
+        ORDER BY e.createdAt DESC, e.id DESC
     """)
     fun findByWorkspaceIdAndTypeKey(workspaceId: UUID, typeKey: String): List<EntityEntity>
 

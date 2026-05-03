@@ -2,6 +2,7 @@ package riven.core.service.knowledge
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
+import riven.core.entity.entity.EntityEntity
 import riven.core.entity.entity.EntityTypeEntity
 import riven.core.enums.entity.RelationshipTargetKind
 import riven.core.enums.entity.SystemRelationshipType
@@ -10,6 +11,7 @@ import riven.core.enums.knowledge.DefinitionCategory
 import riven.core.enums.knowledge.DefinitionSource
 import riven.core.enums.knowledge.KnowledgeEntityTypeKey
 import riven.core.models.knowledge.AttributeRef
+import riven.core.repository.entity.EntityRelationshipRepository
 import riven.core.repository.entity.EntityRepository
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.service.entity.EntityIngestionService
@@ -29,10 +31,11 @@ class GlossaryEntityIngestionService(
     entityIngestionService: EntityIngestionService,
     entityTypeRepository: EntityTypeRepository,
     entityRepository: EntityRepository,
+    entityRelationshipRepository: EntityRelationshipRepository,
     entityTypeRelationshipService: EntityTypeRelationshipService,
     logger: KLogger,
 ) : AbstractKnowledgeEntityIngestionService<GlossaryEntityIngestionService.GlossaryIngestionInput>(
-    entityIngestionService, entityTypeRepository, entityRepository, entityTypeRelationshipService, logger,
+    entityIngestionService, entityTypeRepository, entityRepository, entityRelationshipRepository, entityTypeRelationshipService, logger,
 ) {
 
     override val entityTypeKey: String = KnowledgeEntityTypeKey.GLOSSARY.key
@@ -114,4 +117,43 @@ class GlossaryEntityIngestionService(
         } else {
             emptySet()
         }
+
+    /**
+     * When the input's `attributeRefs` retains a non-empty subset of previously known owner
+     * entity-types, [relationshipBatches] only emits batches for the surviving owners — so any
+     * stale ATTRIBUTE rows under a removed owner remain. Walk existing DEFINES-ATTRIBUTE rows
+     * for the saved entity, diff their `targetParentId` set against the input's owner set, and
+     * emit a clear-batch (`targetIds = emptySet()` + the orphan owner as `targetParentId`) for
+     * each owner the input no longer covers. [replaceForDefinitionInternal] sweeps each batch's
+     * existing rows under that parent.
+     */
+    override fun cleanupOrphanedParentBatches(
+        saved: EntityEntity,
+        input: GlossaryIngestionInput,
+    ): List<KnowledgeRelationshipBatch> {
+        if (input.attributeRefs.isEmpty()) return emptyList()
+
+        val savedId = requireNotNull(saved.id) { "saved entity id" }
+        val typeId = saved.typeId
+        val def = entityTypeRelationshipService.getOrCreateSystemDefinition(
+            input.workspaceId, typeId, SystemRelationshipType.DEFINES,
+        )
+        val definitionId = requireNotNull(def.id) { "DEFINES system definition id" }
+
+        val existingOwners = entityRelationshipRepository
+            .findAllBySourceIdAndDefinitionIdAndTargetKind(savedId, definitionId, RelationshipTargetKind.ATTRIBUTE)
+            .mapNotNull { it.targetParentId }
+            .toSet()
+        val inputOwners = input.attributeRefs.map { it.ownerEntityTypeId }.toSet()
+        val orphans = existingOwners - inputOwners
+
+        return orphans.map { ownerId ->
+            KnowledgeRelationshipBatch(
+                systemType = SystemRelationshipType.DEFINES,
+                targetIds = emptySet(),
+                targetKind = RelationshipTargetKind.ATTRIBUTE,
+                targetParentId = ownerId,
+            )
+        }
+    }
 }

@@ -3,6 +3,7 @@ package riven.core.service.entity.type
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import riven.core.entity.entity.RelationshipDefinitionEntity
 import riven.core.entity.entity.RelationshipTargetRuleEntity
@@ -552,6 +553,7 @@ class EntityTypeRelationshipService(
      * Creates a CONNECTED_ENTITIES fallback definition for an entity type.
      * Used at publish time to ensure every entity type has a system-managed connection definition.
      */
+    @Transactional
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
     fun createFallbackDefinition(workspaceId: UUID, entityTypeId: UUID): RelationshipDefinitionEntity {
         val userId = authTokenService.getUserId()
@@ -564,6 +566,7 @@ class EntityTypeRelationshipService(
      * Used by [riven.core.service.catalog.TemplateInstallationService] during onboarding
      * when the JWT does not yet contain the new workspace's role authorities.
      */
+    @Transactional
     internal fun createFallbackDefinitionInternal(
         workspaceId: UUID,
         entityTypeId: UUID,
@@ -579,6 +582,7 @@ class EntityTypeRelationshipService(
      * The same enum kind (e.g. ATTACHMENT, MENTION, DEFINES) is reused across knowledge
      * entity types — concrete semantics live in the (sourceEntityType, systemType) pair.
      */
+    @Transactional
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
     fun getOrCreateSystemDefinition(
         workspaceId: UUID,
@@ -596,6 +600,7 @@ class EntityTypeRelationshipService(
      * promotion path where the seeding must be idempotent. Activity logging is skipped when
      * [userId] is null (background / pre-auth contexts).
      */
+    @Transactional
     internal fun getOrCreateSystemDefinitionInternal(
         workspaceId: UUID,
         sourceEntityTypeId: UUID,
@@ -625,6 +630,13 @@ class EntityTypeRelationshipService(
      * Generic system relationship definition factory. Default values per system type
      * are documented inline; all use MANY_TO_MANY cardinality and are protected.
      */
+    /**
+     * REQUIRES_NEW so a concurrent unique-constraint collision rolls back ONLY this inner
+     * transaction — leaving the calling [getOrCreateSystemDefinitionInternal] free to retry
+     * the read in its own transaction. Without this, a parent transaction marked
+     * rollback-only by the inner save() failure would block the catch-and-retry path.
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     internal fun createSystemDefinitionInternal(
         workspaceId: UUID,
         sourceEntityTypeId: UUID,

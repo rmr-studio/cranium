@@ -17,6 +17,7 @@ import riven.core.enums.entity.EntityRelationshipCardinality
 import riven.core.enums.entity.RelationshipTargetKind
 import riven.core.enums.entity.SystemRelationshipType
 import riven.core.enums.integration.SourceType
+import riven.core.repository.entity.EntityRelationshipRepository
 import riven.core.repository.entity.EntityRepository
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.service.entity.EntityIngestionService
@@ -40,11 +41,12 @@ class AbstractKnowledgeEntityIngestionServiceTest {
     private val entityIngestionService: EntityIngestionService = mock()
     private val entityTypeRepository: EntityTypeRepository = mock()
     private val entityRepository: EntityRepository = mock()
+    private val entityRelationshipRepository: EntityRelationshipRepository = mock()
     private val entityTypeRelationshipService: EntityTypeRelationshipService = mock()
     private val logger: KLogger = mock()
 
     private val service = FakeKnowledgeService(
-        entityIngestionService, entityTypeRepository, entityRepository, entityTypeRelationshipService, logger,
+        entityIngestionService, entityTypeRepository, entityRepository, entityRelationshipRepository, entityTypeRelationshipService, logger,
     )
 
     private fun stubEntityType(): EntityTypeEntity {
@@ -189,10 +191,11 @@ class AbstractKnowledgeEntityIngestionServiceTest {
         entityIngestionService: EntityIngestionService,
         entityTypeRepository: EntityTypeRepository,
         entityRepository: EntityRepository,
+        entityRelationshipRepository: EntityRelationshipRepository,
         entityTypeRelationshipService: EntityTypeRelationshipService,
         logger: KLogger,
     ) : AbstractKnowledgeEntityIngestionService<FakeInput>(
-        entityIngestionService, entityTypeRepository, entityRepository, entityTypeRelationshipService, logger,
+        entityIngestionService, entityTypeRepository, entityRepository, entityRelationshipRepository, entityTypeRelationshipService, logger,
     ) {
         override val entityTypeKey: String = "fake"
         override fun buildAttributePayload(entityType: EntityTypeEntity, input: FakeInput): Map<UUID, Any?> =

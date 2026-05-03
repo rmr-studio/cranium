@@ -104,6 +104,27 @@ class NoteBackfillActivitiesImplTest {
         assertThat(result.failed).isEqualTo(0)
     }
 
+    /**
+     * Regression for r3176253163: pairs with the 23505-skipped test above to lock down the
+     * `isUniqueViolation` branching. A non-unique DataIntegrityViolationException (e.g. FK
+     * violation 23503) must be classified as `failed`, not silently skipped.
+     */
+    @Test
+    fun `migrateBatch — non-unique DataIntegrityViolation (FK 23503) reports failed, not skipped`() {
+        val noteId = UUID.randomUUID()
+        val legacy = NoteFactory.createEntity(id = noteId, workspaceId = workspaceId)
+        whenever(noteRepository.findById(noteId)).thenReturn(Optional.of(legacy))
+        whenever(noteAttachmentRepository.findEntityIdsByNoteId(noteId)).thenReturn(emptyList())
+        whenever(noteEntityIngestionService.upsert(any()))
+            .thenThrow(DataIntegrityViolationException("fk violation", java.sql.SQLException("fk", "23503")))
+
+        val result = activities.migrateBatch(workspaceId, listOf(noteId))
+
+        assertThat(result.failed).isEqualTo(1)
+        assertThat(result.skipped).isEqualTo(0)
+        assertThat(result.migrated).isEqualTo(0)
+    }
+
     @Test
     fun `migrateBatch — second call over already-migrated ids reports skipped count matching input`() {
         val noteIds = (1..3).map { UUID.randomUUID() }

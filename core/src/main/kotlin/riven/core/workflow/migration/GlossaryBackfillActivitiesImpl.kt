@@ -79,7 +79,6 @@ class GlossaryBackfillActivitiesImpl(
                     MigrationOutcome.MIGRATED -> migrated++
                     MigrationOutcome.SKIPPED -> skipped++
                 }
-                heartbeatSafe(definitionId)
             } catch (e: DataIntegrityViolationException) {
                 if (isUniqueViolation(e)) {
                     logger.warn { "Glossary definition $definitionId already migrated — skipping" }
@@ -91,6 +90,11 @@ class GlossaryBackfillActivitiesImpl(
             } catch (e: Exception) {
                 logger.error(e) { "Failed to migrate glossary definition $definitionId" }
                 failed++
+            } finally {
+                // Heartbeat on every iteration regardless of success/skip/fail. Otherwise an
+                // exception-heavy batch never heartbeats and the activity exceeds Temporal's
+                // heartbeat timeout long before the batch finishes.
+                heartbeatSafe(definitionId)
             }
         }
 

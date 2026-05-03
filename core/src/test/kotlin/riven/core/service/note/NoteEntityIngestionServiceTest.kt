@@ -14,6 +14,7 @@ import riven.core.enums.entity.EntityRelationshipCardinality
 import riven.core.enums.entity.RelationshipTargetKind
 import riven.core.enums.entity.SystemRelationshipType
 import riven.core.enums.integration.SourceType
+import riven.core.repository.entity.EntityRelationshipRepository
 import riven.core.repository.entity.EntityRepository
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.service.entity.EntityIngestionService
@@ -39,11 +40,12 @@ class NoteEntityIngestionServiceTest {
     private val entityIngestionService: EntityIngestionService = mock()
     private val entityTypeRepository: EntityTypeRepository = mock()
     private val entityRepository: EntityRepository = mock()
+    private val entityRelationshipRepository: EntityRelationshipRepository = mock()
     private val entityTypeRelationshipService: EntityTypeRelationshipService = mock()
     private val logger: KLogger = mock()
 
     private val service = NoteEntityIngestionService(
-        entityIngestionService, entityTypeRepository, entityRepository, entityTypeRelationshipService, logger,
+        entityIngestionService, entityTypeRepository, entityRepository, entityRelationshipRepository, entityTypeRelationshipService, logger,
     )
 
     @Test

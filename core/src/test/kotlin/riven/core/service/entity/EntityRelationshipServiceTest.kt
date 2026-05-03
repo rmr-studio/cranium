@@ -994,5 +994,61 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
         assertEquals(2, result[defId]!!.size)
     }
 
+    // ------ System-bus workspace guard (regression for r3176253151) ------
+
+    /**
+     * Regression: replaceForDefinitionInternal must reject a sourceId whose owning workspace
+     * does not match the supplied workspaceId. Without this guard, a system-bus caller passing
+     * a foreign sourceId could sweep that workspace's relationship rows.
+     */
+    @Test
+    fun `replaceForDefinitionInternal - foreign-workspace source - rejects and skips writes`() {
+        val foreignWorkspaceId = UUID.randomUUID()
+        val sourceId = UUID.randomUUID()
+        val source = EntityFactory.createEntityEntity(id = sourceId, workspaceId = foreignWorkspaceId)
+        whenever(entityRepository.findById(sourceId)).thenReturn(java.util.Optional.of(source))
+
+        val ex = assertThrows(IllegalArgumentException::class.java) {
+            service.replaceForDefinitionInternal(
+                workspaceId = workspaceId,
+                sourceId = sourceId,
+                definitionId = UUID.randomUUID(),
+                targetIds = setOf(UUID.randomUUID()),
+                linkSource = riven.core.enums.integration.SourceType.USER_CREATED,
+            )
+        }
+        assertTrue(ex.message!!.contains("not found in workspace"))
+
+        verify(entityRelationshipRepository, never()).findAllBySourceIdAndDefinitionIdForUpdate(any(), any())
+        verify(entityRelationshipRepository, never()).saveAll<EntityRelationshipEntity>(any())
+        verify(entityRelationshipRepository, never())
+            .deleteAllBySourceIdAndDefinitionIdAndTargetKindAndTargetIdIn(any(), any(), any(), any())
+    }
+
+    /**
+     * Regression: clearAllOfKindForDefinition must reject a sourceId whose owning workspace
+     * does not match the supplied workspaceId. Mirrors the replaceForDefinitionInternal guard.
+     */
+    @Test
+    fun `clearAllOfKindForDefinition - foreign-workspace source - rejects and skips delete`() {
+        val foreignWorkspaceId = UUID.randomUUID()
+        val sourceId = UUID.randomUUID()
+        val source = EntityFactory.createEntityEntity(id = sourceId, workspaceId = foreignWorkspaceId)
+        whenever(entityRepository.findById(sourceId)).thenReturn(java.util.Optional.of(source))
+
+        val ex = assertThrows(IllegalArgumentException::class.java) {
+            service.clearAllOfKindForDefinition(
+                workspaceId = workspaceId,
+                sourceId = sourceId,
+                definitionId = UUID.randomUUID(),
+                targetKind = riven.core.enums.entity.RelationshipTargetKind.ATTRIBUTE,
+            )
+        }
+        assertTrue(ex.message!!.contains("not found in workspace"))
+
+        verify(entityRelationshipRepository, never())
+            .deleteAllBySourceIdAndDefinitionIdAndTargetKind(any(), any(), any())
+    }
+
 }
 

@@ -182,11 +182,13 @@ class EntityIngestionService(
      */
     @Transactional
     fun clearRelationshipsByKindInternal(
+        workspaceId: UUID,
         sourceEntityId: UUID,
         relationshipDefinitionId: UUID,
         targetKind: RelationshipTargetKind,
     ) {
         entityRelationshipService.clearAllOfKindForDefinition(
+            workspaceId = workspaceId,
             sourceId = sourceEntityId,
             definitionId = relationshipDefinitionId,
             targetKind = targetKind,
@@ -243,7 +245,9 @@ class EntityIngestionService(
         .mapNotNull { (attrId, raw) ->
             if (raw == null) return@mapNotNull null
             val schemaKey = type.schema.properties?.get(attrId)?.key
-                ?: error("Attribute $attrId not found in schema for entity type ${type.key}")
+                ?: throw SchemaValidationException(
+                    listOf("Attribute $attrId not found in schema for entity type ${type.key}")
+                )
             attrId to EntityAttributePrimitivePayload(value = raw, schemaType = schemaKey)
         }
         .toMap()

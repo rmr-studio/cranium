@@ -230,6 +230,37 @@ class WorkspaceBusinessDefinitionServiceTest : BaseServiceTest() {
         assertThat(input.category).isEqualTo(DefinitionCategory.METRIC)
     }
 
+    /**
+     * Regression for r3176253156: the sourceExternalId minted at create time must NOT embed
+     * the normalized term, since renaming a term would leave behind a stale `user:<oldterm>`
+     * key. Recreating the original term then collides on the entity-layer idempotent lookup
+     * and mutates the renamed row instead of inserting a new one. We mint a UUID-based
+     * external id so it stays immutable across the entity's lifetime.
+     */
+    @Test
+    fun `createDefinition mints UUID-based sourceExternalId not term-derived`() {
+        val request = CreateBusinessDefinitionRequest(
+            term = "Retention Rate",
+            definition = "definition body",
+            category = DefinitionCategory.METRIC,
+        )
+        val savedId = UUID.randomUUID()
+        val savedEntity = EntityFactory.createEntityEntity(id = savedId, workspaceId = workspaceId, typeKey = "glossary")
+        whenever(glossaryEntityProjector.findByNormalizedTerm(workspaceId, "retention rate")).thenReturn(null)
+        whenever(glossaryEntityIngestionService.upsert(any())).thenReturn(savedEntity)
+        stubProjectionFor(savedId)
+
+        service.createDefinition(workspaceId, request)
+
+        val captor = argumentCaptor<GlossaryEntityIngestionService.GlossaryIngestionInput>()
+        verify(glossaryEntityIngestionService).upsert(captor.capture())
+        val externalId = captor.firstValue.sourceExternalId
+        assertThat(externalId).startsWith("user:")
+        assertThat(externalId).doesNotContain("retention rate")
+        // Suffix must parse as a UUID — proves it is not term-derived.
+        UUID.fromString(externalId.removePrefix("user:"))
+    }
+
     @Test
     fun `createDefinition throws ConflictException on duplicate normalized term`() {
         val request = CreateBusinessDefinitionRequest(

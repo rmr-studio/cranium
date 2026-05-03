@@ -17,6 +17,7 @@ import riven.core.enums.integration.SourceType
 import riven.core.enums.knowledge.DefinitionCategory
 import riven.core.enums.knowledge.DefinitionSource
 import riven.core.models.knowledge.AttributeRef
+import riven.core.repository.entity.EntityRelationshipRepository
 import riven.core.repository.entity.EntityRepository
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.service.entity.EntityIngestionService
@@ -51,11 +52,12 @@ class GlossaryEntityIngestionServiceTest {
     private val entityIngestionService: EntityIngestionService = mock()
     private val entityTypeRepository: EntityTypeRepository = mock()
     private val entityRepository: EntityRepository = mock()
+    private val entityRelationshipRepository: EntityRelationshipRepository = mock()
     private val entityTypeRelationshipService: EntityTypeRelationshipService = mock()
     private val logger: KLogger = mock()
 
     private val service = GlossaryEntityIngestionService(
-        entityIngestionService, entityTypeRepository, entityRepository, entityTypeRelationshipService, logger,
+        entityIngestionService, entityTypeRepository, entityRepository, entityRelationshipRepository, entityTypeRelationshipService, logger,
     )
 
     private fun glossaryType() = EntityFactory.createEntityType(
@@ -250,6 +252,7 @@ class GlossaryEntityIngestionServiceTest {
             targetParentId = eq(null),
         )
         verify(entityIngestionService).clearRelationshipsByKindInternal(
+            workspaceId = eq(workspaceId),
             sourceEntityId = any(),
             relationshipDefinitionId = eq(definesDefinitionId),
             targetKind = eq(RelationshipTargetKind.ATTRIBUTE),
@@ -261,6 +264,101 @@ class GlossaryEntityIngestionServiceTest {
             linkSource = eq(SourceType.USER_CREATED),
             targetKind = eq(RelationshipTargetKind.ENTITY),
             targetParentId = eq(null),
+        )
+    }
+
+    /**
+     * Regression for r3176253155: when an existing glossary entity has ATTRIBUTE rows under
+     * two owner entity-types (X, Y) and the input shrinks to refs only under owner X,
+     * cleanupOrphanedParentBatches must emit a clear-batch for owner Y so its stale rows are
+     * swept. Without this the partial-removal case leaks rows under removed owners.
+     */
+    @Test
+    fun `upsert with shrunk attribute owners - clear-batch emitted for orphan owner`() {
+        whenever(entityTypeRepository.findByworkspaceIdAndKey(workspaceId, "glossary"))
+            .thenReturn(Optional.of(glossaryType()))
+
+        val definesDef = EntityFactory.createRelationshipDefinitionEntity(
+            id = definesDefinitionId, workspaceId = workspaceId, sourceEntityTypeId = entityTypeId,
+            name = "Defines", cardinalityDefault = EntityRelationshipCardinality.MANY_TO_MANY,
+            protected = true, systemType = SystemRelationshipType.DEFINES,
+        )
+        val mentionDef = EntityFactory.createRelationshipDefinitionEntity(
+            id = mentionDefinitionId, workspaceId = workspaceId, sourceEntityTypeId = entityTypeId,
+            name = "Mentions", cardinalityDefault = EntityRelationshipCardinality.MANY_TO_MANY,
+            protected = true, systemType = SystemRelationshipType.MENTION,
+        )
+        whenever(
+            entityTypeRelationshipService.getOrCreateSystemDefinition(workspaceId, entityTypeId, SystemRelationshipType.DEFINES)
+        ).thenReturn(definesDef)
+        whenever(
+            entityTypeRelationshipService.getOrCreateSystemDefinition(workspaceId, entityTypeId, SystemRelationshipType.MENTION)
+        ).thenReturn(mentionDef)
+
+        val savedEntity = EntityFactory.createEntityEntity(
+            id = UUID.randomUUID(), workspaceId = workspaceId, typeId = entityTypeId, typeKey = "glossary",
+        )
+        whenever(
+            entityIngestionService.saveEntityInternal(
+                workspaceId = any(), entityTypeId = any(), existingId = anyOrNull(),
+                attributePayload = any(), sourceType = any(), sourceIntegrationId = anyOrNull(),
+                sourceExternalId = anyOrNull(),
+            )
+        ).thenReturn(savedEntity)
+
+        val ownerX = UUID.randomUUID()
+        val ownerY = UUID.randomUUID()
+        val attrUnderX = UUID.randomUUID()
+        val savedId = requireNotNull(savedEntity.id)
+        // Existing rows: one under owner X (still-covered), one under owner Y (orphaned by shrunk input).
+        whenever(
+            entityRelationshipRepository.findAllBySourceIdAndDefinitionIdAndTargetKind(
+                savedId, definesDefinitionId, RelationshipTargetKind.ATTRIBUTE,
+            )
+        ).thenReturn(
+            listOf(
+                EntityFactory.createRelationshipEntity(
+                    workspaceId = workspaceId, sourceId = savedId, targetId = attrUnderX,
+                    definitionId = definesDefinitionId,
+                    targetKind = RelationshipTargetKind.ATTRIBUTE, targetParentId = ownerX,
+                ),
+                EntityFactory.createRelationshipEntity(
+                    workspaceId = workspaceId, sourceId = savedId, targetId = UUID.randomUUID(),
+                    definitionId = definesDefinitionId,
+                    targetKind = RelationshipTargetKind.ATTRIBUTE, targetParentId = ownerY,
+                ),
+            )
+        )
+
+        val input = GlossaryEntityIngestionService.GlossaryIngestionInput(
+            workspaceId = workspaceId,
+            term = "MQL", normalizedTerm = "mql", definition = "def",
+            category = DefinitionCategory.CUSTOM, source = DefinitionSource.MANUAL, isCustomised = false,
+            sourceExternalId = "legacy:abc",
+            attributeRefs = listOf(AttributeRef(attributeId = attrUnderX, ownerEntityTypeId = ownerX)),
+        )
+
+        service.upsert(input)
+
+        // Owner X still covered: regular replace fires with the surviving target.
+        verify(entityIngestionService).replaceRelationshipsInternal(
+            workspaceId = eq(workspaceId),
+            sourceEntityId = eq(savedId),
+            relationshipDefinitionId = eq(definesDefinitionId),
+            targetIds = eq(setOf(attrUnderX)),
+            linkSource = eq(SourceType.USER_CREATED),
+            targetKind = eq(RelationshipTargetKind.ATTRIBUTE),
+            targetParentId = eq(ownerX),
+        )
+        // Owner Y orphaned: clear-batch fires with empty targetIds + ownerY.
+        verify(entityIngestionService).replaceRelationshipsInternal(
+            workspaceId = eq(workspaceId),
+            sourceEntityId = eq(savedId),
+            relationshipDefinitionId = eq(definesDefinitionId),
+            targetIds = eq(emptySet()),
+            linkSource = eq(SourceType.USER_CREATED),
+            targetKind = eq(RelationshipTargetKind.ATTRIBUTE),
+            targetParentId = eq(ownerY),
         )
     }
 }

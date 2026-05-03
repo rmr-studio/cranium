@@ -36,3 +36,15 @@
 - `domains/Workflows/State Management/` — May need updated dependency documentation at the subdomain level
 
 **Suggested update:** Consider whether `EntityContextService` should continue to directly access Entities domain repositories, or whether a service-level abstraction (e.g., a method on `EntityTypeRelationshipService`) would be a cleaner cross-domain boundary. The current approach works but creates tight coupling to the Entities domain's internal storage model.
+
+## 2026-05-01 — Entity domain split: JWT path vs system bus
+
+**Trigger:** Extracted `EntityIngestionService` from `EntityService` to separate JWT-fronted CRUD (still on `EntityService`, `@PreAuthorize`-guarded) from system-driven persistence (`EntityIngestionService`, no JWT). Background callers (knowledge ingestion services, Temporal backfill activities, projectors) now inject `EntityIngestionService`.
+
+**Affected vault notes:**
+
+- `domains/Entity/Services/` — should reflect the two-bean split. Document which controllers are allowed to call which service.
+- `domains/Entity/Architecture/` (or equivalent) — the system-bus boundary is now an explicit architectural construct worth naming.
+- `System Patterns/` — if there is a "service splitting" or "auth boundary" pattern note, this is a representative example to reference.
+
+**Suggested update:** Add a short note describing the split and its rationale (controllers must not bypass `@PreAuthorize` by reaching for an `*Internal` method; the boundary makes that misuse harder by removing the methods from the JWT-path bean entirely). Cross-reference the catalog `TemplateInstallationService` which now uses the new internal `getOrCreateSystemDefinitionInternal` for idempotent reused-type seeding.

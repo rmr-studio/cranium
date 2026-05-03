@@ -219,12 +219,14 @@ class WorkspaceBusinessDefinitionService(
                 category = request.category,
                 source = request.source,
                 isCustomised = request.isCustomized,
-                // For freshly-created definitions the entity id is generated inside the
-                // ingestion call; downstream identity is via (workspaceId, normalizedTerm)
-                // — the duplicate-check above guarantees uniqueness. We still need a stable
-                // sourceExternalId so re-creates of the same term don't collide on the
-                // entity-layer idempotent lookup.
-                sourceExternalId = "user:$normalizedTerm",
+                // Mint a UUID-based external id at create time so the value is immutable across
+                // the entity's lifetime. Keying off `normalizedTerm` would corrupt rename-then-
+                // recreate flows: renaming term A→B leaves the row with sourceExternalId=user:a;
+                // creating a fresh "A" would then collide with the renamed row's external id and
+                // mutate it instead of inserting a new entity. The duplicate-check above already
+                // guarantees user-facing uniqueness, so the external id only needs to remain
+                // unique enough to keep idempotent lookups stable.
+                sourceExternalId = "user:${UUID.randomUUID()}",
                 entityTypeRefs = request.entityTypeRefs.toSet(),
                 attributeRefs = request.attributeRefs,
                 linkSource = SourceType.USER_CREATED,

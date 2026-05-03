@@ -7,6 +7,7 @@ import riven.core.entity.entity.EntityTypeEntity
 import riven.core.enums.entity.RelationshipTargetKind
 import riven.core.enums.entity.SystemRelationshipType
 import riven.core.enums.integration.SourceType
+import riven.core.repository.entity.EntityRelationshipRepository
 import riven.core.repository.entity.EntityRepository
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.service.entity.EntityIngestionService
@@ -32,6 +33,7 @@ abstract class AbstractKnowledgeEntityIngestionService<TInput : KnowledgeIngesti
     protected val entityIngestionService: EntityIngestionService,
     protected val entityTypeRepository: EntityTypeRepository,
     protected val entityRepository: EntityRepository,
+    protected val entityRelationshipRepository: EntityRelationshipRepository,
     protected val entityTypeRelationshipService: EntityTypeRelationshipService,
     protected val logger: KLogger,
 ) {
@@ -52,6 +54,21 @@ abstract class AbstractKnowledgeEntityIngestionService<TInput : KnowledgeIngesti
      * `targetParentId` for parent-scoped kinds. Default: empty.
      */
     protected open fun clearParentScopedKinds(input: TInput): Set<Pair<SystemRelationshipType, RelationshipTargetKind>> = emptySet()
+
+    /**
+     * Garbage-collection hook for parent-scoped relationship kinds (ATTRIBUTE / RELATIONSHIP)
+     * whose parent has been orphaned by the input — i.e. existing rows reference a
+     * `targetParentId` that the new input no longer covers. Default: empty.
+     *
+     * Subclasses should compare existing rows on the saved entity against the input's parent
+     * set and emit one batch per orphan parent with `targetIds = emptySet()` and
+     * `targetParentId = orphanParentId`. The base feeds these batches through the same
+     * [syncRelationship] path as the desired-state batches; [replaceForDefinitionInternal]
+     * sweeps each orphan parent's rows.
+     *
+     * Decoupled from [relationshipBatches] so that method stays focused on desired state.
+     */
+    protected open fun cleanupOrphanedParentBatches(saved: EntityEntity, input: TInput): List<KnowledgeRelationshipBatch> = emptyList()
 
     /** Optional hook — subclasses may persist domain-specific extras (e.g. pendingAssociations). */
     protected open fun postSave(saved: EntityEntity, input: TInput) {}
@@ -76,6 +93,10 @@ abstract class AbstractKnowledgeEntityIngestionService<TInput : KnowledgeIngesti
             syncRelationship(input.workspaceId, saved, batch, input.linkSource)
         }
 
+        cleanupOrphanedParentBatches(saved, input).forEach { batch ->
+            syncRelationship(input.workspaceId, saved, batch, input.linkSource)
+        }
+
         clearParentScopedKinds(input).forEach { (systemType, targetKind) ->
             clearKind(input.workspaceId, saved, systemType, targetKind)
         }
@@ -94,6 +115,7 @@ abstract class AbstractKnowledgeEntityIngestionService<TInput : KnowledgeIngesti
         val typeId = knowledgeEntity.typeId
         val def = entityTypeRelationshipService.getOrCreateSystemDefinition(workspaceId, typeId, systemType)
         entityIngestionService.clearRelationshipsByKindInternal(
+            workspaceId = workspaceId,
             sourceEntityId = sourceId,
             relationshipDefinitionId = requireNotNull(def.id) { "system relationship definition id must not be null" },
             targetKind = targetKind,

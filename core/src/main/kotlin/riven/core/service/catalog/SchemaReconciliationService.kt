@@ -192,7 +192,7 @@ class SchemaReconciliationService(
     /**
      * Triggers re-enrichment for every entity of [entityTypeId] in [workspaceId] after a manifest
      * schema change has been applied. The STRUCTURAL metadata snapshots in `entity_connotation`
-     * are now stale and need refreshing. Delegates to [EnrichmentService.enqueueByEntityType]
+     * are now stale and need refreshing. Delegates to [EnrichmentQueueService.enqueueByEntityType]
      * which dedupes via the partial unique index on `execution_queue`.
      *
      * @param reason Free-form descriptor logged alongside the enqueue count for traceability.

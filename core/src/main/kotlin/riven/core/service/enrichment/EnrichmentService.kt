@@ -39,26 +39,24 @@ import java.time.ZonedDateTime
 import java.util.*
 
 /**
- * Orchestration service for the entity embedding enrichment pipeline.
+ * Orchestration service for the semantic-snapshot and embedding phases of the enrichment pipeline.
  *
- * Manages the full queue lifecycle from embeddability gating through
- * semantic-snapshot assembly, Temporal dispatch, and embedding storage.
+ * Queue management (enqueueAndProcess, enqueueByEntityType, Temporal dispatch) lives in
+ * [EnrichmentQueueService]. Context assembly (loadAttributeContexts and related helpers) lives in
+ * [EnrichmentContextAssembler]. This service retains the analysis and persistence steps that Plan 03
+ * will further decompose.
  *
- * Core responsibilities:
- * - [enqueueAndProcess] — embeddability gate + queue item creation + Temporal dispatch.
- * - [enqueueByEntityType] — bulk re-enrichment for every entity of a type (manifest reconciliation hook).
- * - [analyzeSemantics] — queue item claiming + assembly of the polymorphic semantic snapshot
- *   (SENTIMENT placeholder + RELATIONAL + STRUCTURAL metadata categories) and persistence to
- *   `entity_connotation`. Returns a transient [EnrichmentContext] for downstream activities; the
- *   persisted snapshot is the source of truth for non-pipeline consumers.
+ * Core responsibilities (post Plan 01-02):
+ * - [analyzeSemantics] — queue item claiming + sentiment resolution + context assembly delegation +
+ *   connotation snapshot persistence. Returns a transient [EnrichmentContext] for downstream activities;
+ *   the persisted snapshot is the source of truth for non-pipeline consumers.
  * - [storeEmbedding] — embedding upsert + queue item completion.
  *
  * **Concurrency posture:** snapshot persistence uses an atomic
  * `INSERT ... ON CONFLICT (entity_id) DO UPDATE` keyed by `entity_id`, so concurrent writers
  * always converge to a single row and race only for last-write-wins on the payload. Each writer's
  * own view is internally consistent at fetch time; the surviving row reflects whichever transaction
- * commits last. Existing queue dedup (in [enqueueAndProcess]) makes overlap rare in practice but
- * is no longer load-bearing for correctness.
+ * commits last.
  */
 @Service
 class EnrichmentService(

@@ -111,7 +111,7 @@ class EnrichmentAnalysisService(
 
         val sentimentMetadata: SentimentMetadata = resolveSentimentMetadata(entityId, entity.workspaceId, entityType)
 
-        val context = enrichmentContextAssembler.assemble(
+        val context = enrichmentContextAssembler.assembleLegacyContext(
             entityId = entityId,
             workspaceId = entity.workspaceId,
             queueItemId = queueItemId,

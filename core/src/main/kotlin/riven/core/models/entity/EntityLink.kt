@@ -4,6 +4,7 @@ import riven.core.enums.entity.EntityTypeRole
 import riven.core.enums.entity.RelationshipDirection
 import riven.core.enums.entity.SystemRelationshipType
 import riven.core.models.common.Icon
+import java.time.ZonedDateTime
 import java.util.*
 
 /**
@@ -35,6 +36,7 @@ data class EntityLink(
     val direction: RelationshipDirection,
     val systemType: SystemRelationshipType? = null,
     val sourceSurfaceRole: EntityTypeRole = EntityTypeRole.CATALOG,
+    val createdAt: ZonedDateTime? = null,
 )
 
 /**

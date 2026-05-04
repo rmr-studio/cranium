@@ -328,7 +328,8 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
                 COALESCE(ea.value #>> '{}', e.id::text) as label,
                 'FORWARD' as direction,
                 rd.system_type as systemType,
-                src_t.surface_role as sourceSurfaceRole
+                src_t.surface_role as sourceSurfaceRole,
+                r.created_at as createdAt
             FROM entity_relationships r
             JOIN entities e ON r.target_id = e.id
             JOIN entities src_e ON r.source_entity_id = src_e.id
@@ -363,7 +364,8 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
                 COALESCE(ea.value #>> '{}', e.id::text) as label,
                 'FORWARD' as direction,
                 rd.system_type as systemType,
-                src_t.surface_role as sourceSurfaceRole
+                src_t.surface_role as sourceSurfaceRole,
+                r.created_at as createdAt
             FROM entity_relationships r
             JOIN entities e ON r.target_id = e.id
             JOIN entities src_e ON r.source_entity_id = src_e.id
@@ -417,7 +419,8 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
                 COALESCE(ea.value #>> '{}', e.id::text) as label,
                 'INVERSE' as direction,
                 rd.system_type as systemType,
-                src_t.surface_role as sourceSurfaceRole
+                src_t.surface_role as sourceSurfaceRole,
+                r.created_at as createdAt
             FROM entity_relationships r
             JOIN entities e ON r.source_entity_id = e.id
             JOIN entity_types src_t ON src_t.id = e.type_id
@@ -462,7 +465,8 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
                 COALESCE(ea.value #>> '{}', e.id::text) as label,
                 'INVERSE' as direction,
                 rd.system_type as systemType,
-                src_t.surface_role as sourceSurfaceRole
+                src_t.surface_role as sourceSurfaceRole,
+                r.created_at as createdAt
             FROM entity_relationships r
             JOIN entities e ON r.source_entity_id = e.id
             JOIN entity_types src_t ON src_t.id = e.type_id

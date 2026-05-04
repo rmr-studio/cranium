@@ -7,6 +7,8 @@ import riven.core.enums.entity.RelationshipDirection
 import riven.core.enums.entity.SystemRelationshipType
 import riven.core.models.common.Icon
 import riven.core.models.entity.EntityLink
+import java.time.Instant
+import java.time.ZoneOffset
 import java.util.*
 
 /**
@@ -37,6 +39,7 @@ interface EntityLinkProjection {
     fun getDirection(): String
     fun getSystemType(): String?
     fun getSourceSurfaceRole(): String
+    fun getCreatedAt(): Instant?
 }
 
 /**
@@ -56,4 +59,5 @@ fun EntityLinkProjection.toEntityLink(): EntityLink = EntityLink(
     direction = RelationshipDirection.valueOf(getDirection()),
     systemType = getSystemType()?.let { SystemRelationshipType.valueOf(it) },
     sourceSurfaceRole = EntityTypeRole.valueOf(getSourceSurfaceRole()),
+    createdAt = getCreatedAt()?.atOffset(ZoneOffset.UTC)?.toZonedDateTime(),
 )

@@ -1,5 +1,23 @@
 # Architecture Changelog
 
+## 2026-05-05 — Enrichment Backlink Read Path: sourceSurfaceRole + GlossaryDefinitionRow + Assembler EntityKnowledgeView (Plan 02-02)
+
+**Domains affected:** enrichment, entity
+
+**What changed:**
+
+- `EntityLink` model gains `createdAt: ZonedDateTime?` for knowledge backlink recency sorting.
+- `EntityLinkProjection` gains `getCreatedAt(): Instant?`; all 4 native entity-link queries now project `r.created_at as createdAt`. Conversion to `ZonedDateTime` happens in `toEntityLink()` via `atOffset(ZoneOffset.UTC)`.
+- `SentimentResolutionService` extracted from `EnrichmentAnalysisService` as a dedicated `@Service` (5 deps: ConnotationAnalysisService, WorkspaceRepository, ManifestCatalogService, EntityAttributeService, KLogger). Keeps `EnrichmentContextAssembler` constructor count at 12 (ENRICH-02 ceiling).
+- `EnrichmentContextAssembler.assemble(entityId, workspaceId, queueItemId): EntityKnowledgeView` — new signature. Self-loads entity + entity type; delegates sentiment to `SentimentResolutionService`; partitions backlinks by `sourceSurfaceRole` (CATALOG → catalogBacklinks, KNOWLEDGE → knowledgeBacklinks); batch-fetches source attributes for excerpt extraction; applies `knowledgeBacklinkCap` by recency.
+- `assembleLegacyContext(...)` bridge retained (returns `EnrichmentContext`) for `EnrichmentAnalysisService.analyzeSemantics` compatibility until Plan 02-03 signature cascade.
+- `EnrichmentAnalysisService.analyzeSemantics` updated to call `assembleLegacyContext` instead of the old `assemble` signature.
+
+**New cross-domain dependencies:** No new cross-domain dependencies. `SentimentResolutionService` is internal to the enrichment domain; `EntityRelationshipService.findRelatedEntities` was already used by the assembler.
+
+**New components introduced:**
+- `SentimentResolutionService` (`riven.core.service.enrichment`) — isolated sentiment resolution logic lifted from `EnrichmentAnalysisService`; owned lifecycle: workspace opt-in gate, manifest signals gate, attribute key mapping, ConnotationAnalysisService delegation.
+
 ## 2026-05-04 — Enrichment Pipeline Service Decomposition Complete (Plan 01-03)
 
 **Domains affected:** enrichment, workflow

@@ -415,7 +415,7 @@ class ConnotationPipelineIntegrationTest {
         val context = enrichmentAnalysisService.analyzeSemantics(queueItemId)
 
         // 6. Verify the in-memory context surfaces the ANALYZED sentiment.
-        assertNotNull(context.sentiment).run {
+        assertNotNull(context.sections.entityMetadata.sentiment).run {
             assertThat(this.status).isEqualTo(ConnotationStatus.ANALYZED)
             assertThat(this.sentiment).isCloseTo(1.0, within(1e-9))
             assertThat(this.sentimentLabel).isEqualTo(SentimentLabel.VERY_POSITIVE)

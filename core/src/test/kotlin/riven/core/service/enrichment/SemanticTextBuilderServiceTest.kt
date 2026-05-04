@@ -24,7 +24,14 @@ import kotlin.test.assertTrue
  * Unit tests for SemanticTextBuilderService.
  *
  * No Spring context needed — service performs pure text construction from
- * EnrichmentContext with no external dependencies beyond a logger.
+ * [riven.core.models.entity.knowledge.EntityKnowledgeView] with no external dependencies
+ * beyond a logger.
+ *
+ * Plan 02-03: All test fixtures use [EnrichmentFactory.enrichmentContext] which now returns
+ * [riven.core.models.entity.knowledge.EntityKnowledgeView] instead of the deleted EnrichmentContext.
+ * Section 6 (Relationship Definitions) is removed from Phase 2 text output; corresponding tests
+ * updated to assert the section is absent (glossary definitions are carried in the view but
+ * not yet surfaced in Phase 2 text — Phase 3 PROJ-08 handles them).
  */
 class SemanticTextBuilderServiceTest {
 
@@ -36,9 +43,13 @@ class SemanticTextBuilderServiceTest {
     @Nested
     inner class FullContext {
 
+        /**
+         * Phase 2: 5 sections are emitted by [SemanticTextBuilderService] (Section 6 removed).
+         * Sections: 1 Entity Type Context, 2 Identity, 3 Attributes, 4 Relationships, 5 Identity Cluster.
+         * Relationship Definitions are carried in the view but not yet surfaced — Phase 3 PROJ-08.
+         */
         @Test
-        fun `buildText with full context includes all 6 sections`() {
-            val refId = UUID.randomUUID()
+        fun `buildText with full context includes 5 sections in Phase 2`() {
             val context = EnrichmentFactory.enrichmentContext(
                 attributes = listOf(
                     EnrichmentFactory.enrichmentAttributeContext(semanticLabel = "Name", value = "Acme Corp"),
@@ -58,7 +69,7 @@ class SemanticTextBuilderServiceTest {
             assertContains(result.text, "## Attributes")
             assertContains(result.text, "## Relationships")
             assertContains(result.text, "## Identity Cluster")
-            assertContains(result.text, "## Relationship Definitions")
+            assertFalse(result.text.contains("## Relationship Definitions"), "Section 6 removed in Phase 2")
         }
 
         @Test
@@ -515,14 +526,18 @@ class SemanticTextBuilderServiceTest {
             assertContains(result.text, "Invoices: 12 total")
         }
 
+        /**
+         * Phase 2: topCategories are no longer present in [CatalogBacklinkSection].
+         * The section still includes latestActivityAt, and the count is emitted.
+         * Phase 1 topCategories data was empty for the canonical fixture — byte-identity preserved.
+         */
         @Test
-        fun `buildText includes top categories in relationship summary when present`() {
+        fun `buildText includes latestActivityAt in relationship summary when present`() {
             val context = EnrichmentFactory.enrichmentContext(
                 relationshipSummaries = listOf(
                     EnrichmentFactory.enrichmentRelationshipSummary(
                         relationshipName = "Deals",
                         count = 5,
-                        topCategories = listOf("Enterprise", "Mid-Market"),
                         latestActivityAt = "2024-03-15T10:00:00Z"
                     )
                 )
@@ -530,8 +545,7 @@ class SemanticTextBuilderServiceTest {
 
             val result = service.buildText(context)
 
-            assertContains(result.text, "Enterprise")
-            assertContains(result.text, "Mid-Market")
+            assertContains(result.text, "Deals: 5 total")
             assertContains(result.text, "2024-03-15T10:00:00Z")
         }
     }
@@ -628,13 +642,22 @@ class SemanticTextBuilderServiceTest {
         }
     }
 
-    // ------ Section 6: Relationship Semantic Definitions ------
+    // ------ Section 6: Relationship Semantic Definitions (Phase 2: removed from text output) ------
 
+    /**
+     * Phase 2: The Relationship Definitions section is no longer emitted by [SemanticTextBuilderService].
+     * Glossary definitions are carried in [KnowledgeSections.typeNarrative.glossaryDefinitions] for
+     * consumption by Phase 3 PROJ-08. Phase 1's `topCategories` and relationship definition text
+     * were conditionally empty for the canonical fixture — byte-identity is preserved.
+     *
+     * These tests assert that the section is ABSENT regardless of the [relationshipDefinitions]
+     * input, confirming the Phase 2 text adapter does not surface glossary content.
+     */
     @Nested
     inner class RelationshipDefinitionsSection {
 
         @Test
-        fun `buildText includes relationship definitions section when definitions present`() {
+        fun `buildText does not emit relationship definitions section in Phase 2`() {
             val context = EnrichmentFactory.enrichmentContext(
                 relationshipDefinitions = listOf(
                     EnrichmentFactory.enrichmentRelationshipDefinitionContext(
@@ -646,21 +669,23 @@ class SemanticTextBuilderServiceTest {
 
             val result = service.buildText(context)
 
-            assertContains(result.text, "## Relationship Definitions")
-            assertContains(result.text, "Support Tickets: Escalation records from the help desk system.")
+            assertFalse(
+                result.text.contains("## Relationship Definitions"),
+                "Relationship Definitions section is removed in Phase 2; glossary content surfaced in Phase 3"
+            )
         }
 
         @Test
-        fun `buildText omits relationship definitions section when list empty`() {
+        fun `buildText relationship definitions absence is stable when list empty`() {
             val context = EnrichmentFactory.enrichmentContext(relationshipDefinitions = emptyList())
 
             val result = service.buildText(context)
 
-            assertFalse(result.text.contains("## Relationship Definitions"), "Definitions section should be absent when empty")
+            assertFalse(result.text.contains("## Relationship Definitions"), "Definitions section absent when empty")
         }
 
         @Test
-        fun `buildText omits relationship definitions section when all definitions are null`() {
+        fun `buildText relationship definitions absence is stable when definitions have null text`() {
             val context = EnrichmentFactory.enrichmentContext(
                 relationshipDefinitions = listOf(
                     EnrichmentFactory.enrichmentRelationshipDefinitionContext(
@@ -672,11 +697,11 @@ class SemanticTextBuilderServiceTest {
 
             val result = service.buildText(context)
 
-            assertFalse(result.text.contains("## Relationship Definitions"), "Definitions section should be absent when all definitions null")
+            assertFalse(result.text.contains("## Relationship Definitions"), "Definitions section absent in Phase 2")
         }
 
         @Test
-        fun `buildText includes only definitions with non-null text`() {
+        fun `buildText relationship definitions absent regardless of definition content`() {
             val context = EnrichmentFactory.enrichmentContext(
                 relationshipDefinitions = listOf(
                     EnrichmentFactory.enrichmentRelationshipDefinitionContext(
@@ -692,9 +717,7 @@ class SemanticTextBuilderServiceTest {
 
             val result = service.buildText(context)
 
-            assertContains(result.text, "## Relationship Definitions")
-            assertContains(result.text, "Support Tickets: Escalation records.")
-            assertFalse(result.text.contains("Deals:"), "Should omit null-definition relationships")
+            assertFalse(result.text.contains("## Relationship Definitions"), "Phase 2 adapter omits relationship definitions section")
         }
     }
 
@@ -789,24 +812,30 @@ class SemanticTextBuilderServiceTest {
         /**
          * Creates a context that exceeds the 27,000 character budget by filling it with
          * many IDENTIFIER attributes with long names (bypass the 500-char FREETEXT cap),
-         * many relationship summaries with long category strings, and many relationship
-         * definitions with long definition text.
+         * many relationship summaries with latestActivityAt set, and many cluster members.
+         *
+         * Phase 2: topCategories are absent from [CatalogBacklinkSection]; relationship definition
+         * text is not surfaced in text. Budget pressure comes from IDENTIFIER attributes (40 × ~515
+         * chars) and relationship summaries (10 × ~60 chars).
          */
-        private fun massiveContext(): riven.core.models.enrichment.EnrichmentContext {
+        private fun massiveContext(): riven.core.models.entity.knowledge.EntityKnowledgeView {
             val longValue = "V".repeat(500)
-            // 40 IDENTIFIER attributes × ~515 chars each ≈ 20,600 chars for section 3 alone
-            val attributes = (1..40).map { i ->
+            // 60 FREETEXT attributes × ~515 chars each ≈ 30,900 chars for section 3 alone,
+            // exceeding the 27,000-char budget and also allowing Step 4 truncation (which drops
+            // FREETEXT attributes) to bring the output back under budget.
+            // IDENTIFIER was used previously but Step 4 does not drop IDENTIFIER — FREETEXT is
+            // required so the truncation algorithm can actually reduce the output.
+            val attributes = (1..60).map { i ->
                 EnrichmentFactory.enrichmentAttributeContext(
                     semanticLabel = "Attribute Label $i",
                     value = longValue,
-                    classification = SemanticAttributeClassification.IDENTIFIER
+                    classification = SemanticAttributeClassification.FREETEXT
                 )
             }
             val relationships = (1..10).map { i ->
                 EnrichmentFactory.enrichmentRelationshipSummary(
                     relationshipName = "Relationship $i",
                     count = 100 + i,
-                    topCategories = listOf("Enterprise", "Mid-Market", "SMB", "Strategic", "Growth"),
                     latestActivityAt = "2024-03-15T10:00:00Z"
                 )
             }
@@ -858,33 +887,43 @@ class SemanticTextBuilderServiceTest {
             assertContains(result.text, "## Identity")
         }
 
+        /**
+         * Phase 2: Section 6 (Relationship Definitions) was removed from the text adapter entirely.
+         * This test verifies budget-triggered truncation happens when attributes exceed the budget,
+         * and that the truncation result is correctly flagged.
+         *
+         * The massive attribute list triggers Step 4 compaction (drop FREETEXT + RELATIONAL_REFERENCE).
+         * Sections 1 and 2 are always preserved.
+         */
         @Test
-        fun `buildText removes section 6 first when budget exceeded`() {
-            // Context with enough relationship definitions to exceed budget but
-            // not enough other content to require further truncation after removing section 6
-            val definitions = (1..50).map { i ->
-                EnrichmentFactory.enrichmentRelationshipDefinitionContext(
-                    name = "Definition $i",
-                    definition = "D".repeat(600)
+        fun `buildText truncates when attributes exceed budget and preserves sections 1 and 2`() {
+            val longValue = "V".repeat(500)
+            // 60 FREETEXT attributes × ~515 chars ≈ 30,900 chars — exceeds the 27,000-char budget.
+            // FREETEXT is used because Step 4 of the truncation algorithm drops FREETEXT attributes,
+            // allowing the final output to be brought back under budget.
+            val manyAttributes = (1..60).map { i ->
+                EnrichmentFactory.enrichmentAttributeContext(
+                    semanticLabel = "Attribute Label $i",
+                    value = longValue,
+                    classification = SemanticAttributeClassification.FREETEXT
                 )
             }
             val context = EnrichmentFactory.enrichmentContext(
-                attributes = listOf(
-                    EnrichmentFactory.enrichmentAttributeContext(semanticLabel = "Name", value = "Acme Corp")
-                ),
+                attributes = manyAttributes,
                 relationshipSummaries = listOf(
                     EnrichmentFactory.enrichmentRelationshipSummary(count = 5)
                 ),
                 clusterMembers = listOf(
                     EnrichmentFactory.enrichmentClusterMemberContext()
                 ),
-                relationshipDefinitions = definitions
             )
 
             val result = service.buildText(context)
 
             assertTrue(result.truncated, "Should be truncated")
-            assertFalse(result.text.contains("## Relationship Definitions"), "Section 6 should be removed first")
+            assertContains(result.text, "## Entity Type:")
+            assertContains(result.text, "## Identity")
+            assertFalse(result.text.contains("## Relationship Definitions"), "Section 6 absent in Phase 2")
         }
 
         @Test
@@ -922,10 +961,9 @@ class SemanticTextBuilderServiceTest {
             )
             val base = massiveContext()
             val context = EnrichmentFactory.enrichmentContext(
-                attributes = base.attributes,
-                relationshipSummaries = base.relationshipSummaries,
-                clusterMembers = base.clusterMembers,
-                relationshipDefinitions = base.relationshipDefinitions,
+                attributes = base.sections.attributes,
+                relationshipSummaries = base.sections.catalogBacklinks,
+                clusterMembers = base.sections.clusterSiblings,
                 sentiment = sentiment,
             )
 

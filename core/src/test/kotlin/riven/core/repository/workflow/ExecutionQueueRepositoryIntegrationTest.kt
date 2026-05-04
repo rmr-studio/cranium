@@ -29,11 +29,16 @@ import org.springframework.transaction.annotation.Transactional
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
+import riven.core.entity.connotation.EntityConnotationEntity
+import riven.core.enums.connotation.ConnotationStatus
 import riven.core.enums.workflow.ExecutionJobType
 import riven.core.enums.workflow.ExecutionQueueStatus
+import riven.core.models.connotation.EntityMetadata
+import riven.core.models.connotation.EntityMetadataSnapshot
+import riven.core.models.connotation.SentimentMetadata
+import riven.core.service.util.factory.enrichment.EnrichmentFactory
 import riven.core.repository.connotation.EntityConnotationRepository
 import riven.core.service.util.SchemaInitializer
-import riven.core.service.util.factory.enrichment.EnrichmentFactory
 import java.time.ZonedDateTime
 import java.time.temporal.TemporalAccessor
 import java.util.Optional
@@ -229,11 +234,21 @@ class ExecutionQueueRepositoryIntegrationTest {
     }
 
     private fun saveMetadata(entityId: UUID, sentimentVersion: String?) {
+        val snapshot = EntityMetadataSnapshot(
+            snapshotVersion = "v1",
+            metadata = EntityMetadata(
+                sentiment = SentimentMetadata(
+                    analysisVersion = sentimentVersion,
+                    status = ConnotationStatus.NOT_APPLICABLE,
+                ),
+            ),
+            embeddedAt = ZonedDateTime.now(),
+        )
         entityConnotationRepository.saveAndFlush(
             EnrichmentFactory.entityConnotationEntity(
                 entityId = entityId,
                 workspaceId = workspaceId,
-                sentimentVersion = sentimentVersion,
+                metadata = snapshot
             )
         )
     }
@@ -277,7 +292,7 @@ class ExecutionQueueRepositoryIntegrationTest {
     }
 
     /**
-     * Envelopes that have never been analysed lack an `analysisVersion` stamp (null).
+     * Snapshots that have never been analysed lack an `analysisVersion` stamp (null).
      * `IS DISTINCT FROM` treats null as different from any concrete version, so these
      * rows must also be enqueued. Without `IS DISTINCT FROM` (i.e. plain `<>`) the
      * comparison would yield SQL null and the row would silently be skipped.
@@ -401,11 +416,21 @@ class ExecutionQueueRepositoryIntegrationTest {
             otherEntityId, otherWorkspaceId, otherEntityTypeId,
             "queue_repo_other_type", identifierKey,
         )
+        val snapshot2 = EntityMetadataSnapshot(
+            metadata = EntityMetadata(
+                sentiment = SentimentMetadata(
+                    analysisVersion = "v0",
+                    status = ConnotationStatus.NOT_APPLICABLE,
+                ),
+            ),
+            embeddedAt = ZonedDateTime.now(),
+        )
+
         entityConnotationRepository.saveAndFlush(
             EnrichmentFactory.entityConnotationEntity(
                 entityId = otherEntityId,
                 workspaceId = otherWorkspaceId,
-                sentimentVersion = "v0",
+                metadata = snapshot2
             )
         )
 

@@ -20,6 +20,16 @@ import {
     IconToJSON,
     IconToJSONTyped,
 } from './Icon';
+import type { RelationshipDirection } from './RelationshipDirection';
+import {
+    RelationshipDirectionFromJSON,
+    RelationshipDirectionToJSON,
+} from './RelationshipDirection';
+import type { SystemRelationshipType } from './SystemRelationshipType';
+import {
+    SystemRelationshipTypeFromJSON,
+    SystemRelationshipTypeToJSON,
+} from './SystemRelationshipType';
 
 /**
  * 
@@ -64,11 +74,23 @@ export interface EntityLink {
      */
     key: string;
     /**
-     * 
+     *
      * @type {string}
      * @memberof EntityLink
      */
     label: string;
+    /**
+     *
+     * @type {RelationshipDirection}
+     * @memberof EntityLink
+     */
+    direction: RelationshipDirection;
+    /**
+     *
+     * @type {SystemRelationshipType}
+     * @memberof EntityLink
+     */
+    systemType?: SystemRelationshipType | null;
 }
 
 /**
@@ -82,6 +104,7 @@ export function instanceOfEntityLink(value: object): value is EntityLink {
     if (!('icon' in value) || value['icon'] === undefined) return false;
     if (!('key' in value) || value['key'] === undefined) return false;
     if (!('label' in value) || value['label'] === undefined) return false;
+    if (!('direction' in value) || value['direction'] === undefined) return false;
     return true;
 }
 
@@ -94,7 +117,7 @@ export function EntityLinkFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         return json;
     }
     return {
-        
+
         'id': json['id'],
         'workspaceId': json['workspaceId'],
         'definitionId': json['definitionId'],
@@ -102,6 +125,8 @@ export function EntityLinkFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         'icon': IconFromJSON(json['icon']),
         'key': json['key'],
         'label': json['label'],
+        'direction': RelationshipDirectionFromJSON(json['direction']),
+        'systemType': json['systemType'] == null ? undefined : SystemRelationshipTypeFromJSON(json['systemType']),
     };
 }
 
@@ -115,7 +140,7 @@ export function EntityLinkToJSONTyped(value?: EntityLink | null, ignoreDiscrimin
     }
 
     return {
-        
+
         'id': value['id'],
         'workspaceId': value['workspaceId'],
         'definitionId': value['definitionId'],
@@ -123,6 +148,8 @@ export function EntityLinkToJSONTyped(value?: EntityLink | null, ignoreDiscrimin
         'icon': IconToJSON(value['icon']),
         'key': value['key'],
         'label': value['label'],
+        'direction': RelationshipDirectionToJSON(value['direction']),
+        'systemType': SystemRelationshipTypeToJSON(value['systemType']),
     };
 }
 

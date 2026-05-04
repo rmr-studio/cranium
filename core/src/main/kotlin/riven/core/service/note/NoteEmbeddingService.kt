@@ -4,42 +4,43 @@ import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.support.TransactionTemplate
-import riven.core.entity.note.NoteEntity
-import riven.core.entity.note.NoteEntityAttachment
+import riven.core.entity.entity.EntityEntity
 import riven.core.enums.activity.Activity
 import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.note.NoteSourceType
+import riven.core.enums.integration.SourceType
+import riven.core.enums.knowledge.KnowledgeEntityTypeKey
 import riven.core.enums.util.OperationType
 import riven.core.models.integration.NangoRecord
 import riven.core.models.integration.NangoRecordAction
 import riven.core.models.note.NoteContentFormat
 import riven.core.models.note.NoteEmbeddingConfig
 import riven.core.repository.entity.EntityRepository
-import riven.core.repository.note.NoteEntityAttachmentRepository
-import riven.core.repository.note.NoteRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.activity.log
 import riven.core.service.auth.AuthTokenService
+import riven.core.service.entity.EntityIngestionService
 import riven.core.service.note.converter.HtmlToBlockConverter
 import riven.core.service.note.converter.NoteContentConverter
 import riven.core.service.note.converter.PlaintextToBlockConverter
-import java.time.ZonedDateTime
 import java.util.*
 
 /**
- * Processes integration note records into NoteEntity records with BlockNote content.
+ * Processes integration note records into entity-backed notes via [NoteEntityIngestionService].
  *
- * Bypasses the entity creation pipeline entirely — integration notes are persisted directly
- * as NoteEntity rows with sourceType=INTEGRATION and readonly=true. Associations to target
- * entities are resolved by looking up sourceExternalId in the entities table.
+ * Integration notes flow through the same ingestion seam as user-authored notes — they land
+ * as `entities` rows of type `note` with `sourceType = INTEGRATION` and `ATTACHMENT`
+ * relationship rows pointing at the resolved target entities. Unresolved foreign references
+ * captured during sync are persisted onto `entities.pending_associations`; the
+ * [reconcileUnattachedNotes] pass scans that column and retries resolution after sibling
+ * integration rows arrive in later syncs.
  *
  * This is a plain Spring service with no Temporal coupling. The paginated fetch loop and
  * heartbeat remain in IntegrationSyncActivitiesImpl which delegates per-batch to this service.
  */
 @Service
 class NoteEmbeddingService(
-    private val noteRepository: NoteRepository,
-    private val attachmentRepository: NoteEntityAttachmentRepository,
+    private val noteEntityIngestionService: NoteEntityIngestionService,
+    private val entityIngestionService: EntityIngestionService,
     private val entityRepository: EntityRepository,
     private val htmlToBlockConverter: HtmlToBlockConverter,
     private val plaintextToBlockConverter: PlaintextToBlockConverter,
@@ -110,27 +111,24 @@ class NoteEmbeddingService(
     }
 
     private fun handleDelete(externalId: String, workspaceId: UUID, integrationId: UUID) {
-        val existing = noteRepository.findByWorkspaceIdAndSourceIntegrationIdAndSourceExternalId(
-            workspaceId, integrationId, externalId
-        )
+        val existing = findExistingNote(workspaceId, integrationId, externalId)
         if (existing == null) {
             logger.debug { "Note with sourceExternalId=$externalId not found for delete — no-op" }
             return
         }
-        val noteId = requireNotNull(existing.id) { "NoteEntity.id must not be null" }
-        attachmentRepository.deleteByNoteId(noteId)
-        noteRepository.delete(existing)
+        val entityId = requireNotNull(existing.id) { "EntityEntity.id must not be null" }
+        entityIngestionService.softDeleteEntityInternal(workspaceId, entityId)
         activityService.log(
             activity = Activity.NOTE,
             operation = OperationType.DELETE,
             userId = SYSTEM_USER_ID,
             workspaceId = workspaceId,
             entityType = ApplicationEntityType.NOTE,
-            entityId = noteId,
+            entityId = entityId,
             "sourceExternalId" to externalId,
             "integrationId" to integrationId,
         )
-        logger.info { "Hard-deleted note $noteId (sourceExternalId=$externalId)" }
+        logger.info { "Soft-deleted note entity $entityId (sourceExternalId=$externalId)" }
     }
 
     private fun handleUpsert(
@@ -141,14 +139,33 @@ class NoteEmbeddingService(
         integrationId: UUID,
     ) {
         val body = extractBody(record.payload, config)
-        val conversionResult = convertBody(body, config.contentFormat)
+        val conversion = convertBody(body, config.contentFormat)
 
-        val existing = noteRepository.findByWorkspaceIdAndSourceIntegrationIdAndSourceExternalId(
-            workspaceId, integrationId, externalId
-        )
+        val existing = findExistingNote(workspaceId, integrationId, externalId)
         val isNew = existing == null
-        val note = upsertNote(existing, externalId, conversionResult, workspaceId, integrationId)
-        val noteId = requireNotNull(note.id) { "NoteEntity.id must not be null after save" }
+
+        val associations = extractAssociations(record.payload)
+        val targetEntityIds = resolveTargets(associations, config, workspaceId, integrationId)
+        val pendingAssociations = if (associations.isNotEmpty() && targetEntityIds.isEmpty()) {
+            associations
+        } else null
+
+        val saved = noteEntityIngestionService.upsert(
+            NoteEntityIngestionService.NoteIngestionInput(
+                workspaceId = workspaceId,
+                title = conversion.title,
+                content = conversion.blocks,
+                plaintext = conversion.plaintext,
+                targetEntityIds = targetEntityIds,
+                sourceType = SourceType.INTEGRATION,
+                sourceIntegrationId = integrationId,
+                sourceExternalId = externalId,
+                linkSource = SourceType.INTEGRATION,
+                existingId = existing?.id,
+                pendingAssociations = pendingAssociations,
+            )
+        )
+        val entityId = requireNotNull(saved.id) { "EntityEntity.id must not be null after upsert" }
 
         activityService.log(
             activity = Activity.NOTE,
@@ -156,26 +173,10 @@ class NoteEmbeddingService(
             userId = SYSTEM_USER_ID,
             workspaceId = workspaceId,
             entityType = ApplicationEntityType.NOTE,
-            entityId = noteId,
+            entityId = entityId,
             "sourceExternalId" to externalId,
             "integrationId" to integrationId,
         )
-
-        val associations = extractAssociations(record.payload)
-        val targetEntityIds = resolveTargets(associations, config, workspaceId, integrationId)
-
-        if (targetEntityIds.isNotEmpty()) {
-            syncAttachments(noteId, targetEntityIds)
-            // Clear pending associations — targets were resolved
-            if (note.pendingAssociations != null) {
-                note.pendingAssociations = null
-                noteRepository.save(note)
-            }
-        } else if (associations.isNotEmpty()) {
-            // Store for later reconciliation
-            note.pendingAssociations = associations
-            noteRepository.save(note)
-        }
     }
 
     // ------ Content Conversion ------
@@ -223,42 +224,12 @@ class NoteEmbeddingService(
         "children" to emptyList<Any>(),
     )
 
-    // ------ Note Persistence ------
+    // ------ Note Lookup ------
 
-    private fun upsertNote(
-        existing: NoteEntity?,
-        externalId: String,
-        conversion: ConversionResult,
-        workspaceId: UUID,
-        integrationId: UUID,
-    ): NoteEntity {
-        val now = ZonedDateTime.now()
-
-        if (existing != null) {
-            existing.content = conversion.blocks
-            existing.plaintext = conversion.plaintext
-            existing.title = conversion.title
-            existing.updatedBy = SYSTEM_USER_ID
-            return noteRepository.save(existing)
-        }
-
-        val note = NoteEntity(
-            workspaceId = workspaceId,
-            title = conversion.title,
-            content = conversion.blocks,
-            plaintext = conversion.plaintext,
-            sourceType = NoteSourceType.INTEGRATION,
-            sourceIntegrationId = integrationId,
-            sourceExternalId = externalId,
-            readonly = true,
-        )
-        note.createdBy = SYSTEM_USER_ID
-        note.updatedBy = SYSTEM_USER_ID
-        note.createdAt = now
-        note.updatedAt = now
-
-        return noteRepository.save(note)
-    }
+    private fun findExistingNote(workspaceId: UUID, integrationId: UUID, externalId: String): EntityEntity? =
+        entityRepository.findByWorkspaceIdAndSourceIntegrationIdAndSourceExternalIdIn(
+            workspaceId, integrationId, listOf(externalId),
+        ).firstOrNull { it.typeKey == KnowledgeEntityTypeKey.NOTE.key }
 
     // ------ Association Resolution ------
 
@@ -308,60 +279,38 @@ class NoteEmbeddingService(
         return resolvedIds
     }
 
-    // ------ Attachment Sync ------
-
-    /**
-     * Syncs note_entity_attachments for a note. Adds missing attachments and removes stale ones.
-     * Catches FK violations from stale entity references gracefully.
-     */
-    private fun syncAttachments(noteId: UUID, targetEntityIds: Set<UUID>) {
-        val existing = attachmentRepository.findByNoteId(noteId).map { it.entityId }.toSet()
-        val toAdd = targetEntityIds - existing
-        val toRemove = existing - targetEntityIds
-
-        for (entityId in toAdd) {
-            try {
-                attachmentRepository.save(NoteEntityAttachment(noteId = noteId, entityId = entityId))
-            } catch (e: DataIntegrityViolationException) {
-                // Entity deleted between resolution and attachment creation
-                logger.warn { "FK violation attaching note $noteId to entity $entityId — entity may have been deleted" }
-            }
-        }
-
-        for (entityId in toRemove) {
-            attachmentRepository.deleteById(riven.core.entity.note.NoteEntityAttachmentId(noteId, entityId))
-        }
-    }
-
     // ------ Reconciliation ------
 
     /**
-     * Finds unattached integration notes and attempts to resolve their pending associations.
-     *
-     * Called after any model sync to handle the case where notes sync before their target
-     * contacts/deals/tickets. Scoped to workspace + integration.
+     * Finds note entities with non-null `pending_associations` and attempts to resolve their
+     * pending references. Called after any model sync to handle the case where notes sync
+     * before their target contacts/deals/tickets. Scoped to workspace + integration.
      */
     fun reconcileUnattachedNotes(workspaceId: UUID, integrationId: UUID, config: NoteEmbeddingConfig) {
-        val unattachedNotes = noteRepository.findUnattachedIntegrationNotes(workspaceId, integrationId)
-        if (unattachedNotes.isEmpty()) return
+        val unattached = entityRepository.findPendingAssociationsByTypeKey(
+            workspaceId, integrationId, KnowledgeEntityTypeKey.NOTE.key,
+        )
+        if (unattached.isEmpty()) return
 
-        logger.info { "Reconciling ${unattachedNotes.size} unattached integration notes for workspace=$workspaceId" }
+        logger.info { "Reconciling ${unattached.size} unattached integration notes for workspace=$workspaceId" }
 
         var resolved = 0
-        for (note in unattachedNotes) {
+        for (note in unattached) {
             val pending = note.pendingAssociations ?: continue
-            val noteId = requireNotNull(note.id) { "NoteEntity.id must not be null" }
-
+            val noteId = requireNotNull(note.id) { "EntityEntity.id must not be null" }
             val targets = resolveTargets(pending, config, workspaceId, integrationId)
-            if (targets.isNotEmpty()) {
-                syncAttachments(noteId, targets)
-                note.pendingAssociations = null
-                noteRepository.save(note)
-                resolved++
-            }
+            if (targets.isEmpty()) continue
+
+            noteEntityIngestionService.reconcileAttachments(
+                workspaceId = workspaceId,
+                entityId = noteId,
+                targetEntityIds = targets,
+                linkSource = SourceType.INTEGRATION,
+            )
+            resolved++
         }
 
-        logger.info { "Reconciled $resolved of ${unattachedNotes.size} unattached notes" }
+        logger.info { "Reconciled $resolved of ${unattached.size} unattached notes" }
     }
 
     // ------ Data Classes ------

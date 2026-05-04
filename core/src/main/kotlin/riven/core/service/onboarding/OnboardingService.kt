@@ -30,7 +30,7 @@ import riven.core.service.activity.log
 import riven.core.repository.user.UserRepository
 import riven.core.service.auth.AuthTokenService
 import riven.core.service.catalog.TemplateInstallationService
-import riven.core.service.knowledge.WorkspaceBusinessDefinitionService
+import riven.core.service.knowledge.GlossaryService
 import riven.core.service.user.UserService
 import riven.core.service.workspace.WorkspaceInviteService
 import riven.core.service.workspace.WorkspaceService
@@ -51,7 +51,7 @@ class OnboardingService(
     private val userRepository: UserRepository,
     private val templateInstallationService: TemplateInstallationService,
     private val workspaceInviteService: WorkspaceInviteService,
-    private val businessDefinitionService: WorkspaceBusinessDefinitionService,
+    private val businessDefinitionService: GlossaryService,
     private val authTokenService: AuthTokenService,
     private val activityService: ActivityService,
     private val transactionTemplate: TransactionTemplate,

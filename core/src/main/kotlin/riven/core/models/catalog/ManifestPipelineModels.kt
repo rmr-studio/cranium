@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import tools.jackson.databind.JsonNode
 import riven.core.enums.catalog.ManifestType
 import riven.core.enums.entity.EntityRelationshipCardinality
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.models.connotation.AnalysisTier
 
@@ -36,6 +37,7 @@ data class ResolvedEntityType(
     val iconColour: String,
     val semanticGroup: String,
     val lifecycleDomain: LifecycleDomain? = null,
+    val role: EntityTypeRole = EntityTypeRole.CATALOG,
     val identifierKey: String?,
     val readonly: Boolean,
     val schema: Map<String, Any>,

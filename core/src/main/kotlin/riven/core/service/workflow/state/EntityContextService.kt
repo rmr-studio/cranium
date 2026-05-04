@@ -90,10 +90,10 @@ class EntityContextService(
             .orElseThrow { IllegalArgumentException("Entity type not found: ${entityEntity.typeId}") }
 
         // Fetch relationships
-        val relationships = if (currentDepth < maxDepth) {
+        val links = if (currentDepth < maxDepth) {
             entityRelationshipService.findRelatedEntities(entityId, workspaceId)
         } else {
-            emptyMap()
+            emptyList()
         }
 
         // Load relationship definitions for this entity type
@@ -105,7 +105,7 @@ class EntityContextService(
 
         // Load attributes and convert to domain models
         val attributes = entityAttributeService.getAttributes(entityId)
-        val entity = entityEntity.toModel(audit = false, relationships = relationships, attributes = attributes)
+        val entity = entityEntity.toModel(audit = false, links = links, attributes = attributes)
         val entityType = entityTypeEntity.toModel()
 
         // Build context from payload

@@ -3,13 +3,12 @@ package riven.core.service.util.factory.enrichment
 import riven.core.entity.connotation.EntityConnotationEntity
 import riven.core.entity.enrichment.EntityEmbeddingEntity
 import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.connotation.ConnotationStatus
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.integration.SourceType
-import riven.core.models.connotation.ConnotationMetadata
-import riven.core.models.connotation.ConnotationMetadataSnapshot
+import riven.core.models.connotation.EntityMetadata
+import riven.core.models.connotation.EntityMetadataSnapshot
 import riven.core.models.connotation.SentimentMetadata
 import riven.core.models.enrichment.EnrichedTextResult
 import riven.core.models.enrichment.EnrichmentAttributeContext
@@ -100,26 +99,30 @@ object EnrichmentFactory {
     )
 
     /**
-     * Creates an [EntityConnotationEntity] wrapping a SENTIMENT-only [ConnotationMetadataSnapshot].
+     * Creates an [EntityConnotationEntity] wrapping a SENTIMENT-only [riven.core.models.connotation.EntityMetadataSnapshot].
      * Wraps the snapshot construction so callers don't repeat the boilerplate when only the
      * sentiment-version + status differ between cases.
      */
     fun entityConnotationEntity(
         entityId: UUID,
         workspaceId: UUID,
-        sentimentVersion: String? = null,
-        status: ConnotationStatus = ConnotationStatus.NOT_APPLICABLE,
+        metadata: EntityMetadataSnapshot
+    ): EntityConnotationEntity = EntityConnotationEntity(
+        entityId = entityId,
+        workspaceId = workspaceId,
+        connotationMetadata = metadata
+    )
+
+    fun entityConnotationEntity(
+        entityId: UUID,
+        workspaceId: UUID,
+        metadata: EntityMetadata,
         embeddedAt: ZonedDateTime = ZonedDateTime.now(),
     ): EntityConnotationEntity = EntityConnotationEntity(
         entityId = entityId,
         workspaceId = workspaceId,
-        connotationMetadata = ConnotationMetadataSnapshot(
-            metadata = ConnotationMetadata(
-                sentiment = SentimentMetadata(
-                    analysisVersion = sentimentVersion,
-                    status = status,
-                ),
-            ),
+        connotationMetadata = EntityMetadataSnapshot(
+            metadata = metadata,
             embeddedAt = embeddedAt,
         ),
     )

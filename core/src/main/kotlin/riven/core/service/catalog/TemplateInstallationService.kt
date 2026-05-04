@@ -12,6 +12,8 @@ import riven.core.enums.core.ApplicationEntityType
 import riven.core.enums.core.DataFormat
 import riven.core.enums.core.DataType
 import riven.core.enums.core.DynamicDefaultFunction
+import riven.core.enums.entity.SystemRelationshipType
+import riven.core.enums.knowledge.KnowledgeEntityTypeKey
 import riven.core.models.common.validation.DefaultValue
 import riven.core.enums.integration.SourceType
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
@@ -143,6 +145,17 @@ class TemplateInstallationService(
                 sourceManifestId = catalogType.manifestId,
                 sourceSchemaHash = catalogType.schemaHash,
             )
+            // Backfill any system edges that the existing entity type may be missing.
+            // getOrCreateSystemDefinition (invoked by seedKnowledgeRelationships ->
+            // createSystemDefinitionInternal) is idempotent on the unique
+            // (workspace_id, source_entity_type_id, system_type) constraint, so re-running
+            // is a no-op when the row already exists.
+            //
+            // Role is intentionally not overwritten on reuse: a workspace user may have
+            // customised the role on an existing entity type, and the template should
+            // not silently revert that. Lifecycle domain / source manifest are aligned
+            // by promoteToTemplate above; everything else is left as-is.
+            seedKnowledgeRelationships(workspaceId, catalogType.key, result.entityTypeId)
             logger.info { "Promoted reused entity type '$key' (${result.entityTypeId}) to template" }
         }
     }
@@ -192,7 +205,7 @@ class TemplateInstallationService(
      *
      * Translates string-keyed manifest schemas into UUID-keyed internal schemas,
      * generates attribute UUIDs, resolves identifier keys, and initializes semantic
-     * metadata and fallback relationship definitions for each entity type.
+     * metadata and system connection definitions for each entity type.
      *
      * @return map from manifest entity type key to creation result (entity type ID + attribute key map)
      */
@@ -213,7 +226,7 @@ class TemplateInstallationService(
                 attributeIds = attributeKeyMap.values.toList(),
             )
 
-            relationshipService.createFallbackDefinition(workspaceId, savedId)
+            relationshipService.createSystemConnectionDefinition(workspaceId, savedId)
 
             // Initialize sequences for ID-type attributes
             entity.schema.properties?.forEach { (attrId, attrSchema) ->
@@ -256,7 +269,8 @@ class TemplateInstallationService(
                 attributeIds = attributeKeyMap.values.toList(),
             )
 
-            relationshipService.createFallbackDefinitionInternal(workspaceId, savedId)
+            relationshipService.createSystemConnectionDefinitionInternal(workspaceId, savedId)
+            seedKnowledgeRelationships(workspaceId, catalogType.key, savedId)
 
             entity.schema.properties?.forEach { (attrId, attrSchema) ->
                 if (attrSchema.key == SchemaType.ID) {
@@ -276,6 +290,24 @@ class TemplateInstallationService(
         }
 
         return results
+    }
+
+    /**
+     * Per-key system relationship seed list for KNOWLEDGE entity types.
+     * Adding a new KNOWLEDGE type means adding one entry here; the seeding
+     * loop is otherwise type-agnostic.
+     */
+    private val knowledgeSystemEdges: Map<KnowledgeEntityTypeKey, List<SystemRelationshipType>> = mapOf(
+        KnowledgeEntityTypeKey.NOTE to listOf(SystemRelationshipType.ATTACHMENT, SystemRelationshipType.MENTION),
+        KnowledgeEntityTypeKey.GLOSSARY to listOf(SystemRelationshipType.DEFINES, SystemRelationshipType.MENTION),
+    )
+
+    private fun seedKnowledgeRelationships(workspaceId: UUID, key: String, entityTypeId: UUID) {
+        val knowledgeKey = KnowledgeEntityTypeKey.fromKey(key) ?: return
+        val edges = knowledgeSystemEdges[knowledgeKey] ?: return
+        edges.forEach { edge ->
+            relationshipService.getOrCreateSystemDefinitionInternal(workspaceId, entityTypeId, edge)
+        }
     }
 
     /**
@@ -301,6 +333,7 @@ class TemplateInstallationService(
             key = catalogType.key,
             displayNameSingular = catalogType.displayNameSingular,
             displayNamePlural = catalogType.displayNamePlural,
+            role = catalogType.role,
             iconType = catalogType.iconType,
             iconColour = catalogType.iconColour,
             semanticGroup = catalogType.semanticGroup,

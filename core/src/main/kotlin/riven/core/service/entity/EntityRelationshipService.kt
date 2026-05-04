@@ -8,7 +8,8 @@ import riven.core.entity.entity.EntityRelationshipEntity
 import riven.core.enums.activity.Activity
 import riven.core.enums.core.ApplicationEntityType
 import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.SystemRelationshipType
+import riven.core.enums.entity.RelationshipTargetKind
+import riven.core.enums.integration.SourceType
 import riven.core.enums.util.OperationType
 import riven.core.exceptions.ConflictException
 import riven.core.exceptions.InvalidRelationshipException
@@ -112,44 +113,154 @@ class EntityRelationshipService(
         entityRelationshipRepository.saveAll(newRelationships)
     }
 
-    // ------ Read ------
-
     /**
-     * Finds all entity links for a source entity, grouped by definition ID.
-     * Includes both forward links (entity is source) and inverse links (entity is target).
+     * System-side replace: drives all rows for `(sourceId, definitionId, targetKind)` toward
+     * the desired `targetIds` set, hard-deleting absent targets and inserting new ones.
+     *
+     * Used by the knowledge ingestion layer ([riven.core.service.knowledge.AbstractKnowledgeEntityIngestionService])
+     * to reconcile system relationships (`ATTACHMENT`, `MENTION`, `DEFINES`) without going
+     * through the JWT-bound CRUD path. New rows carry the supplied [linkSource] so downstream
+     * consumers can distinguish user-authored vs integration-sourced edges.
+     *
+     * `targetKind` distinguishes ENTITY edges (default) from glossary-style `DEFINES` edges
+     * pointing at an entity type, attribute, or relationship definition. Persisted on the
+     * `entity_relationships.target_kind` column so projectors can split DEFINES rows by
+     * target shape.
+     *
+     * For sub-reference target_kinds (ATTRIBUTE, RELATIONSHIP), [targetParentId] is the owning
+     * entity_type id and is required by the entity_relationships CHECK constraint. NULL for
+     * ENTITY / ENTITY_TYPE.
      */
-    fun findRelatedEntities(entityId: UUID, workspaceId: UUID): Map<UUID, List<EntityLink>> {
-        val forward = entityRelationshipRepository.findEntityLinksBySourceId(entityId, workspaceId)
-        val inverse = entityRelationshipRepository.findInverseEntityLinksByTargetId(
-            entityId, workspaceId, SystemRelationshipType.CONNECTED_ENTITIES.name,
-        )
+    @Transactional
+    internal fun replaceForDefinitionInternal(
+        workspaceId: UUID,
+        sourceId: UUID,
+        definitionId: UUID,
+        targetIds: Set<UUID>,
+        linkSource: SourceType,
+        targetKind: RelationshipTargetKind = RelationshipTargetKind.ENTITY,
+        targetParentId: UUID? = null,
+    ) {
+        // Defense-in-depth: assert the source entity belongs to the supplied workspace before any
+        // read or delete. Without this, a system-bus caller passing a foreign sourceId could sweep
+        // that workspace's relationship rows.
+        val source = ServiceUtil.findOrThrow { entityRepository.findById(sourceId) }
+        require(source.workspaceId == workspaceId) {
+            "Source entity $sourceId not found in workspace $workspaceId"
+        }
 
-        return (forward + inverse)
-            .groupBy { it.getDefinitionId() }
-            .mapValues { (_, projections) ->
-                projections.map { it.toEntityLink() }
+        val parentRequired = targetKind == RelationshipTargetKind.ATTRIBUTE ||
+            targetKind == RelationshipTargetKind.RELATIONSHIP
+        if (parentRequired) {
+            require(targetParentId != null) {
+                "targetParentId must be non-null for ATTRIBUTE/RELATIONSHIP reconciliation " +
+                    "(got targetKind=$targetKind)"
             }
+        }
+        if (!parentRequired) {
+            require(targetParentId == null) {
+                "targetParentId must be null for ENTITY/ENTITY_TYPE target kinds " +
+                    "(got targetKind=$targetKind, targetParentId=$targetParentId)"
+            }
+        }
+
+        val existing = entityRelationshipRepository.findAllBySourceIdAndDefinitionIdForUpdate(sourceId, definitionId)
+            .filter { it.targetKind == targetKind }
+            .filter { !parentRequired || it.targetParentId == targetParentId }
+        val existingTargetIds = existing.map { it.targetId }.toSet()
+
+        val toRemove = existingTargetIds - targetIds
+        if (toRemove.isNotEmpty()) {
+            if (parentRequired) {
+                entityRelationshipRepository.deleteAllBySourceIdAndDefinitionIdAndTargetKindAndTargetParentIdAndTargetIdIn(
+                    sourceId, definitionId, targetKind, requireNotNull(targetParentId), toRemove,
+                )
+            } else {
+                entityRelationshipRepository.deleteAllBySourceIdAndDefinitionIdAndTargetKindAndTargetIdIn(
+                    sourceId, definitionId, targetKind, toRemove,
+                )
+            }
+        }
+
+        val toAdd = targetIds - existingTargetIds
+        if (toAdd.isEmpty()) return
+
+        val newRelationships = toAdd.map { targetId ->
+            EntityRelationshipEntity(
+                workspaceId = workspaceId,
+                sourceId = sourceId,
+                targetId = targetId,
+                targetParentId = targetParentId,
+                definitionId = definitionId,
+                linkSource = linkSource,
+                targetKind = targetKind,
+            )
+        }
+        entityRelationshipRepository.saveAll(newRelationships)
     }
 
     /**
-     * Finds all entity links for multiple source entities, grouped by source then definition.
-     * Includes both forward and inverse-visible links.
+     * Hard-delete every relationship row matching `(sourceId, definitionId, targetKind)` for
+     * the given source. Used by the knowledge ingestion path to reconcile parent-scoped kinds
+     * (ATTRIBUTE / RELATIONSHIP) when the input carries no refs of that kind, since
+     * [replaceForDefinitionInternal] requires a non-null `targetParentId` for those kinds.
      */
-    fun findRelatedEntities(entityIds: Set<UUID>, workspaceId: UUID): Map<UUID, Map<UUID, List<EntityLink>>> {
+    @Transactional
+    fun clearAllOfKindForDefinition(
+        workspaceId: UUID,
+        sourceId: UUID,
+        definitionId: UUID,
+        targetKind: RelationshipTargetKind,
+    ) {
+        // Defense-in-depth: assert workspace ownership before sweeping rows. Mirrors the guard on
+        // replaceForDefinitionInternal so the system-bus surface keeps tenancy invariants explicit.
+        val source = ServiceUtil.findOrThrow { entityRepository.findById(sourceId) }
+        require(source.workspaceId == workspaceId) {
+            "Source entity $sourceId not found in workspace $workspaceId"
+        }
+
+        entityRelationshipRepository.deleteAllBySourceIdAndDefinitionIdAndTargetKind(
+            sourceId, definitionId, targetKind,
+        )
+    }
+
+    // ------ Read ------
+
+    /**
+     * Finds all entity links touching the given entity, as a flat list.
+     *
+     * Includes:
+     *  - **Forward** edges: rows where the entity is the source (any system_type, any definition).
+     *  - **Inverse** edges: rows where the entity is the target, admitted when either a
+     *    relationship_target_rule applies, the definition's system_type is
+     *    `SYSTEM_CONNECTION`, or the definition's system_type is one of
+     *    `ATTACHMENT` / `MENTION` / `DEFINES` *and* the source entity's type carries
+     *    `surface_role = 'KNOWLEDGE'`. Knowledge inverse edges are how
+     *    "notes attached to me" / "glossary terms defining me" surface on a target entity.
+     *
+     * Each [EntityLink] carries `direction` and `systemType`, so callers
+     * (e.g. `EntityEntity.toModel`) can partition the flat list into the
+     * regular relationships map vs. the knowledge-refs projection.
+     */
+    fun findRelatedEntities(entityId: UUID, workspaceId: UUID): List<EntityLink> {
+        val forward = entityRelationshipRepository.findEntityLinksBySourceId(entityId, workspaceId)
+        val inverse = entityRelationshipRepository.findInverseEntityLinksByTargetId(entityId, workspaceId)
+
+        return (forward + inverse).map { it.toEntityLink() }
+    }
+
+    /**
+     * Batch variant: flat list per source entity id. Same predicate semantics as the
+     * single-entity overload.
+     */
+    fun findRelatedEntities(entityIds: Set<UUID>, workspaceId: UUID): Map<UUID, List<EntityLink>> {
         val ids = entityIds.toTypedArray()
         val forward = entityRelationshipRepository.findEntityLinksBySourceIdIn(ids, workspaceId)
-        val inverse = entityRelationshipRepository.findInverseEntityLinksByTargetIdIn(
-            ids, workspaceId, SystemRelationshipType.CONNECTED_ENTITIES.name,
-        )
+        val inverse = entityRelationshipRepository.findInverseEntityLinksByTargetIdIn(ids, workspaceId)
 
         return (forward + inverse)
             .groupBy { it.getSourceEntityId() }
-            .mapValues { (_, projections) ->
-                projections.groupBy { it.getDefinitionId() }
-                    .mapValues { (_, defProjections) ->
-                        defProjections.map { it.toEntityLink() }
-                    }
-            }
+            .mapValues { (_, projections) -> projections.map { it.toEntityLink() } }
     }
 
     /**
@@ -172,8 +283,8 @@ class EntityRelationshipService(
      * Adds a single relationship between two entities.
      *
      * When `definitionId` is provided, creates a typed relationship with target type
-     * validation and cardinality enforcement. When omitted, creates a fallback
-     * CONNECTED_ENTITIES relationship with bidirectional duplicate detection.
+     * validation and cardinality enforcement. When omitted, creates a
+     * SYSTEM_CONNECTION relationship with bidirectional duplicate detection.
      */
     @Transactional
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
@@ -326,10 +437,10 @@ class EntityRelationshipService(
             return request.definitionId to definition.name
         }
 
-        val fallbackDef = entityTypeRelationshipService.getOrCreateFallbackDefinition(workspaceId, sourceEntityTypeId)
-        val defId = requireNotNull(fallbackDef.id)
+        val systemConnectionDef = entityTypeRelationshipService.getOrCreateSystemConnectionDefinition(workspaceId, sourceEntityTypeId)
+        val defId = requireNotNull(systemConnectionDef.id)
         checkBidirectionalDuplicate(sourceEntityId, request.targetEntityId, defId)
-        return defId to fallbackDef.name
+        return defId to systemConnectionDef.name
     }
 
     private fun checkDirectionalDuplicate(sourceId: UUID, targetId: UUID, definitionId: UUID) {
@@ -354,7 +465,7 @@ class EntityRelationshipService(
     }
 
     /**
-     * Validates target type and enforces cardinality for typed (non-fallback) definitions.
+     * Validates target type and enforces cardinality for typed (non-system-connection) definitions.
      */
     private fun validateTypedRelationship(
         sourceEntityId: UUID,

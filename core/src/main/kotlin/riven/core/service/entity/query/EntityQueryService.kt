@@ -171,7 +171,7 @@ class EntityQueryService(
             val eid = requireNotNull(it.id)
             it.toModel(
                 audit = true,
-                relationships = emptyMap(),
+                links = emptyList(),
                 attributes = allAttributes[eid] ?: emptyMap(),
             )
         }

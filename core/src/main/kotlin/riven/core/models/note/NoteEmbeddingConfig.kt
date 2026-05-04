@@ -2,7 +2,7 @@ package riven.core.models.note
 
 /**
  * Parsed noteEmbedding configuration from an integration manifest.
- * Defines how a Nango sync model's records are converted to NoteEntity records.
+ * Defines how a Nango sync model's records are converted to entity-backed notes.
  */
 data class NoteEmbeddingConfig(
     val syncModel: String,

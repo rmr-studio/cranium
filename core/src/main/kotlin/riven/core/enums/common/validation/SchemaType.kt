@@ -17,5 +17,6 @@ enum class SchemaType {
     MULTI_SELECT,
     FILE_ATTACHMENT,
     LOCATION,
-    ID
+    ID,
+    ARRAY,
 }

@@ -4,6 +4,7 @@ import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
@@ -23,6 +24,7 @@ object AdSpendEventModel : riven.core.models.core.CoreModelDefinition(
     iconColour = IconColour.YELLOW,
     semanticGroup = SemanticGroup.FINANCIAL,
     lifecycleDomain = LifecycleDomain.MARKETING,
+    role = EntityTypeRole.CATALOG,
     identifierKey = "external-id",
     semanticDefinition = "A daily spend event for a specific ad creative. Captures spend, impressions, clicks, and conversions at the lowest meaningful attribution grain.",
     semanticTags = listOf("marketing", "spend", "performance", "daily"),

@@ -5,7 +5,7 @@ import kotlinx.coroutines.runBlocking
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import riven.core.models.entity.Entity
-import riven.core.models.entity.EntityLink
+import riven.core.models.entity.partitionForEntityProjection
 import riven.core.models.entity.payload.EntityAttribute
 import riven.core.models.entity.payload.EntityAttributeRelationPayload
 import riven.core.models.entity.query.EntityQuery
@@ -110,16 +110,20 @@ class EntityQueryFacadeService(
         if (entities.isEmpty()) return entities
 
         val entityIds = entities.map { it.id }.toSet()
-        val relationships = entityRelationshipService.findRelatedEntities(entityIds, workspaceId)
+        val linksByEntity = entityRelationshipService.findRelatedEntities(entityIds, workspaceId)
 
         return entities.map { entity ->
-            val entityRelationships = relationships[entity.id] ?: emptyMap()
-            if (entityRelationships.isEmpty()) return@map entity
+            val entityLinks = linksByEntity[entity.id] ?: emptyList()
+            if (entityLinks.isEmpty()) return@map entity
 
-            val relationshipAttributes = entityRelationships.mapValues { (_, links) ->
+            val (relationships, knowledgeRefs) = entityLinks.partitionForEntityProjection()
+            val relationshipAttributes = relationships.mapValues { (_, links) ->
                 EntityAttribute(payload = EntityAttributeRelationPayload(relations = links))
             }
-            entity.copy(payload = entity.payload + relationshipAttributes)
+            entity.copy(
+                payload = entity.payload + relationshipAttributes,
+                knowledgeRefs = knowledgeRefs,
+            )
         }
     }
 }

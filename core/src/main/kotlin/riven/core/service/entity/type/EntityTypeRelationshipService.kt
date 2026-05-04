@@ -3,6 +3,7 @@ package riven.core.service.entity.type
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import riven.core.entity.entity.RelationshipDefinitionEntity
 import riven.core.entity.entity.RelationshipTargetRuleEntity
@@ -549,38 +550,121 @@ class EntityTypeRelationshipService(
     // ------ System Definitions ------
 
     /**
-     * Creates a CONNECTED_ENTITIES fallback definition for an entity type.
-     * Used at publish time to ensure every entity type has a system-managed connection definition.
+     * Creates a SYSTEM_CONNECTION definition for an entity type — the default
+     * system-managed link used for picker-style ad-hoc connections that have
+     * no domain-specific relationship definition.
+     *
+     * Used at publish time to ensure every entity type has a system connection definition.
      */
+    @Transactional
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
-    fun createFallbackDefinition(workspaceId: UUID, entityTypeId: UUID): RelationshipDefinitionEntity {
+    fun createSystemConnectionDefinition(workspaceId: UUID, entityTypeId: UUID): RelationshipDefinitionEntity {
         val userId = authTokenService.getUserId()
-        return createFallbackDefinitionInternal(workspaceId, entityTypeId, userId)
+        return createSystemDefinitionInternal(workspaceId, entityTypeId, SystemRelationshipType.SYSTEM_CONNECTION, userId)
     }
 
     /**
-     * Internal variant of [createFallbackDefinition] without @PreAuthorize.
+     * Internal variant of [createSystemConnectionDefinition] without @PreAuthorize.
      *
      * Used by [riven.core.service.catalog.TemplateInstallationService] during onboarding
      * when the JWT does not yet contain the new workspace's role authorities.
      */
-    internal fun createFallbackDefinitionInternal(
+    @Transactional
+    internal fun createSystemConnectionDefinitionInternal(
         workspaceId: UUID,
         entityTypeId: UUID,
         userId: UUID? = null,
-    ): RelationshipDefinitionEntity {
-        val entityType = ServiceUtil.findOrThrow { entityTypeRepository.findById(entityTypeId) }
-        require(entityType.workspaceId == workspaceId) { "Entity type $entityTypeId not found in workspace $workspaceId" }
+    ): RelationshipDefinitionEntity =
+        createSystemDefinitionInternal(workspaceId, entityTypeId, SystemRelationshipType.SYSTEM_CONNECTION, userId)
 
+    /**
+     * Returns the existing system relationship definition for `(sourceEntityTypeId, systemType)`,
+     * creating it if absent. Handles concurrent creation via the unique constraint
+     * (catches DataIntegrityViolationException and retries the read).
+     *
+     * The same enum kind (e.g. ATTACHMENT, MENTION, DEFINES) is reused across knowledge
+     * entity types — concrete semantics live in the (sourceEntityType, systemType) pair.
+     */
+    @Transactional
+    @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
+    fun getOrCreateSystemDefinition(
+        workspaceId: UUID,
+        sourceEntityTypeId: UUID,
+        systemType: SystemRelationshipType,
+    ): RelationshipDefinitionEntity {
+        val userId = authTokenService.getUserId()
+        return getOrCreateSystemDefinitionInternal(workspaceId, sourceEntityTypeId, systemType, userId = userId)
+    }
+
+    /**
+     * Internal variant of [getOrCreateSystemDefinition] without @PreAuthorize. Used by
+     * [riven.core.service.catalog.TemplateInstallationService] during onboarding where the JWT
+     * does not yet contain the new workspace's role authorities, and by the reused-entity-type
+     * promotion path where the seeding must be idempotent. Activity logging is skipped when
+     * [userId] is null (background / pre-auth contexts).
+     */
+    @Transactional
+    internal fun getOrCreateSystemDefinitionInternal(
+        workspaceId: UUID,
+        sourceEntityTypeId: UUID,
+        systemType: SystemRelationshipType,
+        userId: UUID? = null,
+    ): RelationshipDefinitionEntity {
+        val existing = definitionRepository.findBySourceEntityTypeIdAndSystemType(sourceEntityTypeId, systemType)
+        if (existing.isPresent) {
+            val def = existing.get()
+            require(def.workspaceId == workspaceId) {
+                "System definition ${def.id} for source $sourceEntityTypeId belongs to workspace " +
+                    "${def.workspaceId} but was requested under workspace $workspaceId"
+            }
+            return def
+        }
+
+        return try {
+            createSystemDefinitionInternal(workspaceId, sourceEntityTypeId, systemType, userId = userId)
+        } catch (e: DataIntegrityViolationException) {
+            logger.warn { "Concurrent $systemType creation for entity type $sourceEntityTypeId, retrying read" }
+            definitionRepository.findBySourceEntityTypeIdAndSystemType(sourceEntityTypeId, systemType)
+                .orElseThrow { e }
+        }
+    }
+
+    /**
+     * Generic system relationship definition factory. Default values per system type
+     * are documented inline; all use MANY_TO_MANY cardinality and are protected.
+     */
+    /**
+     * REQUIRES_NEW so a concurrent unique-constraint collision rolls back ONLY this inner
+     * transaction — leaving the calling [getOrCreateSystemDefinitionInternal] free to retry
+     * the read in its own transaction. Without this, a parent transaction marked
+     * rollback-only by the inner save() failure would block the catch-and-retry path.
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    internal fun createSystemDefinitionInternal(
+        workspaceId: UUID,
+        sourceEntityTypeId: UUID,
+        systemType: SystemRelationshipType,
+        userId: UUID? = null,
+    ): RelationshipDefinitionEntity {
+        val entityType = ServiceUtil.findOrThrow { entityTypeRepository.findById(sourceEntityTypeId) }
+        require(entityType.workspaceId == workspaceId) { "Entity type $sourceEntityTypeId not found in workspace $workspaceId" }
+
+        val name = when (systemType) {
+            SystemRelationshipType.SYSTEM_CONNECTION -> "Connected Entities"
+            SystemRelationshipType.ATTACHMENT -> "Attachments"
+            SystemRelationshipType.MENTION -> "Mentions"
+            SystemRelationshipType.DEFINES -> "Defines"
+            SystemRelationshipType.INCLUDES -> "Includes"
+        }
         val entity = RelationshipDefinitionEntity(
             workspaceId = workspaceId,
-            sourceEntityTypeId = entityTypeId,
-            name = "Connected Entities",
+            sourceEntityTypeId = sourceEntityTypeId,
+            name = name,
             iconType = IconType.LINK,
             iconColour = IconColour.NEUTRAL,
             cardinalityDefault = EntityRelationshipCardinality.MANY_TO_MANY,
             protected = true,
-            systemType = SystemRelationshipType.CONNECTED_ENTITIES,
+            systemType = systemType,
         )
         val saved = definitionRepository.save(entity)
 
@@ -591,47 +675,34 @@ class EntityTypeRelationshipService(
                 userId = uid,
                 workspaceId = workspaceId,
                 entityType = ApplicationEntityType.ENTITY_TYPE,
-                entityId = entityTypeId,
+                entityId = sourceEntityTypeId,
                 details = mapOf(
                     "relationshipId" to requireNotNull(saved.id).toString(),
                     "relationshipName" to saved.name,
-                    "systemType" to "CONNECTED_ENTITIES",
+                    "systemType" to systemType.name,
                 ),
             )
         }
 
-        logger.info { "Created CONNECTED_ENTITIES fallback definition for entity type $entityTypeId" }
+        logger.info { "Created $systemType definition for entity type $sourceEntityTypeId" }
         return saved
     }
 
     /**
-     * Returns the existing fallback definition or creates one if absent.
+     * Returns the existing system connection definition for an entity type or creates one if absent.
      * Handles concurrent creation via unique constraint by catching DataIntegrityViolationException
      * and retrying with a read.
      */
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
-    fun getOrCreateFallbackDefinition(workspaceId: UUID, entityTypeId: UUID): RelationshipDefinitionEntity {
-        val existing = definitionRepository.findBySourceEntityTypeIdAndSystemType(
-            entityTypeId, SystemRelationshipType.CONNECTED_ENTITIES,
-        )
-        if (existing.isPresent) return existing.get()
-
-        return try {
-            createFallbackDefinition(workspaceId, entityTypeId)
-        } catch (e: DataIntegrityViolationException) {
-            logger.warn { "Concurrent fallback definition creation for entity type $entityTypeId, retrying read" }
-            definitionRepository.findBySourceEntityTypeIdAndSystemType(
-                entityTypeId, SystemRelationshipType.CONNECTED_ENTITIES,
-            ).orElseThrow { e }
-        }
-    }
+    fun getOrCreateSystemConnectionDefinition(workspaceId: UUID, entityTypeId: UUID): RelationshipDefinitionEntity =
+        getOrCreateSystemDefinition(workspaceId, entityTypeId, SystemRelationshipType.SYSTEM_CONNECTION)
 
     /**
-     * Read-only lookup returning the fallback definition ID, or null if none exists.
+     * Read-only lookup returning the system connection definition ID, or null if none exists.
      */
-    fun getFallbackDefinitionId(entityTypeId: UUID): UUID? {
+    fun getSystemConnectionDefinitionId(entityTypeId: UUID): UUID? {
         return definitionRepository.findBySourceEntityTypeIdAndSystemType(
-            entityTypeId, SystemRelationshipType.CONNECTED_ENTITIES,
+            entityTypeId, SystemRelationshipType.SYSTEM_CONNECTION,
         ).map { it.id }.orElse(null)
     }
 }

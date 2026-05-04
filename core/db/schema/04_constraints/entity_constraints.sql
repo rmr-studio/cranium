@@ -11,7 +11,13 @@ ALTER TABLE public.entity_relationships
 
 DROP INDEX IF EXISTS uq_entity_relationship;
 CREATE UNIQUE INDEX uq_entity_relationship
-    ON public.entity_relationships (source_entity_id, relationship_definition_id, target_entity_id)
+    ON public.entity_relationships (
+        source_entity_id,
+        relationship_definition_id,
+        target_id,
+        target_kind,
+        COALESCE(target_parent_id, '00000000-0000-0000-0000-000000000000'::uuid)
+    )
     WHERE deleted = FALSE AND deleted_at IS NULL;
 
 DROP INDEX IF EXISTS uq_relationship_definition_system_type;

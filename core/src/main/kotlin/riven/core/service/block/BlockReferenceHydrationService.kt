@@ -68,7 +68,7 @@ class BlockReferenceHydrationService(
                 .associateBy { it.id }
                 .mapValues {
                     it.value.toModel(
-                        relationships = emptyMap(),
+                        links = emptyList(),
                         attributes = allAttributes[it.key] ?: emptyMap(),
                     )
                 }

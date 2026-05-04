@@ -8,6 +8,7 @@ import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
 import riven.core.enums.core.DynamicDefaultFunction
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.models.common.validation.DefaultValue
 import riven.core.models.common.validation.SchemaOptions
 import riven.core.models.core.AttributeSemantics
@@ -22,6 +23,7 @@ object OrderModel : riven.core.models.core.CoreModelDefinition(
     displayNameSingular = "Order",
     displayNamePlural = "Orders",
     iconType = IconType.SHOPPING_CART,
+    role = EntityTypeRole.CATALOG,
     iconColour = IconColour.GREEN,
     semanticGroup = SemanticGroup.TRANSACTION,
     lifecycleDomain = LifecycleDomain.BILLING,

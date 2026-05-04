@@ -4,6 +4,7 @@ import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
@@ -22,6 +23,7 @@ object CarrierModel : CoreModelDefinition(
     iconType = IconType.SHIP,
     iconColour = IconColour.TEAL,
     semanticGroup = SemanticGroup.OPERATIONAL,
+    role = EntityTypeRole.CATALOG,
     lifecycleDomain = LifecycleDomain.FULFILLMENT,
     identifierKey = "name",
     semanticDefinition = "A shipping carrier used by the brand. Carrier entities support carrier-level performance analysis (on-time %, exception rates).",

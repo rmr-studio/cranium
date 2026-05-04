@@ -4,6 +4,7 @@ import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
@@ -23,6 +24,7 @@ object SocialPostModel : riven.core.models.core.CoreModelDefinition(
     iconColour = IconColour.PINK,
     semanticGroup = SemanticGroup.SOCIAL_POST,
     lifecycleDomain = LifecycleDomain.ENGAGEMENT,
+    role = EntityTypeRole.CATALOG,
     identifierKey = "permalink",
     semanticDefinition = "An owned-account social post published by the brand. Source for engagement metrics and organic reach.",
     semanticTags = listOf("social", "content", "engagement"),

@@ -51,7 +51,7 @@ class IdentityClusterService(
     /**
      * Manually adds an entity to an existing identity cluster.
      *
-     * Creates a CONNECTED_ENTITIES relationship between the new entity and the specified
+     * Creates a SYSTEM_CONNECTION relationship between the new entity and the specified
      * target member, saves the new cluster membership, increments memberCount, and logs activity.
      *
      * @param workspaceId The workspace owning the cluster.

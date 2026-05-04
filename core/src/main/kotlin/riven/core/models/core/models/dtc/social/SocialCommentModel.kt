@@ -4,6 +4,7 @@ import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
@@ -18,6 +19,7 @@ object SocialCommentModel : riven.core.models.core.CoreModelDefinition(
     key = "social-comment",
     displayNameSingular = "Social Comment",
     displayNamePlural = "Social Comments",
+    role = EntityTypeRole.CATALOG,
     iconType = IconType.MESSAGE_CIRCLE,
     iconColour = IconColour.PINK,
     semanticGroup = SemanticGroup.COMMUNICATION,

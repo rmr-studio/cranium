@@ -21,6 +21,8 @@ CREATE TABLE IF NOT EXISTS public.entity_types
     "attribute_key_mapping"  JSONB,
     "semantic_group"        TEXT        NOT NULL     DEFAULT 'UNCATEGORIZED',
     "lifecycle_domain"      TEXT        NOT NULL     DEFAULT 'UNCATEGORIZED',
+    "surface_role"          VARCHAR(20) NOT NULL     DEFAULT 'CATALOG'
+        CHECK (surface_role IN ('CATALOG', 'KNOWLEDGE', 'SIGNAL')),
     -- Source discriminator fields for integration entity types
     "source_type"           VARCHAR(50) NOT NULL     DEFAULT 'USER_CREATED',
     "source_integration_id" UUID        REFERENCES integration_definitions (id) ON DELETE SET NULL,
@@ -75,8 +77,18 @@ CREATE TABLE IF NOT EXISTS public.entities
     "last_synced_at"        TIMESTAMPTZ,
     "sync_version"          BIGINT      NOT NULL     DEFAULT 0,
 
-    -- Denormalized count of notes for faster access (trigger-maintained)
-    "note_count"            INTEGER     NOT NULL     DEFAULT 0,
+    -- Unresolved foreign references captured at integration sync time. Map of
+    -- association type → list of external IDs that did not resolve to local entities
+    -- when the row was upserted. Reconciliation passes (per integration domain) consume
+    -- this column to retry resolution after sibling rows arrive in later syncs.
+    "pending_associations"  JSONB,
+
+    -- Workspace-wide full-text search index. Recomputed by EntitySearchService on every
+    -- entity write — `setweight(to_tsvector(identifier), 'A') || setweight(to_tsvector(body), 'B')`
+    -- where `identifier` is the value of the entity's identifier attribute and `body` is the
+    -- concatenation of every TEXT / EMAIL / URL / PHONE attribute not flagged
+    -- `excludeFromSearch` in the type schema. GIN-indexed for ts_rank_cd queries.
+    "search_vector"         TSVECTOR,
 
     -- Composite uniqueness so sibling tables (e.g. entity_connotation) can declare a
     -- composite FK on (id, workspace_id) and enforce that the workspace_id of any
@@ -177,10 +189,32 @@ CREATE TABLE IF NOT EXISTS public.entity_relationships
     "id"                         UUID PRIMARY KEY         DEFAULT uuid_generate_v4(),
     "workspace_id"               UUID    NOT NULL REFERENCES workspaces (id) ON DELETE CASCADE,
     "source_entity_id"           UUID    NOT NULL REFERENCES entities (id) ON DELETE CASCADE,
-    "target_entity_id"           UUID    NOT NULL REFERENCES entities (id) ON DELETE CASCADE,
+    -- NOTE: target_id has NO foreign key — when target_kind != 'ENTITY' the row references
+    -- a row in entity_types, an attribute UUID, or a relationship_definition UUID rather
+    -- than an entities row. Referential integrity for non-ENTITY targets is enforced at the
+    -- service layer (knowledge ingestion / projector) instead of by a database constraint.
+    "target_id"                  UUID    NOT NULL,
     "relationship_definition_id" UUID    NOT NULL REFERENCES relationship_definitions (id) ON DELETE RESTRICT,
 
-    -- Semantic context for fallback connections (why these entities are linked)
+    -- Kind of object the target_id points at. ENTITY (default) is an entities row,
+    -- ENTITY_TYPE is an entity_types row, ATTRIBUTE is an attribute UUID on an entity type,
+    -- RELATIONSHIP is a relationship_definition UUID owned by an entity type.
+    -- Used by glossary DEFINES edges to point at structural targets without inflating the
+    -- entities table with synthetic rows.
+    "target_kind"                VARCHAR(20) NOT NULL     DEFAULT 'ENTITY'
+        CHECK (target_kind IN ('ENTITY', 'ENTITY_TYPE', 'ATTRIBUTE', 'RELATIONSHIP')),
+
+    -- For sub-reference target_kinds (ATTRIBUTE, RELATIONSHIP), this is the owning entity_type
+    -- the attribute or relationship belongs to. NULL for ENTITY and ENTITY_TYPE target_kinds
+    -- (where target_id is itself a top-level identifier). Enables efficient inbound queries
+    -- of "DEFINES edges targeting attribute X owned by entity_type Y".
+    "target_parent_id"           UUID             REFERENCES entity_types (id) ON DELETE RESTRICT,
+    CONSTRAINT entity_relationships_target_parent_kind_chk CHECK (
+        (target_kind IN ('ATTRIBUTE', 'RELATIONSHIP') AND target_parent_id IS NOT NULL)
+     OR (target_kind IN ('ENTITY', 'ENTITY_TYPE')      AND target_parent_id IS NULL)
+    ),
+
+    -- Semantic context for system connections (why these entities are linked)
     "semantic_context"           TEXT                     DEFAULT NULL,
     -- Source of this link (USER_CREATED, INTEGRATION, etc.)
     "link_source"                TEXT    NOT NULL         DEFAULT 'USER_CREATED',

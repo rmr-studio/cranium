@@ -23,6 +23,23 @@ interface EntityAttributeRepository : JpaRepository<EntityAttributeEntity, UUID>
     fun findByEntityIdIn(entityIds: Collection<UUID>): List<EntityAttributeEntity>
 
     /**
+     * Find selected attributes (by attribute id) across a batch of entities. Used by
+     * the knowledge projector layer to load identifier-key values for entity context
+     * lookups without fetching the full attribute set.
+     */
+    @Query(
+        """
+        SELECT a FROM EntityAttributeEntity a
+        WHERE a.entityId IN :entityIds
+          AND a.attributeId IN :attributeIds
+        """
+    )
+    fun findByEntityIdInAndAttributeIdIn(
+        entityIds: Collection<UUID>,
+        attributeIds: Collection<UUID>,
+    ): List<EntityAttributeEntity>
+
+    /**
      * Hard-delete all attributes for a given entity.
      * Used in the delete-all + re-insert save flow.
      */

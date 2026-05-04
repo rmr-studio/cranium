@@ -34,11 +34,11 @@ class CoreModelCatalogServiceTest {
     }
 
     @Test
-    fun `onApplicationReady upserts the dtc-ecommerce core model set to catalog`() {
+    fun `onApplicationReady upserts every registered core model set to catalog`() {
         service.onApplicationReady()
 
-        // Only dtc-ecommerce ships; b2c-saas was ripped.
-        verify(upsertService, times(1)).upsertManifest(any())
+        // dtc-ecommerce + knowledge ship today.
+        verify(upsertService, times(2)).upsertManifest(any())
     }
 
     @Test
@@ -47,6 +47,15 @@ class CoreModelCatalogServiceTest {
 
         verify(upsertService).upsertManifest(argThat<ResolvedManifest> {
             key == "dtc-ecommerce" && entityTypes.any { it.key == "order" }
+        })
+    }
+
+    @Test
+    fun `onApplicationReady upserts knowledge with correct key`() {
+        service.onApplicationReady()
+
+        verify(upsertService).upsertManifest(argThat<ResolvedManifest> {
+            key == "knowledge" && entityTypes.any { it.key == "note" }
         })
     }
 
@@ -59,16 +68,16 @@ class CoreModelCatalogServiceTest {
 
         service.onApplicationReady()
 
-        verify(upsertService, times(1)).upsertManifest(any())
+        verify(upsertService, times(2)).upsertManifest(any())
         verify(healthIndicator).loadState = ManifestCatalogHealthIndicator.LoadState.FAILED
-        verify(healthIndicator).lastError = argThat<String> { contains("1/1") }
+        verify(healthIndicator).lastError = argThat<String> { contains("2/2") }
     }
 
     @Test
     fun `successful load does not set health indicator to FAILED`() {
         service.onApplicationReady()
 
-        verify(upsertService, times(1)).upsertManifest(any())
+        verify(upsertService, times(2)).upsertManifest(any())
         verify(healthIndicator, never()).loadState = ManifestCatalogHealthIndicator.LoadState.FAILED
         verify(healthIndicator, never()).lastError = any()
     }

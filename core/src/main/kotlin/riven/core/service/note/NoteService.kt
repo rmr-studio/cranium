@@ -1,35 +1,42 @@
 package riven.core.service.note
 
 import io.github.oshai.kotlinlogging.KLogger
-import org.springframework.data.domain.PageRequest
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.note.NoteEntity
-import riven.core.entity.note.NoteEntityAttachment
+import riven.core.entity.entity.EntityEntity
 import riven.core.enums.activity.Activity
 import riven.core.enums.core.ApplicationEntityType
+import riven.core.enums.integration.SourceType
+import riven.core.enums.knowledge.KnowledgeEntityTypeKey
 import riven.core.enums.util.OperationType
 import riven.core.exceptions.NotFoundException
 import riven.core.models.note.CreateNoteRequest
 import riven.core.models.note.Note
-import riven.core.models.note.NoteEntityContext
 import riven.core.models.note.UpdateNoteRequest
 import riven.core.models.note.WorkspaceNote
-import riven.core.repository.note.NoteEntityAttachmentRepository
-import riven.core.repository.note.NoteRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.activity.log
 import riven.core.service.auth.AuthTokenService
+import riven.core.service.entity.EntityIngestionService
 import riven.core.util.CursorPage
-import riven.core.util.CursorPagination
-import java.util.*
+import java.util.UUID
 
+/**
+ * Public note API. Post-cutover, every read and write path is backed by the entity layer:
+ *   - mutations route through [NoteEntityIngestionService] (`upsert` / `softDelete`);
+ *   - reads route through [NoteEntityProjector], which reshapes entity rows back into
+ *     the existing `Note` / `WorkspaceNote` DTO contract.
+ *
+ * The legacy `notes` and `note_entity_attachments` JPA scaffolding is no longer
+ * referenced from this service — Phase F deletes the table + entity files.
+ */
 @Service
 class NoteService(
-    private val noteRepository: NoteRepository,
-    private val attachmentRepository: NoteEntityAttachmentRepository,
+    private val entityIngestionService: EntityIngestionService,
+    private val noteEntityIngestionService: NoteEntityIngestionService,
+    private val noteEntityProjector: NoteEntityProjector,
     private val authTokenService: AuthTokenService,
     private val activityService: ActivityService,
     private val logger: KLogger,
@@ -38,27 +45,12 @@ class NoteService(
     // ------ Entity-scoped Read ------
 
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
-    fun getNotesForEntity(workspaceId: UUID, entityId: UUID, search: String? = null): List<Note> {
-        val entities = if (!search.isNullOrBlank()) {
-            noteRepository.searchByEntityIdAndWorkspaceId(entityId, workspaceId, search)
-        } else {
-            noteRepository.findByEntityIdAndWorkspaceId(entityId, workspaceId)
-        }
-        val noteIds = entities.mapNotNull { it.id }
-        val entityIdsByNoteId = if (noteIds.isNotEmpty()) {
-            attachmentRepository.findByNoteIdIn(noteIds).groupBy({ it.noteId }, { it.entityId })
-        } else {
-            emptyMap()
-        }
-        return entities.map { note ->
-            val noteId = requireNotNull(note.id) { "Note ID must not be null" }
-            note.toModel(entityIdsByNoteId[noteId] ?: emptyList())
-        }
-    }
+    @Transactional(readOnly = true)
+    fun getNotesForEntity(workspaceId: UUID, entityId: UUID, search: String? = null): List<Note> =
+        noteEntityProjector.getNotesForEntity(workspaceId, entityId, search)
 
     // ------ Workspace-scoped Read ------
 
-    /** Returns a cursor-paginated list of all notes in the workspace, enriched with entity context. */
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
     @Transactional(readOnly = true)
     fun getWorkspaceNotes(
@@ -66,43 +58,17 @@ class NoteService(
         search: String? = null,
         cursor: String? = null,
         limit: Int = 20,
-    ): CursorPage<WorkspaceNote> {
-        require(limit in 1..100) { "limit must be between 1 and 100" }
+    ): CursorPage<WorkspaceNote> = noteEntityProjector.listNotes(workspaceId, search, cursor, limit)
 
-        val (cursorCreatedAt, cursorId) = CursorPagination.decodeCursor(cursor)
-
-        val notes = if (!search.isNullOrBlank()) {
-            noteRepository.searchByWorkspaceId(workspaceId, search, cursorCreatedAt, cursorId, limit)
-        } else {
-            noteRepository.findByWorkspaceId(workspaceId, cursorCreatedAt, cursorId, PageRequest.of(0, limit))
-        }
-
-        val totalCount = noteRepository.countByWorkspaceId(workspaceId)
-        val enriched = enrichWithEntityContext(notes)
-
-        val nextCursor = if (notes.size == limit) {
-            val last = notes.last()
-            CursorPagination.encodeCursor(
-                requireNotNull(last.createdAt) { "createdAt must not be null for cursor encoding" },
-                requireNotNull(last.id) { "id must not be null for cursor encoding" },
-            )
-        } else null
-
-        return CursorPage(
-            items = enriched,
-            nextCursor = nextCursor,
-            totalCount = totalCount,
-        )
-    }
-
-    /** Returns a single workspace note enriched with entity context. */
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
     @Transactional(readOnly = true)
     fun getWorkspaceNote(workspaceId: UUID, noteId: UUID): WorkspaceNote {
-        val entity = noteRepository.findByIdAndWorkspaceId(noteId, workspaceId)
+        val entity = entityIngestionService.findByIdInternal(workspaceId, noteId)
             ?: throw NotFoundException("Note not found: $noteId")
-
-        return enrichWithEntityContext(listOf(entity)).first()
+        if (entity.typeKey != KnowledgeEntityTypeKey.NOTE.key) {
+            throw NotFoundException("Note not found: $noteId")
+        }
+        return noteEntityProjector.projectWorkspaceNote(workspaceId, entity)
     }
 
     // ------ Create ------
@@ -114,21 +80,18 @@ class NoteService(
         val plaintext = extractPlaintext(request.content)
         val title = request.title ?: extractTitle(request.content)
 
-        val entity = NoteEntity(
-            entityId = entityId,
-            workspaceId = workspaceId,
-            title = title,
-            content = request.content,
-            plaintext = plaintext,
+        val saved = noteEntityIngestionService.upsert(
+            NoteEntityIngestionService.NoteIngestionInput(
+                workspaceId = workspaceId,
+                title = title,
+                content = request.content,
+                plaintext = plaintext,
+                targetEntityIds = setOf(entityId),
+                sourceType = SourceType.USER_CREATED,
+                linkSource = SourceType.USER_CREATED,
+            ),
         )
-
-        val saved = noteRepository.save(entity)
-        val noteId = requireNotNull(saved.id) { "Saved NoteEntity ID must not be null" }
-
-        val attachment = NoteEntityAttachment(noteId = noteId, entityId = entityId)
-        attachmentRepository.save(attachment)
-
-        val note = saved.toModel(listOf(entityId))
+        val note = noteEntityProjector.projectNote(workspaceId, saved)
 
         activityService.log(
             activity = Activity.NOTE,
@@ -151,26 +114,33 @@ class NoteService(
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
     fun updateNote(workspaceId: UUID, noteId: UUID, request: UpdateNoteRequest): Note {
         val userId = authTokenService.getUserId()
-        val entity = noteRepository.findById(noteId)
-            .orElseThrow { NotFoundException("Note not found: $noteId") }
+        val existing = requireNoteEntity(workspaceId, noteId)
 
-        require(entity.workspaceId == workspaceId) { "Note does not belong to workspace $workspaceId" }
-
-        if (entity.readonly) {
+        if (existing.sourceType == SourceType.INTEGRATION) {
             throw AccessDeniedException("Cannot modify readonly note")
         }
 
-        if (request.content != null) {
-            entity.content = request.content
-            entity.plaintext = extractPlaintext(request.content)
-            entity.title = request.title ?: extractTitle(request.content)
-        } else if (request.title != null) {
-            entity.title = request.title
-        }
+        val currentNote = noteEntityProjector.projectNote(workspaceId, existing)
+        val newContent = request.content ?: currentNote.content
+        val newTitle = request.title ?: currentNote.title
+        val newPlaintext = if (request.content != null) extractPlaintext(newContent) else extractPlaintext(currentNote.content)
+        val targetEntityIds = currentNote.entityIds.toSet()
 
-        val saved = noteRepository.save(entity)
-        val entityIds = attachmentRepository.findEntityIdsByNoteId(noteId)
-        val note = saved.toModel(entityIds)
+        val saved = noteEntityIngestionService.upsert(
+            NoteEntityIngestionService.NoteIngestionInput(
+                workspaceId = workspaceId,
+                title = newTitle,
+                content = newContent,
+                plaintext = newPlaintext,
+                targetEntityIds = targetEntityIds,
+                sourceType = SourceType.USER_CREATED,
+                sourceIntegrationId = existing.sourceIntegrationId,
+                sourceExternalId = existing.sourceExternalId,
+                linkSource = SourceType.USER_CREATED,
+                existingId = noteId,
+            ),
+        )
+        val note = noteEntityProjector.projectNote(workspaceId, saved)
 
         activityService.log(
             activity = Activity.NOTE,
@@ -192,16 +162,13 @@ class NoteService(
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
     fun deleteNote(workspaceId: UUID, noteId: UUID) {
         val userId = authTokenService.getUserId()
-        val entity = noteRepository.findById(noteId)
-            .orElseThrow { NotFoundException("Note not found: $noteId") }
+        val existing = requireNoteEntity(workspaceId, noteId)
 
-        require(entity.workspaceId == workspaceId) { "Note does not belong to workspace $workspaceId" }
-
-        if (entity.readonly) {
+        if (existing.sourceType == SourceType.INTEGRATION) {
             throw AccessDeniedException("Cannot modify readonly note")
         }
 
-        noteRepository.delete(entity)
+        noteEntityIngestionService.softDelete(workspaceId, noteId)
 
         activityService.log(
             activity = Activity.NOTE,
@@ -210,7 +177,7 @@ class NoteService(
             workspaceId = workspaceId,
             entityType = ApplicationEntityType.NOTE,
             entityId = noteId,
-            "title" to entity.title,
+            "title" to (existing.let { noteEntityProjector.projectNote(workspaceId, it).title }),
         )
 
         logger.info { "Note deleted: $noteId" }
@@ -218,83 +185,14 @@ class NoteService(
 
     // ------ Private helpers ------
 
-    /**
-     * Batch-fetches entity context (display name, type key, icon) for all attached entities
-     * and maps note entities to enriched WorkspaceNote models.
-     *
-     * For each note, resolves attachment entity IDs from the join table, then batch-fetches
-     * context for all unique entity IDs across all notes in a single query.
-     */
-    private fun enrichWithEntityContext(notes: List<NoteEntity>): List<WorkspaceNote> {
-        if (notes.isEmpty()) return emptyList()
-
-        val noteIds = notes.mapNotNull { it.id }
-        val allAttachments = if (noteIds.isNotEmpty()) {
-            attachmentRepository.findByNoteIdIn(noteIds)
-        } else {
-            emptyList()
+    private fun requireNoteEntity(workspaceId: UUID, noteId: UUID): EntityEntity {
+        val entity = entityIngestionService.findByIdInternal(workspaceId, noteId)
+            ?: throw NotFoundException("Note not found: $noteId")
+        if (entity.typeKey != KnowledgeEntityTypeKey.NOTE.key) {
+            throw NotFoundException("Note not found: $noteId")
         }
-        val attachmentsByNoteId = allAttachments.groupBy { it.noteId }
-
-        val allEntityIds = allAttachments.map { it.entityId }.distinct()
-        val contextMap = if (allEntityIds.isNotEmpty()) {
-            buildEntityContextMap(allEntityIds)
-        } else {
-            emptyMap()
-        }
-
-        return notes.map { note ->
-            val noteId = requireNotNull(note.id) { "Note ID must not be null" }
-            val attachedEntityIds = attachmentsByNoteId[noteId]?.map { it.entityId } ?: emptyList()
-
-            val entityContexts = attachedEntityIds.mapNotNull { entityId ->
-                contextMap[entityId]?.let { ctx ->
-                    NoteEntityContext(
-                        entityId = entityId,
-                        entityDisplayName = ctx.displayName,
-                        entityTypeKey = ctx.typeKey,
-                        entityTypeIcon = ctx.iconType,
-                        entityTypeColour = ctx.iconColour,
-                    )
-                }
-            }
-
-            WorkspaceNote(
-                id = noteId,
-                entityIds = attachedEntityIds,
-                workspaceId = note.workspaceId,
-                title = note.title,
-                content = note.content,
-                sourceType = note.sourceType,
-                readonly = note.readonly,
-                createdAt = note.createdAt,
-                updatedAt = note.updatedAt,
-                createdBy = note.createdBy,
-                updatedBy = note.updatedBy,
-                entityContexts = entityContexts,
-            )
-        }
+        return entity
     }
-
-    private fun buildEntityContextMap(entityIds: List<UUID>): Map<UUID, EntityContext> {
-        val contextRows = noteRepository.findEntityContext(entityIds)
-        return contextRows.associate { row ->
-            val entityId = row[0] as UUID
-            entityId to EntityContext(
-                displayName = row[1] as? String,
-                typeKey = row[2] as String,
-                iconType = row[3] as String,
-                iconColour = row[4] as String,
-            )
-        }
-    }
-
-    private data class EntityContext(
-        val displayName: String?,
-        val typeKey: String,
-        val iconType: String,
-        val iconColour: String,
-    )
 
     /**
      * Recursively extracts all string values from "text" keys in the JSONB content tree.

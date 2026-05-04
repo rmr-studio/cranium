@@ -11,14 +11,14 @@ import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.enums.knowledge.DefinitionCategory
 import riven.core.enums.knowledge.DefinitionStatus
 import riven.core.models.entity.EntityTypeSemanticMetadata
-import riven.core.models.knowledge.WorkspaceBusinessDefinition
+import riven.core.models.knowledge.GlossaryTerm
 import riven.core.models.request.entity.type.BulkSaveSemanticMetadataRequest
 import riven.core.models.request.entity.type.SaveSemanticMetadataRequest
 import riven.core.models.request.knowledge.CreateBusinessDefinitionRequest
 import riven.core.models.request.knowledge.UpdateBusinessDefinitionRequest
 import riven.core.models.entity.SemanticMetadataBundle
 import riven.core.service.entity.EntityTypeSemanticMetadataService
-import riven.core.service.knowledge.WorkspaceBusinessDefinitionService
+import riven.core.service.knowledge.GlossaryService
 import java.util.*
 
 @RestController
@@ -27,7 +27,7 @@ import java.util.*
 class KnowledgeController(
     private val semanticMetadataService: EntityTypeSemanticMetadataService,
     private val entityTypeService: riven.core.service.entity.type.EntityTypeService,
-    private val businessDefinitionService: WorkspaceBusinessDefinitionService,
+    private val businessDefinitionService: GlossaryService,
 ) {
 
     // ------ Entity type metadata ------
@@ -214,7 +214,7 @@ class KnowledgeController(
         @PathVariable workspaceId: UUID,
         @RequestParam(required = false) status: DefinitionStatus?,
         @RequestParam(required = false) category: DefinitionCategory?,
-    ): ResponseEntity<List<WorkspaceBusinessDefinition>> {
+    ): ResponseEntity<List<GlossaryTerm>> {
         val definitions = businessDefinitionService.listDefinitions(workspaceId, status, category)
         return ResponseEntity.ok(definitions)
     }
@@ -232,7 +232,7 @@ class KnowledgeController(
     fun getDefinition(
         @PathVariable workspaceId: UUID,
         @PathVariable id: UUID,
-    ): ResponseEntity<WorkspaceBusinessDefinition> {
+    ): ResponseEntity<GlossaryTerm> {
         val definition = businessDefinitionService.getDefinition(workspaceId, id)
         return ResponseEntity.ok(definition)
     }
@@ -252,7 +252,7 @@ class KnowledgeController(
     fun createDefinition(
         @PathVariable workspaceId: UUID,
         @RequestBody request: CreateBusinessDefinitionRequest,
-    ): ResponseEntity<WorkspaceBusinessDefinition> {
+    ): ResponseEntity<GlossaryTerm> {
         val definition = businessDefinitionService.createDefinition(workspaceId, request)
         return ResponseEntity.status(HttpStatus.CREATED).body(definition)
     }
@@ -274,7 +274,7 @@ class KnowledgeController(
         @PathVariable workspaceId: UUID,
         @PathVariable id: UUID,
         @RequestBody request: UpdateBusinessDefinitionRequest,
-    ): ResponseEntity<WorkspaceBusinessDefinition> {
+    ): ResponseEntity<GlossaryTerm> {
         val definition = businessDefinitionService.updateDefinition(workspaceId, id, request)
         return ResponseEntity.ok(definition)
     }

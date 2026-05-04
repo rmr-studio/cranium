@@ -15,6 +15,7 @@ import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.entity.entity.EntityTypeEntity
 import riven.core.enums.entity.EntityRelationshipCardinality
+import riven.core.enums.entity.SystemRelationshipType
 import riven.core.enums.integration.SourceType
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.enums.workspace.WorkspaceRoles
@@ -28,6 +29,7 @@ import riven.core.service.activity.ActivityService
 import riven.core.service.auth.AuthTokenService
 import riven.core.service.entity.EntityTypeSemanticMetadataService
 import riven.core.service.util.BaseServiceTest
+import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.WithUserPersona
 import riven.core.service.util.WorkspaceRole
 import org.junit.jupiter.api.Nested
@@ -38,6 +40,7 @@ import java.util.*
     classes = [
         AuthTokenService::class,
         WorkspaceSecurity::class,
+        SecurityTestConfig::class,
         EntityTypeRelationshipServiceTest.TestConfig::class,
         EntityTypeRelationshipService::class,
     ]
@@ -769,6 +772,77 @@ class EntityTypeRelationshipServiceTest : BaseServiceTest() {
         assertTrue(result.isEmpty())
     }
 
+    // ------ System Relationship Definitions ------
+
+    @Test
+    fun `getOrCreateSystemDefinition - creates ATTACHMENT when missing`() {
+        val noteTypeId = UUID.randomUUID()
+        val noteEntityType = EntityFactory.createEntityType(id = noteTypeId, workspaceId = workspaceId, key = "note")
+        whenever(definitionRepository.findBySourceEntityTypeIdAndSystemType(noteTypeId, SystemRelationshipType.ATTACHMENT))
+            .thenReturn(Optional.empty())
+        whenever(entityTypeRepository.findById(noteTypeId)).thenReturn(Optional.of(noteEntityType))
+        whenever(definitionRepository.save(any<RelationshipDefinitionEntity>())).thenAnswer { invocation ->
+            val entity = invocation.arguments[0] as RelationshipDefinitionEntity
+            if (entity.id == null) entity.copy(id = UUID.randomUUID()) else entity
+        }
+
+        val result = service.getOrCreateSystemDefinition(workspaceId, noteTypeId, SystemRelationshipType.ATTACHMENT)
+
+        assertEquals(SystemRelationshipType.ATTACHMENT, result.systemType)
+        assertEquals("Attachments", result.name)
+        assertTrue(result.protected)
+    }
+
+    @Test
+    fun `getOrCreateSystemDefinition - returns existing when present`() {
+        val noteTypeId = UUID.randomUUID()
+        val existingId = UUID.randomUUID()
+        val existing = EntityFactory.createRelationshipDefinitionEntity(
+            id = existingId,
+            workspaceId = workspaceId,
+            sourceEntityTypeId = noteTypeId,
+            name = "Attachments",
+            systemType = SystemRelationshipType.ATTACHMENT,
+        )
+        whenever(definitionRepository.findBySourceEntityTypeIdAndSystemType(noteTypeId, SystemRelationshipType.ATTACHMENT))
+            .thenReturn(Optional.of(existing))
+
+        val result = service.getOrCreateSystemDefinition(workspaceId, noteTypeId, SystemRelationshipType.ATTACHMENT)
+
+        assertEquals(existingId, result.id)
+        verify(definitionRepository, never()).save(any<RelationshipDefinitionEntity>())
+    }
+
+    /**
+     * Regression test for r3166515144: getOrCreateSystemDefinition must reject existing
+     * definitions whose `workspace_id` differs from the caller's `workspaceId`.
+     *
+     * Synthesises a definition row owned by a different workspace and asserts that the
+     * lookup throws rather than returning the foreign row. @PreAuthorize would normally
+     * stop this on the public path, but the unit test forces the path to lock in the
+     * inner workspace guard so a future change to the lookup query does not silently
+     * regress.
+     */
+    @Test
+    fun `getOrCreateSystemDefinition - rejects existing row from a different workspace`() {
+        val noteTypeId = UUID.randomUUID()
+        val foreignWorkspaceId = UUID.randomUUID()
+        val foreignDefinition = EntityFactory.createRelationshipDefinitionEntity(
+            id = UUID.randomUUID(),
+            workspaceId = foreignWorkspaceId,
+            sourceEntityTypeId = noteTypeId,
+            name = "Attachments",
+            systemType = SystemRelationshipType.ATTACHMENT,
+        )
+        whenever(definitionRepository.findBySourceEntityTypeIdAndSystemType(noteTypeId, SystemRelationshipType.ATTACHMENT))
+            .thenReturn(Optional.of(foreignDefinition))
+
+        org.junit.jupiter.api.assertThrows<IllegalArgumentException> {
+            service.getOrCreateSystemDefinition(workspaceId, noteTypeId, SystemRelationshipType.ATTACHMENT)
+        }
+        verify(definitionRepository, never()).save(any<RelationshipDefinitionEntity>())
+    }
+
     // ------ Readonly Guard Tests ------
 
     @Nested
@@ -818,6 +892,35 @@ class EntityTypeRelationshipServiceTest : BaseServiceTest() {
 
             assertTrue(exception.message!!.contains("readonly"))
             verify(definitionRepository, never()).save(any<RelationshipDefinitionEntity>())
+        }
+    }
+
+    /**
+     * Regression for r3172127159: @PreAuthorize on getOrCreateSystemDefinition must reject
+     * callers whose JWT lacks the requested workspace's role authority. Pairs with the inner
+     * workspace check from r3166515144 — the @PreAuthorize gate is the first stop, the inner
+     * `require(def.workspaceId == workspaceId)` is the safety net once past authorization.
+     */
+    @Nested
+    @WithUserPersona(
+        userId = "11111111-1111-1111-1111-111111111111",
+        email = "stranger@test.com",
+        displayName = "Stranger",
+        roles = [
+            WorkspaceRole(
+                workspaceId = "00000000-0000-0000-0000-000000000000",
+                role = WorkspaceRoles.OWNER,
+            ),
+        ],
+    )
+    inner class SystemDefinitionAuthGuard {
+
+        @Test
+        fun `getOrCreateSystemDefinition - persona without workspace authority - throws AccessDeniedException`() {
+            val noteTypeId = UUID.randomUUID()
+            org.junit.jupiter.api.assertThrows<org.springframework.security.access.AccessDeniedException> {
+                service.getOrCreateSystemDefinition(workspaceId, noteTypeId, SystemRelationshipType.ATTACHMENT)
+            }
         }
     }
 }

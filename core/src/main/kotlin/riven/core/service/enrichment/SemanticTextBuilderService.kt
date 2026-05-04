@@ -284,7 +284,7 @@ class SemanticTextBuilderService(
 
     /**
      * Section 7: Connotation Context. Emitted when the enrichment context carries an
-     * ANALYZED SENTIMENT axis. Bounded ≤ MAX_CONNOTATION_SECTION_CHARS to prevent runaway
+     * ANALYZED SENTIMENT metadata. Bounded ≤ MAX_CONNOTATION_SECTION_CHARS to prevent runaway
      * theme lists from inflating the text.
      */
     private fun buildConnotationContextSection(sentiment: SentimentMetadata): String {

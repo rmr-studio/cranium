@@ -7,6 +7,7 @@ import org.hibernate.annotations.Type
 import riven.core.entity.util.AuditableSoftDeletableEntity
 import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.integration.SourceType
@@ -48,6 +49,10 @@ data class EntityTypeEntity(
 
     @Column(name = "display_name_plural", nullable = false)
     var displayNamePlural: String,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "surface_role", nullable = false)
+    val role: EntityTypeRole = EntityTypeRole.CATALOG,
 
     @Enumerated(EnumType.STRING)
     @Column(name = "icon_type", nullable = false)
@@ -123,6 +128,7 @@ data class EntityTypeEntity(
             key = this.key,
             version = this.version,
             name = DisplayName(this.displayNameSingular, this.displayNamePlural),
+            role = this.role,
             icon = Icon(this.iconType, this.iconColour),
             identifierKey = this.identifierKey,
             semanticGroup = this.semanticGroup,

@@ -26,8 +26,8 @@ import riven.core.exceptions.NotFoundException
 import riven.core.models.catalog.ConnotationSignals
 import riven.core.models.connotation.AttributeClassificationSnapshot
 import riven.core.models.connotation.ClusterMemberSnapshot
-import riven.core.models.connotation.ConnotationMetadata
-import riven.core.models.connotation.ConnotationMetadataSnapshot
+import riven.core.models.connotation.EntityMetadata
+import riven.core.models.connotation.EntityMetadataSnapshot
 import riven.core.models.connotation.RelationalMetadata
 import riven.core.models.connotation.RelationalReferenceResolution
 import riven.core.models.connotation.RelationshipSemanticDefinitionSnapshot
@@ -587,7 +587,7 @@ class EnrichmentService(
     // ------ Connotation Snapshot Persistence ------
 
     /**
-     * Builds the [ConnotationMetadataSnapshot] from the freshly assembled [EnrichmentContext]
+     * Builds the [EntityMetadataSnapshot] from the freshly assembled [EnrichmentContext]
      * and upserts it to `entity_connotation` via [EntityConnotationRepository.upsertByEntityId].
      * RELATIONAL + STRUCTURAL metadata are populated deterministically; SENTIMENT carries the
      * outcome resolved by [resolveSentimentMetadata] (either an ANALYZED payload, a FAILED
@@ -601,9 +601,9 @@ class EnrichmentService(
         sentimentMetadata: SentimentMetadata,
     ) {
         val now = ZonedDateTime.now()
-        val snapshot = ConnotationMetadataSnapshot(
+        val snapshot = EntityMetadataSnapshot(
             snapshotVersion = "v1",
-            metadata = ConnotationMetadata(
+            metadata = EntityMetadata(
                 sentiment = sentimentMetadata,
                 relational = buildRelationalMetadata(context, now),
                 structural = buildStructuralMetadata(context, entityType, now),

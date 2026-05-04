@@ -10,6 +10,7 @@ import org.mockito.kotlin.*
 import riven.core.entity.catalog.*
 import riven.core.enums.catalog.ManifestType
 import riven.core.enums.entity.EntityRelationshipCardinality
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.models.catalog.*
 import riven.core.models.connotation.AnalysisTier
@@ -268,6 +269,31 @@ class ManifestUpsertServiceTest {
         })
     }
 
+    // ------ Surface Role Propagation ------
+
+    @Test
+    fun `upsertManifest persists surface role from resolved entity type`() {
+        val resolved = createResolvedManifest(
+            entityTypes = listOf(createResolvedEntityType(role = EntityTypeRole.KNOWLEDGE)),
+        )
+
+        whenever(manifestCatalogRepository.findByKeyAndManifestType("test-key", ManifestType.TEMPLATE))
+            .thenReturn(null)
+        whenever(manifestCatalogRepository.save(any<ManifestCatalogEntity>()))
+            .thenAnswer { invocation ->
+                val entity = invocation.getArgument<ManifestCatalogEntity>(0)
+                entity.copy(id = manifestId)
+            }
+        mockEmptyChildren()
+        mockChildSaves()
+
+        service.upsertManifest(resolved)
+
+        verify(catalogEntityTypeRepository).saveAll(argThat<List<CatalogEntityTypeEntity>> {
+            size == 1 && this[0].role == EntityTypeRole.KNOWLEDGE
+        })
+    }
+
     // ------ Connotation Signals ------
 
     @Test
@@ -349,6 +375,7 @@ class ManifestUpsertServiceTest {
 
     private fun createResolvedEntityType(
         semantics: ResolvedSemantics? = null,
+        role: EntityTypeRole = EntityTypeRole.CATALOG,
         connotationSignals: ConnotationSignals? = null
     ) = ResolvedEntityType(
         key = "customer",
@@ -357,6 +384,7 @@ class ManifestUpsertServiceTest {
         iconType = "CIRCLE_DASHED",
         iconColour = "NEUTRAL",
         semanticGroup = "CUSTOMER",
+        role = role,
         identifierKey = "email",
         readonly = false,
         schema = mapOf("name" to mapOf("key" to "TEXT", "type" to "string")),

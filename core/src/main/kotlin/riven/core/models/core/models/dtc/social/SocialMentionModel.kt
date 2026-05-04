@@ -4,6 +4,7 @@ import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
@@ -23,6 +24,7 @@ object SocialMentionModel : riven.core.models.core.CoreModelDefinition(
     iconColour = IconColour.PINK,
     semanticGroup = SemanticGroup.SOCIAL_MENTION,
     lifecycleDomain = LifecycleDomain.ENGAGEMENT,
+    role = EntityTypeRole.CATALOG,
     identifierKey = "permalink",
     semanticDefinition = "A brand mention on a non-owned social account (UGC, customer posts, press). Source for earned-reach tracking and unboxing/review signal.",
     semanticTags = listOf("social", "ugc", "mention", "earned-media"),

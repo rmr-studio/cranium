@@ -1,6 +1,7 @@
 package riven.core.models.entity
 
 import riven.core.entity.util.AuditableModel
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.integration.SourceType
@@ -24,6 +25,7 @@ data class EntityType(
     val version: Int,
     val icon: Icon,
     val name: DisplayName,
+    val role: EntityTypeRole = EntityTypeRole.CATALOG,
     /**
      * Each workspace will have a handful of system-generated default entity types to handle
      * core/common use cases, which cannot be deleted.

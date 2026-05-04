@@ -152,7 +152,7 @@ class EnrichmentServiceTest : BaseServiceTest() {
     private fun captureUpsertedSnapshot(
         entityId: UUID,
         workspaceId: UUID,
-    ): riven.core.models.connotation.ConnotationMetadataSnapshot {
+    ): riven.core.models.connotation.EntityMetadataSnapshot {
         val jsonCaptor = argumentCaptor<String>()
         verify(entityConnotationRepository).upsertByEntityId(
             eq(entityId),
@@ -162,7 +162,7 @@ class EnrichmentServiceTest : BaseServiceTest() {
         )
         return objectMapper.readValue(
             jsonCaptor.firstValue,
-            riven.core.models.connotation.ConnotationMetadataSnapshot::class.java,
+            riven.core.models.connotation.EntityMetadataSnapshot::class.java,
         )
     }
 
@@ -1131,7 +1131,7 @@ class EnrichmentServiceTest : BaseServiceTest() {
         )
         val analysedMetadata = SentimentMetadata(
             sentiment = 0.75,
-            analysisVersion = "tier1-v1",
+            analysisVersion = "deterministic-v1",
             analysisTier = AnalysisTier.DETERMINISTIC,
             status = ConnotationStatus.ANALYZED,
             analyzedAt = ZonedDateTime.now(),

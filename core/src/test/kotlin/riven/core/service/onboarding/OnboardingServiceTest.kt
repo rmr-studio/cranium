@@ -25,7 +25,7 @@ import riven.core.models.response.catalog.TemplateInstallationResponse
 import riven.core.service.activity.ActivityService
 import riven.core.service.auth.AuthTokenService
 import riven.core.service.catalog.TemplateInstallationService
-import riven.core.service.knowledge.WorkspaceBusinessDefinitionService
+import riven.core.service.knowledge.GlossaryService
 import riven.core.service.user.UserService
 import riven.core.service.util.BaseServiceTest
 import riven.core.service.util.SecurityTestConfig
@@ -58,7 +58,7 @@ class OnboardingServiceTest : BaseServiceTest() {
     @MockitoBean private lateinit var userRepository: UserRepository
     @MockitoBean private lateinit var templateInstallationService: TemplateInstallationService
     @MockitoBean private lateinit var workspaceInviteService: WorkspaceInviteService
-    @MockitoBean private lateinit var businessDefinitionService: WorkspaceBusinessDefinitionService
+    @MockitoBean private lateinit var businessDefinitionService: GlossaryService
     @MockitoBean private lateinit var authTokenService: AuthTokenService
     @MockitoBean private lateinit var activityService: ActivityService
     @MockitoBean private lateinit var transactionTemplate: TransactionTemplate

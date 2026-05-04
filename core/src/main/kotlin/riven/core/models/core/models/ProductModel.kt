@@ -7,6 +7,7 @@ import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.models.common.validation.SchemaOptions
 import riven.core.models.core.AttributeSemantics
 import riven.core.models.core.CoreModelAttribute
@@ -19,6 +20,7 @@ object ProductModel : riven.core.models.core.CoreModelDefinition(
     key = "product",
     displayNameSingular = "Product",
     displayNamePlural = "Products",
+    role = EntityTypeRole.CATALOG,
     iconType = IconType.PACKAGE,
     iconColour = IconColour.YELLOW,
     semanticGroup = SemanticGroup.PRODUCT,

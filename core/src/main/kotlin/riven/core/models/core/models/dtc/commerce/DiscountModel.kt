@@ -4,6 +4,7 @@ import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
@@ -22,6 +23,7 @@ object DiscountModel : riven.core.models.core.CoreModelDefinition(
     iconType = IconType.PERCENT,
     iconColour = IconColour.ORANGE,
     semanticGroup = SemanticGroup.PROMOTION,
+    role = EntityTypeRole.CATALOG,
     lifecycleDomain = LifecycleDomain.MARKETING,
     identifierKey = "code",
     semanticDefinition = "A promotional discount code or automatic discount applied at checkout. Source for discount-dependency signals and promo performance.",

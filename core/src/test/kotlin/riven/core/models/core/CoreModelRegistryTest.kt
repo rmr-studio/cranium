@@ -8,14 +8,15 @@ import riven.core.enums.catalog.ManifestType
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
 import riven.core.enums.entity.EntityRelationshipCardinality
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.models.core.models.OrderLineItemModel
 import riven.core.models.core.models.ProductModel
-import riven.core.models.core.models.base.BillingEventBase
-import riven.core.models.core.models.base.ChurnEventBase
-import riven.core.models.core.models.base.CommunicationBase
-import riven.core.models.core.models.base.CustomerBase
+import riven.core.models.core.base.BillingEventBase
+import riven.core.models.core.base.ChurnEventBase
+import riven.core.models.core.base.CommunicationModel
+import riven.core.models.core.base.CustomerBase
 
 
 class CoreModelRegistryTest {
@@ -34,6 +35,50 @@ class CoreModelRegistryTest {
         assertTrue(models.any { it.key == "campaign" }, "Should contain campaign")
         assertTrue(models.any { it.key == "shipment" }, "Should contain shipment")
     }
+
+    // ------ B2C_SAAS rip regressions ------
+
+    @Test
+    fun `findModelSet returns null for removed b2c-saas key`() {
+        assertNull(CoreModelRegistry.findModelSet("b2c-saas"))
+    }
+
+    @Test
+    fun `allResolvedManifests includes dtc-ecommerce and knowledge`() {
+        val manifests = CoreModelRegistry.allResolvedManifests()
+        val keys = manifests.map { it.key }
+        assertTrue(keys.contains("dtc-ecommerce"), "Should contain dtc-ecommerce manifest")
+        assertTrue(keys.contains("knowledge"), "Should contain knowledge manifest")
+    }
+
+    @Test
+    fun `KNOWLEDGE_MODELS is included in resolved manifests with KNOWLEDGE role`() {
+        val manifests = CoreModelRegistry.allResolvedManifests()
+        val knowledge = manifests.first { it.key == "knowledge" }
+        val keys = knowledge.entityTypes.map { it.key }.toSet()
+        assertTrue(keys.contains("note"), "knowledge manifest should contain note")
+        assertTrue(keys.contains("glossary"), "knowledge manifest should contain glossary")
+        assertTrue(
+            knowledge.entityTypes.all { it.role == EntityTypeRole.KNOWLEDGE },
+            "all knowledge entity types should have KNOWLEDGE role",
+        )
+    }
+    // ------ Model migration regressions ------
+
+    @Test
+    fun `ProductModel lifecycleDomain is COMMERCE`() {
+        assertEquals(LifecycleDomain.COMMERCE, ProductModel.lifecycleDomain)
+        val rule = ProductModel.projectionAccepts.single()
+        assertEquals(LifecycleDomain.COMMERCE, rule.domain)
+    }
+
+    @Test
+    fun `OrderLineItemModel semanticGroup is LINE_ITEM`() {
+        assertEquals(SemanticGroup.LINE_ITEM, OrderLineItemModel.semanticGroup)
+        val rule = OrderLineItemModel.projectionAccepts.single()
+        assertEquals(SemanticGroup.LINE_ITEM, rule.semanticGroup)
+    }
+
 
     // ------ DTC set sanity ------
 
@@ -127,7 +172,7 @@ class CoreModelRegistryTest {
     @Test
     fun `DTC communication contains base attributes`() {
         val dtcComm = requireNotNull(CoreModelRegistry.findModel("dtc-ecommerce", "communication"))
-        for (baseKey in CommunicationBase.attributes.keys) {
+        for (baseKey in CommunicationModel.attributes.keys) {
             assertTrue(dtcComm.attributes.containsKey(baseKey),
                 "DTC communication should contain base attribute '$baseKey'")
         }

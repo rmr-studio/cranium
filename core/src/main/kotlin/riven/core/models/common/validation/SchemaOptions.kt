@@ -22,6 +22,14 @@ data class SchemaOptions(
     val maximum: Double? = null,
     val minDate: ZonedDateTime? = null,
     val maxDate: ZonedDateTime? = null,
+    /**
+     * Convention-with-opt-out workspace search: every text-bearing attribute
+     * (TEXT / EMAIL / URL / PHONE) feeds `entities.search_vector` unless the
+     * owning attribute sets this flag to true. The identifier attribute is always
+     * indexed (weight A) regardless of this flag; non-identifier attributes flagged
+     * here are excluded from the body half (weight B).
+     */
+    val excludeFromSearch: Boolean = false,
 ) {
     /**
      * Extracts the static default value for validation purposes.

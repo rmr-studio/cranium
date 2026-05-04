@@ -79,6 +79,29 @@ interface EntityRepository : JpaRepository<EntityEntity, UUID> {
     ): List<EntityEntity>
 
     /**
+     * Find all entities of a given type-key within a workspace, ordered newest-first.
+     * Used by the knowledge projector layer (notes, glossary) for entity-backed reads.
+     */
+    @Query("""
+        SELECT e FROM EntityEntity e
+        WHERE e.workspaceId = :workspaceId
+          AND e.typeKey = :typeKey
+        ORDER BY e.createdAt DESC, e.id DESC
+    """)
+    fun findByWorkspaceIdAndTypeKey(workspaceId: UUID, typeKey: String): List<EntityEntity>
+
+    /**
+     * Count entities of a given type-key within a workspace. Used by parity tests
+     * and projector listings.
+     */
+    @Query("""
+        SELECT COUNT(e) FROM EntityEntity e
+        WHERE e.workspaceId = :workspaceId
+          AND e.typeKey = :typeKey
+    """)
+    fun countByWorkspaceIdAndTypeKey(workspaceId: UUID, typeKey: String): Long
+
+    /**
      * Batch sourceExternalId match on a specific entity type within a workspace.
      * Used by the projection pipeline for identity resolution (Check 1).
      */
@@ -92,6 +115,24 @@ interface EntityRepository : JpaRepository<EntityEntity, UUID> {
         entityTypeId: UUID,
         workspaceId: UUID,
         sourceExternalIds: Collection<String>,
+    ): List<EntityEntity>
+
+    /**
+     * Find integration-sourced entities of a given type-key whose `pending_associations`
+     * column is non-null. Used by the integration sync reconciliation pass to retry
+     * resolving foreign references after sibling rows arrive in later syncs.
+     */
+    @Query("""
+        SELECT e FROM EntityEntity e
+        WHERE e.workspaceId = :workspaceId
+          AND e.sourceIntegrationId = :sourceIntegrationId
+          AND e.typeKey = :typeKey
+          AND e.pendingAssociations IS NOT NULL
+    """)
+    fun findPendingAssociationsByTypeKey(
+        workspaceId: UUID,
+        sourceIntegrationId: UUID,
+        typeKey: String,
     ): List<EntityEntity>
 
 }

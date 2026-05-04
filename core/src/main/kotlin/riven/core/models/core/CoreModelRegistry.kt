@@ -19,6 +19,7 @@ object CoreModelRegistry {
 
     private val allModelSets: List<CoreModelSet> = listOf(
         DTC_ECOMMERCE_MODELS,
+        KNOWLEDGE_MODELS,
     )
 
     /** All unique core model object instances across all model sets. Validates on first access. */

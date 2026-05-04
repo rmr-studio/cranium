@@ -29,7 +29,7 @@ class RelationshipSqlGeneratorIsRelatedToTest {
         assertTrue(result.sql.contains("EXISTS ("), "Should contain EXISTS")
         assertTrue(result.sql.contains("OR EXISTS ("), "Should contain OR EXISTS for inverse direction")
         assertTrue(result.sql.contains("source_entity_id = e.id"), "Should check source side")
-        assertTrue(result.sql.contains("target_entity_id = e.id"), "Should check target side")
+        assertTrue(result.sql.contains("target_id = e.id"), "Should check target side")
         assertTrue(result.sql.contains("deleted = false"), "Should filter deleted")
 
         // No parameters needed for IsRelatedTo (no definition-specific filtering)
@@ -50,7 +50,7 @@ class RelationshipSqlGeneratorIsRelatedToTest {
         assertTrue(result.sql.contains("NOT EXISTS ("), "Should contain NOT EXISTS")
         assertTrue(result.sql.contains("AND NOT EXISTS ("), "Should contain AND NOT EXISTS for inverse direction")
         assertTrue(result.sql.contains("source_entity_id = e.id"), "Should check source side")
-        assertTrue(result.sql.contains("target_entity_id = e.id"), "Should check target side")
+        assertTrue(result.sql.contains("target_id = e.id"), "Should check target side")
         assertTrue(result.sql.contains("deleted = false"), "Should filter deleted")
 
         // No parameters needed

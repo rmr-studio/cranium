@@ -73,13 +73,13 @@ class EntityService(
     @PostAuthorize("@workspaceSecurity.hasWorkspace(returnObject.workspaceId)")
     fun getEntity(id: UUID): Entity {
         val entity = findOrThrow { entityRepository.findById(id) }
-        val relationships = entityRelationshipService.findRelatedEntities(
+        val links = entityRelationshipService.findRelatedEntities(
             entityId = id,
             workspaceId = entity.workspaceId
         )
         val attributes = entityAttributeService.getAttributes(id)
 
-        return entity.toModel(relationships = relationships, attributes = attributes)
+        return entity.toModel(links = links, attributes = attributes)
     }
 
     fun getEntitiesByIds(ids: Set<UUID>): List<EntityEntity> {
@@ -97,7 +97,7 @@ class EntityService(
 
         require(entities.all { it.workspaceId == workspaceId }) { "One or more entities do not belong to the specified workspace" }
         val entityIds = entities.mapNotNull { it.id }.toSet()
-        val relationships = entityRelationshipService.findRelatedEntities(
+        val linksByEntity = entityRelationshipService.findRelatedEntities(
             entityIds = entityIds,
             workspaceId = workspaceId
         )
@@ -107,7 +107,7 @@ class EntityService(
             val id = requireNotNull(it.id)
             it.toModel(
                 audit = true,
-                relationships = relationships[id] ?: emptyMap(),
+                links = linksByEntity[id] ?: emptyList(),
                 attributes = allAttributes[id] ?: emptyMap(),
             )
         }
@@ -127,7 +127,7 @@ class EntityService(
         require(entities.all { it.workspaceId == workspaceId }) { "One or more entities do not belong to the specified workspace" }
 
         val entityIds = entities.mapNotNull { it.id }.toSet()
-        val relationships = entityRelationshipService.findRelatedEntities(
+        val linksByEntity = entityRelationshipService.findRelatedEntities(
             entityIds = entityIds,
             workspaceId = workspaceId
         )
@@ -137,7 +137,7 @@ class EntityService(
             val id = requireNotNull(it.id)
             it.toModel(
                 audit = true,
-                relationships = relationships[id] ?: emptyMap(),
+                links = linksByEntity[id] ?: emptyList(),
                 attributes = allAttributes[id] ?: emptyMap(),
             )
         }.groupBy { it.typeId }
@@ -306,12 +306,12 @@ class EntityService(
                 )
 
                 // Reload links after save
-                val links: Map<UUID, List<EntityLink>> = entityRelationshipService.findRelatedEntities(entityId, workspaceId)
+                val links: List<EntityLink> = entityRelationshipService.findRelatedEntities(entityId, workspaceId)
 
                 SaveEntityResponse(
                     entity = this.toModel(
                         audit = true,
-                        relationships = links,
+                        links = links,
                         attributes = enrichedPayload,
                     ),
                     impactedEntities = null
@@ -515,7 +515,7 @@ class EntityService(
 
         // Run on the current transaction thread to preserve @Transactional context
         val impactedEntityEntities = entityRepository.findByIdInAndWorkspaceId(impactedEntityIds, workspaceId)
-        val impactedRelationships = entityRelationshipService.findRelatedEntities(
+        val impactedLinks = entityRelationshipService.findRelatedEntities(
             entityIds = impactedEntityIds.toSet(),
             workspaceId = workspaceId,
         )
@@ -526,7 +526,7 @@ class EntityService(
                 val impactedId = requireNotNull(impactedEntity.id) { "Impacted entity ID must not be null" }
                 impactedEntity.toModel(
                     audit = true,
-                    relationships = impactedRelationships[impactedId] ?: emptyMap(),
+                    links = impactedLinks[impactedId] ?: emptyList(),
                     attributes = impactedAttributes[impactedId] ?: emptyMap(),
                 )
             }
@@ -646,7 +646,7 @@ class EntityService(
         return entities.map {
             val id = requireNotNull(it.id)
             it.toModel(
-                relationships = emptyMap(),
+                links = emptyList(),
                 attributes = allAttributes[id] ?: emptyMap(),
             )
         }

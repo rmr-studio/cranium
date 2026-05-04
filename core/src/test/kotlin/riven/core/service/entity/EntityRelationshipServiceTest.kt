@@ -894,14 +894,14 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
     fun `findRelatedEntities - forward - returns targets`() {
         whenever(entityRelationshipRepository.findEntityLinksBySourceId(sourceEntityId, workspaceId))
             .thenReturn(emptyList())
-        whenever(entityRelationshipRepository.findInverseEntityLinksByTargetId(eq(sourceEntityId), eq(workspaceId), eq(SystemRelationshipType.CONNECTED_ENTITIES.name)))
+        whenever(entityRelationshipRepository.findInverseEntityLinksByTargetId(sourceEntityId, workspaceId))
             .thenReturn(emptyList())
 
         val result = service.findRelatedEntities(sourceEntityId, workspaceId)
 
         assertTrue(result.isEmpty())
         verify(entityRelationshipRepository).findEntityLinksBySourceId(sourceEntityId, workspaceId)
-        verify(entityRelationshipRepository).findInverseEntityLinksByTargetId(eq(sourceEntityId), eq(workspaceId), eq(SystemRelationshipType.CONNECTED_ENTITIES.name))
+        verify(entityRelationshipRepository).findInverseEntityLinksByTargetId(sourceEntityId, workspaceId)
     }
 
     @Test
@@ -918,6 +918,8 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
             on { getIconColour() } doReturn "NEUTRAL"
             on { getTypeKey() } doReturn "company"
             on { getLabel() } doReturn "Acme Corp"
+            on { getDirection() } doReturn "FORWARD"
+            on { getSystemType() } doReturn null
         }
 
         val inverseProjection = mock<riven.core.projection.entity.EntityLinkProjection> {
@@ -929,18 +931,20 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
             on { getIconColour() } doReturn "NEUTRAL"
             on { getTypeKey() } doReturn "employee"
             on { getLabel() } doReturn "Alice"
+            on { getDirection() } doReturn "INVERSE"
+            on { getSystemType() } doReturn SystemRelationshipType.SYSTEM_CONNECTION.name
         }
 
         whenever(entityRelationshipRepository.findEntityLinksBySourceId(sourceEntityId, workspaceId))
             .thenReturn(listOf(forwardProjection))
-        whenever(entityRelationshipRepository.findInverseEntityLinksByTargetId(eq(sourceEntityId), eq(workspaceId), eq(SystemRelationshipType.CONNECTED_ENTITIES.name)))
+        whenever(entityRelationshipRepository.findInverseEntityLinksByTargetId(sourceEntityId, workspaceId))
             .thenReturn(listOf(inverseProjection))
 
         val result = service.findRelatedEntities(sourceEntityId, workspaceId)
 
         assertEquals(2, result.size)
-        assertTrue(result.containsKey(defId))
-        assertTrue(result.containsKey(inverseDefId))
+        assertEquals(1, result.count { it.definitionId == defId })
+        assertEquals(1, result.count { it.definitionId == inverseDefId })
     }
 
     @Test
@@ -949,7 +953,7 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
         // This test verifies the service correctly delegates to both queries.
         whenever(entityRelationshipRepository.findEntityLinksBySourceId(sourceEntityId, workspaceId))
             .thenReturn(emptyList())
-        whenever(entityRelationshipRepository.findInverseEntityLinksByTargetId(eq(sourceEntityId), eq(workspaceId), eq(SystemRelationshipType.CONNECTED_ENTITIES.name)))
+        whenever(entityRelationshipRepository.findInverseEntityLinksByTargetId(sourceEntityId, workspaceId))
             .thenReturn(emptyList()) // repo returns nothing for inverse-invisible
 
         val result = service.findRelatedEntities(sourceEntityId, workspaceId)
@@ -970,6 +974,8 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
             on { getIconColour() } doReturn "NEUTRAL"
             on { getTypeKey() } doReturn "company"
             on { getLabel() } doReturn "Forward Entity"
+            on { getDirection() } doReturn "FORWARD"
+            on { getSystemType() } doReturn null
         }
 
         val inverseProjection = mock<riven.core.projection.entity.EntityLinkProjection> {
@@ -981,17 +987,75 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
             on { getIconColour() } doReturn "NEUTRAL"
             on { getTypeKey() } doReturn "company"
             on { getLabel() } doReturn "Inverse Entity"
+            on { getDirection() } doReturn "INVERSE"
+            on { getSystemType() } doReturn SystemRelationshipType.SYSTEM_CONNECTION.name
         }
 
         whenever(entityRelationshipRepository.findEntityLinksBySourceId(sourceEntityId, workspaceId))
             .thenReturn(listOf(forwardProjection))
-        whenever(entityRelationshipRepository.findInverseEntityLinksByTargetId(eq(sourceEntityId), eq(workspaceId), eq(SystemRelationshipType.CONNECTED_ENTITIES.name)))
+        whenever(entityRelationshipRepository.findInverseEntityLinksByTargetId(sourceEntityId, workspaceId))
             .thenReturn(listOf(inverseProjection))
 
         val result = service.findRelatedEntities(sourceEntityId, workspaceId)
 
-        assertEquals(1, result.size)
-        assertEquals(2, result[defId]!!.size)
+        assertEquals(2, result.size)
+        assertEquals(2, result.count { it.definitionId == defId })
+    }
+
+    // ------ System-bus workspace guard (regression for r3176253151) ------
+
+    /**
+     * Regression: replaceForDefinitionInternal must reject a sourceId whose owning workspace
+     * does not match the supplied workspaceId. Without this guard, a system-bus caller passing
+     * a foreign sourceId could sweep that workspace's relationship rows.
+     */
+    @Test
+    fun `replaceForDefinitionInternal - foreign-workspace source - rejects and skips writes`() {
+        val foreignWorkspaceId = UUID.randomUUID()
+        val sourceId = UUID.randomUUID()
+        val source = EntityFactory.createEntityEntity(id = sourceId, workspaceId = foreignWorkspaceId)
+        whenever(entityRepository.findById(sourceId)).thenReturn(java.util.Optional.of(source))
+
+        val ex = assertThrows(IllegalArgumentException::class.java) {
+            service.replaceForDefinitionInternal(
+                workspaceId = workspaceId,
+                sourceId = sourceId,
+                definitionId = UUID.randomUUID(),
+                targetIds = setOf(UUID.randomUUID()),
+                linkSource = riven.core.enums.integration.SourceType.USER_CREATED,
+            )
+        }
+        assertTrue(ex.message!!.contains("not found in workspace"))
+
+        verify(entityRelationshipRepository, never()).findAllBySourceIdAndDefinitionIdForUpdate(any(), any())
+        verify(entityRelationshipRepository, never()).saveAll<EntityRelationshipEntity>(any())
+        verify(entityRelationshipRepository, never())
+            .deleteAllBySourceIdAndDefinitionIdAndTargetKindAndTargetIdIn(any(), any(), any(), any())
+    }
+
+    /**
+     * Regression: clearAllOfKindForDefinition must reject a sourceId whose owning workspace
+     * does not match the supplied workspaceId. Mirrors the replaceForDefinitionInternal guard.
+     */
+    @Test
+    fun `clearAllOfKindForDefinition - foreign-workspace source - rejects and skips delete`() {
+        val foreignWorkspaceId = UUID.randomUUID()
+        val sourceId = UUID.randomUUID()
+        val source = EntityFactory.createEntityEntity(id = sourceId, workspaceId = foreignWorkspaceId)
+        whenever(entityRepository.findById(sourceId)).thenReturn(java.util.Optional.of(source))
+
+        val ex = assertThrows(IllegalArgumentException::class.java) {
+            service.clearAllOfKindForDefinition(
+                workspaceId = workspaceId,
+                sourceId = sourceId,
+                definitionId = UUID.randomUUID(),
+                targetKind = riven.core.enums.entity.RelationshipTargetKind.ATTRIBUTE,
+            )
+        }
+        assertTrue(ex.message!!.contains("not found in workspace"))
+
+        verify(entityRelationshipRepository, never())
+            .deleteAllBySourceIdAndDefinitionIdAndTargetKind(any(), any(), any())
     }
 
 }

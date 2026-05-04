@@ -79,6 +79,95 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
     fun deleteAllBySourceIdAndDefinitionIdAndTargetIdIn(sourceId: UUID, definitionId: UUID, targetIds: Collection<UUID>)
 
     /**
+     * Hard-delete relationships by source entity, definition ID, and target kind where target
+     * is in the given list. Used by the knowledge ingestion path so glossary DEFINES batches
+     * targeting different `target_kind` values on the same definition do not delete each
+     * other's rows.
+     */
+    @Modifying
+    @Query(
+        """
+        DELETE FROM EntityRelationshipEntity r
+        WHERE r.sourceId = :sourceId
+          AND r.definitionId = :definitionId
+          AND r.targetKind = :targetKind
+          AND r.targetId IN :targetIds
+        """,
+    )
+    fun deleteAllBySourceIdAndDefinitionIdAndTargetKindAndTargetIdIn(
+        sourceId: UUID,
+        definitionId: UUID,
+        targetKind: riven.core.enums.entity.RelationshipTargetKind,
+        targetIds: Collection<UUID>,
+    )
+
+    /**
+     * Hard-delete relationships scoped to a sub-reference parent (ATTRIBUTE / RELATIONSHIP
+     * target kinds). The owning entity_type id is included in the predicate so reconciliation
+     * for one parent does not touch rows under a different parent that happen to share
+     * (sourceId, definitionId, targetKind).
+     */
+    @Modifying
+    @Query(
+        """
+        DELETE FROM EntityRelationshipEntity r
+        WHERE r.sourceId = :sourceId
+          AND r.definitionId = :definitionId
+          AND r.targetKind = :targetKind
+          AND r.targetParentId = :targetParentId
+          AND r.targetId IN :targetIds
+        """,
+    )
+    fun deleteAllBySourceIdAndDefinitionIdAndTargetKindAndTargetParentIdAndTargetIdIn(
+        sourceId: UUID,
+        definitionId: UUID,
+        targetKind: riven.core.enums.entity.RelationshipTargetKind,
+        targetParentId: UUID,
+        targetIds: Collection<UUID>,
+    )
+
+    /**
+     * Hard-delete every relationship row matching `(sourceId, definitionId, targetKind)`
+     * regardless of `targetParentId`. Used by the knowledge ingestion path to clear all
+     * parent-scoped rows of a given kind when the input carries no refs of that kind, since
+     * `replaceForDefinitionInternal` requires a non-null `targetParentId` for ATTRIBUTE / RELATIONSHIP
+     * reconciliation.
+     */
+    @Modifying
+    @Query(
+        """
+        DELETE FROM EntityRelationshipEntity r
+        WHERE r.sourceId = :sourceId
+          AND r.definitionId = :definitionId
+          AND r.targetKind = :targetKind
+        """,
+    )
+    fun deleteAllBySourceIdAndDefinitionIdAndTargetKind(
+        sourceId: UUID,
+        definitionId: UUID,
+        targetKind: riven.core.enums.entity.RelationshipTargetKind,
+    )
+
+    /**
+     * Find all relationships for a source entity scoped to a specific definition + target kind.
+     * Used by knowledge ingestion to enumerate existing parent-scoped rows so orphan
+     * `targetParentId` owners (parents removed from the input) can be reconciled away.
+     */
+    @Query(
+        """
+        SELECT r FROM EntityRelationshipEntity r
+        WHERE r.sourceId = :sourceId
+          AND r.definitionId = :definitionId
+          AND r.targetKind = :targetKind
+        """,
+    )
+    fun findAllBySourceIdAndDefinitionIdAndTargetKind(
+        sourceId: UUID,
+        definitionId: UUID,
+        targetKind: riven.core.enums.entity.RelationshipTargetKind,
+    ): List<EntityRelationshipEntity>
+
+    /**
      * Find all relationships for a target entity with a specific definition ID (inverse lookup).
      */
     @Query("""
@@ -102,6 +191,54 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
     fun countByDefinitionId(definitionId: UUID): Long
 
     fun findByIdAndWorkspaceId(id: UUID, workspaceId: UUID): Optional<EntityRelationshipEntity>
+
+    /**
+     * Find relationships for a source entity filtered by the system type on the
+     * relationship definition. Used by knowledge projectors to enumerate
+     * `ATTACHMENT` / `MENTION` / `DEFINES` rows without loading every definition.
+     */
+    @Query("""
+        SELECT r FROM EntityRelationshipEntity r
+        JOIN RelationshipDefinitionEntity d ON r.definitionId = d.id
+        WHERE r.sourceId = :sourceId
+          AND d.systemType = :systemType
+    """)
+    fun findBySourceIdAndDefinitionSystemType(
+        sourceId: UUID,
+        systemType: riven.core.enums.entity.SystemRelationshipType,
+    ): List<EntityRelationshipEntity>
+
+    /**
+     * Batch variant: find relationships for multiple source entities filtered by
+     * definition system type. Used by knowledge projectors when materialising
+     * collections (e.g. listing notes for a workspace).
+     */
+    @Query("""
+        SELECT r FROM EntityRelationshipEntity r
+        JOIN RelationshipDefinitionEntity d ON r.definitionId = d.id
+        WHERE r.sourceId IN :sourceIds
+          AND d.systemType = :systemType
+    """)
+    fun findAllBySourceIdInAndDefinitionSystemType(
+        sourceIds: Collection<UUID>,
+        systemType: riven.core.enums.entity.SystemRelationshipType,
+    ): List<EntityRelationshipEntity>
+
+    /**
+     * Inverse lookup: find relationships pointing AT a target entity, filtered by
+     * the system type on the relationship definition. Used to answer
+     * "which notes reference this entity".
+     */
+    @Query("""
+        SELECT r FROM EntityRelationshipEntity r
+        JOIN RelationshipDefinitionEntity d ON r.definitionId = d.id
+        WHERE r.targetId = :targetId
+          AND d.systemType = :systemType
+    """)
+    fun findByTargetIdAndDefinitionSystemType(
+        targetId: UUID,
+        systemType: riven.core.enums.entity.SystemRelationshipType,
+    ): List<EntityRelationshipEntity>
 
     /**
      * Count relationship links for a definition where the target entity belongs to a specific entity type.
@@ -156,7 +293,7 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
             deleted_at = CURRENT_TIMESTAMP
         WHERE
             (source_entity_id = ANY(:ids)
-            or target_entity_id = ANY(:ids))
+            or target_id = ANY(:ids))
             AND workspace_id = :workspaceId
             AND deleted = false
         RETURNING *
@@ -183,9 +320,11 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
                 e.icon_type as iconType,
                 e.icon_colour as iconColour,
                 e.type_key as typeKey,
-                COALESCE(ea.value #>> '{}', e.id::text) as label
+                COALESCE(ea.value #>> '{}', e.id::text) as label,
+                'FORWARD' as direction,
+                rd.system_type as systemType
             FROM entity_relationships r
-            JOIN entities e ON r.target_entity_id = e.id
+            JOIN entities e ON r.target_id = e.id
             LEFT JOIN entity_attributes ea ON ea.entity_id = e.id AND ea.attribute_id = e.identifier_key AND ea.deleted = false
             JOIN relationship_definitions rd ON r.relationship_definition_id = rd.id AND rd.deleted = false
             WHERE r.source_entity_id = :sourceId
@@ -211,9 +350,11 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
                 e.icon_type as iconType,
                 e.icon_colour as iconColour,
                 e.type_key as typeKey,
-                COALESCE(ea.value #>> '{}', e.id::text) as label
+                COALESCE(ea.value #>> '{}', e.id::text) as label,
+                'FORWARD' as direction,
+                rd.system_type as systemType
             FROM entity_relationships r
-            JOIN entities e ON r.target_entity_id = e.id
+            JOIN entities e ON r.target_id = e.id
             LEFT JOIN entity_attributes ea ON ea.entity_id = e.id AND ea.attribute_id = e.identifier_key AND ea.deleted = false
             JOIN relationship_definitions rd ON r.relationship_definition_id = rd.id AND rd.deleted = false
             WHERE r.source_entity_id = ANY(:ids)
@@ -228,8 +369,22 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
     /**
      * Find inverse entity links where the given entity is a target.
      *
-     * The sourceEntityId column aliases r.target_entity_id (the entity being viewed),
+     * The sourceEntityId column aliases r.target_id (the entity being viewed),
      * keeping the EntityLink contract consistent.
+     *
+     * The predicate admits inverse rows when any of the following hold:
+     *  - a relationship_target_rule applies for the target's entity type (the
+     *    source's relationship definition explicitly targets that type),
+     *  - the definition's `system_type` is `SYSTEM_CONNECTION` (the symmetric
+     *    system connection edge), or
+     *  - the definition's `system_type` is one of the knowledge edge kinds
+     *    (`ATTACHMENT`, `MENTION`, `DEFINES`) AND the source entity's type has
+     *    `surface_role = 'KNOWLEDGE'` — i.e. the row is a knowledge entity
+     *    referencing this target.
+     *
+     * `r.target_kind = 'ENTITY'` is enforced so structural DEFINES edges
+     * (targeting `ENTITY_TYPE` / `ATTRIBUTE` / `RELATIONSHIP` UUIDs) never
+     * leak into entity-instance lookups.
      */
     @Query(
         value = """
@@ -237,21 +392,29 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
                 e.id as id,
                 e.workspace_id as workspaceId,
                 r.relationship_definition_id as definitionId,
-                r.target_entity_id as sourceEntityId,
+                r.target_id as sourceEntityId,
                 e.icon_type as iconType,
                 e.icon_colour as iconColour,
                 e.type_key as typeKey,
-                COALESCE(ea.value #>> '{}', e.id::text) as label
+                COALESCE(ea.value #>> '{}', e.id::text) as label,
+                'INVERSE' as direction,
+                rd.system_type as systemType
             FROM entity_relationships r
             JOIN entities e ON r.source_entity_id = e.id
+            JOIN entity_types src_t ON src_t.id = e.type_id
             LEFT JOIN entity_attributes ea ON ea.entity_id = e.id AND ea.attribute_id = e.identifier_key AND ea.deleted = false
             JOIN relationship_definitions rd ON r.relationship_definition_id = rd.id AND rd.deleted = false
-            JOIN entities target_e ON r.target_entity_id = target_e.id
+            JOIN entities target_e ON r.target_id = target_e.id
             LEFT JOIN relationship_target_rules rtr ON rtr.relationship_definition_id = r.relationship_definition_id
-            WHERE r.target_entity_id = :targetId
+            WHERE r.target_id = :targetId
+            AND r.target_kind = 'ENTITY'
             AND (
                 rtr.target_entity_type_id = target_e.type_id
-                OR rd.system_type = :systemType
+                OR rd.system_type = 'SYSTEM_CONNECTION'
+                OR (
+                    rd.system_type IN ('ATTACHMENT', 'MENTION', 'DEFINES')
+                    AND src_t.surface_role = 'KNOWLEDGE'
+                )
             )
             AND r.deleted = false
             AND e.deleted = false
@@ -259,10 +422,11 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
         """,
         nativeQuery = true
     )
-    fun findInverseEntityLinksByTargetId(targetId: UUID, workspaceId: UUID, systemType: String): List<EntityLinkProjection>
+    fun findInverseEntityLinksByTargetId(targetId: UUID, workspaceId: UUID): List<EntityLinkProjection>
 
     /**
      * Batch variant: find inverse entity links for multiple target entities.
+     * Same predicate semantics as [findInverseEntityLinksByTargetId].
      */
     @Query(
         value = """
@@ -270,21 +434,29 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
                 e.id as id,
                 e.workspace_id as workspaceId,
                 r.relationship_definition_id as definitionId,
-                r.target_entity_id as sourceEntityId,
+                r.target_id as sourceEntityId,
                 e.icon_type as iconType,
                 e.icon_colour as iconColour,
                 e.type_key as typeKey,
-                COALESCE(ea.value #>> '{}', e.id::text) as label
+                COALESCE(ea.value #>> '{}', e.id::text) as label,
+                'INVERSE' as direction,
+                rd.system_type as systemType
             FROM entity_relationships r
             JOIN entities e ON r.source_entity_id = e.id
+            JOIN entity_types src_t ON src_t.id = e.type_id
             LEFT JOIN entity_attributes ea ON ea.entity_id = e.id AND ea.attribute_id = e.identifier_key AND ea.deleted = false
             JOIN relationship_definitions rd ON r.relationship_definition_id = rd.id AND rd.deleted = false
             LEFT JOIN relationship_target_rules rtr ON rtr.relationship_definition_id = r.relationship_definition_id
-            JOIN entities target_e ON r.target_entity_id = target_e.id
-            WHERE r.target_entity_id = ANY(:ids)
+            JOIN entities target_e ON r.target_id = target_e.id
+            WHERE r.target_id = ANY(:ids)
+            AND r.target_kind = 'ENTITY'
             AND (
                 rtr.target_entity_type_id = target_e.type_id
-                OR rd.system_type = :systemType
+                OR rd.system_type = 'SYSTEM_CONNECTION'
+                OR (
+                    rd.system_type IN ('ATTACHMENT', 'MENTION', 'DEFINES')
+                    AND src_t.surface_role = 'KNOWLEDGE'
+                )
             )
             AND r.deleted = false
             AND e.deleted = false
@@ -292,5 +464,5 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
         """,
         nativeQuery = true
     )
-    fun findInverseEntityLinksByTargetIdIn(ids: Array<UUID>, workspaceId: UUID, systemType: String): List<EntityLinkProjection>
+    fun findInverseEntityLinksByTargetIdIn(ids: Array<UUID>, workspaceId: UUID): List<EntityLinkProjection>
 }

@@ -122,7 +122,7 @@ class EntityContextServiceTest {
 
         `when`(entityRepository.findById(entityId)).thenReturn(Optional.of(entity))
         `when`(entityTypeRepository.findById(typeId)).thenReturn(Optional.of(entityType))
-        `when`(entityRelationshipService.findRelatedEntities(entityId, workspaceId)).thenReturn(emptyMap())
+        `when`(entityRelationshipService.findRelatedEntities(entityId, workspaceId)).thenReturn(emptyList())
         `when`(entityAttributeService.getAttributes(entityId)).thenReturn(mapOf(
             statusFieldId to EntityAttributePrimitivePayload("active", SchemaType.TEXT),
             countFieldId to EntityAttributePrimitivePayload(42, SchemaType.NUMBER)
@@ -182,7 +182,7 @@ class EntityContextServiceTest {
 
         `when`(entityRepository.findById(entityId)).thenReturn(Optional.of(entity))
         `when`(entityTypeRepository.findById(typeId)).thenReturn(Optional.of(entityType))
-        `when`(entityRelationshipService.findRelatedEntities(entityId, workspaceId)).thenReturn(emptyMap())
+        `when`(entityRelationshipService.findRelatedEntities(entityId, workspaceId)).thenReturn(emptyList())
         `when`(entityAttributeService.getAttributes(entityId)).thenReturn(mapOf(
             fieldId to EntityAttributePrimitivePayload(null, SchemaType.TEXT)
         ))
@@ -242,7 +242,7 @@ class EntityContextServiceTest {
 
         `when`(entityRepository.findById(entityId)).thenReturn(Optional.of(entity))
         `when`(entityTypeRepository.findById(typeId)).thenReturn(Optional.of(entityType))
-        `when`(entityRelationshipService.findRelatedEntities(entityId, workspaceId)).thenReturn(emptyMap())
+        `when`(entityRelationshipService.findRelatedEntities(entityId, workspaceId)).thenReturn(emptyList())
         `when`(entityAttributeService.getAttributes(entityId)).thenReturn(mapOf(
             statusFieldId to EntityAttributePrimitivePayload("active", SchemaType.TEXT),
             countFieldId to EntityAttributePrimitivePayload(15, SchemaType.NUMBER)

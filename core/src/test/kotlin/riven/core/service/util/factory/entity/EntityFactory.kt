@@ -113,6 +113,8 @@ object EntityFactory {
         definitionId: UUID = UUID.randomUUID(),
         semanticContext: String? = null,
         linkSource: riven.core.enums.integration.SourceType = riven.core.enums.integration.SourceType.USER_CREATED,
+        targetKind: riven.core.enums.entity.RelationshipTargetKind = riven.core.enums.entity.RelationshipTargetKind.ENTITY,
+        targetParentId: UUID? = null,
         createdAt: java.time.ZonedDateTime? = null,
     ): EntityRelationshipEntity {
         val rel = EntityRelationshipEntity(
@@ -123,6 +125,8 @@ object EntityFactory {
             definitionId = definitionId,
             semanticContext = semanticContext,
             linkSource = linkSource,
+            targetKind = targetKind,
+            targetParentId = targetParentId,
         )
         if (createdAt != null) {
             rel.createdAt = createdAt
@@ -140,6 +144,7 @@ object EntityFactory {
         name: String = "Related Entity",
         cardinalityDefault: EntityRelationshipCardinality = EntityRelationshipCardinality.MANY_TO_MANY,
         protected: Boolean = false,
+        systemType: riven.core.enums.entity.SystemRelationshipType? = null,
     ): RelationshipDefinitionEntity {
         return RelationshipDefinitionEntity(
             id = id,
@@ -148,6 +153,7 @@ object EntityFactory {
             name = name,
             cardinalityDefault = cardinalityDefault,
             protected = protected,
+            systemType = systemType,
         )
     }
 

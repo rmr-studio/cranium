@@ -144,7 +144,7 @@ interface ExecutionQueueRepository : JpaRepository<ExecutionQueueEntity, UUID> {
      * The [metadataKey] parameter is the JSON key used inside `connotation_metadata.metadata` —
      * the persisted snapshot shape uses uppercase metadata-type names (e.g. `"SENTIMENT"`,
      * `"RELATIONAL"`, `"STRUCTURAL"`) per the `@JsonProperty` declarations on
-     * [riven.core.models.connotation.ConnotationMetadata]. Callers must pass the matching
+     * [riven.core.models.connotation.EntityMetadata]. Callers must pass the matching
      * uppercase key — passing `"sentiment"` will match zero rows.
      *
      * Skips soft-deleted entities. Idempotent via `ON CONFLICT DO NOTHING` against the

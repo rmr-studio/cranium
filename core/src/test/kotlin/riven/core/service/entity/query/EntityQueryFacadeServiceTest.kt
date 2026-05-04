@@ -13,6 +13,7 @@ import riven.core.configuration.auth.WorkspaceSecurity
 import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
 import riven.core.enums.common.validation.SchemaType
+import riven.core.enums.entity.RelationshipDirection
 import riven.core.enums.workspace.WorkspaceRoles
 import riven.core.models.common.Icon
 import riven.core.models.entity.Entity
@@ -120,17 +121,16 @@ class EntityQueryFacadeServiceTest : BaseServiceTest() {
             icon = Icon(type = IconType.FILE, colour = IconColour.NEUTRAL),
             key = "target-key",
             label = "Target Entity",
+            direction = RelationshipDirection.FORWARD,
         )
-        val relationships = mapOf(
-            entityId to mapOf(definitionId to listOf(link))
-        )
+        val linksByEntity = mapOf(entityId to listOf(link))
 
         runBlocking {
             whenever(entityQueryService.execute(any(), eq(workspaceId), any(), isNull(), any()))
                 .thenReturn(queryResult)
         }
         whenever(entityRelationshipService.findRelatedEntities(any<Set<UUID>>(), eq(workspaceId)))
-            .thenReturn(relationships)
+            .thenReturn(linksByEntity)
 
         val response = service.queryEntities(workspaceId, entityTypeId, EntityQueryRequest())
 
@@ -418,15 +418,16 @@ class EntityQueryFacadeServiceTest : BaseServiceTest() {
             icon = Icon(type = IconType.FILE, colour = IconColour.NEUTRAL),
             key = "key",
             label = "Label",
+            direction = RelationshipDirection.FORWARD,
         )
-        val relationships = mapOf(entityId to mapOf(relDefId to listOf(link)))
+        val linksByEntity = mapOf(entityId to listOf(link))
 
         runBlocking {
             whenever(entityQueryService.execute(any(), eq(workspaceId), any(), any(), any()))
                 .thenReturn(queryResult)
         }
         whenever(entityRelationshipService.findRelatedEntities(any<Set<UUID>>(), eq(workspaceId)))
-            .thenReturn(relationships)
+            .thenReturn(linksByEntity)
 
         val request = EntityQueryRequest(
             projection = QueryProjection(

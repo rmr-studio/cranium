@@ -145,7 +145,7 @@ class EntityServiceTest : BaseServiceTest() {
         whenever(entityValidationService.validateEntity(any(), any(), any(), any(), any())).thenReturn(emptyList())
         whenever(entityTypeAttributeService.extractUniqueAttributes(any(), any())).thenReturn(emptyMap())
         whenever(activityService.logActivity(any(), any(), any(), any(), any(), anyOrNull(), any(), any())).thenReturn(mock())
-        whenever(entityRelationshipService.findRelatedEntities(any<UUID>(), any())).thenReturn(emptyMap())
+        whenever(entityRelationshipService.findRelatedEntities(any<UUID>(), any())).thenReturn(emptyList())
     }
 
     @Test
@@ -898,9 +898,9 @@ class EntityServiceTest : BaseServiceTest() {
 
             val queryResult = EntityQueryResult(
                 entities = listOf(
-                    entity1.toModel(audit = false, relationships = emptyMap(), attributes = emptyMap()),
-                    entity2.toModel(audit = false, relationships = emptyMap(), attributes = emptyMap()),
-                    entity3.toModel(audit = false, relationships = emptyMap(), attributes = emptyMap()),
+                    entity1.toModel(audit = false, links = emptyList(), attributes = emptyMap()),
+                    entity2.toModel(audit = false, links = emptyList(), attributes = emptyMap()),
+                    entity3.toModel(audit = false, links = emptyList(), attributes = emptyMap()),
                 ),
                 hasNextPage = false,
                 totalCount = null,
@@ -1064,7 +1064,7 @@ class EntityServiceTest : BaseServiceTest() {
 
             val page1Result = EntityQueryResult(
                 entities = page1Entities.map {
-                    it.toModel(audit = false, relationships = emptyMap(), attributes = emptyMap())
+                    it.toModel(audit = false, links = emptyList(), attributes = emptyMap())
                 },
                 hasNextPage = true,
                 totalCount = null,
@@ -1072,7 +1072,7 @@ class EntityServiceTest : BaseServiceTest() {
             )
             val page2Result = EntityQueryResult(
                 entities = page2Entities.map {
-                    it.toModel(audit = false, relationships = emptyMap(), attributes = emptyMap())
+                    it.toModel(audit = false, links = emptyList(), attributes = emptyMap())
                 },
                 hasNextPage = false,
                 totalCount = null,

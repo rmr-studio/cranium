@@ -34,6 +34,11 @@ import {
     IconToJSON,
     IconToJSONTyped,
 } from './Icon';
+import type { EntityLink } from './EntityLink';
+import {
+    EntityLinkFromJSON,
+    EntityLinkToJSON,
+} from './EntityLink';
 
 /**
  * 
@@ -150,13 +155,18 @@ export interface Entity {
      */
     syncVersion: number;
     /**
-     * 
-     * @type {number}
+     * Inbound knowledge references grouped by source entity typeKey
+     * (`note`, `glossary_term`, `sop`, ...). Each row carries its
+     * `systemType` (`ATTACHMENT` / `MENTION` / `DEFINES`) so callers can
+     * render badge counts, panels, and per-kind splits without an extra
+     * fetch. Replaces the dropped `noteCount` aggregate.
+     *
+     * @type {{ [key: string]: Array<EntityLink>; }}
      * @memberof Entity
      */
-    noteCount: number;
+    knowledgeRefs?: { [key: string]: Array<EntityLink>; } | null;
     /**
-     * 
+     *
      * @type {string}
      * @memberof Entity
      */
@@ -177,7 +187,6 @@ export function instanceOfEntity(value: object): value is Entity {
     if (!('identifierKey' in value) || value['identifierKey'] === undefined) return false;
     if (!('sourceType' in value) || value['sourceType'] === undefined) return false;
     if (!('syncVersion' in value) || value['syncVersion'] === undefined) return false;
-    if (!('noteCount' in value) || value['noteCount'] === undefined) return false;
     if (!('identifier' in value) || value['identifier'] === undefined) return false;
     return true;
 }
@@ -210,7 +219,7 @@ export function EntityFromJSONTyped(json: any, ignoreDiscriminator: boolean): En
         'firstSyncedAt': json['firstSyncedAt'] == null ? undefined : (new Date(json['firstSyncedAt'])),
         'lastSyncedAt': json['lastSyncedAt'] == null ? undefined : (new Date(json['lastSyncedAt'])),
         'syncVersion': json['syncVersion'],
-        'noteCount': json['noteCount'],
+        'knowledgeRefs': json['knowledgeRefs'] == null ? undefined : (mapValues(json['knowledgeRefs'], (links: any) => (links as Array<any>).map(EntityLinkFromJSON))),
         'identifier': json['identifier'],
     };
 }
@@ -244,7 +253,7 @@ export function EntityToJSONTyped(value?: Entity | null, ignoreDiscriminator: bo
         'firstSyncedAt': value['firstSyncedAt'] == null ? value['firstSyncedAt'] : value['firstSyncedAt'].toISOString(),
         'lastSyncedAt': value['lastSyncedAt'] == null ? value['lastSyncedAt'] : value['lastSyncedAt'].toISOString(),
         'syncVersion': value['syncVersion'],
-        'noteCount': value['noteCount'],
+        'knowledgeRefs': value['knowledgeRefs'] == null ? value['knowledgeRefs'] : (mapValues(value['knowledgeRefs'], (links: any) => (links as Array<EntityLink>).map(EntityLinkToJSON))),
         'identifier': value['identifier'],
     };
 }

@@ -2,6 +2,7 @@ package riven.core.models.core
 
 import riven.core.enums.common.icon.IconColour
 import riven.core.enums.common.icon.IconType
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.models.catalog.NormalizedRelationship
@@ -26,6 +27,7 @@ import riven.core.models.common.validation.DefaultValue
  */
 abstract class CoreModelDefinition(
     val key: String,
+    val role: EntityTypeRole = EntityTypeRole.CATALOG,
     val displayNameSingular: String,
     val displayNamePlural: String,
     val iconType: IconType = IconType.CIRCLE_DASHED,
@@ -55,6 +57,7 @@ abstract class CoreModelDefinition(
             iconColour = iconColour.name,
             semanticGroup = semanticGroup.name,
             lifecycleDomain = lifecycleDomain,
+            role = role,
             identifierKey = identifierKey,
             readonly = false,
             schema = schema,

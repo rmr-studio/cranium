@@ -36,7 +36,14 @@ data class Entity(
     val firstSyncedAt: ZonedDateTime? = null,
     val lastSyncedAt: ZonedDateTime? = null,
     val syncVersion: Long = 0,
-    val noteCount: Int = 0,
+    /**
+     * Inbound knowledge references grouped by source entity `typeKey`
+     * (e.g. `note`, `glossary_term`, `sop`). Each row preserves its
+     * `systemType` (`ATTACHMENT` / `MENTION` / `DEFINES`) so the frontend
+     * can render badges, panels, and per-kind splits without a follow-up
+     * request. Replaces the dropped `entities.note_count` aggregate.
+     */
+    val knowledgeRefs: Map<String, List<EntityLink>> = emptyMap(),
 ) : AuditableModel {
     val identifier: String
         get() = this.payload[identifierKey].toString()

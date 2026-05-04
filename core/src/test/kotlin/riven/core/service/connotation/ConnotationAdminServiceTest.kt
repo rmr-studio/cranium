@@ -94,7 +94,7 @@ class ConnotationAdminServiceTest {
             )
         ).thenReturn(mock())
 
-        val count = service.reanalyzeWhereVersionMismatch(
+        val count = service.reanalyzeWhereMetadataVersionMismatch(
             metadataType = ConnotationMetadataType.SENTIMENT,
             tier = AnalysisTier.DETERMINISTIC,
             workspaceId = workspaceId,
@@ -120,10 +120,11 @@ class ConnotationAdminServiceTest {
         assertEquals(42, details["enqueued"])
     }
 
+
     @Test
     fun `CLASSIFIER reanalyze throws IllegalArgumentException`() {
         assertThrows<IllegalArgumentException> {
-            service.reanalyzeWhereVersionMismatch(
+            service.reanalyzeWhereMetadataVersionMismatch(
                 metadataType = ConnotationMetadataType.SENTIMENT,
                 tier = AnalysisTier.CLASSIFIER,
                 workspaceId = workspaceId,
@@ -134,7 +135,7 @@ class ConnotationAdminServiceTest {
     @Test
     fun `RELATIONAL reanalyze throws IllegalArgumentException`() {
         assertThrows<IllegalArgumentException> {
-            service.reanalyzeWhereVersionMismatch(
+            service.reanalyzeWhereMetadataVersionMismatch(
                 metadataType = ConnotationMetadataType.RELATIONAL,
                 tier = AnalysisTier.DETERMINISTIC,
                 workspaceId = workspaceId,
@@ -145,7 +146,7 @@ class ConnotationAdminServiceTest {
     @Test
     fun `STRUCTURAL reanalyze throws IllegalArgumentException`() {
         assertThrows<IllegalArgumentException> {
-            service.reanalyzeWhereVersionMismatch(
+            service.reanalyzeWhereMetadataVersionMismatch(
                 metadataType = ConnotationMetadataType.STRUCTURAL,
                 tier = AnalysisTier.DETERMINISTIC,
                 workspaceId = workspaceId,
@@ -164,7 +165,7 @@ class ConnotationAdminServiceTest {
         val unauthorizedWorkspaceId = UUID.randomUUID()
 
         assertThrows<AccessDeniedException> {
-            service.reanalyzeWhereVersionMismatch(
+            service.reanalyzeWhereMetadataVersionMismatch(
                 metadataType = ConnotationMetadataType.SENTIMENT,
                 tier = AnalysisTier.DETERMINISTIC,
                 workspaceId = unauthorizedWorkspaceId,

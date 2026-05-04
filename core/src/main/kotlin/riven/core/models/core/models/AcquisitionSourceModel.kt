@@ -7,6 +7,7 @@ import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.models.common.validation.SchemaOptions
 import riven.core.models.core.AttributeSemantics
 import riven.core.models.core.CoreModelAttribute
@@ -23,6 +24,7 @@ object AcquisitionSourceModel : riven.core.models.core.CoreModelDefinition(
     iconColour = IconColour.PURPLE,
     semanticGroup = SemanticGroup.OPERATIONAL,
     lifecycleDomain = LifecycleDomain.ACQUISITION,
+    role = EntityTypeRole.CATALOG,
     identifierKey = "name",
     semanticDefinition = "A marketing channel or campaign that brings users to the product. Used for attribution and channel quality analysis.",
     semanticTags = listOf("marketing", "acquisition", "attribution"),

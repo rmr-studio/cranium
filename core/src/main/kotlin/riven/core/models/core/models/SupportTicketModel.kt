@@ -8,6 +8,7 @@ import riven.core.enums.entity.semantics.SemanticGroup
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.core.DataType
 import riven.core.enums.core.DynamicDefaultFunction
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.models.common.validation.DefaultValue
 import riven.core.models.common.validation.SchemaOptions
 import riven.core.models.core.AttributeSemantics
@@ -35,6 +36,7 @@ object SupportTicketModel : riven.core.models.core.CoreModelDefinition(
             relationshipName = ProjectionAcceptRule.SOURCE_DATA_RELATIONSHIP,
         ),
     ),
+    role = EntityTypeRole.CATALOG,
     attributes = mapOf(
         "subject" to CoreModelAttribute(
             schemaType = SchemaType.TEXT, label = "Subject", dataType = DataType.STRING,

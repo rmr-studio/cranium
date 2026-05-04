@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import riven.core.entity.entity.EntityRelationshipEntity
 import riven.core.projection.entity.EntityLinkProjection
+import riven.core.projection.entity.GlossaryDefinitionRow
 import java.util.*
 
 
@@ -309,6 +310,10 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
      * - `payload -> identifier_key::text` accesses the JSONB object at the dynamic key
      * - `->> 'value'` extracts the 'value' field as text
      * - COALESCE falls back to the entity ID if the label is not found
+     *
+     * `sourceSurfaceRole` (VIEW-03): the source entity (r.source_entity_id) is joined via `src_e`
+     * so `src_t.surface_role` can be projected. This is the surface role of the entity that OWNS
+     * the outbound edge, which matches the `sourceEntityId` column alias (r.source_entity_id).
      */
     @Query(
         value = """
@@ -322,9 +327,12 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
                 e.type_key as typeKey,
                 COALESCE(ea.value #>> '{}', e.id::text) as label,
                 'FORWARD' as direction,
-                rd.system_type as systemType
+                rd.system_type as systemType,
+                src_t.surface_role as sourceSurfaceRole
             FROM entity_relationships r
             JOIN entities e ON r.target_id = e.id
+            JOIN entities src_e ON r.source_entity_id = src_e.id
+            JOIN entity_types src_t ON src_e.type_id = src_t.id
             LEFT JOIN entity_attributes ea ON ea.entity_id = e.id AND ea.attribute_id = e.identifier_key AND ea.deleted = false
             JOIN relationship_definitions rd ON r.relationship_definition_id = rd.id AND rd.deleted = false
             WHERE r.source_entity_id = :sourceId
@@ -339,6 +347,8 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
     /**
      * Find all entity links for multiple source entities.
      * Returns a flat list that can be grouped by sourceEntityId in the service layer.
+     *
+     * `sourceSurfaceRole` (VIEW-03): same src_e + src_t join pattern as [findEntityLinksBySourceId].
      */
     @Query(
         value = """
@@ -352,9 +362,12 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
                 e.type_key as typeKey,
                 COALESCE(ea.value #>> '{}', e.id::text) as label,
                 'FORWARD' as direction,
-                rd.system_type as systemType
+                rd.system_type as systemType,
+                src_t.surface_role as sourceSurfaceRole
             FROM entity_relationships r
             JOIN entities e ON r.target_id = e.id
+            JOIN entities src_e ON r.source_entity_id = src_e.id
+            JOIN entity_types src_t ON src_e.type_id = src_t.id
             LEFT JOIN entity_attributes ea ON ea.entity_id = e.id AND ea.attribute_id = e.identifier_key AND ea.deleted = false
             JOIN relationship_definitions rd ON r.relationship_definition_id = rd.id AND rd.deleted = false
             WHERE r.source_entity_id = ANY(:ids)
@@ -385,6 +398,11 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
      * `r.target_kind = 'ENTITY'` is enforced so structural DEFINES edges
      * (targeting `ENTITY_TYPE` / `ATTRIBUTE` / `RELATIONSHIP` UUIDs) never
      * leak into entity-instance lookups.
+     *
+     * `sourceSurfaceRole` (VIEW-03): `src_t` is already joined for the KNOWLEDGE predicate;
+     * here we also project `src_t.surface_role` to populate [EntityLink.sourceSurfaceRole].
+     * For INVERSE rows, `e` (the source entity of the relationship) IS the entity whose
+     * surface role we want — its type is joined as `src_t ON src_t.id = e.type_id`.
      */
     @Query(
         value = """
@@ -398,7 +416,8 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
                 e.type_key as typeKey,
                 COALESCE(ea.value #>> '{}', e.id::text) as label,
                 'INVERSE' as direction,
-                rd.system_type as systemType
+                rd.system_type as systemType,
+                src_t.surface_role as sourceSurfaceRole
             FROM entity_relationships r
             JOIN entities e ON r.source_entity_id = e.id
             JOIN entity_types src_t ON src_t.id = e.type_id
@@ -427,6 +446,8 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
     /**
      * Batch variant: find inverse entity links for multiple target entities.
      * Same predicate semantics as [findInverseEntityLinksByTargetId].
+     *
+     * `sourceSurfaceRole` (VIEW-03): same src_t projection as the single-id variant.
      */
     @Query(
         value = """
@@ -440,7 +461,8 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
                 e.type_key as typeKey,
                 COALESCE(ea.value #>> '{}', e.id::text) as label,
                 'INVERSE' as direction,
-                rd.system_type as systemType
+                rd.system_type as systemType,
+                src_t.surface_role as sourceSurfaceRole
             FROM entity_relationships r
             JOIN entities e ON r.source_entity_id = e.id
             JOIN entity_types src_t ON src_t.id = e.type_id
@@ -465,4 +487,64 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
         nativeQuery = true
     )
     fun findInverseEntityLinksByTargetIdIn(ids: Array<UUID>, workspaceId: UUID): List<EntityLinkProjection>
+
+    /**
+     * Finds glossary DEFINES edges targeting the entity type or its attributes/relationships.
+     *
+     * Returns rows for glossary entities that have a DEFINES relationship pointing at:
+     * - target_kind = ENTITY_TYPE and target_id = entityTypeId
+     * - target_kind = ATTRIBUTE and target_parent_id = entityTypeId
+     * - target_kind = RELATIONSHIP and target_parent_id = entityTypeId
+     *
+     * The query uses JPQL (not native) so the @SQLRestriction("deleted = false") on
+     * AuditableSoftDeletableEntity auto-applies — soft-deleted glossary entities are excluded
+     * without a manual filter. Workspace scoping on both the relationship row (r.workspaceId)
+     * and the source glossary entity (e.workspaceId) ensures cross-workspace isolation (VIEW-08).
+     *
+     * The PR1 partial index on entity_relationships(target_id, target_kind) WHERE target_kind IN
+     * ('ENTITY_TYPE','ATTRIBUTE','RELATIONSHIP') is targeted by the target_kind IN filter
+     * appearing before target_id in the WHERE clause (VIEW-10).
+     *
+     * The `narrative` field is projected as an empty string literal — the assembler resolves
+     * the actual "definition" attribute value Kotlin-side via EntityAttributeService to avoid
+     * coupling this query to a hard-coded attribute slug.
+     *
+     * Drives TypeNarrativeSection.glossaryDefinitions and AttributeSection.glossaryNarrative (VIEW-02).
+     */
+    @Query("""
+        SELECT
+            r.id          AS relationshipId,
+            r.sourceId    AS sourceEntityId,
+            COALESCE(CAST(idAttr.value AS string), CAST(r.sourceId AS string)) AS sourceLabel,
+            r.targetKind  AS targetKind,
+            r.targetId    AS targetId,
+            ''            AS narrative,
+            r.createdAt   AS createdAt
+        FROM EntityRelationshipEntity r
+          JOIN RelationshipDefinitionEntity d ON d.id = r.definitionId
+          JOIN EntityEntity e               ON e.id = r.sourceId
+          LEFT JOIN EntityAttributeEntity idAttr
+            ON idAttr.entityId    = e.id
+           AND idAttr.attributeId = e.identifierKey
+        WHERE r.workspaceId  = :workspaceId
+          AND e.workspaceId  = :workspaceId
+          AND d.systemType   = riven.core.enums.entity.SystemRelationshipType.DEFINES
+          AND r.targetKind  IN (
+                riven.core.enums.entity.RelationshipTargetKind.ENTITY_TYPE,
+                riven.core.enums.entity.RelationshipTargetKind.ATTRIBUTE,
+                riven.core.enums.entity.RelationshipTargetKind.RELATIONSHIP
+              )
+          AND (
+                (r.targetKind = riven.core.enums.entity.RelationshipTargetKind.ENTITY_TYPE
+                    AND r.targetId = :entityTypeId)
+             OR (r.targetKind IN (
+                    riven.core.enums.entity.RelationshipTargetKind.ATTRIBUTE,
+                    riven.core.enums.entity.RelationshipTargetKind.RELATIONSHIP)
+                    AND r.targetParentId = :entityTypeId)
+              )
+    """)
+    fun findGlossaryDefinitionsForType(
+        workspaceId: UUID,
+        entityTypeId: UUID,
+    ): List<GlossaryDefinitionRow>
 }

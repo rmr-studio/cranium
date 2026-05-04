@@ -222,22 +222,32 @@ class ConnotationPipelineIntegrationTestConfig {
         org.mockito.Mockito.mock(riven.core.service.enrichment.provider.EmbeddingProvider::class.java)
 
     /**
-     * [riven.core.service.entity.EntityRelationshipService] is a new constructor dep on
-     * [riven.core.service.enrichment.EnrichmentContextAssembler] (Plan 02-02 refactor — used
-     * only in the new [EnrichmentContextAssembler.assemble] path). The legacy bridge path
-     * [EnrichmentContextAssembler.assembleLegacyContext] that this test exercises does NOT use it,
-     * so a pass-through mock is safe here.
+     * [riven.core.service.entity.EntityRelationshipService] is a constructor dep on
+     * [riven.core.service.enrichment.EnrichmentContextAssembler]. Its heavyweight dependencies
+     * (AuthTokenService, ActivityService, EntityTypeRelationshipService) are mocked or unavailable
+     * in this context, so we provide a stub that returns an empty list for the relationship query
+     * path used by [EnrichmentContextAssembler.assemble].
+     *
+     * Plan 02-03: [assembleLegacyContext] was deleted; assemble() now calls findRelatedEntities()
+     * directly. The stub must return an empty list (not null) to avoid NPE in the filter chain.
      */
     @Bean
-    fun entityRelationshipService(): riven.core.service.entity.EntityRelationshipService =
-        org.mockito.Mockito.mock(riven.core.service.entity.EntityRelationshipService::class.java)
+    fun entityRelationshipService(): riven.core.service.entity.EntityRelationshipService {
+        val mock = org.mockito.Mockito.mock(riven.core.service.entity.EntityRelationshipService::class.java)
+        org.mockito.Mockito.doReturn(emptyList<riven.core.models.entity.EntityLink>())
+            .`when`(mock).findRelatedEntities(org.mockito.kotlin.any<java.util.UUID>(), org.mockito.kotlin.any<java.util.UUID>())
+        return mock
+    }
 
     /**
-     * [riven.core.service.enrichment.SentimentResolutionService] is a new constructor dep on
-     * [riven.core.service.enrichment.EnrichmentContextAssembler] (Plan 02-02 refactor — used
-     * only in the new [EnrichmentContextAssembler.assemble] path). The legacy bridge path
-     * [EnrichmentContextAssembler.assembleLegacyContext] that this test exercises does NOT use it,
-     * so a pass-through mock is safe here.
+     * [riven.core.service.enrichment.SentimentResolutionService] is a constructor dep on
+     * [riven.core.service.enrichment.EnrichmentContextAssembler]. Wired as a real bean since all
+     * its dependencies ([ConnotationAnalysisService], [WorkspaceRepository], [ManifestCatalogService],
+     * [EntityAttributeService]) are available in this context.
+     *
+     * Plan 02-03: [assembleLegacyContext] was deleted; assemble() now calls resolve() directly.
+     * A Mockito default mock returns null for non-void methods, which caused NPE at
+     * EnrichmentContextAssembler.assembleView line 152 (sentiment.status). The real bean is needed.
      */
     @Bean
     fun sentimentResolutionService(
@@ -247,7 +257,13 @@ class ConnotationPipelineIntegrationTestConfig {
         entityAttributeService: riven.core.service.entity.EntityAttributeService,
         logger: KLogger,
     ): riven.core.service.enrichment.SentimentResolutionService =
-        org.mockito.Mockito.mock(riven.core.service.enrichment.SentimentResolutionService::class.java)
+        riven.core.service.enrichment.SentimentResolutionService(
+            connotationAnalysisService = connotationAnalysisService,
+            workspaceRepository = workspaceRepository,
+            manifestCatalogService = manifestCatalogService,
+            entityAttributeService = entityAttributeService,
+            logger = logger,
+        )
 }
 
 /**

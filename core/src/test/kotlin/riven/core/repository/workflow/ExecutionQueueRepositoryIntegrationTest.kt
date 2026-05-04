@@ -477,4 +477,133 @@ class ExecutionQueueRepositoryIntegrationTest {
         assertThat(pending.single().jobType).isEqualTo(ExecutionJobType.ENRICHMENT)
         assertThat(pending.single().status).isEqualTo(ExecutionQueueStatus.PENDING)
     }
+
+    // ------ claimEnrichmentItem CAS (r3180290306) ------
+
+    /**
+     * Inserts an `execution_queue` ENRICHMENT row in the requested state. Bypasses JPA so we
+     * can stamp a non-PENDING status without going through the entity's default constructor.
+     *
+     * Satisfies the `chk_job_type_fields` constraint by creating a backing entity row and
+     * linking it via `entity_id` (ENRICHMENT requires entity_id IS NOT NULL).
+     */
+    private fun insertEnrichmentQueueRow(status: String): UUID {
+        val entityId = insertEntity()
+        val id = UUID.randomUUID()
+        jdbcTemplate.update(
+            """
+            INSERT INTO execution_queue (id, workspace_id, job_type, entity_id, status, created_at, attempts)
+            VALUES (?, ?, 'ENRICHMENT', ?, CAST(? AS VARCHAR), now(), 0)
+            """.trimIndent(),
+            id, workspaceId, entityId, status,
+        )
+        return id
+    }
+
+    private fun statusOf(id: UUID): String =
+        jdbcTemplate.queryForObject(
+            "SELECT status FROM execution_queue WHERE id = ?",
+            String::class.java,
+            id,
+        ) ?: error("Row $id missing")
+
+    /**
+     * Regression test for r3180290306. The CAS must transition a PENDING ENRICHMENT row to
+     * CLAIMED exactly once, returning rowCount = 1 and stamping `claimed_at`.
+     */
+    @Test
+    fun `claimEnrichmentItem transitions PENDING to CLAIMED and returns 1`() {
+        val id = insertEnrichmentQueueRow(status = "PENDING")
+
+        val rowCount = executionQueueRepository.claimEnrichmentItem(id, ZonedDateTime.now())
+
+        assertThat(rowCount).isEqualTo(1)
+        assertThat(statusOf(id)).isEqualTo("CLAIMED")
+    }
+
+    /**
+     * Regression test for r3180290306. A CLAIMED row may be re-claimed (status ∈ {PENDING, CLAIMED}).
+     * This protects safe Temporal retries of `analyzeSemantics` after a partial failure: the
+     * activity refreshes `claimed_at` without regressing terminal states.
+     */
+    @Test
+    fun `claimEnrichmentItem allows CLAIMED to CLAIMED retry`() {
+        val id = insertEnrichmentQueueRow(status = "CLAIMED")
+
+        val rowCount = executionQueueRepository.claimEnrichmentItem(id, ZonedDateTime.now())
+
+        assertThat(rowCount).isEqualTo(1)
+        assertThat(statusOf(id)).isEqualTo("CLAIMED")
+    }
+
+    /**
+     * Regression test for r3180290306 — COMPLETED row must NOT regress.
+     *
+     * Bug: prior `read-modify-write` in `EnrichmentAnalysisService.claimQueueItem` blindly
+     * overwrote any status with CLAIMED. A retried `analyzeSemantics` arriving after
+     * `embedAndStore` had already marked the row COMPLETED would silently re-open it and
+     * re-run analysis, double-emitting downstream side effects. Fix: WHERE clause restricts
+     * pre-state to {PENDING, CLAIMED}, so COMPLETED yields 0 rows touched.
+     */
+    @Test
+    fun `claimEnrichmentItem does not regress COMPLETED row and returns 0`() {
+        val id = insertEnrichmentQueueRow(status = "COMPLETED")
+
+        val rowCount = executionQueueRepository.claimEnrichmentItem(id, ZonedDateTime.now())
+
+        assertThat(rowCount).isEqualTo(0)
+        assertThat(statusOf(id)).isEqualTo("COMPLETED")
+    }
+
+    /**
+     * Regression test for r3180290306 — FAILED row must NOT resurrect.
+     *
+     * Same shape as the COMPLETED test: terminal-failure rows are out of scope for the claim
+     * transition. The CAS WHERE clause guards both terminal states symmetrically.
+     */
+    @Test
+    fun `claimEnrichmentItem does not resurrect FAILED row and returns 0`() {
+        val id = insertEnrichmentQueueRow(status = "FAILED")
+
+        val rowCount = executionQueueRepository.claimEnrichmentItem(id, ZonedDateTime.now())
+
+        assertThat(rowCount).isEqualTo(0)
+        assertThat(statusOf(id)).isEqualTo("FAILED")
+    }
+
+    /**
+     * Regression test for r3180290306 — non-ENRICHMENT job types must be rejected.
+     *
+     * The CAS is enrichment-specific. A row with a different job type (e.g.
+     * WORKFLOW_EXECUTION) must yield 0 rows touched even when its status is PENDING.
+     */
+    @Test
+    fun `claimEnrichmentItem rejects rows with wrong job_type and returns 0`() {
+        // IDENTITY_MATCH satisfies chk_job_type_fields with entity_id only (same as ENRICHMENT)
+        // and proves the CAS WHERE clause's job_type filter rejects non-ENRICHMENT rows.
+        val entityId = insertEntity()
+        val id = UUID.randomUUID()
+        jdbcTemplate.update(
+            """
+            INSERT INTO execution_queue (id, workspace_id, job_type, entity_id, status, created_at, attempts)
+            VALUES (?, ?, 'IDENTITY_MATCH', ?, 'PENDING', now(), 0)
+            """.trimIndent(),
+            id, workspaceId, entityId,
+        )
+
+        val rowCount = executionQueueRepository.claimEnrichmentItem(id, ZonedDateTime.now())
+
+        assertThat(rowCount).isEqualTo(0)
+        assertThat(statusOf(id)).isEqualTo("PENDING")
+    }
+
+    /**
+     * Regression test for r3180290306 — missing row yields rowCount = 0 (not an error).
+     */
+    @Test
+    fun `claimEnrichmentItem returns 0 when row does not exist`() {
+        val rowCount = executionQueueRepository.claimEnrichmentItem(UUID.randomUUID(), ZonedDateTime.now())
+
+        assertThat(rowCount).isEqualTo(0)
+    }
 }

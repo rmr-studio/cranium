@@ -100,4 +100,40 @@ class EnrichmentEmbeddingService(
         val queueItem = ServiceUtil.findOrThrow { executionQueueRepository.findById(queueItemId) }
         executionQueueRepository.save(queueItem.copy(status = ExecutionQueueStatus.COMPLETED))
     }
+
+    // ------ Terminal failure ------
+
+    /**
+     * Records a terminal FAILED transition on the queue row when the primary embedding consumer
+     * exhausts Temporal retries. Idempotent: rows already in COMPLETED or FAILED are left untouched
+     * so a duplicate workflow invocation cannot regress a successfully completed job, nor overwrite
+     * an existing failure reason.
+     *
+     * Invoked from [riven.core.service.workflow.enrichment.EnrichmentWorkflowImpl.embed] via the
+     * `markQueueItemFailed` Temporal activity.
+     *
+     * @param queueItemId Row to transition.
+     * @param reason Free-text failure reason persisted to `last_error`. Truncated to 4000 chars.
+     */
+    @Transactional
+    fun markQueueItemFailed(queueItemId: UUID, reason: String) {
+        val queueItem = ServiceUtil.findOrThrow { executionQueueRepository.findById(queueItemId) }
+        if (queueItem.status == ExecutionQueueStatus.COMPLETED || queueItem.status == ExecutionQueueStatus.FAILED) {
+            logger.warn {
+                "Skipping markQueueItemFailed for $queueItemId: already in terminal state ${queueItem.status}"
+            }
+            return
+        }
+        executionQueueRepository.save(
+            queueItem.copy(
+                status = ExecutionQueueStatus.FAILED,
+                lastError = reason.take(MAX_LAST_ERROR_LENGTH),
+            )
+        )
+        logger.warn { "Queue item $queueItemId marked FAILED: $reason" }
+    }
+
+    private companion object {
+        private const val MAX_LAST_ERROR_LENGTH = 4000
+    }
 }

@@ -3,6 +3,9 @@ package riven.core.service.workflow.enrichment
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.times
@@ -65,91 +68,156 @@ class EnrichmentWorkflowImplTest {
 
         /**
          * Creates a testable workflow subclass with mock-controlled stubs and consumers.
+         *
+         * @param activities Mock Temporal activity stub used by the workflow body.
+         * @param siblings Sibling consumers (run with runCatching, isolated per ENRICH-05).
+         * @param primary Optional override for the primary completion consumer. When `null`,
+         *   the default [EmbeddingConsumer] backed by [activities] is used — most tests want
+         *   this so failures originate from `activities.embedAndStore` mocking.
          */
         private fun createTestableWorkflow(
             activities: EnrichmentActivities,
-            consumers: List<ConsumerActivity>,
+            siblings: List<ConsumerActivity> = emptyList(),
+            primary: ConsumerActivity? = null,
         ): EnrichmentWorkflowImpl {
             return object : EnrichmentWorkflowImpl() {
                 override fun createActivitiesStub(): EnrichmentActivities = activities
-                override fun buildConsumers(stub: EnrichmentActivities): List<ConsumerActivity> = consumers
+                override fun buildConsumers(stub: EnrichmentActivities): List<ConsumerActivity> = siblings
+                override fun buildPrimaryConsumer(stub: EnrichmentActivities): ConsumerActivity =
+                    primary ?: super.buildPrimaryConsumer(stub)
             }
         }
 
         /**
-         * Verifies the core contract: analyzeSemantics is called, then each consumer's run()
-         * is called with the returned context and queueItemId in order.
+         * Verifies the core contract: analyzeSemantics is called first, then the primary
+         * EmbeddingConsumer (via activities.embedAndStore), then each sibling consumer's run()
+         * — all in declared order.
          *
          * Also protects the Phase B connotation hook: analyzeSemantics is the activity that
          * calls EnrichmentAnalysisService.persistConnotationSnapshot. Removing the call here
          * silently disables connotation analysis.
          */
         @Test
-        fun `embed calls analyzeSemantics then iterates consumer list`() {
+        fun `embed calls analyzeSemantics then primary embedAndStore then siblings in order`() {
             val activities = mock<EnrichmentActivities>()
-            val consumer1 = mock<ConsumerActivity>()
-            val consumer2 = mock<ConsumerActivity>()
+            val sibling1 = mock<ConsumerActivity>()
+            val sibling2 = mock<ConsumerActivity>()
             whenever(activities.analyzeSemantics(queueItemId)).thenReturn(context)
 
-            val workflow = createTestableWorkflow(activities, listOf(consumer1, consumer2))
+            val workflow = createTestableWorkflow(activities, siblings = listOf(sibling1, sibling2))
             workflow.embed(queueItemId)
 
-            verify(activities).analyzeSemantics(queueItemId)
-            verify(consumer1).run(context, queueItemId)
-            verify(consumer2).run(context, queueItemId)
+            // r3180290327: lock the documented sequential contract — analyze → primary embed → siblings.
+            inOrder(activities, sibling1, sibling2) {
+                verify(activities).analyzeSemantics(queueItemId)
+                verify(activities).embedAndStore(context, queueItemId)
+                verify(sibling1).run(context, queueItemId)
+                verify(sibling2).run(context, queueItemId)
+            }
         }
 
         /**
-         * Verifies the runCatching semantics: when one consumer throws, the workflow logs
-         * a warning and continues to the next consumer — it does NOT propagate the failure.
-         * This is the ENRICH-05 contract: one consumer's terminal failure must not block siblings.
+         * Regression test for r3180290311 — terminal primary-consumer failure transitions the
+         * queue row to FAILED via the markQueueItemFailed activity and does NOT propagate as a
+         * workflow failure.
+         *
+         * Pre-fix bug: the embedding consumer was iterated under the same runCatching as
+         * sibling consumers, so a terminal embedAndStore failure was silently logged and the
+         * workflow returned successfully — leaving the queue row stuck in CLAIMED with no
+         * FAILED state and no retry signal.
+         *
+         * Post-fix: the primary is now run inside its own runCatching that, on failure, invokes
+         * stub.markQueueItemFailed(queueItemId, reason). The workflow body still completes
+         * normally (Temporal sees a successful workflow + a FAILED queue row).
          */
         @Test
-        fun `embed continues to next consumer when one consumer throws`() {
+        fun `embed marks queue FAILED when primary embedAndStore throws and does not propagate`() {
             val activities = mock<EnrichmentActivities>()
-            val failingConsumer = mock<ConsumerActivity>()
-            val successConsumer = mock<ConsumerActivity>()
             whenever(activities.analyzeSemantics(queueItemId)).thenReturn(context)
-            whenever(failingConsumer.run(context, queueItemId)).thenThrow(RuntimeException("provider outage"))
+            whenever(activities.embedAndStore(context, queueItemId)).thenThrow(RuntimeException("embedding provider outage"))
 
-            val workflow = createTestableWorkflow(activities, listOf(failingConsumer, successConsumer))
+            val workflow = createTestableWorkflow(activities)
 
-            // Should not throw — runCatching swallows the failure at workflow level
+            // Workflow body must NOT propagate the primary failure — Temporal sees success.
             workflow.embed(queueItemId)
 
-            verify(failingConsumer).run(context, queueItemId)
-            verify(successConsumer).run(context, queueItemId)
+            inOrder(activities) {
+                verify(activities).analyzeSemantics(queueItemId)
+                verify(activities).embedAndStore(context, queueItemId)
+                verify(activities).markQueueItemFailed(eq(queueItemId), any())
+            }
         }
 
         /**
-         * Verifies that when all consumers succeed, analyzeSemantics is called exactly once
-         * (no retry or duplication at the orchestration level).
+         * Regression test for r3180290311 — when the primary completion consumer SUCCEEDS,
+         * markQueueItemFailed is never invoked. Guards against a regression where every embed
+         * call writes a redundant FAILED transition.
+         */
+        @Test
+        fun `embed does not call markQueueItemFailed when primary embedAndStore succeeds`() {
+            val activities = mock<EnrichmentActivities>()
+            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(context)
+
+            val workflow = createTestableWorkflow(activities)
+            workflow.embed(queueItemId)
+
+            verify(activities).embedAndStore(context, queueItemId)
+            verify(activities, never()).markQueueItemFailed(any(), any())
+        }
+
+        /**
+         * Sibling-isolation contract (ENRICH-05): when a sibling throws, the workflow logs and
+         * continues to the next sibling — it does NOT propagate the failure and does NOT touch
+         * the queue row. (The primary completion semantics are the previous test's job.)
+         */
+        @Test
+        fun `embed continues to next sibling consumer when one sibling throws and does not regress queue`() {
+            val activities = mock<EnrichmentActivities>()
+            val failingSibling = mock<ConsumerActivity>()
+            val successSibling = mock<ConsumerActivity>()
+            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(context)
+            whenever(failingSibling.run(context, queueItemId)).thenThrow(RuntimeException("synthesis outage"))
+
+            val workflow = createTestableWorkflow(activities, siblings = listOf(failingSibling, successSibling))
+
+            // Should not throw — runCatching isolates the sibling failure at workflow level.
+            workflow.embed(queueItemId)
+
+            verify(failingSibling).run(context, queueItemId)
+            verify(successSibling).run(context, queueItemId)
+            // ENRICH-05 invariant: a sibling failure must NOT mutate queue state.
+            verify(activities, never()).markQueueItemFailed(any(), any())
+        }
+
+        /**
+         * Verifies that when the primary completion consumer succeeds, analyzeSemantics is
+         * called exactly once (no retry or duplication at the orchestration level).
          */
         @Test
         fun `embed calls analyzeSemantics exactly once`() {
             val activities = mock<EnrichmentActivities>()
-            val consumer = mock<ConsumerActivity>()
             whenever(activities.analyzeSemantics(queueItemId)).thenReturn(context)
 
-            val workflow = createTestableWorkflow(activities, listOf(consumer))
+            val workflow = createTestableWorkflow(activities)
             workflow.embed(queueItemId)
 
             verify(activities, times(1)).analyzeSemantics(queueItemId)
         }
 
         /**
-         * Verifies that when the consumer list is empty, analyzeSemantics is still called
-         * (analysis phase is never skipped even with no consumers).
+         * Verifies the analysis phase runs even with no sibling consumers — the primary
+         * completion consumer (default EmbeddingConsumer) is always invoked.
          */
         @Test
-        fun `embed calls analyzeSemantics even with empty consumer list`() {
+        fun `embed runs analyzeSemantics and primary embedAndStore even with empty sibling list`() {
             val activities = mock<EnrichmentActivities>()
             whenever(activities.analyzeSemantics(queueItemId)).thenReturn(context)
 
-            val workflow = createTestableWorkflow(activities, emptyList())
+            val workflow = createTestableWorkflow(activities, siblings = emptyList())
             workflow.embed(queueItemId)
 
             verify(activities).analyzeSemantics(queueItemId)
+            verify(activities).embedAndStore(context, queueItemId)
         }
     }
 

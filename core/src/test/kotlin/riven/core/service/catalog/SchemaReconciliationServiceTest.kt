@@ -1945,9 +1945,13 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
 
             service.reconcileIfNeeded(workspaceId, listOf(entityType))
 
+            // r3180290303: reconciliation must include integration-sourced rows of the affected
+            // catalog type. The default `enqueueByEntityType` skips integration entities by
+            // design — only manifest reconciliation should pass `includeIntegration = true`.
             verify(enrichmentQueueService).enqueueByEntityType(
-                requireNotNull(entityType.id),
-                workspaceId,
+                entityTypeId = requireNotNull(entityType.id),
+                workspaceId = workspaceId,
+                includeIntegration = true,
             )
         }
 
@@ -1974,7 +1978,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
 
             service.reconcileIfNeeded(workspaceId, listOf(entityType))
 
-            verify(enrichmentQueueService, never()).enqueueByEntityType(any(), any())
+            verify(enrichmentQueueService, never()).enqueueByEntityType(any(), any(), any())
         }
 
         @Test
@@ -2005,7 +2009,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
 
             service.reconcileIfNeeded(workspaceId, listOf(entityType))
 
-            verify(enrichmentQueueService, never()).enqueueByEntityType(any(), any())
+            verify(enrichmentQueueService, never()).enqueueByEntityType(any(), any(), any())
         }
 
         @Test
@@ -2043,9 +2047,13 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
                 impactConfirmed = true,
             )
 
+            // r3180290303: see KDoc on the reconcileIfNeeded variant above — applyBreakingChanges
+            // also routes through invalidateConnotationSnapshots, which now passes
+            // `includeIntegration = true` for the same reason.
             verify(enrichmentQueueService).enqueueByEntityType(
-                requireNotNull(entityType.id),
-                workspaceId,
+                entityTypeId = requireNotNull(entityType.id),
+                workspaceId = workspaceId,
+                includeIntegration = true,
             )
         }
 
@@ -2083,7 +2091,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
                 impactConfirmed = false,
             )
 
-            verify(enrichmentQueueService, never()).enqueueByEntityType(any(), any())
+            verify(enrichmentQueueService, never()).enqueueByEntityType(any(), any(), any())
         }
     }
 }

@@ -300,10 +300,15 @@ class EnrichmentContextAssembler(
      * - Finds the IDENTIFIER-classified attribute on its entity type
      * - Returns the attribute value as the display string
      *
-     * Falls back to "[reference not resolved]" when:
-     * - The referenced entity ID cannot be parsed as a UUID
+     * Falls back to "[reference not resolved]" when (for a reference whose value DID parse as a UUID):
      * - The referenced entity's type has no IDENTIFIER attribute
      * - The IDENTIFIER attribute has a null value
+     *
+     * Non-UUID RELATIONAL_REFERENCE values are skipped and never appear in the returned map;
+     * callers that need to surface unparseable references must handle them upstream. The skip
+     * is logged at warn level so the dropped value remains diagnosable. (PR feedback r3180290309
+     * — reconciled the KDoc with the actual behaviour; the prior wording promised a fallback for
+     * unparseable UUIDs that the implementation never produced.)
      *
      * @param attributes The resolved attribute contexts for the entity being enriched
      * @return Map from referenced entity UUID to display string
@@ -320,6 +325,9 @@ class EnrichmentContextAssembler(
             try {
                 UUID.fromString(attr.value)
             } catch (e: IllegalArgumentException) {
+                logger.warn(e) {
+                    "Skipping non-UUID RELATIONAL_REFERENCE value on attribute ${attr.attributeId}: ${attr.value}"
+                }
                 null
             }
         }.distinct()

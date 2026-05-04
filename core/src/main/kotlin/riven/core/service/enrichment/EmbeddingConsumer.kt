@@ -6,18 +6,21 @@ import riven.core.service.workflow.enrichment.EnrichmentActivities
 import java.util.UUID
 
 /**
- * Consumer fan-out wrapper that delegates to the `embedAndStore` Temporal activity.
+ * **Primary** completion consumer that delegates to the `embedAndStore` Temporal activity.
  *
  * Constructed inside [riven.core.service.workflow.enrichment.EnrichmentWorkflowImpl] from the
  * activity stub (workflow-deterministic). NOT a Spring bean — Temporal manages its lifecycle
  * inside the workflow body.
  *
- * Phase 1 ships exactly one consumer; future phases (Synthesis, JSONB projection) add sibling
- * implementations without modifying the workflow orchestration.
+ * This consumer is NOT a sibling. It owns the queue-completion path (`embedAndStore` marks the
+ * row COMPLETED on success). When it throws after Temporal retries are exhausted, the workflow
+ * catches the failure and invokes [riven.core.service.workflow.enrichment.EnrichmentActivities.markQueueItemFailed]
+ * to record an explicit terminal FAILED transition (PR feedback r3180290311). The failure is not
+ * silently swallowed into the sibling-isolation runCatching loop.
  *
- * Exceptions propagate to the workflow's [runCatching] wrapper in
- * [riven.core.service.workflow.enrichment.EnrichmentWorkflowImpl.embed], which logs a warning
- * and continues to the next consumer (Decision 4-ii.A, ENRICH-05 semantics).
+ * Future phases (Synthesis, JSONB projection) ship additional **sibling** consumers via
+ * [riven.core.service.workflow.enrichment.EnrichmentWorkflowImpl.buildConsumers] — those are
+ * isolated per ENRICH-05 and do not mutate queue state.
  */
 class EmbeddingConsumer(private val activities: EnrichmentActivities) : ConsumerActivity {
     override fun run(context: EnrichmentContext, queueItemId: UUID) {

@@ -211,6 +211,84 @@ class EnrichmentEmbeddingServiceTest : BaseServiceTest() {
         }
     }
 
+    // ------ markQueueItemFailed (r3180290311) ------
+
+    /**
+     * Regression tests for r3180290311. The workflow's primary-consumer catch arm calls
+     * `EnrichmentActivities.markQueueItemFailed` which delegates here. The contract: a CLAIMED
+     * (or PENDING) row transitions to FAILED with the reason recorded; rows already in a
+     * terminal state (COMPLETED or FAILED) are left untouched (idempotent).
+     *
+     * Without this method the workflow swallowed terminal embedding failures and left the
+     * queue stuck in CLAIMED with no FAILED state and no retry signal.
+     */
+    @Nested
+    inner class MarkQueueItemFailedTests {
+
+        private val queueItemId: UUID = UUID.fromString("ccccccc1-cccc-cccc-cccc-cccccccccccc")
+
+        @Test
+        fun `markQueueItemFailed transitions CLAIMED row to FAILED with reason`() {
+            val claimed = ExecutionQueueFactory.createEnrichmentJob(
+                id = queueItemId, workspaceId = workspaceId, entityId = UUID.randomUUID(),
+                status = ExecutionQueueStatus.CLAIMED,
+            )
+            whenever(executionQueueRepository.findById(queueItemId)).thenReturn(Optional.of(claimed))
+            whenever(executionQueueRepository.save(any())).thenAnswer { it.arguments[0] }
+
+            enrichmentEmbeddingService.markQueueItemFailed(queueItemId, "embedding provider outage")
+
+            val captor = ArgumentCaptor.forClass(ExecutionQueueEntity::class.java)
+            verify(executionQueueRepository).save(captor.capture())
+            assertEquals(ExecutionQueueStatus.FAILED, captor.value.status)
+            assertEquals("embedding provider outage", captor.value.lastError)
+        }
+
+        @Test
+        fun `markQueueItemFailed transitions PENDING row to FAILED`() {
+            val pending = ExecutionQueueFactory.createEnrichmentJob(
+                id = queueItemId, workspaceId = workspaceId, entityId = UUID.randomUUID(),
+                status = ExecutionQueueStatus.PENDING,
+            )
+            whenever(executionQueueRepository.findById(queueItemId)).thenReturn(Optional.of(pending))
+            whenever(executionQueueRepository.save(any())).thenAnswer { it.arguments[0] }
+
+            enrichmentEmbeddingService.markQueueItemFailed(queueItemId, "preflight failure")
+
+            val captor = ArgumentCaptor.forClass(ExecutionQueueEntity::class.java)
+            verify(executionQueueRepository).save(captor.capture())
+            assertEquals(ExecutionQueueStatus.FAILED, captor.value.status)
+        }
+
+        @Test
+        fun `markQueueItemFailed is a no-op when row is already COMPLETED`() {
+            val completed = ExecutionQueueFactory.createEnrichmentJob(
+                id = queueItemId, workspaceId = workspaceId, entityId = UUID.randomUUID(),
+                status = ExecutionQueueStatus.COMPLETED,
+            )
+            whenever(executionQueueRepository.findById(queueItemId)).thenReturn(Optional.of(completed))
+
+            enrichmentEmbeddingService.markQueueItemFailed(queueItemId, "stale failure signal")
+
+            // Idempotency: do not regress a successful completion.
+            verify(executionQueueRepository, never()).save(any())
+        }
+
+        @Test
+        fun `markQueueItemFailed is a no-op when row is already FAILED`() {
+            val alreadyFailed = ExecutionQueueFactory.createEnrichmentJob(
+                id = queueItemId, workspaceId = workspaceId, entityId = UUID.randomUUID(),
+                status = ExecutionQueueStatus.FAILED,
+            )
+            whenever(executionQueueRepository.findById(queueItemId)).thenReturn(Optional.of(alreadyFailed))
+
+            enrichmentEmbeddingService.markQueueItemFailed(queueItemId, "second failure attempt")
+
+            // Preserves the original failure reason — no overwrite.
+            verify(executionQueueRepository, never()).save(any())
+        }
+    }
+
     // ------ Constructor-count assertion ------
 
     /**

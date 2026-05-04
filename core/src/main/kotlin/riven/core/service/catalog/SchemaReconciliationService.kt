@@ -192,13 +192,24 @@ class SchemaReconciliationService(
     /**
      * Triggers re-enrichment for every entity of [entityTypeId] in [workspaceId] after a manifest
      * schema change has been applied. The STRUCTURAL metadata snapshots in `entity_connotation`
-     * are now stale and need refreshing. Delegates to [EnrichmentQueueService.enqueueByEntityType]
-     * which dedupes via the partial unique index on `execution_queue`.
+     * are now stale and need refreshing.
+     *
+     * Passes `includeIntegration = true` so integration-sourced rows of the affected catalog type
+     * are also re-enqueued (PR feedback r3180290303). The default `enqueueByEntityType` path
+     * skips integration rows by design — but reconciliation runs precisely when the catalog
+     * schema change invalidates the *entire* entity type, integration-sourced rows included.
+     * Without this flag those rows would keep stale `entity_connotation` snapshots forever.
+     *
+     * Dedupes via the partial unique index on `execution_queue`.
      *
      * @param reason Free-form descriptor logged alongside the enqueue count for traceability.
      */
     private fun invalidateConnotationSnapshots(entityTypeId: UUID, workspaceId: UUID, reason: String) {
-        val inserted = enrichmentQueueService.enqueueByEntityType(entityTypeId, workspaceId)
+        val inserted = enrichmentQueueService.enqueueByEntityType(
+            entityTypeId = entityTypeId,
+            workspaceId = workspaceId,
+            includeIntegration = true,
+        )
         logger.info {
             "Reconciliation enqueued $inserted ENRICHMENT items for entity type $entityTypeId ($reason)"
         }

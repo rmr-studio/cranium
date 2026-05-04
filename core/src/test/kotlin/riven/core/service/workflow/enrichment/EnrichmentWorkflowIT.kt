@@ -155,12 +155,12 @@ class EnrichmentWorkflowIT {
          * (b) embedding-failure-doesn't-retry-analysis.
          */
         @Test
-        fun `embedding terminal failure does not retry analysis nor propagate to workflow`() {
+        fun `embedding terminal failure marks queue FAILED does not retry analysis nor propagate to workflow`() {
             whenever(delegate.analyzeSemantics(queueItemId)).thenReturn(fixtureContext)
             whenever(delegate.embedAndStore(any(), eq(queueItemId)))
                 .thenThrow(RuntimeException("simulated embedding failure"))
 
-            // Workflow must complete without throwing — runCatching swallows the consumer failure
+            // Workflow must complete without throwing — primary catch arm marks FAILED and does NOT propagate
             assertDoesNotThrow { executeWorkflow() }
 
             // Analysis ran exactly once — embedding failure did NOT cause analysis to be retried
@@ -168,6 +168,9 @@ class EnrichmentWorkflowIT {
             // Temporal retried embedAndStore 3 times (maxAttempts = 3 in TestEnrichmentWorkflowImpl)
             // before giving up; each attempt is a separate activity invocation
             verify(delegate, times(3)).embedAndStore(any(), eq(queueItemId))
+            // r3180290311 contract: terminal embedding failure transitions the queue row to FAILED
+            // via the markQueueItemFailed activity. Without this, the queue would be stuck CLAIMED.
+            verify(delegate, times(1)).markQueueItemFailed(eq(queueItemId), any())
         }
 
         /**
@@ -326,6 +329,7 @@ class EnrichmentWorkflowIT {
 interface ActivityDelegate {
     fun analyzeSemantics(queueItemId: UUID): EnrichmentContext
     fun embedAndStore(context: EnrichmentContext, queueItemId: UUID)
+    fun markQueueItemFailed(queueItemId: UUID, reason: String)
 }
 
 /**
@@ -342,6 +346,9 @@ private class DelegatingActivitiesImpl(private val delegate: ActivityDelegate) :
 
     override fun embedAndStore(context: EnrichmentContext, queueItemId: UUID) =
         delegate.embedAndStore(context, queueItemId)
+
+    override fun markQueueItemFailed(queueItemId: UUID, reason: String) =
+        delegate.markQueueItemFailed(queueItemId, reason)
 }
 
 /**
@@ -378,6 +385,10 @@ private class TestEnrichmentWorkflowImpl(
                 .build()
         )
 
-    override fun buildConsumers(stub: EnrichmentActivities): List<ConsumerActivity> =
-        listOf(EmbeddingConsumer(stub)) + extraConsumers
+    /**
+     * Returns extra **sibling** consumers only. The primary [EmbeddingConsumer] is built by
+     * [EnrichmentWorkflowImpl.buildPrimaryConsumer] (the production default) and is the
+     * queue-completion path — it is NOT a sibling and must not appear in this list.
+     */
+    override fun buildConsumers(stub: EnrichmentActivities): List<ConsumerActivity> = extraConsumers
 }

@@ -389,6 +389,63 @@ class EnrichmentContextAssemblerTest : BaseServiceTest() {
 
             assertEquals("Jane Smith", context.referencedEntityIdentifiers[refEntityId])
         }
+
+        /**
+         * Regression test for r3180290309. A RELATIONAL_REFERENCE attribute whose value is not
+         * a valid UUID is silently skipped — the returned `referencedEntityIdentifiers` map does
+         * NOT contain a "[reference not resolved]" entry for it.
+         *
+         * Original bug: the KDoc on `resolveReferencedEntityIdentifiers` promised the placeholder
+         * fallback for unparseable UUIDs, but the implementation dropped them in `mapNotNull`
+         * before the result map was built. This test pins the actual contract (skip-and-warn) so
+         * the KDoc and code stay in sync.
+         */
+        @Test
+        fun `assemble silently skips non-UUID RELATIONAL_REFERENCE values from referencedEntityIdentifiers`() {
+            val entityId = UUID.randomUUID()
+            val entityTypeId = UUID.randomUUID()
+            val malformedRefAttrId = UUID.randomUUID()
+
+            val attrMap = mapOf(
+                malformedRefAttrId to EntityAttributePrimitivePayload(
+                    value = "not-a-uuid",
+                    schemaType = SchemaType.TEXT,
+                ),
+            )
+
+            val malformedRefMeta = IdentityFactory.createEntityTypeSemanticMetadataEntity(
+                workspaceId = workspaceId,
+                entityTypeId = entityTypeId,
+                targetType = SemanticMetadataTargetType.ATTRIBUTE,
+                targetId = malformedRefAttrId,
+                classification = SemanticAttributeClassification.RELATIONAL_REFERENCE,
+                definition = "Account Manager",
+            )
+
+            whenever(semanticMetadataRepository.findByEntityTypeId(entityTypeId)).thenReturn(listOf(malformedRefMeta))
+            whenever(entityAttributeService.getAttributes(entityId)).thenReturn(attrMap)
+            whenever(entityRelationshipRepository.findAllRelationshipsForEntity(entityId, workspaceId)).thenReturn(emptyList())
+            whenever(relationshipDefinitionRepository.findByWorkspaceIdAndSourceEntityTypeId(workspaceId, entityTypeId)).thenReturn(emptyList())
+            whenever(identityClusterMemberRepository.findByEntityId(entityId)).thenReturn(null)
+
+            val context = assembler.assemble(
+                entityId = entityId,
+                workspaceId = workspaceId,
+                queueItemId = UUID.randomUUID(),
+                entityTypeId = entityTypeId,
+                schemaVersion = 1,
+                entityTypeName = "Customer",
+                semanticGroup = SemanticGroup.UNCATEGORIZED,
+                lifecycleDomain = LifecycleDomain.UNCATEGORIZED,
+                sentiment = null,
+            )
+
+            // Contract: malformed UUID values are not represented in the map.
+            org.junit.jupiter.api.Assertions.assertTrue(
+                context.referencedEntityIdentifiers.isEmpty(),
+                "Non-UUID RELATIONAL_REFERENCE values must not appear in referencedEntityIdentifiers"
+            )
+        }
     }
 
     // ------ Test 5: loadClusterMembers ------

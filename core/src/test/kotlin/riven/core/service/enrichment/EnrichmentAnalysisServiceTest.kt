@@ -2,13 +2,12 @@ package riven.core.service.enrichment
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentCaptor
 import org.mockito.kotlin.any
-import org.mockito.kotlin.atLeast
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
@@ -18,9 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import riven.core.configuration.auth.WorkspaceSecurity
 import riven.core.configuration.util.ObjectMapperConfig
-import riven.core.entity.workflow.ExecutionQueueEntity
 import riven.core.enums.connotation.ConnotationStatus
-import riven.core.enums.workflow.ExecutionQueueStatus
 import riven.core.models.catalog.ConnotationSignals
 import riven.core.models.catalog.ScaleMappingType
 import riven.core.models.catalog.SentimentScale
@@ -152,8 +149,8 @@ class EnrichmentAnalysisServiceTest : BaseServiceTest() {
             )
             val entityType = EntityFactory.createEntityType(id = typeId, workspaceId = workspaceId)
 
+            whenever(executionQueueRepository.claimEnrichmentItem(eq(queueItemId), any())).thenReturn(1)
             whenever(executionQueueRepository.findById(queueItemId)).thenReturn(Optional.of(queueItem))
-            whenever(executionQueueRepository.save(any())).thenAnswer { it.arguments[0] }
             whenever(entityRepository.findById(entityId)).thenReturn(Optional.of(entity))
             whenever(entityTypeRepository.findById(typeId)).thenReturn(Optional.of(entityType))
             whenever(entityConnotationRepository.upsertByEntityId(any(), any(), any(), any())).thenReturn(1)
@@ -181,8 +178,8 @@ class EnrichmentAnalysisServiceTest : BaseServiceTest() {
             val entityId = f.entityId
             val typeId = f.entityTypeId
 
+            whenever(executionQueueRepository.claimEnrichmentItem(eq(queueItemId), any())).thenReturn(1)
             whenever(executionQueueRepository.findById(queueItemId)).thenReturn(Optional.of(f.queueItem))
-            whenever(executionQueueRepository.save(any())).thenAnswer { it.arguments[0] }
             whenever(entityRepository.findById(entityId)).thenReturn(Optional.of(f.entity))
             whenever(entityTypeRepository.findById(typeId)).thenReturn(Optional.of(f.entityType))
             whenever(entityConnotationRepository.upsertByEntityId(any(), any(), any(), any())).thenReturn(1)
@@ -213,7 +210,7 @@ class EnrichmentAnalysisServiceTest : BaseServiceTest() {
             assertEquals(entityId, context.entityId)
 
             val inOrder = inOrder(executionQueueRepository, entityConnotationRepository)
-            inOrder.verify(executionQueueRepository).save(any()) // claim
+            inOrder.verify(executionQueueRepository).claimEnrichmentItem(eq(queueItemId), any()) // claim CAS
             inOrder.verify(entityConnotationRepository).upsertByEntityId(any(), any(), any(), any()) // persist
         }
 
@@ -284,8 +281,8 @@ class EnrichmentAnalysisServiceTest : BaseServiceTest() {
                 themeAttributes = emptyList(),
             )
 
+            whenever(executionQueueRepository.claimEnrichmentItem(eq(queueItemId), any())).thenReturn(1)
             whenever(executionQueueRepository.findById(queueItemId)).thenReturn(Optional.of(queueItem))
-            whenever(executionQueueRepository.save(any())).thenAnswer { it.arguments[0] }
             whenever(entityRepository.findById(entityId)).thenReturn(Optional.of(entity))
             whenever(entityTypeRepository.findById(typeId)).thenReturn(Optional.of(entityType))
             whenever(entityConnotationRepository.upsertByEntityId(any(), any(), any(), any())).thenReturn(1)
@@ -315,8 +312,8 @@ class EnrichmentAnalysisServiceTest : BaseServiceTest() {
             val entityId = f.entityId
             val typeId = f.entityTypeId
 
+            whenever(executionQueueRepository.claimEnrichmentItem(eq(queueItemId), any())).thenReturn(1)
             whenever(executionQueueRepository.findById(queueItemId)).thenReturn(Optional.of(f.queueItem))
-            whenever(executionQueueRepository.save(any())).thenAnswer { it.arguments[0] }
             whenever(entityRepository.findById(entityId)).thenReturn(Optional.of(f.entity))
             whenever(entityTypeRepository.findById(typeId)).thenReturn(Optional.of(f.entityType))
             whenever(entityConnotationRepository.upsertByEntityId(any(), any(), any(), any())).thenReturn(1)
@@ -337,11 +334,14 @@ class EnrichmentAnalysisServiceTest : BaseServiceTest() {
         }
 
         /**
-         * Test 6: claimQueueItem updates status to CLAIMED and stamps claimedAt.
-         * Idempotent on retry: an already-CLAIMED row updates the timestamp and saves again.
+         * Regression test for r3180290306 (legal pre-state — PENDING -> CLAIMED).
+         *
+         * The queue claim transition is performed by [ExecutionQueueRepository.claimEnrichmentItem],
+         * a CAS that returns 1 on a legal transition. This verifies the service calls the CAS
+         * exactly once and proceeds to load the queue row, not the prior `save()` shape.
          */
         @Test
-        fun `analyzeSemantics sets queue item to CLAIMED with a non-null claimedAt timestamp`() {
+        fun `analyzeSemantics claims via CAS exactly once on legal pre-state`() {
             val queueItemId = UUID.randomUUID()
             val entityId = UUID.randomUUID()
             val typeId = UUID.randomUUID()
@@ -349,11 +349,83 @@ class EnrichmentAnalysisServiceTest : BaseServiceTest() {
 
             enrichmentAnalysisService.analyzeSemantics(queueItemId)
 
-            val captor = ArgumentCaptor.forClass(ExecutionQueueEntity::class.java)
-            verify(executionQueueRepository, atLeast(1)).save(captor.capture())
-            val claimedItem = captor.allValues.first { it.status == ExecutionQueueStatus.CLAIMED }
-            assertEquals(ExecutionQueueStatus.CLAIMED, claimedItem.status)
-            assertNotNull(claimedItem.claimedAt)
+            verify(executionQueueRepository).claimEnrichmentItem(eq(queueItemId), any())
+            verify(executionQueueRepository, never()).save(any())
+        }
+
+        /**
+         * Regression test for r3180290306 (CLAIMED -> CLAIMED retry).
+         *
+         * A retried `analyzeSemantics` activity finds the row already CLAIMED. The CAS
+         * permits this (status ∈ {PENDING, CLAIMED}), still returns 1, and the activity
+         * proceeds normally — preserving safe Temporal retry semantics.
+         */
+        @Test
+        fun `analyzeSemantics succeeds when CAS returns 1 for CLAIMED retry`() {
+            val queueItemId = UUID.randomUUID()
+            val entityId = UUID.randomUUID()
+            val typeId = UUID.randomUUID()
+            setupMinimalMocks(queueItemId, entityId, typeId)
+
+            // Default mock returns 1 — same as PENDING -> CLAIMED. No exception expected.
+            val context = enrichmentAnalysisService.analyzeSemantics(queueItemId)
+            assertNotNull(context)
+        }
+
+        /**
+         * Regression test for r3180290306 (illegal pre-state — COMPLETED row must not regress).
+         *
+         * Bug: the prior `read-modify-write` would silently overwrite a COMPLETED row to CLAIMED
+         * on a Temporal retry of `analyzeSemantics`, re-running analysis and double-emitting
+         * downstream side effects. Fix: the CAS returns 0 for any non-{PENDING, CLAIMED} pre-state,
+         * and the service throws [IllegalStateException]. The COMPLETED row is never touched.
+         */
+        @Test
+        fun `analyzeSemantics throws IllegalStateException when CAS returns 0 for COMPLETED row`() {
+            val queueItemId = UUID.randomUUID()
+            whenever(executionQueueRepository.claimEnrichmentItem(eq(queueItemId), any())).thenReturn(0)
+
+            assertThrows(IllegalStateException::class.java) {
+                enrichmentAnalysisService.analyzeSemantics(queueItemId)
+            }
+
+            verify(executionQueueRepository, never()).findById(queueItemId)
+            verify(executionQueueRepository, never()).save(any())
+            verify(entityConnotationRepository, never()).upsertByEntityId(any(), any(), any(), any())
+        }
+
+        /**
+         * Regression test for r3180290306 (illegal pre-state — FAILED row must not regress).
+         *
+         * Same shape as the COMPLETED test: a row already in a terminal failure state cannot be
+         * resurrected by a stale activity retry. The CAS WHERE clause restricts pre-state to
+         * {PENDING, CLAIMED}, so a FAILED row yields rowCount = 0 and the service throws.
+         */
+        @Test
+        fun `analyzeSemantics throws IllegalStateException when CAS returns 0 for FAILED row`() {
+            val queueItemId = UUID.randomUUID()
+            whenever(executionQueueRepository.claimEnrichmentItem(eq(queueItemId), any())).thenReturn(0)
+
+            assertThrows(IllegalStateException::class.java) {
+                enrichmentAnalysisService.analyzeSemantics(queueItemId)
+            }
+        }
+
+        /**
+         * Regression test for r3180290306 (illegal pre-state — wrong job_type rejected).
+         *
+         * The CAS WHERE clause restricts to `job_type = 'ENRICHMENT'`. A row of any other job
+         * type yields rowCount = 0 — proving the analyze activity refuses to misinterpret a
+         * non-enrichment queue row.
+         */
+        @Test
+        fun `analyzeSemantics throws IllegalStateException when CAS returns 0 for wrong job_type`() {
+            val queueItemId = UUID.randomUUID()
+            whenever(executionQueueRepository.claimEnrichmentItem(eq(queueItemId), any())).thenReturn(0)
+
+            assertThrows(IllegalStateException::class.java) {
+                enrichmentAnalysisService.analyzeSemantics(queueItemId)
+            }
         }
     }
 

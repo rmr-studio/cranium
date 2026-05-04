@@ -5,10 +5,8 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import tools.jackson.databind.ObjectMapper
 import riven.core.entity.entity.EntityTypeEntity
-import riven.core.entity.workflow.ExecutionQueueEntity
 import riven.core.enums.connotation.ConnotationStatus
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.workflow.ExecutionQueueStatus
 import riven.core.models.catalog.ConnotationSignals
 import riven.core.models.connotation.AttributeClassificationSnapshot
 import riven.core.models.connotation.ClusterMemberSnapshot
@@ -81,7 +79,13 @@ class EnrichmentAnalysisService(
      * RELATIONAL + STRUCTURAL metadata categories), persists it to `entity_connotation`, and
      * returns a transient [EnrichmentContext] for downstream activities.
      *
-     * Marks the queue item as CLAIMED (idempotent on retry — accepts CLAIMED status too).
+     * Claim transition is performed by an atomic compare-and-set in
+     * [ExecutionQueueRepository.claimEnrichmentItem] that restricts the legal pre-state to
+     * `job_type = ENRICHMENT` and `status` in `{PENDING, CLAIMED}`. Already-COMPLETED or
+     * already-FAILED rows cannot be regressed; concurrent claims of the same PENDING row
+     * resolve via row-level locking — only one transaction wins. Allowing CLAIMED -> CLAIMED
+     * keeps the activity safely retryable.
+     *
      * Loads entity, entity type, semantic metadata, attributes, and relationships in batch
      * queries to avoid N+1 patterns.
      *
@@ -91,14 +95,16 @@ class EnrichmentAnalysisService(
      *
      * @param queueItemId The enrichment queue row to process
      * @return Complete context snapshot for downstream activities
-     * @throws riven.core.exceptions.NotFoundException if the queue item does not exist
+     * @throws IllegalStateException if the queue item cannot be claimed (missing, wrong job
+     *   type, or already in a terminal state)
+     * @throws riven.core.exceptions.NotFoundException if the queue item disappears between
+     *   the CAS and the re-fetch
      */
     @Transactional
     fun analyzeSemantics(queueItemId: UUID): EnrichmentContext {
+        claimQueueItem(queueItemId)
         val queueItem = ServiceUtil.findOrThrow { executionQueueRepository.findById(queueItemId) }
-
-        val claimedItem = claimQueueItem(queueItem)
-        val entityId = requireNotNull(claimedItem.entityId) { "ENRICHMENT queue item must have an entityId" }
+        val entityId = requireNotNull(queueItem.entityId) { "ENRICHMENT queue item must have an entityId" }
 
         val entity = ServiceUtil.findOrThrow { entityRepository.findById(entityId) }
         val entityType = ServiceUtil.findOrThrow { entityTypeRepository.findById(entity.typeId) }
@@ -125,18 +131,19 @@ class EnrichmentAnalysisService(
     // ------ Private Helpers ------
 
     /**
-     * Marks a queue item as CLAIMED with a timestamp.
+     * Atomically transitions the queue item to CLAIMED via the repository CAS.
      *
-     * Idempotent: if already CLAIMED (Temporal activity retry scenario), updates the
-     * claimedAt timestamp and saves again. This prevents duplicate processing while
-     * allowing safe retries.
+     * Throws [IllegalStateException] when the row count is not 1 — meaning the row is
+     * missing, has a non-ENRICHMENT job type, or is already in a terminal
+     * (`COMPLETED`/`FAILED`) state. This prevents a retried analyze activity from
+     * regressing a row that the embedding consumer has already completed or failed.
      */
-    private fun claimQueueItem(queueItem: ExecutionQueueEntity): ExecutionQueueEntity {
-        val claimed = queueItem.copy(
-            status = ExecutionQueueStatus.CLAIMED,
-            claimedAt = ZonedDateTime.now(),
-        )
-        return executionQueueRepository.save(claimed)
+    private fun claimQueueItem(queueItemId: UUID) {
+        val rowCount = executionQueueRepository.claimEnrichmentItem(queueItemId, ZonedDateTime.now())
+        check(rowCount == 1) {
+            "Cannot claim execution_queue row $queueItemId: " +
+                "row missing, wrong job_type, or status not in {PENDING, CLAIMED}"
+        }
     }
 
     // ------ Connotation Snapshot Persistence ------

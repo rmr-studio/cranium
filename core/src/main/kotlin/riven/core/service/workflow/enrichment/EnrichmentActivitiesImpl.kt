@@ -39,4 +39,9 @@ class EnrichmentActivitiesImpl(
         logger.info { "EmbedAndStore activity: queueItemId=$queueItemId entityId=${context.entityId}" }
         enrichmentEmbeddingService.embedAndStore(context, queueItemId)
     }
+
+    override fun markQueueItemFailed(queueItemId: UUID, reason: String) {
+        logger.warn { "MarkQueueItemFailed activity: queueItemId=$queueItemId reason=$reason" }
+        enrichmentEmbeddingService.markQueueItemFailed(queueItemId, reason)
+    }
 }

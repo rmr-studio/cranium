@@ -116,9 +116,9 @@ class EnrichmentContextSnapshotTest : BaseServiceTest() {
     fun setUp() {
         val f = fixture
 
-        // Queue item
+        // Queue item — claim CAS returns 1 (legal pre-state) and findById returns the row for downstream entityId resolution.
+        whenever(executionQueueRepository.claimEnrichmentItem(any(), any())).thenReturn(1)
         whenever(executionQueueRepository.findById(f.queueItemId)).thenReturn(Optional.of(f.queueItem))
-        whenever(executionQueueRepository.save(any())).thenAnswer { it.arguments[0] }
 
         // Primary entity and type
         whenever(entityRepository.findById(f.entityId)).thenReturn(Optional.of(f.entity))

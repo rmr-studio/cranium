@@ -528,3 +528,21 @@
 **New components introduced:**
 
 - `ExecutionJobType` enum — job type discriminator for the shared execution queue
+
+## [2026-05-05] — Phase 2 Plan 01: Knowledge View Data Contracts + Config Extension (VIEW-01, VIEW-11, CONF-01)
+
+**Domains affected:** Enrichment (new model package, projector stub, config extension)
+
+**What changed:**
+
+- Created new package `riven.core.models.entity.knowledge` with 6 files: `EntityKnowledgeView`, `KnowledgeSections`, `SectionTypes` (8 section data classes co-located), `GlossaryNarrative`, `TruncationBudget`, `TruncationResult` (+ `SectionTelemetry` co-located).
+- Added `EntityKnowledgeViewProjector` `@Service` stub at `riven.core.service.enrichment` — returns empty `TruncationResult`; Phase 3 PROJ-01..PROJ-06 implements sequential truncation phases.
+- Extended `EnrichmentConfigurationProperties` with `knowledgeBacklinkCap: Int = 3` and `viewPayloadWarnBytes: Long = 1_048_576L` (CONF-01).
+- Added `KnowledgeSectionsContractTest` (VIEW-11): reflection gate enforcing exactly 8 section names; `signalBacklinks` absent assertion (FUTURE-02 deferred).
+- Added `EnrichmentConfigurationPropertiesTest` (CONF-01): 3 tests for default values and Spring relaxed binding.
+
+**New cross-domain dependencies:** no — new model package is standalone; projector stub has no runtime dependencies beyond KLogger; config extension is additive.
+
+**New components introduced:**
+
+- `EntityKnowledgeViewProjector` — Phase 2 stub service; Phase 3 implements truncation phases over the canonical `EntityKnowledgeView` artifact.

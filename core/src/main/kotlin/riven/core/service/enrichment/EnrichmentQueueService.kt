@@ -78,46 +78,31 @@ class EnrichmentQueueService(
     }
 
     /**
-     * Bulk-enqueue ENRICHMENT items for every non-deleted entity of [entityTypeId] in
-     * [workspaceId]. Hooked from [riven.core.service.catalog.SchemaReconciliationService] when a
-     * manifest schema change invalidates the STRUCTURAL metadata snapshots stored in
+     * Bulk-enqueue ENRICHMENT items for every non-INTEGRATION, non-deleted entity of [entityTypeId]
+     * in [workspaceId]. Hooked from [riven.core.service.catalog.SchemaReconciliationService] when
+     * a manifest schema change invalidates the STRUCTURAL metadata snapshots stored in
      * `entity_connotation`.
      *
-     * By default INTEGRATION-sourced rows are skipped (user-driven enqueue does not embed
-     * integration entities directly). Pass [includeIntegration] = `true` from manifest
-     * reconciliation paths where the catalog change invalidates the entire entity type — the
-     * integration-sourced rows are exactly the ones whose snapshots need refreshing in that case
-     * (PR feedback r3180290303). Other callers must leave the flag at its default.
+     * INTEGRATION rows are deliberately excluded: per the Entity Reconsumption architecture
+     * (Notion: "Entity Reconsumption, Schema Reconciliation & Breaking-Change Detection"),
+     * historical/integration entities are tier 1 ("DO NOT") — source-of-truth records that are
+     * never enriched directly. Only their projected representations are enriched, and a manifest
+     * change to a catalog type does not invalidate snapshots that integration rows never had.
      *
-     * Backed by a single `INSERT ... SELECT` in
-     * [ExecutionQueueRepository.enqueueEnrichmentByEntityType] /
-     * [ExecutionQueueRepository.enqueueEnrichmentByEntityTypeIncludingIntegration] to avoid N+1
-     * at high entity-type cardinality. The partial unique index on `execution_queue` deduplicates
-     * against in-flight PENDING rows.
+     * Backed by a single `INSERT ... SELECT` in [ExecutionQueueRepository.enqueueEnrichmentByEntityType]
+     * to avoid N+1 at high entity-type cardinality. The partial unique index on `execution_queue`
+     * deduplicates against in-flight PENDING rows.
      *
      * Workflow dispatch is intentionally NOT triggered here — these queue items are picked up by
      * the existing enrichment dispatcher pattern.
      *
-     * @param includeIntegration when `true`, integration-sourced rows are included; reserved for
-     *   manifest reconciliation invalidation.
      * @return Count of rows actually inserted (excludes skipped duplicates).
      */
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
     @Transactional
-    fun enqueueByEntityType(
-        entityTypeId: UUID,
-        workspaceId: UUID,
-        includeIntegration: Boolean = false,
-    ): Int {
-        val inserted = if (includeIntegration) {
-            executionQueueRepository.enqueueEnrichmentByEntityTypeIncludingIntegration(entityTypeId, workspaceId)
-        } else {
-            executionQueueRepository.enqueueEnrichmentByEntityType(entityTypeId, workspaceId)
-        }
-        logger.info {
-            "Bulk-enqueued $inserted ENRICHMENT items for entity type $entityTypeId in workspace $workspaceId " +
-                "(includeIntegration=$includeIntegration)"
-        }
+    fun enqueueByEntityType(entityTypeId: UUID, workspaceId: UUID): Int {
+        val inserted = executionQueueRepository.enqueueEnrichmentByEntityType(entityTypeId, workspaceId)
+        logger.info { "Bulk-enqueued $inserted ENRICHMENT items for entity type $entityTypeId in workspace $workspaceId" }
         return inserted
     }
 

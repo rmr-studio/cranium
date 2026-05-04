@@ -213,54 +213,6 @@ class EnrichmentQueueServiceTest : BaseServiceTest() {
             assertEquals(7, result)
             verify(workflowClient, never()).newWorkflowStub(any<Class<EnrichmentWorkflow>>(), any<io.temporal.client.WorkflowOptions>())
         }
-
-        /**
-         * Regression test for r3180290303 — default `includeIntegration = false` routes through
-         * the integration-skipping repository method. User-driven re-enqueue paths (the default)
-         * must NOT pull integration-sourced rows into the enrichment queue.
-         */
-        @Test
-        fun `default includeIntegration false routes to integration-skipping repository method`() {
-            val entityTypeId = UUID.randomUUID()
-            whenever(executionQueueRepository.enqueueEnrichmentByEntityType(entityTypeId, workspaceId))
-                .thenReturn(3)
-
-            val result = enrichmentQueueService.enqueueByEntityType(entityTypeId, workspaceId)
-
-            assertEquals(3, result)
-            verify(executionQueueRepository).enqueueEnrichmentByEntityType(entityTypeId, workspaceId)
-            verify(executionQueueRepository, never())
-                .enqueueEnrichmentByEntityTypeIncludingIntegration(any(), any())
-        }
-
-        /**
-         * Regression test for r3180290303 — `includeIntegration = true` routes through the
-         * integration-including repository method.
-         *
-         * Bug: SchemaReconciliationService.invalidateConnotationSnapshots called the
-         * default path, which silently skipped integration-sourced rows of the affected catalog
-         * type. After a manifest schema change those rows kept stale `entity_connotation`
-         * snapshots forever. Fix: a dedicated repository variant that drops the source-type
-         * filter, exposed via the `includeIntegration = true` overload here.
-         */
-        @Test
-        fun `includeIntegration true routes to integration-including repository method`() {
-            val entityTypeId = UUID.randomUUID()
-            whenever(executionQueueRepository.enqueueEnrichmentByEntityTypeIncludingIntegration(entityTypeId, workspaceId))
-                .thenReturn(11)
-
-            val result = enrichmentQueueService.enqueueByEntityType(
-                entityTypeId = entityTypeId,
-                workspaceId = workspaceId,
-                includeIntegration = true,
-            )
-
-            assertEquals(11, result)
-            verify(executionQueueRepository)
-                .enqueueEnrichmentByEntityTypeIncludingIntegration(entityTypeId, workspaceId)
-            verify(executionQueueRepository, never())
-                .enqueueEnrichmentByEntityType(any(), any())
-        }
     }
 
     // ------ @PreAuthorize security tests ------

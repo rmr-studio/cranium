@@ -134,42 +134,6 @@ interface ExecutionQueueRepository : JpaRepository<ExecutionQueueEntity, UUID> {
     ): Int
 
     /**
-     * Reconciliation-only sibling of [enqueueEnrichmentByEntityType] that drops the
-     * `e.source_type <> 'INTEGRATION'` filter so integration-sourced rows of the affected
-     * entity type are also enqueued.
-     *
-     * **Reserved for manifest reconciliation.** When a manifest/catalog schema change
-     * invalidates the persisted STRUCTURAL connotation snapshots, every entity of the
-     * affected type — including integration-sourced ones — has stale metadata and must be
-     * re-enriched. The standard [enqueueEnrichmentByEntityType] path skips integration rows
-     * by design (user-driven enqueue does not embed integration entities directly), so
-     * reconciliation needs this dedicated variant. Do NOT call from user-driven enqueue
-     * paths; use [enqueueEnrichmentByEntityType] instead.
-     *
-     * Same dedup semantics as the parent method: `ON CONFLICT DO NOTHING` against
-     * `uq_execution_queue_pending_identity_match`.
-     *
-     * @return Count of rows actually inserted (excludes skipped duplicates).
-     */
-    @Modifying
-    @Query(
-        """
-        INSERT INTO execution_queue (workspace_id, entity_id, job_type, status)
-        SELECT e.workspace_id, e.id, 'ENRICHMENT', 'PENDING'
-        FROM entities e
-        WHERE e.type_id = :entityTypeId
-          AND e.workspace_id = :workspaceId
-          AND e.deleted = false
-        ON CONFLICT DO NOTHING
-        """,
-        nativeQuery = true,
-    )
-    fun enqueueEnrichmentByEntityTypeIncludingIntegration(
-        @Param("entityTypeId") entityTypeId: UUID,
-        @Param("workspaceId") workspaceId: UUID,
-    ): Int
-
-    /**
      * Enqueue ENRICHMENT items for every entity in [workspaceId] whose persisted
      * connotation snapshot's `metadata.<metadataKey>.analysisVersion` does NOT match
      * [currentVersion].

@@ -1,7 +1,5 @@
 package riven.core.service.enrichment
 
-import io.temporal.client.WorkflowClient
-import io.temporal.client.WorkflowOptions
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
@@ -54,7 +52,6 @@ import riven.core.configuration.properties.EnrichmentConfigurationProperties
 import riven.core.service.enrichment.provider.EmbeddingProvider
 import riven.core.service.util.BaseServiceTest
 import riven.core.service.util.factory.WorkspaceFactory
-import riven.core.service.workflow.enrichment.EnrichmentWorkflow
 import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.factory.enrichment.EnrichmentFactory
 import riven.core.service.util.factory.entity.EntityFactory
@@ -117,9 +114,6 @@ class EnrichmentServiceTest : BaseServiceTest() {
     private lateinit var enrichmentProperties: EnrichmentConfigurationProperties
 
     @MockitoBean
-    private lateinit var workflowClient: WorkflowClient
-
-    @MockitoBean
     private lateinit var workspaceRepository: WorkspaceRepository
 
     @MockitoBean
@@ -164,96 +158,6 @@ class EnrichmentServiceTest : BaseServiceTest() {
             jsonCaptor.firstValue,
             riven.core.models.connotation.EntityMetadataSnapshot::class.java,
         )
-    }
-
-    // ------------------------------------------------------------------
-    // enqueueAndProcess: embeddability gating
-    // ------------------------------------------------------------------
-
-    @Test
-    fun `enqueueAndProcess skips INTEGRATION entities silently`() {
-        val entityId = UUID.randomUUID()
-        val entity = buildEntityEntity(entityId, sourceType = SourceType.INTEGRATION)
-        whenever(entityRepository.findByIdAndWorkspaceId(entityId, workspaceId)).thenReturn(Optional.of(entity))
-
-        enrichmentService.enqueueAndProcess(entityId, workspaceId)
-
-        verify(executionQueueRepository, never()).save(any())
-        verify(workflowClient, never()).newWorkflowStub(any<Class<*>>(), any<WorkflowOptions>())
-    }
-
-    @Test
-    fun `enqueueAndProcess creates queue item and starts workflow for USER_CREATED entity`() {
-        val entityId = UUID.randomUUID()
-        val queueItemId = UUID.randomUUID()
-        val entity = buildEntityEntity(entityId, sourceType = SourceType.USER_CREATED)
-        val savedQueueItem = ExecutionQueueFactory.createEnrichmentJob(id = queueItemId, entityId = entityId, workspaceId = workspaceId)
-
-        whenever(entityRepository.findByIdAndWorkspaceId(entityId, workspaceId)).thenReturn(Optional.of(entity))
-        whenever(executionQueueRepository.save(any<ExecutionQueueEntity>())).thenReturn(savedQueueItem)
-
-        val workflowStub = mock<EnrichmentWorkflow>()
-        whenever(workflowClient.newWorkflowStub(eq(EnrichmentWorkflow::class.java), any<WorkflowOptions>())).thenReturn(workflowStub)
-
-        enrichmentService.enqueueAndProcess(entityId, workspaceId)
-
-        verify(executionQueueRepository).save(any())
-        verify(workflowClient).newWorkflowStub(eq(EnrichmentWorkflow::class.java), any<WorkflowOptions>())
-        verify(workflowStub).embed(queueItemId)
-    }
-
-    @Test
-    fun `enqueueAndProcess creates queue item for IMPORT entity`() {
-        val entityId = UUID.randomUUID()
-        val queueItemId = UUID.randomUUID()
-        val entity = buildEntityEntity(entityId, sourceType = SourceType.IMPORT)
-        val savedQueueItem = ExecutionQueueFactory.createEnrichmentJob(id = queueItemId, entityId = entityId, workspaceId = workspaceId)
-
-        whenever(entityRepository.findByIdAndWorkspaceId(entityId, workspaceId)).thenReturn(Optional.of(entity))
-        whenever(executionQueueRepository.save(any<ExecutionQueueEntity>())).thenReturn(savedQueueItem)
-
-        val workflowStub = mock<EnrichmentWorkflow>()
-        whenever(workflowClient.newWorkflowStub(eq(EnrichmentWorkflow::class.java), any<WorkflowOptions>())).thenReturn(workflowStub)
-
-        enrichmentService.enqueueAndProcess(entityId, workspaceId)
-
-        verify(executionQueueRepository).save(any())
-    }
-
-    /**
-     * Regression test for PR #174 (r3056654527 / r3056654536): enqueueAndProcess must
-     * verify workspace ownership. When the entity belongs to a different workspace,
-     * findByIdAndWorkspaceId returns empty and ServiceUtil.findOrThrow raises
-     * NotFoundException — which does not leak entity existence across tenants.
-     */
-    @Test
-    fun `enqueueAndProcess throws NotFoundException when entity belongs to a different workspace`() {
-        val entityId = UUID.randomUUID()
-        whenever(entityRepository.findByIdAndWorkspaceId(entityId, workspaceId)).thenReturn(Optional.empty())
-
-        assertThrows(NotFoundException::class.java) {
-            enrichmentService.enqueueAndProcess(entityId, workspaceId)
-        }
-
-        verify(executionQueueRepository, never()).save(any())
-        verify(workflowClient, never()).newWorkflowStub(any<Class<*>>(), any<WorkflowOptions>())
-    }
-
-    /**
-     * Validates @PreAuthorize workspace access control on enqueueAndProcess.
-     * Calling with a workspaceId not in the test persona's workspace roles
-     * must trigger AccessDeniedException from the security annotation.
-     */
-    @Test
-    fun `enqueueAndProcess throws AccessDeniedException for unauthorized workspace`() {
-        val entityId = UUID.randomUUID()
-        val unauthorizedWorkspaceId = UUID.randomUUID()
-
-        assertThrows(org.springframework.security.access.AccessDeniedException::class.java) {
-            enrichmentService.enqueueAndProcess(entityId, unauthorizedWorkspaceId)
-        }
-
-        verify(entityRepository, never()).findByIdAndWorkspaceId(any(), any())
     }
 
     // ------------------------------------------------------------------
@@ -1310,38 +1214,6 @@ class EnrichmentServiceTest : BaseServiceTest() {
         val snapshot = captureUpsertedSnapshot(entityId, workspaceId)
         assertNotNull(snapshot.metadata.relational)
         assertNotNull(snapshot.metadata.structural)
-    }
-
-    // ------------------------------------------------------------------
-    // enqueueByEntityType: bulk re-enrichment (manifest reconciliation hook)
-    // ------------------------------------------------------------------
-
-    /**
-     * enqueueByEntityType delegates to the batched ExecutionQueueRepository INSERT...SELECT and
-     * returns the inserted-row count. Used by SchemaReconciliationService to invalidate snapshots
-     * after a manifest-driven schema change.
-     */
-    @Test
-    fun `enqueueByEntityType returns repository insert count`() {
-        val typeId = UUID.randomUUID()
-        whenever(executionQueueRepository.enqueueEnrichmentByEntityType(typeId, workspaceId)).thenReturn(42)
-
-        val inserted = enrichmentService.enqueueByEntityType(typeId, workspaceId)
-
-        assertEquals(42, inserted)
-        verify(executionQueueRepository).enqueueEnrichmentByEntityType(typeId, workspaceId)
-    }
-
-    @Test
-    fun `enqueueByEntityType throws AccessDeniedException when caller lacks workspace access`() {
-        val typeId = UUID.randomUUID()
-        val unauthorizedWorkspaceId = UUID.randomUUID()
-
-        assertThrows(org.springframework.security.access.AccessDeniedException::class.java) {
-            enrichmentService.enqueueByEntityType(typeId, unauthorizedWorkspaceId)
-        }
-
-        verify(executionQueueRepository, never()).enqueueEnrichmentByEntityType(any(), any())
     }
 
     // ------------------------------------------------------------------

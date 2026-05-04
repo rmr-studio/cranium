@@ -35,7 +35,7 @@ import riven.core.repository.entity.EntityAttributeRepository
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.auth.AuthTokenService
-import riven.core.service.enrichment.EnrichmentService
+import riven.core.service.enrichment.EnrichmentQueueService
 import riven.core.service.util.BaseServiceTest
 import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.WithUserPersona
@@ -97,7 +97,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
     private lateinit var activityService: ActivityService
 
     @MockitoBean
-    private lateinit var enrichmentService: EnrichmentService
+    private lateinit var enrichmentQueueService: EnrichmentQueueService
 
     @Autowired
     private lateinit var service: SchemaReconciliationService
@@ -111,7 +111,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
             entityTypeRepository,
             entityAttributeRepository,
             activityService,
-            enrichmentService,
+            enrichmentQueueService,
         )
     }
 
@@ -1945,7 +1945,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
 
             service.reconcileIfNeeded(workspaceId, listOf(entityType))
 
-            verify(enrichmentService).enqueueByEntityType(
+            verify(enrichmentQueueService).enqueueByEntityType(
                 requireNotNull(entityType.id),
                 workspaceId,
             )
@@ -1974,7 +1974,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
 
             service.reconcileIfNeeded(workspaceId, listOf(entityType))
 
-            verify(enrichmentService, never()).enqueueByEntityType(any(), any())
+            verify(enrichmentQueueService, never()).enqueueByEntityType(any(), any())
         }
 
         @Test
@@ -2005,7 +2005,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
 
             service.reconcileIfNeeded(workspaceId, listOf(entityType))
 
-            verify(enrichmentService, never()).enqueueByEntityType(any(), any())
+            verify(enrichmentQueueService, never()).enqueueByEntityType(any(), any())
         }
 
         @Test
@@ -2043,7 +2043,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
                 impactConfirmed = true,
             )
 
-            verify(enrichmentService).enqueueByEntityType(
+            verify(enrichmentQueueService).enqueueByEntityType(
                 requireNotNull(entityType.id),
                 workspaceId,
             )
@@ -2083,7 +2083,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
                 impactConfirmed = false,
             )
 
-            verify(enrichmentService, never()).enqueueByEntityType(any(), any())
+            verify(enrichmentQueueService, never()).enqueueByEntityType(any(), any())
         }
     }
 }

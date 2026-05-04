@@ -34,7 +34,7 @@ import riven.core.repository.entity.EntityAttributeRepository
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.auth.AuthTokenService
-import riven.core.service.enrichment.EnrichmentService
+import riven.core.service.enrichment.EnrichmentQueueService
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
@@ -55,7 +55,7 @@ class SchemaReconciliationService(
     private val activityService: ActivityService,
     private val authTokenService: AuthTokenService,
     private val transactionManager: PlatformTransactionManager,
-    private val enrichmentService: EnrichmentService,
+    private val enrichmentQueueService: EnrichmentQueueService,
 ) {
 
     /** Process-local concurrency guard keyed by entity type ID. */
@@ -198,7 +198,7 @@ class SchemaReconciliationService(
      * @param reason Free-form descriptor logged alongside the enqueue count for traceability.
      */
     private fun invalidateConnotationSnapshots(entityTypeId: UUID, workspaceId: UUID, reason: String) {
-        val inserted = enrichmentService.enqueueByEntityType(entityTypeId, workspaceId)
+        val inserted = enrichmentQueueService.enqueueByEntityType(entityTypeId, workspaceId)
         logger.info {
             "Reconciliation enqueued $inserted ENRICHMENT items for entity type $entityTypeId ($reason)"
         }

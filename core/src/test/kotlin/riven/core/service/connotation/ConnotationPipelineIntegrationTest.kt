@@ -57,7 +57,7 @@ import riven.core.repository.entity.EntityRepository
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.repository.workflow.ExecutionQueueRepository
 import riven.core.service.auth.AuthTokenService
-import riven.core.service.enrichment.EnrichmentService
+import riven.core.service.enrichment.EnrichmentAnalysisService
 import riven.core.service.util.SchemaInitializer
 import riven.core.service.util.factory.catalog.CatalogFactory
 import riven.core.service.util.factory.entity.EntityFactory
@@ -90,7 +90,7 @@ private object ConnotationPipelineTestContainer {
 /**
  * Spring configuration for the DETERMINISTIC connotation pipeline integration test.
  *
- * Loads the real [EnrichmentService] -> [riven.core.service.connotation.ConnotationAnalysisService] ->
+ * Loads the real [riven.core.service.enrichment.EnrichmentAnalysisService] -> [riven.core.service.connotation.ConnotationAnalysisService] ->
  * [riven.core.service.connotation.DeterministicConnotationMapper] chain, the real [riven.core.service.catalog.ManifestCatalogService],
  * the real [riven.core.service.entity.EntityAttributeService], and all repositories. Mocks are limited to:
  *
@@ -127,7 +127,8 @@ private object ConnotationPipelineTestContainer {
 )
 @org.springframework.context.annotation.Import(
     riven.core.configuration.util.LoggerConfig::class,
-    riven.core.service.enrichment.EnrichmentService::class,
+    riven.core.service.enrichment.EnrichmentAnalysisService::class,
+    riven.core.service.enrichment.EnrichmentContextAssembler::class,
     riven.core.service.connotation.ConnotationAnalysisService::class,
     riven.core.service.connotation.DeterministicConnotationMapper::class,
     riven.core.service.catalog.ManifestCatalogService::class,
@@ -232,7 +233,7 @@ class ConnotationPipelineIntegrationTestConfig {
  * The manifest loader is intentionally bypassed — the loader has its own unit tests
  * ([riven.core.service.catalog.ManifestUpsertService] etc.). Instead, the catalog row, workspace
  * entity type, entity instance, and `entity_attributes` rows are seeded directly via repositories.
- * This exercises the live runtime chain: [EnrichmentService.analyzeSemantics]
+ * This exercises the live runtime chain: [riven.core.service.enrichment.EnrichmentAnalysisService.analyzeSemantics]
  *  -> `persistConnotationSnapshot`
  *  -> [riven.core.service.connotation.ConnotationAnalysisService.analyze]
  *  -> [riven.core.service.connotation.DeterministicConnotationMapper.analyze]
@@ -261,7 +262,7 @@ class ConnotationPipelineIntegrationTestConfig {
 class ConnotationPipelineIntegrationTest {
 
     @Autowired
-    private lateinit var enrichmentService: EnrichmentService
+    private lateinit var enrichmentAnalysisService: EnrichmentAnalysisService
 
     @Autowired
     private lateinit var entityConnotationRepository: EntityConnotationRepository
@@ -383,7 +384,7 @@ class ConnotationPipelineIntegrationTest {
         val queueItemId = requireNotNull(queueItem.id)
 
         // 5. Run the analysis hop.
-        val context = enrichmentService.analyzeSemantics(queueItemId)
+        val context = enrichmentAnalysisService.analyzeSemantics(queueItemId)
 
         // 6. Verify the in-memory context surfaces the ANALYZED sentiment.
         assertNotNull(context.sentiment).run {

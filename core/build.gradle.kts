@@ -122,7 +122,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("io.temporal:temporal-testing:1.24.1")
+    testImplementation("io.temporal:temporal-testing:1.34.0")
     testImplementation("org.testcontainers:testcontainers:2.0.4")
     testImplementation("org.testcontainers:testcontainers-postgresql:2.0.4")
     testImplementation("org.testcontainers:testcontainers-junit-jupiter:2.0.4")

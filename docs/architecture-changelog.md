@@ -1,5 +1,42 @@
 # Architecture Changelog
 
+## 2026-05-04 — Enrichment Pipeline Service Decomposition Complete (Plan 01-03)
+
+**Domains affected:** enrichment, workflow
+
+**What changed:**
+
+- Deleted `EnrichmentService.kt` — all remaining logic extracted to named single-responsibility services.
+- Created `EnrichmentAnalysisService` (11 deps: 10 business + logger, ceiling ≤ 11): owns semantic analysis phase — queue claim, sentiment resolution (gated on workspace flag + manifest signals + attributeKeyMapping), context assembly delegation, and connotation snapshot persistence.
+- Created `EnrichmentEmbeddingService` (6 deps, ceiling ≤ 8): owns embedding phase — semantic text construction via `SemanticTextBuilderService`, vector generation, embedding upsert (delete + insert), queue item completion. Collapses former `constructEnrichedText + generateEmbedding + storeEmbedding` Temporal activities into one service method.
+- Created `EmbeddingConsumer` (not a Spring bean): `ConsumerActivity` wrapper constructed in workflow body from Temporal activity stub; delegates `run(context, queueItemId)` to `activities.embedAndStore`.
+- `EnrichmentActivities` interface collapsed from 4 to 2 `@ActivityMethod` declarations: `analyzeSemantics` + `embedAndStore`. Former `constructEnrichedText` and `generateEmbedding` activities eliminated.
+- `EnrichmentActivitiesImpl` rewired to 3-param final shape: `(enrichmentAnalysisService, enrichmentEmbeddingService, logger)`.
+- `EnrichmentWorkflowImpl.embed` rewired to consumer fan-out: `analyzeSemantics(queueItemId)` → `buildConsumers(stub): List<ConsumerActivity>` → `consumers.forEach { runCatching { it.run(context, queueItemId) }.onFailure { ... } }`. Behavior delta: consumer terminal failures are now swallowed at workflow level (pre-Phase-1: propagated as workflow failure); approved per Decision 4-ii.A / ENRICH-05.
+
+**New cross-domain dependencies:** No new cross-domain dependencies. Changes are internal to the enrichment domain.
+
+**New components introduced:**
+- `EnrichmentAnalysisService` (`riven.core.service.enrichment`) — analysis half of enrichment pipeline.
+- `EnrichmentEmbeddingService` (`riven.core.service.enrichment`) — embedding half of enrichment pipeline.
+- `EmbeddingConsumer` (`riven.core.service.enrichment`) — Phase 1 ConsumerActivity (first fan-out point; future siblings: Synthesis, JSONB projection).
+
+## 2026-05-04 — Enrichment Consumer-Independence IT + Temporal Testing Patterns (Plan 01-04)
+
+**Domains affected:** enrichment, workflow (test-only changes)
+
+**What changed:**
+
+- Added `EnrichmentWorkflowIT` (383 lines, 4 tests) using Temporal's `TestWorkflowEnvironment` to prove ENRICH-05 consumer-independence contracts end-to-end.
+- Established `DelegatingActivitiesImpl` pattern: concrete class registered with `TestWorkflowEnvironment` that delegates to a plain (non-annotated) interface mock — required because Temporal's `registerActivitiesImplementations` rejects Mockito dynamic proxy classes that inherit `@ActivityMethod` annotations.
+- Established Kotlin-aware `TestWorkflowEnvironment` factory: `ObjectMapper().findAndRegisterModules()` auto-discovers `com.fasterxml.jackson.module.kotlin` at runtime (brought by `temporal-sdk`) for Kotlin data class deserialization; injected via `WorkflowClientOptions.setDataConverter`.
+- Upgraded `temporal-testing` from `1.24.1` to `1.34.0` to match `temporal-sdk:1.34.0`.
+
+**New cross-domain dependencies:** No new cross-domain dependencies. Test-only changes.
+
+**New components introduced:**
+- `EnrichmentWorkflowIT` (`src/test/.../enrichment`) — integration test class proving ENRICH-05; contains `ActivityDelegate` and `DelegatingActivitiesImpl` test helpers and `TestEnrichmentWorkflowImpl` workflow subclass.
+
 ## 2026-05-04 — Workspace full-text search (Notion-style ranked tsvector)
 
 **Domains affected:** Entity, Knowledge (downstream beneficiary)

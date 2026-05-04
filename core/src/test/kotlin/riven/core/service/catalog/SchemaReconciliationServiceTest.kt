@@ -35,7 +35,7 @@ import riven.core.repository.entity.EntityAttributeRepository
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.service.activity.ActivityService
 import riven.core.service.auth.AuthTokenService
-import riven.core.service.enrichment.EnrichmentService
+import riven.core.service.enrichment.EnrichmentQueueService
 import riven.core.service.util.BaseServiceTest
 import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.WithUserPersona
@@ -97,7 +97,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
     private lateinit var activityService: ActivityService
 
     @MockitoBean
-    private lateinit var enrichmentService: EnrichmentService
+    private lateinit var enrichmentQueueService: EnrichmentQueueService
 
     @Autowired
     private lateinit var service: SchemaReconciliationService
@@ -111,7 +111,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
             entityTypeRepository,
             entityAttributeRepository,
             activityService,
-            enrichmentService,
+            enrichmentQueueService,
         )
     }
 
@@ -1945,9 +1945,13 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
 
             service.reconcileIfNeeded(workspaceId, listOf(entityType))
 
-            verify(enrichmentService).enqueueByEntityType(
-                requireNotNull(entityType.id),
-                workspaceId,
+            // r3180290303: reconciliation must include integration-sourced rows of the affected
+            // catalog type. The default `enqueueByEntityType` skips integration entities by
+            // design — only manifest reconciliation should pass `includeIntegration = true`.
+            verify(enrichmentQueueService).enqueueByEntityType(
+                entityTypeId = requireNotNull(entityType.id),
+                workspaceId = workspaceId,
+                includeIntegration = true,
             )
         }
 
@@ -1974,7 +1978,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
 
             service.reconcileIfNeeded(workspaceId, listOf(entityType))
 
-            verify(enrichmentService, never()).enqueueByEntityType(any(), any())
+            verify(enrichmentQueueService, never()).enqueueByEntityType(any(), any(), any())
         }
 
         @Test
@@ -2005,7 +2009,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
 
             service.reconcileIfNeeded(workspaceId, listOf(entityType))
 
-            verify(enrichmentService, never()).enqueueByEntityType(any(), any())
+            verify(enrichmentQueueService, never()).enqueueByEntityType(any(), any(), any())
         }
 
         @Test
@@ -2043,9 +2047,13 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
                 impactConfirmed = true,
             )
 
-            verify(enrichmentService).enqueueByEntityType(
-                requireNotNull(entityType.id),
-                workspaceId,
+            // r3180290303: see KDoc on the reconcileIfNeeded variant above — applyBreakingChanges
+            // also routes through invalidateConnotationSnapshots, which now passes
+            // `includeIntegration = true` for the same reason.
+            verify(enrichmentQueueService).enqueueByEntityType(
+                entityTypeId = requireNotNull(entityType.id),
+                workspaceId = workspaceId,
+                includeIntegration = true,
             )
         }
 
@@ -2083,7 +2091,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
                 impactConfirmed = false,
             )
 
-            verify(enrichmentService, never()).enqueueByEntityType(any(), any())
+            verify(enrichmentQueueService, never()).enqueueByEntityType(any(), any(), any())
         }
     }
 }

@@ -1,6 +1,5 @@
 package riven.core.service.enrichment
 
-import io.temporal.client.WorkflowClient
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -15,7 +14,6 @@ import riven.core.configuration.util.ObjectMapperConfig
 import riven.core.enums.connotation.ConnotationStatus
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.repository.connotation.EntityConnotationRepository
-import riven.core.repository.enrichment.EntityEmbeddingRepository
 import riven.core.repository.entity.EntityRelationshipRepository
 import riven.core.repository.entity.EntityRepository
 import riven.core.repository.entity.EntityTypeRepository
@@ -29,22 +27,27 @@ import riven.core.service.auth.AuthTokenService
 import riven.core.service.catalog.ManifestCatalogService
 import riven.core.service.connotation.ConnotationAnalysisService
 import riven.core.service.entity.EntityAttributeService
-import riven.core.service.enrichment.provider.EmbeddingProvider
 import riven.core.service.util.BaseServiceTest
 import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.factory.enrichment.EnrichmentSnapshotFixture
-import riven.core.configuration.properties.EnrichmentConfigurationProperties
 import tools.jackson.databind.ObjectMapper
 import java.util.Optional
 
 /**
- * Byte-identical snapshot test for [EnrichmentService.analyzeSemantics].
+ * Byte-identical snapshot test for [EnrichmentAnalysisService.analyzeSemantics].
  *
  * This test establishes the Phase 1 verification gate (ENRICH-03): a checked-in JSON file
  * captures the exact [riven.core.models.enrichment.EnrichmentContext] shape produced by the
- * current monolithic EnrichmentService. All subsequent Plans (02, 03) must maintain byte-identity
- * against this snapshot — any structural change to the context that passes the snapshot test but
- * changes the JSON is caught immediately.
+ * enrichment analysis service. All subsequent Plans must maintain byte-identity against this
+ * snapshot — any structural change to the context that passes the snapshot test but changes
+ * the JSON is caught immediately.
+ *
+ * **Snapshot test class shift (Plan 01-03):** This test previously wired `@SpringBootTest(classes =
+ * [EnrichmentService::class, ...])` (Plan 01). Post-Plan-03, `EnrichmentService` is deleted and this
+ * test wires `EnrichmentAnalysisService` instead. The fixture data and the JSON snapshot resource at
+ * `classpath:enrichment/enrichment-context-snapshot.json` are UNCHANGED — byte-identity is maintained.
+ * The class shift is the unavoidable consequence of deleting `EnrichmentService.kt`; documented here
+ * for Phase 2 reviewers so the gate's evolution is traceable.
  *
  * The fixture uses deterministic FIXED UUIDs so the output JSON is stable across runs.
  * The test uses the production ObjectMapper (not a fresh one) so serialization config is identical
@@ -55,7 +58,7 @@ import java.util.Optional
         AuthTokenService::class,
         WorkspaceSecurity::class,
         SecurityTestConfig::class,
-        EnrichmentService::class,
+        EnrichmentAnalysisService::class,
         EnrichmentContextAssembler::class,
         ObjectMapperConfig::class,
     ]
@@ -64,9 +67,6 @@ class EnrichmentContextSnapshotTest : BaseServiceTest() {
 
     @MockitoBean
     private lateinit var executionQueueRepository: ExecutionQueueRepository
-
-    @MockitoBean
-    private lateinit var entityEmbeddingRepository: EntityEmbeddingRepository
 
     @MockitoBean
     private lateinit var entityConnotationRepository: EntityConnotationRepository
@@ -96,15 +96,6 @@ class EnrichmentContextSnapshotTest : BaseServiceTest() {
     private lateinit var relationshipTargetRuleRepository: RelationshipTargetRuleRepository
 
     @MockitoBean
-    private lateinit var embeddingProvider: EmbeddingProvider
-
-    @MockitoBean
-    private lateinit var enrichmentProperties: EnrichmentConfigurationProperties
-
-    @MockitoBean
-    private lateinit var workflowClient: WorkflowClient
-
-    @MockitoBean
     private lateinit var workspaceRepository: WorkspaceRepository
 
     @MockitoBean
@@ -114,7 +105,7 @@ class EnrichmentContextSnapshotTest : BaseServiceTest() {
     private lateinit var connotationAnalysisService: ConnotationAnalysisService
 
     @Autowired
-    private lateinit var enrichmentService: EnrichmentService
+    private lateinit var enrichmentAnalysisService: EnrichmentAnalysisService
 
     @Autowired
     private lateinit var objectMapper: ObjectMapper
@@ -218,14 +209,11 @@ class EnrichmentContextSnapshotTest : BaseServiceTest() {
 
         // Connotation upsert is a no-op in snapshot test (returns 1 row affected)
         whenever(entityConnotationRepository.upsertByEntityId(any(), any(), any(), any())).thenReturn(1)
-
-        // enrichmentProperties not needed for analyzeSemantics but present for completeness
-        whenever(enrichmentProperties.vectorDimensions).thenReturn(1536)
     }
 
     @Test
     fun `analyzeSemantics matches checked-in JSON snapshot`() {
-        val context = enrichmentService.analyzeSemantics(fixture.queueItemId)
+        val context = enrichmentAnalysisService.analyzeSemantics(fixture.queueItemId)
 
         // Branch-coverage guards: verify all required branches are exercised in the returned context.
         // These assertions prevent a "snapshot passes but fixture is empty" regression.

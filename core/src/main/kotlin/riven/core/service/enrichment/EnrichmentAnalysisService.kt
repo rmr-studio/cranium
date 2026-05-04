@@ -20,59 +20,61 @@ import riven.core.models.connotation.RelationshipSemanticDefinitionSnapshot
 import riven.core.models.connotation.RelationshipSummarySnapshot
 import riven.core.models.connotation.SentimentMetadata
 import riven.core.models.connotation.StructuralMetadata
-import riven.core.models.enrichment.EnrichmentAttributeContext
 import riven.core.models.enrichment.EnrichmentContext
 import riven.core.repository.connotation.EntityConnotationRepository
-import riven.core.repository.workflow.ExecutionQueueRepository
 import riven.core.repository.entity.EntityRepository
 import riven.core.repository.entity.EntityTypeRepository
+import riven.core.repository.workflow.ExecutionQueueRepository
 import riven.core.repository.workspace.WorkspaceRepository
 import riven.core.service.catalog.ManifestCatalogService
 import riven.core.service.connotation.ConnotationAnalysisService
 import riven.core.service.entity.EntityAttributeService
 import riven.core.util.ServiceUtil
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.UUID
 
 /**
- * Orchestration service for the semantic-snapshot and embedding phases of the enrichment pipeline.
+ * Service responsible for the semantic analysis phase of the enrichment pipeline.
  *
- * Queue management (enqueueAndProcess, enqueueByEntityType, Temporal dispatch) lives in
- * [EnrichmentQueueService]. Context assembly (loadAttributeContexts and related helpers) lives in
- * [EnrichmentContextAssembler]. This service retains the analysis and persistence steps that Plan 03
- * will further decompose.
+ * Owns the analysis half of the pipeline: claims the queue item, resolves sentiment metadata
+ * (gated on workspace opt-in and manifest configuration), delegates context assembly to
+ * [EnrichmentContextAssembler], persists the polymorphic connotation snapshot, and returns
+ * a transient [EnrichmentContext] for downstream consumer activities.
  *
- * Core responsibilities (post Plan 01-02):
- * - [analyzeSemantics] — queue item claiming + sentiment resolution + context assembly delegation +
- *   connotation snapshot persistence. Returns a transient [EnrichmentContext] for downstream activities;
- *   the persisted snapshot is the source of truth for non-pipeline consumers.
- * - [storeEmbedding] — embedding upsert + queue item completion.
+ * Extracted from [EnrichmentService] in Plan 01-03 as the final decomposition step.
+ * [EnrichmentService] is deleted in the same plan once this service is wired.
+ *
+ * **Constructor dep count:** 10 (ceiling ≤ 10 per ENRICH-02 — this is the max allowed).
+ * Sentiment + manifest helpers stayed on this service per 01-CONTEXT byte-identity precedence decision.
+ *
+ * **Workspace lookup:** Uses [WorkspaceRepository] directly rather than [riven.core.service.workspace.WorkspaceService].
+ * Plan 01-CONTEXT explicitly resolved this: WorkspaceService carries `@PreAuthorize` + exception-mapping
+ * that would alter exception-thrown shape on missing-workspace (AccessDeniedException vs NotFoundException
+ * from `findOrThrow`), breaking the byte-identical snapshot gate (ENRICH-03). Phase 2 may revisit when
+ * the snapshot lifecycle ends.
  *
  * **Concurrency posture:** snapshot persistence uses an atomic
  * `INSERT ... ON CONFLICT (entity_id) DO UPDATE` keyed by `entity_id`, so concurrent writers
  * always converge to a single row and race only for last-write-wins on the payload. Each writer's
  * own view is internally consistent at fetch time; the surviving row reflects whichever transaction
  * commits last.
- *
- * **Transitional note (Plan 03):** This service will be deleted when [EnrichmentAnalysisService]
- * is extracted. Embedding storage moved to [EnrichmentEmbeddingService] in Task 1.
  */
 @Service
-class EnrichmentService(
+class EnrichmentAnalysisService(
+    private val enrichmentContextAssembler: EnrichmentContextAssembler,
     private val executionQueueRepository: ExecutionQueueRepository,
-    private val entityConnotationRepository: EntityConnotationRepository,
     private val entityRepository: EntityRepository,
     private val entityTypeRepository: EntityTypeRepository,
-    private val objectMapper: ObjectMapper,
+    private val entityConnotationRepository: EntityConnotationRepository,
+    private val entityAttributeService: EntityAttributeService,
+    private val connotationAnalysisService: ConnotationAnalysisService,
     private val workspaceRepository: WorkspaceRepository,
     private val manifestCatalogService: ManifestCatalogService,
-    private val connotationAnalysisService: ConnotationAnalysisService,
-    private val entityAttributeService: EntityAttributeService,
-    private val enrichmentContextAssembler: EnrichmentContextAssembler,
+    private val objectMapper: ObjectMapper,
     private val logger: KLogger,
 ) {
 
-    // ------ Activity-Called Methods ------
+    // ------ Public API ------
 
     /**
      * Claims a queue item, computes the polymorphic semantic snapshot (SENTIMENT placeholder +
@@ -89,7 +91,7 @@ class EnrichmentService(
      *
      * @param queueItemId The enrichment queue row to process
      * @return Complete context snapshot for downstream activities
-     * @throws NotFoundException if the queue item does not exist
+     * @throws riven.core.exceptions.NotFoundException if the queue item does not exist
      */
     @Transactional
     fun analyzeSemantics(queueItemId: UUID): EnrichmentContext {
@@ -179,6 +181,7 @@ class EnrichmentService(
      * - the workspace has not opted in (`connotation_enabled = false`),
      * - the entity type has no manifest connotation signals (custom user-defined type or
      *   manifest entry omits the block),
+     * - the manifest sentiment key has no mapping on this entity type.
      *
      * Otherwise delegates to [ConnotationAnalysisService] which returns either an ANALYZED
      * payload or a FAILED sentinel — both are persisted as-is so consumers can distinguish

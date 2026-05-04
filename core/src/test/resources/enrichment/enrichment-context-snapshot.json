@@ -1,0 +1,58 @@
+{
+  "queueItemId" : "00000000-0000-0000-0000-000000000001",
+  "entityId" : "00000000-0000-0000-0000-000000000003",
+  "workspaceId" : "00000000-0000-0000-0000-000000000002",
+  "entityTypeId" : "00000000-0000-0000-0000-000000000004",
+  "schemaVersion" : 3,
+  "entityTypeName" : "Customer",
+  "entityTypeDefinition" : "A person or company that has purchased or inquired about services.",
+  "semanticGroup" : "CUSTOMER",
+  "lifecycleDomain" : "ACQUISITION",
+  "attributes" : [ {
+    "attributeId" : "00000000-0000-0000-0000-000000000010",
+    "semanticLabel" : "Customer Name",
+    "value" : "Acme Corporation",
+    "schemaType" : "TEXT",
+    "classification" : "IDENTIFIER"
+  }, {
+    "attributeId" : "00000000-0000-0000-0000-000000000011",
+    "semanticLabel" : "NPS Score",
+    "value" : "72",
+    "schemaType" : "NUMBER",
+    "classification" : "CONNOTATION_SOURCE"
+  }, {
+    "attributeId" : "00000000-0000-0000-0000-000000000012",
+    "semanticLabel" : "Account Manager",
+    "value" : "00000000-0000-0000-0000-000000000020",
+    "schemaType" : "TEXT",
+    "classification" : "RELATIONAL_REFERENCE"
+  } ],
+  "relationshipSummaries" : [ {
+    "definitionId" : "00000000-0000-0000-0000-000000000030",
+    "relationshipName" : "Support Tickets",
+    "count" : 1,
+    "topCategories" : [ "Priority: High (1)" ],
+    "latestActivityAt" : "2025-03-15T10:30:00Z"
+  } ],
+  "clusterMembers" : [ {
+    "sourceType" : "INTEGRATION",
+    "entityTypeName" : "Company"
+  } ],
+  "referencedEntityIdentifiers" : {
+    "00000000-0000-0000-0000-000000000020" : "Jane Smith"
+  },
+  "relationshipDefinitions" : [ {
+    "name" : "Support Tickets",
+    "definition" : "Support tickets raised by this customer, indicating activity and engagement level."
+  } ],
+  "sentiment" : {
+    "sentiment" : 0.44,
+    "themes" : [ ],
+    "analysisVersion" : "v1",
+    "analysisModel" : "deterministic-linear",
+    "analysisTier" : "DETERMINISTIC",
+    "status" : "ANALYZED",
+    "stalenessModel" : "ON_SOURCE_TEXT_CHANGE",
+    "analyzedAt" : "2025-03-15T10:30:00Z"
+  }
+}

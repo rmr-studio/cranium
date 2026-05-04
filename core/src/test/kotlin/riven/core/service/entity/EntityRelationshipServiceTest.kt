@@ -920,6 +920,8 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
             on { getLabel() } doReturn "Acme Corp"
             on { getDirection() } doReturn "FORWARD"
             on { getSystemType() } doReturn null
+            on { getSourceSurfaceRole() } doReturn "CATALOG"
+            on { getCreatedAt() } doReturn null
         }
 
         val inverseProjection = mock<riven.core.projection.entity.EntityLinkProjection> {
@@ -933,6 +935,8 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
             on { getLabel() } doReturn "Alice"
             on { getDirection() } doReturn "INVERSE"
             on { getSystemType() } doReturn SystemRelationshipType.SYSTEM_CONNECTION.name
+            on { getSourceSurfaceRole() } doReturn "CATALOG"
+            on { getCreatedAt() } doReturn null
         }
 
         whenever(entityRelationshipRepository.findEntityLinksBySourceId(sourceEntityId, workspaceId))
@@ -976,6 +980,8 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
             on { getLabel() } doReturn "Forward Entity"
             on { getDirection() } doReturn "FORWARD"
             on { getSystemType() } doReturn null
+            on { getSourceSurfaceRole() } doReturn "CATALOG"
+            on { getCreatedAt() } doReturn null
         }
 
         val inverseProjection = mock<riven.core.projection.entity.EntityLinkProjection> {
@@ -989,6 +995,8 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
             on { getLabel() } doReturn "Inverse Entity"
             on { getDirection() } doReturn "INVERSE"
             on { getSystemType() } doReturn SystemRelationshipType.SYSTEM_CONNECTION.name
+            on { getSourceSurfaceRole() } doReturn "CATALOG"
+            on { getCreatedAt() } doReturn null
         }
 
         whenever(entityRelationshipRepository.findEntityLinksBySourceId(sourceEntityId, workspaceId))

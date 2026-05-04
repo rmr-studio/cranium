@@ -25,8 +25,10 @@ import riven.core.repository.workspace.WorkspaceRepository
 import riven.core.repository.workflow.ExecutionQueueRepository
 import riven.core.service.auth.AuthTokenService
 import riven.core.service.catalog.ManifestCatalogService
+import riven.core.configuration.properties.EnrichmentConfigurationProperties
 import riven.core.service.connotation.ConnotationAnalysisService
 import riven.core.service.entity.EntityAttributeService
+import riven.core.service.entity.EntityRelationshipService
 import riven.core.service.util.BaseServiceTest
 import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.factory.enrichment.EnrichmentSnapshotFixture
@@ -103,6 +105,15 @@ class EnrichmentContextSnapshotTest : BaseServiceTest() {
 
     @MockitoBean
     private lateinit var connotationAnalysisService: ConnotationAnalysisService
+
+    @MockitoBean
+    private lateinit var entityRelationshipService: EntityRelationshipService
+
+    @MockitoBean
+    private lateinit var sentimentResolutionService: SentimentResolutionService
+
+    @MockitoBean
+    private lateinit var enrichmentProperties: EnrichmentConfigurationProperties
 
     @Autowired
     private lateinit var enrichmentAnalysisService: EnrichmentAnalysisService

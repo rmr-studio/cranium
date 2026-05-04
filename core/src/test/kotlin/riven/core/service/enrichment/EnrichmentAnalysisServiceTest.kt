@@ -23,6 +23,7 @@ import riven.core.models.catalog.ScaleMappingType
 import riven.core.models.catalog.SentimentScale
 import riven.core.models.connotation.AnalysisTier
 import riven.core.models.connotation.SentimentMetadata
+import riven.core.configuration.properties.EnrichmentConfigurationProperties
 import riven.core.repository.connotation.EntityConnotationRepository
 import riven.core.repository.entity.EntityRelationshipRepository
 import riven.core.repository.entity.EntityRepository
@@ -37,6 +38,7 @@ import riven.core.service.auth.AuthTokenService
 import riven.core.service.catalog.ManifestCatalogService
 import riven.core.service.connotation.ConnotationAnalysisService
 import riven.core.service.entity.EntityAttributeService
+import riven.core.service.entity.EntityRelationshipService
 import riven.core.service.util.BaseServiceTest
 import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.WithUserPersona
@@ -104,6 +106,9 @@ class EnrichmentAnalysisServiceTest : BaseServiceTest() {
     private lateinit var semanticMetadataRepository: EntityTypeSemanticMetadataRepository
 
     @MockitoBean
+    private lateinit var entityRelationshipService: EntityRelationshipService
+
+    @MockitoBean
     private lateinit var entityRelationshipRepository: EntityRelationshipRepository
 
     @MockitoBean
@@ -114,6 +119,12 @@ class EnrichmentAnalysisServiceTest : BaseServiceTest() {
 
     @MockitoBean
     private lateinit var relationshipTargetRuleRepository: RelationshipTargetRuleRepository
+
+    @MockitoBean
+    private lateinit var sentimentResolutionService: SentimentResolutionService
+
+    @MockitoBean
+    private lateinit var enrichmentProperties: EnrichmentConfigurationProperties
 
     @MockitoBean
     private lateinit var connotationAnalysisService: ConnotationAnalysisService

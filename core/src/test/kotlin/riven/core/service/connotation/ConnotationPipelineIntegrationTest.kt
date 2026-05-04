@@ -220,6 +220,34 @@ class ConnotationPipelineIntegrationTestConfig {
     @Bean
     fun embeddingProvider(): riven.core.service.enrichment.provider.EmbeddingProvider =
         org.mockito.Mockito.mock(riven.core.service.enrichment.provider.EmbeddingProvider::class.java)
+
+    /**
+     * [riven.core.service.entity.EntityRelationshipService] is a new constructor dep on
+     * [riven.core.service.enrichment.EnrichmentContextAssembler] (Plan 02-02 refactor — used
+     * only in the new [EnrichmentContextAssembler.assemble] path). The legacy bridge path
+     * [EnrichmentContextAssembler.assembleLegacyContext] that this test exercises does NOT use it,
+     * so a pass-through mock is safe here.
+     */
+    @Bean
+    fun entityRelationshipService(): riven.core.service.entity.EntityRelationshipService =
+        org.mockito.Mockito.mock(riven.core.service.entity.EntityRelationshipService::class.java)
+
+    /**
+     * [riven.core.service.enrichment.SentimentResolutionService] is a new constructor dep on
+     * [riven.core.service.enrichment.EnrichmentContextAssembler] (Plan 02-02 refactor — used
+     * only in the new [EnrichmentContextAssembler.assemble] path). The legacy bridge path
+     * [EnrichmentContextAssembler.assembleLegacyContext] that this test exercises does NOT use it,
+     * so a pass-through mock is safe here.
+     */
+    @Bean
+    fun sentimentResolutionService(
+        connotationAnalysisService: riven.core.service.connotation.ConnotationAnalysisService,
+        workspaceRepository: riven.core.repository.workspace.WorkspaceRepository,
+        manifestCatalogService: riven.core.service.catalog.ManifestCatalogService,
+        entityAttributeService: riven.core.service.entity.EntityAttributeService,
+        logger: KLogger,
+    ): riven.core.service.enrichment.SentimentResolutionService =
+        org.mockito.Mockito.mock(riven.core.service.enrichment.SentimentResolutionService::class.java)
 }
 
 /**

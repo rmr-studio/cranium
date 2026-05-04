@@ -128,6 +128,7 @@ private object ConnotationPipelineTestContainer {
 @org.springframework.context.annotation.Import(
     riven.core.configuration.util.LoggerConfig::class,
     riven.core.service.enrichment.EnrichmentService::class,
+    riven.core.service.enrichment.EnrichmentContextAssembler::class,
     riven.core.service.connotation.ConnotationAnalysisService::class,
     riven.core.service.connotation.DeterministicConnotationMapper::class,
     riven.core.service.catalog.ManifestCatalogService::class,

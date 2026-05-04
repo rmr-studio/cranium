@@ -56,6 +56,7 @@ import java.util.Optional
         WorkspaceSecurity::class,
         SecurityTestConfig::class,
         EnrichmentService::class,
+        EnrichmentContextAssembler::class,
         ObjectMapperConfig::class,
     ]
 )

@@ -12,17 +12,11 @@ import riven.core.entity.enrichment.EntityEmbeddingEntity
 import riven.core.entity.workflow.ExecutionQueueEntity
 import riven.core.entity.entity.EntityEntity
 import riven.core.entity.entity.EntityTypeEntity
-import riven.core.entity.entity.EntityTypeSemanticMetadataEntity
-import riven.core.entity.entity.RelationshipDefinitionEntity
-import riven.core.entity.entity.EntityRelationshipEntity
-import riven.core.entity.entity.RelationshipTargetRuleEntity
-import riven.core.entity.identity.IdentityClusterMemberEntity
 import riven.core.enums.common.validation.SchemaType
 import riven.core.enums.workflow.ExecutionQueueStatus
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
 import riven.core.enums.entity.LifecycleDomain
 import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.models.connotation.MetadataStalenessModel
 import riven.core.enums.connotation.ConnotationStatus
 import riven.core.enums.integration.SourceType
@@ -59,6 +53,12 @@ import riven.core.service.util.factory.identity.IdentityFactory
 import riven.core.service.util.factory.workflow.ExecutionQueueFactory
 import org.junit.jupiter.api.BeforeEach
 import riven.core.entity.connotation.EntityConnotationEntity
+import riven.core.entity.entity.EntityRelationshipEntity
+import riven.core.entity.entity.EntityTypeSemanticMetadataEntity
+import riven.core.entity.entity.RelationshipDefinitionEntity
+import riven.core.entity.entity.RelationshipTargetRuleEntity
+import riven.core.entity.identity.IdentityClusterMemberEntity
+import riven.core.enums.entity.semantics.SemanticMetadataTargetType
 import riven.core.models.connotation.SentimentMetadata
 import java.time.ZonedDateTime
 import java.util.*
@@ -69,6 +69,7 @@ import java.util.*
         WorkspaceSecurity::class,
         SecurityTestConfig::class,
         EnrichmentService::class,
+        EnrichmentContextAssembler::class,
         riven.core.configuration.util.ObjectMapperConfig::class,
     ]
 )

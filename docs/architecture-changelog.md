@@ -1,5 +1,27 @@
 # Architecture Changelog
 
+## 2026-05-05 — Phase 2 Closeout: EnrichmentContext Lifecycle Deleted + EntityKnowledgeView Read Path Complete (Plan 02-03)
+
+**Domains affected:** enrichment, workflow
+
+**What changed:**
+
+- Deleted `EnrichmentContext` and all sub-types (`EnrichmentAttributeContext`, `EnrichmentRelationshipSummary`, `EnrichmentClusterMemberContext`, `EnrichmentRelationshipDefinitionContext`) — Phase 1's transitional context model is gone; `EntityKnowledgeView` is the sole enrichment context type.
+- `assembleLegacyContext` bridge method on `EnrichmentContextAssembler` deleted; `assemble(entityId, workspaceId, queueItemId): EntityKnowledgeView` is now the sole public API.
+- Signature cascade through the embedding pipeline: `EmbeddingConsumer`, `EnrichmentActivities`, `EnrichmentActivitiesImpl`, `EnrichmentWorkflowImpl`, `EnrichmentEmbeddingService`, `SemanticTextBuilderService.buildText()` all now receive `EntityKnowledgeView` instead of `EnrichmentContext`.
+- `EnrichmentAnalysisService.analyzeSemantics` updated to call `assembler.assemble(...)` directly and return `EntityKnowledgeView` to its caller.
+- `EnrichmentContextAssembler` constructor dep count: 11 (within the 12-dep ceiling, ENRICH-02).
+- `EnrichmentAnalysisService` constructor dep count: 6 (enrichmentContextAssembler, executionQueueRepository, entityRepository, entityConnotationRepository, objectMapper, logger).
+- New integration test `EnrichmentBacklinkMatrixIT`: 6-case parameterized matrix covering CATALOG, KNOWLEDGE, cross-workspace isolation, soft-delete invisibility, and EXPLAIN plan verification.
+- New snapshot test `EntityKnowledgeViewSnapshotTest`: byte-identical serialization gate for `EntityKnowledgeView`.
+- `ConnotationPipelineIntegrationTest` config updated: `SentimentResolutionService` now wired as a real bean (was mocked, returning null), `EntityRelationshipService` mock configured to return `emptyList` for `findRelatedEntities`.
+
+**New cross-domain dependencies:** No new cross-domain dependencies. Changes are internal to the enrichment domain.
+
+**New components introduced:**
+- `EnrichmentBacklinkMatrixIT` (`riven.core.service.enrichment`) — 6-case integration test matrix for KNOWLEDGE backlink visibility rules.
+- `EntityKnowledgeViewSnapshotTest` (`riven.core.service.enrichment`) — byte-identical serialization snapshot gate for Phase 2 read path.
+
 ## 2026-05-05 — Enrichment Backlink Read Path: sourceSurfaceRole + GlossaryDefinitionRow + Assembler EntityKnowledgeView (Plan 02-02)
 
 **Domains affected:** enrichment, entity

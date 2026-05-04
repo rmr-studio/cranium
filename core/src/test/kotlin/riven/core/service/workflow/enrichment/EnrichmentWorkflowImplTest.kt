@@ -1,26 +1,29 @@
 package riven.core.service.workflow.enrichment
 
-import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import riven.core.configuration.workflow.TemporalWorkerConfiguration
-import riven.core.models.enrichment.EnrichedTextResult
 import riven.core.models.enrichment.EnrichmentContext
+import riven.core.service.enrichment.EmbeddingConsumer
 import riven.core.service.util.factory.EnrichmentFactory
-import riven.core.service.util.factory.enrichment.EnrichmentFactory as EnrichmentModelFactory
 import java.util.UUID
 
 /**
  * Unit tests for [EnrichmentWorkflowImpl].
  *
- * Verifies the 4-activity orchestration sequence and data-flow contracts using the
- * testable subclass pattern — overrides createActivitiesStub() to return a mock,
- * avoiding Temporal's TestWorkflowEnvironment which has known hanging issues in this project.
+ * Verifies the 2-activity + consumer-fan-out orchestration using the testable subclass pattern —
+ * overrides createActivitiesStub() and buildConsumers() to inject mocks, avoiding Temporal's
+ * TestWorkflowEnvironment which has known hanging issues in this project.
+ *
+ * Post Plan 01-03: the 4-activity sequence (analyze → constructText → generateEmbedding → store)
+ * is replaced by analyze → List<ConsumerActivity> fan-out. The consumer-list tests below verify
+ * both the happy path and the runCatching swallow-and-continue semantics.
  */
 class EnrichmentWorkflowImplTest {
 
@@ -30,7 +33,7 @@ class EnrichmentWorkflowImplTest {
     inner class QueueConstantTests {
 
         /**
-         * Contract test: EnrichmentService dispatch and TemporalWorkerConfiguration registration
+         * Contract test: EnrichmentQueueService dispatch and TemporalWorkerConfiguration registration
          * both reference this constant. Changing it requires updating both sites.
          */
         @Test
@@ -51,116 +54,148 @@ class EnrichmentWorkflowImplTest {
     // ------ Activity Orchestration Tests ------
 
     /**
-     * These tests verify the workflow's 4-activity sequence using a testable subclass
-     * that overrides createActivitiesStub() to return a mock.
+     * Verifies the 2-activity workflow shape: analyzeSemantics → consumer fan-out.
+     * Uses testable subclass pattern to override both createActivitiesStub() and buildConsumers().
      */
     @Nested
     inner class ActivityOrchestrationTests {
 
         private val queueItemId = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
         private val context: EnrichmentContext = EnrichmentFactory.createEnrichmentContext(queueItemId = queueItemId)
-        private val enrichedTextResult = EnrichmentModelFactory.enrichedTextResult(
-            text = "## Entity Type: Customer\n\nType: Customer",
-            truncated = false
-        )
-        private val embedding = floatArrayOf(0.1f, 0.2f, 0.3f)
 
         /**
-         * Creates a testable subclass with the mock injected as the activities stub.
-         * This bypasses Temporal's Workflow.newActivityStub() which requires an active workflow context.
+         * Creates a testable workflow subclass with mock-controlled stubs and consumers.
          */
-        private fun createTestableWorkflow(activities: EnrichmentActivities): EnrichmentWorkflowImpl {
+        private fun createTestableWorkflow(
+            activities: EnrichmentActivities,
+            consumers: List<ConsumerActivity>,
+        ): EnrichmentWorkflowImpl {
             return object : EnrichmentWorkflowImpl() {
                 override fun createActivitiesStub(): EnrichmentActivities = activities
+                override fun buildConsumers(stub: EnrichmentActivities): List<ConsumerActivity> = consumers
             }
         }
 
         /**
-         * Also protects the Phase B connotation hook: `analyzeSemantics` is the activity
-         * that calls `EnrichmentService.persistConnotationSnapshot` (which routes through
-         * `ConnotationAnalysisService` for the SENTIMENT category). Removing the call here
-         * would silently disable connotation analysis. Snapshot-level assertions live in
-         * `EnrichmentServiceTest` and `ConnotationPipelineIntegrationTest`.
+         * Verifies the core contract: analyzeSemantics is called, then each consumer's run()
+         * is called with the returned context and queueItemId in order.
+         *
+         * Also protects the Phase B connotation hook: analyzeSemantics is the activity that
+         * calls EnrichmentAnalysisService.persistConnotationSnapshot. Removing the call here
+         * silently disables connotation analysis.
          */
         @Test
-        fun `embed calls all 4 activities in sequence`() {
+        fun `embed calls analyzeSemantics then iterates consumer list`() {
             val activities = mock<EnrichmentActivities>()
+            val consumer1 = mock<ConsumerActivity>()
+            val consumer2 = mock<ConsumerActivity>()
             whenever(activities.analyzeSemantics(queueItemId)).thenReturn(context)
-            whenever(activities.constructEnrichedText(context)).thenReturn(enrichedTextResult)
-            whenever(activities.generateEmbedding(enrichedTextResult.text)).thenReturn(embedding)
 
-            val workflow = createTestableWorkflow(activities)
+            val workflow = createTestableWorkflow(activities, listOf(consumer1, consumer2))
             workflow.embed(queueItemId)
 
-            val order = inOrder(activities)
-            order.verify(activities).analyzeSemantics(queueItemId)
-            order.verify(activities).constructEnrichedText(context)
-            order.verify(activities).generateEmbedding(enrichedTextResult.text)
-            order.verify(activities).storeEmbedding(queueItemId, context, embedding, enrichedTextResult.truncated)
+            verify(activities).analyzeSemantics(queueItemId)
+            verify(consumer1).run(context, queueItemId)
+            verify(consumer2).run(context, queueItemId)
+        }
+
+        /**
+         * Verifies the runCatching semantics: when one consumer throws, the workflow logs
+         * a warning and continues to the next consumer — it does NOT propagate the failure.
+         * This is the ENRICH-05 contract: one consumer's terminal failure must not block siblings.
+         */
+        @Test
+        fun `embed continues to next consumer when one consumer throws`() {
+            val activities = mock<EnrichmentActivities>()
+            val failingConsumer = mock<ConsumerActivity>()
+            val successConsumer = mock<ConsumerActivity>()
+            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(context)
+            whenever(failingConsumer.run(context, queueItemId)).thenThrow(RuntimeException("provider outage"))
+
+            val workflow = createTestableWorkflow(activities, listOf(failingConsumer, successConsumer))
+
+            // Should not throw — runCatching swallows the failure at workflow level
+            workflow.embed(queueItemId)
+
+            verify(failingConsumer).run(context, queueItemId)
+            verify(successConsumer).run(context, queueItemId)
+        }
+
+        /**
+         * Verifies that when all consumers succeed, analyzeSemantics is called exactly once
+         * (no retry or duplication at the orchestration level).
+         */
+        @Test
+        fun `embed calls analyzeSemantics exactly once`() {
+            val activities = mock<EnrichmentActivities>()
+            val consumer = mock<ConsumerActivity>()
+            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(context)
+
+            val workflow = createTestableWorkflow(activities, listOf(consumer))
+            workflow.embed(queueItemId)
+
+            verify(activities, times(1)).analyzeSemantics(queueItemId)
+        }
+
+        /**
+         * Verifies that when the consumer list is empty, analyzeSemantics is still called
+         * (analysis phase is never skipped even with no consumers).
+         */
+        @Test
+        fun `embed calls analyzeSemantics even with empty consumer list`() {
+            val activities = mock<EnrichmentActivities>()
+            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(context)
+
+            val workflow = createTestableWorkflow(activities, emptyList())
+            workflow.embed(queueItemId)
+
+            verify(activities).analyzeSemantics(queueItemId)
+        }
+    }
+
+    // ------ EmbeddingConsumer Tests ------
+
+    /**
+     * Unit tests for [EmbeddingConsumer] — verifies it delegates embedAndStore correctly
+     * and propagates exceptions (so the workflow's runCatching can catch them).
+     */
+    @Nested
+    inner class EmbeddingConsumerTests {
+
+        private val queueItemId = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
+        private val context: EnrichmentContext = EnrichmentFactory.createEnrichmentContext(queueItemId = queueItemId)
+
+        @Test
+        fun `EmbeddingConsumer run delegates to activities embedAndStore`() {
+            val activities = mock<EnrichmentActivities>()
+            val consumer = EmbeddingConsumer(activities)
+
+            consumer.run(context, queueItemId)
+
+            verify(activities).embedAndStore(context, queueItemId)
         }
 
         @Test
-        fun `embed passes context from analyzeSemantics to constructEnrichedText`() {
+        fun `EmbeddingConsumer run propagates exceptions to caller`() {
             val activities = mock<EnrichmentActivities>()
-            val specificContext = EnrichmentFactory.createEnrichmentContext(
-                queueItemId = queueItemId,
-                entityTypeName = "UniqueTypeName"
-            )
-            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(specificContext)
-            whenever(activities.constructEnrichedText(specificContext)).thenReturn(enrichedTextResult)
-            whenever(activities.generateEmbedding(enrichedTextResult.text)).thenReturn(embedding)
+            whenever(activities.embedAndStore(context, queueItemId)).thenThrow(RuntimeException("embedding failed"))
+            val consumer = EmbeddingConsumer(activities)
 
-            val workflow = createTestableWorkflow(activities)
-            workflow.embed(queueItemId)
+            val result = runCatching { consumer.run(context, queueItemId) }
 
-            verify(activities).constructEnrichedText(specificContext)
+            assert(result.isFailure)
+            assert(result.exceptionOrNull() is RuntimeException)
         }
 
         @Test
-        fun `embed passes text from constructEnrichedText to generateEmbedding`() {
+        fun `EmbeddingConsumer run calls embedAndStore exactly once`() {
             val activities = mock<EnrichmentActivities>()
-            val specificText = "## Specific enriched text for testing"
-            val specificResult = EnrichmentModelFactory.enrichedTextResult(text = specificText, truncated = false)
-            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(context)
-            whenever(activities.constructEnrichedText(context)).thenReturn(specificResult)
-            whenever(activities.generateEmbedding(specificText)).thenReturn(embedding)
+            val consumer = EmbeddingConsumer(activities)
 
-            val workflow = createTestableWorkflow(activities)
-            workflow.embed(queueItemId)
+            consumer.run(context, queueItemId)
 
-            verify(activities).generateEmbedding(specificText)
-        }
-
-        @Test
-        fun `embed passes embedding from generateEmbedding to storeEmbedding`() {
-            val activities = mock<EnrichmentActivities>()
-            val specificEmbedding = floatArrayOf(0.9f, 0.8f, 0.7f, 0.6f)
-            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(context)
-            whenever(activities.constructEnrichedText(context)).thenReturn(enrichedTextResult)
-            whenever(activities.generateEmbedding(enrichedTextResult.text)).thenReturn(specificEmbedding)
-
-            val workflow = createTestableWorkflow(activities)
-            workflow.embed(queueItemId)
-
-            // Capture what storeEmbedding was called with and verify it matches exactly
-            verify(activities).storeEmbedding(queueItemId, context, specificEmbedding, enrichedTextResult.truncated)
-        }
-
-        @Test
-        fun `embed passes truncated flag from constructEnrichedText result to storeEmbedding`() {
-            val activities = mock<EnrichmentActivities>()
-            val truncatedResult = EnrichmentModelFactory.enrichedTextResult(
-                text = "## Entity Type: Customer\n\nType: Customer",
-                truncated = true
-            )
-            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(context)
-            whenever(activities.constructEnrichedText(context)).thenReturn(truncatedResult)
-            whenever(activities.generateEmbedding(truncatedResult.text)).thenReturn(embedding)
-
-            val workflow = createTestableWorkflow(activities)
-            workflow.embed(queueItemId)
-
-            verify(activities).storeEmbedding(queueItemId, context, embedding, true)
+            verify(activities, times(1)).embedAndStore(context, queueItemId)
+            verify(activities, never()).analyzeSemantics(queueItemId)
         }
     }
 }

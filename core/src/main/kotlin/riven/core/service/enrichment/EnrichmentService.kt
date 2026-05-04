@@ -4,8 +4,6 @@ import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import tools.jackson.databind.ObjectMapper
-import riven.core.configuration.properties.EnrichmentConfigurationProperties
-import riven.core.entity.enrichment.EntityEmbeddingEntity
 import riven.core.entity.entity.EntityTypeEntity
 import riven.core.entity.workflow.ExecutionQueueEntity
 import riven.core.enums.connotation.ConnotationStatus
@@ -25,14 +23,12 @@ import riven.core.models.connotation.StructuralMetadata
 import riven.core.models.enrichment.EnrichmentAttributeContext
 import riven.core.models.enrichment.EnrichmentContext
 import riven.core.repository.connotation.EntityConnotationRepository
-import riven.core.repository.enrichment.EntityEmbeddingRepository
 import riven.core.repository.workflow.ExecutionQueueRepository
 import riven.core.repository.entity.EntityRepository
 import riven.core.repository.entity.EntityTypeRepository
 import riven.core.repository.workspace.WorkspaceRepository
 import riven.core.service.catalog.ManifestCatalogService
 import riven.core.service.connotation.ConnotationAnalysisService
-import riven.core.service.enrichment.provider.EmbeddingProvider
 import riven.core.service.entity.EntityAttributeService
 import riven.core.util.ServiceUtil
 import java.time.ZonedDateTime
@@ -57,16 +53,16 @@ import java.util.*
  * always converge to a single row and race only for last-write-wins on the payload. Each writer's
  * own view is internally consistent at fetch time; the surviving row reflects whichever transaction
  * commits last.
+ *
+ * **Transitional note (Plan 03):** This service will be deleted when [EnrichmentAnalysisService]
+ * is extracted. Embedding storage moved to [EnrichmentEmbeddingService] in Task 1.
  */
 @Service
 class EnrichmentService(
     private val executionQueueRepository: ExecutionQueueRepository,
-    private val entityEmbeddingRepository: EntityEmbeddingRepository,
     private val entityConnotationRepository: EntityConnotationRepository,
     private val entityRepository: EntityRepository,
     private val entityTypeRepository: EntityTypeRepository,
-    private val embeddingProvider: EmbeddingProvider,
-    private val enrichmentProperties: EnrichmentConfigurationProperties,
     private val objectMapper: ObjectMapper,
     private val workspaceRepository: WorkspaceRepository,
     private val manifestCatalogService: ManifestCatalogService,
@@ -122,43 +118,6 @@ class EnrichmentService(
         persistConnotationSnapshot(entityId, entity.workspaceId, entityType, context, sentimentMetadata)
 
         return context
-    }
-
-    /**
-     * Upserts the embedding record for an entity and marks the queue item as COMPLETED.
-     *
-     * Deletes any existing embedding first (delete + insert upsert pattern), then saves
-     * the new embedding with all required metadata fields.
-     *
-     * @param queueItemId The queue item to mark completed
-     * @param context The enrichment context snapshot (provides entity/type IDs, schema version)
-     * @param embedding The generated embedding vector
-     * @param truncated Whether the enriched text was truncated before embedding generation
-     */
-    @Transactional
-    fun storeEmbedding(queueItemId: UUID, context: EnrichmentContext, embedding: FloatArray, truncated: Boolean) {
-        require(embedding.size == enrichmentProperties.vectorDimensions) {
-            "Embedding size ${embedding.size} does not match configured vector dimensions ${enrichmentProperties.vectorDimensions}"
-        }
-
-        entityEmbeddingRepository.deleteByEntityId(context.entityId)
-
-        entityEmbeddingRepository.save(
-            EntityEmbeddingEntity(
-                workspaceId = context.workspaceId,
-                entityId = context.entityId,
-                entityTypeId = context.entityTypeId,
-                embedding = embedding,
-                embeddingModel = embeddingProvider.getModelName(),
-                schemaVersion = context.schemaVersion,
-                truncated = truncated,
-            )
-        )
-
-        val queueItem = ServiceUtil.findOrThrow { executionQueueRepository.findById(queueItemId) }
-        executionQueueRepository.save(queueItem.copy(status = ExecutionQueueStatus.COMPLETED))
-
-        logger.info { "Stored embedding for entity ${context.entityId}, queue item $queueItemId completed" }
     }
 
     // ------ Private Helpers ------

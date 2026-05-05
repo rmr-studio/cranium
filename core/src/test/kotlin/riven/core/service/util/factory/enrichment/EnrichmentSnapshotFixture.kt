@@ -494,7 +494,7 @@ object EnrichmentSnapshotFixture {
     }
 
     /**
-     * Bundle of all entities and payloads needed to wire mocks for [EnrichmentContextSnapshotTest].
+     * Bundle of all entities and payloads needed to wire mocks for [EntityKnowledgeViewSnapshotTest] and other tests that need a fully-populated enrichment fixture.
      */
     data class SnapshotFixture(
         val queueItemId: UUID,

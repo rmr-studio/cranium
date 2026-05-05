@@ -66,7 +66,7 @@ import kotlin.reflect.full.primaryConstructor
  * Uses `@SpringBootTest(classes = [...])` with `@MockitoBean` for all 9 collaborators;
  * logger is auto-injected via LoggerConfig. Uses `mockito-kotlin` (whenever/verify) per CLAUDE.md.
  *
- * @see EnrichmentContextSnapshotTest for byte-identical end-to-end snapshot gate
+ * @see EntityKnowledgeViewSnapshotTest for the structural EntityKnowledgeView snapshot gate (replaced the deleted EnrichmentContext byte-identity snapshot in Phase 2)
  */
 @SpringBootTest(
     classes = [

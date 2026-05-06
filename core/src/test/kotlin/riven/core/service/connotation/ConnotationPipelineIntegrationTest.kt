@@ -220,6 +220,50 @@ class ConnotationPipelineIntegrationTestConfig {
     @Bean
     fun embeddingProvider(): riven.core.service.enrichment.provider.EmbeddingProvider =
         org.mockito.Mockito.mock(riven.core.service.enrichment.provider.EmbeddingProvider::class.java)
+
+    /**
+     * [riven.core.service.entity.EntityRelationshipService] is a constructor dep on
+     * [riven.core.service.enrichment.EnrichmentContextAssembler]. Its heavyweight dependencies
+     * (AuthTokenService, ActivityService, EntityTypeRelationshipService) are mocked or unavailable
+     * in this context, so we provide a stub that returns an empty list for the relationship query
+     * path used by [EnrichmentContextAssembler.assemble].
+     *
+     * Plan 02-03: [assembleLegacyContext] was deleted; assemble() now calls findRelatedEntities()
+     * directly. The stub must return an empty list (not null) to avoid NPE in the filter chain.
+     */
+    @Bean
+    fun entityRelationshipService(): riven.core.service.entity.EntityRelationshipService {
+        val mock = org.mockito.Mockito.mock(riven.core.service.entity.EntityRelationshipService::class.java)
+        org.mockito.Mockito.doReturn(emptyList<riven.core.models.entity.EntityLink>())
+            .`when`(mock).findRelatedEntities(org.mockito.kotlin.any<java.util.UUID>(), org.mockito.kotlin.any<java.util.UUID>())
+        return mock
+    }
+
+    /**
+     * [riven.core.service.enrichment.SentimentResolutionService] is a constructor dep on
+     * [riven.core.service.enrichment.EnrichmentContextAssembler]. Wired as a real bean since all
+     * its dependencies ([ConnotationAnalysisService], [WorkspaceRepository], [ManifestCatalogService],
+     * [EntityAttributeService]) are available in this context.
+     *
+     * Plan 02-03: [assembleLegacyContext] was deleted; assemble() now calls resolve() directly.
+     * A Mockito default mock returns null for non-void methods, which caused NPE at
+     * EnrichmentContextAssembler.assembleView line 152 (sentiment.status). The real bean is needed.
+     */
+    @Bean
+    fun sentimentResolutionService(
+        connotationAnalysisService: riven.core.service.connotation.ConnotationAnalysisService,
+        workspaceRepository: riven.core.repository.workspace.WorkspaceRepository,
+        manifestCatalogService: riven.core.service.catalog.ManifestCatalogService,
+        entityAttributeService: riven.core.service.entity.EntityAttributeService,
+        logger: KLogger,
+    ): riven.core.service.enrichment.SentimentResolutionService =
+        riven.core.service.enrichment.SentimentResolutionService(
+            connotationAnalysisService = connotationAnalysisService,
+            workspaceRepository = workspaceRepository,
+            manifestCatalogService = manifestCatalogService,
+            entityAttributeService = entityAttributeService,
+            logger = logger,
+        )
 }
 
 /**
@@ -387,7 +431,7 @@ class ConnotationPipelineIntegrationTest {
         val context = enrichmentAnalysisService.analyzeSemantics(queueItemId)
 
         // 6. Verify the in-memory context surfaces the ANALYZED sentiment.
-        assertNotNull(context.sentiment).run {
+        assertNotNull(context.sections.entityMetadata.sentiment).run {
             assertThat(this.status).isEqualTo(ConnotationStatus.ANALYZED)
             assertThat(this.sentiment).isCloseTo(1.0, within(1e-9))
             assertThat(this.sentimentLabel).isEqualTo(SentimentLabel.VERY_POSITIVE)

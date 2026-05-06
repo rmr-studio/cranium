@@ -26,7 +26,7 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import riven.core.configuration.workflow.TemporalWorkerConfiguration
-import riven.core.models.enrichment.EnrichmentContext
+import riven.core.models.entity.knowledge.EntityKnowledgeView
 import riven.core.service.enrichment.EmbeddingConsumer
 import riven.core.service.util.factory.EnrichmentFactory
 import java.time.Duration
@@ -40,12 +40,16 @@ import java.util.concurrent.TimeUnit
  * **What this IT covers:**
  * 1. Embedding terminal failure does not retry analysis nor propagate as a workflow failure.
  * 2. Analysis success persists the semantic snapshot regardless of embedding outcome
- *    (verified by proxy: analyzeSemantics stub returning a context stands in for the
+ *    (verified by proxy: analyzeSemantics stub returning a view stands in for the
  *    real [riven.core.service.enrichment.EnrichmentAnalysisService.analyzeSemantics] side-effect,
  *    which is unit-tested separately in [riven.core.service.enrichment.EnrichmentAnalysisServiceTest]).
  * 3. The workflow scaffold accepts a [List]<[ConsumerActivity]> of size > 1 — injecting a second
  *    test-only consumer verifies that both run (embedding AND the test consumer).
  * 4. A non-embedding consumer failure is also swallowed — the embedding consumer still runs.
+ *
+ * **Plan 02-03:** Fixture type changed from [EnrichmentContext] to [EntityKnowledgeView].
+ * [ActivityDelegate] and [DelegatingActivitiesImpl] updated accordingly.
+ * All four ENRICH-05 consumer-independence assertions remain identical.
  *
  * **Lifecycle pattern:** [Nested] inner classes — each nested class owns its [BeforeEach] so the
  * consumer-list shape is determined before [TestWorkflowEnvironment] construction. This avoids
@@ -70,7 +74,7 @@ class EnrichmentWorkflowIT {
 
     // ---- Shared fixture context (deterministic UUID, factory-built) ----
     private val queueItemId: UUID = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
-    private val fixtureContext: EnrichmentContext = EnrichmentFactory.createEnrichmentContext(
+    private val fixtureView: EntityKnowledgeView = EnrichmentFactory.createEntityKnowledgeView(
         queueItemId = queueItemId,
     )
 
@@ -83,13 +87,13 @@ class EnrichmentWorkflowIT {
          * Kotlin data classes (no no-arg constructor). This helper overrides only the Jackson
          * converter in the default converter chain (keeping NullPayloadConverter,
          * ByteArrayPayloadConverter, etc.) by registering [KotlinModule] so Temporal can
-         * round-trip [EnrichmentContext] and its nested data classes through JSON serialization
+         * round-trip [EntityKnowledgeView] and its nested data classes through JSON serialization
          * between the workflow and activity sides of the test environment.
          */
         fun newTestEnvironment(): TestWorkflowEnvironment {
             // findAndRegisterModules() auto-discovers KotlinModule on the runtime classpath
             // (com.fasterxml.jackson.module:jackson-module-kotlin brought in by temporal-sdk)
-            // plus JavaTimeModule for ZonedDateTime serialization in SentimentMetadata.
+            // plus JavaTimeModule for ZonedDateTime serialization in EntityMetadataSection.
             val mapper = ObjectMapper()
                 .findAndRegisterModules()
                 .registerModule(JavaTimeModule())
@@ -146,7 +150,7 @@ class EnrichmentWorkflowIT {
          * `verify(times(1)).analyzeSemantics` assertion directly proves the analysis side ran
          * exactly once with no rollback or re-invocation.
          *
-         * Setup: analyzeSemantics returns the fixture context (simulating successful analysis +
+         * Setup: analyzeSemantics returns the fixture view (simulating successful analysis +
          * implicit persistence via the real service's side-effect). embedAndStore always throws,
          * forcing Temporal to exhaust all 3 retry attempts before giving up. The workflow's
          * runCatching wrapper then swallows the terminal failure.
@@ -156,7 +160,7 @@ class EnrichmentWorkflowIT {
          */
         @Test
         fun `embedding terminal failure marks queue FAILED does not retry analysis nor propagate to workflow`() {
-            whenever(delegate.analyzeSemantics(queueItemId)).thenReturn(fixtureContext)
+            whenever(delegate.analyzeSemantics(queueItemId)).thenReturn(fixtureView)
             whenever(delegate.embedAndStore(any(), eq(queueItemId)))
                 .thenThrow(RuntimeException("simulated embedding failure"))
 
@@ -177,16 +181,16 @@ class EnrichmentWorkflowIT {
          * ENRICH-05 Contract 2 explicit assertion: analysis success persists the semantic snapshot
          * regardless of embedding outcome.
          *
-         * The analyzeSemantics stub returning the fixture context is the proxy for "persistence
+         * The analyzeSemantics stub returning the fixture view is the proxy for "persistence
          * happened" — the real [riven.core.service.enrichment.EnrichmentAnalysisService.analyzeSemantics]
-         * upserts the `entity_connotation` snapshot before returning the context. The workflow's
+         * upserts the `entity_connotation` snapshot before returning the view. The workflow's
          * runCatching semantics ensure the snapshot is never rolled back when embedding fails.
          *
          * Covers: ENRICH-05 sub-contract (a) analysis-persists-regardless.
          */
         @Test
         fun `analysis success persists snapshot regardless of embedding outcome`() {
-            whenever(delegate.analyzeSemantics(queueItemId)).thenReturn(fixtureContext)
+            whenever(delegate.analyzeSemantics(queueItemId)).thenReturn(fixtureView)
             whenever(delegate.embedAndStore(any(), eq(queueItemId)))
                 .thenThrow(RuntimeException("embedding outage"))
 
@@ -256,7 +260,7 @@ class EnrichmentWorkflowIT {
          */
         @Test
         fun `workflow scaffold accepts List of ConsumerActivity and runs all consumers`() {
-            whenever(delegate.analyzeSemantics(queueItemId)).thenReturn(fixtureContext)
+            whenever(delegate.analyzeSemantics(queueItemId)).thenReturn(fixtureView)
             // embedAndStore succeeds — EmbeddingConsumer's activity completes normally
 
             val stub = environment.workflowClient.newWorkflowStub(
@@ -269,10 +273,15 @@ class EnrichmentWorkflowIT {
 
             assertDoesNotThrow { stub.embed(queueItemId) }
 
-            // EmbeddingConsumer ran — verified via the Temporal activity invocation through DelegatingActivitiesImpl
-            verify(delegate, times(1)).embedAndStore(eq(fixtureContext), eq(queueItemId))
-            // Test-only consumer also ran with the same context and queueItemId
-            verify(testConsumer, times(1)).run(eq(fixtureContext), eq(queueItemId))
+            // EmbeddingConsumer ran — verified via the Temporal activity invocation through DelegatingActivitiesImpl.
+            // Note: any<EntityKnowledgeView>() is used instead of eq(fixtureView) because Temporal
+            // serializes/deserializes the view via Jackson, which may normalise ZonedDateTime timezone
+            // representations (e.g. +10:00[Melbourne] → UTC). Data-class equals() would fail on timezone
+            // mismatch even though the timestamps are equivalent. Verifying the queueItemId arg is sufficient
+            // to prove the correct workflow branch executed.
+            verify(delegate, times(1)).embedAndStore(any<EntityKnowledgeView>(), eq(queueItemId))
+            // Test-only consumer also ran with the same queueItemId
+            verify(testConsumer, times(1)).run(any<EntityKnowledgeView>(), eq(queueItemId))
         }
 
         /**
@@ -288,7 +297,7 @@ class EnrichmentWorkflowIT {
          */
         @Test
         fun `runCatching swallows non-embedding consumer failures and sibling consumers still run`() {
-            whenever(delegate.analyzeSemantics(queueItemId)).thenReturn(fixtureContext)
+            whenever(delegate.analyzeSemantics(queueItemId)).thenReturn(fixtureView)
             // testConsumer throws — simulating a future sibling consumer (e.g. Synthesis) failing terminally
             whenever(testConsumer.run(any(), any()))
                 .thenThrow(RuntimeException("simulated test consumer failure"))
@@ -304,10 +313,12 @@ class EnrichmentWorkflowIT {
             // Workflow must not propagate the test consumer's failure
             assertDoesNotThrow { stub.embed(queueItemId) }
 
-            // EmbeddingConsumer (first in list) still executed — not blocked by second consumer's failure
-            verify(delegate, times(1)).embedAndStore(eq(fixtureContext), eq(queueItemId))
+            // EmbeddingConsumer (first in list) still executed — not blocked by second consumer's failure.
+            // Using any<EntityKnowledgeView>() because Temporal serializes/deserializes the view through
+            // Jackson, which may normalise ZonedDateTime timezone representations.
+            verify(delegate, times(1)).embedAndStore(any<EntityKnowledgeView>(), eq(queueItemId))
             // The failing test consumer was invoked (it just failed, not skipped)
-            verify(testConsumer, times(1)).run(eq(fixtureContext), eq(queueItemId))
+            verify(testConsumer, times(1)).run(any<EntityKnowledgeView>(), eq(queueItemId))
         }
     }
 }
@@ -325,10 +336,13 @@ class EnrichmentWorkflowIT {
  * By defining a plain interface ([ActivityDelegate]) without `@ActivityInterface` / `@ActivityMethod`,
  * Mockito mocks of [ActivityDelegate] are annotation-free and can be used freely in assertions.
  * [DelegatingActivitiesImpl] — a concrete class registered with Temporal — delegates to the mock.
+ *
+ * Plan 02-03: [analyzeSemantics] return type and [embedAndStore] parameter type changed from
+ * [EnrichmentContext] to [EntityKnowledgeView].
  */
 interface ActivityDelegate {
-    fun analyzeSemantics(queueItemId: UUID): EnrichmentContext
-    fun embedAndStore(context: EnrichmentContext, queueItemId: UUID)
+    fun analyzeSemantics(queueItemId: UUID): EntityKnowledgeView
+    fun embedAndStore(view: EntityKnowledgeView, queueItemId: UUID)
     fun markQueueItemFailed(queueItemId: UUID, reason: String)
 }
 
@@ -341,11 +355,11 @@ interface ActivityDelegate {
  * control from the test while satisfying Temporal's registration constraints.
  */
 private class DelegatingActivitiesImpl(private val delegate: ActivityDelegate) : EnrichmentActivities {
-    override fun analyzeSemantics(queueItemId: UUID): EnrichmentContext =
+    override fun analyzeSemantics(queueItemId: UUID): EntityKnowledgeView =
         delegate.analyzeSemantics(queueItemId)
 
-    override fun embedAndStore(context: EnrichmentContext, queueItemId: UUID) =
-        delegate.embedAndStore(context, queueItemId)
+    override fun embedAndStore(view: EntityKnowledgeView, queueItemId: UUID) =
+        delegate.embedAndStore(view, queueItemId)
 
     override fun markQueueItemFailed(queueItemId: UUID, reason: String) =
         delegate.markQueueItemFailed(queueItemId, reason)

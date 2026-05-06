@@ -2,17 +2,17 @@ package riven.core.service.workflow.enrichment
 
 import io.temporal.activity.ActivityInterface
 import io.temporal.activity.ActivityMethod
-import riven.core.models.enrichment.EnrichmentContext
+import riven.core.models.entity.knowledge.EntityKnowledgeView
 import java.util.UUID
 
 /**
  * Temporal activity interface for the entity embedding enrichment pipeline.
  *
  * Declares three independently retryable steps:
- * 1. [analyzeSemantics] — claims the queue item, assembles the entity context, resolves
- *    sentiment metadata, and persists the polymorphic semantic snapshot (`entity_connotation`).
+ * 1. [analyzeSemantics] — claims the queue item, assembles the entity knowledge view,
+ *    and persists the polymorphic semantic snapshot (`entity_connotation`).
  *    Implemented by [riven.core.service.enrichment.EnrichmentAnalysisService].
- * 2. [embedAndStore] — builds semantic text from the context, generates a vector via the
+ * 2. [embedAndStore] — builds semantic text from the view, generates a vector via the
  *    configured [riven.core.service.enrichment.provider.EmbeddingProvider], upserts the
  *    embedding record, and marks the queue item COMPLETED.
  *    Implemented by [riven.core.service.enrichment.EnrichmentEmbeddingService].
@@ -28,6 +28,8 @@ import java.util.UUID
  * consumers (embedding and future: synthesis, JSONB projection) are fan-out via [ConsumerActivity]
  * inside [EnrichmentWorkflowImpl].
  *
+ * Plan 02-03: signature cascade replaces [EnrichmentContext] with [EntityKnowledgeView] throughout.
+ *
  * Registered on [riven.core.configuration.workflow.TemporalWorkerConfiguration.ENRICHMENT_EMBED_QUEUE].
  *
  * @see EnrichmentActivitiesImpl
@@ -36,18 +38,18 @@ import java.util.UUID
 interface EnrichmentActivities {
 
     /**
-     * Claims the queue item, persists the polymorphic semantic snapshot to `entity_connotation`,
-     * and returns a transient [EnrichmentContext] for downstream consumer activities.
+     * Claims the queue item, assembles the [EntityKnowledgeView], persists the polymorphic
+     * semantic snapshot to `entity_connotation`, and returns the view for downstream consumer activities.
      */
     @ActivityMethod
-    fun analyzeSemantics(queueItemId: UUID): EnrichmentContext
+    fun analyzeSemantics(queueItemId: UUID): EntityKnowledgeView
 
     /**
-     * Builds semantic text from the context, generates a vector embedding, upserts the embedding
+     * Builds semantic text from the view, generates a vector embedding, upserts the embedding
      * record (delete + insert pattern), and marks the queue item as COMPLETED.
      */
     @ActivityMethod
-    fun embedAndStore(context: EnrichmentContext, queueItemId: UUID)
+    fun embedAndStore(view: EntityKnowledgeView, queueItemId: UUID)
 
     /**
      * Records a terminal FAILED state on the queue row for the primary embedding consumer's

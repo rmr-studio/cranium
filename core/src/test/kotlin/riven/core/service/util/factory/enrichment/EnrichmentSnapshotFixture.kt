@@ -19,6 +19,16 @@ import riven.core.models.catalog.ScaleMappingType
 import riven.core.models.catalog.SentimentScale
 import riven.core.models.connotation.AnalysisTier
 import riven.core.models.connotation.SentimentMetadata
+import riven.core.models.entity.knowledge.AttributeSection
+import riven.core.models.entity.knowledge.CatalogBacklinkSection
+import riven.core.models.entity.knowledge.ClusterSiblingSection
+import riven.core.models.entity.knowledge.EntityKnowledgeView
+import riven.core.models.entity.knowledge.EntityMetadataSection
+import riven.core.models.entity.knowledge.GlossaryNarrative
+import riven.core.models.entity.knowledge.IdentitySection
+import riven.core.models.entity.knowledge.KnowledgeSections
+import riven.core.models.entity.knowledge.RelationalReferenceSection
+import riven.core.models.entity.knowledge.TypeNarrativeSection
 import riven.core.models.entity.payload.EntityAttributePrimitivePayload
 import riven.core.service.util.factory.WorkspaceFactory
 import riven.core.service.util.factory.entity.EntityFactory
@@ -82,6 +92,121 @@ object EnrichmentSnapshotFixture {
 
     // Manifest sentiment key (must match attributeKeyMapping)
     const val SENTIMENT_MANIFEST_KEY = "nps_score"
+
+    // Glossary entity (added in Plan 02-03 to populate typeNarrative.glossaryDefinitions in buildView())
+    val GLOSSARY_ENTITY_ID: UUID = UUID.fromString("00000000-0000-0000-0000-000000000070")
+
+    /**
+     * Builds a deterministic [EntityKnowledgeView] for use in Plan 02-03 snapshot tests and
+     * beyond. Uses the same FIXED UUIDs as [build] so the fixture is stable across test runs.
+     *
+     * **Phase 2 extension:** Adds a [GlossaryNarrative] to [TypeNarrativeSection.glossaryDefinitions]
+     * so the new read-path sections are populated. The canonical attribute + cluster + catalog
+     * backlink data mirrors the [build] fixture shape. The KNOWLEDGE backlinks list is empty (no
+     * note MENTION edges in this fixture — those are covered by [EnrichmentBacklinkMatrixIT]).
+     *
+     * **Sentiment:** [EntityMetadataSection.sentiment] is populated with the same ANALYZED
+     * [SentimentMetadata] as in [build] so snapshot tests can assert sentiment placement.
+     *
+     * This method returns an in-memory value — no Spring context or database needed.
+     */
+    fun buildView(): EntityKnowledgeView {
+        val composedAt = ZonedDateTime.parse("2025-03-15T10:30:00Z")
+        val analyzedSentiment = SentimentMetadata(
+            sentiment = 0.44,
+            sentimentLabel = null,
+            themes = emptyList(),
+            analysisVersion = "v1",
+            analysisModel = "deterministic-linear",
+            analysisTier = AnalysisTier.DETERMINISTIC,
+            status = ConnotationStatus.ANALYZED,
+            analyzedAt = composedAt,
+        )
+        return EntityKnowledgeView(
+            queueItemId = QUEUE_ITEM_ID,
+            entityId = ENTITY_ID,
+            workspaceId = WORKSPACE_ID,
+            entityTypeId = ENTITY_TYPE_ID,
+            schemaVersion = 3,
+            sections = KnowledgeSections(
+                identity = IdentitySection(
+                    entityId = ENTITY_ID,
+                    entityTypeId = ENTITY_TYPE_ID,
+                    identifierValue = "Acme Corporation",
+                    displayLabel = "Acme Corporation",
+                ),
+                typeNarrative = TypeNarrativeSection(
+                    entityTypeName = "Customer",
+                    semanticGroup = SemanticGroup.CUSTOMER,
+                    lifecycleDomain = LifecycleDomain.ACQUISITION,
+                    metadataDefinition = "A person or company that has purchased or inquired about services.",
+                    // Phase 2 extension: glossary DEFINES edge populates this section.
+                    // Phase 3 PROJ-12 parity IT extends this further with source-of-truth assertions.
+                    glossaryDefinitions = listOf(
+                        GlossaryNarrative(
+                            sourceEntityId = GLOSSARY_ENTITY_ID,
+                            sourceLabel = "CRM Glossary",
+                            narrative = "Customer is the primary commercial relationship entity in the CRM domain.",
+                            createdAt = ZonedDateTime.parse("2025-03-15T10:30:00Z"),
+                        )
+                    ),
+                ),
+                attributes = listOf(
+                    AttributeSection(
+                        attributeId = ATTR_NAME_ID,
+                        semanticLabel = "Customer Name",
+                        value = "Acme Corporation",
+                        schemaType = SchemaType.TEXT,
+                        classification = SemanticAttributeClassification.IDENTIFIER,
+                        glossaryNarrative = null,
+                    ),
+                    AttributeSection(
+                        attributeId = ATTR_SENTIMENT_SOURCE_ID,
+                        semanticLabel = "NPS Score",
+                        value = "72",
+                        schemaType = SchemaType.NUMBER,
+                        classification = SemanticAttributeClassification.CONNOTATION_SOURCE,
+                        glossaryNarrative = null,
+                    ),
+                    AttributeSection(
+                        attributeId = ATTR_RELATIONAL_REF_ID,
+                        semanticLabel = "Account Manager",
+                        value = REF_ENTITY_ID.toString(),
+                        schemaType = SchemaType.TEXT,
+                        classification = SemanticAttributeClassification.RELATIONAL_REFERENCE,
+                        glossaryNarrative = null,
+                    ),
+                ),
+                catalogBacklinks = listOf(
+                    CatalogBacklinkSection(
+                        definitionId = REL_DEFINITION_ID,
+                        relationshipName = "Support Tickets",
+                        count = 1,
+                        latestActivityAt = "2025-03-15T10:30:00Z",
+                        sampleLabels = emptyList(),
+                    )
+                ),
+                knowledgeBacklinks = emptyList(),
+                entityMetadata = EntityMetadataSection(
+                    schemaVersion = 3,
+                    composedAt = composedAt,
+                    sentiment = analyzedSentiment,
+                ),
+                clusterSiblings = listOf(
+                    ClusterSiblingSection(
+                        sourceType = SourceType.INTEGRATION.name,
+                        entityTypeName = "Company",
+                    )
+                ),
+                relationalReferences = listOf(
+                    RelationalReferenceSection(
+                        referencedEntityId = REF_ENTITY_ID,
+                        displayValue = "Jane Smith",
+                    )
+                ),
+            ),
+        )
+    }
 
     /**
      * Builds the complete fixture bundle. All returned values are pre-constructed with FIXED UUIDs.
@@ -369,7 +494,7 @@ object EnrichmentSnapshotFixture {
     }
 
     /**
-     * Bundle of all entities and payloads needed to wire mocks for [EnrichmentContextSnapshotTest].
+     * Bundle of all entities and payloads needed to wire mocks for [EntityKnowledgeViewSnapshotTest] and other tests that need a fully-populated enrichment fixture.
      */
     data class SnapshotFixture(
         val queueItemId: UUID,

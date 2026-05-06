@@ -12,7 +12,7 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import riven.core.configuration.workflow.TemporalWorkerConfiguration
-import riven.core.models.enrichment.EnrichmentContext
+import riven.core.models.entity.knowledge.EntityKnowledgeView
 import riven.core.service.enrichment.EmbeddingConsumer
 import riven.core.service.util.factory.EnrichmentFactory
 import java.util.UUID
@@ -27,6 +27,8 @@ import java.util.UUID
  * Post Plan 01-03: the 4-activity sequence (analyze → constructText → generateEmbedding → store)
  * is replaced by analyze → List<ConsumerActivity> fan-out. The consumer-list tests below verify
  * both the happy path and the runCatching swallow-and-continue semantics.
+ *
+ * Plan 02-03: fixture type changed from [EnrichmentContext] to [EntityKnowledgeView].
  */
 class EnrichmentWorkflowImplTest {
 
@@ -64,7 +66,7 @@ class EnrichmentWorkflowImplTest {
     inner class ActivityOrchestrationTests {
 
         private val queueItemId = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
-        private val context: EnrichmentContext = EnrichmentFactory.createEnrichmentContext(queueItemId = queueItemId)
+        private val view: EntityKnowledgeView = EnrichmentFactory.createEntityKnowledgeView(queueItemId = queueItemId)
 
         /**
          * Creates a testable workflow subclass with mock-controlled stubs and consumers.
@@ -102,7 +104,7 @@ class EnrichmentWorkflowImplTest {
             val activities = mock<EnrichmentActivities>()
             val sibling1 = mock<ConsumerActivity>()
             val sibling2 = mock<ConsumerActivity>()
-            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(context)
+            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(view)
 
             val workflow = createTestableWorkflow(activities, siblings = listOf(sibling1, sibling2))
             workflow.embed(queueItemId)
@@ -110,9 +112,9 @@ class EnrichmentWorkflowImplTest {
             // r3180290327: lock the documented sequential contract — analyze → primary embed → siblings.
             inOrder(activities, sibling1, sibling2) {
                 verify(activities).analyzeSemantics(queueItemId)
-                verify(activities).embedAndStore(context, queueItemId)
-                verify(sibling1).run(context, queueItemId)
-                verify(sibling2).run(context, queueItemId)
+                verify(activities).embedAndStore(view, queueItemId)
+                verify(sibling1).run(view, queueItemId)
+                verify(sibling2).run(view, queueItemId)
             }
         }
 
@@ -133,8 +135,8 @@ class EnrichmentWorkflowImplTest {
         @Test
         fun `embed marks queue FAILED when primary embedAndStore throws and does not propagate`() {
             val activities = mock<EnrichmentActivities>()
-            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(context)
-            whenever(activities.embedAndStore(context, queueItemId)).thenThrow(RuntimeException("embedding provider outage"))
+            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(view)
+            whenever(activities.embedAndStore(view, queueItemId)).thenThrow(RuntimeException("embedding provider outage"))
 
             val workflow = createTestableWorkflow(activities)
 
@@ -143,7 +145,7 @@ class EnrichmentWorkflowImplTest {
 
             inOrder(activities) {
                 verify(activities).analyzeSemantics(queueItemId)
-                verify(activities).embedAndStore(context, queueItemId)
+                verify(activities).embedAndStore(view, queueItemId)
                 verify(activities).markQueueItemFailed(eq(queueItemId), any())
             }
         }
@@ -156,12 +158,12 @@ class EnrichmentWorkflowImplTest {
         @Test
         fun `embed does not call markQueueItemFailed when primary embedAndStore succeeds`() {
             val activities = mock<EnrichmentActivities>()
-            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(context)
+            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(view)
 
             val workflow = createTestableWorkflow(activities)
             workflow.embed(queueItemId)
 
-            verify(activities).embedAndStore(context, queueItemId)
+            verify(activities).embedAndStore(view, queueItemId)
             verify(activities, never()).markQueueItemFailed(any(), any())
         }
 
@@ -175,16 +177,16 @@ class EnrichmentWorkflowImplTest {
             val activities = mock<EnrichmentActivities>()
             val failingSibling = mock<ConsumerActivity>()
             val successSibling = mock<ConsumerActivity>()
-            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(context)
-            whenever(failingSibling.run(context, queueItemId)).thenThrow(RuntimeException("synthesis outage"))
+            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(view)
+            whenever(failingSibling.run(view, queueItemId)).thenThrow(RuntimeException("synthesis outage"))
 
             val workflow = createTestableWorkflow(activities, siblings = listOf(failingSibling, successSibling))
 
             // Should not throw — runCatching isolates the sibling failure at workflow level.
             workflow.embed(queueItemId)
 
-            verify(failingSibling).run(context, queueItemId)
-            verify(successSibling).run(context, queueItemId)
+            verify(failingSibling).run(view, queueItemId)
+            verify(successSibling).run(view, queueItemId)
             // ENRICH-05 invariant: a sibling failure must NOT mutate queue state.
             verify(activities, never()).markQueueItemFailed(any(), any())
         }
@@ -196,7 +198,7 @@ class EnrichmentWorkflowImplTest {
         @Test
         fun `embed calls analyzeSemantics exactly once`() {
             val activities = mock<EnrichmentActivities>()
-            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(context)
+            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(view)
 
             val workflow = createTestableWorkflow(activities)
             workflow.embed(queueItemId)
@@ -211,13 +213,13 @@ class EnrichmentWorkflowImplTest {
         @Test
         fun `embed runs analyzeSemantics and primary embedAndStore even with empty sibling list`() {
             val activities = mock<EnrichmentActivities>()
-            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(context)
+            whenever(activities.analyzeSemantics(queueItemId)).thenReturn(view)
 
             val workflow = createTestableWorkflow(activities, siblings = emptyList())
             workflow.embed(queueItemId)
 
             verify(activities).analyzeSemantics(queueItemId)
-            verify(activities).embedAndStore(context, queueItemId)
+            verify(activities).embedAndStore(view, queueItemId)
         }
     }
 
@@ -231,25 +233,25 @@ class EnrichmentWorkflowImplTest {
     inner class EmbeddingConsumerTests {
 
         private val queueItemId = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
-        private val context: EnrichmentContext = EnrichmentFactory.createEnrichmentContext(queueItemId = queueItemId)
+        private val view: EntityKnowledgeView = EnrichmentFactory.createEntityKnowledgeView(queueItemId = queueItemId)
 
         @Test
         fun `EmbeddingConsumer run delegates to activities embedAndStore`() {
             val activities = mock<EnrichmentActivities>()
             val consumer = EmbeddingConsumer(activities)
 
-            consumer.run(context, queueItemId)
+            consumer.run(view, queueItemId)
 
-            verify(activities).embedAndStore(context, queueItemId)
+            verify(activities).embedAndStore(view, queueItemId)
         }
 
         @Test
         fun `EmbeddingConsumer run propagates exceptions to caller`() {
             val activities = mock<EnrichmentActivities>()
-            whenever(activities.embedAndStore(context, queueItemId)).thenThrow(RuntimeException("embedding failed"))
+            whenever(activities.embedAndStore(view, queueItemId)).thenThrow(RuntimeException("embedding failed"))
             val consumer = EmbeddingConsumer(activities)
 
-            val result = runCatching { consumer.run(context, queueItemId) }
+            val result = runCatching { consumer.run(view, queueItemId) }
 
             assert(result.isFailure)
             assert(result.exceptionOrNull() is RuntimeException)
@@ -260,9 +262,9 @@ class EnrichmentWorkflowImplTest {
             val activities = mock<EnrichmentActivities>()
             val consumer = EmbeddingConsumer(activities)
 
-            consumer.run(context, queueItemId)
+            consumer.run(view, queueItemId)
 
-            verify(activities, times(1)).embedAndStore(context, queueItemId)
+            verify(activities, times(1)).embedAndStore(view, queueItemId)
             verify(activities, never()).analyzeSemantics(queueItemId)
         }
     }

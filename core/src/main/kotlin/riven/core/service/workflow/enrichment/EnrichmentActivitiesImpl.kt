@@ -2,7 +2,7 @@ package riven.core.service.workflow.enrichment
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Component
-import riven.core.models.enrichment.EnrichmentContext
+import riven.core.models.entity.knowledge.EntityKnowledgeView
 import riven.core.service.enrichment.EnrichmentAnalysisService
 import riven.core.service.enrichment.EnrichmentEmbeddingService
 import java.util.UUID
@@ -19,7 +19,10 @@ import java.util.UUID
  * Registered on [riven.core.configuration.workflow.TemporalWorkerConfiguration.ENRICHMENT_EMBED_QUEUE]
  * task queue by [riven.core.configuration.workflow.TemporalWorkerConfiguration].
  *
- * @property enrichmentAnalysisService manages queue lifecycle, sentiment resolution, context assembly,
+ * Plan 02-03: signature cascade — [analyzeSemantics] now returns [EntityKnowledgeView];
+ * [embedAndStore] takes [EntityKnowledgeView] instead of [EnrichmentContext].
+ *
+ * @property enrichmentAnalysisService manages queue lifecycle, context assembly,
  *   and connotation snapshot persistence
  * @property enrichmentEmbeddingService manages text building, embedding generation, and queue completion
  */
@@ -30,14 +33,14 @@ class EnrichmentActivitiesImpl(
     private val logger: KLogger,
 ) : EnrichmentActivities {
 
-    override fun analyzeSemantics(queueItemId: UUID): EnrichmentContext {
+    override fun analyzeSemantics(queueItemId: UUID): EntityKnowledgeView {
         logger.info { "AnalyzeSemantics activity: queueItemId=$queueItemId" }
         return enrichmentAnalysisService.analyzeSemantics(queueItemId)
     }
 
-    override fun embedAndStore(context: EnrichmentContext, queueItemId: UUID) {
-        logger.info { "EmbedAndStore activity: queueItemId=$queueItemId entityId=${context.entityId}" }
-        enrichmentEmbeddingService.embedAndStore(context, queueItemId)
+    override fun embedAndStore(view: EntityKnowledgeView, queueItemId: UUID) {
+        logger.info { "EmbedAndStore activity: queueItemId=$queueItemId entityId=${view.entityId}" }
+        enrichmentEmbeddingService.embedAndStore(view, queueItemId)
     }
 
     override fun markQueueItemFailed(queueItemId: UUID, reason: String) {

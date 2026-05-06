@@ -1,6 +1,6 @@
 package riven.core.service.workflow.enrichment
 
-import riven.core.models.enrichment.EnrichmentContext
+import riven.core.models.entity.knowledge.EntityKnowledgeView
 import java.util.UUID
 
 /**
@@ -17,5 +17,5 @@ import java.util.UUID
  * Temporal's activity registration mechanism can address it by type.
  */
 fun interface ConsumerActivity {
-    fun run(context: EnrichmentContext, queueItemId: UUID)
+    fun run(view: EntityKnowledgeView, queueItemId: UUID)
 }

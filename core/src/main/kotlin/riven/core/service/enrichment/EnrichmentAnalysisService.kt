@@ -4,10 +4,8 @@ import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import tools.jackson.databind.ObjectMapper
-import riven.core.entity.entity.EntityTypeEntity
 import riven.core.enums.connotation.ConnotationStatus
 import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.models.catalog.ConnotationSignals
 import riven.core.models.connotation.AttributeClassificationSnapshot
 import riven.core.models.connotation.ClusterMemberSnapshot
 import riven.core.models.connotation.EntityMetadata
@@ -18,15 +16,10 @@ import riven.core.models.connotation.RelationshipSemanticDefinitionSnapshot
 import riven.core.models.connotation.RelationshipSummarySnapshot
 import riven.core.models.connotation.SentimentMetadata
 import riven.core.models.connotation.StructuralMetadata
-import riven.core.models.enrichment.EnrichmentContext
+import riven.core.models.entity.knowledge.EntityKnowledgeView
 import riven.core.repository.connotation.EntityConnotationRepository
 import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.EntityTypeRepository
 import riven.core.repository.workflow.ExecutionQueueRepository
-import riven.core.repository.workspace.WorkspaceRepository
-import riven.core.service.catalog.ManifestCatalogService
-import riven.core.service.connotation.ConnotationAnalysisService
-import riven.core.service.entity.EntityAttributeService
 import riven.core.util.ServiceUtil
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -34,22 +27,16 @@ import java.util.UUID
 /**
  * Service responsible for the semantic analysis phase of the enrichment pipeline.
  *
- * Owns the analysis half of the pipeline: claims the queue item, resolves sentiment metadata
- * (gated on workspace opt-in and manifest configuration), delegates context assembly to
- * [EnrichmentContextAssembler], persists the polymorphic connotation snapshot, and returns
- * a transient [EnrichmentContext] for downstream consumer activities.
+ * Plan 02-03 shrink: claims the queue item, delegates context assembly to
+ * [EnrichmentContextAssembler] (which now returns [EntityKnowledgeView] directly),
+ * persists the polymorphic connotation snapshot from view sections, and returns
+ * the view for downstream consumer activities.
  *
- * Extracted from [EnrichmentService] in Plan 01-03 as the final decomposition step.
- * [EnrichmentService] is deleted in the same plan once this service is wired.
+ * Sentiment resolution moved to [SentimentResolutionService] (Plan 02-02) and called from
+ * inside [EnrichmentContextAssembler.assemble]. This service no longer owns sentiment logic.
  *
- * **Constructor dep count:** 10 (ceiling ≤ 10 per ENRICH-02 — this is the max allowed).
- * Sentiment + manifest helpers stayed on this service per 01-CONTEXT byte-identity precedence decision.
- *
- * **Workspace lookup:** Uses [WorkspaceRepository] directly rather than [riven.core.service.workspace.WorkspaceService].
- * Plan 01-CONTEXT explicitly resolved this: WorkspaceService carries `@PreAuthorize` + exception-mapping
- * that would alter exception-thrown shape on missing-workspace (AccessDeniedException vs NotFoundException
- * from `findOrThrow`), breaking the byte-identical snapshot gate (ENRICH-03). Phase 2 may revisit when
- * the snapshot lifecycle ends.
+ * **Constructor dep count:** 6 (assembler, executionQueueRepository, entityRepository,
+ * entityConnotationRepository, objectMapper, logger). Well within the 12-dep ceiling (ENRICH-02).
  *
  * **Concurrency posture:** snapshot persistence uses an atomic
  * `INSERT ... ON CONFLICT (entity_id) DO UPDATE` keyed by `entity_id`, so concurrent writers
@@ -62,12 +49,7 @@ class EnrichmentAnalysisService(
     private val enrichmentContextAssembler: EnrichmentContextAssembler,
     private val executionQueueRepository: ExecutionQueueRepository,
     private val entityRepository: EntityRepository,
-    private val entityTypeRepository: EntityTypeRepository,
     private val entityConnotationRepository: EntityConnotationRepository,
-    private val entityAttributeService: EntityAttributeService,
-    private val connotationAnalysisService: ConnotationAnalysisService,
-    private val workspaceRepository: WorkspaceRepository,
-    private val manifestCatalogService: ManifestCatalogService,
     private val objectMapper: ObjectMapper,
     private val logger: KLogger,
 ) {
@@ -75,9 +57,9 @@ class EnrichmentAnalysisService(
     // ------ Public API ------
 
     /**
-     * Claims a queue item, computes the polymorphic semantic snapshot (SENTIMENT placeholder +
-     * RELATIONAL + STRUCTURAL metadata categories), persists it to `entity_connotation`, and
-     * returns a transient [EnrichmentContext] for downstream activities.
+     * Claims a queue item, assembles the [EntityKnowledgeView] via [EnrichmentContextAssembler],
+     * persists the polymorphic connotation snapshot from view sections, and returns the view
+     * for downstream consumer activities.
      *
      * Claim transition is performed by an atomic compare-and-set in
      * [ExecutionQueueRepository.claimEnrichmentItem] that restricts the legal pre-state to
@@ -86,46 +68,24 @@ class EnrichmentAnalysisService(
      * resolve via row-level locking — only one transaction wins. Allowing CLAIMED -> CLAIMED
      * keeps the activity safely retryable.
      *
-     * Loads entity, entity type, semantic metadata, attributes, and relationships in batch
-     * queries to avoid N+1 patterns.
-     *
-     * The persisted snapshot is "as of last enrichment" — a point-in-time view, not a live one.
-     * Consumers needing live state must query the underlying tables. Last-write-wins on concurrent
-     * writes; see class KDoc for concurrency posture.
-     *
      * @param queueItemId The enrichment queue row to process
-     * @return Complete context snapshot for downstream activities
+     * @return Complete [EntityKnowledgeView] for downstream activities
      * @throws IllegalStateException if the queue item cannot be claimed (missing, wrong job
      *   type, or already in a terminal state)
      * @throws riven.core.exceptions.NotFoundException if the queue item disappears between
      *   the CAS and the re-fetch
      */
     @Transactional
-    fun analyzeSemantics(queueItemId: UUID): EnrichmentContext {
+    fun analyzeSemantics(queueItemId: UUID): EntityKnowledgeView {
         claimQueueItem(queueItemId)
         val queueItem = ServiceUtil.findOrThrow { executionQueueRepository.findById(queueItemId) }
         val entityId = requireNotNull(queueItem.entityId) { "ENRICHMENT queue item must have an entityId" }
-
         val entity = ServiceUtil.findOrThrow { entityRepository.findById(entityId) }
-        val entityType = ServiceUtil.findOrThrow { entityTypeRepository.findById(entity.typeId) }
 
-        val sentimentMetadata: SentimentMetadata = resolveSentimentMetadata(entityId, entity.workspaceId, entityType)
+        val view = enrichmentContextAssembler.assemble(entityId, entity.workspaceId, queueItemId)
 
-        val context = enrichmentContextAssembler.assemble(
-            entityId = entityId,
-            workspaceId = entity.workspaceId,
-            queueItemId = queueItemId,
-            entityTypeId = entity.typeId,
-            schemaVersion = entityType.version,
-            entityTypeName = entityType.displayNameSingular,
-            semanticGroup = entityType.semanticGroup,
-            lifecycleDomain = entityType.lifecycleDomain,
-            sentiment = if (sentimentMetadata.status == ConnotationStatus.ANALYZED) sentimentMetadata else null,
-        )
-
-        persistConnotationSnapshot(entityId, entity.workspaceId, entityType, context, sentimentMetadata)
-
-        return context
+        persistConnotationSnapshot(view)
+        return view
     }
 
     // ------ Private Helpers ------
@@ -149,144 +109,74 @@ class EnrichmentAnalysisService(
     // ------ Connotation Snapshot Persistence ------
 
     /**
-     * Builds the [EntityMetadataSnapshot] from the freshly assembled [EnrichmentContext]
-     * and upserts it to `entity_connotation` via [EntityConnotationRepository.upsertByEntityId].
-     * RELATIONAL + STRUCTURAL metadata are populated deterministically; SENTIMENT carries the
-     * outcome resolved by [resolveSentimentMetadata] (either an ANALYZED payload, a FAILED
-     * sentinel, or NOT_APPLICABLE when the workspace/manifest hasn't opted in).
+     * Builds the [EntityMetadataSnapshot] from the assembled [EntityKnowledgeView] and upserts
+     * it to `entity_connotation` via [EntityConnotationRepository.upsertByEntityId].
+     *
+     * SENTIMENT: sourced from [EntityKnowledgeView.sections.entityMetadata.sentiment] — populated
+     * by [SentimentResolutionService] inside [EnrichmentContextAssembler.assemble]. Null when the
+     * workspace has not opted in or the entity type has no manifest connotation signals;
+     * in that case [SentimentMetadata.notApplicable] is used as the placeholder.
+     *
+     * RELATIONAL + STRUCTURAL metadata are derived from the view sections and are semantically
+     * equivalent to Phase 1's snapshot (byte-identity NOT required — the Phase 1 snapshot test
+     * is deleted in Plan 02-03).
      */
-    private fun persistConnotationSnapshot(
-        entityId: UUID,
-        workspaceId: UUID,
-        entityType: EntityTypeEntity,
-        context: EnrichmentContext,
-        sentimentMetadata: SentimentMetadata,
-    ) {
+    private fun persistConnotationSnapshot(view: EntityKnowledgeView) {
         val now = ZonedDateTime.now()
+        // When no analyzed sentiment, use the NOT_APPLICABLE default via the no-arg constructor
+        val sentimentForSnapshot = view.sections.entityMetadata.sentiment
+            ?: SentimentMetadata()
+
         val snapshot = EntityMetadataSnapshot(
             snapshotVersion = "v1",
             metadata = EntityMetadata(
-                sentiment = sentimentMetadata,
-                relational = buildRelationalMetadata(context, now),
-                structural = buildStructuralMetadata(context, entityType, now),
+                sentiment = sentimentForSnapshot,
+                relational = buildRelationalMetadata(view, now),
+                structural = buildStructuralMetadata(view, now),
             ),
             embeddedAt = now,
         )
 
         val snapshotJson = objectMapper.writeValueAsString(snapshot)
-        entityConnotationRepository.upsertByEntityId(entityId, workspaceId, snapshotJson, now)
+        entityConnotationRepository.upsertByEntityId(view.entityId, view.workspaceId, snapshotJson, now)
 
-        logger.debug { "Persisted connotation snapshot for entity $entityId" }
+        logger.debug { "Persisted connotation snapshot for entity ${view.entityId}" }
     }
 
     /**
-     * Resolves the SENTIMENT metadata for this enrichment cycle, gated on the workspace flag
-     * and the entity type's manifest connotation signals.
-     *
-     * Returns a [SentimentMetadata] with [riven.core.enums.connotation.ConnotationStatus.NOT_APPLICABLE]
-     * (default) when:
-     * - the workspace has not opted in (`connotation_enabled = false`),
-     * - the entity type has no manifest connotation signals (custom user-defined type or
-     *   manifest entry omits the block),
-     * - the manifest sentiment key has no mapping on this entity type.
-     *
-     * Otherwise delegates to [ConnotationAnalysisService] which returns either an ANALYZED
-     * payload or a FAILED sentinel — both are persisted as-is so consumers can distinguish
-     * "we tried and failed" from "we never tried".
+     * Builds RELATIONAL metadata from view sections.
+     * - Relationship summaries from [EntityKnowledgeView.sections.catalogBacklinks]
+     * - Cluster members from [EntityKnowledgeView.sections.clusterSiblings]
+     * - Relational reference resolutions from [EntityKnowledgeView.sections.relationalReferences]
      */
-    private fun resolveSentimentMetadata(
-        entityId: UUID,
-        workspaceId: UUID,
-        entityType: EntityTypeEntity,
-    ): SentimentMetadata {
-        val workspace = ServiceUtil.findOrThrow { workspaceRepository.findById(workspaceId) }
-        if (!workspace.connotationEnabled) {
-            return SentimentMetadata()
-        }
-        val entityTypeId = requireNotNull(entityType.id) { "EntityTypeEntity must have an ID at enrichment time" }
-        val signals = manifestCatalogService.getConnotationSignalsForEntityType(entityTypeId)
-            ?: return SentimentMetadata()
-
-        // Short-circuit when the manifest sentiment key has no mapping on this entity type:
-        // there is nothing the analyzer could compute, so the correct status is NOT_APPLICABLE
-        // (no mapping configured) rather than FAILED+MISSING_SOURCE_ATTRIBUTE (mapping exists
-        // but value is null), which is what analyze() emits when the mapped attribute is empty.
-        if (entityType.attributeKeyMapping?.containsKey(signals.sentimentAttribute) != true) {
-            return SentimentMetadata()
-        }
-
-        val (sourceValue, themeValues) = resolveAttributeValues(entityId, entityType, signals)
-        return connotationAnalysisService.analyze(
-            entityId = entityId,
-            workspaceId = workspaceId,
-            signals = signals,
-            sourceValue = sourceValue,
-            themeValues = themeValues,
-        )
-    }
-
-    /**
-     * Resolves the manifest-keyed `sentimentAttribute` and `themeAttributes` to their
-     * entity-level values via `entityType.attributeKeyMapping` + `entityAttributeService`.
-     *
-     * Caller [resolveSentimentMetadata] already short-circuits on a missing sentiment-key
-     * mapping, so a null sourceValue here means the mapping exists but the underlying
-     * attribute has no stored value — surfaced as MISSING_SOURCE_ATTRIBUTE downstream.
-     * Theme attributes still tolerate missing keys (each is independently optional).
-     */
-    private fun resolveAttributeValues(
-        entityId: UUID,
-        entityType: EntityTypeEntity,
-        signals: ConnotationSignals,
-    ): Pair<Any?, Map<String, String?>> {
-        val keyMapping = entityType.attributeKeyMapping ?: emptyMap()
-        val attributesByUuid = entityAttributeService.getAttributes(entityId)
-
-        fun valueForManifestKey(manifestKey: String): Any? {
-            val attrUuidString = keyMapping[manifestKey] ?: return null
-            val attrUuid = runCatching { UUID.fromString(attrUuidString) }.getOrNull() ?: return null
-            return attributesByUuid[attrUuid]?.value
-        }
-
-        val sourceValue = valueForManifestKey(signals.sentimentAttribute)
-        val themeValues = signals.themeAttributes.associateWith {
-            valueForManifestKey(it)?.toString()
-        }
-        return sourceValue to themeValues
-    }
-
-    /**
-     * Builds the RELATIONAL metadata snapshot from already-computed enrichment context.
-     */
-    private fun buildRelationalMetadata(context: EnrichmentContext, snapshotAt: ZonedDateTime): RelationalMetadata {
-        val relationshipSummaries = context.relationshipSummaries.map { summary ->
+    private fun buildRelationalMetadata(view: EntityKnowledgeView, snapshotAt: ZonedDateTime): RelationalMetadata {
+        val relationshipSummaries = view.sections.catalogBacklinks.map { backlink ->
             RelationshipSummarySnapshot(
-                definitionId = summary.definitionId.toString(),
-                definitionName = summary.relationshipName,
-                count = summary.count,
-                topCategories = summary.topCategories,
-                latestActivityAt = summary.latestActivityAt,
+                definitionId = backlink.definitionId.toString(),
+                definitionName = backlink.relationshipName,
+                count = backlink.count,
+                topCategories = emptyList(), // Phase 2: topCategories dropped from CatalogBacklinkSection
+                latestActivityAt = backlink.latestActivityAt,
             )
         }
-        val clusterMembers = context.clusterMembers.map { member ->
+        val clusterMembers = view.sections.clusterSiblings.map { sibling ->
             ClusterMemberSnapshot(
-                sourceType = member.sourceType,
-                entityTypeName = member.entityTypeName,
+                // sourceType stored as String in ClusterSiblingSection; convert via SourceType.valueOf
+                sourceType = riven.core.enums.integration.SourceType.valueOf(sibling.sourceType),
+                entityTypeName = sibling.entityTypeName,
             )
         }
-        val resolutions = context.referencedEntityIdentifiers.flatMap { (refEntityId, displayValue) ->
-            context.attributes
-                .filter {
-                    it.classification == SemanticAttributeClassification.RELATIONAL_REFERENCE &&
-                        it.value == refEntityId.toString()
-                }
-                .map { attr ->
-                    RelationalReferenceResolution(
-                        attributeId = attr.attributeId.toString(),
-                        targetEntityId = refEntityId.toString(),
-                        targetIdentifierValue = displayValue,
-                    )
-                }
+        val resolutions = view.sections.relationalReferences.map { ref ->
+            // Find the attribute that holds this reference via the attributes section
+            val matchingAttr = view.sections.attributes.firstOrNull {
+                it.classification == SemanticAttributeClassification.RELATIONAL_REFERENCE &&
+                    it.value == ref.referencedEntityId.toString()
+            }
+            RelationalReferenceResolution(
+                attributeId = matchingAttr?.attributeId?.toString() ?: ref.referencedEntityId.toString(),
+                targetEntityId = ref.referencedEntityId.toString(),
+                targetIdentifierValue = ref.displayValue,
+            )
         }
         return RelationalMetadata(
             relationshipSummaries = relationshipSummaries,
@@ -297,15 +187,17 @@ class EnrichmentAnalysisService(
     }
 
     /**
-     * Builds the STRUCTURAL metadata snapshot — entity type metadata, attribute classifications,
-     * and relationship semantic definitions captured at embed time.
+     * Builds STRUCTURAL metadata from view sections.
+     * - Entity type name, semantic group, lifecycle domain from [EntityKnowledgeView.sections.typeNarrative]
+     * - Attribute classifications from [EntityKnowledgeView.sections.attributes]
+     * - Schema version from [EntityKnowledgeView.schemaVersion]
+     *
+     * Note: relationship semantic definitions section removed from Phase 2 view model;
+     * glossary definitions now live in typeNarrative.glossaryDefinitions.
      */
-    private fun buildStructuralMetadata(
-        context: EnrichmentContext,
-        entityType: EntityTypeEntity,
-        snapshotAt: ZonedDateTime,
-    ): StructuralMetadata {
-        val attributeClassifications = context.attributes.map { attr ->
+    private fun buildStructuralMetadata(view: EntityKnowledgeView, snapshotAt: ZonedDateTime): StructuralMetadata {
+        val narrative = view.sections.typeNarrative
+        val attributeClassifications = view.sections.attributes.map { attr ->
             AttributeClassificationSnapshot(
                 attributeId = attr.attributeId.toString(),
                 semanticLabel = attr.semanticLabel,
@@ -313,18 +205,16 @@ class EnrichmentAnalysisService(
                 schemaType = attr.schemaType,
             )
         }
-        val relationshipDefinitions = context.relationshipDefinitions.map { definition ->
-            RelationshipSemanticDefinitionSnapshot(
-                definitionName = definition.name,
-                definitionText = definition.definition,
-            )
-        }
+        // Phase 2: glossary definitions in typeNarrative.glossaryDefinitions;
+        // not yet surfaced as RelationshipSemanticDefinitionSnapshot (Phase 3 PROJ-12 concern).
+        val relationshipDefinitions: List<RelationshipSemanticDefinitionSnapshot> = emptyList()
+
         return StructuralMetadata(
-            entityTypeName = entityType.displayNameSingular,
-            semanticGroup = entityType.semanticGroup,
-            lifecycleDomain = entityType.lifecycleDomain,
-            entityTypeDefinition = context.entityTypeDefinition,
-            schemaVersion = entityType.version,
+            entityTypeName = narrative.entityTypeName,
+            semanticGroup = narrative.semanticGroup,
+            lifecycleDomain = narrative.lifecycleDomain,
+            entityTypeDefinition = narrative.metadataDefinition,
+            schemaVersion = view.schemaVersion,
             attributeClassifications = attributeClassifications,
             relationshipSemanticDefinitions = relationshipDefinitions,
             snapshotAt = snapshotAt,

@@ -20,7 +20,7 @@ import riven.core.entity.enrichment.EntityEmbeddingEntity
 import riven.core.entity.workflow.ExecutionQueueEntity
 import riven.core.enums.workflow.ExecutionQueueStatus
 import riven.core.models.enrichment.EnrichedTextResult
-import riven.core.models.enrichment.EnrichmentContext
+import riven.core.models.entity.knowledge.EntityKnowledgeView
 import riven.core.repository.enrichment.EntityEmbeddingRepository
 import riven.core.repository.workflow.ExecutionQueueRepository
 import riven.core.service.auth.AuthTokenService
@@ -28,7 +28,6 @@ import riven.core.service.enrichment.provider.EmbeddingProvider
 import riven.core.service.util.BaseServiceTest
 import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.factory.EnrichmentFactory
-import riven.core.service.util.factory.enrichment.EnrichmentFactory as EnrichmentModelFactory
 import riven.core.service.util.factory.workflow.ExecutionQueueFactory
 import java.util.Optional
 import java.util.UUID
@@ -40,6 +39,8 @@ import kotlin.reflect.full.primaryConstructor
  * Verifies that embedAndStore correctly orchestrates text building, embedding generation,
  * upsert persistence (delete + insert), and queue item completion in transactional order.
  * Tests use mockito-kotlin (whenever/verify) per CLAUDE.md conventions.
+ *
+ * Plan 02-03: fixture type changed from [EnrichmentContext] to [EntityKnowledgeView].
  */
 @SpringBootTest(
     classes = [
@@ -75,7 +76,7 @@ class EnrichmentEmbeddingServiceTest : BaseServiceTest() {
     inner class EmbedAndStoreTests {
 
         private val queueItemId: UUID = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
-        private val context: EnrichmentContext = EnrichmentFactory.createEnrichmentContext(
+        private val view: EntityKnowledgeView = EnrichmentFactory.createEntityKnowledgeView(
             queueItemId = queueItemId,
             workspaceId = workspaceId,
         )
@@ -86,7 +87,7 @@ class EnrichmentEmbeddingServiceTest : BaseServiceTest() {
 
         private fun setupHappyPath(queueItem: ExecutionQueueEntity) {
             whenever(enrichmentProperties.vectorDimensions).thenReturn(1536)
-            whenever(semanticTextBuilderService.buildText(context)).thenReturn(enrichedTextResult)
+            whenever(semanticTextBuilderService.buildText(view)).thenReturn(enrichedTextResult)
             whenever(embeddingProvider.generateEmbedding(enrichedText)).thenReturn(embedding)
             whenever(embeddingProvider.getModelName()).thenReturn(modelName)
             whenever(entityEmbeddingRepository.save(any())).thenAnswer { it.arguments[0] }
@@ -101,16 +102,16 @@ class EnrichmentEmbeddingServiceTest : BaseServiceTest() {
         @Test
         fun `embedAndStore builds text generates embedding upserts and marks queue COMPLETED in order`() {
             val queueItem = ExecutionQueueFactory.createEnrichmentJob(
-                id = queueItemId, workspaceId = workspaceId, entityId = context.entityId
+                id = queueItemId, workspaceId = workspaceId, entityId = view.entityId
             )
             setupHappyPath(queueItem)
 
-            enrichmentEmbeddingService.embedAndStore(context, queueItemId)
+            enrichmentEmbeddingService.embedAndStore(view, queueItemId)
 
             val inOrder = inOrder(semanticTextBuilderService, embeddingProvider, entityEmbeddingRepository, executionQueueRepository)
-            inOrder.verify(semanticTextBuilderService).buildText(context)
+            inOrder.verify(semanticTextBuilderService).buildText(view)
             inOrder.verify(embeddingProvider).generateEmbedding(enrichedText)
-            inOrder.verify(entityEmbeddingRepository).deleteByEntityId(context.entityId)
+            inOrder.verify(entityEmbeddingRepository).deleteByEntityId(view.entityId)
             inOrder.verify(entityEmbeddingRepository).save(any())
             inOrder.verify(executionQueueRepository).findById(queueItemId)
             inOrder.verify(executionQueueRepository).save(any())
@@ -124,11 +125,11 @@ class EnrichmentEmbeddingServiceTest : BaseServiceTest() {
         fun `embedAndStore throws IllegalArgumentException when embedding size does not match vectorDimensions`() {
             val wrongSizeEmbedding = FloatArray(768) { 0.1f }
             whenever(enrichmentProperties.vectorDimensions).thenReturn(1536)
-            whenever(semanticTextBuilderService.buildText(context)).thenReturn(enrichedTextResult)
+            whenever(semanticTextBuilderService.buildText(view)).thenReturn(enrichedTextResult)
             whenever(embeddingProvider.generateEmbedding(enrichedText)).thenReturn(wrongSizeEmbedding)
 
             org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException::class.java) {
-                enrichmentEmbeddingService.embedAndStore(context, queueItemId)
+                enrichmentEmbeddingService.embedAndStore(view, queueItemId)
             }
 
             verify(entityEmbeddingRepository, never()).deleteByEntityId(any())
@@ -145,17 +146,17 @@ class EnrichmentEmbeddingServiceTest : BaseServiceTest() {
         fun `embedAndStore propagates truncated flag from buildText result into EntityEmbeddingEntity`() {
             val truncatedResult = EnrichedTextResult(text = enrichedText, truncated = true, estimatedTokens = 12)
             val queueItem = ExecutionQueueFactory.createEnrichmentJob(
-                id = queueItemId, workspaceId = workspaceId, entityId = context.entityId
+                id = queueItemId, workspaceId = workspaceId, entityId = view.entityId
             )
             whenever(enrichmentProperties.vectorDimensions).thenReturn(1536)
-            whenever(semanticTextBuilderService.buildText(context)).thenReturn(truncatedResult)
+            whenever(semanticTextBuilderService.buildText(view)).thenReturn(truncatedResult)
             whenever(embeddingProvider.generateEmbedding(enrichedText)).thenReturn(embedding)
             whenever(embeddingProvider.getModelName()).thenReturn(modelName)
             whenever(entityEmbeddingRepository.save(any())).thenAnswer { it.arguments[0] }
             whenever(executionQueueRepository.findById(queueItemId)).thenReturn(Optional.of(queueItem))
             whenever(executionQueueRepository.save(any())).thenAnswer { it.arguments[0] }
 
-            enrichmentEmbeddingService.embedAndStore(context, queueItemId)
+            enrichmentEmbeddingService.embedAndStore(view, queueItemId)
 
             val captor = ArgumentCaptor.forClass(EntityEmbeddingEntity::class.java)
             verify(entityEmbeddingRepository).save(captor.capture())
@@ -165,11 +166,11 @@ class EnrichmentEmbeddingServiceTest : BaseServiceTest() {
         @Test
         fun `embedAndStore saves non-truncated flag when text was not truncated`() {
             val queueItem = ExecutionQueueFactory.createEnrichmentJob(
-                id = queueItemId, workspaceId = workspaceId, entityId = context.entityId
+                id = queueItemId, workspaceId = workspaceId, entityId = view.entityId
             )
             setupHappyPath(queueItem)
 
-            enrichmentEmbeddingService.embedAndStore(context, queueItemId)
+            enrichmentEmbeddingService.embedAndStore(view, queueItemId)
 
             val captor = ArgumentCaptor.forClass(EntityEmbeddingEntity::class.java)
             verify(entityEmbeddingRepository).save(captor.capture())
@@ -177,33 +178,33 @@ class EnrichmentEmbeddingServiceTest : BaseServiceTest() {
         }
 
         @Test
-        fun `embedAndStore saves entity embedding with correct context metadata`() {
+        fun `embedAndStore saves entity embedding with correct view metadata`() {
             val queueItem = ExecutionQueueFactory.createEnrichmentJob(
-                id = queueItemId, workspaceId = workspaceId, entityId = context.entityId
+                id = queueItemId, workspaceId = workspaceId, entityId = view.entityId
             )
             setupHappyPath(queueItem)
 
-            enrichmentEmbeddingService.embedAndStore(context, queueItemId)
+            enrichmentEmbeddingService.embedAndStore(view, queueItemId)
 
             val captor = ArgumentCaptor.forClass(EntityEmbeddingEntity::class.java)
             verify(entityEmbeddingRepository).save(captor.capture())
             val saved = captor.value
-            assertEquals(context.entityId, saved.entityId)
-            assertEquals(context.workspaceId, saved.workspaceId)
-            assertEquals(context.entityTypeId, saved.entityTypeId)
-            assertEquals(context.schemaVersion, saved.schemaVersion)
+            assertEquals(view.entityId, saved.entityId)
+            assertEquals(view.workspaceId, saved.workspaceId)
+            assertEquals(view.entityTypeId, saved.entityTypeId)
+            assertEquals(view.schemaVersion, saved.schemaVersion)
             assertEquals(modelName, saved.embeddingModel)
         }
 
         @Test
         fun `embedAndStore marks queue item COMPLETED`() {
             val queueItem = ExecutionQueueFactory.createEnrichmentJob(
-                id = queueItemId, workspaceId = workspaceId, entityId = context.entityId,
+                id = queueItemId, workspaceId = workspaceId, entityId = view.entityId,
                 status = ExecutionQueueStatus.CLAIMED
             )
             setupHappyPath(queueItem)
 
-            enrichmentEmbeddingService.embedAndStore(context, queueItemId)
+            enrichmentEmbeddingService.embedAndStore(view, queueItemId)
 
             val captor = ArgumentCaptor.forClass(ExecutionQueueEntity::class.java)
             verify(executionQueueRepository).save(captor.capture())

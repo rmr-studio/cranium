@@ -23,6 +23,7 @@ import riven.core.models.catalog.ScaleMappingType
 import riven.core.models.catalog.SentimentScale
 import riven.core.models.connotation.AnalysisTier
 import riven.core.models.connotation.SentimentMetadata
+import riven.core.configuration.properties.EnrichmentConfigurationProperties
 import riven.core.repository.connotation.EntityConnotationRepository
 import riven.core.repository.entity.EntityRelationshipRepository
 import riven.core.repository.entity.EntityRepository
@@ -37,6 +38,7 @@ import riven.core.service.auth.AuthTokenService
 import riven.core.service.catalog.ManifestCatalogService
 import riven.core.service.connotation.ConnotationAnalysisService
 import riven.core.service.entity.EntityAttributeService
+import riven.core.service.entity.EntityRelationshipService
 import riven.core.service.util.BaseServiceTest
 import riven.core.service.util.SecurityTestConfig
 import riven.core.service.util.WithUserPersona
@@ -64,7 +66,7 @@ import kotlin.reflect.full.primaryConstructor
  * Uses `@SpringBootTest(classes = [...])` with `@MockitoBean` for all 9 collaborators;
  * logger is auto-injected via LoggerConfig. Uses `mockito-kotlin` (whenever/verify) per CLAUDE.md.
  *
- * @see EnrichmentContextSnapshotTest for byte-identical end-to-end snapshot gate
+ * @see EntityKnowledgeViewSnapshotTest for the structural EntityKnowledgeView snapshot gate (replaced the deleted EnrichmentContext byte-identity snapshot in Phase 2)
  */
 @SpringBootTest(
     classes = [
@@ -104,6 +106,9 @@ class EnrichmentAnalysisServiceTest : BaseServiceTest() {
     private lateinit var semanticMetadataRepository: EntityTypeSemanticMetadataRepository
 
     @MockitoBean
+    private lateinit var entityRelationshipService: EntityRelationshipService
+
+    @MockitoBean
     private lateinit var entityRelationshipRepository: EntityRelationshipRepository
 
     @MockitoBean
@@ -114,6 +119,12 @@ class EnrichmentAnalysisServiceTest : BaseServiceTest() {
 
     @MockitoBean
     private lateinit var relationshipTargetRuleRepository: RelationshipTargetRuleRepository
+
+    @MockitoBean
+    private lateinit var sentimentResolutionService: SentimentResolutionService
+
+    @MockitoBean
+    private lateinit var enrichmentProperties: EnrichmentConfigurationProperties
 
     @MockitoBean
     private lateinit var connotationAnalysisService: ConnotationAnalysisService
@@ -161,9 +172,13 @@ class EnrichmentAnalysisServiceTest : BaseServiceTest() {
             // Assembler defaults: empty collections so assemble() returns a minimal context
             whenever(semanticMetadataRepository.findByEntityTypeId(typeId)).thenReturn(emptyList())
             whenever(entityAttributeService.getAttributes(entityId)).thenReturn(emptyMap())
-            whenever(entityRelationshipRepository.findAllRelationshipsForEntity(entityId, workspaceId)).thenReturn(emptyList())
+            whenever(entityRelationshipService.findRelatedEntities(entityId, workspaceId)).thenReturn(emptyList())
+            whenever(entityRelationshipRepository.findGlossaryDefinitionsForType(workspaceId, typeId)).thenReturn(emptyList())
             whenever(relationshipDefinitionRepository.findByWorkspaceIdAndSourceEntityTypeId(workspaceId, typeId)).thenReturn(emptyList())
             whenever(identityClusterMemberRepository.findByEntityId(entityId)).thenReturn(null)
+            // Plan 02-03: sentimentResolutionService is now called by the assembler directly.
+            // Default: NOT_APPLICABLE (no-arg SentimentMetadata is the sentinel for "not opted in").
+            whenever(sentimentResolutionService.resolve(eq(entityId), eq(workspaceId), any())).thenReturn(SentimentMetadata())
         }
 
         /**
@@ -171,7 +186,20 @@ class EnrichmentAnalysisServiceTest : BaseServiceTest() {
          * with the resolved sentiment, persists the connotation snapshot, and returns the context.
          *
          * Uses inOrder to verify the key sequence: claim → assemble → persist → return.
+         *
+         * Plan 02-03: Method-level [WithUserPersona] adds the fixture workspace so the assembler's
+         * [@PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")] passes for
+         * [EnrichmentSnapshotFixture.WORKSPACE_ID] = "00000000-0000-0000-0000-000000000002".
          */
+        @WithUserPersona(
+            userId = "f8b1c2d3-4e5f-6789-abcd-ef0123456789",
+            email = "test@example.com",
+            displayName = "Test User",
+            roles = [
+                WorkspaceRole(workspaceId = "f8b1c2d3-4e5f-6789-abcd-ef9876543210", role = WorkspaceRoles.ADMIN),
+                WorkspaceRole(workspaceId = "00000000-0000-0000-0000-000000000002", role = WorkspaceRoles.ADMIN),
+            ]
+        )
         @Test
         fun `analyzeSemantics claims queue item assembles context persists snapshot and returns context`() {
             val queueItemId = f.queueItemId
@@ -183,25 +211,15 @@ class EnrichmentAnalysisServiceTest : BaseServiceTest() {
             whenever(entityRepository.findById(entityId)).thenReturn(Optional.of(f.entity))
             whenever(entityTypeRepository.findById(typeId)).thenReturn(Optional.of(f.entityType))
             whenever(entityConnotationRepository.upsertByEntityId(any(), any(), any(), any())).thenReturn(1)
-            whenever(workspaceRepository.findById(f.workspaceId)).thenReturn(Optional.of(f.workspace))
-            whenever(manifestCatalogService.getConnotationSignalsForEntityType(typeId)).thenReturn(f.connotationSignals)
             whenever(entityAttributeService.getAttributes(entityId)).thenReturn(f.entityAttributes)
-            whenever(connotationAnalysisService.analyze(any(), any(), any(), any(), any())).thenReturn(f.analyzedSentiment)
-            // Assembler dependencies (minimal - context test uses full fixture; here we use snapshotFixture mocks)
+            // Plan 02-03: assembler delegates sentiment to SentimentResolutionService (mock).
+            whenever(sentimentResolutionService.resolve(eq(entityId), eq(f.workspaceId), any())).thenReturn(f.analyzedSentiment)
+            // Assembler dependencies
             whenever(semanticMetadataRepository.findByEntityTypeId(f.entityTypeId)).thenReturn(f.allPrimaryMetadata)
-            whenever(entityAttributeService.getAttributes(f.entityId)).thenReturn(f.entityAttributes)
-            whenever(entityRelationshipRepository.findAllRelationshipsForEntity(f.entityId, f.workspaceId)).thenReturn(listOf(f.relationshipEntity))
+            whenever(entityRelationshipService.findRelatedEntities(f.entityId, f.workspaceId)).thenReturn(emptyList())
+            whenever(entityRelationshipRepository.findGlossaryDefinitionsForType(f.workspaceId, f.entityTypeId)).thenReturn(emptyList())
             whenever(relationshipDefinitionRepository.findByWorkspaceIdAndSourceEntityTypeId(f.workspaceId, f.entityTypeId)).thenReturn(listOf(f.relationshipDefinition))
-            whenever(identityClusterMemberRepository.findByEntityId(f.entityId)).thenReturn(f.primaryClusterMember)
-            whenever(identityClusterMemberRepository.findByClusterId(EnrichmentSnapshotFixture.CLUSTER_ID)).thenReturn(f.allClusterMembers)
-            whenever(entityRepository.findAllById(listOf(EnrichmentSnapshotFixture.CLUSTER_MEMBER_ENTITY_ID))).thenReturn(listOf(f.clusterMemberEntity))
-            whenever(entityTypeRepository.findAllById(listOf(EnrichmentSnapshotFixture.CLUSTER_MEMBER_TYPE_ID))).thenReturn(listOf(f.clusterMemberEntityType))
-            whenever(relationshipTargetRuleRepository.findByRelationshipDefinitionIdIn(listOf(EnrichmentSnapshotFixture.REL_DEFINITION_ID))).thenReturn(listOf(f.targetRule))
-            whenever(semanticMetadataRepository.findByEntityTypeId(EnrichmentSnapshotFixture.REL_TARGET_TYPE_ID)).thenReturn(listOf(f.metaCategoricalAttr))
-            whenever(entityAttributeService.getAttributesForEntities(listOf(EnrichmentSnapshotFixture.RELATED_ENTITY_ID))).thenReturn(mapOf(EnrichmentSnapshotFixture.RELATED_ENTITY_ID to f.relatedEntityAttributes))
-            whenever(entityRepository.findAllById(listOf(EnrichmentSnapshotFixture.REF_ENTITY_ID))).thenReturn(listOf(f.referencedEntity))
-            whenever(semanticMetadataRepository.findByEntityTypeIdIn(listOf(EnrichmentSnapshotFixture.REF_ENTITY_TYPE_ID))).thenReturn(listOf(f.metaRefTypeIdentifier))
-            whenever(entityAttributeService.getAttributesForEntities(listOf(EnrichmentSnapshotFixture.REF_ENTITY_ID))).thenReturn(mapOf(EnrichmentSnapshotFixture.REF_ENTITY_ID to f.referencedEntityAttributes))
+            whenever(identityClusterMemberRepository.findByEntityId(f.entityId)).thenReturn(null)
 
             val context = enrichmentAnalysisService.analyzeSemantics(queueItemId)
 
@@ -232,105 +250,79 @@ class EnrichmentAnalysisServiceTest : BaseServiceTest() {
         }
 
         /**
-         * Test 3: resolveSentimentMetadata returns SentimentMetadata() (NOT_APPLICABLE)
-         * when manifest connotation signals are null — ConnotationAnalysisService is never called.
+         * Test 3: analyzeSemantics delegates sentiment resolution to [SentimentResolutionService]
+         * (via the assembler), and the returned view carries whatever sentiment the resolution service
+         * produces.
+         *
+         * Plan 02-03: Sentiment gating logic moved to [SentimentResolutionService] (Plan 02-02).
+         * [EnrichmentAnalysisService] no longer owns sentiment gates — tests for NOT_APPLICABLE gating
+         * (workspace opt-in, manifest signals, attribute key mapping) live in SentimentResolutionServiceTest.
+         * This test confirms the assembler's sentinel path: a NOT_APPLICABLE sentiment (default) results
+         * in a null [riven.core.models.entity.knowledge.EntityMetadataSection.sentiment] field.
          */
         @Test
-        fun `resolveSentimentMetadata returns NOT_APPLICABLE when manifest connotation signals are null`() {
+        fun `analyzeSemantics returns view with null sentiment when resolution returns NOT_APPLICABLE`() {
             val queueItemId = UUID.randomUUID()
             val entityId = UUID.randomUUID()
             val typeId = UUID.randomUUID()
             setupMinimalMocks(queueItemId, entityId, typeId)
-            // Override: workspace has connotationEnabled = true
-            whenever(workspaceRepository.findById(workspaceId)).thenReturn(
-                Optional.of(WorkspaceFactory.createWorkspace(id = workspaceId, connotationEnabled = true))
-            )
-            whenever(manifestCatalogService.getConnotationSignalsForEntityType(typeId)).thenReturn(null)
+            // Default mock (from setupMinimalMocks) returns SentimentMetadata() which is NOT_APPLICABLE.
+            // The assembler converts NOT_APPLICABLE to null in EntityMetadataSection.sentiment.
 
-            enrichmentAnalysisService.analyzeSemantics(queueItemId)
+            val view = enrichmentAnalysisService.analyzeSemantics(queueItemId)
 
-            verify(connotationAnalysisService, never()).analyze(any(), any(), any(), any(), any())
+            assertEquals(null, view.sections.entityMetadata.sentiment)
         }
 
         /**
-         * Test 4: resolveSentimentMetadata returns SentimentMetadata() (NOT_APPLICABLE) when
-         * entityType.attributeKeyMapping does not contain signals.sentimentAttribute — the documented
-         * short-circuit that prevents MISSING_SOURCE_ATTRIBUTE false failures.
+         * Test 4: analyzeSemantics returns view with ANALYZED sentiment when [SentimentResolutionService]
+         * returns an ANALYZED result.
+         *
+         * Plan 02-03: Replaces the old sentiment-gating test that verified manifest/workspace gates
+         * (those now live in SentimentResolutionServiceTest). This test verifies only the end-to-end
+         * path from assembler → EntityMetadataSection.sentiment.
          */
         @Test
-        fun `resolveSentimentMetadata returns NOT_APPLICABLE when entityType attributeKeyMapping does not contain sentimentAttribute`() {
+        fun `analyzeSemantics returns view with ANALYZED sentiment when resolution service returns ANALYZED`() {
             val queueItemId = UUID.randomUUID()
             val entityId = UUID.randomUUID()
             val typeId = UUID.randomUUID()
+            setupMinimalMocks(queueItemId, entityId, typeId)
+            // Override: sentiment resolution returns ANALYZED
+            val analyzedSentiment = SentimentMetadata(
+                sentiment = 0.75,
+                sentimentLabel = null,
+                themes = emptyList(),
+                analysisVersion = "v1",
+                analysisTier = AnalysisTier.DETERMINISTIC,
+                status = ConnotationStatus.ANALYZED,
+            )
+            whenever(sentimentResolutionService.resolve(eq(entityId), eq(workspaceId), any())).thenReturn(analyzedSentiment)
 
-            val queueItem = ExecutionQueueFactory.createEnrichmentJob(
-                id = queueItemId, workspaceId = workspaceId, entityId = entityId
-            )
-            val entity = EntityFactory.createEntityEntity(
-                id = entityId, workspaceId = workspaceId, typeId = typeId
-            )
-            // EntityType with attributeKeyMapping that does NOT contain the manifest sentiment key
-            val entityType = EntityFactory.createEntityType(
-                id = typeId, workspaceId = workspaceId,
-                attributeKeyMapping = mapOf("other_key" to UUID.randomUUID().toString())
-            )
-            val signals = ConnotationSignals(
-                tier = AnalysisTier.DETERMINISTIC,
-                sentimentAttribute = "nps_score", // NOT in attributeKeyMapping
-                sentimentScale = SentimentScale(0.0, 100.0, -1.0, 1.0, ScaleMappingType.LINEAR),
-                themeAttributes = emptyList(),
-            )
+            val view = enrichmentAnalysisService.analyzeSemantics(queueItemId)
 
-            whenever(executionQueueRepository.claimEnrichmentItem(eq(queueItemId), any())).thenReturn(1)
-            whenever(executionQueueRepository.findById(queueItemId)).thenReturn(Optional.of(queueItem))
-            whenever(entityRepository.findById(entityId)).thenReturn(Optional.of(entity))
-            whenever(entityTypeRepository.findById(typeId)).thenReturn(Optional.of(entityType))
-            whenever(entityConnotationRepository.upsertByEntityId(any(), any(), any(), any())).thenReturn(1)
-            whenever(workspaceRepository.findById(workspaceId)).thenReturn(
-                Optional.of(WorkspaceFactory.createWorkspace(id = workspaceId, connotationEnabled = true))
-            )
-            whenever(manifestCatalogService.getConnotationSignalsForEntityType(typeId)).thenReturn(signals)
-            // Assembler minimal deps
-            whenever(semanticMetadataRepository.findByEntityTypeId(typeId)).thenReturn(emptyList())
-            whenever(entityAttributeService.getAttributes(entityId)).thenReturn(emptyMap())
-            whenever(entityRelationshipRepository.findAllRelationshipsForEntity(entityId, workspaceId)).thenReturn(emptyList())
-            whenever(relationshipDefinitionRepository.findByWorkspaceIdAndSourceEntityTypeId(workspaceId, typeId)).thenReturn(emptyList())
-            whenever(identityClusterMemberRepository.findByEntityId(entityId)).thenReturn(null)
-
-            enrichmentAnalysisService.analyzeSemantics(queueItemId)
-
-            verify(connotationAnalysisService, never()).analyze(any(), any(), any(), any(), any())
+            assertEquals(ConnotationStatus.ANALYZED, view.sections.entityMetadata.sentiment?.status)
         }
 
         /**
-         * Test 5: resolveSentimentMetadata delegates to ConnotationAnalysisService.analyze
-         * when all gates pass and returns whatever it produces.
+         * Test 5: analyzeSemantics persists connotation snapshot and returns [EntityKnowledgeView].
+         *
+         * Plan 02-03: Replaces the old "delegates to ConnotationAnalysisService" test (sentiment
+         * gates moved to [SentimentResolutionService]). This test verifies that the service persists
+         * the connotation snapshot via [riven.core.repository.connotation.EntityConnotationRepository.upsertByEntityId]
+         * and returns the assembled view.
          */
         @Test
-        fun `resolveSentimentMetadata delegates to ConnotationAnalysisService when all gates pass`() {
-            val queueItemId = f.queueItemId
-            val entityId = f.entityId
-            val typeId = f.entityTypeId
+        fun `analyzeSemantics persists connotation snapshot and returns EntityKnowledgeView`() {
+            val queueItemId = UUID.randomUUID()
+            val entityId = UUID.randomUUID()
+            val typeId = UUID.randomUUID()
+            setupMinimalMocks(queueItemId, entityId, typeId)
 
-            whenever(executionQueueRepository.claimEnrichmentItem(eq(queueItemId), any())).thenReturn(1)
-            whenever(executionQueueRepository.findById(queueItemId)).thenReturn(Optional.of(f.queueItem))
-            whenever(entityRepository.findById(entityId)).thenReturn(Optional.of(f.entity))
-            whenever(entityTypeRepository.findById(typeId)).thenReturn(Optional.of(f.entityType))
-            whenever(entityConnotationRepository.upsertByEntityId(any(), any(), any(), any())).thenReturn(1)
-            whenever(workspaceRepository.findById(f.workspaceId)).thenReturn(Optional.of(f.workspace))
-            whenever(manifestCatalogService.getConnotationSignalsForEntityType(typeId)).thenReturn(f.connotationSignals)
-            whenever(entityAttributeService.getAttributes(entityId)).thenReturn(f.entityAttributes)
-            whenever(connotationAnalysisService.analyze(any(), any(), any(), any(), any())).thenReturn(f.analyzedSentiment)
-            // Assembler minimal deps
-            whenever(semanticMetadataRepository.findByEntityTypeId(typeId)).thenReturn(emptyList())
-            whenever(entityRelationshipRepository.findAllRelationshipsForEntity(entityId, f.workspaceId)).thenReturn(emptyList())
-            whenever(relationshipDefinitionRepository.findByWorkspaceIdAndSourceEntityTypeId(f.workspaceId, typeId)).thenReturn(emptyList())
-            whenever(identityClusterMemberRepository.findByEntityId(entityId)).thenReturn(null)
+            val view = enrichmentAnalysisService.analyzeSemantics(queueItemId)
 
-            val context = enrichmentAnalysisService.analyzeSemantics(queueItemId)
-
-            verify(connotationAnalysisService).analyze(any(), any(), any(), any(), any())
-            assertEquals(ConnotationStatus.ANALYZED, context.sentiment?.status)
+            assertNotNull(view)
+            verify(entityConnotationRepository).upsertByEntityId(eq(entityId), eq(workspaceId), any(), any())
         }
 
         /**

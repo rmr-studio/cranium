@@ -11,11 +11,16 @@ import riven.core.models.connotation.EntityMetadata
 import riven.core.models.connotation.EntityMetadataSnapshot
 import riven.core.models.connotation.SentimentMetadata
 import riven.core.models.enrichment.EnrichedTextResult
-import riven.core.models.enrichment.EnrichmentAttributeContext
-import riven.core.models.enrichment.EnrichmentClusterMemberContext
-import riven.core.models.enrichment.EnrichmentContext
-import riven.core.models.enrichment.EnrichmentRelationshipDefinitionContext
-import riven.core.models.enrichment.EnrichmentRelationshipSummary
+import riven.core.models.entity.knowledge.AttributeSection
+import riven.core.models.entity.knowledge.CatalogBacklinkSection
+import riven.core.models.entity.knowledge.ClusterSiblingSection
+import riven.core.models.entity.knowledge.EntityKnowledgeView
+import riven.core.models.entity.knowledge.EntityMetadataSection
+import riven.core.models.entity.knowledge.IdentitySection
+import riven.core.models.entity.knowledge.KnowledgeBacklinkSection
+import riven.core.models.entity.knowledge.KnowledgeSections
+import riven.core.models.entity.knowledge.RelationalReferenceSection
+import riven.core.models.entity.knowledge.TypeNarrativeSection
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -24,12 +29,28 @@ import java.util.*
  *
  * Provides pre-built instances of enrichment entities and models with
  * sensible defaults for unit and integration tests.
+ *
+ * Plan 02-03: [enrichmentContext] now returns [EntityKnowledgeView] with the same parameter
+ * surface as before — tests that previously tested [SemanticTextBuilderService] against the
+ * old [riven.core.models.enrichment.EnrichmentContext] shape now feed the same data through
+ * the new section types without requiring test-body changes beyond the factory update.
  */
 object EnrichmentFactory {
 
     /**
-     * Creates an [EnrichmentContext] with sensible defaults including sample
-     * attributes and relationship summaries.
+     * Creates an [EntityKnowledgeView] with the same parameter surface as the former
+     * [riven.core.models.enrichment.EnrichmentContext] factory, enabling
+     * [riven.core.service.enrichment.SemanticTextBuilderServiceTest] to compile without
+     * per-test changes.
+     *
+     * Parameter mapping:
+     * - [attributes] → [KnowledgeSections.attributes]
+     * - [relationshipSummaries] (formerly [riven.core.models.enrichment.EnrichmentRelationshipSummary]) →
+     *   [KnowledgeSections.catalogBacklinks] (topCategories field was dropped in Phase 2)
+     * - [clusterMembers] → [KnowledgeSections.clusterSiblings]
+     * - [referencedEntityIdentifiers] → [KnowledgeSections.relationalReferences]
+     * - [relationshipDefinitions] → dropped; no equivalent in Phase 2 text output
+     * - [sentiment] → [EntityMetadataSection.sentiment]
      */
     fun enrichmentContext(
         queueItemId: UUID = UUID.randomUUID(),
@@ -41,40 +62,60 @@ object EnrichmentFactory {
         entityTypeDefinition: String? = "A person or organization that purchases products or services.",
         semanticGroup: SemanticGroup = SemanticGroup.CUSTOMER,
         lifecycleDomain: LifecycleDomain = LifecycleDomain.UNCATEGORIZED,
-        attributes: List<EnrichmentAttributeContext> = listOf(
+        attributes: List<AttributeSection> = listOf(
             enrichmentAttributeContext(semanticLabel = "Name", value = "Acme Corp", schemaType = SchemaType.TEXT),
-            enrichmentAttributeContext(semanticLabel = "Industry", value = "Technology", schemaType = SchemaType.SELECT)
+            enrichmentAttributeContext(semanticLabel = "Industry", value = "Technology", schemaType = SchemaType.SELECT),
         ),
-        relationshipSummaries: List<EnrichmentRelationshipSummary> = listOf(
-            enrichmentRelationshipSummary(relationshipName = "Support Tickets", count = 5)
+        relationshipSummaries: List<CatalogBacklinkSection> = listOf(
+            enrichmentRelationshipSummary(relationshipName = "Support Tickets", count = 5),
         ),
-        clusterMembers: List<EnrichmentClusterMemberContext> = emptyList(),
+        clusterMembers: List<ClusterSiblingSection> = emptyList(),
         referencedEntityIdentifiers: Map<UUID, String> = emptyMap(),
-        relationshipDefinitions: List<EnrichmentRelationshipDefinitionContext> = emptyList(),
+        relationshipDefinitions: List<RelationshipDefinitionContext> = emptyList(),
         sentiment: SentimentMetadata? = null,
-    ): EnrichmentContext = EnrichmentContext(
-        queueItemId = queueItemId,
-        entityId = entityId,
-        workspaceId = workspaceId,
-        entityTypeId = entityTypeId,
-        schemaVersion = schemaVersion,
-        entityTypeName = entityTypeName,
-        entityTypeDefinition = entityTypeDefinition,
-        semanticGroup = semanticGroup,
-        lifecycleDomain = lifecycleDomain,
-        attributes = attributes,
-        relationshipSummaries = relationshipSummaries,
-        clusterMembers = clusterMembers,
-        referencedEntityIdentifiers = referencedEntityIdentifiers,
-        relationshipDefinitions = relationshipDefinitions,
-        sentiment = sentiment,
-    )
+    ): EntityKnowledgeView {
+        val relationalReferences = referencedEntityIdentifiers.map { (id, display) ->
+            RelationalReferenceSection(referencedEntityId = id, displayValue = display)
+        }
+        return EntityKnowledgeView(
+            queueItemId = queueItemId,
+            entityId = entityId,
+            workspaceId = workspaceId,
+            entityTypeId = entityTypeId,
+            schemaVersion = schemaVersion,
+            sections = KnowledgeSections(
+                identity = IdentitySection(
+                    entityId = entityId,
+                    entityTypeId = entityTypeId,
+                    identifierValue = null,
+                    displayLabel = entityId.toString(),
+                ),
+                typeNarrative = TypeNarrativeSection(
+                    entityTypeName = entityTypeName,
+                    semanticGroup = semanticGroup,
+                    lifecycleDomain = lifecycleDomain,
+                    metadataDefinition = entityTypeDefinition,
+                    glossaryDefinitions = emptyList(),
+                ),
+                attributes = attributes,
+                catalogBacklinks = relationshipSummaries,
+                knowledgeBacklinks = emptyList(),
+                entityMetadata = EntityMetadataSection(
+                    schemaVersion = schemaVersion,
+                    composedAt = ZonedDateTime.now(),
+                    sentiment = sentiment,
+                ),
+                clusterSiblings = clusterMembers,
+                relationalReferences = relationalReferences,
+            ),
+        )
+    }
 
     /**
      * Creates an [EntityEmbeddingEntity] with sensible defaults.
      *
      * The [embedding] defaults to a 1536-dimensional zero vector to match the
-     * default vectorDimensions in [EnrichmentConfigurationProperties].
+     * default vectorDimensions in [riven.core.configuration.properties.EnrichmentConfigurationProperties].
      */
     fun entityEmbeddingEntity(
         id: UUID = UUID.randomUUID(),
@@ -85,7 +126,7 @@ object EnrichmentFactory {
         embeddedAt: ZonedDateTime = ZonedDateTime.now(),
         embeddingModel: String = "text-embedding-3-small",
         schemaVersion: Int = 1,
-        truncated: Boolean = false
+        truncated: Boolean = false,
     ): EntityEmbeddingEntity = EntityEmbeddingEntity(
         id = id,
         workspaceId = workspaceId,
@@ -95,7 +136,7 @@ object EnrichmentFactory {
         embeddedAt = embeddedAt,
         embeddingModel = embeddingModel,
         schemaVersion = schemaVersion,
-        truncated = truncated
+        truncated = truncated,
     )
 
     /**
@@ -106,11 +147,11 @@ object EnrichmentFactory {
     fun entityConnotationEntity(
         entityId: UUID,
         workspaceId: UUID,
-        metadata: EntityMetadataSnapshot
+        metadata: EntityMetadataSnapshot,
     ): EntityConnotationEntity = EntityConnotationEntity(
         entityId = entityId,
         workspaceId = workspaceId,
-        connotationMetadata = metadata
+        connotationMetadata = metadata,
     )
 
     fun entityConnotationEntity(
@@ -128,7 +169,8 @@ object EnrichmentFactory {
     )
 
     /**
-     * Creates an [EnrichmentAttributeContext] with sensible defaults.
+     * Creates an [AttributeSection] (formerly [riven.core.models.enrichment.EnrichmentAttributeContext])
+     * with sensible defaults.
      */
     fun enrichmentAttributeContext(
         attributeId: UUID = UUID.randomUUID(),
@@ -136,29 +178,35 @@ object EnrichmentFactory {
         value: String? = "Test Value",
         schemaType: SchemaType = SchemaType.TEXT,
         classification: SemanticAttributeClassification? = null,
-    ): EnrichmentAttributeContext = EnrichmentAttributeContext(
+    ): AttributeSection = AttributeSection(
         attributeId = attributeId,
         semanticLabel = semanticLabel,
         value = value,
         schemaType = schemaType,
         classification = classification,
+        glossaryNarrative = null,
     )
 
     /**
-     * Creates an [EnrichmentRelationshipSummary] with sensible defaults.
+     * Creates a [CatalogBacklinkSection] (formerly [riven.core.models.enrichment.EnrichmentRelationshipSummary])
+     * with sensible defaults.
+     *
+     * Note: [topCategories] was present on the old model but is absent from [CatalogBacklinkSection].
+     * Callers that pass [topCategories] for legacy compatibility — that parameter is silently dropped;
+     * the Phase 2 section model does not carry per-category breakdown.
      */
     fun enrichmentRelationshipSummary(
         definitionId: UUID = UUID.randomUUID(),
         relationshipName: String = "Related Entities",
         count: Int = 3,
-        topCategories: List<String> = emptyList(),
+        @Suppress("UNUSED_PARAMETER") topCategories: List<String> = emptyList(),
         latestActivityAt: String? = null,
-    ): EnrichmentRelationshipSummary = EnrichmentRelationshipSummary(
+    ): CatalogBacklinkSection = CatalogBacklinkSection(
         definitionId = definitionId,
         relationshipName = relationshipName,
         count = count,
-        topCategories = topCategories,
         latestActivityAt = latestActivityAt,
+        sampleLabels = emptyList(),
     )
 
     /**
@@ -175,23 +223,40 @@ object EnrichmentFactory {
     )
 
     /**
-     * Creates an [EnrichmentClusterMemberContext] with sensible defaults.
+     * Creates a [ClusterSiblingSection] (formerly [riven.core.models.enrichment.EnrichmentClusterMemberContext])
+     * with sensible defaults.
+     *
+     * [sourceType] is a [SourceType] enum for call-site convenience; it is converted to its [name]
+     * string for the [ClusterSiblingSection.sourceType] field.
      */
     fun enrichmentClusterMemberContext(
         sourceType: SourceType = SourceType.INTEGRATION,
         entityTypeName: String = "Company",
-    ): EnrichmentClusterMemberContext = EnrichmentClusterMemberContext(
-        sourceType = sourceType,
+    ): ClusterSiblingSection = ClusterSiblingSection(
+        sourceType = sourceType.name,
         entityTypeName = entityTypeName,
     )
 
     /**
-     * Creates an [EnrichmentRelationshipDefinitionContext] with sensible defaults.
+     * Placeholder holder for the legacy relationship-definition concept; no longer surfaced in
+     * Phase 2 text. Kept so [enrichmentContext] callers that pass [relationshipDefinitions] lists
+     * still compile — the data is accepted and ignored.
+     */
+    data class RelationshipDefinitionContext(
+        val name: String = "Support Tickets",
+        val definition: String? = "Escalation records from the help desk system.",
+    )
+
+    /**
+     * Creates a [RelationshipDefinitionContext] placeholder with sensible defaults.
+     *
+     * The returned object is accepted by [enrichmentContext] but not surfaced in Phase 2 text.
+     * Relationship definitions are now carried via [KnowledgeSections.typeNarrative.glossaryDefinitions].
      */
     fun enrichmentRelationshipDefinitionContext(
         name: String = "Support Tickets",
         definition: String? = "Escalation records from the help desk system.",
-    ): EnrichmentRelationshipDefinitionContext = EnrichmentRelationshipDefinitionContext(
+    ): RelationshipDefinitionContext = RelationshipDefinitionContext(
         name = name,
         definition = definition,
     )

@@ -1,6 +1,6 @@
 package riven.core.service.enrichment
 
-import riven.core.models.enrichment.EnrichmentContext
+import riven.core.models.entity.knowledge.EntityKnowledgeView
 import riven.core.service.workflow.enrichment.ConsumerActivity
 import riven.core.service.workflow.enrichment.EnrichmentActivities
 import java.util.UUID
@@ -18,12 +18,15 @@ import java.util.UUID
  * to record an explicit terminal FAILED transition (PR feedback r3180290311). The failure is not
  * silently swallowed into the sibling-isolation runCatching loop.
  *
+ * Plan 02-03: parameter type changed from [EnrichmentContext] to [EntityKnowledgeView] throughout
+ * the consumer chain.
+ *
  * Future phases (Synthesis, JSONB projection) ship additional **sibling** consumers via
  * [riven.core.service.workflow.enrichment.EnrichmentWorkflowImpl.buildConsumers] — those are
  * isolated per ENRICH-05 and do not mutate queue state.
  */
 class EmbeddingConsumer(private val activities: EnrichmentActivities) : ConsumerActivity {
-    override fun run(context: EnrichmentContext, queueItemId: UUID) {
-        activities.embedAndStore(context, queueItemId)
+    override fun run(view: EntityKnowledgeView, queueItemId: UUID) {
+        activities.embedAndStore(view, queueItemId)
     }
 }

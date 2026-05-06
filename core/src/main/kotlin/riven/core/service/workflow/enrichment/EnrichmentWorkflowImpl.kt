@@ -35,6 +35,8 @@ import java.util.UUID
  * The pre-r3180290311 shape iterated all consumers (including the embedding one) under a
  * single `runCatching`, which left the queue stuck in CLAIMED with no FAILED state when the
  * embedding consumer exhausted retries. The split here closes that gap.
+ *
+ * Plan 02-03: view type changed from [EnrichmentContext] to [EntityKnowledgeView] throughout.
  */
 open class EnrichmentWorkflowImpl : EnrichmentWorkflow {
 
@@ -58,10 +60,10 @@ open class EnrichmentWorkflowImpl : EnrichmentWorkflow {
         logger.info("Starting enrichment pipeline for queueItemId=$queueItemId")
 
         val stub = createActivitiesStub()
-        val context = stub.analyzeSemantics(queueItemId)
-        logger.info("Analyzed semantics for queueItemId=$queueItemId entityId=${context.entityId}")
+        val view = stub.analyzeSemantics(queueItemId)
+        logger.info("Analyzed semantics for queueItemId=$queueItemId entityId=${view.entityId}")
 
-        runCatching { buildPrimaryConsumer(stub).run(context, queueItemId) }
+        runCatching { buildPrimaryConsumer(stub).run(view, queueItemId) }
             .onFailure { e ->
                 logger.warn(
                     "Primary EmbeddingConsumer failed for queueItemId=$queueItemId: ${e.message}; marking queue FAILED"
@@ -71,7 +73,7 @@ open class EnrichmentWorkflowImpl : EnrichmentWorkflow {
 
         val siblings: List<ConsumerActivity> = buildConsumers(stub)
         siblings.forEach { consumer ->
-            runCatching { consumer.run(context, queueItemId) }
+            runCatching { consumer.run(view, queueItemId) }
                 .onFailure { e ->
                     logger.warn(
                         "Sibling consumer ${consumer::class.simpleName} failed for queueItemId=$queueItemId: ${e.message}"
@@ -79,7 +81,7 @@ open class EnrichmentWorkflowImpl : EnrichmentWorkflow {
                 }
         }
 
-        logger.info("Enrichment pipeline complete for queueItemId=$queueItemId entityId=${context.entityId}")
+        logger.info("Enrichment pipeline complete for queueItemId=$queueItemId entityId=${view.entityId}")
     }
 
     /**

@@ -1,8 +1,10 @@
 package riven.core.models.entity
 
+import riven.core.enums.entity.EntityTypeRole
 import riven.core.enums.entity.RelationshipDirection
 import riven.core.enums.entity.SystemRelationshipType
 import riven.core.models.common.Icon
+import java.time.ZonedDateTime
 import java.util.*
 
 /**
@@ -15,6 +17,11 @@ import java.util.*
  * definition's `system_type` so callers can route inverse knowledge edges
  * (`ATTACHMENT` / `MENTION` / `DEFINES`) into a separate projection from the
  * regular relationships map without re-fetching the definition row.
+ *
+ * [sourceSurfaceRole] is the surface role of the entity that owns the projection's
+ * `sourceEntityId` (forward: the entity holding the outbound edge; inverse: the entity
+ * referencing the viewed target). Drives knowledge-view bucketing in
+ * `EnrichmentContextAssembler` — CATALOG → catalogBacklinks, KNOWLEDGE → knowledgeBacklinks.
  */
 data class EntityLink(
     val id: UUID,
@@ -28,6 +35,8 @@ data class EntityLink(
     val label: String,
     val direction: RelationshipDirection,
     val systemType: SystemRelationshipType? = null,
+    val sourceSurfaceRole: EntityTypeRole = EntityTypeRole.CATALOG,
+    val createdAt: ZonedDateTime? = null,
 )
 
 /**

@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,21 +12,16 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { Node } from './Node';
-import {
-    NodeFromJSON,
-    NodeFromJSONTyped,
-    NodeToJSON,
-    NodeToJSONTyped,
-} from './Node';
 import type { BlockOperationType } from './BlockOperationType';
 import {
     BlockOperationTypeFromJSON,
-    BlockOperationTypeFromJSONTyped,
-    BlockOperationTypeToJSON,
-    BlockOperationTypeToJSONTyped,
+    BlockOperationTypeToJSON
 } from './BlockOperationType';
+import type { Node } from './Node';
+import {
+    NodeFromJSON,
+    NodeToJSON
+} from './Node';
 
 /**
  * 

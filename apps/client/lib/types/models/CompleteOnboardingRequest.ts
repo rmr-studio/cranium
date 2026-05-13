@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,42 +12,31 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
+import type { AcquisitionChannel } from './AcquisitionChannel';
+import {
+    AcquisitionChannelFromJSON,
+    AcquisitionChannelToJSON
+} from './AcquisitionChannel';
 import type { OnboardingBusinessDefinition } from './OnboardingBusinessDefinition';
 import {
     OnboardingBusinessDefinitionFromJSON,
-    OnboardingBusinessDefinitionFromJSONTyped,
-    OnboardingBusinessDefinitionToJSON,
-    OnboardingBusinessDefinitionToJSONTyped,
+    OnboardingBusinessDefinitionToJSON
 } from './OnboardingBusinessDefinition';
 import type { OnboardingInvite } from './OnboardingInvite';
 import {
     OnboardingInviteFromJSON,
-    OnboardingInviteFromJSONTyped,
-    OnboardingInviteToJSON,
-    OnboardingInviteToJSONTyped,
+    OnboardingInviteToJSON
 } from './OnboardingInvite';
-import type { OnboardingWorkspace } from './OnboardingWorkspace';
-import {
-    OnboardingWorkspaceFromJSON,
-    OnboardingWorkspaceFromJSONTyped,
-    OnboardingWorkspaceToJSON,
-    OnboardingWorkspaceToJSONTyped,
-} from './OnboardingWorkspace';
-import type { AcquisitionChannel } from './AcquisitionChannel';
-import {
-    AcquisitionChannelFromJSON,
-    AcquisitionChannelFromJSONTyped,
-    AcquisitionChannelToJSON,
-    AcquisitionChannelToJSONTyped,
-} from './AcquisitionChannel';
 import type { OnboardingProfile } from './OnboardingProfile';
 import {
     OnboardingProfileFromJSON,
-    OnboardingProfileFromJSONTyped,
-    OnboardingProfileToJSON,
-    OnboardingProfileToJSONTyped,
+    OnboardingProfileToJSON
 } from './OnboardingProfile';
+import type { OnboardingWorkspace } from './OnboardingWorkspace';
+import {
+    OnboardingWorkspaceFromJSON,
+    OnboardingWorkspaceToJSON
+} from './OnboardingWorkspace';
 
 /**
  * 

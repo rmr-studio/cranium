@@ -1,4 +1,4 @@
-package riven.core.models.entity.validation
+package cranium.core.models.entity.validation
 
 import java.util.*
 

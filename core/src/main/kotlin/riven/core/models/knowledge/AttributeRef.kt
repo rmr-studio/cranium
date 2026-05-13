@@ -1,4 +1,4 @@
-package riven.core.models.knowledge
+package cranium.core.models.knowledge
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty

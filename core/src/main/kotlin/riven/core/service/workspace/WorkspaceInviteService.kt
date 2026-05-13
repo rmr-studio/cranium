@@ -1,25 +1,25 @@
-package riven.core.service.workspace
+package cranium.core.service.workspace
 
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.workspace.WorkspaceInviteEntity
-import riven.core.entity.workspace.toModel
-import riven.core.enums.activity.Activity
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.util.OperationType
-import riven.core.enums.workspace.WorkspaceInviteStatus
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.exceptions.ConflictException
-import riven.core.models.workspace.WorkspaceInvite
-import riven.core.repository.workspace.WorkspaceInviteRepository
-import riven.core.repository.workspace.WorkspaceMemberRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.activity.log
-import riven.core.service.auth.AuthTokenService
-import riven.core.util.ServiceUtil.findManyResults
-import riven.core.util.ServiceUtil.findOrThrow
+import cranium.core.entity.workspace.WorkspaceInviteEntity
+import cranium.core.entity.workspace.toModel
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.util.OperationType
+import cranium.core.enums.workspace.WorkspaceInviteStatus
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.exceptions.ConflictException
+import cranium.core.models.workspace.WorkspaceInvite
+import cranium.core.repository.workspace.WorkspaceInviteRepository
+import cranium.core.repository.workspace.WorkspaceMemberRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.activity.log
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.util.ServiceUtil.findManyResults
+import cranium.core.util.ServiceUtil.findOrThrow
 import java.util.*
 
 

@@ -1,6 +1,6 @@
-package riven.core.models.integration
+package cranium.core.models.integration
 
-import riven.core.enums.integration.SyncStatus
+import cranium.core.enums.integration.SyncStatus
 import java.util.*
 
 data class IntegrationSyncState(

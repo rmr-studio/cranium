@@ -1,6 +1,6 @@
-package riven.core.util
+package cranium.core.util
 
-import riven.core.exceptions.NotFoundException
+import cranium.core.exceptions.NotFoundException
 import java.util.*
 
 object ServiceUtil {

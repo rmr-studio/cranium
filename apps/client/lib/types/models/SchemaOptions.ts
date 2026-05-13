@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,20 +12,15 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
 import type { OptionSortingType } from './OptionSortingType';
 import {
     OptionSortingTypeFromJSON,
-    OptionSortingTypeFromJSONTyped,
-    OptionSortingTypeToJSON,
-    OptionSortingTypeToJSONTyped,
+    OptionSortingTypeToJSON
 } from './OptionSortingType';
 import type { SchemaOptionsDefaultValue } from './SchemaOptionsDefaultValue';
 import {
     SchemaOptionsDefaultValueFromJSON,
-    SchemaOptionsDefaultValueFromJSONTyped,
-    SchemaOptionsDefaultValueToJSON,
-    SchemaOptionsDefaultValueToJSONTyped,
+    SchemaOptionsDefaultValueToJSON
 } from './SchemaOptionsDefaultValue';
 
 /**

@@ -1,4 +1,4 @@
-package riven.core.configuration.websocket
+package cranium.core.configuration.websocket
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.*
@@ -16,7 +16,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
-import riven.core.configuration.auth.CustomAuthenticationTokenConverter
+import cranium.core.configuration.auth.CustomAuthenticationTokenConverter
 import java.time.Instant
 import java.util.UUID
 

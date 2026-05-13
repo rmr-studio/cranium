@@ -19,7 +19,7 @@
 
 **New components introduced:**
 
-- `AttributeRef` (in `riven.core.models.knowledge`) — pair-shaped reference carrying `attributeId` + `ownerEntityTypeId` for any consumer that needs to materialise `entity_relationships` rows with `target_kind = 'ATTRIBUTE'` and a non-null `target_parent_id`.
+- `AttributeRef` (in `cranium.core.models.knowledge`) — pair-shaped reference carrying `attributeId` + `ownerEntityTypeId` for any consumer that needs to materialise `entity_relationships` rows with `target_kind = 'ATTRIBUTE'` and a non-null `target_parent_id`.
 
 ## [2026-04-29] — Entity Connotation Pipeline Phase A (Polymorphic Semantic Snapshot)
 
@@ -60,14 +60,14 @@
 - Added `EntityEmbeddingRepository` with `findByEntityId`, `findByWorkspaceId`, `deleteByEntityId` (no similarity-search query yet)
 - Created `EnrichmentService` orchestrating the pipeline lifecycle: queue claim, batched context assembly, embedding storage. Injects 10 Entity-domain repositories directly to assemble the snapshot
 - Created `SemanticTextBuilderService` rendering `EnrichmentContext` into 6-section Markdown text with a 4-step progressive truncation algorithm under a 27 k character budget
-- Added `EmbeddingProvider` interface plus `OpenAiEmbeddingProvider` (default, `matchIfMissing=true`) and `OllamaEmbeddingProvider` (explicit `riven.enrichment.provider=ollama`); both blocking, both `@ConditionalOnProperty`-gated
-- Added `EnrichmentClientConfiguration` (`@Configuration` exposing two qualified `WebClient` beans) and `EnrichmentConfigurationProperties` (`@ConfigurationProperties(prefix = "riven.enrichment")`)
+- Added `EmbeddingProvider` interface plus `OpenAiEmbeddingProvider` (default, `matchIfMissing=true`) and `OllamaEmbeddingProvider` (explicit `cranium.enrichment.provider=ollama`); both blocking, both `@ConditionalOnProperty`-gated
+- Added `EnrichmentClientConfiguration` (`@Configuration` exposing two qualified `WebClient` beans) and `EnrichmentConfigurationProperties` (`@ConfigurationProperties(prefix = "cranium.enrichment")`)
 - Added Temporal `EnrichmentWorkflow` interface and `EnrichmentWorkflowImpl` (NOT a Spring bean — Temporal-managed lifecycle, uses `Workflow.getLogger()` for determinism, 60s `startToCloseTimeout`, 3-attempt exponential backoff)
 - Added Temporal `EnrichmentActivities` interface and `EnrichmentActivitiesImpl` (`@Component`, thin delegation to services)
 - Added `ENRICHMENT_EMBED_QUEUE = "enrichment.embed"` constant to `TemporalWorkerConfiguration` and registered enrichment workflow + activities on the dedicated worker
 - Extended `ExecutionJobType` enum with `ENRICHMENT` and `ExecutionQueueStatus` enum with `COMPLETED`
 - Added `claimPendingEnrichmentJobs` and `findStaleClaimedEnrichmentItems` queries to `ExecutionQueueRepository`
-- Added `riven.enrichment.*` configuration block to `application.yml` with env-var defaults
+- Added `cranium.enrichment.*` configuration block to `application.yml` with env-var defaults
 
 **New cross-domain dependencies:** yes
 
@@ -83,7 +83,7 @@
 - `EnrichmentActivities` / `EnrichmentActivitiesImpl` — Spring-managed activity layer registered on `enrichment.embed`
 - `EmbeddingProvider` / `OpenAiEmbeddingProvider` / `OllamaEmbeddingProvider` — Pluggable embedding API client abstraction
 - `EnrichmentClientConfiguration` — `@Configuration` wiring qualified `WebClient` beans
-- `EnrichmentConfigurationProperties` — Typed properties for `riven.enrichment.*`
+- `EnrichmentConfigurationProperties` — Typed properties for `cranium.enrichment.*`
 - `EntityEmbeddingEntity` / `EntityEmbeddingModel` / `EntityEmbeddingRepository` — Persistence trio for vector embeddings
 
 ## [2026-04-09] — Schema Reconciliation for Workspace Entity Types
@@ -238,7 +238,7 @@
 - Created full feature design for Integration Data Sync Pipeline covering webhook ingestion, Temporal sync workflow, batch dedup, two-pass processing, and connection health aggregation
 - Created ADR-008: Temporal for Integration Sync Orchestration — chooses durable workflow over Spring @Async or message queues
 - Created ADR-009: Unique Index Deduplication over Mapping Table — uses existing entity columns with partial unique index instead of separate mapping table
-- Created ADR-010: Webhook-Driven Connection Creation — removes PENDING_AUTHORIZATION/AUTHORIZING states, connections created from auth webhook
+- Created ADR-010: Webhook-Dcranium Connection Creation — removes PENDING_AUTHORIZATION/AUTHORIZING states, connections created from auth webhook
 - Created Integration Data Sync Pipeline flow document covering auth webhook, sync webhook dispatch, and 3-pass sync workflow execution paths
 - Updated Entity Integration Sync sub-domain plan: revised vision (source_external_id dedup replaces tiered IR), updated component table (10 components), simplified data flow, corrected design constraints (raw SQL not Flyway), added 6 new decision entries
 
@@ -467,7 +467,7 @@
 - Introduced Identity Resolution domain — Temporal-orchestrated pipeline for detecting duplicate entities using pg_trgm trigram similarity, weighted scoring, and human-reviewable match suggestions
 - New matching pipeline: IdentityMatchCandidateService (pg_trgm blocking), IdentityMatchScoringService (weighted average), IdentityMatchSuggestionService (idempotent persistence with re-suggestion logic)
 - New Temporal workflow/activities on dedicated `identity.match` task queue, isolated from default workflow queue
-- Event-driven trigger: EntityService publishes IdentityMatchTriggerEvent → IdentityMatchTriggerListener → queue dispatch → Temporal pipeline
+- Event-dcranium trigger: EntityService publishes IdentityMatchTriggerEvent → IdentityMatchTriggerListener → queue dispatch → Temporal pipeline
 - Queue management services: IdentityMatchQueueService (dedup enqueue), IdentityMatchDispatcherService (ShedLock polling), IdentityMatchQueueProcessorService (REQUIRES_NEW dispatch)
 - EntityTypeClassificationService caches IDENTIFIER-classified attributes per entity type
 - Scaffolded cluster entities (IdentityClusterEntity, IdentityClusterMemberEntity) for future phase

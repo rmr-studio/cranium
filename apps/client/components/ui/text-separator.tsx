@@ -1,5 +1,5 @@
-import { Separator } from '@riven/ui/separator';
-import { cn } from '@riven/utils';
+import { Separator } from '@cranium/ui/separator';
+import { cn } from '@cranium/utils';
 import * as React from 'react';
 
 interface TextSeparatorProps {

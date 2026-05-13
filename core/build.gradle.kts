@@ -1,3 +1,4 @@
+
 plugins {
     kotlin("jvm") version "2.1.21"
     kotlin("plugin.spring") version "2.1.21"
@@ -6,7 +7,7 @@ plugins {
     kotlin("plugin.jpa") version "2.1.21"
 }
 
-group = "riven"
+group = "cranium"
 version = "0.0.1-SNAPSHOT"
 
 java {

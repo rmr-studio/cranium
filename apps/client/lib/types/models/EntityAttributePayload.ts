@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -14,17 +14,15 @@
 
 import type { EntityAttributePrimitivePayload } from './EntityAttributePrimitivePayload';
 import {
-    instanceOfEntityAttributePrimitivePayload,
-    EntityAttributePrimitivePayloadFromJSON,
     EntityAttributePrimitivePayloadFromJSONTyped,
     EntityAttributePrimitivePayloadToJSON,
+    instanceOfEntityAttributePrimitivePayload
 } from './EntityAttributePrimitivePayload';
 import type { EntityAttributeRelationPayload } from './EntityAttributeRelationPayload';
 import {
-    instanceOfEntityAttributeRelationPayload,
-    EntityAttributeRelationPayloadFromJSON,
     EntityAttributeRelationPayloadFromJSONTyped,
     EntityAttributeRelationPayloadToJSON,
+    instanceOfEntityAttributeRelationPayload
 } from './EntityAttributeRelationPayload';
 
 /**

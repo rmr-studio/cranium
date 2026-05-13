@@ -1,8 +1,8 @@
-package riven.core.configuration.properties
+package cranium.core.configuration.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 
-@ConfigurationProperties("riven.websocket")
+@ConfigurationProperties("cranium.websocket")
 data class WebSocketConfigurationProperties(
     /** STOMP endpoint path that clients connect to */
     val endpoint: String = "/ws",

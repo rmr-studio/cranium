@@ -1,4 +1,4 @@
-package riven.core.models.catalog
+package cranium.core.models.catalog
 
 import java.time.ZonedDateTime
 import java.util.*

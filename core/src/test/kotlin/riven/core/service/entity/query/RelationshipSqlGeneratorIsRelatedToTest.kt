@@ -1,8 +1,8 @@
-package riven.core.service.entity.query
+package cranium.core.service.entity.query
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import riven.core.models.entity.query.filter.RelationshipFilter
+import cranium.core.models.entity.query.filter.RelationshipFilter
 
 /**
  * Unit tests for [RelationshipSqlGenerator.generateIsRelatedTo].

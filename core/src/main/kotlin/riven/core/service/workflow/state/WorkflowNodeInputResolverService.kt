@@ -1,9 +1,9 @@
-package riven.core.service.workflow.state
+package cranium.core.service.workflow.state
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
-import riven.core.enums.workflow.WorkflowStatus
-import riven.core.models.workflow.engine.state.WorkflowDataStore
+import cranium.core.enums.workflow.WorkflowStatus
+import cranium.core.models.workflow.engine.state.WorkflowDataStore
 
 /**
  * Service for resolving template references against the workflow datastore.

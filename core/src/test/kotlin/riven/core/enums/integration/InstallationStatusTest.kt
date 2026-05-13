@@ -1,10 +1,10 @@
-package riven.core.enums.integration
+package cranium.core.enums.integration
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import riven.core.enums.integration.InstallationStatus
+import cranium.core.enums.integration.InstallationStatus
 
 class InstallationStatusTest {
 

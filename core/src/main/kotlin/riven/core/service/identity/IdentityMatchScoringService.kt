@@ -1,11 +1,11 @@
-package riven.core.service.identity
+package cranium.core.service.identity
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
-import riven.core.enums.identity.MatchSignalType
-import riven.core.models.identity.CandidateMatch
-import riven.core.models.identity.MatchSignal
-import riven.core.models.identity.ScoredCandidate
+import cranium.core.enums.identity.MatchSignalType
+import cranium.core.models.identity.CandidateMatch
+import cranium.core.models.identity.MatchSignal
+import cranium.core.models.identity.ScoredCandidate
 import java.util.UUID
 
 /**

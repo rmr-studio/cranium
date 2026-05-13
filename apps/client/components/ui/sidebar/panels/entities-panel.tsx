@@ -3,7 +3,7 @@
 import { useEntityTypes } from '@/components/feature-modules/entity/hooks/query/type/use-entity-types';
 import { useWorkspaceStore } from '@/components/feature-modules/workspace/provider/workspace-provider';
 import { IconCell } from '@/components/ui/icon/icon-cell';
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 import { PlusCircle, SquareDashedMousePointer } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';

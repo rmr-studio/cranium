@@ -1,7 +1,7 @@
-package riven.core.entity.entity
+package cranium.core.entity.entity
 
 import jakarta.persistence.*
-import riven.core.models.common.SoftDeletable
+import cranium.core.models.common.SoftDeletable
 import java.time.ZonedDateTime
 import java.util.*
 

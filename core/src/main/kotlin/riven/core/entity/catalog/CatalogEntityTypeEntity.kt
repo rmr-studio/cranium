@@ -1,17 +1,17 @@
-package riven.core.entity.catalog
+package cranium.core.entity.catalog
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.Type
 import org.hibernate.annotations.UpdateTimestamp
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.entity.EntityTypeRole
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.models.catalog.CatalogEntityTypeModel
-import riven.core.models.catalog.CatalogSemanticMetadataModel
-import riven.core.models.catalog.ConnotationSignals
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.entity.EntityTypeRole
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.models.catalog.CatalogEntityTypeModel
+import cranium.core.models.catalog.CatalogSemanticMetadataModel
+import cranium.core.models.catalog.ConnotationSignals
 import java.time.ZonedDateTime
 import java.util.*
 

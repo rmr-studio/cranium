@@ -1,4 +1,4 @@
-package riven.core.entity.identity
+package cranium.core.entity.identity
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -6,7 +6,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import riven.core.models.identity.IdentityClusterMember
+import cranium.core.models.identity.IdentityClusterMember
 import java.time.ZonedDateTime
 import java.util.UUID
 

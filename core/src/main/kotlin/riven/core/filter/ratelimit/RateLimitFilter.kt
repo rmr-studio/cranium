@@ -1,4 +1,4 @@
-package riven.core.filter.ratelimit
+package cranium.core.filter.ratelimit
 
 import tools.jackson.databind.ObjectMapper
 import com.github.benmanes.caffeine.cache.Cache
@@ -17,9 +17,9 @@ import org.springframework.security.web.servlet.util.matcher.PathPatternRequestM
 import org.springframework.security.web.util.matcher.OrRequestMatcher
 import java.net.InetAddress
 import org.springframework.web.filter.OncePerRequestFilter
-import riven.core.configuration.properties.RateLimitConfigurationProperties
-import riven.core.enums.common.ApiError
-import riven.core.models.response.common.ErrorResponse
+import cranium.core.configuration.properties.RateLimitConfigurationProperties
+import cranium.core.enums.common.ApiError
+import cranium.core.models.response.common.ErrorResponse
 import java.time.Duration
 
 /**
@@ -31,7 +31,7 @@ import java.time.Duration
  * from a configured trusted proxy CIDR; otherwise remoteAddr is used.
  *
  * CORS preflight (OPTIONS) requests are passed through without consuming a bucket token.
- * Feature-flagged via `riven.rate-limit.enabled`.
+ * Feature-flagged via `cranium.rate-limit.enabled`.
  *
  * Fail-open: any exception in the rate-limit logic logs a warning, increments an error
  * counter, and passes the request through. Downstream filter chain exceptions propagate

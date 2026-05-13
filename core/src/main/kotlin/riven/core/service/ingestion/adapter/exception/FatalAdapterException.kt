@@ -1,4 +1,4 @@
-package riven.core.service.ingestion.adapter.exception
+package cranium.core.service.ingestion.adapter.exception
 
 /**
  * Sealed base for non-retryable adapter failures. Each concrete leaf is listed

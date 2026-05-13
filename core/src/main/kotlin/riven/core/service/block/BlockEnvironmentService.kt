@@ -1,34 +1,34 @@
-package riven.core.service.block
+package cranium.core.service.block
 
 import io.github.oshai.kotlinlogging.KLogger
 import jakarta.transaction.Transactional
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
-import riven.core.entity.activity.ActivityLogEntity
-import riven.core.entity.block.BlockEntity
-import riven.core.enums.activity.Activity
-import riven.core.enums.block.node.BlockReferenceWarning
-import riven.core.enums.block.request.BlockOperationType
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.util.OperationType
-import riven.core.exceptions.NotFoundException
-import riven.core.models.block.BlockEnvironment
-import riven.core.models.block.layout.TreeLayout
-import riven.core.models.block.layout.Widget
-import riven.core.models.block.metadata.BlockReferenceMetadata
-import riven.core.models.block.metadata.EntityReferenceMetadata
-import riven.core.models.block.operation.*
-import riven.core.models.block.tree.*
-import riven.core.models.request.block.HydrateBlocksRequest
-import riven.core.models.request.block.OverwriteEnvironmentRequest
-import riven.core.models.request.block.SaveEnvironmentRequest
-import riven.core.models.request.block.StructuralOperationRequest
-import riven.core.models.response.block.OverwriteEnvironmentResponse
-import riven.core.models.response.block.SaveEnvironmentResponse
-import riven.core.models.response.block.internal.BlockHydrationResult
-import riven.core.service.activity.ActivityService
-import riven.core.models.websocket.BlockEnvironmentEvent
-import riven.core.service.auth.AuthTokenService
+import cranium.core.entity.activity.ActivityLogEntity
+import cranium.core.entity.block.BlockEntity
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.block.node.BlockReferenceWarning
+import cranium.core.enums.block.request.BlockOperationType
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.util.OperationType
+import cranium.core.exceptions.NotFoundException
+import cranium.core.models.block.BlockEnvironment
+import cranium.core.models.block.layout.TreeLayout
+import cranium.core.models.block.layout.Widget
+import cranium.core.models.block.metadata.BlockReferenceMetadata
+import cranium.core.models.block.metadata.EntityReferenceMetadata
+import cranium.core.models.block.operation.*
+import cranium.core.models.block.tree.*
+import cranium.core.models.request.block.HydrateBlocksRequest
+import cranium.core.models.request.block.OverwriteEnvironmentRequest
+import cranium.core.models.request.block.SaveEnvironmentRequest
+import cranium.core.models.request.block.StructuralOperationRequest
+import cranium.core.models.response.block.OverwriteEnvironmentResponse
+import cranium.core.models.response.block.SaveEnvironmentResponse
+import cranium.core.models.response.block.internal.BlockHydrationResult
+import cranium.core.service.activity.ActivityService
+import cranium.core.models.websocket.BlockEnvironmentEvent
+import cranium.core.service.auth.AuthTokenService
 import org.springframework.context.ApplicationEventPublisher
 import java.util.*
 
@@ -296,7 +296,7 @@ class BlockEnvironmentService(
     }
 
     /**
-     * Builds block trees from the layout structure (layout-driven approach).
+     * Builds block trees from the layout structure (layout-dcranium approach).
      *
      * This is more efficient than BFS when layout is available because:
      * - Single bulk query for all blocks (instead of recursive queries)
@@ -392,7 +392,7 @@ class BlockEnvironmentService(
                 )
             }
 
-            is riven.core.models.block.metadata.BlockContentMetadata -> {
+            is cranium.core.models.block.metadata.BlockContentMetadata -> {
                 // Content blocks: children come from layout subGridOpts, not DB!
                 val childNodes = widget.subGridOpts?.children?.mapNotNull { childWidget ->
                     buildTreeFromWidget(childWidget, blocksById)?.root

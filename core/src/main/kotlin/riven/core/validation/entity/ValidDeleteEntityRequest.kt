@@ -1,4 +1,4 @@
-package riven.core.validation.entity
+package cranium.core.validation.entity
 
 import jakarta.validation.Constraint
 import jakarta.validation.Payload

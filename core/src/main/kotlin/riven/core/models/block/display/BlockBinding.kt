@@ -1,9 +1,9 @@
-package riven.core.models.block.display
+package cranium.core.models.block.display
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import tools.jackson.databind.annotation.JsonTypeIdResolver
-import riven.core.configuration.util.CaseInsensitiveTypeIdResolver
+import cranium.core.configuration.util.CaseInsensitiveTypeIdResolver
 import java.io.Serializable
 
 /** Map a data source to a component prop */

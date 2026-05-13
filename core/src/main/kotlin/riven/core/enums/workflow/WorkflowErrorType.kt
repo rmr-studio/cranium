@@ -1,4 +1,4 @@
-package riven.core.enums.workflow
+package cranium.core.enums.workflow
 
 enum class WorkflowErrorType(val retryable: Boolean) {
     HTTP_CLIENT_ERROR(false),      // 4xx - non-retryable

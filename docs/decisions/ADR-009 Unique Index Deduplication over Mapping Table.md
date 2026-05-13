@@ -1,10 +1,14 @@
 ---
 tags:
-  - adr/proposed
+  - adr/accepted
   - architecture/decision
 Created: 2026-03-16
+Updated: 2026-05-13
 ---
+
 # ADR-009: Unique Index Deduplication over Mapping Table
+
+> **Still in force after the 2026-05 architecture pivot** — see [[architecture-pivot]] §Reuse / Rework / Replace / Delete. The "unique partial index instead of a mapping table" dedup pattern is reused: in v1 it covers `source_entities` (skip re-emit when `content_hash` is unchanged — E1) and the page-resolution suggestion queue (partial-unique-index dedup — see [[ADR-015 Page Resolution Policy]]). The original integration-sync context is gone; the pattern stands.
 
 ---
 
@@ -106,7 +110,7 @@ A standard unique constraint on `(workspace_id, source_integration_id, source_ex
 
 ## Related
 
-- [[riven/docs/system-design/flows/Integration Data Sync Pipeline]] — Feature design for the sync pipeline that uses this dedup mechanism
-- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]] — Sub-domain plan for entity sync processing
+- [[cranium/docs/system-design/flows/Integration Data Sync Pipeline]] — Feature design for the sync pipeline that uses this dedup mechanism
+- [[cranium/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]] — Sub-domain plan for entity sync processing
 - [[Entity Provenance Tracking]] — Feature that introduced the `source_integration_id` and `source_external_id` columns
-- [[riven/docs/system-design/domains/Entities/Entities]] — Domain containing the entities table and repository
+- [[cranium/docs/system-design/domains/Entities/Entities]] — Domain containing the entities table and repository

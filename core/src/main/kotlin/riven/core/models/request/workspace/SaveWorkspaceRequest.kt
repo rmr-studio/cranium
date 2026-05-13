@@ -1,6 +1,6 @@
-package riven.core.models.request.workspace
+package cranium.core.models.request.workspace
 
-import riven.core.enums.workspace.WorkspacePlan
+import cranium.core.enums.workspace.WorkspacePlan
 import java.util.*
 
 data class SaveWorkspaceRequest(

@@ -1,4 +1,4 @@
-package riven.core.service.entity.type
+package cranium.core.service.entity.type
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -9,24 +9,24 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.DataType
-import riven.core.enums.integration.SourceType
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.models.common.validation.Schema
-import riven.core.models.request.entity.type.SaveAttributeDefinitionRequest
-import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.EntityUniqueValuesRepository
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.entity.EntityAttributeService
-import riven.core.service.entity.EntityTypeSemanticMetadataService
-import riven.core.service.entity.EntityValidationService
-import riven.core.service.schema.SchemaService
-import riven.core.service.util.BaseServiceTest
-import riven.core.service.util.WithUserPersona
-import riven.core.service.util.WorkspaceRole
-import riven.core.service.util.factory.entity.EntityFactory
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.DataType
+import cranium.core.enums.integration.SourceType
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.models.common.validation.Schema
+import cranium.core.models.request.entity.type.SaveAttributeDefinitionRequest
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.repository.entity.EntityUniqueValuesRepository
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.entity.EntityAttributeService
+import cranium.core.service.entity.EntityTypeSemanticMetadataService
+import cranium.core.service.entity.EntityValidationService
+import cranium.core.service.schema.SchemaService
+import cranium.core.service.util.BaseServiceTest
+import cranium.core.service.util.WithUserPersona
+import cranium.core.service.util.WorkspaceRole
+import cranium.core.service.util.factory.entity.EntityFactory
 import java.util.*
 
 @SpringBootTest(

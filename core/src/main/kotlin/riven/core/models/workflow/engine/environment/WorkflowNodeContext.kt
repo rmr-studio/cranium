@@ -1,4 +1,4 @@
-package riven.core.models.workflow.engine.environment
+package cranium.core.models.workflow.engine.environment
 
 class WorkflowNodeContext {
 }

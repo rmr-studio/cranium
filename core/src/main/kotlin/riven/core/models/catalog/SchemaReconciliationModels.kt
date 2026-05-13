@@ -1,7 +1,7 @@
-package riven.core.models.catalog
+package cranium.core.models.catalog
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import riven.core.enums.entity.validation.EntityTypeChangeType
+import cranium.core.enums.entity.validation.EntityTypeChangeType
 import java.util.*
 
 /**

@@ -1,4 +1,4 @@
-package riven.core.models.entity.query.pagination
+package cranium.core.models.entity.query.pagination
 
 import io.swagger.v3.oas.annotations.media.Schema
 import java.util.*

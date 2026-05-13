@@ -1,4 +1,4 @@
-package riven.core.filter.ratelimit
+package cranium.core.filter.ratelimit
 
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.databind.json.JsonMapper
@@ -12,9 +12,9 @@ import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.ActiveProfiles
-import riven.core.configuration.analytics.PostHogConfiguration
-import riven.core.configuration.ratelimit.RateLimitFilterConfiguration
-import riven.core.configuration.util.LoggerConfig
+import cranium.core.configuration.analytics.PostHogConfiguration
+import cranium.core.configuration.ratelimit.RateLimitFilterConfiguration
+import cranium.core.configuration.util.LoggerConfig
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue

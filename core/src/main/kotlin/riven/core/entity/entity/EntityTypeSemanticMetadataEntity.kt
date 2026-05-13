@@ -1,15 +1,15 @@
-package riven.core.entity.entity
+package cranium.core.entity.entity
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.Type
-import riven.core.entity.util.AuditableSoftDeletableEntity
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.entity.semantics.SemanticMetadataTargetType
-import riven.core.enums.identity.MatchSignalType
-import riven.core.enums.identity.MatchSignalTypeConverter
-import riven.core.models.entity.EntityTypeSemanticMetadata
+import cranium.core.entity.util.AuditableSoftDeletableEntity
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.enums.entity.semantics.SemanticMetadataTargetType
+import cranium.core.enums.identity.MatchSignalType
+import cranium.core.enums.identity.MatchSignalTypeConverter
+import cranium.core.models.entity.EntityTypeSemanticMetadata
 import java.util.*
 
 /**

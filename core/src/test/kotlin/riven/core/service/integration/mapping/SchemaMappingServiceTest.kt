@@ -1,4 +1,4 @@
-package riven.core.service.integration.mapping
+package cranium.core.service.integration.mapping
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -6,11 +6,11 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import riven.core.configuration.util.LoggerConfig
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.integration.CoercionType
-import riven.core.models.integration.mapping.FieldTransform
-import riven.core.models.integration.mapping.ResolvedFieldMapping
+import cranium.core.configuration.util.LoggerConfig
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.integration.CoercionType
+import cranium.core.models.integration.mapping.FieldTransform
+import cranium.core.models.integration.mapping.ResolvedFieldMapping
 import java.util.*
 
 /**

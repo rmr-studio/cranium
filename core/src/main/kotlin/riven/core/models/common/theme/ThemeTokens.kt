@@ -1,4 +1,4 @@
-package riven.core.models.common.theme
+package cranium.core.models.common.theme
 
 /**
  * Theme Tokens used across the application for consistent styling

@@ -1,4 +1,4 @@
-package riven.core.filter.integration
+package cranium.core.filter.integration
 
 import io.github.oshai.kotlinlogging.KLogger
 import jakarta.servlet.FilterChain
@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletRequestWrapper
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.web.filter.OncePerRequestFilter
-import riven.core.configuration.properties.NangoConfigurationProperties
+import cranium.core.configuration.properties.NangoConfigurationProperties
 import java.io.BufferedReader
 import java.io.ByteArrayInputStream
 import java.io.InputStreamReader

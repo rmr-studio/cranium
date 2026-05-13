@@ -2,8 +2,8 @@
 
 import { AvatarCropDialog } from '@/components/ui/avatar-crop-dialog';
 import type { InputValidation } from '@/lib/interfaces/interface';
-import { Button } from '@riven/ui/button';
-import { Label } from '@riven/ui/label';
+import { Button } from '@cranium/ui/button';
+import { Label } from '@cranium/ui/label';
 import { Pencil, Upload, UserRound } from 'lucide-react';
 import Image from 'next/image';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';

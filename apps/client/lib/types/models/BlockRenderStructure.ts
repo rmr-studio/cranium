@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -16,24 +16,18 @@ import { mapValues } from '../runtime';
 import type { BlockComponentNode } from './BlockComponentNode';
 import {
     BlockComponentNodeFromJSON,
-    BlockComponentNodeFromJSONTyped,
-    BlockComponentNodeToJSON,
-    BlockComponentNodeToJSONTyped,
+    BlockComponentNodeToJSON
 } from './BlockComponentNode';
-import type { ThemeTokens } from './ThemeTokens';
-import {
-    ThemeTokensFromJSON,
-    ThemeTokensFromJSONTyped,
-    ThemeTokensToJSON,
-    ThemeTokensToJSONTyped,
-} from './ThemeTokens';
 import type { LayoutGrid } from './LayoutGrid';
 import {
     LayoutGridFromJSON,
-    LayoutGridFromJSONTyped,
-    LayoutGridToJSON,
-    LayoutGridToJSONTyped,
+    LayoutGridToJSON
 } from './LayoutGrid';
+import type { ThemeTokens } from './ThemeTokens';
+import {
+    ThemeTokensFromJSON,
+    ThemeTokensToJSON
+} from './ThemeTokens';
 
 /**
  * 

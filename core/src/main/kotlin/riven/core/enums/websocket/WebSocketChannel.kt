@@ -1,4 +1,4 @@
-package riven.core.enums.websocket
+package cranium.core.enums.websocket
 
 import java.util.UUID
 

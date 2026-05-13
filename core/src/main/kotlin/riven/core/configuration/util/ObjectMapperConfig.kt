@@ -1,4 +1,4 @@
-package riven.core.configuration.util
+package cranium.core.configuration.util
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

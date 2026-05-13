@@ -1,21 +1,21 @@
-package riven.core.service.entity.query
+package cranium.core.service.entity.query
 
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import riven.core.entity.entity.EntityEntity
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.DataType
-import riven.core.enums.entity.query.FilterOperator
-import riven.core.models.common.validation.Schema
-import riven.core.models.entity.configuration.ColumnConfiguration
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.models.entity.query.EntityQuery
-import riven.core.models.entity.query.filter.FilterValue
-import riven.core.models.entity.query.filter.QueryFilter
-import riven.core.models.entity.query.pagination.QueryPagination
+import cranium.core.entity.entity.EntityEntity
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.DataType
+import cranium.core.enums.entity.query.FilterOperator
+import cranium.core.models.common.validation.Schema
+import cranium.core.models.entity.configuration.ColumnConfiguration
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.models.entity.query.EntityQuery
+import cranium.core.models.entity.query.filter.FilterValue
+import cranium.core.models.entity.query.filter.QueryFilter
+import cranium.core.models.entity.query.pagination.QueryPagination
 import java.util.*
 
 /**

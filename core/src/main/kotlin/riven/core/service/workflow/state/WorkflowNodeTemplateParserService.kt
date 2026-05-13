@@ -1,4 +1,4 @@
-package riven.core.service.workflow.state
+package cranium.core.service.workflow.state
 
 import org.springframework.stereotype.Service
 

@@ -1,4 +1,4 @@
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 import { AnimatePresence } from 'framer-motion';
 import { CheckIcon, Circle } from 'lucide-react';
 import { FC } from 'react';

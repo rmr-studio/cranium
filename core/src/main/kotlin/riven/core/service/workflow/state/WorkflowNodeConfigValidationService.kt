@@ -1,8 +1,8 @@
-package riven.core.service.workflow.state
+package cranium.core.service.workflow.state
 
 import org.springframework.stereotype.Service
-import riven.core.models.workflow.node.config.validation.ConfigValidationError
-import riven.core.models.workflow.node.config.validation.ConfigValidationResult
+import cranium.core.models.workflow.node.config.validation.ConfigValidationError
+import cranium.core.models.workflow.node.config.validation.ConfigValidationResult
 import java.time.Duration
 import java.util.UUID
 

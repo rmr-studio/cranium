@@ -1,4 +1,4 @@
-package riven.core.filter.analytics
+package cranium.core.filter.analytics
 
 import io.github.oshai.kotlinlogging.KLogger
 import jakarta.servlet.FilterChain
@@ -8,14 +8,14 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.filter.OncePerRequestFilter
 import org.springframework.web.servlet.HandlerMapping
-import riven.core.models.analytics.ApiRequestEvent
-import riven.core.service.analytics.PostHogService
+import cranium.core.models.analytics.ApiRequestEvent
+import cranium.core.service.analytics.PostHogService
 import java.util.UUID
 
 /**
  * HTTP filter that automatically captures a `$api_request` PostHog event for every
  * authenticated API request. Extracts method, route template endpoint, status code,
- * latency, userId, workspaceId, and error context set by [riven.core.exceptions.ExceptionHandler].
+ * latency, userId, workspaceId, and error context set by [cranium.core.exceptions.ExceptionHandler].
  *
  * Runs at order -99 (after Spring Security at -100) so that SecurityContext is populated.
  * Event dispatch is delegated to [PostHogService] which handles async queuing internally.

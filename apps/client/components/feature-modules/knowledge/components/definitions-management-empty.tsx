@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@riven/ui/button';
+import { Button } from '@cranium/ui/button';
 import Link from 'next/link';
 
 export function DefinitionsEmpty({ workspaceId }: { workspaceId: string }) {

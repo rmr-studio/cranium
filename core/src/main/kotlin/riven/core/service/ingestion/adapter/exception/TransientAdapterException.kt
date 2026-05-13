@@ -1,4 +1,4 @@
-package riven.core.service.ingestion.adapter.exception
+package cranium.core.service.ingestion.adapter.exception
 
 /**
  * Retryable adapter failure (network blips, rate limits, temporary

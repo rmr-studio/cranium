@@ -1,13 +1,13 @@
-package riven.core.service.ingestion.adapter
+package cranium.core.service.ingestion.adapter
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import riven.core.models.ingestion.adapter.ColumnSchema
-import riven.core.models.ingestion.adapter.RecordBatch
-import riven.core.models.ingestion.adapter.SchemaIntrospectionResult
-import riven.core.models.ingestion.adapter.SourceRecord
-import riven.core.models.ingestion.adapter.SyncMode
-import riven.core.models.ingestion.adapter.TableSchema
+import cranium.core.models.ingestion.adapter.ColumnSchema
+import cranium.core.models.ingestion.adapter.RecordBatch
+import cranium.core.models.ingestion.adapter.SchemaIntrospectionResult
+import cranium.core.models.ingestion.adapter.SourceRecord
+import cranium.core.models.ingestion.adapter.SyncMode
+import cranium.core.models.ingestion.adapter.TableSchema
 import java.util.UUID
 
 /**

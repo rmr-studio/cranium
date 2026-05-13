@@ -1,8 +1,8 @@
-package riven.core.service.util.factory
+package cranium.core.service.util.factory
 
-import riven.core.entity.connector.DataConnectorTableMappingEntity
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticGroup
+import cranium.core.entity.connector.DataConnectorTableMappingEntity
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticGroup
 import java.time.ZonedDateTime
 import java.util.UUID
 

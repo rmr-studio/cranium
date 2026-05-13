@@ -1,9 +1,9 @@
-package riven.core.validation.entity
+package cranium.core.validation.entity
 
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
-import riven.core.enums.entity.EntitySelectType
-import riven.core.models.request.entity.DeleteEntityRequest
+import cranium.core.enums.entity.EntitySelectType
+import cranium.core.models.request.entity.DeleteEntityRequest
 
 class DeleteEntityRequestValidator : ConstraintValidator<ValidDeleteEntityRequest, DeleteEntityRequest> {
 

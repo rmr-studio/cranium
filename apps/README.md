@@ -18,7 +18,7 @@ No Docker needed — run each service directly in its own terminal.
 ### Web (landing page)
 
 ```sh
-pnpm --filter @riven/web dev
+pnpm --filter @cranium/web dev
 ```
 
 Runs on `http://localhost:3000`. Requires a `.env.local` in `apps/web/` with the relevant `NEXT_PUBLIC_*` vars.
@@ -26,7 +26,7 @@ Runs on `http://localhost:3000`. Requires a `.env.local` in `apps/web/` with the
 ### Client (dashboard)
 
 ```sh
-pnpm --filter @riven/client dev
+pnpm --filter @cranium/client dev
 ```
 
 Runs on `http://localhost:3001` (or whichever port Next.js assigns). Requires the backend running and a `.env.local` in `apps/client/` with `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_API_URL`, etc.
@@ -43,11 +43,11 @@ Runs on `http://localhost:8081`. Requires a running PostgreSQL instance and Supa
 
 You only need to start the services you're working on:
 
-| Working on | Start |
-|------------|-------|
-| Landing page only | web |
-| Dashboard features | core + client |
-| Full stack | web + core + client |
+| Working on         | Start               |
+| ------------------ | ------------------- |
+| Landing page only  | web                 |
+| Dashboard features | core + client       |
+| Full stack         | web + core + client |
 
 ---
 
@@ -55,11 +55,11 @@ You only need to start the services you're working on:
 
 ### Profiles
 
-| Profile | Services | Use case |
-|---------|----------|----------|
-| `web` | web (`:3000`) | Standalone landing page / waitlist |
-| `platform` | core (`:8081`) + client (`:3001`) | Dashboard + backend API |
-| `all` | web + core + client | Full stack |
+| Profile    | Services                          | Use case                           |
+| ---------- | --------------------------------- | ---------------------------------- |
+| `web`      | web (`:3000`)                     | Standalone landing page / waitlist |
+| `platform` | core (`:8081`) + client (`:3001`) | Dashboard + backend API            |
+| `all`      | web + core + client               | Full stack                         |
 
 ## Commands
 
@@ -101,44 +101,44 @@ SERVER_PORT=8081
 
 ### Required for all profiles
 
-| Variable | Description |
-|----------|-------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| Variable                        | Description            |
+| ------------------------------- | ---------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase project URL   |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key |
 
 ### Backend (platform, all)
 
-| Variable | Description |
-|----------|-------------|
-| `POSTGRES_DB_JDBC` | PostgreSQL JDBC connection string |
-| `JWT_AUTH_URL` | Supabase Auth URL |
-| `JWT_SECRET_KEY` | JWT signing secret |
-| `SUPABASE_URL` | Supabase project URL (server-side) |
-| `SUPABASE_KEY` | Supabase service key |
-| `ORIGIN_API_URL` | Allowed CORS origin |
-| `TEMPORAL_SERVER_ADDRESS` | Temporal server address |
+| Variable                  | Description                        |
+| ------------------------- | ---------------------------------- |
+| `POSTGRES_DB_JDBC`        | PostgreSQL JDBC connection string  |
+| `JWT_AUTH_URL`            | Supabase Auth URL                  |
+| `JWT_SECRET_KEY`          | JWT signing secret                 |
+| `SUPABASE_URL`            | Supabase project URL (server-side) |
+| `SUPABASE_KEY`            | Supabase service key               |
+| `ORIGIN_API_URL`          | Allowed CORS origin                |
+| `TEMPORAL_SERVER_ADDRESS` | Temporal server address            |
 
 ### Client app (platform, all)
 
-| Variable | Description |
-|----------|-------------|
-| `NEXT_PUBLIC_API_URL` | Backend API base URL |
-| `NEXT_PUBLIC_HOSTED_URL` | Client app public URL (OAuth redirects) |
-| `NEXT_PUBLIC_AUTH_PROVIDER` | Auth provider (`supabase`) |
+| Variable                    | Description                             |
+| --------------------------- | --------------------------------------- |
+| `NEXT_PUBLIC_API_URL`       | Backend API base URL                    |
+| `NEXT_PUBLIC_HOSTED_URL`    | Client app public URL (OAuth redirects) |
+| `NEXT_PUBLIC_AUTH_PROVIDER` | Auth provider (`supabase`)              |
 
 ### Web app (web, all)
 
-| Variable | Description |
-|----------|-------------|
+| Variable               | Description             |
+| ---------------------- | ----------------------- |
 | `NEXT_PUBLIC_SITE_URL` | Landing page public URL |
 
 ### Cross-app auth (all)
 
-| Variable | Description |
-|----------|-------------|
-| `NEXT_PUBLIC_AUTH_ENABLED` | Enable shared auth on landing page |
-| `NEXT_PUBLIC_COOKIE_DOMAIN` | Shared cookie domain |
-| `NEXT_PUBLIC_CLIENT_URL` | Client URL for login redirects from web |
+| Variable                    | Description                             |
+| --------------------------- | --------------------------------------- |
+| `NEXT_PUBLIC_AUTH_ENABLED`  | Enable shared auth on landing page      |
+| `NEXT_PUBLIC_COOKIE_DOMAIN` | Shared cookie domain                    |
+| `NEXT_PUBLIC_CLIENT_URL`    | Client URL for login redirects from web |
 
 ## Build Args
 

@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,35 +12,26 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
 import type { WorkflowNodeConfigField } from './WorkflowNodeConfigField';
 import {
     WorkflowNodeConfigFieldFromJSON,
-    WorkflowNodeConfigFieldFromJSONTyped,
-    WorkflowNodeConfigFieldToJSON,
-    WorkflowNodeConfigFieldToJSONTyped,
+    WorkflowNodeConfigFieldToJSON
 } from './WorkflowNodeConfigField';
-import type { WorkflowNodeTypeMetadata } from './WorkflowNodeTypeMetadata';
-import {
-    WorkflowNodeTypeMetadataFromJSON,
-    WorkflowNodeTypeMetadataFromJSONTyped,
-    WorkflowNodeTypeMetadataToJSON,
-    WorkflowNodeTypeMetadataToJSONTyped,
-} from './WorkflowNodeTypeMetadata';
 import type { WorkflowNodeOutputMetadata } from './WorkflowNodeOutputMetadata';
 import {
     WorkflowNodeOutputMetadataFromJSON,
-    WorkflowNodeOutputMetadataFromJSONTyped,
-    WorkflowNodeOutputMetadataToJSON,
-    WorkflowNodeOutputMetadataToJSONTyped,
+    WorkflowNodeOutputMetadataToJSON
 } from './WorkflowNodeOutputMetadata';
 import type { WorkflowNodeType } from './WorkflowNodeType';
 import {
     WorkflowNodeTypeFromJSON,
-    WorkflowNodeTypeFromJSONTyped,
-    WorkflowNodeTypeToJSON,
-    WorkflowNodeTypeToJSONTyped,
+    WorkflowNodeTypeToJSON
 } from './WorkflowNodeType';
+import type { WorkflowNodeTypeMetadata } from './WorkflowNodeTypeMetadata';
+import {
+    WorkflowNodeTypeMetadataFromJSON,
+    WorkflowNodeTypeMetadataToJSON
+} from './WorkflowNodeTypeMetadata';
 
 /**
  * 

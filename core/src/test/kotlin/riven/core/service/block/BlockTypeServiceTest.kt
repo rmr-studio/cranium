@@ -1,4 +1,4 @@
-package riven.core.service.block
+package cranium.core.service.block
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -6,16 +6,16 @@ import org.mockito.kotlin.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.block.BlockTypeEntity
-import riven.core.enums.common.validation.ValidationScope
-import riven.core.models.request.block.CreateBlockTypeRequest
-import riven.core.repository.block.BlockTypeRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.util.BaseServiceTest
-import riven.core.service.util.SecurityTestConfig
-import riven.core.service.util.factory.block.BlockFactory
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.entity.block.BlockTypeEntity
+import cranium.core.enums.common.validation.ValidationScope
+import cranium.core.models.request.block.CreateBlockTypeRequest
+import cranium.core.repository.block.BlockTypeRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.util.BaseServiceTest
+import cranium.core.service.util.SecurityTestConfig
+import cranium.core.service.util.factory.block.BlockFactory
 import java.util.*
 
 @SpringBootTest(classes = [AuthTokenService::class, WorkspaceSecurity::class, SecurityTestConfig::class, BlockTypeService::class])
@@ -60,8 +60,8 @@ class BlockTypeServiceTest : BaseServiceTest() {
 
         val saved = blockTypeService.publishBlockType(req)
         verify(activityService).logActivity(
-            activity = eq(riven.core.enums.activity.Activity.BLOCK_TYPE),
-            operation = eq(riven.core.enums.util.OperationType.CREATE),
+            activity = eq(cranium.core.enums.activity.Activity.BLOCK_TYPE),
+            operation = eq(cranium.core.enums.util.OperationType.CREATE),
             userId = any(),
             workspaceId = eq(orgId),
             entityType = any(),
@@ -126,8 +126,8 @@ class BlockTypeServiceTest : BaseServiceTest() {
         assertFalse(saved.deleted)
 
         verify(activityService).logActivity(
-            activity = eq(riven.core.enums.activity.Activity.BLOCK_TYPE),
-            operation = eq(riven.core.enums.util.OperationType.CREATE),
+            activity = eq(cranium.core.enums.activity.Activity.BLOCK_TYPE),
+            operation = eq(cranium.core.enums.util.OperationType.CREATE),
             userId = any(),
             workspaceId = eq(requireNotNull(type.workspaceId)),
             entityType = any(),

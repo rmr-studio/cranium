@@ -1,6 +1,6 @@
-package riven.core.models.entity.validation
+package cranium.core.models.entity.validation
 
-import riven.core.enums.entity.validation.EntityTypeChangeType
+import cranium.core.enums.entity.validation.EntityTypeChangeType
 
 
 /**

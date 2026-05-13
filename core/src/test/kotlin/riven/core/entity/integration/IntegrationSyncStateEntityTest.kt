@@ -1,11 +1,11 @@
-package riven.core.entity.integration
+package cranium.core.entity.integration
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import riven.core.enums.integration.SyncStatus
-import riven.core.service.util.factory.integration.IntegrationFactory
+import cranium.core.enums.integration.SyncStatus
+import cranium.core.service.util.factory.integration.IntegrationFactory
 import java.util.*
 
 class IntegrationSyncStateEntityTest {

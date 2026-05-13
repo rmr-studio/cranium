@@ -1,6 +1,6 @@
-package riven.core.models.connector
+package cranium.core.models.connector
 
-import riven.core.enums.integration.ConnectionStatus
+import cranium.core.enums.integration.ConnectionStatus
 import java.time.ZonedDateTime
 import java.util.UUID
 

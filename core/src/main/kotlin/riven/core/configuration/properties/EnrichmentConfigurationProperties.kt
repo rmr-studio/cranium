@@ -1,9 +1,9 @@
-package riven.core.configuration.properties
+package cranium.core.configuration.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import riven.core.enums.enrichment.EmbeddingProvider
+import cranium.core.enums.enrichment.EmbeddingProvider
 
-@ConfigurationProperties(prefix = "riven.enrichment")
+@ConfigurationProperties(prefix = "cranium.enrichment")
 data class EnrichmentConfigurationProperties(
     val provider: EmbeddingProvider = EmbeddingProvider.OPENAI,
     val vectorDimensions: Int = 1536,

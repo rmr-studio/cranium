@@ -1,25 +1,25 @@
-package riven.core.service.integration
+package cranium.core.service.integration
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.integration.IntegrationDefinitionEntity
-import riven.core.entity.integration.WorkspaceIntegrationInstallationEntity
-import riven.core.enums.activity.Activity
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.util.OperationType
-import riven.core.exceptions.NotFoundException
-import riven.core.models.common.markDeleted
-import riven.core.models.integration.IntegrationSoftDeleteResult
-import riven.core.models.request.integration.DisableIntegrationRequest
-import riven.core.models.response.integration.IntegrationDisableResponse
-import riven.core.repository.integration.IntegrationDefinitionRepository
-import riven.core.repository.integration.WorkspaceIntegrationInstallationRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.entity.type.EntityTypeService
-import riven.core.util.ServiceUtil.findOrThrow
+import cranium.core.entity.integration.IntegrationDefinitionEntity
+import cranium.core.entity.integration.WorkspaceIntegrationInstallationEntity
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.util.OperationType
+import cranium.core.exceptions.NotFoundException
+import cranium.core.models.common.markDeleted
+import cranium.core.models.integration.IntegrationSoftDeleteResult
+import cranium.core.models.request.integration.DisableIntegrationRequest
+import cranium.core.models.response.integration.IntegrationDisableResponse
+import cranium.core.repository.integration.IntegrationDefinitionRepository
+import cranium.core.repository.integration.WorkspaceIntegrationInstallationRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.entity.type.EntityTypeService
+import cranium.core.util.ServiceUtil.findOrThrow
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -30,7 +30,7 @@ import java.util.*
  * the Nango connection, snapshots lastSyncedAt for gap recovery, and soft-deletes
  * the installation record.
  *
- * Integration enablement (connection creation) is now webhook-driven — connections
+ * Integration enablement (connection creation) is now webhook-dcranium — connections
  * are created by the Nango auth webhook handler after successful OAuth completion.
  */
 @Service
@@ -58,7 +58,7 @@ class IntegrationEnablementService(
      * @return disable response with soft-delete counts
      * @throws NotFoundException if the integration is not enabled or the definition does not exist
      */
-    @PreAuthorize("@workspaceSecurity.hasWorkspaceRole(#workspaceId, T(riven.core.enums.workspace.WorkspaceRoles).ADMIN)")
+    @PreAuthorize("@workspaceSecurity.hasWorkspaceRole(#workspaceId, T(cranium.core.enums.workspace.WorkspaceRoles).ADMIN)")
     fun disableIntegration(workspaceId: UUID, request: DisableIntegrationRequest): IntegrationDisableResponse {
         val (definition, installation, deleteResult) = disableIntegrationTransactional(workspaceId, request)
 

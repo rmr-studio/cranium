@@ -1,10 +1,15 @@
 ---
 tags:
-  - adr/proposed
+  - adr/superseded
   - architecture/decision
 Created: 2026-03-16
+Updated: 2026-05-13
+Superseded By: "[[ADR-014 Deterministic Source-Entity Creation plus Batched LLM Synthesis]]"
 ---
+
 # ADR-008: Temporal for Integration Sync Orchestration
+
+> **Partially superseded by the 2026-05 architecture pivot.** (Note: there are two ADRs numbered 008 in this folder — this one and "ADR-008 Integration-Based Entity Types as Readonly Materialized Views"; renumbering is deferred to avoid breaking links.) **Temporal stays** — it's the orchestration backbone for the new GitHub-scan + LLM-synthesis pipeline and the page-resolution workflow, reusing the same isolated-task-queue / ShedLock + `SKIP LOCKED` dispatcher / workflow-ID-dedup patterns this ADR established. **What's deleted is the integration-sync workflow itself** (the 3-pass `IntegrationSyncWorkflow`, the `integration.sync` task queue, the Nango record-fetch/persist/relationship-resolve/health activities) — that's Phase 1c. The replacement: a deterministic source-parse stage + a batched, coalesced LLM synthesis Temporal workflow over `new_source_events_queue`. See [[architecture-pivot]] §Reuse / Rework / Replace / Delete and [[ADR-014 Deterministic Source-Entity Creation plus Batched LLM Synthesis]].
 
 ---
 
@@ -67,8 +72,8 @@ Process sync records directly in the webhook HTTP handler, returning a response 
 Use Spring Batch's job/step/chunk processing model for sync execution.
 
 - **Pros:** Built-in chunk processing, skip/retry policies, job repository for execution tracking.
-- **Cons:** Designed for batch file processing and scheduled jobs, not API-driven event workflows. Poor fit for webhook-triggered async processing. Job parameterization is cumbersome for dynamic sync inputs. No native support for external API pagination as a data source.
-- **Why rejected:** Architectural mismatch — Spring Batch is optimized for scheduled ETL-style batch jobs, not event-driven integration sync workflows.
+- **Cons:** Designed for batch file processing and scheduled jobs, not API-dcranium event workflows. Poor fit for webhook-triggered async processing. Job parameterization is cumbersome for dynamic sync inputs. No native support for external API pagination as a data source.
+- **Why rejected:** Architectural mismatch — Spring Batch is optimized for scheduled ETL-style batch jobs, not event-dcranium integration sync workflows.
 
 ---
 
@@ -108,7 +113,7 @@ Use Spring Batch's job/step/chunk processing model for sync execution.
 
 ## Related
 
-- [[riven/docs/system-design/flows/Integration Data Sync Pipeline]] — Feature design for the sync pipeline that this decision supports
-- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]] — Sub-domain plan for entity sync processing
-- [[riven/docs/system-design/domains/Workflows/Workflows]] — Existing domain that established Temporal as the workflow orchestration platform
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-001 Nango as Integration Infrastructure]] — Decision to use Nango, whose webhook delivery model motivates Temporal's dedup capability
+- [[cranium/docs/system-design/flows/Integration Data Sync Pipeline]] — Feature design for the sync pipeline that this decision supports
+- [[cranium/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]] — Sub-domain plan for entity sync processing
+- [[cranium/docs/system-design/domains/Workflows/Workflows]] — Existing domain that established Temporal as the workflow orchestration platform
+- [[2. Areas/2.1 Startup & Content/Cranium/2. System Design/decisions/ADR-001 Nango as Integration Infrastructure]] — Decision to use Nango, whose webhook delivery model motivates Temporal's dedup capability

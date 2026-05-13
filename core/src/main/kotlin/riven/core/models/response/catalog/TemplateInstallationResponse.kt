@@ -1,4 +1,4 @@
-package riven.core.models.response.catalog
+package cranium.core.models.response.catalog
 
 import java.util.UUID
 

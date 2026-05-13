@@ -1,4 +1,4 @@
-package riven.core.service.entity
+package cranium.core.service.entity
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -10,46 +10,46 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.context.event.ApplicationEvents
 import org.springframework.test.context.event.RecordApplicationEvents
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.entity.EntityEntity
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.entity.activity.ActivityLogEntity
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.DataType
-import riven.core.enums.entity.EntitySelectType
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.enums.entity.query.FilterOperator
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.models.common.validation.Schema
-import riven.core.enums.core.DynamicDefaultFunction
-import riven.core.models.common.validation.DefaultValue
-import riven.core.models.common.validation.SchemaOptions
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.models.entity.payload.EntityAttributeRequest
-import riven.core.models.entity.query.EntityQueryResult
-import riven.core.models.entity.query.filter.FilterValue
-import riven.core.models.entity.query.filter.QueryFilter
-import riven.core.models.request.entity.DeleteEntityRequest
-import riven.core.models.request.entity.SaveEntityRequest
-import riven.core.repository.entity.EntityRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.entity.query.EntityQueryService
-import riven.core.service.entity.type.EntityTypeAttributeService
-import riven.core.service.entity.type.EntityTypeRelationshipService
-import riven.core.service.entity.type.EntityTypeSequenceService
-import riven.core.service.entity.type.EntityTypeService
-import riven.core.enums.util.OperationType
-import riven.core.models.identity.IdentityMatchTriggerEvent
-import riven.core.models.websocket.EntityEvent
-import riven.core.service.identity.EntityTypeClassificationService
-import riven.core.service.util.BaseServiceTest
-import riven.core.service.util.SecurityTestConfig
-import riven.core.service.util.WithUserPersona
-import riven.core.service.util.WorkspaceRole
-import riven.core.service.util.factory.entity.EntityFactory
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.entity.entity.EntityEntity
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.entity.activity.ActivityLogEntity
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.DataType
+import cranium.core.enums.entity.EntitySelectType
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.enums.entity.query.FilterOperator
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.models.common.validation.Schema
+import cranium.core.enums.core.DynamicDefaultFunction
+import cranium.core.models.common.validation.DefaultValue
+import cranium.core.models.common.validation.SchemaOptions
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.models.entity.payload.EntityAttributeRequest
+import cranium.core.models.entity.query.EntityQueryResult
+import cranium.core.models.entity.query.filter.FilterValue
+import cranium.core.models.entity.query.filter.QueryFilter
+import cranium.core.models.request.entity.DeleteEntityRequest
+import cranium.core.models.request.entity.SaveEntityRequest
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.entity.query.EntityQueryService
+import cranium.core.service.entity.type.EntityTypeAttributeService
+import cranium.core.service.entity.type.EntityTypeRelationshipService
+import cranium.core.service.entity.type.EntityTypeSequenceService
+import cranium.core.service.entity.type.EntityTypeService
+import cranium.core.enums.util.OperationType
+import cranium.core.models.identity.IdentityMatchTriggerEvent
+import cranium.core.models.websocket.EntityEvent
+import cranium.core.service.identity.EntityTypeClassificationService
+import cranium.core.service.util.BaseServiceTest
+import cranium.core.service.util.SecurityTestConfig
+import cranium.core.service.util.WithUserPersona
+import cranium.core.service.util.WorkspaceRole
+import cranium.core.service.util.factory.entity.EntityFactory
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Nested
 import org.springframework.security.access.AccessDeniedException
@@ -949,7 +949,7 @@ class EntityServiceTest : BaseServiceTest() {
                 entityIds = listOf(UUID.randomUUID(), UUID.randomUUID()),
             )
 
-            assertThrows(riven.core.exceptions.NotFoundException::class.java) {
+            assertThrows(cranium.core.exceptions.NotFoundException::class.java) {
                 service.deleteEntities(workspaceId, request)
             }
 

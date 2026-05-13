@@ -1,4 +1,4 @@
-package riven.core.models.integration
+package cranium.core.models.integration
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -29,7 +29,7 @@ data class NangoWebhookPayload(
  * Custom tags propagated through the Nango auth flow.
  *
  * These tags are set by the frontend when initiating an OAuth flow and are echoed
- * back in the auth webhook. The three available tag fields are mapped to Riven concepts:
+ * back in the auth webhook. The three available tag fields are mapped to Cranium concepts:
  *
  * - [endUserId] = userId (UUID as string) — the user who initiated the auth flow
  * - [organizationId] = workspaceId (UUID as string) — the workspace context

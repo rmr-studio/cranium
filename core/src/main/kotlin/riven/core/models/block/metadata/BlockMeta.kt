@@ -1,8 +1,8 @@
-package riven.core.models.block.metadata
+package cranium.core.models.block.metadata
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.v3.oas.annotations.media.Schema
-import riven.core.models.common.json.JsonObject
+import cranium.core.models.common.json.JsonObject
 
 // ---- Transient/system metadata (not business data) ----
 @JsonInclude(JsonInclude.Include.NON_NULL)

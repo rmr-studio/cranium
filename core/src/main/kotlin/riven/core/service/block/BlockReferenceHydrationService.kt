@@ -1,17 +1,17 @@
-package riven.core.service.block
+package cranium.core.service.block
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
-import riven.core.enums.block.node.BlockReferenceWarning
-import riven.core.enums.block.node.ReferenceType
-import riven.core.models.block.tree.BlockTreeReference
-import riven.core.models.block.tree.EntityReference
-import riven.core.models.block.tree.ReferenceItem
-import riven.core.models.block.tree.ReferencePayload
-import riven.core.models.request.block.EntityReferenceRequest
-import riven.core.models.response.block.internal.BlockHydrationResult
-import riven.core.service.entity.EntityAttributeService
-import riven.core.service.entity.EntityService
+import cranium.core.enums.block.node.BlockReferenceWarning
+import cranium.core.enums.block.node.ReferenceType
+import cranium.core.models.block.tree.BlockTreeReference
+import cranium.core.models.block.tree.EntityReference
+import cranium.core.models.block.tree.ReferenceItem
+import cranium.core.models.block.tree.ReferencePayload
+import cranium.core.models.request.block.EntityReferenceRequest
+import cranium.core.models.response.block.internal.BlockHydrationResult
+import cranium.core.service.entity.EntityAttributeService
+import cranium.core.service.entity.EntityService
 import java.util.*
 
 /**

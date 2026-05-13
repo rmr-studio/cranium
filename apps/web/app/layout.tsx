@@ -33,20 +33,20 @@ const spaceMono = Space_Mono({
   weight: ['400', '700'],
 });
 
-const SITE_TITLE = 'Riven | Proactive Company Brain for Ecommerce';
+const SITE_TITLE = 'Cranium | Proactive Company Brain for Ecommerce';
 const SITE_DESCRIPTION =
-  'Move fast. Act fast. Grow Fast. Riven builds the brain that brings context in from each tool, note and email you have ever sent. Finding, executing monitoring and learning from the most impactful opportunities, trends, problems and risks, before they even arise.';
+  'Move fast. Act fast. Grow Fast. Cranium builds the brain that brings context in from each tool, note and email you have ever sent. Finding, executing monitoring and learning from the most impactful opportunities, trends, problems and risks, before they even arise.';
 
 const ogImage = process.env.NEXT_PUBLIC_CDN_URL
   ? `${process.env.NEXT_PUBLIC_CDN_URL}/images/og-image.jpg`
   : '/og-image.png';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://getriven.io'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://getcranium.io'),
 
   title: {
     default: SITE_TITLE,
-    template: '%s | Riven',
+    template: '%s | Cranium',
   },
 
   description: SITE_DESCRIPTION,
@@ -75,8 +75,8 @@ export const metadata: Metadata = {
   openGraph: {
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    url: 'https://getriven.io',
-    siteName: 'Riven',
+    url: 'https://getcranium.io',
+    siteName: 'Cranium',
     locale: 'en_US',
     type: 'website',
     images: [
@@ -84,7 +84,7 @@ export const metadata: Metadata = {
         url: ogImage,
         width: 1200,
         height: 630,
-        alt: 'Riven | Autonomous Intelligence & Growth Platform',
+        alt: 'Cranium | Autonomous Intelligence & Growth Platform',
       },
     ],
   },

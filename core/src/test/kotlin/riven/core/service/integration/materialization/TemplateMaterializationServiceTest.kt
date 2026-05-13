@@ -1,4 +1,4 @@
-package riven.core.service.integration.materialization
+package cranium.core.service.integration.materialization
 
 import tools.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KLogger
@@ -10,33 +10,33 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.entity.catalog.CatalogEntityTypeEntity
-import riven.core.entity.catalog.CatalogRelationshipEntity
-import riven.core.entity.catalog.CatalogRelationshipTargetRuleEntity
-import riven.core.entity.catalog.ManifestCatalogEntity
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.entity.entity.RelationshipDefinitionEntity
-import riven.core.entity.entity.RelationshipTargetRuleEntity
-import riven.core.enums.catalog.ManifestType
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.DataType
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.enums.integration.SourceType
-import riven.core.exceptions.NotFoundException
-import riven.core.repository.catalog.CatalogEntityTypeRepository
-import riven.core.repository.catalog.CatalogRelationshipRepository
-import riven.core.repository.catalog.CatalogRelationshipTargetRuleRepository
-import riven.core.repository.catalog.ManifestCatalogRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.repository.entity.RelationshipDefinitionRepository
-import riven.core.repository.entity.RelationshipTargetRuleRepository
-import riven.core.service.entity.EntityTypeSemanticMetadataService
-import riven.core.service.entity.type.EntityTypeRelationshipService
-import riven.core.service.entity.type.EntityTypeSequenceService
-import riven.core.service.util.factory.entity.EntityFactory
+import cranium.core.entity.catalog.CatalogEntityTypeEntity
+import cranium.core.entity.catalog.CatalogRelationshipEntity
+import cranium.core.entity.catalog.CatalogRelationshipTargetRuleEntity
+import cranium.core.entity.catalog.ManifestCatalogEntity
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.entity.entity.RelationshipDefinitionEntity
+import cranium.core.entity.entity.RelationshipTargetRuleEntity
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.DataType
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.enums.integration.SourceType
+import cranium.core.exceptions.NotFoundException
+import cranium.core.repository.catalog.CatalogEntityTypeRepository
+import cranium.core.repository.catalog.CatalogRelationshipRepository
+import cranium.core.repository.catalog.CatalogRelationshipTargetRuleRepository
+import cranium.core.repository.catalog.ManifestCatalogRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.repository.entity.RelationshipDefinitionRepository
+import cranium.core.repository.entity.RelationshipTargetRuleRepository
+import cranium.core.service.entity.EntityTypeSemanticMetadataService
+import cranium.core.service.entity.type.EntityTypeRelationshipService
+import cranium.core.service.entity.type.EntityTypeSequenceService
+import cranium.core.service.util.factory.entity.EntityFactory
 import java.util.*
 
 /**
@@ -87,7 +87,7 @@ class TemplateMaterializationServiceTest {
     private lateinit var manifestCatalogRepository: ManifestCatalogRepository
 
     @MockitoBean
-    private lateinit var projectionRuleRepository: riven.core.repository.integration.ProjectionRuleRepository
+    private lateinit var projectionRuleRepository: cranium.core.repository.integration.ProjectionRuleRepository
 
     @MockitoBean
     private lateinit var semanticMetadataService: EntityTypeSemanticMetadataService
@@ -340,7 +340,7 @@ class TemplateMaterializationServiceTest {
             workspaceId = workspaceId,
             sourceType = SourceType.INTEGRATION,
             readonly = true,
-            schema = riven.core.models.common.validation.Schema(
+            schema = cranium.core.models.common.validation.Schema(
                 key = SchemaType.OBJECT,
                 type = DataType.OBJECT
             ),
@@ -373,7 +373,7 @@ class TemplateMaterializationServiceTest {
             workspaceId = workspaceId,
             sourceType = SourceType.INTEGRATION,
             readonly = true,
-            schema = riven.core.models.common.validation.Schema(
+            schema = cranium.core.models.common.validation.Schema(
                 key = SchemaType.OBJECT,
                 type = DataType.OBJECT
             ),
@@ -416,7 +416,7 @@ class TemplateMaterializationServiceTest {
             sourceManifestId = null,
             sourceSchemaHash = null,
             readonly = true,
-            schema = riven.core.models.common.validation.Schema(
+            schema = cranium.core.models.common.validation.Schema(
                 key = SchemaType.OBJECT,
                 type = DataType.OBJECT,
             ),
@@ -751,7 +751,7 @@ class TemplateMaterializationServiceTest {
             workspaceId = workspaceId,
             sourceType = SourceType.INTEGRATION,
             readonly = true,
-            schema = riven.core.models.common.validation.Schema(
+            schema = cranium.core.models.common.validation.Schema(
                 key = SchemaType.OBJECT,
                 type = DataType.OBJECT
             ),

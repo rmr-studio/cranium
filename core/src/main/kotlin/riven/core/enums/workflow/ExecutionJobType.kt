@@ -1,4 +1,4 @@
-package riven.core.enums.workflow
+package cranium.core.enums.workflow
 
 /**
  * Discriminator for execution queue job types.

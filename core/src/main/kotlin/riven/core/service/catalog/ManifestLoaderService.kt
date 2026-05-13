@@ -1,13 +1,13 @@
-package riven.core.service.catalog
+package cranium.core.service.catalog
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
-import riven.core.configuration.properties.ManifestConfigurationProperties
-import riven.core.enums.catalog.ManifestType
-import riven.core.models.catalog.ScannedManifest
-import riven.core.repository.catalog.ManifestCatalogRepository
+import cranium.core.configuration.properties.ManifestConfigurationProperties
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.models.catalog.ScannedManifest
+import cranium.core.repository.catalog.ManifestCatalogRepository
 import java.time.Instant
 
 /**

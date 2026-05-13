@@ -1,21 +1,21 @@
-package riven.core.models.core.models.dtc.commerce
+package cranium.core.models.core.models.dtc.commerce
 
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.DataType
-import riven.core.enums.entity.EntityTypeRole
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.models.core.AttributeSemantics
-import riven.core.models.core.CoreModelAttribute
-import riven.core.models.core.ProjectionAcceptRule
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.DataType
+import cranium.core.enums.entity.EntityTypeRole
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.models.core.AttributeSemantics
+import cranium.core.models.core.CoreModelAttribute
+import cranium.core.models.core.ProjectionAcceptRule
 
 /**
  * Collection — a merchandising grouping of products (Shopify collection, category).
  */
-object CollectionModel : riven.core.models.core.CoreModelDefinition(
+object CollectionModel : cranium.core.models.core.CoreModelDefinition(
     key = "collection",
     displayNameSingular = "Collection",
     displayNamePlural = "Collections",

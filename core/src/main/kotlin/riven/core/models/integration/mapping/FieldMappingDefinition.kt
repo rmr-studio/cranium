@@ -1,4 +1,4 @@
-package riven.core.models.integration.mapping
+package cranium.core.models.integration.mapping
 
 /**
  * Represents a single field mapping entry deserialized from the integration manifest JSONB.

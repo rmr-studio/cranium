@@ -1,6 +1,6 @@
-package riven.core.service.workflow.enrichment
+package cranium.core.service.workflow.enrichment
 
-import riven.core.models.enrichment.EnrichmentContext
+import cranium.core.models.enrichment.EnrichmentContext
 import java.util.UUID
 
 /**

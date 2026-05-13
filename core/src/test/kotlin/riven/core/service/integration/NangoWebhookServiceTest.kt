@@ -1,4 +1,4 @@
-package riven.core.service.integration
+package cranium.core.service.integration
 
 import io.github.oshai.kotlinlogging.KLogger
 import io.temporal.api.common.v1.WorkflowExecution
@@ -22,22 +22,22 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.transaction.support.TransactionTemplate
-import riven.core.entity.integration.IntegrationDefinitionEntity
-import riven.core.enums.integration.ConnectionStatus
-import riven.core.enums.integration.InstallationStatus
-import riven.core.enums.integration.IntegrationCategory
+import cranium.core.entity.integration.IntegrationDefinitionEntity
+import cranium.core.enums.integration.ConnectionStatus
+import cranium.core.enums.integration.InstallationStatus
+import cranium.core.enums.integration.IntegrationCategory
 import org.springframework.transaction.TransactionStatus
-import riven.core.models.integration.NangoSyncResults
-import riven.core.models.integration.NangoWebhookPayload
-import riven.core.models.integration.NangoWebhookTags
-import riven.core.models.integration.materialization.MaterializationResult
-import riven.core.repository.integration.IntegrationConnectionRepository
-import riven.core.repository.integration.IntegrationDefinitionRepository
-import riven.core.repository.integration.WorkspaceIntegrationInstallationRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.integration.materialization.TemplateMaterializationService
-import riven.core.service.integration.sync.IntegrationSyncWorkflow
-import riven.core.service.util.factory.integration.IntegrationFactory
+import cranium.core.models.integration.NangoSyncResults
+import cranium.core.models.integration.NangoWebhookPayload
+import cranium.core.models.integration.NangoWebhookTags
+import cranium.core.models.integration.materialization.MaterializationResult
+import cranium.core.repository.integration.IntegrationConnectionRepository
+import cranium.core.repository.integration.IntegrationDefinitionRepository
+import cranium.core.repository.integration.WorkspaceIntegrationInstallationRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.integration.materialization.TemplateMaterializationService
+import cranium.core.service.integration.sync.IntegrationSyncWorkflow
+import cranium.core.service.util.factory.integration.IntegrationFactory
 import java.util.*
 
 /**
@@ -194,9 +194,9 @@ class NangoWebhookServiceTest {
                 .thenThrow(RuntimeException("Materialization failed"))
 
             // Track the installation saved by save()
-            var savedInstallation: riven.core.entity.integration.WorkspaceIntegrationInstallationEntity? = null
+            var savedInstallation: cranium.core.entity.integration.WorkspaceIntegrationInstallationEntity? = null
             whenever(installationRepository.save(any())).thenAnswer { invocation ->
-                val inst = invocation.arguments[0] as riven.core.entity.integration.WorkspaceIntegrationInstallationEntity
+                val inst = invocation.arguments[0] as cranium.core.entity.integration.WorkspaceIntegrationInstallationEntity
                 savedInstallation = inst
                 inst
             }

@@ -1,8 +1,8 @@
-package riven.core.models.request.block
+package cranium.core.models.request.block
 
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
-import riven.core.enums.block.node.ReferenceType
+import cranium.core.enums.block.node.ReferenceType
 import java.util.*
 
 /**

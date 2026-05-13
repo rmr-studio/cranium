@@ -22,27 +22,27 @@ const cards: FeatureCardProps[] = [
   {
     title: 'Escape Spreadsheet Hell',
     description:
-      'No more manual exports, messy formulas or outdated documents. Upload your data through the UI or your favourite terminal, and let Riven’s agents analyze, connect the dots, and give you the insights you actually need to grow.',
+      'No more manual exports, messy formulas or outdated documents. Upload your data through the UI or your favourite terminal, and let Cranium’s agents analyze, connect the dots, and give you the insights you actually need to grow.',
     preview: <MockClaudeMcpMutation />,
     integrations: ['Claude'],
   },
   {
     title: 'The Signal Spotter',
     description:
-      'Riven doesn’t just connect the dots, it takes action on them. With native automations and API access, you can close the loop between insights and action. It’s the difference between a teammate who actually gets things done, and one who just talks about it in meetings.',
+      'Cranium doesn’t just connect the dots, it takes action on them. With native automations and API access, you can close the loop between insights and action. It’s the difference between a teammate who actually gets things done, and one who just talks about it in meetings.',
     preview: <MockActionAutomation />,
   },
   {
     title: 'The brains and the brawn',
     description:
-      'Once Riven understands the connections in your data. Getting the answers and closing the loop between insights and action becomes second nature. Answering the questions of “what” and “why”, and also taking care of the “how” ',
+      'Once Cranium understands the connections in your data. Getting the answers and closing the loop between insights and action becomes second nature. Answering the questions of “what” and “why”, and also taking care of the “how” ',
     preview: <MockCustomerQuery />,
     integrations: ['Shopify', 'Stripe', 'Intercom'],
   },
   {
     title: 'We remember. Do you?',
     preview: <MockActionMemory />,
-    description: `Riven learns from every interaction and remembers everything, but will never hallucinate what it does not know. It’s the difference between a teammate who actually knows their stuff, and one who just sounds good in meetings.`,
+    description: `Cranium learns from every interaction and remembers everything, but will never hallucinate what it does not know. It’s the difference between a teammate who actually knows their stuff, and one who just sounds good in meetings.`,
   },
 ];
 
@@ -78,7 +78,7 @@ export function Features() {
               Powering Proactive E-Commerce Operations
             </h2>
             <p className="mt-4 max-w-3xl font-display text-base leading-none tracking-tighter">
-              Shopify is the heart of your business. Riven is the brain.
+              Shopify is the heart of your business. Cranium is the brain.
             </p>
           </div>
           <div className="z-60 border-y border-y-white/20">

@@ -1,6 +1,6 @@
-package riven.core.models.integration.sync
+package cranium.core.models.integration.sync
 
-import riven.core.enums.integration.SyncKeyType
+import cranium.core.enums.integration.SyncKeyType
 import java.util.UUID
 
 /**

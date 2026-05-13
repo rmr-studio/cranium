@@ -59,7 +59,7 @@ const spaceMono = Space_Mono({
   weight: ['400', '700'],
 });
 
-const SITE_TITLE = 'Riven | Dashboard';
+const SITE_TITLE = 'Cranium | Dashboard';
 const SITE_DESCRIPTION =
   'One workspace for your customer lifecycle stack. From marketing to CRMs to payments, analytics and support. Cross-domain intelligence surfaces churn risks, hidden patterns, and growth opportunities no single tool can see. Query across every platform in plain English, tag and track accounts, and act on insights without leaving the tab.';
 
@@ -68,11 +68,11 @@ const ogImage = process.env.NEXT_PUBLIC_CDN_URL
   : '/og-image.png';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://getriven.io'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://getcranium.io'),
 
   title: {
     default: SITE_TITLE,
-    template: '%s | Riven',
+    template: '%s | Cranium',
   },
 
   description: SITE_DESCRIPTION,
@@ -97,8 +97,8 @@ export const metadata: Metadata = {
   openGraph: {
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    url: 'https://getriven.io',
-    siteName: 'Riven',
+    url: 'https://getcranium.io',
+    siteName: 'Cranium',
     locale: 'en_US',
     type: 'website',
     images: [
@@ -106,7 +106,7 @@ export const metadata: Metadata = {
         url: ogImage,
         width: 1200,
         height: 630,
-        alt: 'Riven — One workspace. Every tool. Immediate insight to action.',
+        alt: 'Cranium — One workspace. Every tool. Immediate insight to action.',
       },
     ],
   },

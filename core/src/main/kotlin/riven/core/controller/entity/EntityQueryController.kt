@@ -1,4 +1,4 @@
-package riven.core.controller.entity
+package cranium.core.controller.entity
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -7,9 +7,9 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import riven.core.models.request.entity.EntityQueryRequest
-import riven.core.models.response.entity.EntityQueryResponse
-import riven.core.service.entity.query.EntityQueryFacadeService
+import cranium.core.models.request.entity.EntityQueryRequest
+import cranium.core.models.response.entity.EntityQueryResponse
+import cranium.core.service.entity.query.EntityQueryFacadeService
 import java.util.*
 
 @RestController

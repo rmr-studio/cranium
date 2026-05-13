@@ -1,4 +1,4 @@
-package riven.core.exceptions
+package cranium.core.exceptions
 
 /**
  * Exception thrown when Nango API rate limits the request.

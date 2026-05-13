@@ -1,7 +1,7 @@
 "use client";
 
 import type { DragEvent } from "react";
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 import { WorkflowNodeType, WorkflowNodeMetadata } from "@/lib/types/workflow";
 import { IconColour } from "@/lib/types/common";
 import { IconCell } from "@/components/ui/icon/icon-cell";

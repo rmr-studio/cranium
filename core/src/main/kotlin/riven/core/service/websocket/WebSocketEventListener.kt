@@ -1,13 +1,13 @@
-package riven.core.service.websocket
+package cranium.core.service.websocket
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Component
 import org.springframework.transaction.event.TransactionPhase
 import org.springframework.transaction.event.TransactionalEventListener
-import riven.core.enums.websocket.WebSocketChannel
-import riven.core.models.websocket.WebSocketMessage
-import riven.core.models.websocket.WorkspaceEvent
+import cranium.core.enums.websocket.WebSocketChannel
+import cranium.core.models.websocket.WebSocketMessage
+import cranium.core.models.websocket.WorkspaceEvent
 
 /**
  * Listens for domain events published via ApplicationEventPublisher and

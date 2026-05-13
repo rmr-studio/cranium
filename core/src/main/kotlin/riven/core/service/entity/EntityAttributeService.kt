@@ -1,13 +1,13 @@
-package riven.core.service.entity
+package cranium.core.service.entity
 
 import tools.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.entity.EntityAttributeEntity
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.repository.entity.EntityAttributeRepository
+import cranium.core.entity.entity.EntityAttributeEntity
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.repository.entity.EntityAttributeRepository
 import java.util.*
 
 /**

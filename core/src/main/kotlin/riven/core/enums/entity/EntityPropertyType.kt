@@ -1,4 +1,4 @@
-package riven.core.enums.entity
+package cranium.core.enums.entity
 
 enum class EntityPropertyType {
     ATTRIBUTE,

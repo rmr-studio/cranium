@@ -3,7 +3,7 @@ import type {
     EntityReferenceMetadata,
     ReferenceNode,
 } from "@/lib/types/block";
-import { Button } from '@riven/ui/button';
+import { Button } from '@cranium/ui/button';
 import type { EntityType } from "@/lib/types/entity";
 import { RefreshCw } from "lucide-react";
 import { FC, useMemo } from "react";

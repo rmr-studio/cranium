@@ -1,8 +1,8 @@
-package riven.core.repository.integration
+package cranium.core.repository.integration
 
 import org.springframework.data.jpa.repository.JpaRepository
-import riven.core.entity.integration.IntegrationDefinitionEntity
-import riven.core.enums.integration.IntegrationCategory
+import cranium.core.entity.integration.IntegrationDefinitionEntity
+import cranium.core.enums.integration.IntegrationCategory
 import java.util.*
 
 /**

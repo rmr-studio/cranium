@@ -1,6 +1,6 @@
-package riven.core.models.common.validation
+package cranium.core.models.common.validation
 
-import riven.core.enums.common.OptionSortingType
+import cranium.core.enums.common.OptionSortingType
 import java.time.ZonedDateTime
 
 /**

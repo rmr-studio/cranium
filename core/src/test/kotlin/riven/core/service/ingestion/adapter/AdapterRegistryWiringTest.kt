@@ -1,14 +1,14 @@
-package riven.core.service.ingestion.adapter
+package cranium.core.service.ingestion.adapter
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.util.LoggerConfig
-import riven.core.enums.integration.SourceType
-import riven.core.service.ingestion.adapter.nango.NangoAdapter
-import riven.core.service.integration.NangoClientWrapper
+import cranium.core.configuration.util.LoggerConfig
+import cranium.core.enums.integration.SourceType
+import cranium.core.service.ingestion.adapter.nango.NangoAdapter
+import cranium.core.service.integration.NangoClientWrapper
 
 /**
  * Verifies that [SourceTypeAdapterRegistry] assembles the

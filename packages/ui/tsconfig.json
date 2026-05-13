@@ -1,5 +1,5 @@
 {
-  "extends": "@riven/tsconfig/base.json",
+  "extends": "@cranium/tsconfig/base.json",
   "compilerOptions": {
     "jsx": "react-jsx"
   },

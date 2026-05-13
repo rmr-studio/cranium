@@ -1,4 +1,4 @@
-import { CommandDialog, CommandInput } from '@riven/ui/command';
+import { CommandDialog, CommandInput } from '@cranium/ui/command';
 import { FC } from "react";
 import { useBlockTypes } from "../../hooks/use-block-types";
 import type { BlockType } from "@/lib/types/block";

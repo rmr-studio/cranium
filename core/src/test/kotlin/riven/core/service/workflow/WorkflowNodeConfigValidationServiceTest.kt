@@ -1,12 +1,12 @@
-package riven.core.service.workflow
+package cranium.core.service.workflow
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import riven.core.models.workflow.node.config.validation.ConfigValidationError
-import riven.core.service.workflow.state.WorkflowNodeConfigValidationService
-import riven.core.service.workflow.state.WorkflowNodeTemplateParserService
+import cranium.core.models.workflow.node.config.validation.ConfigValidationError
+import cranium.core.service.workflow.state.WorkflowNodeConfigValidationService
+import cranium.core.service.workflow.state.WorkflowNodeTemplateParserService
 
 class WorkflowNodeConfigValidationServiceTest {
 

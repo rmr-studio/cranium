@@ -1,9 +1,9 @@
-package riven.core.repository.integration
+package cranium.core.repository.integration
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
-import riven.core.entity.integration.WorkspaceIntegrationInstallationEntity
+import cranium.core.entity.integration.WorkspaceIntegrationInstallationEntity
 import java.util.*
 
 /**

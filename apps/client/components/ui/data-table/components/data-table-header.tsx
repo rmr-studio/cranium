@@ -1,7 +1,7 @@
 'use client';
 
-import { TableHead, TableHeader, TableRow } from '@riven/ui/table';
-import { cn } from '@riven/utils';
+import { TableHead, TableHeader, TableRow } from '@cranium/ui/table';
+import { cn } from '@cranium/utils';
 import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
 import { Table as TanStackTable, flexRender } from '@tanstack/react-table';
 import { ReactNode, useMemo } from 'react';

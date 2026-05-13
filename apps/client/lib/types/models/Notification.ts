@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,28 +12,21 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
+import type { CreateNotificationRequestContent } from './CreateNotificationRequestContent';
+import {
+    CreateNotificationRequestContentFromJSON,
+    CreateNotificationRequestContentToJSON
+} from './CreateNotificationRequestContent';
 import type { NotificationReferenceType } from './NotificationReferenceType';
 import {
     NotificationReferenceTypeFromJSON,
-    NotificationReferenceTypeFromJSONTyped,
-    NotificationReferenceTypeToJSON,
-    NotificationReferenceTypeToJSONTyped,
+    NotificationReferenceTypeToJSON
 } from './NotificationReferenceType';
 import type { NotificationType } from './NotificationType';
 import {
     NotificationTypeFromJSON,
-    NotificationTypeFromJSONTyped,
-    NotificationTypeToJSON,
-    NotificationTypeToJSONTyped,
+    NotificationTypeToJSON
 } from './NotificationType';
-import type { CreateNotificationRequestContent } from './CreateNotificationRequestContent';
-import {
-    CreateNotificationRequestContentFromJSON,
-    CreateNotificationRequestContentFromJSONTyped,
-    CreateNotificationRequestContentToJSON,
-    CreateNotificationRequestContentToJSONTyped,
-} from './CreateNotificationRequestContent';
 
 /**
  * 

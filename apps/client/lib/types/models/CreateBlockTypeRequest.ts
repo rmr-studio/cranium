@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,27 +12,20 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { SchemaString } from './SchemaString';
-import {
-    SchemaStringFromJSON,
-    SchemaStringFromJSONTyped,
-    SchemaStringToJSON,
-    SchemaStringToJSONTyped,
-} from './SchemaString';
 import type { BlockDisplay } from './BlockDisplay';
 import {
     BlockDisplayFromJSON,
-    BlockDisplayFromJSONTyped,
-    BlockDisplayToJSON,
-    BlockDisplayToJSONTyped,
+    BlockDisplayToJSON
 } from './BlockDisplay';
+import type { SchemaString } from './SchemaString';
+import {
+    SchemaStringFromJSON,
+    SchemaStringToJSON
+} from './SchemaString';
 import type { ValidationScope } from './ValidationScope';
 import {
     ValidationScopeFromJSON,
-    ValidationScopeFromJSONTyped,
-    ValidationScopeToJSON,
-    ValidationScopeToJSONTyped,
+    ValidationScopeToJSON
 } from './ValidationScope';
 
 /**

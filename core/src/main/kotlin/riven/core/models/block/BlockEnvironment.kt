@@ -1,7 +1,7 @@
-package riven.core.models.block
+package cranium.core.models.block
 
-import riven.core.models.block.tree.BlockTree
-import riven.core.models.block.tree.BlockTreeLayout
+import cranium.core.models.block.tree.BlockTree
+import cranium.core.models.block.tree.BlockTreeLayout
 
 data class BlockEnvironment(
     val layout: BlockTreeLayout,

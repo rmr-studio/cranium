@@ -1,4 +1,4 @@
-package riven.core.controller.integration
+package cranium.core.controller.integration
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import riven.core.models.integration.NangoWebhookPayload
-import riven.core.service.integration.NangoWebhookService
+import cranium.core.models.integration.NangoWebhookPayload
+import cranium.core.service.integration.NangoWebhookService
 
 @RestController
 @RequestMapping("/api/v1/webhooks")

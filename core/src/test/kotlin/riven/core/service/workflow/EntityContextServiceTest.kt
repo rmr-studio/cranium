@@ -1,4 +1,4 @@
-package riven.core.service.workflow
+package cranium.core.service.workflow
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.*
@@ -8,22 +8,22 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.entity.EntityEntity
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.DataType
-import riven.core.models.common.validation.Schema
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.entity.EntityRelationshipService
-import riven.core.service.entity.type.EntityTypeRelationshipService
-import riven.core.service.workflow.state.EntityContextService
-import riven.core.service.workflow.state.WorkflowNodeExpressionEvaluatorService
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.entity.entity.EntityEntity
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.DataType
+import cranium.core.models.common.validation.Schema
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.entity.EntityRelationshipService
+import cranium.core.service.entity.type.EntityTypeRelationshipService
+import cranium.core.service.workflow.state.EntityContextService
+import cranium.core.service.workflow.state.WorkflowNodeExpressionEvaluatorService
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -56,7 +56,7 @@ class EntityContextServiceTest {
     private lateinit var entityTypeRelationshipService: EntityTypeRelationshipService
 
     @MockitoBean
-    private lateinit var entityAttributeService: riven.core.service.entity.EntityAttributeService
+    private lateinit var entityAttributeService: cranium.core.service.entity.EntityAttributeService
 
     @Autowired
     private lateinit var entityContextService: EntityContextService
@@ -251,21 +251,21 @@ class EntityContextServiceTest {
         val context = entityContextService.buildContextWithRelationships(entityId, workspaceId)
         val expressionEvaluator = WorkflowNodeExpressionEvaluatorService()
 
-        val statusExpression = riven.core.models.common.Expression.BinaryOp(
-            riven.core.models.common.Expression.PropertyAccess(listOf("status")),
-            riven.core.models.common.Operator.EQUALS,
-            riven.core.models.common.Expression.Literal("active")
+        val statusExpression = cranium.core.models.common.Expression.BinaryOp(
+            cranium.core.models.common.Expression.PropertyAccess(listOf("status")),
+            cranium.core.models.common.Operator.EQUALS,
+            cranium.core.models.common.Expression.Literal("active")
         )
 
-        val countExpression = riven.core.models.common.Expression.BinaryOp(
-            riven.core.models.common.Expression.PropertyAccess(listOf("count")),
-            riven.core.models.common.Operator.GREATER_THAN,
-            riven.core.models.common.Expression.Literal(10)
+        val countExpression = cranium.core.models.common.Expression.BinaryOp(
+            cranium.core.models.common.Expression.PropertyAccess(listOf("count")),
+            cranium.core.models.common.Operator.GREATER_THAN,
+            cranium.core.models.common.Expression.Literal(10)
         )
 
-        val andExpression = riven.core.models.common.Expression.BinaryOp(
+        val andExpression = cranium.core.models.common.Expression.BinaryOp(
             statusExpression,
-            riven.core.models.common.Operator.AND,
+            cranium.core.models.common.Operator.AND,
             countExpression
         )
 

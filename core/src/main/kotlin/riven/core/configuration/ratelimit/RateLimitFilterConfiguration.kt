@@ -1,4 +1,4 @@
-package riven.core.configuration.ratelimit
+package cranium.core.configuration.ratelimit
 
 import tools.jackson.databind.ObjectMapper
 import com.github.benmanes.caffeine.cache.Cache
@@ -11,8 +11,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import riven.core.configuration.properties.RateLimitConfigurationProperties
-import riven.core.filter.ratelimit.RateLimitFilter
+import cranium.core.configuration.properties.RateLimitConfigurationProperties
+import cranium.core.filter.ratelimit.RateLimitFilter
 import java.util.concurrent.TimeUnit
 
 @Configuration
@@ -32,13 +32,13 @@ class RateLimitFilterConfiguration {
 
     @Bean
     fun rateLimitExceededCounter(meterRegistry: MeterRegistry): Counter =
-        Counter.builder("riven.rate_limit.exceeded")
+        Counter.builder("cranium.rate_limit.exceeded")
             .description("Rate limit exceeded (429) responses")
             .register(meterRegistry)
 
     @Bean
     fun rateLimitFilterErrorCounter(meterRegistry: MeterRegistry): Counter =
-        Counter.builder("riven.rate_limit.filter_errors")
+        Counter.builder("cranium.rate_limit.filter_errors")
             .description("Errors in rate limit filter (fail-open)")
             .register(meterRegistry)
 

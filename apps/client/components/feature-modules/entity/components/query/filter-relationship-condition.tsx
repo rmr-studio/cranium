@@ -1,13 +1,13 @@
 'use client';
 
-import { Input } from '@riven/ui/input';
+import { Input } from '@cranium/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@riven/ui/select';
+} from '@cranium/ui/select';
 import type { EntityType, RelationshipDefinition } from '@/lib/types/entity';
 import {
   type FilterConditionState,

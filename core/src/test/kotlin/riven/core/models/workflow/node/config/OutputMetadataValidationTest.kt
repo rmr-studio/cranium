@@ -1,15 +1,15 @@
-package riven.core.models.workflow.node.config
+package cranium.core.models.workflow.node.config
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
-import riven.core.enums.workflow.OutputFieldType
-import riven.core.models.workflow.engine.state.*
-import riven.core.models.workflow.node.config.actions.WorkflowBulkUpdateEntityActionConfig
-import riven.core.models.workflow.node.config.actions.WorkflowCreateEntityActionConfig
-import riven.core.models.workflow.node.config.actions.WorkflowQueryEntityActionConfig
+import cranium.core.enums.workflow.OutputFieldType
+import cranium.core.models.workflow.engine.state.*
+import cranium.core.models.workflow.node.config.actions.WorkflowBulkUpdateEntityActionConfig
+import cranium.core.models.workflow.node.config.actions.WorkflowCreateEntityActionConfig
+import cranium.core.models.workflow.node.config.actions.WorkflowQueryEntityActionConfig
 import java.util.UUID
 import java.util.stream.Stream
 

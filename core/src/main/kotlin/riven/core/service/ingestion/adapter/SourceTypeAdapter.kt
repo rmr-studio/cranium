@@ -1,7 +1,7 @@
-package riven.core.service.ingestion.adapter
+package cranium.core.service.ingestion.adapter
 
 import org.springframework.beans.factory.annotation.Qualifier
-import riven.core.enums.integration.SourceType
+import cranium.core.enums.integration.SourceType
 
 /**
  * Marks an [IngestionAdapter] `@Component` as the implementation for a given

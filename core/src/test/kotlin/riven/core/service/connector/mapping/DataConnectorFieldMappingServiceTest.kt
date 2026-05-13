@@ -1,4 +1,4 @@
-package riven.core.service.connector.mapping
+package cranium.core.service.connector.mapping
 
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.module.kotlin.jacksonObjectMapper
@@ -25,42 +25,42 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.connector.DataConnectorFieldMappingEntity
-import riven.core.entity.connector.DataConnectorTableMappingEntity
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.entity.entity.RelationshipDefinitionEntity
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.connector.SslMode
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.enums.integration.SourceType
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.models.connector.CredentialPayload
-import riven.core.models.connector.request.SaveDataConnectorFieldMappingRequest
-import riven.core.models.connector.request.SaveDataConnectorMappingRequest
-import riven.core.models.ingestion.adapter.ColumnSchema
-import riven.core.models.ingestion.adapter.SchemaIntrospectionResult
-import riven.core.models.ingestion.adapter.TableSchema
-import riven.core.repository.connector.DataConnectorConnectionRepository
-import riven.core.repository.connector.DataConnectorFieldMappingRepository
-import riven.core.repository.connector.DataConnectorTableMappingRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.repository.entity.RelationshipDefinitionRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.connector.CredentialEncryptionService
-import riven.core.service.connector.postgres.ForeignKeyMetadata
-import riven.core.service.connector.postgres.IntrospectionResult
-import riven.core.service.connector.postgres.PostgresAdapter
-import riven.core.service.ingestion.adapter.PostgresCallContext
-import riven.core.service.util.SecurityTestConfig
-import riven.core.service.util.WithUserPersona
-import riven.core.service.util.WorkspaceRole
-import riven.core.service.util.factory.DataConnectorFieldMappingEntityFactory
-import riven.core.service.util.factory.DataConnectorTableMappingEntityFactory
-import riven.core.service.util.factory.dataconnector.DataConnectorConnectionEntityFactory
-import riven.core.service.util.factory.entity.EntityFactory
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.entity.connector.DataConnectorFieldMappingEntity
+import cranium.core.entity.connector.DataConnectorTableMappingEntity
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.entity.entity.RelationshipDefinitionEntity
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.connector.SslMode
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.enums.integration.SourceType
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.models.connector.CredentialPayload
+import cranium.core.models.connector.request.SaveDataConnectorFieldMappingRequest
+import cranium.core.models.connector.request.SaveDataConnectorMappingRequest
+import cranium.core.models.ingestion.adapter.ColumnSchema
+import cranium.core.models.ingestion.adapter.SchemaIntrospectionResult
+import cranium.core.models.ingestion.adapter.TableSchema
+import cranium.core.repository.connector.DataConnectorConnectionRepository
+import cranium.core.repository.connector.DataConnectorFieldMappingRepository
+import cranium.core.repository.connector.DataConnectorTableMappingRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.repository.entity.RelationshipDefinitionRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.connector.CredentialEncryptionService
+import cranium.core.service.connector.postgres.ForeignKeyMetadata
+import cranium.core.service.connector.postgres.IntrospectionResult
+import cranium.core.service.connector.postgres.PostgresAdapter
+import cranium.core.service.ingestion.adapter.PostgresCallContext
+import cranium.core.service.util.SecurityTestConfig
+import cranium.core.service.util.WithUserPersona
+import cranium.core.service.util.WorkspaceRole
+import cranium.core.service.util.factory.DataConnectorFieldMappingEntityFactory
+import cranium.core.service.util.factory.DataConnectorTableMappingEntityFactory
+import cranium.core.service.util.factory.dataconnector.DataConnectorConnectionEntityFactory
+import cranium.core.service.util.factory.entity.EntityFactory
 import java.time.ZonedDateTime
 import java.util.Optional
 import java.util.UUID
@@ -82,7 +82,7 @@ import java.util.UUID
         DataConnectorFieldMappingService::class,
     ],
 )
-@TestPropertySource(properties = ["riven.connector.enabled=true"])
+@TestPropertySource(properties = ["cranium.connector.enabled=true"])
 @WithUserPersona(
     userId = "11111111-1111-1111-1111-111111111111",
     email = "test@test.com",
@@ -400,8 +400,8 @@ class DataConnectorFieldMappingServiceTest {
             readonly = true,
             workspaceId = workspaceId,
             identifierKey = UUID.randomUUID(),
-            schema = riven.core.models.common.validation.Schema(
-                type = riven.core.enums.core.DataType.OBJECT,
+            schema = cranium.core.models.common.validation.Schema(
+                type = cranium.core.enums.core.DataType.OBJECT,
                 key = SchemaType.OBJECT,
                 properties = emptyMap(),
             ),

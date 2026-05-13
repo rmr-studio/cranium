@@ -3,6 +3,7 @@
 ## Identity Resolution — Deferred Work
 
 ### TODO-IR-001: Workspace-Level Identity Resolution Toggle
+
 **What:** Add a workspace setting to enable/disable identity resolution matching.
 **Why:** Some workspaces may not want matching noise (e.g., single-integration workspaces with no cross-type data).
 **Pros:** User control over feature; reduces notification noise for irrelevant workspaces.
@@ -13,6 +14,7 @@
 **Depends on:** Core identity resolution matching engine
 
 ### TODO-IR-002: Configurable Match Signal Weights Per Workspace
+
 **What:** Let workspace admins tune how much each signal type (email, phone, name, company) contributes to match confidence.
 **Why:** Different industries weight signals differently — B2B cares about company+name, B2C cares about email+phone.
 **Pros:** Higher match quality per workspace; reduces false positives/negatives.
@@ -23,6 +25,7 @@
 **Depends on:** Core matching engine (TODO-IR baseline)
 
 ### TODO-IR-003: Transitive Match Discovery
+
 **What:** When entity B joins a cluster containing A, re-scan cluster members' signals against B's other potential matches.
 **Why:** If A↔B confirmed and B↔C has signals, C likely matches A too. Without this, users must manually discover A↔C.
 **Pros:** Exponential relationship discovery from linear user effort; compound value of confirmations.
@@ -33,6 +36,7 @@
 **Depends on:** Core matching engine + identity clusters
 
 ### TODO-IR-004: Same-Type Duplicate Detection
+
 **What:** Extend matching engine to detect potential duplicates within the SAME entity type.
 **Why:** Data quality issue — integrations can sync duplicate records, users can manually create duplicates.
 **Pros:** Addresses intra-type data quality, not just cross-type linking.
@@ -43,6 +47,7 @@
 **Depends on:** Core matching engine
 
 ### TODO-IR-005: Auto-Confirm Matches Above Learned Threshold
+
 **What:** Automatically confirm matches when confidence exceeds a workspace-learned threshold.
 **Why:** Reduces manual review burden for high-confidence matches after the system has earned trust.
 **Pros:** Dramatic reduction in manual review work; faster relationship building at scale.
@@ -53,6 +58,7 @@
 **Depends on:** Configurable weights (TODO-IR-002) + sufficient match volume
 
 ### TODO-IR-006: Batch Confirm Matches Above Threshold
+
 **What:** "Confirm all matches above X% confidence" batch action endpoint.
 **Why:** Power user feature for workspaces with many pending matches after initial integration connection.
 **Pros:** Dramatically speeds up initial match review; good onboarding experience after connecting integrations.
@@ -63,6 +69,7 @@
 **Depends on:** Core matching engine + confirmation flow
 
 ### TODO-IR-007: Identity Resolution Dashboard
+
 **What:** Workspace-level dashboard showing match funnel and trends over time.
 **Why:** Operational visibility into how well identity resolution is working; shows ROI of the feature.
 **Pros:** Helps admins tune thresholds; demonstrates feature value; identifies data quality issues.
@@ -73,6 +80,7 @@
 **Depends on:** Core matching engine + sufficient match data
 
 ### TODO-IR-008: Cross-Type Match Score Discounting
+
 **What:** Introduce a scoring penalty or separate signal category for cross-type attribute matches (e.g., EMAIL value matched against a NAME attribute).
 **Why:** Cross-type matching is valuable for identity resolution (e.g., `john.smith@gmail.com` ↔ `John Smith`), but without discounting, high-frequency tokens like "John" generate a flood of low-value suggestions across every `john@*` email in the workspace. Same-type matches should carry more weight than cross-type ones.
 **Pros:** Reduces false positive suggestions; preserves cross-type matching capability; improves signal-to-noise ratio.
@@ -89,7 +97,7 @@
 **What:** Implement STALE detection — connections with no recent sync activity should transition to STALE status.
 **Why:** ConnectionStatus has a STALE state but nothing transitions to it. Connections that stop syncing (e.g., Nango sync disabled, provider API revoked) would remain in HEALTHY/DEGRADED indefinitely.
 **Pros:** Users see accurate connection health; STALE connections surface in UI for investigation.
-**Cons:** Needs a scheduled job or threshold check — adds infrastructure beyond the current event-driven model.
+**Cons:** Needs a scheduled job or threshold check — adds infrastructure beyond the current event-dcranium model.
 **Context:** STALE is already in the ConnectionStatus enum with valid transitions (STALE → SYNCING, STALE → DISCONNECTING, STALE → FAILED). Implementation options: (1) scheduled job that scans connections by lastSyncedAt, (2) check during health evaluation if syncState.updatedAt is older than threshold. The threshold value (e.g., 7 days) should be configurable.
 **Depends on / blocked by:** Phase 4 health service must be complete first.
 
@@ -177,7 +185,7 @@
 
 **Why:** Edge-level IP rate limiting is Layer 1 defense — stops abuse before it reaches the application. The stricter webhook rule accounts for Nango's defined cadence.
 
-**Context:** Configured in Cloudflare dashboard, not code. Check which Cloudflare plan Riven is on — free plan has limited rate-limiting rules.
+**Context:** Configured in Cloudflare dashboard, not code. Check which Cloudflare plan Cranium is on — free plan has limited rate-limiting rules.
 
 **Depends on:** Production deployment with Cloudflare DNS configured.
 
@@ -193,6 +201,7 @@
 key mapping persistence, N+1 relationship definitions). Ready for E2E testing.
 
 **What remains:**
+
 - E2E testing with real HubSpot dev portal
 - Capture real Nango payload fixtures as test data
 - Manifest schema evolution tests (attribute add/remove/modify)
@@ -227,6 +236,7 @@ key mapping persistence, N+1 relationship definitions). Ready for E2E testing.
 **Depends on:** Entity Ingestion Pipeline (the 4-step classify → route → map → resolve pipeline must work first)
 
 Per the SaaS Decline thesis, data sources will diversify beyond SaaS integrations. Users need to:
+
 - Connect internal Postgres tables directly
 - Import CSVs with schema inference
 - Receive webhooks from custom internal systems
@@ -238,7 +248,7 @@ core model without additional configuration. See `docs/architecture-suggestions.
 SUPPORT → SupportTicket routing decision and any related cross-domain dependency notes.
 
 **Pros:** Directly addresses the SaaS Decline thesis. Domain-based routing makes this architecturally
-clean. Positions Riven as "operational data layer" not "SaaS connector."
+clean. Positions Cranium as "operational data layer" not "SaaS connector."
 
 **Cons:** Large scope. Requires UI for connection setup, schema inference, field mapping.
 Each ingestion type has unique edge cases (Postgres connection pooling, CSV encoding, webhook auth).
@@ -249,6 +259,7 @@ provides the foundation — domain-based routing means new ingestion types work 
 core model code.
 
 **Documentation tasks:**
+
 - [ ] After each structural change, append an entry to `docs/architecture-changelog.md` (owner: implementer)
 - [ ] When new inter-domain dependencies or responsibility changes are introduced, append suggestions to `docs/architecture-suggestions.md` with affected domains and link to the change PR (owner: implementer)
 
@@ -257,6 +268,7 @@ core model code.
 ## Schema Reconciliation — Follow-Up Work
 
 ### TODO-SR-001: Relationship Reconciliation
+
 **What:** When core models add or remove relationship definitions, propagate changes to existing workspaces.
 **Why:** Same drift problem as attribute schema changes but for RelationshipDefinitionEntity. Currently, only attribute schemas are reconciled.
 **Pros:** Completes the reconciliation story. Without this, workspaces miss new cross-type relationships added in future core model updates.
@@ -267,16 +279,18 @@ core model code.
 **Depends on:** Schema reconciliation (attribute-level) must be implemented first
 
 ### TODO-SR-002: Schema Health Admin UI
+
 **What:** Frontend page in workspace settings showing per-entity-type reconciliation status, pending changes, and "Apply Updates" button for breaking changes.
 **Why:** Without a UI, breaking changes are invisible unless an admin proactively calls the schema-health API endpoint.
 **Pros:** Workspace admins can see and act on pending schema updates. Surfaces the value of the reconciliation system.
 **Cons:** Requires a new page in workspace settings + TanStack Query hooks for the two new endpoints.
-**Context:** The backend API endpoints (GET /api/v1/workspace/{workspaceId}/schema-health, POST /api/v1/workspace/{workspaceId}/schema-reconcile) are built as part of schema reconciliation. This TODO covers the frontend only. CEO plan: ~/.gstack/projects/rmr-studio-riven/ceo-plans/2026-04-08-schema-reconciliation.md
+**Context:** The backend API endpoints (GET /api/v1/workspace/{workspaceId}/schema-health, POST /api/v1/workspace/{workspaceId}/schema-reconcile) are built as part of schema reconciliation. This TODO covers the frontend only. CEO plan: ~/.gstack/projects/rmr-studio-cranium/ceo-plans/2026-04-08-schema-reconciliation.md
 **Effort:** S (human ~2 days) / S (CC ~15 min)
 **Priority:** P3
 **Depends on:** Schema reconciliation API endpoints
 
 ### TODO-SR-003: Admin Notification for Pending Breaking Changes
+
 **What:** When reconciliation detects breaking changes, send a notification to workspace admins via the notification system.
 **Why:** Breaking changes set pendingSchemaUpdate=true on the entity type but the admin has no way to learn about this without checking the health endpoint.
 **Pros:** Proactive visibility. Admins act on pending updates faster.

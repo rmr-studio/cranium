@@ -1,4 +1,4 @@
-package riven.core.service.enrichment
+package cranium.core.service.enrichment
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -14,22 +14,22 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.configuration.properties.EnrichmentConfigurationProperties
-import riven.core.entity.enrichment.EntityEmbeddingEntity
-import riven.core.entity.workflow.ExecutionQueueEntity
-import riven.core.enums.workflow.ExecutionQueueStatus
-import riven.core.models.enrichment.EnrichedTextResult
-import riven.core.models.enrichment.EnrichmentContext
-import riven.core.repository.enrichment.EntityEmbeddingRepository
-import riven.core.repository.workflow.ExecutionQueueRepository
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.enrichment.provider.EmbeddingProvider
-import riven.core.service.util.BaseServiceTest
-import riven.core.service.util.SecurityTestConfig
-import riven.core.service.util.factory.EnrichmentFactory
-import riven.core.service.util.factory.enrichment.EnrichmentFactory as EnrichmentModelFactory
-import riven.core.service.util.factory.workflow.ExecutionQueueFactory
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.configuration.properties.EnrichmentConfigurationProperties
+import cranium.core.entity.enrichment.EntityEmbeddingEntity
+import cranium.core.entity.workflow.ExecutionQueueEntity
+import cranium.core.enums.workflow.ExecutionQueueStatus
+import cranium.core.models.enrichment.EnrichedTextResult
+import cranium.core.models.enrichment.EnrichmentContext
+import cranium.core.repository.enrichment.EntityEmbeddingRepository
+import cranium.core.repository.workflow.ExecutionQueueRepository
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.enrichment.provider.EmbeddingProvider
+import cranium.core.service.util.BaseServiceTest
+import cranium.core.service.util.SecurityTestConfig
+import cranium.core.service.util.factory.EnrichmentFactory
+import cranium.core.service.util.factory.enrichment.EnrichmentFactory as EnrichmentModelFactory
+import cranium.core.service.util.factory.workflow.ExecutionQueueFactory
 import java.util.Optional
 import java.util.UUID
 import kotlin.reflect.full.primaryConstructor

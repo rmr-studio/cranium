@@ -1,7 +1,7 @@
-package riven.core.models.request.entity.type
+package cranium.core.models.request.entity.type
 
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.identity.MatchSignalType
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.enums.identity.MatchSignalType
 
 /**
  * Request body for saving (upserting) semantic metadata on a single target.

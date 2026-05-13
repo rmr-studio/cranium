@@ -1,10 +1,10 @@
-package riven.core.entity.catalog
+package cranium.core.entity.catalog
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
-import riven.core.models.catalog.ConnotationSignals
-import riven.core.service.util.factory.catalog.CatalogFactory
+import cranium.core.models.catalog.ConnotationSignals
+import cranium.core.service.util.factory.catalog.CatalogFactory
 
 class CatalogEntityTypeEntityTest {
 

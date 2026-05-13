@@ -1,10 +1,10 @@
-package riven.core.models.block.metadata
+package cranium.core.models.block.metadata
 
 import com.fasterxml.jackson.annotation.JsonTypeName
 import tools.jackson.databind.ValueDeserializer
 import tools.jackson.databind.annotation.JsonDeserialize
-import riven.core.enums.block.structure.BlockMetadataType
-import riven.core.enums.block.structure.BlockReferenceFetchPolicy
+import cranium.core.enums.block.structure.BlockMetadataType
+import cranium.core.enums.block.structure.BlockReferenceFetchPolicy
 
 /**
  * Metadata when a block is referencing an external block.

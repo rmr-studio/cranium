@@ -1,14 +1,14 @@
 "use client";
 
 import type { FC } from "react";
-import { Label } from '@riven/ui/label';
+import { Label } from '@cranium/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@riven/ui/select';
+} from '@cranium/ui/select';
 import type { ConfigWidgetProps } from "./config-widget.types";
 
 export const EnumWidget: FC<ConfigWidgetProps<string>> = ({

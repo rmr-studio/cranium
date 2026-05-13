@@ -1,4 +1,4 @@
-package riven.core.models.integration
+package cranium.core.models.integration
 
 data class IntegrationSoftDeleteResult(
     val entityTypesSoftDeleted: Int,

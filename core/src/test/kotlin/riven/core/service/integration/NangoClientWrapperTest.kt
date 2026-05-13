@@ -1,4 +1,4 @@
-package riven.core.service.integration
+package cranium.core.service.integration
 
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -13,13 +13,13 @@ import org.mockito.kotlin.whenever
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.DefaultUriBuilderFactory
 import reactor.core.publisher.Mono
-import riven.core.configuration.properties.NangoConfigurationProperties
-import riven.core.models.integration.NangoRecord
-import riven.core.models.integration.NangoRecordAction
-import riven.core.models.integration.NangoRecordMetadata
-import riven.core.models.integration.NangoRecordsPage
-import riven.core.exceptions.NangoApiException
-import riven.core.models.integration.NangoTriggerSyncRequest
+import cranium.core.configuration.properties.NangoConfigurationProperties
+import cranium.core.models.integration.NangoRecord
+import cranium.core.models.integration.NangoRecordAction
+import cranium.core.models.integration.NangoRecordMetadata
+import cranium.core.models.integration.NangoRecordsPage
+import cranium.core.exceptions.NangoApiException
+import cranium.core.models.integration.NangoTriggerSyncRequest
 import java.net.URI
 import java.util.function.Function
 

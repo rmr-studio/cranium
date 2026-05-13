@@ -1,7 +1,7 @@
-package riven.core.models.websocket
+package cranium.core.models.websocket
 
-import riven.core.enums.util.OperationType
-import riven.core.enums.websocket.WebSocketChannel
+import cranium.core.enums.util.OperationType
+import cranium.core.enums.websocket.WebSocketChannel
 import java.time.ZonedDateTime
 import java.util.UUID
 

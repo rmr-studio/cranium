@@ -1,7 +1,7 @@
-package riven.core.models.response.identity
+package cranium.core.models.response.identity
 
-import riven.core.enums.identity.MatchSuggestionStatus
-import riven.core.models.identity.MatchSuggestion
+import cranium.core.enums.identity.MatchSuggestionStatus
+import cranium.core.models.identity.MatchSuggestion
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 import java.util.UUID

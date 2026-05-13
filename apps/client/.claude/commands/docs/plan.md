@@ -46,7 +46,7 @@ This skill produces frontend-focused documentation: component hierarchies, state
 - Frontend feature designs: `../../docs/frontend-design/{route-group}/`
 - Architecture docs: `../../docs/frontend-design/architecture/`
 
-Absolute base: `/home/jared/dev/riven/docs/frontend-design/`
+Absolute base: `/home/jared/dev/cranium/docs/frontend-design/`
 
 ## Route Group Convention
 

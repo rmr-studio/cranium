@@ -1,4 +1,4 @@
-package riven.core.filter.ratelimit
+package cranium.core.filter.ratelimit
 
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.module.kotlin.readValue
@@ -23,8 +23,8 @@ import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
-import riven.core.configuration.properties.RateLimitConfigurationProperties
-import riven.core.enums.common.ApiError
+import cranium.core.configuration.properties.RateLimitConfigurationProperties
+import cranium.core.enums.common.ApiError
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals

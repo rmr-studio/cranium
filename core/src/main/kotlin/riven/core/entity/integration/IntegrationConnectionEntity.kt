@@ -1,11 +1,11 @@
-package riven.core.entity.integration
+package cranium.core.entity.integration
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.Type
-import riven.core.entity.util.AuditableEntity
-import riven.core.enums.integration.ConnectionStatus
-import riven.core.models.integration.IntegrationConnectionModel
+import cranium.core.entity.util.AuditableEntity
+import cranium.core.enums.integration.ConnectionStatus
+import cranium.core.models.integration.IntegrationConnectionModel
 import java.util.*
 
 /**

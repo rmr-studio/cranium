@@ -1,4 +1,4 @@
-package riven.core.service.identity
+package cranium.core.service.identity
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -18,30 +18,30 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.identity.IdentityClusterEntity
-import riven.core.entity.identity.MatchSuggestionEntity
-import riven.core.enums.activity.Activity
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.identity.MatchSuggestionStatus
-import riven.core.enums.notification.NotificationReferenceType
-import riven.core.enums.notification.NotificationType
-import riven.core.enums.util.OperationType
-import riven.core.exceptions.ConflictException
-import riven.core.models.common.json.JsonObject
-import riven.core.models.notification.Notification
-import riven.core.models.request.notification.CreateNotificationRequest
-import riven.core.repository.identity.MatchSuggestionRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.entity.EntityRelationshipService
-import riven.core.service.notification.NotificationService
-import riven.core.service.util.BaseServiceTest
-import riven.core.service.util.SecurityTestConfig
-import riven.core.service.util.WithUserPersona
-import riven.core.service.util.WorkspaceRole
-import riven.core.service.util.factory.identity.IdentityFactory
-import riven.core.enums.workspace.WorkspaceRoles
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.entity.identity.IdentityClusterEntity
+import cranium.core.entity.identity.MatchSuggestionEntity
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.identity.MatchSuggestionStatus
+import cranium.core.enums.notification.NotificationReferenceType
+import cranium.core.enums.notification.NotificationType
+import cranium.core.enums.util.OperationType
+import cranium.core.exceptions.ConflictException
+import cranium.core.models.common.json.JsonObject
+import cranium.core.models.notification.Notification
+import cranium.core.models.request.notification.CreateNotificationRequest
+import cranium.core.repository.identity.MatchSuggestionRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.entity.EntityRelationshipService
+import cranium.core.service.notification.NotificationService
+import cranium.core.service.util.BaseServiceTest
+import cranium.core.service.util.SecurityTestConfig
+import cranium.core.service.util.WithUserPersona
+import cranium.core.service.util.WorkspaceRole
+import cranium.core.service.util.factory.identity.IdentityFactory
+import cranium.core.enums.workspace.WorkspaceRoles
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 import java.util.Optional
@@ -138,7 +138,7 @@ class IdentityConfirmationServiceTest : BaseServiceTest() {
 
             service.confirmSuggestion(workspaceId, suggestionId)
 
-            val requestCaptor = argumentCaptor<riven.core.models.request.entity.AddRelationshipRequest>()
+            val requestCaptor = argumentCaptor<cranium.core.models.request.entity.AddRelationshipRequest>()
             verify(entityRelationshipService).addRelationship(
                 eq(workspaceId),
                 eq(suggestion.sourceEntityId),
@@ -146,7 +146,7 @@ class IdentityConfirmationServiceTest : BaseServiceTest() {
             )
             val request = requestCaptor.firstValue
             assertEquals(suggestion.targetEntityId, request.targetEntityId)
-            assertEquals(riven.core.enums.integration.SourceType.IDENTITY_MATCH, request.linkSource)
+            assertEquals(cranium.core.enums.integration.SourceType.IDENTITY_MATCH, request.linkSource)
         }
 
         /**
@@ -615,7 +615,7 @@ class IdentityConfirmationServiceTest : BaseServiceTest() {
             whenever(authTokenService.getUserId()).thenReturn(userId)
             whenever(matchSuggestionRepository.findById(suggestionId)).thenReturn(Optional.of(entityWithId))
 
-            assertThrows<riven.core.exceptions.NotFoundException> {
+            assertThrows<cranium.core.exceptions.NotFoundException> {
                 service.confirmSuggestion(workspaceId, suggestionId)
             }
         }
@@ -640,7 +640,7 @@ class IdentityConfirmationServiceTest : BaseServiceTest() {
             whenever(authTokenService.getUserId()).thenReturn(userId)
             whenever(matchSuggestionRepository.findById(suggestionId)).thenReturn(Optional.of(entityWithId))
 
-            assertThrows<riven.core.exceptions.NotFoundException> {
+            assertThrows<cranium.core.exceptions.NotFoundException> {
                 service.rejectSuggestion(workspaceId, suggestionId)
             }
         }
@@ -732,15 +732,15 @@ class IdentityConfirmationServiceTest : BaseServiceTest() {
         return result
     }
 
-    private fun buildRelationshipResponse(): riven.core.models.response.entity.RelationshipResponse =
-        riven.core.models.response.entity.RelationshipResponse(
+    private fun buildRelationshipResponse(): cranium.core.models.response.entity.RelationshipResponse =
+        cranium.core.models.response.entity.RelationshipResponse(
             id = UUID.randomUUID(),
             sourceEntityId = UUID.randomUUID(),
             targetEntityId = UUID.randomUUID(),
             definitionId = UUID.randomUUID(),
             definitionName = "SYSTEM_CONNECTION",
             semanticContext = null,
-            linkSource = riven.core.enums.integration.SourceType.IDENTITY_MATCH,
+            linkSource = cranium.core.enums.integration.SourceType.IDENTITY_MATCH,
             createdAt = ZonedDateTime.now(),
             updatedAt = ZonedDateTime.now(),
         )
@@ -751,7 +751,7 @@ class IdentityConfirmationServiceTest : BaseServiceTest() {
             workspaceId = workspaceId,
             userId = null,
             type = NotificationType.REVIEW_REQUEST,
-            content = riven.core.models.notification.NotificationContent.ReviewRequest(
+            content = cranium.core.models.notification.NotificationContent.ReviewRequest(
                 title = "Identity match confirmed",
                 message = "Two entities have been linked.",
             ),
@@ -766,8 +766,8 @@ class IdentityConfirmationServiceTest : BaseServiceTest() {
             updatedBy = null,
         )
 
-    private fun buildActivityLog(): riven.core.models.activity.ActivityLog =
-        riven.core.models.activity.ActivityLog(
+    private fun buildActivityLog(): cranium.core.models.activity.ActivityLog =
+        cranium.core.models.activity.ActivityLog(
             id = UUID.randomUUID(),
             userId = userId,
             workspaceId = workspaceId,

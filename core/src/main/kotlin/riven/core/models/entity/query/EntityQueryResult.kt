@@ -1,7 +1,7 @@
-package riven.core.models.entity.query
+package cranium.core.models.entity.query
 
 import io.swagger.v3.oas.annotations.media.Schema
-import riven.core.models.entity.Entity
+import cranium.core.models.entity.Entity
 
 /**
  * Result of an entity query execution.

@@ -1,20 +1,20 @@
-package riven.core.models.workflow.node.config
+package cranium.core.models.workflow.node.config
 
 import tools.jackson.databind.annotation.JsonDeserialize
 import io.swagger.v3.oas.annotations.media.Schema
-import riven.core.deserializer.WorkflowNodeConfigDeserializer
-import riven.core.enums.workflow.WorkflowNodeType
-import riven.core.models.common.json.JsonObject
-import riven.core.models.workflow.engine.state.NodeOutput
-import riven.core.models.workflow.engine.state.WorkflowDataStore
-import riven.core.models.workflow.node.NodeServiceProvider
-import riven.core.models.workflow.node.config.validation.ConfigValidationResult
+import cranium.core.deserializer.WorkflowNodeConfigDeserializer
+import cranium.core.enums.workflow.WorkflowNodeType
+import cranium.core.models.common.json.JsonObject
+import cranium.core.models.workflow.engine.state.NodeOutput
+import cranium.core.models.workflow.engine.state.WorkflowDataStore
+import cranium.core.models.workflow.node.NodeServiceProvider
+import cranium.core.models.workflow.node.config.validation.ConfigValidationResult
 
 /**
  * Extensible configuration interface for workflow nodes.
  *
  * Controls the behavior of a workflow node during execution.
- * Subtypes are automatically discovered via [riven.core.configuration.openapi.WorkflowNodeConfigSchemaCustomizer].
+ * Subtypes are automatically discovered via [cranium.core.configuration.openapi.WorkflowNodeConfigSchemaCustomizer].
  *
  * @property type Node type (ACTION, CONTROL_FLOW, etc.)
  * @property version Schema version for node configuration

@@ -1,4 +1,4 @@
-package riven.core.service.entity
+package cranium.core.service.entity
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Component
@@ -6,9 +6,9 @@ import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.event.TransactionPhase
 import org.springframework.transaction.event.TransactionalEventListener
-import riven.core.models.identity.IdentityMatchTriggerEvent
-import riven.core.service.identity.EntityTypeClassificationService
-import riven.core.service.identity.IdentityMatchQueueService
+import cranium.core.models.identity.IdentityMatchTriggerEvent
+import cranium.core.service.identity.EntityTypeClassificationService
+import cranium.core.service.identity.IdentityMatchQueueService
 
 /**
  * Listens for [IdentityMatchTriggerEvent] after entity saves commit and decides
@@ -25,7 +25,7 @@ import riven.core.service.identity.IdentityMatchQueueService
  * new attribute values map is empty (per CONTEXT.md locked decision).
  *
  * The listener is placed in `service.entity` because it consumes entity domain events,
- * following the same pattern as [riven.core.service.analytics.WorkspaceAnalyticsListener]
+ * following the same pattern as [cranium.core.service.analytics.WorkspaceAnalyticsListener]
  * which lives in `service.analytics`.
  *
  * `@Transactional(REQUIRES_NEW)` is mandatory: after AFTER_COMMIT there is no active

@@ -1,4 +1,4 @@
-package riven.core.models.ingestion.adapter
+package cranium.core.models.ingestion.adapter
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

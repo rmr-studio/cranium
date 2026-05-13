@@ -3,9 +3,9 @@
 import { useDefinitions } from '@/components/feature-modules/knowledge/hooks/query/use-definitions';
 import { useWorkspaceStore } from '@/components/feature-modules/workspace/provider/workspace-provider';
 import { DefinitionCategory, WorkspaceBusinessDefinition } from '@/lib/types/workspace';
-import { Button } from '@riven/ui/button';
-import { Input } from '@riven/ui/input';
-import { cn } from '@riven/utils';
+import { Button } from '@cranium/ui/button';
+import { Input } from '@cranium/ui/input';
+import { cn } from '@cranium/utils';
 import { BookOpen, Plus, Search } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';

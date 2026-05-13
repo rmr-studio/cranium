@@ -1,4 +1,4 @@
-package riven.core.service.catalog
+package cranium.core.service.catalog
 
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.databind.json.JsonMapper
@@ -11,8 +11,8 @@ import org.mockito.kotlin.*
 import org.springframework.core.io.ClassPathResource
 import org.springframework.core.io.Resource
 import org.springframework.core.io.support.ResourcePatternResolver
-import riven.core.configuration.properties.ManifestConfigurationProperties
-import riven.core.enums.catalog.ManifestType
+import cranium.core.configuration.properties.ManifestConfigurationProperties
+import cranium.core.enums.catalog.ManifestType
 import java.net.URI
 
 class ManifestScannerServiceTest {

@@ -1,4 +1,4 @@
-package riven.core.configuration.util
+package cranium.core.configuration.util
 
 import io.hypersistence.utils.hibernate.type.util.JsonSerializer
 import tools.jackson.databind.DeserializationFeature

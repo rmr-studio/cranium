@@ -1,27 +1,27 @@
-package riven.core.models.workflow.node.config.actions
+package cranium.core.models.workflow.node.config.actions
 
 import com.fasterxml.jackson.annotation.JsonTypeName
 import tools.jackson.databind.ValueDeserializer
 import tools.jackson.databind.annotation.JsonDeserialize
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.media.Schema
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.workflow.WorkflowActionType
-import riven.core.enums.workflow.WorkflowNodeConfigFieldType
-import riven.core.enums.workflow.WorkflowNodeType
-import riven.core.models.workflow.engine.state.DeleteEntityOutput
-import riven.core.models.workflow.engine.state.NodeOutput
-import riven.core.models.workflow.engine.state.WorkflowDataStore
-import riven.core.models.workflow.node.NodeServiceProvider
-import riven.core.models.workflow.node.config.WorkflowActionConfig
-import riven.core.models.workflow.node.config.WorkflowNodeConfigField
-import riven.core.models.workflow.node.config.WorkflowNodeTypeMetadata
-import riven.core.models.workflow.node.config.validation.ConfigValidationResult
-import riven.core.models.workflow.node.service
-import riven.core.enums.entity.EntitySelectType
-import riven.core.models.request.entity.DeleteEntityRequest
-import riven.core.service.entity.EntityService
-import riven.core.service.workflow.state.WorkflowNodeConfigValidationService
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.workflow.WorkflowActionType
+import cranium.core.enums.workflow.WorkflowNodeConfigFieldType
+import cranium.core.enums.workflow.WorkflowNodeType
+import cranium.core.models.workflow.engine.state.DeleteEntityOutput
+import cranium.core.models.workflow.engine.state.NodeOutput
+import cranium.core.models.workflow.engine.state.WorkflowDataStore
+import cranium.core.models.workflow.node.NodeServiceProvider
+import cranium.core.models.workflow.node.config.WorkflowActionConfig
+import cranium.core.models.workflow.node.config.WorkflowNodeConfigField
+import cranium.core.models.workflow.node.config.WorkflowNodeTypeMetadata
+import cranium.core.models.workflow.node.config.validation.ConfigValidationResult
+import cranium.core.models.workflow.node.service
+import cranium.core.enums.entity.EntitySelectType
+import cranium.core.models.request.entity.DeleteEntityRequest
+import cranium.core.service.entity.EntityService
+import cranium.core.service.workflow.state.WorkflowNodeConfigValidationService
 import java.util.*
 
 private val log = KotlinLogging.logger {}

@@ -1,7 +1,7 @@
-package riven.core.models.common
+package cranium.core.models.common
 
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
 
 data class Icon(
     var type: IconType,

@@ -1,10 +1,10 @@
-package riven.core.service.workflow.enrichment
+package cranium.core.service.workflow.enrichment
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Component
-import riven.core.models.enrichment.EnrichmentContext
-import riven.core.service.enrichment.EnrichmentAnalysisService
-import riven.core.service.enrichment.EnrichmentEmbeddingService
+import cranium.core.models.enrichment.EnrichmentContext
+import cranium.core.service.enrichment.EnrichmentAnalysisService
+import cranium.core.service.enrichment.EnrichmentEmbeddingService
 import java.util.UUID
 
 /**
@@ -16,8 +16,8 @@ import java.util.UUID
  * Exceptions are intentionally NOT caught — they propagate to Temporal for retry
  * according to the retry policy configured in [EnrichmentWorkflowImpl].
  *
- * Registered on [riven.core.configuration.workflow.TemporalWorkerConfiguration.ENRICHMENT_EMBED_QUEUE]
- * task queue by [riven.core.configuration.workflow.TemporalWorkerConfiguration].
+ * Registered on [cranium.core.configuration.workflow.TemporalWorkerConfiguration.ENRICHMENT_EMBED_QUEUE]
+ * task queue by [cranium.core.configuration.workflow.TemporalWorkerConfiguration].
  *
  * @property enrichmentAnalysisService manages queue lifecycle, sentiment resolution, context assembly,
  *   and connotation snapshot persistence

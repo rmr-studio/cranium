@@ -1,20 +1,34 @@
 {
   "main": {
-    "id": "aceb9e8d40971b6a",
+    "id": "b2f43b7bdbd7e939",
     "type": "split",
     "children": [
       {
-        "id": "596519023b3595f8",
+        "id": "d0badeae647a6cc9",
         "type": "tabs",
         "children": [
           {
-            "id": "2332a2c79c6fb3a2",
+            "id": "235c0054d8b2bb83",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Cranium/docs/domains/Page Resolution & Decision Queue/Page Resolution & Decision Queue.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "Page Resolution & Decision Queue"
             }
           }
         ]
@@ -23,15 +37,15 @@
     "direction": "vertical"
   },
   "left": {
-    "id": "e55d7420f782024a",
+    "id": "49f944d8e185acb5",
     "type": "split",
     "children": [
       {
-        "id": "558d33108cba2bf9",
+        "id": "f97d822f42ad58b2",
         "type": "tabs",
         "children": [
           {
-            "id": "4f1416610662613b",
+            "id": "805264bbde47ee8c",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
@@ -44,7 +58,7 @@
             }
           },
           {
-            "id": "8a3a7a9016d2890f",
+            "id": "e63f24833ed7c44b",
             "type": "leaf",
             "state": {
               "type": "search",
@@ -61,7 +75,7 @@
             }
           },
           {
-            "id": "a8a2368f8f2da6c1",
+            "id": "1f41a724c1811524",
             "type": "leaf",
             "state": {
               "type": "bookmarks",
@@ -77,19 +91,20 @@
     "width": 300
   },
   "right": {
-    "id": "63dcf36c993dc948",
+    "id": "384ef1ef975a041b",
     "type": "split",
     "children": [
       {
-        "id": "b02c1c3c087a9b9f",
+        "id": "4286b4fef257686e",
         "type": "tabs",
         "children": [
           {
-            "id": "bd4fc5ff2557ad99",
+            "id": "85469a23913459fb",
             "type": "leaf",
             "state": {
               "type": "backlink",
               "state": {
+                "file": "Cranium/docs/flows/Flow - Page Reader Render (apps-client).md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -99,24 +114,25 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks"
+              "title": "Backlinks for Flow - Page Reader Render (apps-client)"
             }
           },
           {
-            "id": "7122d0ed9d92f85f",
+            "id": "b05e3d2b5809461f",
             "type": "leaf",
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "Cranium/docs/flows/Flow - Page Reader Render (apps-client).md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links"
+              "title": "Outgoing links from Flow - Page Reader Render (apps-client)"
             }
           },
           {
-            "id": "af8a8436d851074c",
+            "id": "6a1c349fda6161bc",
             "type": "leaf",
             "state": {
               "type": "tag",
@@ -131,7 +147,7 @@
             }
           },
           {
-            "id": "f4d2fb2212a52b75",
+            "id": "8436025c4d91dba8",
             "type": "leaf",
             "state": {
               "type": "all-properties",
@@ -145,17 +161,28 @@
             }
           },
           {
-            "id": "12f0b95935bec217",
+            "id": "eb5c9ef704d91f29",
             "type": "leaf",
             "state": {
               "type": "outline",
               "state": {
+                "file": "Cranium/docs/flows/Flow - Page Reader Render (apps-client).md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline"
+              "title": "Outline of Flow - Page Reader Render (apps-client)"
+            }
+          },
+          {
+            "id": "3f49cc953a9ca9d1",
+            "type": "leaf",
+            "state": {
+              "type": "calendar",
+              "state": {},
+              "icon": "calendar-with-checkmark",
+              "title": "Calendar"
             }
           }
         ]
@@ -173,9 +200,53 @@
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
-      "bases:Create new base": false
+      "bases:Create new base": false,
+      "obsidian-excalidraw-plugin:New drawing": false,
+      "obsidian-git:Open Git source control": false,
+      "obsidian-importer:Open Importer": false,
+      "omnisearch:Omnisearch": false
     }
   },
-  "active": "2332a2c79c6fb3a2",
-  "lastOpenFiles": []
+  "active": "235c0054d8b2bb83",
+  "lastOpenFiles": [
+    "Cranium/docs/domains/OSS Packaging & Self-Host/OSS Packaging & Self-Host.md",
+    "Cranium/docs/domains/MCP Server/MCP Server.md",
+    "Cranium/docs/flows/Flow - PR Bot.md",
+    "Cranium/docs/flows/Flow - Page Reader Render (apps-client).md",
+    "Cranium/docs/flows/Flow - GitHub Repo Scan.md",
+    "Cranium/docs/flows/Flow - MCP Query.md",
+    "Cranium/docs/flows/Flow - Batched LLM Synthesis.md",
+    "Cranium/docs/templates/Design/Feature Design - Full.md",
+    "Cranium/docs/readme.md.tmp.87013.63a7fe595893",
+    "Cranium/docs/decisions/README.md",
+    "Cranium/docs/decisions/README.md.tmp.87013.b1c1191ff9f1",
+    "Cranium/docs/decisions/ADR-010 Webhook-Driven Connection Creation.md.tmp.87013.556ba4a65c28",
+    "Cranium/docs/decisions/ADR-008 Temporal for Integration Sync Orchestration.md.tmp.87013.b2b97dfd610e",
+    "Cranium/docs/decisions/ADR-008 Integration-Based Entity Types as Readonly Materialized Views.md.tmp.87013.9d0ea4d3dc5f",
+    "Cranium/docs/decisions/ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates.md.tmp.87013.bbc0498544ff",
+    "Cranium/docs/decisions/ADR-003 Single Discriminator Table for Metadata Targets.md.tmp.87013.4104dc435e14",
+    "Cranium/docs/decisions/ADR-002 Separate Table for Semantic Metadata.md.tmp.87013.750ec770276d",
+    "Cranium/docs/decisions/ADR-001 Nango as Integration Infrastructure.md.tmp.87013.e347dea94fa2",
+    "Cranium/docs/domains/_archived.md",
+    "Cranium/docs/domains/_archived.md.tmp.87013.ed209f23bc79",
+    "Cranium/docs/domains/Workspace & Auth/Workspace & Auth.md",
+    "Cranium/docs/decisions/ADR-021 GitHub-Only v1, Slack and Notion as v1.1.md",
+    "Cranium/docs/decisions/ADR-020 MCP Server as a Module Inside core.md",
+    "Cranium/docs/designs/_TEMPLATE-INDEX.md",
+    "Cranium/docs/decisions/ADR-019 Full Pivot Before a Design Partner.md",
+    "Cranium/docs/designs/README.md",
+    "Cranium/docs/domains/Surfaces/Surfaces.md",
+    "Cranium/docs/decisions/ADR-018 One pages Table Family for Synthesis Storage.md",
+    "Cranium/docs/domains/Page Resolution & Decision Queue/Page Resolution & Decision Queue.md",
+    "Cranium/docs/flows/Flow - Self-Host Quickstart.md",
+    "Cranium/docs/decisions/ADR-017 Async Synthesis Materialization with On-Navigation Fill.md",
+    "Cranium/docs/decisions/ADR-016 Structural Collapse Before Behavioral Change.md",
+    "Cranium/docs/domains/Synthesis/Synthesis.md",
+    "Cranium/docs/decisions/ADR-015 Page Resolution Policy.md",
+    "Cranium/docs/domains/Source Ingestion/Source Ingestion.md",
+    "Cranium/docs/decisions/ADR-014 Deterministic Source-Entity Creation plus Batched LLM Synthesis.md",
+    "17.png",
+    "notion-logo-2.png",
+    "16.png"
+  ]
 }

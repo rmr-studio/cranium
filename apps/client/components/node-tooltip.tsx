@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 import { NodeToolbar, type NodeToolbarProps } from '@xyflow/react';
 
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 
 /* TOOLTIP CONTEXT ---------------------------------------------------------- */
 

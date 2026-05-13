@@ -1,12 +1,12 @@
-package riven.core.repository.user
+package cranium.core.repository.user
 
 import jakarta.persistence.LockModeType
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
-import riven.core.entity.user.UserEntity
-import riven.core.projection.user.UserWorkspaceMembershipProjection
+import cranium.core.entity.user.UserEntity
+import cranium.core.projection.user.UserWorkspaceMembershipProjection
 import java.util.*
 
 interface UserRepository : JpaRepository<UserEntity, UUID> {

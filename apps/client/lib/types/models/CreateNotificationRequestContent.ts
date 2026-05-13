@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -14,24 +14,21 @@
 
 import type { Information } from './Information';
 import {
-    instanceOfInformation,
-    InformationFromJSON,
     InformationFromJSONTyped,
     InformationToJSON,
+    instanceOfInformation
 } from './Information';
 import type { ReviewRequest } from './ReviewRequest';
 import {
     instanceOfReviewRequest,
-    ReviewRequestFromJSON,
     ReviewRequestFromJSONTyped,
-    ReviewRequestToJSON,
+    ReviewRequestToJSON
 } from './ReviewRequest';
 import type { System } from './System';
 import {
     instanceOfSystem,
-    SystemFromJSON,
     SystemFromJSONTyped,
-    SystemToJSON,
+    SystemToJSON
 } from './System';
 
 /**

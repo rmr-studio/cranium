@@ -1,4 +1,4 @@
-package riven.core.enums.block.layout
+package cranium.core.enums.block.layout
 
 /**
  * Defines the scope/ownership of a block layout

@@ -1,4 +1,4 @@
-package riven.core.models.user
+package cranium.core.models.user
 
 import java.util.*
 

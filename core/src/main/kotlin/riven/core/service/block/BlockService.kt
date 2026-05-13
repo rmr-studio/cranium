@@ -1,25 +1,25 @@
-package riven.core.service.block
+package cranium.core.service.block
 
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.block.BlockChildEntity
-import riven.core.entity.block.BlockEntity
-import riven.core.entity.block.BlockTypeEntity
-import riven.core.enums.common.validation.ValidationScope
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.util.OperationType
-import riven.core.exceptions.SchemaValidationException
-import riven.core.models.block.Block
-import riven.core.models.block.metadata.*
-import riven.core.models.block.tree.*
-import riven.core.models.common.json.JsonObject
-import riven.core.models.request.block.CreateBlockRequest
-import riven.core.repository.block.BlockRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.activity.log
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.schema.SchemaService
+import cranium.core.entity.block.BlockChildEntity
+import cranium.core.entity.block.BlockEntity
+import cranium.core.entity.block.BlockTypeEntity
+import cranium.core.enums.common.validation.ValidationScope
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.util.OperationType
+import cranium.core.exceptions.SchemaValidationException
+import cranium.core.models.block.Block
+import cranium.core.models.block.metadata.*
+import cranium.core.models.block.tree.*
+import cranium.core.models.common.json.JsonObject
+import cranium.core.models.request.block.CreateBlockRequest
+import cranium.core.repository.block.BlockRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.activity.log
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.schema.SchemaService
 import java.util.*
 
 /**
@@ -77,7 +77,7 @@ class BlockService(
         }.also {
             requireNotNull(it.id) { "Block '${it.id}' not found" }
             activityService.log(
-                activity = riven.core.enums.activity.Activity.BLOCK,
+                activity = cranium.core.enums.activity.Activity.BLOCK,
                 operation = OperationType.CREATE,
                 userId = authTokenService.getUserId(),
                 workspaceId = workspaceId,
@@ -177,7 +177,7 @@ class BlockService(
         val saved = blockRepository.save(updated)
 
         activityService.log(
-            activity = riven.core.enums.activity.Activity.BLOCK,
+            activity = cranium.core.enums.activity.Activity.BLOCK,
             operation = OperationType.UPDATE,
             userId = authTokenService.getUserId(),
             workspaceId = saved.workspaceId,

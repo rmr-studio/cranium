@@ -1,15 +1,15 @@
-package riven.core.entity.block
+package cranium.core.entity.block
 
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import tools.jackson.module.kotlin.readValue
-import riven.core.enums.block.layout.RenderType
-import riven.core.enums.block.node.NodeType
-import riven.core.models.block.layout.RenderContent
-import riven.core.models.block.layout.TreeLayout
-import riven.core.models.block.layout.Widget
-import riven.core.models.block.layout.options.DraggableOptions
-import riven.core.models.block.layout.options.ResizableOptions
+import cranium.core.enums.block.layout.RenderType
+import cranium.core.enums.block.node.NodeType
+import cranium.core.models.block.layout.RenderContent
+import cranium.core.models.block.layout.TreeLayout
+import cranium.core.models.block.layout.Widget
+import cranium.core.models.block.layout.options.DraggableOptions
+import cranium.core.models.block.layout.options.ResizableOptions
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.util.*

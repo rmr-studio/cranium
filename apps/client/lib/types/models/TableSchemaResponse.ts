@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,27 +12,20 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { CursorIndexWarning } from './CursorIndexWarning';
-import {
-    CursorIndexWarningFromJSON,
-    CursorIndexWarningFromJSONTyped,
-    CursorIndexWarningToJSON,
-    CursorIndexWarningToJSONTyped,
-} from './CursorIndexWarning';
 import type { ColumnSchemaResponse } from './ColumnSchemaResponse';
 import {
     ColumnSchemaResponseFromJSON,
-    ColumnSchemaResponseFromJSONTyped,
-    ColumnSchemaResponseToJSON,
-    ColumnSchemaResponseToJSONTyped,
+    ColumnSchemaResponseToJSON
 } from './ColumnSchemaResponse';
+import type { CursorIndexWarning } from './CursorIndexWarning';
+import {
+    CursorIndexWarningFromJSON,
+    CursorIndexWarningToJSON
+} from './CursorIndexWarning';
 import type { DriftStatus } from './DriftStatus';
 import {
     DriftStatusFromJSON,
-    DriftStatusFromJSONTyped,
-    DriftStatusToJSON,
-    DriftStatusToJSONTyped,
+    DriftStatusToJSON
 } from './DriftStatus';
 
 /**

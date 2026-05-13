@@ -1,16 +1,16 @@
-package riven.core.entity.block
+package cranium.core.entity.block
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.Type
-import riven.core.entity.util.AuditableSoftDeletableEntity
-import riven.core.enums.common.validation.ValidationScope
-import riven.core.models.block.BlockType
-import riven.core.models.block.BlockTypeSchema
-import riven.core.models.block.display.BlockDisplay
-import riven.core.models.block.display.BlockTypeNesting
-import riven.core.models.request.block.CreateBlockTypeRequest
+import cranium.core.entity.util.AuditableSoftDeletableEntity
+import cranium.core.enums.common.validation.ValidationScope
+import cranium.core.models.block.BlockType
+import cranium.core.models.block.BlockTypeSchema
+import cranium.core.models.block.display.BlockDisplay
+import cranium.core.models.block.display.BlockTypeNesting
+import cranium.core.models.request.block.CreateBlockTypeRequest
 import java.util.*
 
 /**

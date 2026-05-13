@@ -1,16 +1,21 @@
 ---
 tags:
-  - adr/proposed
+  - adr/superseded
   - architecture/decision
 Created: 2026-02-18
+Updated: 2026-05-13
+Superseded By: "[[ADR-013 Thin Per-Kind Frontmatter in Code, Loose Extras]]"
 ---
+
 # ADR-003: Single Discriminator Table for Metadata Targets
+
+> **Superseded / reworked by the 2026-05 architecture pivot.** This ADR's `entity_type_semantic_metadata` discriminator table goes with the semantic-metadata layer it served (see [[ADR-002 Separate Table for Semantic Metadata]]) — there are no attribute/relationship-definition targets to discriminate after the pivot. Per-kind frontmatter is Kotlin on the sealed `Page` subclass; classification is `pages.classification`. See [[architecture-pivot]] §Reuse / Rework / Replace / Delete and [[ADR-013 Thin Per-Kind Frontmatter in Code, Loose Extras]].
 
 ---
 
 ## Context
 
-[[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-002 Separate Table for Semantic Metadata]] establishes that semantic metadata lives in a dedicated table, separate from the existing `entity_types` table. Semantic metadata must be attached to three distinct target types:
+[[2. Areas/2.1 Startup & Content/Cranium/2. System Design/decisions/ADR-002 Separate Table for Semantic Metadata]] establishes that semantic metadata lives in a dedicated table, separate from the existing `entity_types` table. Semantic metadata must be attached to three distinct target types:
 
 1. **Entity types** -- a natural-language definition describing what the entity type represents in the workspace's domain.
 2. **Attributes** -- a description and classification (e.g., IDENTIFIER, DESCRIPTIVE, TEMPORAL) for each attribute defined in the entity type's `schema.properties` JSONB map.
@@ -78,37 +83,37 @@ Store all semantic metadata for an entity type in a single JSONB column on a lig
 ### Negative
 
 - The `classification` column is semantically meaningful only for ATTRIBUTE targets. Entity type and relationship metadata records leave this column NULL. This is a minor schema impurity -- the column exists on rows where it has no meaning -- but the cost is negligible (nullable TEXT column, no storage overhead for NULL).
-- `target_id` is not a true foreign key. For ATTRIBUTE targets, it references a UUID key inside the `entity_types.schema` JSONB map. For RELATIONSHIP targets, it references a UUID inside the `entity_types.relationships` JSONB array. Referential integrity cannot be enforced at the database level -- it is enforced by the service layer during lifecycle sync. If an attribute or relationship UUID is removed from the JSONB without the corresponding metadata being soft-deleted, orphaned metadata rows result. The [[riven/docs/system-design/flows/Flow - Semantic Metadata Lifecycle Sync]] design addresses this.
+- `target_id` is not a true foreign key. For ATTRIBUTE targets, it references a UUID key inside the `entity_types.schema` JSONB map. For RELATIONSHIP targets, it references a UUID inside the `entity_types.relationships` JSONB array. Referential integrity cannot be enforced at the database level -- it is enforced by the service layer during lifecycle sync. If an attribute or relationship UUID is removed from the JSONB without the corresponding metadata being soft-deleted, orphaned metadata rows result. The [[cranium/docs/system-design/flows/Flow - Semantic Metadata Lifecycle Sync]] design addresses this.
 - Queries for a specific target type must always include `WHERE target_type = ?` to be efficient. Omitting the discriminator filter returns mixed results across all target types, which is correct for the `?include=semantics` batch read but requires filtering for single-target operations.
 
 ### Neutral
 
 - The CHECK constraint on `target_type` ensures only valid discriminator values (`ENTITY_TYPE`, `ATTRIBUTE`, `RELATIONSHIP`) are stored. Invalid values are rejected at the database level.
 - Partial indexes on `(entity_type_id) WHERE deleted = false` and `(target_type, target_id) WHERE deleted = false` optimize the two primary query patterns: batch-by-entity-type and lookup-by-target.
-- The Kotlin enum `SemanticMetadataTargetType` in `riven.core.enums.entity` mirrors the database CHECK constraint values, providing compile-time safety in application code.
+- The Kotlin enum `SemanticMetadataTargetType` in `cranium.core.enums.entity` mirrors the database CHECK constraint values, providing compile-time safety in application code.
 
 ---
 
 ## Implementation Notes
 
 - **`target_id` semantics vary by `target_type`:**
-    - `ENTITY_TYPE`: `target_id` equals `entity_type_id`. The entity type is its own target -- the metadata describes the entity type itself. This keeps the UNIQUE constraint shape consistent across all target types.
-    - `ATTRIBUTE`: `target_id` is the attribute UUID key from `entity_types.schema.properties`. This UUID is generated when an attribute is added to the entity type schema and is stable across schema updates.
-    - `RELATIONSHIP`: `target_id` is the relationship definition UUID from the `entity_types.relationships` JSONB array (the `id` field of `EntityRelationshipDefinition`).
-- **`classification` validation:** A CHECK constraint allows NULL but rejects non-null values outside the predefined classification set: `IDENTIFIER`, `CATEGORICAL`, `QUANTITATIVE`, `TEMPORAL`, `FREETEXT`, `RELATIONAL_REFERENCE`. The corresponding Kotlin enum is `SemanticAttributeClassification` in `riven.core.enums.entity`.
+  - `ENTITY_TYPE`: `target_id` equals `entity_type_id`. The entity type is its own target -- the metadata describes the entity type itself. This keeps the UNIQUE constraint shape consistent across all target types.
+  - `ATTRIBUTE`: `target_id` is the attribute UUID key from `entity_types.schema.properties`. This UUID is generated when an attribute is added to the entity type schema and is stable across schema updates.
+  - `RELATIONSHIP`: `target_id` is the relationship definition UUID from the `entity_types.relationships` JSONB array (the `id` field of `EntityRelationshipDefinition`).
+- **`classification` validation:** A CHECK constraint allows NULL but rejects non-null values outside the predefined classification set: `IDENTIFIER`, `CATEGORICAL`, `QUANTITATIVE`, `TEMPORAL`, `FREETEXT`, `RELATIONAL_REFERENCE`. The corresponding Kotlin enum is `SemanticAttributeClassification` in `cranium.core.enums.entity`.
 - **Primary query patterns:**
-    - Batch read: `findByEntityTypeIdAndDeletedFalse(entityTypeId)` -- returns all metadata for an entity type across all target types. Used by `?include=semantics`.
-    - Single target read: `findByEntityTypeIdAndTargetTypeAndTargetIdAndDeletedFalse(entityTypeId, targetType, targetId)` -- returns metadata for a specific target. Used by individual attribute/relationship semantic endpoints.
-    - Batch by entity type list: `findByEntityTypeIdInAndDeletedFalse(entityTypeIds)` -- returns metadata for multiple entity types. Used by list endpoints with `?include=semantics`.
+  - Batch read: `findByEntityTypeIdAndDeletedFalse(entityTypeId)` -- returns all metadata for an entity type across all target types. Used by `?include=semantics`.
+  - Single target read: `findByEntityTypeIdAndTargetTypeAndTargetIdAndDeletedFalse(entityTypeId, targetType, targetId)` -- returns metadata for a specific target. Used by individual attribute/relationship semantic endpoints.
+  - Batch by entity type list: `findByEntityTypeIdInAndDeletedFalse(entityTypeIds)` -- returns metadata for multiple entity types. Used by list endpoints with `?include=semantics`.
 - **Index strategy:** Composite index on `(entity_type_id, target_type, target_id)` serves the UNIQUE constraint and covers all query patterns. Partial index `WHERE deleted = false` avoids scanning soft-deleted rows.
 
 ---
 
 ## Related
 
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-002 Separate Table for Semantic Metadata]]
-- [[riven/docs/system-design/feature-design/2. Planned/Semantic Metadata Foundation]]
-- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Knowledge Layer]]
-- [[riven/docs/system-design/domains/Entities/Entity Semantics/Entity Semantics]]
-- [[riven/docs/system-design/domains/Entities/Entities]]
-- [[riven/docs/system-design/domains/Entities/Type Definitions/Type Definitions]]
+- [[2. Areas/2.1 Startup & Content/Cranium/2. System Design/decisions/ADR-002 Separate Table for Semantic Metadata]]
+- [[cranium/docs/system-design/feature-design/2. Planned/Semantic Metadata Foundation]]
+- [[cranium/docs/system-design/feature-design/_Sub-Domain Plans/Knowledge Layer]]
+- [[cranium/docs/system-design/domains/Entities/Entity Semantics/Entity Semantics]]
+- [[cranium/docs/system-design/domains/Entities/Entities]]
+- [[cranium/docs/system-design/domains/Entities/Type Definitions/Type Definitions]]

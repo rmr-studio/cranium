@@ -1,8 +1,8 @@
-package riven.core.service.util
+package cranium.core.service.util
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.enums.workspace.WorkspaceRoles
+import cranium.core.enums.workspace.WorkspaceRoles
 import java.util.*
 
 @WithUserPersona(

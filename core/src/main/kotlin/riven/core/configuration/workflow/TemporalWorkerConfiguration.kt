@@ -1,4 +1,4 @@
-package riven.core.configuration.workflow
+package cranium.core.configuration.workflow
 
 import io.github.oshai.kotlinlogging.KLogger
 import io.temporal.client.WorkflowClient
@@ -8,19 +8,19 @@ import jakarta.annotation.PreDestroy
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import riven.core.service.integration.sync.IntegrationSyncActivities
-import riven.core.service.integration.sync.IntegrationSyncWorkflow
-import riven.core.service.integration.sync.IntegrationSyncWorkflowImpl
-import riven.core.service.workflow.engine.WorkflowOrchestration
-import riven.core.service.workflow.engine.WorkflowOrchestrationService
-import riven.core.service.workflow.engine.completion.WorkflowCompletionActivityImpl
-import riven.core.service.workflow.engine.coordinator.WorkflowCoordinationService
-import riven.core.service.workflow.enrichment.EnrichmentActivitiesImpl
-import riven.core.service.workflow.enrichment.EnrichmentWorkflow
-import riven.core.service.workflow.enrichment.EnrichmentWorkflowImpl
-import riven.core.service.workflow.identity.IdentityMatchActivitiesImpl
-import riven.core.service.workflow.identity.IdentityMatchWorkflow
-import riven.core.service.workflow.identity.IdentityMatchWorkflowImpl
+import cranium.core.service.integration.sync.IntegrationSyncActivities
+import cranium.core.service.integration.sync.IntegrationSyncWorkflow
+import cranium.core.service.integration.sync.IntegrationSyncWorkflowImpl
+import cranium.core.service.workflow.engine.WorkflowOrchestration
+import cranium.core.service.workflow.engine.WorkflowOrchestrationService
+import cranium.core.service.workflow.engine.completion.WorkflowCompletionActivityImpl
+import cranium.core.service.workflow.engine.coordinator.WorkflowCoordinationService
+import cranium.core.service.workflow.enrichment.EnrichmentActivitiesImpl
+import cranium.core.service.workflow.enrichment.EnrichmentWorkflow
+import cranium.core.service.workflow.enrichment.EnrichmentWorkflowImpl
+import cranium.core.service.workflow.identity.IdentityMatchActivitiesImpl
+import cranium.core.service.workflow.identity.IdentityMatchWorkflow
+import cranium.core.service.workflow.identity.IdentityMatchWorkflowImpl
 import java.util.*
 
 /**
@@ -47,7 +47,7 @@ import java.util.*
  * @property activities Autowired Spring bean with injected dependencies
  */
 @Configuration
-@ConditionalOnProperty(name = ["riven.workflow.engine.enabled"], havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(name = ["cranium.workflow.engine.enabled"], havingValue = "true", matchIfMissing = true)
 class TemporalWorkerConfiguration(
     private val workflowServiceStubs: WorkflowServiceStubs,
     private val coordinationActivity: WorkflowCoordinationService,

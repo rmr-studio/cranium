@@ -1,4 +1,4 @@
-package riven.core.service.integration
+package cranium.core.service.integration
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
@@ -6,15 +6,15 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 import reactor.util.retry.Retry
-import riven.core.configuration.properties.NangoConfigurationProperties
-import riven.core.exceptions.NangoApiException
-import riven.core.exceptions.RateLimitException
-import riven.core.exceptions.TransientNangoException
-import riven.core.models.integration.NangoConnection
-import riven.core.models.integration.NangoConnectionList
-import riven.core.models.integration.NangoErrorResponse
-import riven.core.models.integration.NangoRecordsPage
-import riven.core.models.integration.NangoTriggerSyncRequest
+import cranium.core.configuration.properties.NangoConfigurationProperties
+import cranium.core.exceptions.NangoApiException
+import cranium.core.exceptions.RateLimitException
+import cranium.core.exceptions.TransientNangoException
+import cranium.core.models.integration.NangoConnection
+import cranium.core.models.integration.NangoConnectionList
+import cranium.core.models.integration.NangoErrorResponse
+import cranium.core.models.integration.NangoRecordsPage
+import cranium.core.models.integration.NangoTriggerSyncRequest
 import java.time.Duration
 
 /**

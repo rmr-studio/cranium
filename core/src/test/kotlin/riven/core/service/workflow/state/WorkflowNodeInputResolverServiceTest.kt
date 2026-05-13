@@ -1,4 +1,4 @@
-package riven.core.service.workflow.state
+package cranium.core.service.workflow.state
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.BeforeEach
@@ -8,13 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.enums.util.OperationType
-import riven.core.enums.workflow.WorkflowStatus
-import riven.core.models.workflow.engine.state.WorkflowExecutionPhase
-import riven.core.models.workflow.engine.state.WorkflowState
-import riven.core.models.workflow.engine.state.*
-import riven.core.service.auth.AuthTokenService
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.enums.util.OperationType
+import cranium.core.enums.workflow.WorkflowStatus
+import cranium.core.models.workflow.engine.state.WorkflowExecutionPhase
+import cranium.core.models.workflow.engine.state.WorkflowState
+import cranium.core.models.workflow.engine.state.*
+import cranium.core.service.auth.AuthTokenService
 import java.time.Instant
 import java.util.*
 import kotlin.test.assertEquals

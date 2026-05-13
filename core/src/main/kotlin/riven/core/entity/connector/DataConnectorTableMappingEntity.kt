@@ -1,4 +1,4 @@
-package riven.core.entity.connector
+package cranium.core.entity.connector
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -10,10 +10,10 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
 import org.hibernate.annotations.SQLRestriction
-import riven.core.entity.util.AuditableSoftDeletableEntity
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.models.connector.DataConnectorTableMapping
+import cranium.core.entity.util.AuditableSoftDeletableEntity
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.models.connector.DataConnectorTableMapping
 import java.time.ZonedDateTime
 import java.util.UUID
 

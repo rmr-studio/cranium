@@ -1,4 +1,4 @@
-package riven.core.service.integration.sync
+package cranium.core.service.integration.sync
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
@@ -10,10 +10,10 @@ import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import riven.core.configuration.workflow.TemporalWorkerConfiguration
-import riven.core.configuration.workflow.WorkflowRetryConfigurationProperties
-import riven.core.models.integration.sync.IntegrationSyncWorkflowInput
-import riven.core.models.integration.sync.SyncProcessingResult
+import cranium.core.configuration.workflow.TemporalWorkerConfiguration
+import cranium.core.configuration.workflow.WorkflowRetryConfigurationProperties
+import cranium.core.models.integration.sync.IntegrationSyncWorkflowInput
+import cranium.core.models.integration.sync.SyncProcessingResult
 import java.util.UUID
 
 /**

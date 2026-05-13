@@ -1,4 +1,4 @@
-package riven.core.exceptions.query
+package cranium.core.exceptions.query
 
 /**
  * Exception thrown when SQL query execution fails.

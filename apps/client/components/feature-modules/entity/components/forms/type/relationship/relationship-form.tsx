@@ -2,9 +2,9 @@
 
 import { useRelationshipForm } from '@/components/feature-modules/entity/hooks/form/type/use-relationship-form';
 import { useEntityTypes } from '@/components/feature-modules/entity/hooks/query/type/use-entity-types';
-import { Badge } from '@riven/ui/badge';
-import { Button } from '@riven/ui/button';
-import { Input } from '@riven/ui/input';
+import { Badge } from '@cranium/ui/badge';
+import { Button } from '@cranium/ui/button';
+import { Input } from '@cranium/ui/input';
 import {
   Form,
   FormControl,

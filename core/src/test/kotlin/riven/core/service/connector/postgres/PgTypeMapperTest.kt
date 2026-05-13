@@ -1,10 +1,10 @@
-package riven.core.service.connector.postgres
+package cranium.core.service.connector.postgres
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
-import riven.core.enums.common.validation.SchemaType
+import cranium.core.enums.common.validation.SchemaType
 
 /**
  * Phase 3 plan 03-01 PG-04 coverage for [PgTypeMapper]. Each test name is

@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,28 +12,21 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
+import type { ConditionLeft } from './ConditionLeft';
+import {
+    ConditionLeftFromJSON,
+    ConditionLeftToJSON
+} from './ConditionLeft';
 import type { ConditionRight } from './ConditionRight';
 import {
     ConditionRightFromJSON,
-    ConditionRightFromJSONTyped,
-    ConditionRightToJSON,
-    ConditionRightToJSONTyped,
+    ConditionRightToJSON
 } from './ConditionRight';
 import type { Op } from './Op';
 import {
     OpFromJSON,
-    OpFromJSONTyped,
-    OpToJSON,
-    OpToJSONTyped,
+    OpToJSON
 } from './Op';
-import type { ConditionLeft } from './ConditionLeft';
-import {
-    ConditionLeftFromJSON,
-    ConditionLeftFromJSONTyped,
-    ConditionLeftToJSON,
-    ConditionLeftToJSONTyped,
-} from './ConditionLeft';
 
 /**
  * 

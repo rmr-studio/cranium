@@ -15,7 +15,7 @@
  */
 
 import { Checkbox } from '@/components/ui/checkbox';
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 import {
   closestCenter,
   CollisionDetection,

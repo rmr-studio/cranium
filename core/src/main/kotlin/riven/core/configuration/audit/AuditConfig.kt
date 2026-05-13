@@ -1,6 +1,6 @@
-package riven.core.configuration.audit
+package cranium.core.configuration.audit
 
-import riven.core.configuration.auth.SecurityAuditorAware
+import cranium.core.configuration.auth.SecurityAuditorAware
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.auditing.DateTimeProvider

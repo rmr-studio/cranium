@@ -1,9 +1,9 @@
-package riven.core.repository.entity
+package cranium.core.repository.entity
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
-import riven.core.entity.entity.EntityEntity
+import cranium.core.entity.entity.EntityEntity
 import java.util.*
 
 /**
@@ -65,7 +65,7 @@ interface EntityRepository : JpaRepository<EntityEntity, UUID> {
     /**
      * Find a single entity by its source external ID within a workspace.
      *
-     * Used by [riven.core.service.identity.IdentityLookupService] to resolve entities
+     * Used by [cranium.core.service.identity.IdentityLookupService] to resolve entities
      * by their integration-sourced external identifier.
      */
     @Query("""

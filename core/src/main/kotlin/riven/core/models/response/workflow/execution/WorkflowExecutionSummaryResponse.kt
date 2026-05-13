@@ -1,8 +1,8 @@
-package riven.core.models.response.workflow.execution
+package cranium.core.models.response.workflow.execution
 
-import riven.core.enums.workflow.WorkflowStatus
-import riven.core.models.workflow.engine.execution.WorkflowExecutionNodeRecord
-import riven.core.models.workflow.engine.execution.WorkflowExecutionRecord
+import cranium.core.enums.workflow.WorkflowStatus
+import cranium.core.models.workflow.engine.execution.WorkflowExecutionNodeRecord
+import cranium.core.models.workflow.engine.execution.WorkflowExecutionRecord
 
 /**
  * Summary response for workflow execution queries.

@@ -1,22 +1,22 @@
-package riven.core.service.block
+package cranium.core.service.block
 
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.block.BlockTypeEntity
-import riven.core.enums.activity.Activity
-import riven.core.enums.block.node.SystemBlockTypes
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.util.OperationType
-import riven.core.models.block.BlockType
-import riven.core.models.request.block.CreateBlockTypeRequest
-import riven.core.repository.block.BlockTypeRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.activity.log
-import riven.core.service.auth.AuthTokenService
-import riven.core.util.ServiceUtil.findManyResults
-import riven.core.util.ServiceUtil.findOrThrow
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.entity.block.BlockTypeEntity
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.block.node.SystemBlockTypes
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.util.OperationType
+import cranium.core.models.block.BlockType
+import cranium.core.models.request.block.CreateBlockTypeRequest
+import cranium.core.repository.block.BlockTypeRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.activity.log
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.util.ServiceUtil.findManyResults
+import cranium.core.util.ServiceUtil.findOrThrow
 import java.util.*
 
 /**

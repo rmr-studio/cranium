@@ -1,4 +1,4 @@
-package riven.core.service.entity
+package cranium.core.service.entity
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Test
@@ -8,9 +8,9 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.models.identity.IdentityMatchTriggerEvent
-import riven.core.service.identity.EntityTypeClassificationService
-import riven.core.service.identity.IdentityMatchQueueService
+import cranium.core.models.identity.IdentityMatchTriggerEvent
+import cranium.core.service.identity.EntityTypeClassificationService
+import cranium.core.service.identity.IdentityMatchQueueService
 import java.util.UUID
 
 /**

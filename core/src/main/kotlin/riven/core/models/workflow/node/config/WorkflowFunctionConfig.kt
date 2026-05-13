@@ -1,16 +1,16 @@
-package riven.core.models.workflow.node.config
+package cranium.core.models.workflow.node.config
 
 import com.fasterxml.jackson.annotation.JsonTypeName
 import tools.jackson.databind.ValueDeserializer
 import tools.jackson.databind.annotation.JsonDeserialize
 import io.swagger.v3.oas.annotations.media.Schema
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.workflow.WorkflowNodeType
-import riven.core.models.common.json.JsonObject
-import riven.core.models.workflow.engine.state.NodeOutput
-import riven.core.models.workflow.engine.state.WorkflowDataStore
-import riven.core.models.workflow.node.NodeServiceProvider
-import riven.core.models.workflow.node.config.validation.ConfigValidationResult
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.workflow.WorkflowNodeType
+import cranium.core.models.common.json.JsonObject
+import cranium.core.models.workflow.engine.state.NodeOutput
+import cranium.core.models.workflow.engine.state.WorkflowDataStore
+import cranium.core.models.workflow.node.NodeServiceProvider
+import cranium.core.models.workflow.node.config.validation.ConfigValidationResult
 
 /**
  * Configuration for a FUNCTION category node.

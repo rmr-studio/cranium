@@ -1,12 +1,12 @@
-package riven.core.models.block.display
+package cranium.core.models.block.display
 
 import io.swagger.v3.oas.annotations.media.Schema
-import riven.core.enums.block.node.BlockFetchPolicy
-import riven.core.enums.core.ComponentType
-import riven.core.models.common.Condition
-import riven.core.models.common.grid.LayoutGrid
-import riven.core.models.common.json.JsonObject
-import riven.core.models.common.theme.ThemeTokens
+import cranium.core.enums.block.node.BlockFetchPolicy
+import cranium.core.enums.core.ComponentType
+import cranium.core.models.common.Condition
+import cranium.core.models.common.grid.LayoutGrid
+import cranium.core.models.common.json.JsonObject
+import cranium.core.models.common.theme.ThemeTokens
 
 /**
  * Defines the UI Structure of the Component used to display the data stored in a block

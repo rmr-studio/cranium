@@ -1,11 +1,11 @@
-package riven.core.service.identity
+package cranium.core.service.identity
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
-import riven.core.entity.entity.EntityEntity
-import riven.core.repository.entity.EntityAttributeRepository
-import riven.core.repository.entity.EntityRepository
+import cranium.core.entity.entity.EntityEntity
+import cranium.core.repository.entity.EntityAttributeRepository
+import cranium.core.repository.entity.EntityRepository
 import java.util.UUID
 
 /**

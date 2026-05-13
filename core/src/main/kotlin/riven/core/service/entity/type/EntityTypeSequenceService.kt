@@ -1,12 +1,12 @@
-package riven.core.service.entity.type
+package cranium.core.service.entity.type
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.entity.EntityTypeSequenceEntity
-import riven.core.entity.entity.EntityTypeSequenceId
-import riven.core.repository.entity.EntityTypeSequenceRepository
+import cranium.core.entity.entity.EntityTypeSequenceEntity
+import cranium.core.entity.entity.EntityTypeSequenceId
+import cranium.core.repository.entity.EntityTypeSequenceRepository
 import java.util.*
 
 /**

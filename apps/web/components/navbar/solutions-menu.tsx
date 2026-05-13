@@ -16,7 +16,7 @@ const BUSINESS_TYPE_ITEMS = [
   {
     label: 'DTC & E-Commerce',
     description:
-      'Elevate your ecommerce strategy and drive growth with powerful, data-driven insights.',
+      'Elevate your ecommerce strategy and drive growth with powerful, data-dcranium insights.',
     href: '/solutions/ecommerce',
     icon: Rocket,
   },

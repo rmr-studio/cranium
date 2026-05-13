@@ -1,4 +1,4 @@
-package riven.core.controller.notification
+package cranium.core.controller.notification
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.RestController
-import riven.core.models.notification.Notification
-import riven.core.models.request.notification.CreateNotificationRequest
-import riven.core.models.response.notification.NotificationInboxResponse
-import riven.core.service.notification.NotificationService
+import cranium.core.models.notification.Notification
+import cranium.core.models.request.notification.CreateNotificationRequest
+import cranium.core.models.response.notification.NotificationInboxResponse
+import cranium.core.service.notification.NotificationService
 import java.util.UUID
 
 @RestController

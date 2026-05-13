@@ -3,9 +3,12 @@ tags:
   - adr/accepted
   - architecture/decision
 Created: 2026-03-06
-Updated: 2026-03-06
+Updated: 2026-05-13
 ---
+
 # ADR-005: Strategy Pattern with Conditional Bean Selection for Storage Providers
+
+> **Still in force after the 2026-05 architecture pivot** — see [[architecture-pivot]] §Reuse / Rework / Replace / Delete. The file pipeline (storage providers, HMAC download tokens, magic-byte validation) is not in the v1 surface but is harmless to keep; this decision is unchanged.
 
 ---
 
@@ -27,7 +30,7 @@ The storage layer must expose a uniform interface to consuming services (`Storag
 
 Use the **Strategy pattern** implemented via Spring's `@ConditionalOnProperty` bean selection:
 
-1. Define a `StorageProvider` interface in `riven.core.models.storage` with blocking methods: `upload`, `download`, `delete`, `exists`, `generateSignedUrl`, `healthCheck`.
+1. Define a `StorageProvider` interface in `cranium.core.models.storage` with blocking methods: `upload`, `download`, `delete`, `exists`, `generateSignedUrl`, `healthCheck`.
 
 2. Each concrete provider implements `StorageProvider` and is annotated with `@ConditionalOnProperty(name = ["storage.provider"], havingValue = "<provider-name>")`. Only one provider bean is instantiated at runtime based on the `storage.provider` configuration property.
 
@@ -123,6 +126,6 @@ Store the active provider in a database configuration table, allowing workspace-
 
 ## Related
 
-- [[riven/docs/system-design/feature-design/2. Planned/Provider-Agnostic File Storage]] -- Feature design using this pattern
-- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/File Storage]] -- Sub-domain plan for the Storage domain
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-006 HMAC-Signed Download Tokens for File Access]] -- Signed URL mechanism that complements the provider abstraction
+- [[cranium/docs/system-design/feature-design/2. Planned/Provider-Agnostic File Storage]] -- Feature design using this pattern
+- [[cranium/docs/system-design/feature-design/_Sub-Domain Plans/File Storage]] -- Sub-domain plan for the Storage domain
+- [[2. Areas/2.1 Startup & Content/Cranium/2. System Design/decisions/ADR-006 HMAC-Signed Download Tokens for File Access]] -- Signed URL mechanism that complements the provider abstraction

@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
-import { Logo } from '@riven/ui/logo';
-import { ClassNameProps } from '@riven/utils';
+import { Logo } from '@cranium/ui/logo';
+import { ClassNameProps } from '@cranium/utils';
 import type { FC, ReactNode } from 'react';
 import { AppGlyph, ChatLink, Icon, icons, UserAvatar } from './primitives';
 
@@ -55,7 +55,7 @@ function MemoHeader() {
       <Logo size={20} />
       <div className="min-w-0 flex-1">
         <div className="font-mono text-[9px] font-bold tracking-[0.06em] text-muted-foreground uppercase">
-          Riven · context
+          Cranium · context
         </div>
         <div className="truncate text-[13px] font-semibold tracking-tight text-heading">
           SIG-2041 · Demand spike
@@ -265,8 +265,8 @@ function MeetingNote() {
 
 function ActionItems() {
   const items: { text: string; owner: string; auto?: boolean }[] = [
-    { text: 'Open Shopify pre-order page · ships May 28', owner: 'Riven', auto: true },
-    { text: 'Draft PO to Mira Textiles · 600u · NET-30', owner: 'Riven', auto: true },
+    { text: 'Open Shopify pre-order page · ships May 28', owner: 'Cranium', auto: true },
+    { text: 'Draft PO to Mira Textiles · 600u · NET-30', owner: 'Cranium', auto: true },
     { text: 'Notify low-cover Klaviyo segment', owner: 'Maya' },
     { text: 'Confirm 32d lead time with supplier', owner: 'Jared' },
   ];

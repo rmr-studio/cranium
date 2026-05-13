@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,20 +12,15 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
 import type { GridRect } from './GridRect';
 import {
     GridRectFromJSON,
-    GridRectFromJSONTyped,
-    GridRectToJSON,
-    GridRectToJSONTyped,
+    GridRectToJSON
 } from './GridRect';
 import type { LayoutGridItem } from './LayoutGridItem';
 import {
     LayoutGridItemFromJSON,
-    LayoutGridItemFromJSONTyped,
-    LayoutGridItemToJSON,
-    LayoutGridItemToJSONTyped,
+    LayoutGridItemToJSON
 } from './LayoutGridItem';
 
 /**

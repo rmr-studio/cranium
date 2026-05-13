@@ -2,7 +2,7 @@
 
 import { AuthFrame } from '@/components/feature-modules/authentication/components/auth-frame';
 import { BGPattern } from '@/components/ui/background/grids';
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 
 const INSET_VARS =
   '[--auth-ix:2rem] [--auth-iy:2.5rem] sm:[--auth-ix:2.5rem] sm:[--auth-iy:3rem] md:[--auth-ix:3rem] md:[--auth-iy:3.5rem] lg:[--auth-ix:4rem] lg:[--auth-iy:4rem]';

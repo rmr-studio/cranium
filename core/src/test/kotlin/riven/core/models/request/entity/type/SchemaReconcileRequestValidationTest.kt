@@ -1,4 +1,4 @@
-package riven.core.models.request.entity.type
+package cranium.core.models.request.entity.type
 
 import jakarta.validation.Validation
 import jakarta.validation.Validator

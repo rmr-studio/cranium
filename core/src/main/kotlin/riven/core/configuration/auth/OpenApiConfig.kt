@@ -1,4 +1,4 @@
-package riven.core.configuration.auth
+package cranium.core.configuration.auth
 
 import io.swagger.v3.core.converter.ModelConverters
 import io.swagger.v3.core.jackson.ModelResolver
@@ -13,9 +13,9 @@ import org.springframework.context.annotation.Configuration
 
 @OpenAPIDefinition(
     info = io.swagger.v3.oas.annotations.info.Info(
-        title = "Riven Core API",
+        title = "Cranium Core API",
         version = "v1",
-        description = "API documentation for Riven Core services."
+        description = "API documentation for Cranium Core services."
     ),
     tags = [
         Tag(name = "workflow", description = "Workflow Metadata, Graph and Execution Management Endpoints"),

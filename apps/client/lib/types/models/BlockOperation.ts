@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -14,38 +14,33 @@
 
 import type { AddBlockOperation } from './AddBlockOperation';
 import {
-    instanceOfAddBlockOperation,
-    AddBlockOperationFromJSON,
     AddBlockOperationFromJSONTyped,
     AddBlockOperationToJSON,
+    instanceOfAddBlockOperation
 } from './AddBlockOperation';
 import type { MoveBlockOperation } from './MoveBlockOperation';
 import {
     instanceOfMoveBlockOperation,
-    MoveBlockOperationFromJSON,
     MoveBlockOperationFromJSONTyped,
-    MoveBlockOperationToJSON,
+    MoveBlockOperationToJSON
 } from './MoveBlockOperation';
 import type { RemoveBlockOperation } from './RemoveBlockOperation';
 import {
     instanceOfRemoveBlockOperation,
-    RemoveBlockOperationFromJSON,
     RemoveBlockOperationFromJSONTyped,
-    RemoveBlockOperationToJSON,
+    RemoveBlockOperationToJSON
 } from './RemoveBlockOperation';
 import type { ReorderBlockOperation } from './ReorderBlockOperation';
 import {
     instanceOfReorderBlockOperation,
-    ReorderBlockOperationFromJSON,
     ReorderBlockOperationFromJSONTyped,
-    ReorderBlockOperationToJSON,
+    ReorderBlockOperationToJSON
 } from './ReorderBlockOperation';
 import type { UpdateBlockOperation } from './UpdateBlockOperation';
 import {
     instanceOfUpdateBlockOperation,
-    UpdateBlockOperationFromJSON,
     UpdateBlockOperationFromJSONTyped,
-    UpdateBlockOperationToJSON,
+    UpdateBlockOperationToJSON
 } from './UpdateBlockOperation';
 
 /**

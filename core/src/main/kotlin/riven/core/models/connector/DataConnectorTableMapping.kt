@@ -1,7 +1,7 @@
-package riven.core.models.connector
+package cranium.core.models.connector
 
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticGroup
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticGroup
 import java.time.ZonedDateTime
 import java.util.UUID
 

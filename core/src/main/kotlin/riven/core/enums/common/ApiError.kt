@@ -1,4 +1,4 @@
-package riven.core.enums.common
+package cranium.core.enums.common
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

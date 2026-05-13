@@ -1,6 +1,6 @@
-package riven.core.models.request.block
+package cranium.core.models.request.block
 
-import riven.core.models.block.BlockEnvironment
+import cranium.core.models.block.BlockEnvironment
 import java.util.*
 
 data class OverwriteEnvironmentRequest(

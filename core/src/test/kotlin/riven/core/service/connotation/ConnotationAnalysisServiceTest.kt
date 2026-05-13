@@ -1,4 +1,4 @@
-package riven.core.service.connotation
+package cranium.core.service.connotation
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -18,23 +18,23 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.configuration.properties.ConnotationAnalysisConfigurationProperties
-import riven.core.enums.activity.Activity
-import riven.core.enums.connotation.ConnotationStatus
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.util.OperationType
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.models.catalog.ConnotationSignals
-import riven.core.models.catalog.ScaleMappingType
-import riven.core.models.catalog.SentimentScale
-import riven.core.models.common.json.JsonObject
-import riven.core.models.connotation.AnalysisTier
-import riven.core.models.connotation.SentimentLabel
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.util.WithUserPersona
-import riven.core.service.util.WorkspaceRole
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.configuration.properties.ConnotationAnalysisConfigurationProperties
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.connotation.ConnotationStatus
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.util.OperationType
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.models.catalog.ConnotationSignals
+import cranium.core.models.catalog.ScaleMappingType
+import cranium.core.models.catalog.SentimentScale
+import cranium.core.models.common.json.JsonObject
+import cranium.core.models.connotation.AnalysisTier
+import cranium.core.models.connotation.SentimentLabel
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.util.WithUserPersona
+import cranium.core.service.util.WorkspaceRole
 import java.util.UUID
 
 @SpringBootTest(

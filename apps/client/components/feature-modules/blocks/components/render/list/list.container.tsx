@@ -1,4 +1,4 @@
-import type { ChildNodeProps } from '@riven/utils';
+import type { ChildNodeProps } from '@cranium/utils';
 import { FC, useCallback, useMemo } from "react";
 import { useBlockEnvironment } from "../../../context/block-environment-provider";
 import { useTrackedEnvironment } from "../../../context/tracked-environment-provider";

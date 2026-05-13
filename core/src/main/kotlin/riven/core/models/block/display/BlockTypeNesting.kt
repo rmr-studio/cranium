@@ -1,4 +1,4 @@
-package riven.core.models.block.display
+package cranium.core.models.block.display
 
 data class BlockTypeNesting(
     val max: Int?,

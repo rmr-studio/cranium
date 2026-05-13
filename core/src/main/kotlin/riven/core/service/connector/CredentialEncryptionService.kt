@@ -1,11 +1,11 @@
-package riven.core.service.connector
+package cranium.core.service.connector
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
-import riven.core.configuration.properties.DataConnectorConfigurationProperties
-import riven.core.exceptions.connector.CryptoException
-import riven.core.exceptions.connector.DataCorruptionException
+import cranium.core.configuration.properties.DataConnectorConfigurationProperties
+import cranium.core.exceptions.connector.CryptoException
+import cranium.core.exceptions.connector.DataCorruptionException
 import java.security.GeneralSecurityException
 import java.security.SecureRandom
 import java.util.Base64
@@ -24,7 +24,7 @@ import javax.crypto.spec.SecretKeySpec
  * Fail-fast on malformed keys at bean initialisation.
  */
 @Service
-@ConditionalOnProperty(prefix = "riven.connector", name = ["enabled"], havingValue = "true")
+@ConditionalOnProperty(prefix = "cranium.connector", name = ["enabled"], havingValue = "true")
 class CredentialEncryptionService(
     @Suppress("unused") private val logger: KLogger,
     props: DataConnectorConfigurationProperties,

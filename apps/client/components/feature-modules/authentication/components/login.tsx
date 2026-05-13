@@ -11,9 +11,9 @@ import {
 } from '@/components/ui/form';
 import { getAuthErrorMessage, isAuthError, OAuthProvider } from '@/lib/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@riven/ui/button';
-import { CardContent, CardHeader } from '@riven/ui/card';
-import { Input } from '@riven/ui/input';
+import { Button } from '@cranium/ui/button';
+import { CardContent, CardHeader } from '@cranium/ui/card';
+import { Input } from '@cranium/ui/input';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FC } from 'react';

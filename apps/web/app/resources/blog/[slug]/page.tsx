@@ -62,7 +62,7 @@ function ArticleJsonLd({ post }: { post: NonNullable<Awaited<ReturnType<typeof g
     datePublished: post.date,
     dateModified: post.updated ?? post.date,
     author: { '@type': 'Person', name: post.author },
-    publisher: { '@type': 'Organization', name: 'Riven', url: 'https://getriven.io' },
+    publisher: { '@type': 'Organization', name: 'Cranium', url: 'https://getcranium.io' },
   };
   return (
     <script
@@ -81,18 +81,18 @@ function BreadcrumbJsonLd({
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://getriven.io' },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://getcranium.io' },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'Blog',
-        item: 'https://getriven.io/resources/blog',
+        item: 'https://getcranium.io/resources/blog',
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: CATEGORY_LABELS[post.category],
-        item: `https://getriven.io/resources/blog/category/${post.category}`,
+        item: `https://getcranium.io/resources/blog/category/${post.category}`,
       },
       { '@type': 'ListItem', position: 4, name: post.title },
     ],

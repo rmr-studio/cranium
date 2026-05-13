@@ -1,8 +1,8 @@
-package riven.core.service.workflow.state
+package cranium.core.service.workflow.state
 
 import org.springframework.stereotype.Service
-import riven.core.models.common.Expression
-import riven.core.models.common.Operator
+import cranium.core.models.common.Expression
+import cranium.core.models.common.Operator
 
 /**
  * Evaluates Expression AST against data context with type safety

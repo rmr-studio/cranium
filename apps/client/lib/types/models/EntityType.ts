@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,77 +12,56 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { SemanticMetadataBundle } from './SemanticMetadataBundle';
-import {
-    SemanticMetadataBundleFromJSON,
-    SemanticMetadataBundleFromJSONTyped,
-    SemanticMetadataBundleToJSON,
-    SemanticMetadataBundleToJSONTyped,
-} from './SemanticMetadataBundle';
-import type { SourceType } from './SourceType';
-import {
-    SourceTypeFromJSON,
-    SourceTypeFromJSONTyped,
-    SourceTypeToJSON,
-    SourceTypeToJSONTyped,
-} from './SourceType';
 import type { ColumnConfiguration } from './ColumnConfiguration';
 import {
     ColumnConfigurationFromJSON,
-    ColumnConfigurationFromJSONTyped,
-    ColumnConfigurationToJSON,
-    ColumnConfigurationToJSONTyped,
+    ColumnConfigurationToJSON
 } from './ColumnConfiguration';
 import type { DisplayName } from './DisplayName';
 import {
     DisplayNameFromJSON,
-    DisplayNameFromJSONTyped,
-    DisplayNameToJSON,
-    DisplayNameToJSONTyped,
+    DisplayNameToJSON
 } from './DisplayName';
 import type { EntityTypeAttributeColumn } from './EntityTypeAttributeColumn';
 import {
     EntityTypeAttributeColumnFromJSON,
-    EntityTypeAttributeColumnFromJSONTyped,
-    EntityTypeAttributeColumnToJSON,
-    EntityTypeAttributeColumnToJSONTyped,
+    EntityTypeAttributeColumnToJSON
 } from './EntityTypeAttributeColumn';
-import type { RelationshipDefinition } from './RelationshipDefinition';
-import {
-    RelationshipDefinitionFromJSON,
-    RelationshipDefinitionFromJSONTyped,
-    RelationshipDefinitionToJSON,
-    RelationshipDefinitionToJSONTyped,
-} from './RelationshipDefinition';
-import type { SemanticGroup } from './SemanticGroup';
-import {
-    SemanticGroupFromJSON,
-    SemanticGroupFromJSONTyped,
-    SemanticGroupToJSON,
-    SemanticGroupToJSONTyped,
-} from './SemanticGroup';
-import type { SchemaUUID } from './SchemaUUID';
-import {
-    SchemaUUIDFromJSON,
-    SchemaUUIDFromJSONTyped,
-    SchemaUUIDToJSON,
-    SchemaUUIDToJSONTyped,
-} from './SchemaUUID';
 import type { Icon } from './Icon';
 import {
     IconFromJSON,
-    IconFromJSONTyped,
-    IconToJSON,
-    IconToJSONTyped,
+    IconToJSON
 } from './Icon';
 import type { LifecycleDomain } from './LifecycleDomain';
 import {
     LifecycleDomainFromJSON,
-    LifecycleDomainFromJSONTyped,
-    LifecycleDomainToJSON,
-    LifecycleDomainToJSONTyped,
+    LifecycleDomainToJSON
 } from './LifecycleDomain';
+import type { RelationshipDefinition } from './RelationshipDefinition';
+import {
+    RelationshipDefinitionFromJSON,
+    RelationshipDefinitionToJSON
+} from './RelationshipDefinition';
+import type { SchemaUUID } from './SchemaUUID';
+import {
+    SchemaUUIDFromJSON,
+    SchemaUUIDToJSON
+} from './SchemaUUID';
+import type { SemanticGroup } from './SemanticGroup';
+import {
+    SemanticGroupFromJSON,
+    SemanticGroupToJSON
+} from './SemanticGroup';
+import type { SemanticMetadataBundle } from './SemanticMetadataBundle';
+import {
+    SemanticMetadataBundleFromJSON,
+    SemanticMetadataBundleToJSON
+} from './SemanticMetadataBundle';
+import type { SourceType } from './SourceType';
+import {
+    SourceTypeFromJSON,
+    SourceTypeToJSON
+} from './SourceType';
 
 /**
  * 

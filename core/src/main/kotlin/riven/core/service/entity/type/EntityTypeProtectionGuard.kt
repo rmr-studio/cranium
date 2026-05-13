@@ -1,7 +1,7 @@
-package riven.core.service.entity.type
+package cranium.core.service.entity.type
 
 import org.springframework.stereotype.Component
-import riven.core.entity.entity.EntityTypeEntity
+import cranium.core.entity.entity.EntityTypeEntity
 import java.util.*
 
 /**

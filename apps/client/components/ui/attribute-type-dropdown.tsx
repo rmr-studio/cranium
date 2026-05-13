@@ -2,7 +2,7 @@
 
 import { DataType, IconColour, IconType, SchemaType } from '@/lib/types/common';
 import { AttributeSchemaType, attributeTypes } from '@/lib/util/form/schema.util';
-import { Button } from '@riven/ui/button';
+import { Button } from '@cranium/ui/button';
 import {
   Command,
   CommandEmpty,
@@ -10,9 +10,9 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@riven/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
-import { cn } from '@riven/utils';
+} from '@cranium/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@cranium/ui/popover';
+import { cn } from '@cranium/utils';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { Dispatch, FC, SetStateAction, useMemo } from 'react';
 import { FormControl } from './form';

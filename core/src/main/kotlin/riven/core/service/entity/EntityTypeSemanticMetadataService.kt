@@ -1,4 +1,4 @@
-package riven.core.service.entity
+package cranium.core.service.entity
 
 import io.github.oshai.kotlinlogging.KLogger
 import jakarta.transaction.Transactional
@@ -6,21 +6,21 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.support.TransactionSynchronization
 import org.springframework.transaction.support.TransactionSynchronizationManager
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.entity.entity.EntityTypeSemanticMetadataEntity
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.entity.semantics.SemanticMetadataTargetType
-import riven.core.enums.entity.semantics.SemanticMetadataTargetType.ATTRIBUTE
-import riven.core.enums.entity.semantics.SemanticMetadataTargetType.ENTITY_TYPE
-import riven.core.enums.entity.semantics.SemanticMetadataTargetType.RELATIONSHIP
-import riven.core.enums.identity.MatchSignalType
-import riven.core.models.entity.EntityTypeSemanticMetadata
-import riven.core.models.request.entity.type.BulkSaveSemanticMetadataRequest
-import riven.core.models.request.entity.type.SaveSemanticMetadataRequest
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.repository.entity.EntityTypeSemanticMetadataRepository
-import riven.core.service.identity.EntityTypeClassificationService
-import riven.core.util.ServiceUtil
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.entity.entity.EntityTypeSemanticMetadataEntity
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.enums.entity.semantics.SemanticMetadataTargetType
+import cranium.core.enums.entity.semantics.SemanticMetadataTargetType.ATTRIBUTE
+import cranium.core.enums.entity.semantics.SemanticMetadataTargetType.ENTITY_TYPE
+import cranium.core.enums.entity.semantics.SemanticMetadataTargetType.RELATIONSHIP
+import cranium.core.enums.identity.MatchSignalType
+import cranium.core.models.entity.EntityTypeSemanticMetadata
+import cranium.core.models.request.entity.type.BulkSaveSemanticMetadataRequest
+import cranium.core.models.request.entity.type.SaveSemanticMetadataRequest
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.repository.entity.EntityTypeSemanticMetadataRepository
+import cranium.core.service.identity.EntityTypeClassificationService
+import cranium.core.util.ServiceUtil
 import java.util.UUID
 
 /**

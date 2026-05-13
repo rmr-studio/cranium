@@ -1,15 +1,15 @@
-package riven.core.models.entity
+package cranium.core.models.entity
 
-import riven.core.entity.util.AuditableModel
-import riven.core.enums.entity.EntityTypeRole
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.enums.integration.SourceType
-import riven.core.models.common.Icon
-import riven.core.models.common.display.DisplayName
-import riven.core.models.common.validation.Schema
-import riven.core.models.entity.configuration.ColumnConfiguration
-import riven.core.models.entity.configuration.EntityTypeAttributeColumn
+import cranium.core.entity.util.AuditableModel
+import cranium.core.enums.entity.EntityTypeRole
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.enums.integration.SourceType
+import cranium.core.models.common.Icon
+import cranium.core.models.common.display.DisplayName
+import cranium.core.models.common.validation.Schema
+import cranium.core.models.entity.configuration.ColumnConfiguration
+import cranium.core.models.entity.configuration.EntityTypeAttributeColumn
 import java.time.ZonedDateTime
 import java.util.*
 

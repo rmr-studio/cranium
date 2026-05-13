@@ -1,9 +1,9 @@
-package riven.core.service.integration.sync
+package cranium.core.service.integration.sync
 
 import io.temporal.activity.ActivityInterface
 import io.temporal.activity.ActivityMethod
-import riven.core.models.integration.sync.IntegrationSyncWorkflowInput
-import riven.core.models.integration.sync.SyncProcessingResult
+import cranium.core.models.integration.sync.IntegrationSyncWorkflowInput
+import cranium.core.models.integration.sync.SyncProcessingResult
 import java.util.UUID
 
 /**

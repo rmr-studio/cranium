@@ -1,9 +1,9 @@
-package riven.core.models.request.entity
+package cranium.core.models.request.entity
 
 import io.swagger.v3.oas.annotations.media.Schema
-import riven.core.models.entity.query.QueryProjection
-import riven.core.models.entity.query.filter.QueryFilter
-import riven.core.models.entity.query.pagination.QueryPagination
+import cranium.core.models.entity.query.QueryProjection
+import cranium.core.models.entity.query.filter.QueryFilter
+import cranium.core.models.entity.query.pagination.QueryPagination
 
 @Schema(description = "Request body for querying entities with filtering, pagination, and sorting")
 data class EntityQueryRequest(

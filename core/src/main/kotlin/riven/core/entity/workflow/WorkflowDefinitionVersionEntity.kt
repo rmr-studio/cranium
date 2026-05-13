@@ -1,13 +1,13 @@
-package riven.core.entity.workflow
+package cranium.core.entity.workflow
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.Type
-import riven.core.entity.util.AuditableSoftDeletableEntity
-import riven.core.models.workflow.WorkflowDefinitionVersion
-import riven.core.models.workflow.WorkflowGraph
-import riven.core.models.workflow.WorkflowGraphReference
+import cranium.core.entity.util.AuditableSoftDeletableEntity
+import cranium.core.models.workflow.WorkflowDefinitionVersion
+import cranium.core.models.workflow.WorkflowGraph
+import cranium.core.models.workflow.WorkflowGraphReference
 import java.util.*
 
 @Entity

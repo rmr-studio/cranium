@@ -1,8 +1,8 @@
-package riven.core.models.entity
+package cranium.core.models.entity
 
-import riven.core.entity.util.AuditableModel
-import riven.core.enums.entity.RelationshipTargetKind
-import riven.core.enums.integration.SourceType
+import cranium.core.entity.util.AuditableModel
+import cranium.core.enums.entity.RelationshipTargetKind
+import cranium.core.enums.integration.SourceType
 import java.time.ZonedDateTime
 import java.util.*
 

@@ -1,9 +1,9 @@
-package riven.core.models.block.operation
+package cranium.core.models.block.operation
 
 import com.fasterxml.jackson.annotation.JsonTypeName
 import tools.jackson.databind.ValueDeserializer
 import tools.jackson.databind.annotation.JsonDeserialize
-import riven.core.enums.block.request.BlockOperationType
+import cranium.core.enums.block.request.BlockOperationType
 import java.util.*
 
 @JsonTypeName("REORDER_BLOCK")

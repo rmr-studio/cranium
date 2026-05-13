@@ -1,18 +1,18 @@
-package riven.core.service.schema
+package cranium.core.service.schema
 
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.common.validation.ValidationScope
-import riven.core.enums.core.DataFormat
-import riven.core.enums.core.DataType
-import riven.core.exceptions.SchemaValidationException
-import riven.core.models.common.validation.Schema
-import riven.core.models.common.validation.SchemaOptions
-import riven.core.service.util.TestObjectMapper
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.common.validation.ValidationScope
+import cranium.core.enums.core.DataFormat
+import cranium.core.enums.core.DataType
+import cranium.core.exceptions.SchemaValidationException
+import cranium.core.models.common.validation.Schema
+import cranium.core.models.common.validation.SchemaOptions
+import cranium.core.service.util.TestObjectMapper
 
 class SchemaServiceTest {
 

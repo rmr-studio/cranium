@@ -1,18 +1,18 @@
-package riven.core.service.workflow.state
+package cranium.core.service.workflow.state
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
-import riven.core.models.entity.Entity
-import riven.core.models.entity.EntityType
-import riven.core.models.entity.RelationshipDefinition
-import riven.core.models.entity.payload.EntityAttributePayload
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.models.entity.payload.EntityAttributeRelationPayload
-import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.service.entity.EntityAttributeService
-import riven.core.service.entity.EntityRelationshipService
-import riven.core.service.entity.type.EntityTypeRelationshipService
+import cranium.core.models.entity.Entity
+import cranium.core.models.entity.EntityType
+import cranium.core.models.entity.RelationshipDefinition
+import cranium.core.models.entity.payload.EntityAttributePayload
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.models.entity.payload.EntityAttributeRelationPayload
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.service.entity.EntityAttributeService
+import cranium.core.service.entity.EntityRelationshipService
+import cranium.core.service.entity.type.EntityTypeRelationshipService
 import java.util.*
 
 /**
@@ -222,14 +222,14 @@ class EntityContextService(
                 // Return based on cardinality from definition
                 val cardinality = definition.cardinalityDefault
                 when (cardinality) {
-                    riven.core.enums.entity.EntityRelationshipCardinality.ONE_TO_ONE,
-                    riven.core.enums.entity.EntityRelationshipCardinality.MANY_TO_ONE -> {
+                    cranium.core.enums.entity.EntityRelationshipCardinality.ONE_TO_ONE,
+                    cranium.core.enums.entity.EntityRelationshipCardinality.MANY_TO_ONE -> {
                         // Return single nested map (or null if empty)
                         nestedContexts.firstOrNull()
                     }
 
-                    riven.core.enums.entity.EntityRelationshipCardinality.ONE_TO_MANY,
-                    riven.core.enums.entity.EntityRelationshipCardinality.MANY_TO_MANY -> {
+                    cranium.core.enums.entity.EntityRelationshipCardinality.ONE_TO_MANY,
+                    cranium.core.enums.entity.EntityRelationshipCardinality.MANY_TO_MANY -> {
                         // Return list of nested maps
                         nestedContexts
                     }

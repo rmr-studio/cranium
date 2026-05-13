@@ -1,14 +1,14 @@
 import { cn } from '@/lib/utils';
-import { Logo } from '@riven/ui/logo';
+import { Logo } from '@cranium/ui/logo';
 import type { ReactNode } from 'react';
 import {
-  ChatLink,
-  EntityChip,
-  Icon,
-  SeverityDot,
-  SystemLabel,
-  UserAvatar,
-  icons,
+    ChatLink,
+    EntityChip,
+    Icon,
+    SeverityDot,
+    SystemLabel,
+    UserAvatar,
+    icons,
 } from './primitives';
 
 export function SignalChat({ density = 'comfortable' }: { density?: 'comfortable' | 'compact' }) {
@@ -89,7 +89,7 @@ function Thread() {
     <div className="flex max-w-[44rem] flex-col gap-5">
       <DayDivider label="Today · 09:14" />
 
-      <Message author="Riven" time="09:14" appBadge>
+      <Message author="Cranium" time="09:14" appBadge>
         <div className="mb-2.5 leading-relaxed">
           Heads up — I&apos;m raising a{' '}
           <strong className="text-heading">demand spike signal</strong> on{' '}
@@ -122,11 +122,11 @@ function Thread() {
       </Message>
 
       <Message author="Jared Tucker" time="09:18">
-        How sure are we on the demand intent number? Last time the spike was driven by a single
+        How sure are we on the demand intent number? Last time the spike was dcranium by a single
         TikTok and it cooled off in 3 days.
       </Message>
 
-      <Message author="Riven" time="09:18" appBadge>
+      <Message author="Cranium" time="09:18" appBadge>
         <div className="mb-2.5 leading-relaxed">
           Different shape this time. Confidence <strong className="text-heading">0.84</strong> — the
           spike is distributed across 6 channels rather than one viral source. Sell-through is also
@@ -161,11 +161,11 @@ function Message({
   appBadge?: boolean;
   children: ReactNode;
 }) {
-  const isRiven = author === 'Riven';
+  const isCranium = author === 'Cranium';
   return (
     <div className="gap-3 text-xs sm:text-[13px]">
       <div className="hidden sm:block">
-        {isRiven ? <Logo size={32} /> : <UserAvatar name={author} size={32} square />}
+        {isCranium ? <Logo size={32} /> : <UserAvatar name={author} size={32} square />}
       </div>
       <div className="min-w-0 flex-1">
         <div className="mb-1 flex items-baseline gap-2">

@@ -1,9 +1,9 @@
-package riven.core.repository.integration
+package cranium.core.repository.integration
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
-import riven.core.entity.integration.IntegrationSyncStateEntity
-import riven.core.enums.integration.SyncKeyType
+import cranium.core.entity.integration.IntegrationSyncStateEntity
+import cranium.core.enums.integration.SyncKeyType
 import java.util.*
 
 /**

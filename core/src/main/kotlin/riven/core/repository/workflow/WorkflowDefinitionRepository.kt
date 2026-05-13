@@ -1,10 +1,10 @@
-package riven.core.repository.workflow
+package cranium.core.repository.workflow
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
-import riven.core.entity.workflow.WorkflowDefinitionEntity
-import riven.core.repository.workflow.projection.WorkflowDefinitionWithVersionProjection
+import cranium.core.entity.workflow.WorkflowDefinitionEntity
+import cranium.core.repository.workflow.projection.WorkflowDefinitionWithVersionProjection
 import java.util.*
 
 /**
@@ -39,7 +39,7 @@ interface WorkflowDefinitionRepository : JpaRepository<WorkflowDefinitionEntity,
      */
     @Query(
         """
-        SELECT new riven.core.repository.workflow.projection.WorkflowDefinitionWithVersionProjection(d, v)
+        SELECT new cranium.core.repository.workflow.projection.WorkflowDefinitionWithVersionProjection(d, v)
         FROM WorkflowDefinitionEntity d
         JOIN WorkflowDefinitionVersionEntity v
             ON v.workflowDefinitionId = d.id

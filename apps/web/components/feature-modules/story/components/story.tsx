@@ -15,7 +15,7 @@ export const Story = () => {
     <Section id="story" size={24} className="mt-18">
       <article className="relative z-10 mx-auto flex max-w-5xl flex-col px-6 lg:px-8">
         <h1 className="text-center font-sans font-serif text-4xl leading-none tracking-tighter text-heading sm:text-6xl">
-          Why I am building Riven
+          Why I am building Cranium
         </h1>
 
         <ShaderContainer
@@ -24,7 +24,7 @@ export const Story = () => {
           shaders={shaders}
         >
           <Link
-            href={'/resources/blog/why-i-am-building-riven'}
+            href={'/resources/blog/why-i-am-building-cranium'}
             className="z-20 flex items-center gap-3 rounded-sm px-2.5 py-1.5 transition-colors"
           >
             <BookOpen className="size-6 text-white" />
@@ -96,7 +96,7 @@ export const Story = () => {
           </p>
 
           <p>
-            Riven connects it. Not by replacing your tools, but by sitting between them and building
+            Cranium connects it. Not by replacing your tools, but by sitting between them and building
             the relationships they can&apos;t build on their own — covering the full consumer
             lifecycle. From the ad that brought someone in to the moment they get frustrated enough
             to leave. The data always visible, always traceable, always ready to tell you
@@ -110,10 +110,10 @@ export const Story = () => {
           <h2 className="text-xl font-semibold tracking-tight text-heading">The focus</h2>
 
           <p>
-            Riven is built for the B2C SaaS or DTC E-commerce founder who is also somehow the entire
+            Cranium is built for the B2C SaaS or DTC E-commerce founder who is also somehow the entire
             data team. The head of ops who spends half their week pulling reports instead of acting
             on them. The solo operator running the entire business and somehow still expected to
-            &ldquo;be data-driven&rdquo; without a single analyst on payroll.
+            &ldquo;be data-dcranium&rdquo; without a single analyst on payroll.
           </p>
 
           <p>

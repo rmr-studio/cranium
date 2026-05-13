@@ -1,15 +1,15 @@
-package riven.core.service.util.factory.integration
+package cranium.core.service.util.factory.integration
 
-import riven.core.entity.integration.IntegrationConnectionEntity
-import riven.core.entity.integration.IntegrationDefinitionEntity
-import riven.core.entity.integration.IntegrationSyncStateEntity
-import riven.core.entity.integration.ProjectionRuleEntity
-import riven.core.entity.integration.WorkspaceIntegrationInstallationEntity
-import riven.core.enums.integration.ConnectionStatus
-import riven.core.enums.integration.InstallationStatus
-import riven.core.enums.integration.IntegrationCategory
-import riven.core.enums.integration.SyncStatus
-import riven.core.models.integration.SyncConfiguration
+import cranium.core.entity.integration.IntegrationConnectionEntity
+import cranium.core.entity.integration.IntegrationDefinitionEntity
+import cranium.core.entity.integration.IntegrationSyncStateEntity
+import cranium.core.entity.integration.ProjectionRuleEntity
+import cranium.core.entity.integration.WorkspaceIntegrationInstallationEntity
+import cranium.core.enums.integration.ConnectionStatus
+import cranium.core.enums.integration.InstallationStatus
+import cranium.core.enums.integration.IntegrationCategory
+import cranium.core.enums.integration.SyncStatus
+import cranium.core.models.integration.SyncConfiguration
 import java.time.ZonedDateTime
 import java.util.*
 

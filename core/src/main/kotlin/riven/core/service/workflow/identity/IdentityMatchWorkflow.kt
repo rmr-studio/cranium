@@ -1,4 +1,4 @@
-package riven.core.service.workflow.identity
+package cranium.core.service.workflow.identity
 
 import io.temporal.workflow.WorkflowInterface
 import io.temporal.workflow.WorkflowMethod

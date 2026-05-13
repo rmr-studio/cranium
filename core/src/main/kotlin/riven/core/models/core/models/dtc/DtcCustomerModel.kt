@@ -1,18 +1,18 @@
-package riven.core.models.core.models.dtc
+package cranium.core.models.core.models.dtc
 
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.entity.EntityTypeRole
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.models.core.ProjectionAcceptRule
-import riven.core.models.core.base.CustomerBase
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.entity.EntityTypeRole
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.models.core.ProjectionAcceptRule
+import cranium.core.models.core.base.CustomerBase
 
 /**
  * DTC Customer — the central entity in the direct-to-consumer ecommerce lifecycle.
  * Uses only universal customer attributes (no company field).
  */
-object DtcCustomerModel : riven.core.models.core.CoreModelDefinition(
+object DtcCustomerModel : cranium.core.models.core.CoreModelDefinition(
     key = "customer",
     displayNameSingular = "Customer",
     displayNamePlural = "Customers",

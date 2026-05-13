@@ -1,4 +1,4 @@
-package riven.core.enums.entity.validation
+package cranium.core.enums.entity.validation
 
 enum class EntityTypeChangeType {
     FIELD_REMOVED,

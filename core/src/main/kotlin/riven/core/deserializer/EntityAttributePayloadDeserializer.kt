@@ -1,14 +1,14 @@
-package riven.core.deserializer
+package cranium.core.deserializer
 
 import tools.jackson.core.JsonParser
 import tools.jackson.databind.DeserializationContext
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.ValueDeserializer
-import riven.core.enums.entity.EntityPropertyType
-import riven.core.models.entity.payload.EntityAttributePayload
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.models.entity.payload.EntityAttributeRelationPayloadReference
-import riven.core.util.getEnumFromField
+import cranium.core.enums.entity.EntityPropertyType
+import cranium.core.models.entity.payload.EntityAttributePayload
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.models.entity.payload.EntityAttributeRelationPayloadReference
+import cranium.core.util.getEnumFromField
 
 class EntityAttributePayloadDeserializer : ValueDeserializer<EntityAttributePayload>() {
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext): EntityAttributePayload {

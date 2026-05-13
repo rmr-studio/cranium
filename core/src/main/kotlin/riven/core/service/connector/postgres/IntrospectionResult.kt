@@ -1,6 +1,6 @@
-package riven.core.service.connector.postgres
+package cranium.core.service.connector.postgres
 
-import riven.core.models.ingestion.adapter.SchemaIntrospectionResult
+import cranium.core.models.ingestion.adapter.SchemaIntrospectionResult
 
 /**
  * Internal sibling of [SchemaIntrospectionResult] that also carries PG foreign-key

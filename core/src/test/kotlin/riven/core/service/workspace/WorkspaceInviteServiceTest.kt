@@ -1,4 +1,4 @@
-package riven.core.service.workspace
+package cranium.core.service.workspace
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -8,22 +8,22 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.workspace.WorkspaceInviteEntity
-import riven.core.entity.workspace.WorkspaceMemberEntity
-import riven.core.enums.workspace.WorkspaceInviteStatus
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.exceptions.ConflictException
-import riven.core.repository.workspace.WorkspaceInviteRepository
-import riven.core.repository.workspace.WorkspaceMemberRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.util.BaseServiceTest
-import riven.core.service.util.SecurityTestConfig
-import riven.core.service.util.WithUserPersona
-import riven.core.service.util.WorkspaceRole
-import riven.core.service.util.factory.UserFactory
-import riven.core.service.util.factory.WorkspaceFactory
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.entity.workspace.WorkspaceInviteEntity
+import cranium.core.entity.workspace.WorkspaceMemberEntity
+import cranium.core.enums.workspace.WorkspaceInviteStatus
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.exceptions.ConflictException
+import cranium.core.repository.workspace.WorkspaceInviteRepository
+import cranium.core.repository.workspace.WorkspaceMemberRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.util.BaseServiceTest
+import cranium.core.service.util.SecurityTestConfig
+import cranium.core.service.util.WithUserPersona
+import cranium.core.service.util.WorkspaceRole
+import cranium.core.service.util.factory.UserFactory
+import cranium.core.service.util.factory.WorkspaceFactory
 import java.util.*
 
 @SpringBootTest(

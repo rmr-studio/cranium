@@ -15,7 +15,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@riven/ui/select';
+} from '@cranium/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { DialogControl } from '@/lib/interfaces/interface';
@@ -27,10 +27,10 @@ import {
   SemanticAttributeClassification,
 } from '@/lib/types/entity';
 import { cn } from '@/lib/util/utils';
-import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@cranium/ui/popover';
 
-import { Button } from '@riven/ui/button';
-import { Input } from '@riven/ui/input';
+import { Button } from '@cranium/ui/button';
+import { Input } from '@cranium/ui/input';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Settings2 } from 'lucide-react';
 import { FC, useEffect, useMemo } from 'react';

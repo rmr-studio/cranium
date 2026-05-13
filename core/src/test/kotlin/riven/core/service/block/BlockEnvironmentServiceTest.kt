@@ -1,4 +1,4 @@
-package riven.core.service.block
+package cranium.core.service.block
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -8,18 +8,18 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.context.event.ApplicationEvents
 import org.springframework.test.context.event.RecordApplicationEvents
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.block.BlockEntity
-import riven.core.enums.common.validation.ValidationScope
-import riven.core.enums.util.OperationType
-import riven.core.models.response.block.internal.CascadeRemovalResult
-import riven.core.models.response.block.internal.MovePreparationResult
-import riven.core.models.websocket.BlockEnvironmentEvent
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.util.BaseServiceTest
-import riven.core.service.util.SecurityTestConfig
-import riven.core.service.util.factory.block.BlockFactory
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.entity.block.BlockEntity
+import cranium.core.enums.common.validation.ValidationScope
+import cranium.core.enums.util.OperationType
+import cranium.core.models.response.block.internal.CascadeRemovalResult
+import cranium.core.models.response.block.internal.MovePreparationResult
+import cranium.core.models.websocket.BlockEnvironmentEvent
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.util.BaseServiceTest
+import cranium.core.service.util.SecurityTestConfig
+import cranium.core.service.util.factory.block.BlockFactory
 import java.time.ZonedDateTime
 import java.util.*
 

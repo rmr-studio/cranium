@@ -1,4 +1,4 @@
-package riven.core.models.connotation
+package cranium.core.models.connotation
 
 /**
  * Outcome of a single DETERMINISTIC sentiment-analysis attempt.

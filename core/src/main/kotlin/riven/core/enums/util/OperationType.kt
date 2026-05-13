@@ -1,4 +1,4 @@
-package riven.core.enums.util
+package cranium.core.enums.util
 
 enum class OperationType {
     CREATE,

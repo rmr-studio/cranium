@@ -1,7 +1,7 @@
-package riven.core.models.workspace
+package cranium.core.models.workspace
 
-import riven.core.enums.workspace.WorkspaceInviteStatus
-import riven.core.enums.workspace.WorkspaceRoles
+import cranium.core.enums.workspace.WorkspaceInviteStatus
+import cranium.core.enums.workspace.WorkspaceRoles
 import java.time.ZonedDateTime
 import java.util.*
 

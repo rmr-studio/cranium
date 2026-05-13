@@ -1,12 +1,12 @@
-package riven.core.service.identity
+package cranium.core.service.identity
 
 import io.github.oshai.kotlinlogging.KLogger
 import jakarta.persistence.EntityManager
 import org.springframework.stereotype.Service
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.identity.MatchSignalType
-import riven.core.enums.identity.MatchSource
-import riven.core.models.identity.CandidateMatch
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.identity.MatchSignalType
+import cranium.core.enums.identity.MatchSource
+import cranium.core.models.identity.CandidateMatch
 import java.util.UUID
 
 /**
@@ -98,7 +98,7 @@ class IdentityMatchCandidateService(
      * Returns a map of [MatchSignalType] to normalized attribute value for the given entity's
      * IDENTIFIER-classified attributes.
      *
-     * Used by the scoring activity to supply source values when building [riven.core.models.identity.MatchSignal] breakdown.
+     * Used by the scoring activity to supply source values when building [cranium.core.models.identity.MatchSignal] breakdown.
      *
      * @param entityId the entity whose IDENTIFIER attributes to retrieve
      * @param workspaceId workspace scope

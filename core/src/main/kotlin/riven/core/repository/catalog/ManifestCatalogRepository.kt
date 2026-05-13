@@ -1,10 +1,10 @@
-package riven.core.repository.catalog
+package cranium.core.repository.catalog
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
-import riven.core.entity.catalog.ManifestCatalogEntity
-import riven.core.enums.catalog.ManifestType
+import cranium.core.entity.catalog.ManifestCatalogEntity
+import cranium.core.enums.catalog.ManifestType
 import java.util.*
 
 /**

@@ -1,4 +1,4 @@
-package riven.core.controller.connector
+package cranium.core.controller.connector
 
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.module.kotlin.jacksonObjectMapper
@@ -17,18 +17,18 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
-import riven.core.configuration.properties.ApplicationConfigurationProperties
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.exceptions.ExceptionHandler
-import riven.core.models.connector.CursorIndexWarning
-import riven.core.models.connector.response.DataConnectorMappingSaveResponse
-import riven.core.models.connector.response.DataConnectorSchemaResponse
-import riven.core.models.connector.response.DriftStatus
-import riven.core.models.connector.response.TableSchemaResponse
-import riven.core.service.connector.mapping.DataConnectorFieldMappingService
-import riven.core.service.connector.mapping.DataConnectorSchemaInferenceService
+import cranium.core.configuration.properties.ApplicationConfigurationProperties
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.exceptions.ExceptionHandler
+import cranium.core.models.connector.CursorIndexWarning
+import cranium.core.models.connector.response.DataConnectorMappingSaveResponse
+import cranium.core.models.connector.response.DataConnectorSchemaResponse
+import cranium.core.models.connector.response.DriftStatus
+import cranium.core.models.connector.response.TableSchemaResponse
+import cranium.core.service.connector.mapping.DataConnectorFieldMappingService
+import cranium.core.service.connector.mapping.DataConnectorSchemaInferenceService
 import java.util.UUID
 
 /**
@@ -37,8 +37,8 @@ import java.util.UUID
  * Per Phase 2 02-04 lesson, @PreAuthorize workspace-scoping is not exercised
  * here (standalone MockMvc does not load method security). The 403
  * workspace-mismatch assertion lives at the service-layer SpringBootTest
- * (see [riven.core.service.connector.mapping.DataConnectorFieldMappingServiceTest]
- * + [riven.core.service.connector.mapping.DataConnectorSchemaInferenceServiceTest]).
+ * (see [cranium.core.service.connector.mapping.DataConnectorFieldMappingServiceTest]
+ * + [cranium.core.service.connector.mapping.DataConnectorSchemaInferenceServiceTest]).
  */
 class DataConnectorMappingControllerTest {
 

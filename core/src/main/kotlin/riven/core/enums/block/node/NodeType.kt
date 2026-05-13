@@ -1,4 +1,4 @@
-package riven.core.enums.block.node
+package cranium.core.enums.block.node
 
 import io.swagger.v3.oas.annotations.media.Schema
 

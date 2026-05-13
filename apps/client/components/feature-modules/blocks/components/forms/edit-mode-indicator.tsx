@@ -1,7 +1,7 @@
 'use client';
 
-import { Button } from '@riven/ui/button';
-import { cn } from '@riven/utils';
+import { Button } from '@cranium/ui/button';
+import { cn } from '@cranium/utils';
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, Check, Edit3, FileEdit, Layout, X } from "lucide-react";
 import { FC, useState } from "react";

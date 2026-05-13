@@ -1,6 +1,6 @@
 import { ActionColumnConfig, DataTable, DataTableProvider } from '@/components/ui/data-table';
-import { TooltipProvider } from '@riven/ui/tooltip';
-import { Button } from '@riven/ui/button';
+import { TooltipProvider } from '@cranium/ui/tooltip';
+import { Button } from '@cranium/ui/button';
 import {
   EntityPropertyType,
   EntityType,

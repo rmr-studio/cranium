@@ -1,4 +1,4 @@
-package riven.core.service.enrichment
+package cranium.core.service.enrichment
 
 import io.temporal.client.WorkflowClient
 import io.temporal.client.WorkflowStub
@@ -12,21 +12,21 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.transaction.support.TransactionSynchronizationManager
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.workflow.ExecutionQueueEntity
-import riven.core.enums.integration.SourceType
-import riven.core.enums.workflow.ExecutionQueueStatus
-import riven.core.repository.entity.EntityRepository
-import riven.core.repository.workflow.ExecutionQueueRepository
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.util.BaseServiceTest
-import riven.core.service.util.SecurityTestConfig
-import riven.core.service.util.WithUserPersona
-import riven.core.service.util.WorkspaceRole
-import riven.core.service.util.factory.entity.EntityFactory
-import riven.core.service.util.factory.workflow.ExecutionQueueFactory
-import riven.core.service.workflow.enrichment.EnrichmentWorkflow
-import riven.core.enums.workspace.WorkspaceRoles
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.entity.workflow.ExecutionQueueEntity
+import cranium.core.enums.integration.SourceType
+import cranium.core.enums.workflow.ExecutionQueueStatus
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.repository.workflow.ExecutionQueueRepository
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.util.BaseServiceTest
+import cranium.core.service.util.SecurityTestConfig
+import cranium.core.service.util.WithUserPersona
+import cranium.core.service.util.WorkspaceRole
+import cranium.core.service.util.factory.entity.EntityFactory
+import cranium.core.service.util.factory.workflow.ExecutionQueueFactory
+import cranium.core.service.workflow.enrichment.EnrichmentWorkflow
+import cranium.core.enums.workspace.WorkspaceRoles
 import java.util.*
 import kotlin.reflect.full.primaryConstructor
 

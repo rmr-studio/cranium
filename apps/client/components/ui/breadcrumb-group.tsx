@@ -12,11 +12,11 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer';
-import { useMediaQuery } from '@riven/hooks';
-import { Button } from '@riven/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@riven/ui/dropdown-menu';
-import type { ClassNameProps } from '@riven/utils';
-import { cn } from '@riven/utils';
+import { useMediaQuery } from '@cranium/hooks';
+import { Button } from '@cranium/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@cranium/ui/dropdown-menu';
+import type { ClassNameProps } from '@cranium/utils';
+import { cn } from '@cranium/utils';
 import Link from 'next/link';
 import {
   Breadcrumb,

@@ -1,19 +1,19 @@
-package riven.core.models.workflow.node.config.actions
+package cranium.core.models.workflow.node.config.actions
 
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import riven.core.enums.entity.query.FilterOperator
-import riven.core.models.entity.query.EntityQuery
-import riven.core.models.entity.query.filter.FilterValue
-import riven.core.models.entity.query.filter.QueryFilter
-import riven.core.models.entity.query.filter.RelationshipFilter
-import riven.core.models.entity.query.pagination.QueryPagination
-import riven.core.models.workflow.node.NodeServiceProvider
-import riven.core.service.workflow.state.WorkflowNodeConfigValidationService
-import riven.core.service.workflow.state.WorkflowNodeTemplateParserService
+import cranium.core.enums.entity.query.FilterOperator
+import cranium.core.models.entity.query.EntityQuery
+import cranium.core.models.entity.query.filter.FilterValue
+import cranium.core.models.entity.query.filter.QueryFilter
+import cranium.core.models.entity.query.filter.RelationshipFilter
+import cranium.core.models.entity.query.pagination.QueryPagination
+import cranium.core.models.workflow.node.NodeServiceProvider
+import cranium.core.service.workflow.state.WorkflowNodeConfigValidationService
+import cranium.core.service.workflow.state.WorkflowNodeTemplateParserService
 import kotlin.reflect.KClass
 
 class EntityActionConfigValidationTest {

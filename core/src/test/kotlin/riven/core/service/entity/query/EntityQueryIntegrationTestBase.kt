@@ -1,4 +1,4 @@
-package riven.core.service.entity.query
+package cranium.core.service.entity.query
 
 import tools.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.BeforeAll
@@ -12,13 +12,13 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import riven.core.configuration.util.ObjectMapperConfig
+import cranium.core.configuration.util.ObjectMapperConfig
 import org.springframework.data.auditing.DateTimeProvider
 import org.springframework.data.domain.AuditorAware
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.boot.persistence.autoconfigure.EntityScan
-import riven.core.configuration.properties.QueryConfigurationProperties
+import cranium.core.configuration.properties.QueryConfigurationProperties
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
@@ -26,25 +26,25 @@ import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
-import riven.core.entity.entity.EntityEntity
-import riven.core.entity.entity.EntityRelationshipEntity
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.entity.entity.RelationshipDefinitionEntity
-import riven.core.entity.entity.RelationshipTargetRuleEntity
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.DataType
-import riven.core.models.entity.configuration.ColumnConfiguration
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.models.common.validation.Schema
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.repository.entity.EntityRelationshipRepository
-import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.repository.entity.RelationshipDefinitionRepository
-import riven.core.repository.entity.RelationshipTargetRuleRepository
-import riven.core.service.entity.type.EntityTypeRelationshipService
+import cranium.core.entity.entity.EntityEntity
+import cranium.core.entity.entity.EntityRelationshipEntity
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.entity.entity.RelationshipDefinitionEntity
+import cranium.core.entity.entity.RelationshipTargetRuleEntity
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.DataType
+import cranium.core.models.entity.configuration.ColumnConfiguration
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.models.common.validation.Schema
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.repository.entity.EntityRelationshipRepository
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.repository.entity.RelationshipDefinitionRepository
+import cranium.core.repository.entity.RelationshipTargetRuleRepository
+import cranium.core.service.entity.type.EntityTypeRelationshipService
 import java.time.ZonedDateTime
 import java.time.temporal.TemporalAccessor
 import java.util.*
@@ -73,8 +73,8 @@ import javax.sql.DataSource
         "io.temporal.spring.boot.autoconfigure.TestServerAutoConfiguration",
     ],
 )
-@EnableJpaRepositories(basePackages = ["riven.core.repository.entity"])
-@EntityScan("riven.core.entity")
+@EnableJpaRepositories(basePackages = ["cranium.core.repository.entity"])
+@EntityScan("cranium.core.entity")
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider", dateTimeProviderRef = "dateTimeProvider")
 @Import(ObjectMapperConfig::class) // Boot 4 JacksonAutoConfiguration is @ConditionalOnClass(tools.jackson...) — gated on Jackson 3; app uses Jackson 2, so the ObjectMapper bean must be imported explicitly
 class EntityQueryIntegrationTestConfig {
@@ -113,16 +113,16 @@ class EntityQueryIntegrationTestConfig {
     ) = EntityTypeRelationshipService(
         definitionRepository, targetRuleRepository, entityRelationshipRepository,
         entityTypeRepository,
-        org.mockito.Mockito.mock(riven.core.service.activity.ActivityService::class.java),
-        org.mockito.Mockito.mock(riven.core.service.auth.AuthTokenService::class.java),
-        org.mockito.Mockito.mock(riven.core.service.entity.EntityTypeSemanticMetadataService::class.java),
+        org.mockito.Mockito.mock(cranium.core.service.activity.ActivityService::class.java),
+        org.mockito.Mockito.mock(cranium.core.service.auth.AuthTokenService::class.java),
+        org.mockito.Mockito.mock(cranium.core.service.entity.EntityTypeSemanticMetadataService::class.java),
         org.mockito.Mockito.mock(io.github.oshai.kotlinlogging.KLogger::class.java),
     )
 
     @Bean
     fun entityAttributeService(
-        entityAttributeRepository: riven.core.repository.entity.EntityAttributeRepository,
-    ) = riven.core.service.entity.EntityAttributeService(
+        entityAttributeRepository: cranium.core.repository.entity.EntityAttributeRepository,
+    ) = cranium.core.service.entity.EntityAttributeService(
         entityAttributeRepository,
         tools.jackson.databind.json.JsonMapper.builder().build(),
         org.mockito.Mockito.mock(io.github.oshai.kotlinlogging.KLogger::class.java),
@@ -135,7 +135,7 @@ class EntityQueryIntegrationTestConfig {
         assembler: EntityQueryAssembler,
         validator: QueryFilterValidator,
         entityTypeRelationshipService: EntityTypeRelationshipService,
-        entityAttributeService: riven.core.service.entity.EntityAttributeService,
+        entityAttributeService: cranium.core.service.entity.EntityAttributeService,
         dataSource: DataSource,
     ) = EntityQueryService(entityTypeRepository, entityRepository, assembler, validator, entityTypeRelationshipService, entityAttributeService, dataSource, QueryConfigurationProperties())
 }
@@ -187,7 +187,7 @@ abstract class EntityQueryIntegrationTestBase {
         val postgres: PostgreSQLContainer = PostgreSQLContainer(
             DockerImageName.parse("pgvector/pgvector:pg16").asCompatibleSubstituteFor("postgres")
         )
-            .withDatabaseName("riven_test")
+            .withDatabaseName("cranium_test")
             .withUsername("test")
             .withPassword("test")
 

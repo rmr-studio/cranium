@@ -149,7 +149,7 @@ reviews:
 
         Architecture:
         - Layered: Controller -> Service -> Repository, with separate Entity (JPA) and Model (domain) layers.
-        - Package structure: riven.core.{layer}.{domain} — e.g. controller.entity, service.entity.
+        - Package structure: cranium.core.{layer}.{domain} — e.g. controller.entity, service.entity.
         - Controllers are thin — delegate to services and return ResponseEntity. No business logic in controllers.
         - Security via @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)") on SERVICE methods, not controllers.
         - All routes prefixed with /api/v1/.

@@ -1,10 +1,10 @@
-package riven.core.entity.workspace
+package cranium.core.entity.workspace
 
 import jakarta.persistence.*
-import riven.core.entity.user.UserEntity
-import riven.core.entity.user.toDisplay
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.models.workspace.WorkspaceMember
+import cranium.core.entity.user.UserEntity
+import cranium.core.entity.user.toDisplay
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.models.workspace.WorkspaceMember
 import java.time.ZonedDateTime
 import java.util.*
 

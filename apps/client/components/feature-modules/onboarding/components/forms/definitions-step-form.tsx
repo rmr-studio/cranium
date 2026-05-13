@@ -1,7 +1,7 @@
 'use client';
 
-import { Button } from '@riven/ui/button';
-import { Input } from '@riven/ui/input';
+import { Button } from '@cranium/ui/button';
+import { Input } from '@cranium/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Collapsible,
@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { DefinitionCategory } from '@/lib/types/workspace';
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 import { ChevronDown, Plus, RotateCcw, X } from 'lucide-react';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import {

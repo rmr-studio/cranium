@@ -1,8 +1,8 @@
-package riven.core.service.connotation
+package cranium.core.service.connotation
 
-import riven.core.models.catalog.ConnotationSignals
-import riven.core.models.common.json.JsonValue
-import riven.core.models.connotation.SentimentAnalysisOutcome
+import cranium.core.models.catalog.ConnotationSignals
+import cranium.core.models.common.json.JsonValue
+import cranium.core.models.connotation.SentimentAnalysisOutcome
 
 sealed interface AbstractConnotationMapper
 {

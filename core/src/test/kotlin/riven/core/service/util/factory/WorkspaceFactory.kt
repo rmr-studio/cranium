@@ -1,11 +1,11 @@
-package riven.core.service.util.factory
+package cranium.core.service.util.factory
 
-import riven.core.entity.user.UserEntity
-import riven.core.entity.workspace.WorkspaceEntity
-import riven.core.entity.workspace.WorkspaceInviteEntity
-import riven.core.entity.workspace.WorkspaceMemberEntity
-import riven.core.enums.workspace.WorkspaceInviteStatus
-import riven.core.enums.workspace.WorkspaceRoles
+import cranium.core.entity.user.UserEntity
+import cranium.core.entity.workspace.WorkspaceEntity
+import cranium.core.entity.workspace.WorkspaceInviteEntity
+import cranium.core.entity.workspace.WorkspaceMemberEntity
+import cranium.core.enums.workspace.WorkspaceInviteStatus
+import cranium.core.enums.workspace.WorkspaceRoles
 import java.util.*
 
 object WorkspaceFactory {

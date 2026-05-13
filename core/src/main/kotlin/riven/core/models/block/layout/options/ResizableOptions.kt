@@ -1,4 +1,4 @@
-package riven.core.models.block.layout.options
+package cranium.core.models.block.layout.options
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude

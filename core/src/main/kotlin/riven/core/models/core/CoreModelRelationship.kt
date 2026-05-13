@@ -1,9 +1,9 @@
-package riven.core.models.core
+package cranium.core.models.core
 
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.models.catalog.NormalizedRelationship
-import riven.core.models.catalog.NormalizedTargetRule
-import riven.core.models.catalog.ResolvedRelationshipSemantics
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.models.catalog.NormalizedRelationship
+import cranium.core.models.catalog.NormalizedTargetRule
+import cranium.core.models.catalog.ResolvedRelationshipSemantics
 
 /**
  * Relationship definition on a core model. Source is the declaring model,
@@ -16,7 +16,7 @@ data class CoreModelRelationship(
     val targetModelKey: String,
     val cardinality: EntityRelationshipCardinality = EntityRelationshipCardinality.ONE_TO_MANY,
     val inverseName: String? = null,
-    val semantics: riven.core.models.core.RelationshipSemantics? = null,
+    val semantics: cranium.core.models.core.RelationshipSemantics? = null,
 ) {
     /** Converts to the pipeline's NormalizedRelationship format. */
     fun toNormalized(): NormalizedRelationship = NormalizedRelationship(

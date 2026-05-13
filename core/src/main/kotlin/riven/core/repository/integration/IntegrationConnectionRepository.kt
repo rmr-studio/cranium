@@ -1,8 +1,8 @@
-package riven.core.repository.integration
+package cranium.core.repository.integration
 
 import org.springframework.data.jpa.repository.JpaRepository
-import riven.core.entity.integration.IntegrationConnectionEntity
-import riven.core.enums.integration.ConnectionStatus
+import cranium.core.entity.integration.IntegrationConnectionEntity
+import cranium.core.enums.integration.ConnectionStatus
 import java.util.*
 
 /**

@@ -1,8 +1,8 @@
-package riven.core.service.connector.postgres
+package cranium.core.service.connector.postgres
 
 /**
  * Surface format for a foreign-key relationship discovered during Postgres
- * schema introspection. Supplied alongside [riven.core.models.ingestion.adapter.SchemaIntrospectionResult]
+ * schema introspection. Supplied alongside [cranium.core.models.ingestion.adapter.SchemaIntrospectionResult]
  * so plan 03-03 can build a `RelationshipDefinitionEntity` from simple FKs
  * without re-querying `pg_constraint`.
  *

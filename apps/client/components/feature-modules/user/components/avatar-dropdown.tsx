@@ -12,8 +12,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@riven/ui/dropdown-menu';
-import { getInitials } from '@riven/utils';
+} from '@cranium/ui/dropdown-menu';
+import { getInitials } from '@cranium/utils';
 
 import {
   AppWindowMac,

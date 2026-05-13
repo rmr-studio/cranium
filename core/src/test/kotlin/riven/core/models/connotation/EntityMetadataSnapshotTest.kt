@@ -1,15 +1,15 @@
-package riven.core.models.connotation
+package cranium.core.models.connotation
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.connotation.ConnotationStatus
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.enums.integration.SourceType
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.connotation.ConnotationStatus
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.enums.integration.SourceType
 import tools.jackson.databind.DeserializationFeature
 import tools.jackson.databind.MapperFeature
 import tools.jackson.databind.cfg.DateTimeFeature

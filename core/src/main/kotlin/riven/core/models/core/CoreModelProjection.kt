@@ -1,7 +1,7 @@
-package riven.core.models.core
+package cranium.core.models.core
 
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticGroup
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticGroup
 
 /**
  * Declares which integration entities project into this core model.
@@ -28,10 +28,10 @@ data class ProjectionAcceptRule(
  */
 data class AggregationColumnDefinition(
     val name: String,
-    val aggregation: riven.core.models.core.AggregationType,
+    val aggregation: cranium.core.models.core.AggregationType,
     val sourceRelationshipKey: String,
     val targetAttributeKey: String? = null,
-    val filter: riven.core.models.core.AggregationFilter? = null,
+    val filter: cranium.core.models.core.AggregationFilter? = null,
 )
 
 enum class AggregationType {
@@ -40,7 +40,7 @@ enum class AggregationType {
 
 data class AggregationFilter(
     val attributeKey: String,
-    val operator: riven.core.models.core.FilterOperator,
+    val operator: cranium.core.models.core.FilterOperator,
     val values: List<String>,
 )
 

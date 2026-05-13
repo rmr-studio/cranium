@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge } from '@riven/ui/badge';
+import { Badge } from '@cranium/ui/badge';
 import { IconCell } from '@/components/ui/icon/icon-cell';
 import { attributeTypes } from '@/lib/util/form/schema.util';
 import {
@@ -15,7 +15,7 @@ import {
   type EntityTypeSemanticMetadata,
 } from '@/lib/types/entity';
 import { SchemaType } from '@/lib/types/common';
-import { toTitleCase } from '@riven/utils';
+import { toTitleCase } from '@cranium/utils';
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowDownLeft } from 'lucide-react';
 import { useMemo } from 'react';

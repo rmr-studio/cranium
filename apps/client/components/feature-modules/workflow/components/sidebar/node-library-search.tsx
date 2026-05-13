@@ -1,8 +1,8 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { Input } from '@riven/ui/input';
-import { cn } from '@riven/utils';
+import { Input } from '@cranium/ui/input';
+import { cn } from '@cranium/utils';
 
 export interface NodeLibrarySearchProps {
     /** Current search query value */

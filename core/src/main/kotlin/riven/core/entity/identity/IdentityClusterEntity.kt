@@ -1,4 +1,4 @@
-package riven.core.entity.identity
+package cranium.core.entity.identity
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -6,8 +6,8 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import riven.core.entity.util.AuditableSoftDeletableEntity
-import riven.core.models.identity.IdentityCluster
+import cranium.core.entity.util.AuditableSoftDeletableEntity
+import cranium.core.models.identity.IdentityCluster
 import java.util.UUID
 
 /**

@@ -1,34 +1,34 @@
-package riven.core.service.entity
+package cranium.core.service.entity
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.entity.EntityEntity
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.DynamicDefaultFunction
-import riven.core.enums.entity.RelationshipTargetKind
-import riven.core.enums.integration.SourceType
-import riven.core.exceptions.SchemaValidationException
-import riven.core.models.common.validation.DefaultValue
-import riven.core.models.common.validation.Schema
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.repository.entity.EntityRepository
-import riven.core.service.entity.type.EntityTypeAttributeService
-import riven.core.service.entity.type.EntityTypeSequenceService
-import riven.core.service.entity.type.EntityTypeService
-import riven.core.util.ServiceUtil.findOrThrow
+import cranium.core.entity.entity.EntityEntity
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.DynamicDefaultFunction
+import cranium.core.enums.entity.RelationshipTargetKind
+import cranium.core.enums.integration.SourceType
+import cranium.core.exceptions.SchemaValidationException
+import cranium.core.models.common.validation.DefaultValue
+import cranium.core.models.common.validation.Schema
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.service.entity.type.EntityTypeAttributeService
+import cranium.core.service.entity.type.EntityTypeSequenceService
+import cranium.core.service.entity.type.EntityTypeService
+import cranium.core.util.ServiceUtil.findOrThrow
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
 
 /**
- * System-driven entity persistence — no JWT, no per-call workspace authority check.
+ * System-dcranium entity persistence — no JWT, no per-call workspace authority check.
  *
  * Entry points here are intentionally callable from background contexts that do not have a
  * `JwtAuthenticationToken` on the security context, including:
  *   - Temporal activities (e.g. note / glossary backfill workflows);
- *   - the knowledge ingestion layer ([riven.core.service.knowledge.AbstractKnowledgeEntityIngestionService])
+ *   - the knowledge ingestion layer ([cranium.core.service.knowledge.AbstractKnowledgeEntityIngestionService])
  *     and its subclasses;
  *   - read paths from projectors that need a workspace-scoped lookup without a `@PreAuthorize`
  *     re-entry.
@@ -59,7 +59,7 @@ class EntityIngestionService(
     // ------ Public mutations ------
 
     /**
-     * System-driven entity upsert. Bypasses [PreAuthorize] and JWT-based user lookup.
+     * System-dcranium entity upsert. Bypasses [PreAuthorize] and JWT-based user lookup.
      *
      * Differences from [EntityService.saveEntity]:
      *   - accepts a flat `Map<UUID, Any?>` payload pre-resolved to attribute UUIDs;
@@ -127,7 +127,7 @@ class EntityIngestionService(
     }
 
     /**
-     * System-driven soft delete. Mirrors the cascade in [EntityService.deleteEntities] for a
+     * System-dcranium soft delete. Mirrors the cascade in [EntityService.deleteEntities] for a
      * single entity ID, without the JWT-based activity log or impact-analysis machinery.
      */
     @Transactional
@@ -142,7 +142,7 @@ class EntityIngestionService(
     }
 
     /**
-     * System-driven relationship replace. Drives all rows for `(sourceEntityId, relationshipDefinitionId, targetKind)`
+     * System-dcranium relationship replace. Drives all rows for `(sourceEntityId, relationshipDefinitionId, targetKind)`
      * toward the desired [targetIds] set. Used by the knowledge ingestion layer to reconcile
      * system relationships (`ATTACHMENT`, `MENTION`, `DEFINES`) on every upsert.
      *
@@ -177,7 +177,7 @@ class EntityIngestionService(
     }
 
     /**
-     * System-driven clear-all-of-kind reconciliation. Used by knowledge ingestion when the
+     * System-dcranium clear-all-of-kind reconciliation. Used by knowledge ingestion when the
      * input carries no refs for a parent-scoped kind (ATTRIBUTE / RELATIONSHIP) — in that case
      * [replaceRelationshipsInternal] cannot run because it requires a non-null `targetParentId`,
      * so callers route through this method to drop every existing row of the kind regardless
@@ -201,14 +201,14 @@ class EntityIngestionService(
     // ------ Public reads ------
 
     /**
-     * System-driven find-by-id. Skips workspace-bound `@PreAuthorize` so it can be invoked
+     * System-dcranium find-by-id. Skips workspace-bound `@PreAuthorize` so it can be invoked
      * from background contexts; returns null when the row is missing rather than throwing.
      */
     fun findByIdInternal(workspaceId: UUID, entityId: UUID): EntityEntity? =
         entityRepository.findByIdAndWorkspaceId(entityId, workspaceId).orElse(null)
 
     /**
-     * System-driven listing by entity-type key within a workspace. Used by the knowledge
+     * System-dcranium listing by entity-type key within a workspace. Used by the knowledge
      * projector layer to read graduated knowledge entities (note, glossary) without a
      * relationship-definition lookup.
      */

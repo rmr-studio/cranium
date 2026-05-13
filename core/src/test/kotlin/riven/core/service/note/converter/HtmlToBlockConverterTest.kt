@@ -1,4 +1,4 @@
-package riven.core.service.note.converter
+package cranium.core.service.note.converter
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull

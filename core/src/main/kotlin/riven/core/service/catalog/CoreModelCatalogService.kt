@@ -1,10 +1,10 @@
-package riven.core.service.catalog
+package cranium.core.service.catalog
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
-import riven.core.models.core.CoreModelRegistry
+import cranium.core.models.core.CoreModelRegistry
 
 /**
  * Populates the manifest catalog with kotlin defined core model definitions at boot time if current versions are not up to date with the schema hash.

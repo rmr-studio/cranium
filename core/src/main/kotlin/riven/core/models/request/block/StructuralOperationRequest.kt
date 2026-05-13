@@ -1,9 +1,9 @@
-package riven.core.models.request.block
+package cranium.core.models.request.block
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.DiscriminatorMapping
 import io.swagger.v3.oas.annotations.media.Schema
-import riven.core.models.block.operation.*
+import cranium.core.models.block.operation.*
 import java.time.ZonedDateTime
 import java.util.*
 

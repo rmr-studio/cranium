@@ -1,5 +1,5 @@
-import type { ClassNameProps } from '@riven/utils';
-import { cn } from '@riven/utils';
+import type { ClassNameProps } from '@cranium/utils';
+import { cn } from '@cranium/utils';
 import { FC } from 'react';
 
 type Status = 'healthy' | 'unhealthy' | 'unknown';

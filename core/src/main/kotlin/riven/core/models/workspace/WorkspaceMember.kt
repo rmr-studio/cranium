@@ -1,9 +1,9 @@
-package riven.core.models.workspace
+package cranium.core.models.workspace
 
 
-import riven.core.enums.workspace.WorkspaceDisplay
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.models.user.UserDisplay
+import cranium.core.enums.workspace.WorkspaceDisplay
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.models.user.UserDisplay
 import java.time.ZonedDateTime
 
 data class WorkspaceMember(

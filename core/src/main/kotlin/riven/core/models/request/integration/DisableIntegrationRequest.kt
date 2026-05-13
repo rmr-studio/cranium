@@ -1,4 +1,4 @@
-package riven.core.models.request.integration
+package cranium.core.models.request.integration
 
 import jakarta.validation.constraints.NotNull
 import java.util.*

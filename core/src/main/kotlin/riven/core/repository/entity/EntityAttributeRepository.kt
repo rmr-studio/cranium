@@ -1,9 +1,9 @@
-package riven.core.repository.entity
+package cranium.core.repository.entity
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
-import riven.core.entity.entity.EntityAttributeEntity
+import cranium.core.entity.entity.EntityAttributeEntity
 import java.util.*
 
 /**
@@ -71,7 +71,7 @@ interface EntityAttributeRepository : JpaRepository<EntityAttributeEntity, UUID>
      * Finds attributes where the attribute_id is one of the IDENTIFIER attributes
      * AND the text value matches one of the candidate values, scoped to a specific entity type.
      *
-     * Used by [riven.core.service.ingestion.IdentityResolutionService] for Check 2.
+     * Used by [cranium.core.service.ingestion.IdentityResolutionService] for Check 2.
      */
     @Query(
         value = """
@@ -125,7 +125,7 @@ interface EntityAttributeRepository : JpaRepository<EntityAttributeEntity, UUID>
      * Only matches attributes for the given workspace, attribute definition, and where the
      * JSONB text representation equals the supplied value exactly.
      *
-     * Used by [riven.core.service.identity.IdentityLookupService] for identifier-based entity lookup.
+     * Used by [cranium.core.service.identity.IdentityLookupService] for identifier-based entity lookup.
      */
     @Query(
         value = """

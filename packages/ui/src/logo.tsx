@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@riven/utils";
+import { cn } from "@cranium/utils";
 
 interface LogoProps extends React.SVGProps<SVGSVGElement> {
   /** Width of the logo in pixels (height auto-scales to maintain aspect ratio) */

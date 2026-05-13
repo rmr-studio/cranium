@@ -1,48 +1,48 @@
-package riven.core.service.catalog
+package cranium.core.service.catalog
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.enums.activity.Activity
-import riven.core.enums.catalog.ManifestType
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.core.DataFormat
-import riven.core.enums.core.DataType
-import riven.core.enums.core.DynamicDefaultFunction
-import riven.core.enums.entity.SystemRelationshipType
-import riven.core.enums.knowledge.KnowledgeEntityTypeKey
-import riven.core.models.common.validation.DefaultValue
-import riven.core.enums.integration.SourceType
-import riven.core.enums.entity.semantics.SemanticMetadataTargetType
-import riven.core.enums.util.OperationType
-import riven.core.models.catalog.CatalogEntityTypeModel
-import riven.core.models.catalog.CatalogRelationshipModel
-import riven.core.models.catalog.CatalogSemanticMetadataModel
-import riven.core.models.catalog.ManifestDetail
-import riven.core.models.common.validation.Schema
-import riven.core.models.common.validation.SchemaOptions
-import riven.core.models.entity.configuration.ColumnConfiguration
-import riven.core.models.request.entity.type.SaveRelationshipDefinitionRequest
-import riven.core.models.request.entity.type.SaveSemanticMetadataRequest
-import riven.core.models.request.entity.type.SaveTargetRuleRequest
-import riven.core.models.response.catalog.CreatedEntityTypeSummary
-import riven.core.models.response.catalog.TemplateInstallationResponse
-import riven.core.entity.catalog.WorkspaceTemplateInstallationEntity
-import riven.core.repository.catalog.WorkspaceTemplateInstallationRepository
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.core.DataFormat
+import cranium.core.enums.core.DataType
+import cranium.core.enums.core.DynamicDefaultFunction
+import cranium.core.enums.entity.SystemRelationshipType
+import cranium.core.enums.knowledge.KnowledgeEntityTypeKey
+import cranium.core.models.common.validation.DefaultValue
+import cranium.core.enums.integration.SourceType
+import cranium.core.enums.entity.semantics.SemanticMetadataTargetType
+import cranium.core.enums.util.OperationType
+import cranium.core.models.catalog.CatalogEntityTypeModel
+import cranium.core.models.catalog.CatalogRelationshipModel
+import cranium.core.models.catalog.CatalogSemanticMetadataModel
+import cranium.core.models.catalog.ManifestDetail
+import cranium.core.models.common.validation.Schema
+import cranium.core.models.common.validation.SchemaOptions
+import cranium.core.models.entity.configuration.ColumnConfiguration
+import cranium.core.models.request.entity.type.SaveRelationshipDefinitionRequest
+import cranium.core.models.request.entity.type.SaveSemanticMetadataRequest
+import cranium.core.models.request.entity.type.SaveTargetRuleRequest
+import cranium.core.models.response.catalog.CreatedEntityTypeSummary
+import cranium.core.models.response.catalog.TemplateInstallationResponse
+import cranium.core.entity.catalog.WorkspaceTemplateInstallationEntity
+import cranium.core.repository.catalog.WorkspaceTemplateInstallationRepository
 import org.springframework.dao.DataIntegrityViolationException
-import riven.core.exceptions.ConflictException
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.activity.log
-import riven.core.service.auth.AuthTokenService
-import riven.core.exceptions.SchemaValidationException
-import riven.core.service.entity.EntityTypeSemanticMetadataService
-import riven.core.service.entity.type.EntityTypeRelationshipService
-import riven.core.service.entity.type.EntityTypeSequenceService
-import riven.core.service.schema.SchemaService
+import cranium.core.exceptions.ConflictException
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.activity.log
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.exceptions.SchemaValidationException
+import cranium.core.service.entity.EntityTypeSemanticMetadataService
+import cranium.core.service.entity.type.EntityTypeRelationshipService
+import cranium.core.service.entity.type.EntityTypeSequenceService
+import cranium.core.service.schema.SchemaService
 import java.util.*
 
 /**
@@ -83,7 +83,7 @@ class TemplateInstallationService(
     /**
      * Internal variant of [installTemplate] without @PreAuthorize.
      *
-     * Used by [riven.core.service.onboarding.OnboardingService] during onboarding when the
+     * Used by [cranium.core.service.onboarding.OnboardingService] during onboarding when the
      * workspace was just created and the JWT does not yet contain the new workspace's role
      * authorities.
      *

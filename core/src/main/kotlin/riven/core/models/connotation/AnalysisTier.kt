@@ -1,11 +1,11 @@
-package riven.core.models.connotation
+package cranium.core.models.connotation
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * Analysis strategy used to populate the SENTIMENT metadata.
  *
- * - DETERMINISTIC — manifest-driven source mapper from `connotationSignals` (Phase B).
+ * - DETERMINISTIC — manifest-dcranium source mapper from `connotationSignals` (Phase B).
  * - CLASSIFIER — local Ollama classifier (deferred until Layer 4 needs FREETEXT-only coverage).
  * - INFERENCE — LLM API inference (deferred — no email/Slack manifests yet).
  */

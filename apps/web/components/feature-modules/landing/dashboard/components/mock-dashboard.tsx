@@ -3,7 +3,7 @@ import { ArrowUp, CogIcon, Download, LayoutGrid, Search, Sparkles } from 'lucide
 
 import { ShowcaseIconRail } from '@/components/ui/diagrams/brand-ui-primitives';
 import { useContainerScale } from '@/hooks/use-container-scale';
-import { ChildNodeProps, ClassNameProps } from '@riven/utils';
+import { ChildNodeProps, ClassNameProps } from '@cranium/utils';
 import { FC } from 'react';
 import { useIsMobile } from '../../../../../../../packages/hooks/src/use-mobile';
 

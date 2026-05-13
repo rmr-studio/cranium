@@ -1,11 +1,11 @@
-package riven.core.entity.workspace
+package cranium.core.entity.workspace
 
 import jakarta.persistence.*
 import org.hibernate.annotations.SQLRestriction
-import riven.core.entity.util.AuditableSoftDeletableEntity
-import riven.core.enums.workspace.WorkspacePlan
-import riven.core.models.workspace.Workspace
-import riven.core.util.AvatarUrlResolver
+import cranium.core.entity.util.AuditableSoftDeletableEntity
+import cranium.core.enums.workspace.WorkspacePlan
+import cranium.core.models.workspace.Workspace
+import cranium.core.util.AvatarUrlResolver
 import java.util.*
 
 @Entity

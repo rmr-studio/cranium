@@ -1,6 +1,6 @@
-package riven.core.models.response.entity.type
+package cranium.core.models.response.entity.type
 
-import riven.core.models.entity.EntityType
+import cranium.core.models.entity.EntityType
 import java.util.*
 
 /**

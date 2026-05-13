@@ -5,7 +5,7 @@ import { BrandIcons, Integration } from '@/components/ui/diagrams/brand-icons';
 import { Dither } from '@/components/ui/dither';
 import { Section } from '@/components/ui/section';
 import { cn } from '@/lib/utils';
-import { ClassNameProps } from '@riven/utils';
+import { ClassNameProps } from '@cranium/utils';
 import { FC, useMemo, useRef } from 'react';
 import { TerminalBody, TerminalChrome } from '../../features/components/diagrams/claude-mcp-query';
 
@@ -25,52 +25,52 @@ const CAROUSEL_ITEMS: IntegrationCarouselItem[] = [
     brand: 'Shopify',
 
     capability:
-      'The heart and soul of your e-commerce operations. It sees everything. But Riven takes it a step further. Connecting the dots between customers, orders, inventory, and acting on those insights',
+      'The heart and soul of your e-commerce operations. It sees everything. But Cranium takes it a step further. Connecting the dots between customers, orders, inventory, and acting on those insights',
   },
   {
     brand: 'Gmail',
 
     capability:
-      'Your team’s knowledge, decisions and plans are buried in email. Riven brings that context into the brain, and surfaces insights and actions right where you work.',
+      'Your team’s knowledge, decisions and plans are buried in email. Cranium brings that context into the brain, and surfaces insights and actions right where you work.',
   },
   {
     brand: 'Klaviyo',
 
     capability:
-      'Your marketing automation is only as good as the data and insights behind it. Riven connects the dots in your data, and gives you a direct line to your customers, so you can send the right message, at the right time, through the right channel.',
+      'Your marketing automation is only as good as the data and insights behind it. Cranium connects the dots in your data, and gives you a direct line to your customers, so you can send the right message, at the right time, through the right channel.',
   },
 
   {
     brand: 'Intercom',
 
     capability:
-      'Your support tickets, feedback and complaints are a goldmine of insights. Riven connects the dots between your customers, their interactions and your operations, so you can turn that feedback into action, and close the loop between support and operations.',
+      'Your support tickets, feedback and complaints are a goldmine of insights. Cranium connects the dots between your customers, their interactions and your operations, so you can turn that feedback into action, and close the loop between support and operations.',
   },
   {
     brand: 'GoogleSheets',
     title: 'Sheets and Documents',
 
     capability:
-      'Spreadsheets are the original no-code tool, but they don’t have to be the end of the line. Riven connects the dots in your data, and gives you a direct line to your spreadsheets, so you can get the insights you need, without manual exports or messy formulas.',
+      'Spreadsheets are the original no-code tool, but they don’t have to be the end of the line. Cranium connects the dots in your data, and gives you a direct line to your spreadsheets, so you can get the insights you need, without manual exports or messy formulas.',
   },
   {
     brand: 'GoogleMeet',
     title: 'Meetings',
 
     capability:
-      'Meetings are where decisions are made and plans are hatched, but they’re also where insights go to die. Riven connects the dots between your meetings, their outcomes and your operations, so you can turn those insights into action, and close the loop between meetings and operations.',
+      'Meetings are where decisions are made and plans are hatched, but they’re also where insights go to die. Cranium connects the dots between your meetings, their outcomes and your operations, so you can turn those insights into action, and close the loop between meetings and operations.',
   },
   {
     brand: 'Cin7',
 
     capability:
-      'Your inventory and supply chain data is crucial for making informed decisions, but it’s often siloed away from the rest of your operations. Riven connects the dots between your inventory, supply chain and operations, so you can get a complete picture of your business and make smarter decisions.',
+      'Your inventory and supply chain data is crucial for making informed decisions, but it’s often siloed away from the rest of your operations. Cranium connects the dots between your inventory, supply chain and operations, so you can get a complete picture of your business and make smarter decisions.',
   },
   {
     brand: 'Facebook',
     title: 'Meta Ads',
     capability:
-      'Your advertising data is a treasure trove of insights, but it’s often disconnected from the rest of your operations. Riven connects the dots between your advertising, customers and operations, so you can get a complete picture of your marketing performance and make smarter decisions.',
+      'Your advertising data is a treasure trove of insights, but it’s often disconnected from the rest of your operations. Cranium connects the dots between your advertising, customers and operations, so you can get a complete picture of your marketing performance and make smarter decisions.',
   },
 ];
 
@@ -106,9 +106,9 @@ export const Connections: FC<ClassNameProps> = ({ className }) => {
             Connect Everything. Lose Nothing
           </h2>
           <p className="mt-4 max-w-4xl font-display text-base leading-none tracking-tighter text-content/90">
-            Plug in the systems you already run on, and access Riven wherever you work. With native
+            Plug in the systems you already run on, and access Cranium wherever you work. With native
             integrations across all your tools, and an open API, CLI and MCP for anything else,
-            Riven becomes the central nervous system of your operations, connecting everything
+            Cranium becomes the central nervous system of your operations, connecting everything
             together and surfacing insights and actions right where you need them.
           </p>
         </div>
@@ -199,7 +199,7 @@ const Terminal: FC = () => {
           Access Everywhere
         </p>
         <p className="font-display text-sm leading-[1.1] tracking-tighter text-content/70">
-          In the new world of AI and Agents. Riven is accessible wherever you work, through native
+          In the new world of AI and Agents. Cranium is accessible wherever you work, through native
           integrations, an open API, and a MCP that lets you interact with your data and operations
           directly from your terminal.
         </p>

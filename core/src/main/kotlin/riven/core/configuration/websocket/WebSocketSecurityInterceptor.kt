@@ -1,4 +1,4 @@
-package riven.core.configuration.websocket
+package cranium.core.configuration.websocket
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.messaging.Message
@@ -13,7 +13,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.jwt.JwtException
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.stereotype.Component
-import riven.core.configuration.auth.CustomAuthenticationTokenConverter
+import cranium.core.configuration.auth.CustomAuthenticationTokenConverter
 import java.util.UUID
 
 /**

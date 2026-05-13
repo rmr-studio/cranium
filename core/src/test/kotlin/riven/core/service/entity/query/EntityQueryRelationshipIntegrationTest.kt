@@ -1,22 +1,22 @@
-package riven.core.service.entity.query
+package cranium.core.service.entity.query
 
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.entity.query.FilterOperator
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.service.util.factory.entity.EntityFactory
-import riven.core.exceptions.query.QueryValidationException
-import riven.core.exceptions.query.RelationshipDepthExceededException
-import riven.core.models.entity.query.EntityQuery
-import riven.core.models.entity.query.filter.FilterValue
-import riven.core.models.entity.query.filter.QueryFilter
-import riven.core.models.entity.query.filter.RelationshipFilter
-import riven.core.models.entity.query.filter.TypeBranch
-import riven.core.models.entity.query.pagination.QueryPagination
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.entity.query.FilterOperator
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.service.util.factory.entity.EntityFactory
+import cranium.core.exceptions.query.QueryValidationException
+import cranium.core.exceptions.query.RelationshipDepthExceededException
+import cranium.core.models.entity.query.EntityQuery
+import cranium.core.models.entity.query.filter.FilterValue
+import cranium.core.models.entity.query.filter.QueryFilter
+import cranium.core.models.entity.query.filter.RelationshipFilter
+import cranium.core.models.entity.query.filter.TypeBranch
+import cranium.core.models.entity.query.pagination.QueryPagination
 
 /**
  * Integration tests for relationship filtering in EntityQueryService.

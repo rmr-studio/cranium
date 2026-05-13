@@ -1,4 +1,4 @@
-package riven.core.service.integration.materialization
+package cranium.core.service.integration.materialization
 
 import tools.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KLogger
@@ -9,28 +9,28 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.entity.entity.RelationshipDefinitionEntity
-import riven.core.enums.catalog.ManifestType
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.enums.integration.SourceType
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.entity.entity.RelationshipTargetRuleEntity
-import riven.core.entity.integration.ProjectionRuleEntity
-import riven.core.models.core.CoreModelRegistry
-import riven.core.repository.catalog.CatalogEntityTypeRepository
-import riven.core.repository.catalog.CatalogRelationshipRepository
-import riven.core.repository.catalog.CatalogRelationshipTargetRuleRepository
-import riven.core.repository.catalog.ManifestCatalogRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.repository.entity.RelationshipDefinitionRepository
-import riven.core.repository.entity.RelationshipTargetRuleRepository
-import riven.core.repository.integration.ProjectionRuleRepository
-import riven.core.service.entity.EntityTypeSemanticMetadataService
-import riven.core.service.entity.type.EntityTypeRelationshipService
-import riven.core.service.entity.type.EntityTypeSequenceService
-import riven.core.service.util.factory.catalog.CatalogFactory
-import riven.core.service.util.factory.entity.EntityFactory
+import cranium.core.entity.entity.RelationshipDefinitionEntity
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.enums.integration.SourceType
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.entity.entity.RelationshipTargetRuleEntity
+import cranium.core.entity.integration.ProjectionRuleEntity
+import cranium.core.models.core.CoreModelRegistry
+import cranium.core.repository.catalog.CatalogEntityTypeRepository
+import cranium.core.repository.catalog.CatalogRelationshipRepository
+import cranium.core.repository.catalog.CatalogRelationshipTargetRuleRepository
+import cranium.core.repository.catalog.ManifestCatalogRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.repository.entity.RelationshipDefinitionRepository
+import cranium.core.repository.entity.RelationshipTargetRuleRepository
+import cranium.core.repository.integration.ProjectionRuleRepository
+import cranium.core.service.entity.EntityTypeSemanticMetadataService
+import cranium.core.service.entity.type.EntityTypeRelationshipService
+import cranium.core.service.entity.type.EntityTypeSequenceService
+import cranium.core.service.util.factory.catalog.CatalogFactory
+import cranium.core.service.util.factory.entity.EntityFactory
 import java.util.*
 
 /**

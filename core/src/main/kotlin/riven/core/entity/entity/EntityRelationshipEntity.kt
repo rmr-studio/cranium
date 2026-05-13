@@ -1,11 +1,11 @@
-package riven.core.entity.entity
+package cranium.core.entity.entity
 
 import jakarta.persistence.*
 import org.hibernate.annotations.SQLRestriction
-import riven.core.entity.util.AuditableSoftDeletableEntity
-import riven.core.enums.entity.RelationshipTargetKind
-import riven.core.enums.integration.SourceType
-import riven.core.models.entity.EntityRelationship
+import cranium.core.entity.util.AuditableSoftDeletableEntity
+import cranium.core.enums.entity.RelationshipTargetKind
+import cranium.core.enums.integration.SourceType
+import cranium.core.models.entity.EntityRelationship
 import java.util.*
 
 /**

@@ -1,15 +1,15 @@
-package riven.core.deserializer
+package cranium.core.deserializer
 
 import tools.jackson.core.JsonParser
 import tools.jackson.databind.DeserializationContext
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.ValueDeserializer
-import riven.core.enums.block.structure.BlockMetadataType
-import riven.core.models.block.metadata.BlockContentMetadata
-import riven.core.models.block.metadata.BlockReferenceMetadata
-import riven.core.models.block.metadata.EntityReferenceMetadata
-import riven.core.models.block.metadata.Metadata
-import riven.core.util.getEnumFromField
+import cranium.core.enums.block.structure.BlockMetadataType
+import cranium.core.models.block.metadata.BlockContentMetadata
+import cranium.core.models.block.metadata.BlockReferenceMetadata
+import cranium.core.models.block.metadata.EntityReferenceMetadata
+import cranium.core.models.block.metadata.Metadata
+import cranium.core.util.getEnumFromField
 
 /**
  * Jackson deserializer for [Metadata].

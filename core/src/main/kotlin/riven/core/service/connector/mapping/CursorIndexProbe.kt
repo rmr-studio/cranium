@@ -1,10 +1,10 @@
-package riven.core.service.connector.mapping
+package cranium.core.service.connector.mapping
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
-import riven.core.models.connector.CredentialPayload
-import riven.core.service.connector.pool.WorkspaceConnectionPoolManager
+import cranium.core.models.connector.CredentialPayload
+import cranium.core.service.connector.pool.WorkspaceConnectionPoolManager
 import java.util.UUID
 
 /**
@@ -17,7 +17,7 @@ import java.util.UUID
  * every GET /schema and every POST /mapping.
  */
 @Component
-@ConditionalOnProperty(prefix = "riven.connector", name = ["enabled"], havingValue = "true")
+@ConditionalOnProperty(prefix = "cranium.connector", name = ["enabled"], havingValue = "true")
 class CursorIndexProbe(
     private val poolManager: WorkspaceConnectionPoolManager,
     @Suppress("unused") private val logger: KLogger,

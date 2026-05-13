@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,28 +12,21 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { WorkspaceRoles } from './WorkspaceRoles';
-import {
-    WorkspaceRolesFromJSON,
-    WorkspaceRolesFromJSONTyped,
-    WorkspaceRolesToJSON,
-    WorkspaceRolesToJSONTyped,
-} from './WorkspaceRoles';
 import type { UserDisplay } from './UserDisplay';
 import {
     UserDisplayFromJSON,
-    UserDisplayFromJSONTyped,
-    UserDisplayToJSON,
-    UserDisplayToJSONTyped,
+    UserDisplayToJSON
 } from './UserDisplay';
 import type { WorkspaceDisplay } from './WorkspaceDisplay';
 import {
     WorkspaceDisplayFromJSON,
-    WorkspaceDisplayFromJSONTyped,
-    WorkspaceDisplayToJSON,
-    WorkspaceDisplayToJSONTyped,
+    WorkspaceDisplayToJSON
 } from './WorkspaceDisplay';
+import type { WorkspaceRoles } from './WorkspaceRoles';
+import {
+    WorkspaceRolesFromJSON,
+    WorkspaceRolesToJSON
+} from './WorkspaceRoles';
 
 /**
  * 

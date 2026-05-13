@@ -1,12 +1,12 @@
-package riven.core.models.block.tree
+package cranium.core.models.block.tree
 
 import tools.jackson.databind.ValueDeserializer
 import tools.jackson.databind.annotation.JsonDeserialize
 import io.swagger.v3.oas.annotations.media.Schema
-import riven.core.deserializer.ReferencePayloadDeserializer
-import riven.core.enums.block.node.BlockReferenceWarning
-import riven.core.enums.block.node.ReferenceType
-import riven.core.models.entity.Entity
+import cranium.core.deserializer.ReferencePayloadDeserializer
+import cranium.core.enums.block.node.BlockReferenceWarning
+import cranium.core.enums.block.node.ReferenceType
+import cranium.core.models.entity.Entity
 import java.util.*
 
 

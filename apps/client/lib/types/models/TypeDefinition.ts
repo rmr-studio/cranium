@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -15,16 +15,14 @@
 import type { SaveAttributeDefinitionRequest } from './SaveAttributeDefinitionRequest';
 import {
     instanceOfSaveAttributeDefinitionRequest,
-    SaveAttributeDefinitionRequestFromJSON,
     SaveAttributeDefinitionRequestFromJSONTyped,
-    SaveAttributeDefinitionRequestToJSON,
+    SaveAttributeDefinitionRequestToJSON
 } from './SaveAttributeDefinitionRequest';
 import type { SaveRelationshipDefinitionRequest } from './SaveRelationshipDefinitionRequest';
 import {
     instanceOfSaveRelationshipDefinitionRequest,
-    SaveRelationshipDefinitionRequestFromJSON,
     SaveRelationshipDefinitionRequestFromJSONTyped,
-    SaveRelationshipDefinitionRequestToJSON,
+    SaveRelationshipDefinitionRequestToJSON
 } from './SaveRelationshipDefinitionRequest';
 
 /**

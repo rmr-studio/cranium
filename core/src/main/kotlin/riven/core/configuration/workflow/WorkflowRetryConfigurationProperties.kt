@@ -1,8 +1,8 @@
-package riven.core.configuration.workflow
+package cranium.core.configuration.workflow
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 
-@ConfigurationProperties("riven.workflow.retry")
+@ConfigurationProperties("cranium.workflow.retry")
 data class WorkflowRetryConfigurationProperties(
     val default: RetryConfig = RetryConfig(),
     val httpAction: HttpRetryConfig = HttpRetryConfig(),

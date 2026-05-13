@@ -1,7 +1,7 @@
-package riven.core.models.workflow.engine.queue
+package cranium.core.models.workflow.engine.queue
 
-import riven.core.enums.workflow.ExecutionJobType
-import riven.core.enums.workflow.ExecutionQueueStatus
+import cranium.core.enums.workflow.ExecutionJobType
+import cranium.core.enums.workflow.ExecutionQueueStatus
 import java.time.ZonedDateTime
 import java.util.UUID
 

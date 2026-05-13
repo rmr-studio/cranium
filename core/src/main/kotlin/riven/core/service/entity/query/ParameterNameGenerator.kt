@@ -1,4 +1,4 @@
-package riven.core.service.entity.query
+package cranium.core.service.entity.query
 
 /**
  * Generates unique parameter names for SQL query construction.

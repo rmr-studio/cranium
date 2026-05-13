@@ -1,12 +1,12 @@
-package riven.core.models.block
+package cranium.core.models.block
 
 import io.swagger.v3.oas.annotations.media.DiscriminatorMapping
 import io.swagger.v3.oas.annotations.media.Schema
-import riven.core.entity.util.AuditableModel
-import riven.core.models.block.metadata.BlockContentMetadata
-import riven.core.models.block.metadata.BlockReferenceMetadata
-import riven.core.models.block.metadata.EntityReferenceMetadata
-import riven.core.models.block.metadata.Metadata
+import cranium.core.entity.util.AuditableModel
+import cranium.core.models.block.metadata.BlockContentMetadata
+import cranium.core.models.block.metadata.BlockReferenceMetadata
+import cranium.core.models.block.metadata.EntityReferenceMetadata
+import cranium.core.models.block.metadata.Metadata
 import java.io.Serializable
 import java.time.ZonedDateTime
 import java.util.*

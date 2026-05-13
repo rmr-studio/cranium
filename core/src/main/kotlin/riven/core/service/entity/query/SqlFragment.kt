@@ -1,4 +1,4 @@
-package riven.core.service.entity.query
+package cranium.core.service.entity.query
 
 /**
  * Immutable container for a parameterized SQL fragment.

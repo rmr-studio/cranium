@@ -1,16 +1,16 @@
-package riven.core.service.connector.postgres
+package cranium.core.service.connector.postgres
 
 import tools.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
-import riven.core.configuration.properties.ConnectorPoolProperties
-import riven.core.enums.common.validation.SchemaType
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.models.ingestion.adapter.RecordBatch
-import riven.core.models.ingestion.adapter.SourceRecord
-import riven.core.service.ingestion.adapter.PostgresCallContext
-import riven.core.service.ingestion.adapter.exception.AdapterCapabilityNotSupportedException
+import cranium.core.configuration.properties.ConnectorPoolProperties
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.models.ingestion.adapter.RecordBatch
+import cranium.core.models.ingestion.adapter.SourceRecord
+import cranium.core.service.ingestion.adapter.PostgresCallContext
+import cranium.core.service.ingestion.adapter.exception.AdapterCapabilityNotSupportedException
 import java.sql.PreparedStatement
 import java.sql.Timestamp
 import java.time.Instant
@@ -27,7 +27,7 @@ import javax.sql.DataSource
  * large result sets don't OOM the worker.
  */
 @Component
-@ConditionalOnProperty(prefix = "riven.connector", name = ["enabled"], havingValue = "true")
+@ConditionalOnProperty(prefix = "cranium.connector", name = ["enabled"], havingValue = "true")
 class PostgresFetcher(
     private val props: ConnectorPoolProperties,
     private val objectMapper: ObjectMapper,

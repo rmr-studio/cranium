@@ -2,9 +2,9 @@
 
 import { type FC, useCallback } from "react";
 import { Plus, X } from "lucide-react";
-import { Button } from '@riven/ui/button';
-import { Input } from '@riven/ui/input';
-import { Label } from '@riven/ui/label';
+import { Button } from '@cranium/ui/button';
+import { Input } from '@cranium/ui/input';
+import { Label } from '@cranium/ui/label';
 import type { ConfigWidgetProps } from "./config-widget.types";
 
 interface KeyValuePair {

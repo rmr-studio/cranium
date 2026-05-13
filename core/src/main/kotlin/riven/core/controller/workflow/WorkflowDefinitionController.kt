@@ -1,4 +1,4 @@
-package riven.core.controller.workflow
+package cranium.core.controller.workflow
 
 import io.github.oshai.kotlinlogging.KLogger
 import io.swagger.v3.oas.annotations.Operation
@@ -8,12 +8,12 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
-import riven.core.models.request.workflow.SaveWorkflowDefinitionRequest
-import riven.core.models.response.workflow.SaveWorkflowDefinitionResponse
-import riven.core.models.workflow.WorkflowDefinition
-import riven.core.service.workflow.WorkflowDefinitionService
-import riven.core.service.workflow.WorkflowNodeConfigRegistry
-import riven.core.service.workflow.WorkflowNodeMetadata
+import cranium.core.models.request.workflow.SaveWorkflowDefinitionRequest
+import cranium.core.models.response.workflow.SaveWorkflowDefinitionResponse
+import cranium.core.models.workflow.WorkflowDefinition
+import cranium.core.service.workflow.WorkflowDefinitionService
+import cranium.core.service.workflow.WorkflowNodeConfigRegistry
+import cranium.core.service.workflow.WorkflowNodeMetadata
 import java.util.*
 
 

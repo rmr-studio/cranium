@@ -1,12 +1,12 @@
-package riven.core.models.catalog
+package cranium.core.models.catalog
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import tools.jackson.databind.JsonNode
-import riven.core.enums.catalog.ManifestType
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.EntityTypeRole
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.models.connotation.AnalysisTier
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.enums.entity.EntityTypeRole
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.models.connotation.AnalysisTier
 
 /** Output of ManifestScannerService -- parsed and schema-validated JSON. */
 data class ScannedManifest(
@@ -51,7 +51,7 @@ data class ResolvedEntityType(
  *
  * Declares which source attribute carries sentiment-bearing data and how to map it
  * to the unified `[-1.0, +1.0]` sentiment score consumed by the
- * [riven.core.models.connotation.SentimentMetadata] of the connotation snapshot.
+ * [cranium.core.models.connotation.SentimentMetadata] of the connotation snapshot.
  */
 data class ConnotationSignals(
     val tier: AnalysisTier,

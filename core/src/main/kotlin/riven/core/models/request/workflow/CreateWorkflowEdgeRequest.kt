@@ -1,4 +1,4 @@
-package riven.core.models.request.workflow
+package cranium.core.models.request.workflow
 
 import java.util.UUID
 

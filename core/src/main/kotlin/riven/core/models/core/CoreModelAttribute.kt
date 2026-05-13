@@ -1,9 +1,9 @@
-package riven.core.models.core
+package cranium.core.models.core
 
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.DataType
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.models.common.validation.SchemaOptions
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.DataType
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.models.common.validation.SchemaOptions
 
 /**
  * Attribute definition within a core model. String-keyed (converted to UUID during installation).
@@ -19,7 +19,7 @@ data class CoreModelAttribute(
     val required: Boolean = false,
     val unique: Boolean = false,
     val options: SchemaOptions? = null,
-    val semantics: riven.core.models.core.AttributeSemantics? = null,
+    val semantics: cranium.core.models.core.AttributeSemantics? = null,
 )
 
 data class AttributeSemantics(

@@ -1,4 +1,4 @@
-package riven.core.service.knowledge
+package cranium.core.service.knowledge
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -14,25 +14,25 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.enums.knowledge.DefinitionCategory
-import riven.core.enums.knowledge.DefinitionSource
-import riven.core.enums.knowledge.DefinitionStatus
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.exceptions.ConflictException
-import riven.core.exceptions.NotFoundException
-import riven.core.models.knowledge.AttributeRef
-import riven.core.models.knowledge.GlossaryTerm
-import riven.core.models.request.knowledge.CreateBusinessDefinitionRequest
-import riven.core.models.request.knowledge.UpdateBusinessDefinitionRequest
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.entity.EntityIngestionService
-import riven.core.service.util.BaseServiceTest
-import riven.core.service.util.SecurityTestConfig
-import riven.core.service.util.WithUserPersona
-import riven.core.service.util.WorkspaceRole
-import riven.core.service.util.factory.entity.EntityFactory
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.enums.knowledge.DefinitionCategory
+import cranium.core.enums.knowledge.DefinitionSource
+import cranium.core.enums.knowledge.DefinitionStatus
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.exceptions.ConflictException
+import cranium.core.exceptions.NotFoundException
+import cranium.core.models.knowledge.AttributeRef
+import cranium.core.models.knowledge.GlossaryTerm
+import cranium.core.models.request.knowledge.CreateBusinessDefinitionRequest
+import cranium.core.models.request.knowledge.UpdateBusinessDefinitionRequest
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.entity.EntityIngestionService
+import cranium.core.service.util.BaseServiceTest
+import cranium.core.service.util.SecurityTestConfig
+import cranium.core.service.util.WithUserPersona
+import cranium.core.service.util.WorkspaceRole
+import cranium.core.service.util.factory.entity.EntityFactory
 import java.util.UUID
 
 /**
@@ -192,7 +192,7 @@ class GlossaryServiceTest : BaseServiceTest() {
         val notAGlossary = EntityFactory.createEntityEntity(id = defId, workspaceId = workspaceId, typeKey = "company")
         whenever(entityIngestionService.findByIdInternal(workspaceId, defId)).thenReturn(notAGlossary)
 
-        assertThrows<riven.core.exceptions.NotFoundException> {
+        assertThrows<cranium.core.exceptions.NotFoundException> {
             service.getDefinition(workspaceId, defId)
         }
     }

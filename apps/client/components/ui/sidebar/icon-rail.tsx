@@ -9,9 +9,9 @@ import {
   useSidePanelActions,
 } from '@/components/ui/sidebar/context/side-panel-provider';
 import type { PanelId } from '@/components/ui/sidebar/types/side-panel.types';
-import { useIsMobile } from '@riven/hooks';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@riven/ui/tooltip';
-import { cn } from '@riven/utils';
+import { useIsMobile } from '@cranium/hooks';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@cranium/ui/tooltip';
+import { cn } from '@cranium/utils';
 import { BookOpen, SquareDashedMousePointer, StickyNote, TrendingUpDown } from 'lucide-react';
 
 interface RailButton {

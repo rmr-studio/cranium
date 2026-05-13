@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -14,17 +14,15 @@
 
 import type { ContentNode } from './ContentNode';
 import {
-    instanceOfContentNode,
-    ContentNodeFromJSON,
     ContentNodeFromJSONTyped,
     ContentNodeToJSON,
+    instanceOfContentNode
 } from './ContentNode';
 import type { ReferenceNode } from './ReferenceNode';
 import {
     instanceOfReferenceNode,
-    ReferenceNodeFromJSON,
     ReferenceNodeFromJSONTyped,
-    ReferenceNodeToJSON,
+    ReferenceNodeToJSON
 } from './ReferenceNode';
 
 /**

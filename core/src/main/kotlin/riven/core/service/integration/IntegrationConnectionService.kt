@@ -1,25 +1,25 @@
-package riven.core.service.integration
+package cranium.core.service.integration
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.support.TransactionTemplate
-import riven.core.entity.integration.IntegrationConnectionEntity
-import riven.core.enums.activity.Activity
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.integration.ConnectionStatus
-import riven.core.enums.util.OperationType
-import riven.core.exceptions.InvalidStateTransitionException
-import riven.core.exceptions.NangoApiException
-import riven.core.exceptions.RateLimitException
-import riven.core.exceptions.TransientNangoException
-import riven.core.repository.integration.IntegrationConnectionRepository
-import riven.core.repository.integration.IntegrationDefinitionRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.integration.materialization.TemplateMaterializationService
-import riven.core.util.ServiceUtil.findOrThrow
+import cranium.core.entity.integration.IntegrationConnectionEntity
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.integration.ConnectionStatus
+import cranium.core.enums.util.OperationType
+import cranium.core.exceptions.InvalidStateTransitionException
+import cranium.core.exceptions.NangoApiException
+import cranium.core.exceptions.RateLimitException
+import cranium.core.exceptions.TransientNangoException
+import cranium.core.repository.integration.IntegrationConnectionRepository
+import cranium.core.repository.integration.IntegrationDefinitionRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.integration.materialization.TemplateMaterializationService
+import cranium.core.util.ServiceUtil.findOrThrow
 import java.util.*
 
 /**
@@ -145,7 +145,7 @@ class IntegrationConnectionService(
      * @return The disconnected connection
      * @throws InvalidStateTransitionException if disconnection is not allowed from current state
      */
-    @PreAuthorize("@workspaceSecurity.hasWorkspaceRole(#workspaceId, T(riven.core.enums.workspace.WorkspaceRoles).ADMIN)")
+    @PreAuthorize("@workspaceSecurity.hasWorkspaceRole(#workspaceId, T(cranium.core.enums.workspace.WorkspaceRoles).ADMIN)")
     fun disconnectConnection(workspaceId: UUID, connectionId: UUID): IntegrationConnectionEntity {
         val userId = authTokenService.getUserId()
 

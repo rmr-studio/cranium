@@ -1,4 +1,4 @@
-package riven.core.enums.integration
+package cranium.core.enums.integration
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test

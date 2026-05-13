@@ -1,11 +1,11 @@
-package riven.core.repository.notification
+package cranium.core.repository.notification
 
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
-import riven.core.entity.notification.NotificationEntity
-import riven.core.enums.notification.NotificationReferenceType
+import cranium.core.entity.notification.NotificationEntity
+import cranium.core.enums.notification.NotificationReferenceType
 import java.time.ZonedDateTime
 import java.util.UUID
 

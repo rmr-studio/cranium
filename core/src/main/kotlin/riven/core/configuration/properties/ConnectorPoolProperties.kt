@@ -1,4 +1,4 @@
-package riven.core.configuration.properties
+package cranium.core.configuration.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 
@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  * Pool configuration for the Phase 3 Postgres adapter (PG-02).
  *
  * Discovered via `@ConfigurationPropertiesScan` declared on `CoreApplication`.
- * Values map to [riven.core.service.connector.pool.WorkspaceConnectionPoolManager]
+ * Values map to [cranium.core.service.connector.pool.WorkspaceConnectionPoolManager]
  * HikariCP builder configuration. Defaults mirror the PROJECT.md decisions:
  * small pool per tenant, conservative timeouts, hard 5-minute statement cap.
  *
@@ -23,7 +23,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  *   means idle connections may retire fully when the pool is quiet — safest
  *   default for per-tenant pools where most connections are cold.
  */
-@ConfigurationProperties(prefix = "riven.connector.pool")
+@ConfigurationProperties(prefix = "cranium.connector.pool")
 data class ConnectorPoolProperties(
     val maxPoolSize: Int = 2,
     val idleTimeoutMinutes: Long = 10,

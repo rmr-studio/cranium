@@ -1,20 +1,20 @@
-package riven.core.entity.entity
+package cranium.core.entity.entity
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.Type
-import riven.core.entity.util.AuditableSoftDeletableEntity
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.integration.SourceType
-import riven.core.models.common.Icon
-import riven.core.models.entity.Entity
-import riven.core.models.entity.EntityLink
-import riven.core.models.entity.partitionForEntityProjection
-import riven.core.models.entity.payload.EntityAttribute
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.models.entity.payload.EntityAttributeRelationPayload
+import cranium.core.entity.util.AuditableSoftDeletableEntity
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.integration.SourceType
+import cranium.core.models.common.Icon
+import cranium.core.models.entity.Entity
+import cranium.core.models.entity.EntityLink
+import cranium.core.models.entity.partitionForEntityProjection
+import cranium.core.models.entity.payload.EntityAttribute
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.models.entity.payload.EntityAttributeRelationPayload
 import java.time.ZonedDateTime
 import java.util.*
 import jakarta.persistence.Entity as JPAEntity

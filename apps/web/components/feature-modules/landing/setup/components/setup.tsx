@@ -16,21 +16,21 @@ interface SetupItem {
 const items: SetupItem[] = [
   {
     integrations: ['Slack'],
-    title: 'Add Riven to Slack',
+    title: 'Add Cranium to Slack',
     description:
-      'Connect Riven to your Slack workspace and start making connections in your conversations.',
+      'Connect Cranium to your Slack workspace and start making connections in your conversations.',
   },
   {
     integrations: ['Shopify', 'Cin7', 'Klaviyo'],
     title: 'Connect your Business',
     description:
-      'Connect Riven to your business tools to bring in data about your customers, orders, inventory, and more.',
+      'Connect Cranium to your business tools to bring in data about your customers, orders, inventory, and more.',
   },
   {
     integrations: ['Gmail', 'GoogleSheets', 'GoogleMeet'],
     title: 'Connect Your Team',
     description:
-      'Your team lives in email, spreadsheets, and meetings. Connect Riven to these tools to bring that context into the brain.',
+      'Your team lives in email, spreadsheets, and meetings. Connect Cranium to these tools to bring that context into the brain.',
   },
 ];
 
@@ -50,7 +50,7 @@ export const Setup = () => {
           </h2>
           <p className="mt-4 max-w-3xl font-display text-base leading-none tracking-tighter text-content/90">
             Building a brain has never been easier. Connect your data sources in minutes with our
-            native integrations, or use our API to connect anything else. Watch as Riven learns from
+            native integrations, or use our API to connect anything else. Watch as Cranium learns from
             your data, identifies patterns, and starts making connections you didn't even know
             existed. It's like having a team of analysts working 24/7, but without the overhead.
           </p>

@@ -1,7 +1,7 @@
 'use client';
 
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { TableBody, TableCell, TableRow } from '@riven/ui/table';
+import { TableBody, TableCell, TableRow } from '@cranium/ui/table';
 import { Row, Table as TanStackTable } from '@tanstack/react-table';
 import React, { ReactNode, useMemo } from 'react';
 import { useDataTableStore } from '../data-table-provider';

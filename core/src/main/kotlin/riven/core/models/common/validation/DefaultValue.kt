@@ -1,9 +1,9 @@
-package riven.core.models.common.validation
+package cranium.core.models.common.validation
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import riven.core.enums.core.DynamicDefaultFunction
-import riven.core.models.common.json.JsonValue
+import cranium.core.enums.core.DynamicDefaultFunction
+import cranium.core.models.common.json.JsonValue
 
 /**
  * Unified representation of attribute default values.

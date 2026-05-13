@@ -1,21 +1,21 @@
-package riven.core.service.util.factory.enrichment
+package cranium.core.service.util.factory.enrichment
 
-import riven.core.entity.connotation.EntityConnotationEntity
-import riven.core.entity.enrichment.EntityEmbeddingEntity
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.enums.integration.SourceType
-import riven.core.models.connotation.EntityMetadata
-import riven.core.models.connotation.EntityMetadataSnapshot
-import riven.core.models.connotation.SentimentMetadata
-import riven.core.models.enrichment.EnrichedTextResult
-import riven.core.models.enrichment.EnrichmentAttributeContext
-import riven.core.models.enrichment.EnrichmentClusterMemberContext
-import riven.core.models.enrichment.EnrichmentContext
-import riven.core.models.enrichment.EnrichmentRelationshipDefinitionContext
-import riven.core.models.enrichment.EnrichmentRelationshipSummary
+import cranium.core.entity.connotation.EntityConnotationEntity
+import cranium.core.entity.enrichment.EntityEmbeddingEntity
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.enums.integration.SourceType
+import cranium.core.models.connotation.EntityMetadata
+import cranium.core.models.connotation.EntityMetadataSnapshot
+import cranium.core.models.connotation.SentimentMetadata
+import cranium.core.models.enrichment.EnrichedTextResult
+import cranium.core.models.enrichment.EnrichmentAttributeContext
+import cranium.core.models.enrichment.EnrichmentClusterMemberContext
+import cranium.core.models.enrichment.EnrichmentContext
+import cranium.core.models.enrichment.EnrichmentRelationshipDefinitionContext
+import cranium.core.models.enrichment.EnrichmentRelationshipSummary
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -99,7 +99,7 @@ object EnrichmentFactory {
     )
 
     /**
-     * Creates an [EntityConnotationEntity] wrapping a SENTIMENT-only [riven.core.models.connotation.EntityMetadataSnapshot].
+     * Creates an [EntityConnotationEntity] wrapping a SENTIMENT-only [cranium.core.models.connotation.EntityMetadataSnapshot].
      * Wraps the snapshot construction so callers don't repeat the boilerplate when only the
      * sentiment-version + status differ between cases.
      */

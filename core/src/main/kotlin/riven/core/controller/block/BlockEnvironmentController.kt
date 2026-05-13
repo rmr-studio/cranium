@@ -1,4 +1,4 @@
-package riven.core.controller.block
+package cranium.core.controller.block
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -8,15 +8,15 @@ import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.models.block.BlockEnvironment
-import riven.core.models.request.block.HydrateBlocksRequest
-import riven.core.models.request.block.OverwriteEnvironmentRequest
-import riven.core.models.request.block.SaveEnvironmentRequest
-import riven.core.models.response.block.OverwriteEnvironmentResponse
-import riven.core.models.response.block.SaveEnvironmentResponse
-import riven.core.models.response.block.internal.BlockHydrationResult
-import riven.core.service.block.BlockEnvironmentService
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.models.block.BlockEnvironment
+import cranium.core.models.request.block.HydrateBlocksRequest
+import cranium.core.models.request.block.OverwriteEnvironmentRequest
+import cranium.core.models.request.block.SaveEnvironmentRequest
+import cranium.core.models.response.block.OverwriteEnvironmentResponse
+import cranium.core.models.response.block.SaveEnvironmentResponse
+import cranium.core.models.response.block.internal.BlockHydrationResult
+import cranium.core.service.block.BlockEnvironmentService
 import java.util.*
 
 @RestController

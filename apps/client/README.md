@@ -1,6 +1,6 @@
-# @riven/client
+# @cranium/client
 
-The main Riven dashboard. This is where users manage entities, build workflows, connect integrations and interact with the knowledge base.
+The main Cranium dashboard. This is where users manage entities, build workflows, connect integrations and interact with the knowledge base.
 
 ## Tech stack
 
@@ -17,7 +17,7 @@ The main Riven dashboard. This is where users manage entities, build workflows, 
 
 ```sh
 # From the monorepo root
-pnpm --filter @riven/client dev
+pnpm --filter @cranium/client dev
 ```
 
 Runs on [http://localhost:3001](http://localhost:3001). Needs the backend API running on `:8081`.

@@ -1,4 +1,4 @@
-package riven.core.service.entity.type
+package cranium.core.service.entity.type
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -9,40 +9,40 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.DataType
-import riven.core.enums.entity.EntityPropertyType
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.integration.SourceType
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.models.common.display.DisplayName
-import riven.core.models.common.Icon
-import riven.core.models.common.validation.Schema
-import riven.core.models.entity.RelationshipDefinition
-import riven.core.models.entity.configuration.ColumnConfiguration
-import riven.core.models.entity.configuration.ColumnOverride
-import riven.core.models.entity.configuration.EntityTypeAttributeColumn
-import riven.core.models.request.entity.type.*
-import riven.core.repository.entity.EntityRelationshipRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.repository.entity.RelationshipDefinitionRepository
-import riven.core.repository.entity.RelationshipTargetRuleRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.catalog.SchemaReconciliationService
-import riven.core.service.entity.EntityTypeSemanticMetadataService
-import riven.core.service.util.BaseServiceTest
-import riven.core.service.util.WithUserPersona
-import riven.core.service.util.WorkspaceRole
-import riven.core.entity.entity.RelationshipDefinitionEntity
-import riven.core.enums.activity.Activity
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.util.OperationType
-import riven.core.service.util.factory.entity.EntityFactory
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.DataType
+import cranium.core.enums.entity.EntityPropertyType
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.enums.integration.SourceType
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.models.common.display.DisplayName
+import cranium.core.models.common.Icon
+import cranium.core.models.common.validation.Schema
+import cranium.core.models.entity.RelationshipDefinition
+import cranium.core.models.entity.configuration.ColumnConfiguration
+import cranium.core.models.entity.configuration.ColumnOverride
+import cranium.core.models.entity.configuration.EntityTypeAttributeColumn
+import cranium.core.models.request.entity.type.*
+import cranium.core.repository.entity.EntityRelationshipRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.repository.entity.RelationshipDefinitionRepository
+import cranium.core.repository.entity.RelationshipTargetRuleRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.catalog.SchemaReconciliationService
+import cranium.core.service.entity.EntityTypeSemanticMetadataService
+import cranium.core.service.util.BaseServiceTest
+import cranium.core.service.util.WithUserPersona
+import cranium.core.service.util.WorkspaceRole
+import cranium.core.entity.entity.RelationshipDefinitionEntity
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.util.OperationType
+import cranium.core.service.util.factory.entity.EntityFactory
 import java.util.*
 
 @SpringBootTest(
@@ -511,7 +511,7 @@ class EntityTypeServiceTest : BaseServiceTest() {
                     EntityFactory.createTargetRuleEntity(relationshipDefinitionId = defId, targetEntityTypeId = UUID.randomUUID()),
                 ))
             whenever(entityTypeRelationshipService.deleteRelationshipDefinition(workspaceId, defId, false))
-                .thenReturn(riven.core.models.response.entity.type.DeleteDefinitionImpact(
+                .thenReturn(cranium.core.models.response.entity.type.DeleteDefinitionImpact(
                     definitionId = defId,
                     definitionName = "Has Contacts",
                     impactedLinkCount = 5,

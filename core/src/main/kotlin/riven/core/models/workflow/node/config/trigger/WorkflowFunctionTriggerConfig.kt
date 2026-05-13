@@ -1,21 +1,21 @@
-package riven.core.models.workflow.node.config.trigger
+package cranium.core.models.workflow.node.config.trigger
 
 import com.fasterxml.jackson.annotation.JsonTypeName
 import tools.jackson.databind.ValueDeserializer
 import tools.jackson.databind.annotation.JsonDeserialize
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.workflow.WorkflowNodeConfigFieldType
-import riven.core.enums.workflow.WorkflowNodeType
-import riven.core.enums.workflow.WorkflowTriggerType
-import riven.core.models.common.json.JsonObject
-import riven.core.models.common.validation.Schema
-import riven.core.models.workflow.engine.state.NodeOutput
-import riven.core.models.workflow.engine.state.WorkflowDataStore
-import riven.core.models.workflow.node.NodeServiceProvider
-import riven.core.models.workflow.node.config.WorkflowNodeConfigField
-import riven.core.models.workflow.node.config.WorkflowNodeTypeMetadata
-import riven.core.models.workflow.node.config.WorkflowTriggerConfig
-import riven.core.models.workflow.node.config.validation.ConfigValidationResult
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.workflow.WorkflowNodeConfigFieldType
+import cranium.core.enums.workflow.WorkflowNodeType
+import cranium.core.enums.workflow.WorkflowTriggerType
+import cranium.core.models.common.json.JsonObject
+import cranium.core.models.common.validation.Schema
+import cranium.core.models.workflow.engine.state.NodeOutput
+import cranium.core.models.workflow.engine.state.WorkflowDataStore
+import cranium.core.models.workflow.node.NodeServiceProvider
+import cranium.core.models.workflow.node.config.WorkflowNodeConfigField
+import cranium.core.models.workflow.node.config.WorkflowNodeTypeMetadata
+import cranium.core.models.workflow.node.config.WorkflowTriggerConfig
+import cranium.core.models.workflow.node.config.validation.ConfigValidationResult
 import io.swagger.v3.oas.annotations.media.Schema as SwaggerSchema
 
 /**

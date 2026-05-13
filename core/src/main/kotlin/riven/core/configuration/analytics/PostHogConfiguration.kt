@@ -1,4 +1,4 @@
-package riven.core.configuration.analytics
+package cranium.core.configuration.analytics
 
 import com.posthog.server.PostHog
 import com.posthog.server.PostHogConfig
@@ -14,11 +14,11 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import riven.core.filter.analytics.PostHogCaptureFilter
-import riven.core.configuration.properties.PostHogConfigurationProperties
-import riven.core.service.analytics.NoOpPostHogService
-import riven.core.service.analytics.PostHogService
-import riven.core.service.analytics.PostHogServiceImpl
+import cranium.core.filter.analytics.PostHogCaptureFilter
+import cranium.core.configuration.properties.PostHogConfigurationProperties
+import cranium.core.service.analytics.NoOpPostHogService
+import cranium.core.service.analytics.PostHogService
+import cranium.core.service.analytics.PostHogServiceImpl
 import java.time.Duration
 
 @Configuration
@@ -48,7 +48,7 @@ class PostHogConfiguration {
     // ------ Circuit Breaker ------
 
     @Bean
-    @ConditionalOnProperty(name = ["riven.posthog.enabled"], havingValue = "true")
+    @ConditionalOnProperty(name = ["cranium.posthog.enabled"], havingValue = "true")
     fun postHogCircuitBreaker(): CircuitBreaker {
         val config = CircuitBreakerConfig.custom()
             .failureRateThreshold(50f)
@@ -65,10 +65,10 @@ class PostHogConfiguration {
     // ------ PostHog SDK Client ------
 
     @Bean(destroyMethod = "close")
-    @ConditionalOnProperty(name = ["riven.posthog.enabled"], havingValue = "true")
+    @ConditionalOnProperty(name = ["cranium.posthog.enabled"], havingValue = "true")
     fun postHogClient(properties: PostHogConfigurationProperties): PostHogInterface {
         require(properties.apiKey.isNotBlank()) {
-            "riven.posthog.api-key (POSTHOG_API_KEY) must be set when riven.posthog.enabled=true"
+            "cranium.posthog.api-key (POSTHOG_API_KEY) must be set when cranium.posthog.enabled=true"
         }
 
         val config = PostHogConfig.builder(properties.apiKey)
@@ -86,7 +86,7 @@ class PostHogConfiguration {
     // ------ Service Beans ------
 
     @Bean
-    @ConditionalOnProperty(name = ["riven.posthog.enabled"], havingValue = "true")
+    @ConditionalOnProperty(name = ["cranium.posthog.enabled"], havingValue = "true")
     fun postHogService(
         client: PostHogInterface,
         circuitBreaker: CircuitBreaker,
@@ -104,7 +104,7 @@ class PostHogConfiguration {
     )
 
     @Bean
-    @ConditionalOnProperty(name = ["riven.posthog.enabled"], havingValue = "false", matchIfMissing = true)
+    @ConditionalOnProperty(name = ["cranium.posthog.enabled"], havingValue = "false", matchIfMissing = true)
     fun noOpPostHogService(
         postHogCaptureCounter: Counter
     ): PostHogService = NoOpPostHogService(

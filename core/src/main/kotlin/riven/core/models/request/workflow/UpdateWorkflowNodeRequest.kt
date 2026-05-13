@@ -1,6 +1,6 @@
-package riven.core.models.request.workflow
+package cranium.core.models.request.workflow
 
-import riven.core.models.workflow.node.config.WorkflowNodeConfig
+import cranium.core.models.workflow.node.config.WorkflowNodeConfig
 
 /**
  * Request model for updating an existing workflow node.

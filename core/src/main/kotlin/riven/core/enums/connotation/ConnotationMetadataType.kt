@@ -1,12 +1,12 @@
-package riven.core.enums.connotation
+package cranium.core.enums.connotation
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
- * Names of the polymorphic metadata categories on [riven.core.models.connotation.EntityMetadata].
+ * Names of the polymorphic metadata categories on [cranium.core.models.connotation.EntityMetadata].
  *
  * The [name] of each enum value matches the JSON key persisted in `entity_connotation.connotation_metadata`
- * (UPPERCASE — see `@JsonProperty` on [riven.core.models.connotation.EntityMetadata]). When passing
+ * (UPPERCASE — see `@JsonProperty` on [cranium.core.models.connotation.EntityMetadata]). When passing
  * a name to JSONB-path queries, use `metadataType.name` directly.
  */
 enum class ConnotationMetadataType {

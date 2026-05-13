@@ -1,18 +1,18 @@
-package riven.core.service.util.factory.catalog
+package cranium.core.service.util.factory.catalog
 
-import riven.core.entity.catalog.*
-import riven.core.enums.catalog.ManifestType
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.enums.entity.semantics.SemanticMetadataTargetType
-import riven.core.models.catalog.ConnotationSignals
-import riven.core.models.catalog.ScaleMappingType
-import riven.core.models.catalog.SentimentScale
-import riven.core.models.connotation.AnalysisTier
+import cranium.core.entity.catalog.*
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.enums.entity.semantics.SemanticMetadataTargetType
+import cranium.core.models.catalog.ConnotationSignals
+import cranium.core.models.catalog.ScaleMappingType
+import cranium.core.models.catalog.SentimentScale
+import cranium.core.models.connotation.AnalysisTier
 import java.util.*
 
 object CatalogFactory {

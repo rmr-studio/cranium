@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,35 +12,26 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { ResizableOptions } from './ResizableOptions';
-import {
-    ResizableOptionsFromJSON,
-    ResizableOptionsFromJSONTyped,
-    ResizableOptionsToJSON,
-    ResizableOptionsToJSONTyped,
-} from './ResizableOptions';
-import type { Widget } from './Widget';
-import {
-    WidgetFromJSON,
-    WidgetFromJSONTyped,
-    WidgetToJSON,
-    WidgetToJSONTyped,
-} from './Widget';
 import type { ColumnOptions } from './ColumnOptions';
 import {
     ColumnOptionsFromJSON,
-    ColumnOptionsFromJSONTyped,
-    ColumnOptionsToJSON,
-    ColumnOptionsToJSONTyped,
+    ColumnOptionsToJSON
 } from './ColumnOptions';
 import type { DraggableOptions } from './DraggableOptions';
 import {
     DraggableOptionsFromJSON,
-    DraggableOptionsFromJSONTyped,
-    DraggableOptionsToJSON,
-    DraggableOptionsToJSONTyped,
+    DraggableOptionsToJSON
 } from './DraggableOptions';
+import type { ResizableOptions } from './ResizableOptions';
+import {
+    ResizableOptionsFromJSON,
+    ResizableOptionsToJSON
+} from './ResizableOptions';
+import type { Widget } from './Widget';
+import {
+    WidgetFromJSON,
+    WidgetToJSON
+} from './Widget';
 
 /**
  * 

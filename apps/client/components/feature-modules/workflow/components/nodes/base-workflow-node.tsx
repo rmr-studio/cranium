@@ -2,7 +2,7 @@
 
 import { memo } from 'react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 import { WorkflowNodeType, WorkflowStepNode } from '@/lib/types/workflow';
 import { IconColour } from '@/lib/types/common';
 import { IconCell } from '@/components/ui/icon/icon-cell';

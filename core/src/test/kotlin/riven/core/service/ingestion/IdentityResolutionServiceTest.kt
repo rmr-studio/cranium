@@ -1,4 +1,4 @@
-package riven.core.service.ingestion
+package cranium.core.service.ingestion
 
 import tools.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KLogger
@@ -13,13 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.enums.integration.SourceType
-import riven.core.models.ingestion.MatchType
-import riven.core.models.ingestion.ResolutionResult
-import riven.core.repository.entity.EntityAttributeRepository
-import riven.core.repository.entity.EntityRepository
-import riven.core.service.identity.EntityTypeClassificationService
-import riven.core.service.util.factory.entity.EntityFactory
+import cranium.core.enums.integration.SourceType
+import cranium.core.models.ingestion.MatchType
+import cranium.core.models.ingestion.ResolutionResult
+import cranium.core.repository.entity.EntityAttributeRepository
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.service.identity.EntityTypeClassificationService
+import cranium.core.service.util.factory.entity.EntityFactory
 import java.util.UUID
 
 /**

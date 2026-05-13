@@ -1,17 +1,17 @@
-package riven.core.models.workflow.node
+package cranium.core.models.workflow.node
 
-import riven.core.enums.workflow.WorkflowNodeType
-import riven.core.models.common.json.JsonObject
-import riven.core.models.workflow.engine.state.NodeOutput
-import riven.core.models.workflow.engine.state.WorkflowDataStore
-import riven.core.models.workflow.node.config.WorkflowNodeConfig
+import cranium.core.enums.workflow.WorkflowNodeType
+import cranium.core.models.common.json.JsonObject
+import cranium.core.models.workflow.engine.state.NodeOutput
+import cranium.core.models.workflow.engine.state.WorkflowDataStore
+import cranium.core.models.workflow.node.config.WorkflowNodeConfig
 import java.util.*
 
 /**
  * Runtime representation of a workflow node ready for execution.
  *
  * This DTO combines entity metadata (id, workspaceId, key) with the pure
- * node configuration ([riven.core.models.workflow.node.config.WorkflowNodeConfig]) to provide a complete execution context.
+ * node configuration ([cranium.core.models.workflow.node.config.WorkflowNodeConfig]) to provide a complete execution context.
  *
  * ## Three-Layer Architecture
  *

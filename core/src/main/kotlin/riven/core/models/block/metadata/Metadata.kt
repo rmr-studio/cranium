@@ -1,9 +1,9 @@
-package riven.core.models.block.metadata
+package cranium.core.models.block.metadata
 
 import tools.jackson.databind.annotation.JsonDeserialize
 import io.swagger.v3.oas.annotations.media.Schema
-import riven.core.deserializer.MetadataDeserializer
-import riven.core.enums.block.structure.BlockMetadataType
+import cranium.core.deserializer.MetadataDeserializer
+import cranium.core.enums.block.structure.BlockMetadataType
 
 @JsonDeserialize(using = MetadataDeserializer::class)
 @Schema(hidden = true)

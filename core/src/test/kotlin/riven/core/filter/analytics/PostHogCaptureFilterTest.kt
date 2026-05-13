@@ -1,4 +1,4 @@
-package riven.core.filter.analytics
+package cranium.core.filter.analytics
 
 import io.github.oshai.kotlinlogging.KLogger
 import jakarta.servlet.FilterChain
@@ -18,7 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.web.servlet.HandlerMapping
-import riven.core.service.analytics.PostHogService
+import cranium.core.service.analytics.PostHogService
 import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

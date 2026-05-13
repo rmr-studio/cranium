@@ -1,4 +1,4 @@
-package riven.core.controller.entity
+package cranium.core.controller.entity
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -7,13 +7,13 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import riven.core.models.entity.EntityType
-import riven.core.models.request.entity.type.CreateEntityTypeRequest
-import riven.core.models.request.entity.type.DeleteTypeDefinitionRequest
-import riven.core.models.request.entity.type.SaveTypeDefinitionRequest
-import riven.core.models.request.entity.type.UpdateEntityTypeConfigurationRequest
-import riven.core.models.response.entity.type.EntityTypeImpactResponse
-import riven.core.service.entity.type.EntityTypeService
+import cranium.core.models.entity.EntityType
+import cranium.core.models.request.entity.type.CreateEntityTypeRequest
+import cranium.core.models.request.entity.type.DeleteTypeDefinitionRequest
+import cranium.core.models.request.entity.type.SaveTypeDefinitionRequest
+import cranium.core.models.request.entity.type.UpdateEntityTypeConfigurationRequest
+import cranium.core.models.response.entity.type.EntityTypeImpactResponse
+import cranium.core.service.entity.type.EntityTypeService
 import java.util.*
 
 @RestController

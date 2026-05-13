@@ -1,9 +1,9 @@
-package riven.core.repository.workflow
+package cranium.core.repository.workflow
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
-import riven.core.entity.workflow.WorkflowEdgeEntity
+import cranium.core.entity.workflow.WorkflowEdgeEntity
 import java.util.UUID
 
 interface WorkflowEdgeRepository : JpaRepository<WorkflowEdgeEntity, UUID> {

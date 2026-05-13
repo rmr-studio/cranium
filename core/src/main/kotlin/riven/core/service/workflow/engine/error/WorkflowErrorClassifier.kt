@@ -1,9 +1,9 @@
-package riven.core.service.workflow.engine.error
+package cranium.core.service.workflow.engine.error
 
 import org.springframework.web.reactive.function.client.WebClientResponseException
-import riven.core.enums.workflow.WorkflowErrorType
-import riven.core.enums.workflow.WorkflowNodeType
-import riven.core.exceptions.SchemaValidationException
+import cranium.core.enums.workflow.WorkflowErrorType
+import cranium.core.enums.workflow.WorkflowNodeType
+import cranium.core.exceptions.SchemaValidationException
 
 /**
  * Utility object for classifying workflow execution errors.

@@ -1,4 +1,4 @@
-package riven.core.service.ingestion.adapter.nango
+package cranium.core.service.ingestion.adapter.nango
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -11,23 +11,23 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.util.LoggerConfig
-import riven.core.exceptions.NangoApiException
-import riven.core.exceptions.RateLimitException
-import riven.core.exceptions.TransientNangoException
-import riven.core.models.integration.NangoRecord
-import riven.core.models.integration.NangoRecordAction
-import riven.core.models.integration.NangoRecordMetadata
+import cranium.core.configuration.util.LoggerConfig
+import cranium.core.exceptions.NangoApiException
+import cranium.core.exceptions.RateLimitException
+import cranium.core.exceptions.TransientNangoException
+import cranium.core.models.integration.NangoRecord
+import cranium.core.models.integration.NangoRecordAction
+import cranium.core.models.integration.NangoRecordMetadata
 import java.util.UUID
-import riven.core.models.integration.NangoRecordsPage
-import riven.core.models.ingestion.adapter.SyncMode
-import riven.core.service.ingestion.adapter.NangoCallContext
-import riven.core.service.ingestion.adapter.exception.AdapterAuthException
-import riven.core.service.ingestion.adapter.exception.AdapterCapabilityNotSupportedException
-import riven.core.service.ingestion.adapter.exception.AdapterConnectionRefusedException
-import riven.core.service.ingestion.adapter.exception.AdapterUnavailableException
-import riven.core.service.ingestion.adapter.exception.TransientAdapterException
-import riven.core.service.integration.NangoClientWrapper
+import cranium.core.models.integration.NangoRecordsPage
+import cranium.core.models.ingestion.adapter.SyncMode
+import cranium.core.service.ingestion.adapter.NangoCallContext
+import cranium.core.service.ingestion.adapter.exception.AdapterAuthException
+import cranium.core.service.ingestion.adapter.exception.AdapterCapabilityNotSupportedException
+import cranium.core.service.ingestion.adapter.exception.AdapterConnectionRefusedException
+import cranium.core.service.ingestion.adapter.exception.AdapterUnavailableException
+import cranium.core.service.ingestion.adapter.exception.TransientAdapterException
+import cranium.core.service.integration.NangoClientWrapper
 
 /**
  * Contract + behaviour tests for [NangoAdapter].

@@ -1,6 +1,6 @@
 'use client';
 
-import { Card } from '@riven/ui/card';
+import { Card } from '@cranium/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export function IntegrationCatalogSkeleton() {

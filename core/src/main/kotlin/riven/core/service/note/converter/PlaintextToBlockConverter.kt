@@ -1,4 +1,4 @@
-package riven.core.service.note.converter
+package cranium.core.service.note.converter
 
 import org.springframework.stereotype.Component
 import java.util.*

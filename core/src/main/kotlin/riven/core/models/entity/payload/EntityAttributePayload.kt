@@ -1,14 +1,14 @@
-package riven.core.models.entity.payload
+package cranium.core.models.entity.payload
 
 import tools.jackson.databind.ValueDeserializer
 import tools.jackson.databind.annotation.JsonDeserialize
 import io.swagger.v3.oas.annotations.media.DiscriminatorMapping
 import io.swagger.v3.oas.annotations.media.Schema
-import riven.core.deserializer.EntityAttributePayloadDeserializer
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.entity.EntityPropertyType
-import riven.core.models.common.json.JsonValue
-import riven.core.models.entity.EntityLink
+import cranium.core.deserializer.EntityAttributePayloadDeserializer
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.entity.EntityPropertyType
+import cranium.core.models.common.json.JsonValue
+import cranium.core.models.entity.EntityLink
 import java.util.*
 
 

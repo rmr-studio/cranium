@@ -1,4 +1,4 @@
-package riven.core.service.catalog
+package cranium.core.service.catalog
 
 import tools.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KLogger
@@ -7,14 +7,14 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.mockito.kotlin.*
-import riven.core.entity.catalog.*
-import riven.core.enums.catalog.ManifestType
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.EntityTypeRole
-import riven.core.enums.entity.semantics.SemanticMetadataTargetType
-import riven.core.models.catalog.*
-import riven.core.models.connotation.AnalysisTier
-import riven.core.repository.catalog.*
+import cranium.core.entity.catalog.*
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.enums.entity.EntityTypeRole
+import cranium.core.enums.entity.semantics.SemanticMetadataTargetType
+import cranium.core.models.catalog.*
+import cranium.core.models.connotation.AnalysisTier
+import cranium.core.repository.catalog.*
 import java.security.MessageDigest
 import java.util.*
 

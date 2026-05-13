@@ -1,16 +1,16 @@
-package riven.core.service.ingestion.adapter
+package cranium.core.service.ingestion.adapter
 
-import riven.core.models.ingestion.adapter.RecordBatch
-import riven.core.models.ingestion.adapter.SchemaIntrospectionResult
-import riven.core.models.ingestion.adapter.SyncMode
+import cranium.core.models.ingestion.adapter.RecordBatch
+import cranium.core.models.ingestion.adapter.SchemaIntrospectionResult
+import cranium.core.models.ingestion.adapter.SyncMode
 
 /**
  * Polyglot ingestion adapter contract. One `@Component` implementation per
- * [riven.core.enums.integration.SourceType]. Stateless — connection and
+ * [cranium.core.enums.integration.SourceType]. Stateless — connection and
  * credentials travel via [AdapterCallContext] per call.
  *
  * Implementations raise subtypes of
- * [riven.core.service.ingestion.adapter.exception.AdapterException]; Temporal
+ * [cranium.core.service.ingestion.adapter.exception.AdapterException]; Temporal
  * uses the sealed hierarchy for retry classification (Phase 4 wiring).
  */
 interface IngestionAdapter {

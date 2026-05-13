@@ -1,5 +1,5 @@
-import { cn, toTitleCase } from '@riven/utils';
-import type { ClassNameProps } from '@riven/utils';
+import { cn, toTitleCase } from '@cranium/utils';
+import type { ClassNameProps } from '@cranium/utils';
 import { Search } from 'lucide-react';
 import { Fragment, useEffect, useState } from 'react';
 import { Input } from './input';

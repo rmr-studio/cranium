@@ -1,4 +1,4 @@
-package riven.core.enums.workspace
+package cranium.core.enums.workspace
 
 /**
  * Workspace tier with associated resource limits.

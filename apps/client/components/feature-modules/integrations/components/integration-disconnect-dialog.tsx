@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Unplug } from 'lucide-react';
-import { Button } from '@riven/ui/button';
+import { Button } from '@cranium/ui/button';
 import {
   AlertDialog,
   AlertDialogAction,

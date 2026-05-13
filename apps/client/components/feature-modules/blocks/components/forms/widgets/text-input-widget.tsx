@@ -1,8 +1,8 @@
 'use client';
 
-import { Input } from '@riven/ui/input';
-import { Label } from '@riven/ui/label';
-import { cn } from '@riven/utils';
+import { Input } from '@cranium/ui/input';
+import { Label } from '@cranium/ui/label';
+import { cn } from '@cranium/utils';
 
 import { OptionalTooltip } from '@/components/ui/optional-tooltip';
 import { CircleAlert } from 'lucide-react';

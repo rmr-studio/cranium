@@ -1,6 +1,6 @@
 # Phase 3: Entity Validation & Observability Implementation Plan
 
-> **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED: Use superpowers:subagent-dcranium-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add runtime validation safeguards for entity data entry (schema builder assertions, submission boundary validation, relationship consistency checks) and instrument entity operations via PostHog for production observability.
 

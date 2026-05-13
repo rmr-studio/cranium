@@ -1,13 +1,13 @@
-package riven.core.service.enrichment
+package cranium.core.service.enrichment
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
 
-import riven.core.models.connotation.SentimentMetadata
-import riven.core.models.enrichment.EnrichedTextResult
-import riven.core.models.enrichment.EnrichmentAttributeContext
-import riven.core.models.enrichment.EnrichmentContext
+import cranium.core.models.connotation.SentimentMetadata
+import cranium.core.models.enrichment.EnrichedTextResult
+import cranium.core.models.enrichment.EnrichmentAttributeContext
+import cranium.core.models.enrichment.EnrichmentContext
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException

@@ -1,22 +1,22 @@
-package riven.core.service.identity
+package cranium.core.service.identity
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.identity.MatchSuggestionEntity
-import riven.core.enums.activity.Activity
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.identity.MatchSuggestionStatus
-import riven.core.enums.util.OperationType
-import riven.core.models.identity.MatchSuggestion
-import riven.core.models.identity.ScoredCandidate
-import riven.core.repository.identity.IdentityClusterMemberRepository
-import riven.core.repository.identity.IdentityClusterRepository
-import riven.core.repository.identity.MatchSuggestionRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.util.ServiceUtil.findOrThrow
+import cranium.core.entity.identity.MatchSuggestionEntity
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.identity.MatchSuggestionStatus
+import cranium.core.enums.util.OperationType
+import cranium.core.models.identity.MatchSuggestion
+import cranium.core.models.identity.ScoredCandidate
+import cranium.core.repository.identity.IdentityClusterMemberRepository
+import cranium.core.repository.identity.IdentityClusterRepository
+import cranium.core.repository.identity.MatchSuggestionRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.util.ServiceUtil.findOrThrow
 import java.math.BigDecimal
 import java.util.UUID
 

@@ -1,4 +1,4 @@
-package riven.core.service.identity
+package cranium.core.service.identity
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -11,18 +11,18 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.entity.EntityAttributeEntity
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.repository.entity.EntityAttributeRepository
-import riven.core.repository.entity.EntityRepository
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.util.BaseServiceTest
-import riven.core.service.util.SecurityTestConfig
-import riven.core.service.util.WithUserPersona
-import riven.core.service.util.WorkspaceRole
-import riven.core.service.util.factory.entity.EntityFactory
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.entity.entity.EntityAttributeEntity
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.repository.entity.EntityAttributeRepository
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.util.BaseServiceTest
+import cranium.core.service.util.SecurityTestConfig
+import cranium.core.service.util.WithUserPersona
+import cranium.core.service.util.WorkspaceRole
+import cranium.core.service.util.factory.entity.EntityFactory
 import tools.jackson.databind.ObjectMapper
 import java.util.UUID
 

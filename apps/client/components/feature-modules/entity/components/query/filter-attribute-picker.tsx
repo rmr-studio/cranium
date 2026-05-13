@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { Check, ChevronsUpDown, Link2 } from 'lucide-react';
-import { Button } from '@riven/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
+import { Button } from '@cranium/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@cranium/ui/popover';
 import {
   Command,
   CommandEmpty,
@@ -11,8 +11,8 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@riven/ui/command';
-import { cn } from '@riven/utils';
+} from '@cranium/ui/command';
+import { cn } from '@cranium/utils';
 import type { EntityType, RelationshipDefinition } from '@/lib/types/entity';
 import { attributeTypes } from '@/lib/util/form/schema.util';
 import {

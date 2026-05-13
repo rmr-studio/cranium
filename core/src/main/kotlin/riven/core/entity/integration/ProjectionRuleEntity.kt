@@ -1,7 +1,7 @@
-package riven.core.entity.integration
+package cranium.core.entity.integration
 
 import jakarta.persistence.*
-import riven.core.models.integration.projection.ProjectionRule
+import cranium.core.models.integration.projection.ProjectionRule
 import java.time.ZonedDateTime
 import java.util.*
 

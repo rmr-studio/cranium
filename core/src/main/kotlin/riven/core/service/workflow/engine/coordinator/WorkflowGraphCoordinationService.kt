@@ -1,19 +1,19 @@
-package riven.core.service.workflow.engine.coordinator
+package cranium.core.service.workflow.engine.coordinator
 
 import org.springframework.stereotype.Service
-import riven.core.entity.workflow.WorkflowEdgeEntity
-import riven.core.exceptions.WorkflowExecutionException
-import riven.core.exceptions.WorkflowValidationException
-import riven.core.models.common.json.JsonValue
-import riven.core.models.workflow.engine.coordinator.*
-import riven.core.models.workflow.engine.state.AllNodesCompleted
-import riven.core.models.workflow.engine.state.NodeCompleted
-import riven.core.models.workflow.engine.state.NodesReady
-import riven.core.models.workflow.engine.state.StateTransition
-import riven.core.models.workflow.engine.state.WorkflowDataStore
-import riven.core.models.workflow.engine.state.WorkflowExecutionPhase
-import riven.core.models.workflow.engine.state.WorkflowFailed
-import riven.core.models.workflow.node.WorkflowNode
+import cranium.core.entity.workflow.WorkflowEdgeEntity
+import cranium.core.exceptions.WorkflowExecutionException
+import cranium.core.exceptions.WorkflowValidationException
+import cranium.core.models.common.json.JsonValue
+import cranium.core.models.workflow.engine.coordinator.*
+import cranium.core.models.workflow.engine.state.AllNodesCompleted
+import cranium.core.models.workflow.engine.state.NodeCompleted
+import cranium.core.models.workflow.engine.state.NodesReady
+import cranium.core.models.workflow.engine.state.StateTransition
+import cranium.core.models.workflow.engine.state.WorkflowDataStore
+import cranium.core.models.workflow.engine.state.WorkflowExecutionPhase
+import cranium.core.models.workflow.engine.state.WorkflowFailed
+import cranium.core.models.workflow.node.WorkflowNode
 import java.util.*
 
 /**

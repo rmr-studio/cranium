@@ -1,6 +1,6 @@
-package riven.core.models.workflow.engine.state
+package cranium.core.models.workflow.engine.state
 
-import riven.core.enums.workflow.WorkflowStatus
+import cranium.core.enums.workflow.WorkflowStatus
 import java.time.Instant
 import java.util.UUID
 

@@ -1,15 +1,15 @@
-package riven.core.service.catalog
+package cranium.core.service.catalog
 
 import tools.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
-import riven.core.enums.catalog.ManifestType
-import riven.core.models.catalog.ResolvedManifest
-import riven.core.models.catalog.ScannedManifest
-import riven.core.configuration.properties.ManifestConfigurationProperties
-import riven.core.repository.catalog.ManifestCatalogRepository
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.models.catalog.ResolvedManifest
+import cranium.core.models.catalog.ScannedManifest
+import cranium.core.configuration.properties.ManifestConfigurationProperties
+import cranium.core.repository.catalog.ManifestCatalogRepository
 
 class ManifestLoaderServiceTest {
 

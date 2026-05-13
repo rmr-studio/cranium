@@ -1,4 +1,4 @@
-package riven.core.service.identity
+package cranium.core.service.identity
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -29,16 +29,16 @@ import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
-import riven.core.configuration.util.LoggerConfig
-import riven.core.models.response.entity.RelationshipResponse
-import riven.core.repository.identity.IdentityClusterMemberRepository
-import riven.core.repository.identity.IdentityClusterRepository
-import riven.core.repository.identity.MatchSuggestionRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.entity.EntityRelationshipService
-import riven.core.service.entity.EntityService
-import riven.core.service.notification.NotificationService
+import cranium.core.configuration.util.LoggerConfig
+import cranium.core.models.response.entity.RelationshipResponse
+import cranium.core.repository.identity.IdentityClusterMemberRepository
+import cranium.core.repository.identity.IdentityClusterRepository
+import cranium.core.repository.identity.MatchSuggestionRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.entity.EntityRelationshipService
+import cranium.core.service.entity.EntityService
+import cranium.core.service.notification.NotificationService
 import java.time.ZonedDateTime
 import java.time.temporal.TemporalAccessor
 import java.util.Optional
@@ -71,8 +71,8 @@ import java.util.UUID
         "io.temporal.spring.boot.autoconfigure.TestServerAutoConfiguration",
     ],
 )
-@EnableJpaRepositories(basePackages = ["riven.core.repository.identity"])
-@EntityScan(basePackages = ["riven.core.entity.identity", "riven.core.entity.entity"])
+@EnableJpaRepositories(basePackages = ["cranium.core.repository.identity"])
+@EntityScan(basePackages = ["cranium.core.entity.identity", "cranium.core.entity.entity"])
 @EnableJpaAuditing(
     auditorAwareRef = "lifecycleAuditorProvider",
     dateTimeProviderRef = "lifecycleDateTimeProvider",
@@ -175,7 +175,7 @@ class IdentityLifecycleIntegrationTest {
         val postgres: PostgreSQLContainer = PostgreSQLContainer(
             DockerImageName.parse("pgvector/pgvector:pg16").asCompatibleSubstituteFor("postgres")
         )
-            .withDatabaseName("riven_test_lifecycle")
+            .withDatabaseName("cranium_test_lifecycle")
             .withUsername("test")
             .withPassword("test")
 

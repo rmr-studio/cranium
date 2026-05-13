@@ -8,12 +8,12 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: "../../",
   },
-  transpilePackages: ["@riven/ui", "@riven/hooks", "@riven/utils"],
+  transpilePackages: ["@cranium/ui", "@cranium/hooks", "@cranium/utils"],
   images: {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "cdn.riven.software",
+        hostname: "cdn.cranium.software",
         pathname: "/images/**",
       },
     ],

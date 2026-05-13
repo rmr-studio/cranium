@@ -1,14 +1,14 @@
-package riven.core.models.catalog
+package cranium.core.models.catalog
 
-import riven.core.enums.catalog.ManifestType
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.EntityTypeRole
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.enums.entity.semantics.SemanticMetadataTargetType
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.enums.entity.EntityTypeRole
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.enums.entity.semantics.SemanticMetadataTargetType
 import java.util.*
 
 /**

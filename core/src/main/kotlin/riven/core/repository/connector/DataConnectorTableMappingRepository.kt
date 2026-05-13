@@ -1,10 +1,10 @@
-package riven.core.repository.connector
+package cranium.core.repository.connector
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
-import riven.core.entity.connector.DataConnectorTableMappingEntity
+import cranium.core.entity.connector.DataConnectorTableMappingEntity
 import java.util.UUID
 
 /**

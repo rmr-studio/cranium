@@ -1,9 +1,9 @@
-package riven.core.projection.workflow
+package cranium.core.projection.workflow
 
-import riven.core.entity.workflow.WorkflowEdgeEntity
-import riven.core.entity.workflow.WorkflowNodeEntity
-import riven.core.repository.workflow.WorkflowEdgeRepository
-import riven.core.repository.workflow.WorkflowNodeRepository
+import cranium.core.entity.workflow.WorkflowEdgeEntity
+import cranium.core.entity.workflow.WorkflowNodeEntity
+import cranium.core.repository.workflow.WorkflowEdgeRepository
+import cranium.core.repository.workflow.WorkflowNodeRepository
 import java.util.*
 
 /**

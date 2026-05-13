@@ -1,4 +1,4 @@
-package riven.core.service.block
+package cranium.core.service.block
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -7,11 +7,11 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.kotlin.*
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import riven.core.entity.block.BlockChildEntity
-import riven.core.models.block.display.BlockTypeNesting
-import riven.core.repository.block.BlockChildrenRepository
-import riven.core.repository.block.BlockRepository
-import riven.core.service.util.factory.block.BlockFactory
+import cranium.core.entity.block.BlockChildEntity
+import cranium.core.models.block.display.BlockTypeNesting
+import cranium.core.repository.block.BlockChildrenRepository
+import cranium.core.repository.block.BlockRepository
+import cranium.core.service.util.factory.block.BlockFactory
 import java.util.*
 
 /**

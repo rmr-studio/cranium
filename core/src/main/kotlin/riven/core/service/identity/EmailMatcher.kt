@@ -1,4 +1,4 @@
-package riven.core.service.identity
+package cranium.core.service.identity
 
 /**
  * Email parsing and comparison utility for identity matching.

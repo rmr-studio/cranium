@@ -1,7 +1,7 @@
 'use client';
 
-import { Button } from '@riven/ui/button';
-import { Input } from '@riven/ui/input';
+import { Button } from '@cranium/ui/button';
+import { Input } from '@cranium/ui/input';
 import { FormDescription, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import {
   Select,
@@ -9,7 +9,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@riven/ui/select';
+} from '@cranium/ui/select';
 import { OptionSortingType } from '@/lib/types/common';
 import {
   DndContext,

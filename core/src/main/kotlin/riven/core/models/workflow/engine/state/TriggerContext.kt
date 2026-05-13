@@ -1,7 +1,7 @@
-package riven.core.models.workflow.engine.state
+package cranium.core.models.workflow.engine.state
 
-import riven.core.enums.util.OperationType
-import riven.core.models.common.json.JsonObject
+import cranium.core.enums.util.OperationType
+import cranium.core.models.common.json.JsonObject
 import java.time.Instant
 import java.util.UUID
 

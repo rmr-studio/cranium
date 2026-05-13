@@ -22,7 +22,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@riven/ui/select';
+} from '@cranium/ui/select';
 import { FC, useEffect, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 

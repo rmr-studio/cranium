@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,27 +12,20 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { DefinitionSource } from './DefinitionSource';
-import {
-    DefinitionSourceFromJSON,
-    DefinitionSourceFromJSONTyped,
-    DefinitionSourceToJSON,
-    DefinitionSourceToJSONTyped,
-} from './DefinitionSource';
 import type { DefinitionCategory } from './DefinitionCategory';
 import {
     DefinitionCategoryFromJSON,
-    DefinitionCategoryFromJSONTyped,
-    DefinitionCategoryToJSON,
-    DefinitionCategoryToJSONTyped,
+    DefinitionCategoryToJSON
 } from './DefinitionCategory';
+import type { DefinitionSource } from './DefinitionSource';
+import {
+    DefinitionSourceFromJSON,
+    DefinitionSourceToJSON
+} from './DefinitionSource';
 import type { DefinitionStatus } from './DefinitionStatus';
 import {
     DefinitionStatusFromJSON,
-    DefinitionStatusFromJSONTyped,
-    DefinitionStatusToJSON,
-    DefinitionStatusToJSONTyped,
+    DefinitionStatusToJSON
 } from './DefinitionStatus';
 
 /**

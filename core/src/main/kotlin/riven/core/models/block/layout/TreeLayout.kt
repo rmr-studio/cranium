@@ -1,12 +1,12 @@
-package riven.core.models.block.layout
+package cranium.core.models.block.layout
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.v3.oas.annotations.media.Schema
-import riven.core.models.block.layout.options.ColumnOptions
-import riven.core.models.block.layout.options.DraggableOptions
-import riven.core.models.block.layout.options.ResizableOptions
-import riven.core.models.common.json.JsonValue
+import cranium.core.models.block.layout.options.ColumnOptions
+import cranium.core.models.block.layout.options.DraggableOptions
+import cranium.core.models.block.layout.options.ResizableOptions
+import cranium.core.models.common.json.JsonValue
 
 /**
  * Represents the complete tree layout structure from Gridstack.save()

@@ -7,9 +7,9 @@ import {
   StepperTrigger,
 } from '@/components/ui/stepper';
 
-import type { ClassNameProps } from '@riven/utils';
+import type { ClassNameProps } from '@cranium/utils';
 import { Step } from '@/lib/util/form/form.util';
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 import { Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../tooltip';
 import { TruncatedTooltip } from '../truncated-tooltip';

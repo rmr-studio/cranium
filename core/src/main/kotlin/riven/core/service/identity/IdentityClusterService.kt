@@ -1,28 +1,28 @@
-package riven.core.service.identity
+package cranium.core.service.identity
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.identity.IdentityClusterEntity
-import riven.core.entity.identity.IdentityClusterMemberEntity
-import riven.core.enums.activity.Activity
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.integration.SourceType
-import riven.core.enums.util.OperationType
-import riven.core.exceptions.ConflictException
-import riven.core.models.identity.IdentityCluster
-import riven.core.models.request.entity.AddRelationshipRequest
-import riven.core.models.request.identity.AddClusterMemberRequest
-import riven.core.models.request.identity.RenameClusterRequest
-import riven.core.models.response.identity.ClusterDetailResponse
-import riven.core.repository.identity.IdentityClusterMemberRepository
-import riven.core.repository.identity.IdentityClusterRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.entity.EntityRelationshipService
-import riven.core.service.entity.EntityService
-import riven.core.util.ServiceUtil.findOrThrow
+import cranium.core.entity.identity.IdentityClusterEntity
+import cranium.core.entity.identity.IdentityClusterMemberEntity
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.integration.SourceType
+import cranium.core.enums.util.OperationType
+import cranium.core.exceptions.ConflictException
+import cranium.core.models.identity.IdentityCluster
+import cranium.core.models.request.entity.AddRelationshipRequest
+import cranium.core.models.request.identity.AddClusterMemberRequest
+import cranium.core.models.request.identity.RenameClusterRequest
+import cranium.core.models.response.identity.ClusterDetailResponse
+import cranium.core.repository.identity.IdentityClusterMemberRepository
+import cranium.core.repository.identity.IdentityClusterRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.entity.EntityRelationshipService
+import cranium.core.service.entity.EntityService
+import cranium.core.util.ServiceUtil.findOrThrow
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -58,7 +58,7 @@ class IdentityClusterService(
      * @param clusterId The cluster to add the entity to.
      * @param request The entity to add and the target member to relate it to.
      * @return The updated [ClusterDetailResponse] after the entity is added.
-     * @throws riven.core.exceptions.NotFoundException if the cluster, entity, or target member is not found.
+     * @throws cranium.core.exceptions.NotFoundException if the cluster, entity, or target member is not found.
      * @throws ConflictException if the entity is already a member of any cluster.
      */
     @Transactional
@@ -118,7 +118,7 @@ class IdentityClusterService(
      * @param clusterId The cluster to rename.
      * @param request The new name for the cluster.
      * @return The updated [IdentityCluster] domain model.
-     * @throws riven.core.exceptions.NotFoundException if the cluster is not found in the given workspace.
+     * @throws cranium.core.exceptions.NotFoundException if the cluster is not found in the given workspace.
      */
     @Transactional
     @PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")
@@ -370,7 +370,7 @@ class IdentityClusterService(
     private fun verifyEntityInWorkspace(workspaceId: UUID, entityId: UUID) {
         val entity = entityService.getEntitiesByIds(setOf(entityId)).firstOrNull()
         if (entity == null || entity.workspaceId != workspaceId) {
-            throw riven.core.exceptions.NotFoundException("Entity $entityId not found")
+            throw cranium.core.exceptions.NotFoundException("Entity $entityId not found")
         }
     }
 
@@ -389,6 +389,6 @@ class IdentityClusterService(
      */
     private fun verifyTargetMemberInCluster(clusterId: UUID, targetMemberId: UUID) {
         memberRepository.findByClusterIdAndEntityId(clusterId, targetMemberId)
-            ?: throw riven.core.exceptions.NotFoundException("Target member $targetMemberId is not in cluster $clusterId")
+            ?: throw cranium.core.exceptions.NotFoundException("Target member $targetMemberId is not in cluster $clusterId")
     }
 }

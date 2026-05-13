@@ -1,4 +1,4 @@
-package riven.core.service.connector.postgres
+package cranium.core.service.connector.postgres
 
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.module.kotlin.jacksonObjectMapper
@@ -17,22 +17,22 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
-import riven.core.configuration.properties.ConnectorPoolProperties
-import riven.core.entity.connector.DataConnectorConnectionEntity
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.connector.SslMode
-import riven.core.enums.integration.SourceType
-import riven.core.models.connector.CredentialPayload
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.repository.connector.DataConnectorConnectionRepository
-import riven.core.service.connector.CredentialEncryptionService
-import riven.core.service.connector.pool.WorkspaceConnectionPoolManager
-import riven.core.service.ingestion.adapter.NangoCallContext
-import riven.core.service.ingestion.adapter.PostgresCallContext
-import riven.core.service.ingestion.adapter.SourceTypeAdapter
-import riven.core.service.ingestion.adapter.exception.AdapterAuthException
-import riven.core.service.ingestion.adapter.exception.AdapterUnavailableException
-import riven.core.service.util.factory.dataconnector.DataConnectorConnectionEntityFactory
+import cranium.core.configuration.properties.ConnectorPoolProperties
+import cranium.core.entity.connector.DataConnectorConnectionEntity
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.connector.SslMode
+import cranium.core.enums.integration.SourceType
+import cranium.core.models.connector.CredentialPayload
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.repository.connector.DataConnectorConnectionRepository
+import cranium.core.service.connector.CredentialEncryptionService
+import cranium.core.service.connector.pool.WorkspaceConnectionPoolManager
+import cranium.core.service.ingestion.adapter.NangoCallContext
+import cranium.core.service.ingestion.adapter.PostgresCallContext
+import cranium.core.service.ingestion.adapter.SourceTypeAdapter
+import cranium.core.service.ingestion.adapter.exception.AdapterAuthException
+import cranium.core.service.ingestion.adapter.exception.AdapterUnavailableException
+import cranium.core.service.util.factory.dataconnector.DataConnectorConnectionEntityFactory
 import java.util.Optional
 import java.util.UUID
 
@@ -55,7 +55,7 @@ class PostgresAdapterTest {
         val postgres: PostgreSQLContainer = PostgreSQLContainer(
             DockerImageName.parse("pgvector/pgvector:pg16").asCompatibleSubstituteFor("postgres"),
         )
-            .withDatabaseName("riven_adapter_test")
+            .withDatabaseName("cranium_adapter_test")
             .withUsername("test")
             .withPassword("test")
 

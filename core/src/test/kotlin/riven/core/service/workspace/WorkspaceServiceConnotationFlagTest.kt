@@ -1,4 +1,4 @@
-package riven.core.service.workspace
+package cranium.core.service.workspace
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -10,17 +10,17 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.repository.workspace.WorkspaceMemberRepository
-import riven.core.repository.workspace.WorkspaceRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.storage.StorageService
-import riven.core.service.user.UserService
-import riven.core.service.util.WithUserPersona
-import riven.core.service.util.WorkspaceRole
-import riven.core.service.util.factory.WorkspaceFactory
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.repository.workspace.WorkspaceMemberRepository
+import cranium.core.repository.workspace.WorkspaceRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.storage.StorageService
+import cranium.core.service.user.UserService
+import cranium.core.service.util.WithUserPersona
+import cranium.core.service.util.WorkspaceRole
+import cranium.core.service.util.factory.WorkspaceFactory
 import java.util.*
 
 @SpringBootTest(

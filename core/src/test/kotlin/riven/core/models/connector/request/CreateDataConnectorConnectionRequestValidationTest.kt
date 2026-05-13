@@ -1,4 +1,4 @@
-package riven.core.models.connector.request
+package cranium.core.models.connector.request
 
 import jakarta.validation.Validation
 import jakarta.validation.Validator
@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import riven.core.enums.connector.SslMode
+import cranium.core.enums.connector.SslMode
 import java.util.UUID
 
 /**

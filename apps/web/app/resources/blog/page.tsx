@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description:
     'Tool comparisons, operational intelligence, and cross-domain analytics insights for scaling businesses.',
   openGraph: {
-    title: 'Blog | Riven',
+    title: 'Blog | Cranium',
     description:
       'Tool comparisons, operational intelligence, and cross-domain analytics insights for scaling businesses.',
   },

@@ -1,8 +1,8 @@
-package riven.core.repository.integration
+package cranium.core.repository.integration
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
-import riven.core.entity.integration.ProjectionRuleEntity
+import cranium.core.entity.integration.ProjectionRuleEntity
 import java.util.*
 
 /**

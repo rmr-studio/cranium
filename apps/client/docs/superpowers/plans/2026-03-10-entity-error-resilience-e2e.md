@@ -1,6 +1,6 @@
 # Phase 4: Entity Error Resilience & E2E Tests Implementation Plan
 
-> **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED: Use superpowers:subagent-dcranium-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add granular React error boundaries around entity components to prevent cascading UI failures, and establish Playwright E2E tests for critical entity data entry and relationship flows.
 

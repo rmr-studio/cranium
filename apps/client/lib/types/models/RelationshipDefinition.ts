@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,35 +12,26 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
 import type { EntityRelationshipCardinality } from './EntityRelationshipCardinality';
 import {
     EntityRelationshipCardinalityFromJSON,
-    EntityRelationshipCardinalityFromJSONTyped,
-    EntityRelationshipCardinalityToJSON,
-    EntityRelationshipCardinalityToJSONTyped,
+    EntityRelationshipCardinalityToJSON
 } from './EntityRelationshipCardinality';
-import type { SystemRelationshipType } from './SystemRelationshipType';
-import {
-    SystemRelationshipTypeFromJSON,
-    SystemRelationshipTypeFromJSONTyped,
-    SystemRelationshipTypeToJSON,
-    SystemRelationshipTypeToJSONTyped,
-} from './SystemRelationshipType';
 import type { Icon } from './Icon';
 import {
     IconFromJSON,
-    IconFromJSONTyped,
-    IconToJSON,
-    IconToJSONTyped,
+    IconToJSON
 } from './Icon';
 import type { RelationshipTargetRule } from './RelationshipTargetRule';
 import {
     RelationshipTargetRuleFromJSON,
-    RelationshipTargetRuleFromJSONTyped,
-    RelationshipTargetRuleToJSON,
-    RelationshipTargetRuleToJSONTyped,
+    RelationshipTargetRuleToJSON
 } from './RelationshipTargetRule';
+import type { SystemRelationshipType } from './SystemRelationshipType';
+import {
+    SystemRelationshipTypeFromJSON,
+    SystemRelationshipTypeToJSON
+} from './SystemRelationshipType';
 
 /**
  * 

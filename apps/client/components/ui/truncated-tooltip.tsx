@@ -1,6 +1,6 @@
 'use client';
 
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@riven/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@cranium/ui/tooltip';
 import { FCWC } from '@/lib/interfaces/interface';
 import { JSX, useEffect, useRef, useState } from 'react';
 

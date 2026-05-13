@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
             fontWeight: 700,
           }}
         >
-          Riven Blog
+          Cranium Blog
         </div>
       ),
       { width: 1200, height: 630 },
@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
           }}
         >
           <span>{post.author} &middot; {post.readTime} min read</span>
-          <span style={{ fontSize: 20, fontWeight: 700, color: '#fff' }}>Riven</span>
+          <span style={{ fontSize: 20, fontWeight: 700, color: '#fff' }}>Cranium</span>
         </div>
       </div>
     ),

@@ -1,8 +1,8 @@
-package riven.core.models.user
+package cranium.core.models.user
 
-import riven.core.enums.user.AcquisitionChannel
-import riven.core.models.workspace.Workspace
-import riven.core.models.workspace.WorkspaceMember
+import cranium.core.enums.user.AcquisitionChannel
+import cranium.core.models.workspace.Workspace
+import cranium.core.models.workspace.WorkspaceMember
 import java.time.ZonedDateTime
 import java.util.*
 

@@ -1,4 +1,4 @@
-package riven.core.configuration.openapi
+package cranium.core.configuration.openapi
 
 import io.swagger.v3.core.converter.AnnotatedType
 import io.swagger.v3.core.converter.ModelConverters
@@ -8,10 +8,10 @@ import io.swagger.v3.oas.models.media.Discriminator
 import io.swagger.v3.oas.models.media.Schema
 import org.springdoc.core.customizers.OpenApiCustomizer
 import org.springframework.stereotype.Component
-import riven.core.service.workflow.WorkflowNodeConfigRegistry
+import cranium.core.service.workflow.WorkflowNodeConfigRegistry
 
 /**
- * OpenAPI customizer that registers all [riven.core.models.workflow.node.config.WorkflowNodeConfig]
+ * OpenAPI customizer that registers all [cranium.core.models.workflow.node.config.WorkflowNodeConfig]
  * implementations for OpenAPI schema generation.
  *
  * ## Why This Exists
@@ -27,7 +27,7 @@ import riven.core.service.workflow.WorkflowNodeConfigRegistry
  * 1. Add `@Schema(name = "YourNewConfig", description = "...")` to the class
  * 2. Add a companion object with `val configSchema: List<WorkflowNodeConfigField>`
  * 3. Register in [WorkflowNodeConfigRegistry.registerAllNodes]
- * 4. Update [riven.core.deserializer.WorkflowNodeConfigDeserializer] to handle deserialization
+ * 4. Update [cranium.core.deserializer.WorkflowNodeConfigDeserializer] to handle deserialization
  *
  * The OpenAPI schema will be automatically generated from the registry.
  *

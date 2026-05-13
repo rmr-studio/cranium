@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,41 +12,30 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { TemplateInstallResult } from './TemplateInstallResult';
-import {
-    TemplateInstallResultFromJSON,
-    TemplateInstallResultFromJSONTyped,
-    TemplateInstallResultToJSON,
-    TemplateInstallResultToJSONTyped,
-} from './TemplateInstallResult';
 import type { BusinessDefinitionResult } from './BusinessDefinitionResult';
 import {
     BusinessDefinitionResultFromJSON,
-    BusinessDefinitionResultFromJSONTyped,
-    BusinessDefinitionResultToJSON,
-    BusinessDefinitionResultToJSONTyped,
+    BusinessDefinitionResultToJSON
 } from './BusinessDefinitionResult';
-import type { UserDisplay } from './UserDisplay';
-import {
-    UserDisplayFromJSON,
-    UserDisplayFromJSONTyped,
-    UserDisplayToJSON,
-    UserDisplayToJSONTyped,
-} from './UserDisplay';
 import type { InviteResult } from './InviteResult';
 import {
     InviteResultFromJSON,
-    InviteResultFromJSONTyped,
-    InviteResultToJSON,
-    InviteResultToJSONTyped,
+    InviteResultToJSON
 } from './InviteResult';
+import type { TemplateInstallResult } from './TemplateInstallResult';
+import {
+    TemplateInstallResultFromJSON,
+    TemplateInstallResultToJSON
+} from './TemplateInstallResult';
+import type { UserDisplay } from './UserDisplay';
+import {
+    UserDisplayFromJSON,
+    UserDisplayToJSON
+} from './UserDisplay';
 import type { Workspace } from './Workspace';
 import {
     WorkspaceFromJSON,
-    WorkspaceFromJSONTyped,
-    WorkspaceToJSON,
-    WorkspaceToJSONTyped,
+    WorkspaceToJSON
 } from './Workspace';
 
 /**

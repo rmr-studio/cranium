@@ -1,8 +1,8 @@
-package riven.core.service.workflow
+package cranium.core.service.workflow
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import riven.core.service.workflow.state.WorkflowNodeTemplateParserService
+import cranium.core.service.workflow.state.WorkflowNodeTemplateParserService
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull

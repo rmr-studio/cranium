@@ -1,4 +1,4 @@
-package riven.core.service.identity
+package cranium.core.service.identity
 
 import io.github.oshai.kotlinlogging.KLogger
 import jakarta.persistence.EntityManager
@@ -16,10 +16,10 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.identity.MatchSignalType
-import riven.core.enums.identity.MatchSource
-import riven.core.service.util.factory.identity.IdentityFactory
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.identity.MatchSignalType
+import cranium.core.enums.identity.MatchSource
+import cranium.core.service.util.factory.identity.IdentityFactory
 import java.util.UUID
 
 @SpringBootTest(classes = [IdentityMatchCandidateService::class, IdentityNormalizationService::class])

@@ -1,4 +1,4 @@
-package riven.core.enums.workflow
+package cranium.core.enums.workflow
 
 /**
  * Status of an execution queue item.
@@ -8,8 +8,8 @@ package riven.core.enums.workflow
  * - Dispatcher flow: PENDING -> CLAIMED -> DISPATCHED (or FAILED). Jobs picked up by the
  *   centralised dispatcher transition to DISPATCHED once handed off to Temporal.
  * - Enrichment flow: PENDING -> CLAIMED -> COMPLETED (or FAILED). Enrichment jobs skip
- *   the DISPATCHED state because [riven.core.service.enrichment.EnrichmentService] starts
- *   the Temporal workflow directly and the [riven.core.service.workflow.enrichment.EnrichmentWorkflow]
+ *   the DISPATCHED state because [cranium.core.service.enrichment.EnrichmentService] starts
+ *   the Temporal workflow directly and the [cranium.core.service.workflow.enrichment.EnrichmentWorkflow]
  *   storeEmbedding activity marks the queue item COMPLETED on success.
  */
 enum class ExecutionQueueStatus {

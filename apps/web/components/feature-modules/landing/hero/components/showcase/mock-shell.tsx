@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 import { ShowcaseIconRail, ShowcaseSubPanel } from '@/components/ui/diagrams/brand-ui-primitives';
-import { ClassNameProps } from '@riven/utils';
+import { ClassNameProps } from '@cranium/utils';
 import { FC } from 'react';
 
 const ENTITY_NAV_ICONS = [

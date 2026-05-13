@@ -1,17 +1,17 @@
-package riven.core.service.enrichment.provider
+package cranium.core.service.enrichment.provider
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
-import riven.core.configuration.properties.EnrichmentConfigurationProperties
+import cranium.core.configuration.properties.EnrichmentConfigurationProperties
 import java.time.Duration
 
 /**
  * Ollama implementation of [EmbeddingProvider].
  *
- * Active only when `riven.enrichment.provider=ollama` is explicitly configured.
+ * Active only when `cranium.enrichment.provider=ollama` is explicitly configured.
  * Posts to /api/embed using the configured local model.
  *
  * The ollamaWebClient bean is pre-configured with the Ollama base URL
@@ -19,7 +19,7 @@ import java.time.Duration
  */
 @Service
 @ConditionalOnProperty(
-    name = ["riven.enrichment.provider"],
+    name = ["cranium.enrichment.provider"],
     havingValue = "ollama"
 )
 class OllamaEmbeddingProvider(

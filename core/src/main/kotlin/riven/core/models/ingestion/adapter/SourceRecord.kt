@@ -1,4 +1,4 @@
-package riven.core.models.ingestion.adapter
+package cranium.core.models.ingestion.adapter
 
 /**
  * Neutral, source-agnostic record produced by an ingestion adapter.

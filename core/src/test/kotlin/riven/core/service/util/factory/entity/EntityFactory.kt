@@ -1,24 +1,24 @@
-package riven.core.service.util.factory.entity
+package cranium.core.service.util.factory.entity
 
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.node.JsonNodeFactory
-import riven.core.entity.entity.EntityAttributeEntity
-import riven.core.entity.entity.EntityEntity
-import riven.core.entity.entity.EntityRelationshipEntity
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.entity.entity.RelationshipDefinitionEntity
-import riven.core.entity.entity.RelationshipTargetRuleEntity
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.DataType
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.enums.integration.SourceType
-import riven.core.models.common.validation.Schema
-import riven.core.models.entity.EntityTypeSchema
-import riven.core.models.entity.configuration.ColumnConfiguration
+import cranium.core.entity.entity.EntityAttributeEntity
+import cranium.core.entity.entity.EntityEntity
+import cranium.core.entity.entity.EntityRelationshipEntity
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.entity.entity.RelationshipDefinitionEntity
+import cranium.core.entity.entity.RelationshipTargetRuleEntity
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.DataType
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.enums.integration.SourceType
+import cranium.core.models.common.validation.Schema
+import cranium.core.models.entity.EntityTypeSchema
+import cranium.core.models.entity.configuration.ColumnConfiguration
 import java.util.*
 
 object EntityFactory {
@@ -112,8 +112,8 @@ object EntityFactory {
         targetId: UUID = UUID.randomUUID(),
         definitionId: UUID = UUID.randomUUID(),
         semanticContext: String? = null,
-        linkSource: riven.core.enums.integration.SourceType = riven.core.enums.integration.SourceType.USER_CREATED,
-        targetKind: riven.core.enums.entity.RelationshipTargetKind = riven.core.enums.entity.RelationshipTargetKind.ENTITY,
+        linkSource: cranium.core.enums.integration.SourceType = cranium.core.enums.integration.SourceType.USER_CREATED,
+        targetKind: cranium.core.enums.entity.RelationshipTargetKind = cranium.core.enums.entity.RelationshipTargetKind.ENTITY,
         targetParentId: UUID? = null,
         createdAt: java.time.ZonedDateTime? = null,
     ): EntityRelationshipEntity {
@@ -144,7 +144,7 @@ object EntityFactory {
         name: String = "Related Entity",
         cardinalityDefault: EntityRelationshipCardinality = EntityRelationshipCardinality.MANY_TO_MANY,
         protected: Boolean = false,
-        systemType: riven.core.enums.entity.SystemRelationshipType? = null,
+        systemType: cranium.core.enums.entity.SystemRelationshipType? = null,
     ): RelationshipDefinitionEntity {
         return RelationshipDefinitionEntity(
             id = id,

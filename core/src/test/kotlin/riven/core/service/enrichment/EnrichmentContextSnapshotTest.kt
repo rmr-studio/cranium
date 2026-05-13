@@ -1,4 +1,4 @@
-package riven.core.service.enrichment
+package cranium.core.service.enrichment
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -9,27 +9,27 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.configuration.util.ObjectMapperConfig
-import riven.core.enums.connotation.ConnotationStatus
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.repository.connotation.EntityConnotationRepository
-import riven.core.repository.entity.EntityRelationshipRepository
-import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.repository.entity.EntityTypeSemanticMetadataRepository
-import riven.core.repository.entity.RelationshipDefinitionRepository
-import riven.core.repository.entity.RelationshipTargetRuleRepository
-import riven.core.repository.identity.IdentityClusterMemberRepository
-import riven.core.repository.workspace.WorkspaceRepository
-import riven.core.repository.workflow.ExecutionQueueRepository
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.catalog.ManifestCatalogService
-import riven.core.service.connotation.ConnotationAnalysisService
-import riven.core.service.entity.EntityAttributeService
-import riven.core.service.util.BaseServiceTest
-import riven.core.service.util.SecurityTestConfig
-import riven.core.service.util.factory.enrichment.EnrichmentSnapshotFixture
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.configuration.util.ObjectMapperConfig
+import cranium.core.enums.connotation.ConnotationStatus
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.repository.connotation.EntityConnotationRepository
+import cranium.core.repository.entity.EntityRelationshipRepository
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.repository.entity.EntityTypeSemanticMetadataRepository
+import cranium.core.repository.entity.RelationshipDefinitionRepository
+import cranium.core.repository.entity.RelationshipTargetRuleRepository
+import cranium.core.repository.identity.IdentityClusterMemberRepository
+import cranium.core.repository.workspace.WorkspaceRepository
+import cranium.core.repository.workflow.ExecutionQueueRepository
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.catalog.ManifestCatalogService
+import cranium.core.service.connotation.ConnotationAnalysisService
+import cranium.core.service.entity.EntityAttributeService
+import cranium.core.service.util.BaseServiceTest
+import cranium.core.service.util.SecurityTestConfig
+import cranium.core.service.util.factory.enrichment.EnrichmentSnapshotFixture
 import tools.jackson.databind.ObjectMapper
 import java.util.Optional
 
@@ -37,7 +37,7 @@ import java.util.Optional
  * Byte-identical snapshot test for [EnrichmentAnalysisService.analyzeSemantics].
  *
  * This test establishes the Phase 1 verification gate (ENRICH-03): a checked-in JSON file
- * captures the exact [riven.core.models.enrichment.EnrichmentContext] shape produced by the
+ * captures the exact [cranium.core.models.enrichment.EnrichmentContext] shape produced by the
  * enrichment analysis service. All subsequent Plans must maintain byte-identity against this
  * snapshot — any structural change to the context that passes the snapshot test but changes
  * the JSON is caught immediately.

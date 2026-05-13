@@ -1,17 +1,17 @@
-package riven.core.service.enrichment.provider
+package cranium.core.service.enrichment.provider
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
-import riven.core.configuration.properties.EnrichmentConfigurationProperties
+import cranium.core.configuration.properties.EnrichmentConfigurationProperties
 import java.time.Duration
 
 /**
  * OpenAI implementation of [EmbeddingProvider].
  *
- * Active by default when `riven.enrichment.provider` is not set or is set to "openai".
+ * Active by default when `cranium.enrichment.provider` is not set or is set to "openai".
  * Posts to /v1/embeddings using the configured model and API key.
  *
  * The openaiWebClient bean is pre-configured with the base URL and Authorization header
@@ -19,7 +19,7 @@ import java.time.Duration
  */
 @Service
 @ConditionalOnProperty(
-    name = ["riven.enrichment.provider"],
+    name = ["cranium.enrichment.provider"],
     havingValue = "openai",
     matchIfMissing = true
 )

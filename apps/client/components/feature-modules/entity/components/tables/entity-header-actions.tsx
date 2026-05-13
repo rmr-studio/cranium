@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@riven/ui/button';
+import { Button } from '@cranium/ui/button';
 import { Eye, Plus } from 'lucide-react';
 import { FC } from 'react';
 

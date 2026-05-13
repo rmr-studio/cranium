@@ -2,8 +2,8 @@
 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { TableCell, TableRow } from '@riven/ui/table';
-import { cn } from '@riven/utils';
+import { TableCell, TableRow } from '@cranium/ui/table';
+import { cn } from '@cranium/utils';
 import { Row, flexRender } from '@tanstack/react-table';
 import React from 'react';
 import { useCellInteraction, useDataTableActions, useDataTableStore } from '../data-table-provider';
@@ -27,9 +27,9 @@ interface DraggableRowProps<TData> {
   disableDragForRow?: (row: Row<TData>) => boolean;
   enableInlineEdit?: boolean;
   isSelectionEnabled: boolean;
-  /** Pre-computed selected state — driven by external override or TanStack */
+  /** Pre-computed selected state — dcranium by external override or TanStack */
   isSelected: boolean;
-  /** Selection toggle handler — driven by external override or TanStack */
+  /** Selection toggle handler — dcranium by external override or TanStack */
   onToggleSelected: (value: boolean) => void;
   focusedCell?: { rowId: string; columnId: string } | null;
   actionColumnConfig?: ActionColumnConfig;

@@ -1,4 +1,4 @@
-package riven.core.controller.workspace
+package cranium.core.controller.workspace
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -7,11 +7,11 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import riven.core.models.catalog.ReconciliationImpact
-import riven.core.models.catalog.SchemaHealthResponse
-import riven.core.models.request.entity.type.SchemaReconcileRequest
-import riven.core.service.catalog.SchemaReconciliationService
-import riven.core.service.entity.type.EntityTypeService
+import cranium.core.models.catalog.ReconciliationImpact
+import cranium.core.models.catalog.SchemaHealthResponse
+import cranium.core.models.request.entity.type.SchemaReconcileRequest
+import cranium.core.service.catalog.SchemaReconciliationService
+import cranium.core.service.entity.type.EntityTypeService
 import java.util.*
 
 @RestController

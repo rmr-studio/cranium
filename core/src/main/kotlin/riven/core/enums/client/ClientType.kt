@@ -1,4 +1,4 @@
-package riven.core.enums.client
+package cranium.core.enums.client
 
 enum class ClientType {
     PROSPECT,

@@ -1,17 +1,17 @@
-package riven.core.service.entity
+package cranium.core.service.entity
 
 import org.springframework.stereotype.Service
-import riven.core.entity.entity.EntityEntity
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.common.validation.ValidationScope
-import riven.core.enums.entity.validation.EntityTypeChangeType
-import riven.core.models.entity.EntityTypeSchema
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.models.entity.validation.EntityTypeSchemaChange
-import riven.core.models.entity.validation.EntityTypeValidationSummary
-import riven.core.models.entity.validation.EntityValidationError
-import riven.core.service.schema.SchemaService
+import cranium.core.entity.entity.EntityEntity
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.common.validation.ValidationScope
+import cranium.core.enums.entity.validation.EntityTypeChangeType
+import cranium.core.models.entity.EntityTypeSchema
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.models.entity.validation.EntityTypeSchemaChange
+import cranium.core.models.entity.validation.EntityTypeValidationSummary
+import cranium.core.models.entity.validation.EntityValidationError
+import cranium.core.service.schema.SchemaService
 import java.util.*
 
 /**

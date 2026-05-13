@@ -1,12 +1,12 @@
-package riven.core.service.notification
+package cranium.core.service.notification
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
-import riven.core.enums.notification.NotificationReferenceType
-import riven.core.enums.notification.NotificationType
-import riven.core.models.notification.Notification
-import riven.core.models.notification.NotificationContent
-import riven.core.models.request.notification.CreateNotificationRequest
+import cranium.core.enums.notification.NotificationReferenceType
+import cranium.core.enums.notification.NotificationType
+import cranium.core.models.notification.Notification
+import cranium.core.models.notification.NotificationContent
+import cranium.core.models.request.notification.CreateNotificationRequest
 import java.time.ZonedDateTime
 import java.util.UUID
 

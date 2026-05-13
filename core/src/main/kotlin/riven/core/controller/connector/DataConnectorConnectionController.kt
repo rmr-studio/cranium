@@ -1,4 +1,4 @@
-package riven.core.controller.connector
+package cranium.core.controller.connector
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -17,12 +17,12 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import riven.core.models.connector.ConnectorTestResult
-import riven.core.models.connector.DataConnectorConnectionModel
-import riven.core.models.connector.request.CreateDataConnectorConnectionRequest
-import riven.core.models.connector.request.DataConnectorConnectionTestRequest
-import riven.core.models.connector.request.UpdateDataConnectorConnectionRequest
-import riven.core.service.connector.DataConnectorConnectionService
+import cranium.core.models.connector.ConnectorTestResult
+import cranium.core.models.connector.DataConnectorConnectionModel
+import cranium.core.models.connector.request.CreateDataConnectorConnectionRequest
+import cranium.core.models.connector.request.DataConnectorConnectionTestRequest
+import cranium.core.models.connector.request.UpdateDataConnectorConnectionRequest
+import cranium.core.service.connector.DataConnectorConnectionService
 import java.util.UUID
 
 /**
@@ -32,7 +32,7 @@ import java.util.UUID
  * business logic live in the service layer per core/CLAUDE.md.
  */
 @RestController
-@ConditionalOnProperty(prefix = "riven.connector", name = ["enabled"], havingValue = "true")
+@ConditionalOnProperty(prefix = "cranium.connector", name = ["enabled"], havingValue = "true")
 @RequestMapping("/api/v1/connector/connections")
 @Tag(name = "data-connector", description = "Manage connections to custom data sources for use in data connector syncs and queries")
 class DataConnectorConnectionController(

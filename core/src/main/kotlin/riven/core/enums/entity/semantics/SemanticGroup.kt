@@ -1,4 +1,4 @@
-package riven.core.enums.entity.semantics
+package cranium.core.enums.entity.semantics
 
 /**
  * Categorical classification for entity types, enabling semantic constraint-based

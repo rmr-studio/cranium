@@ -87,7 +87,7 @@ export function WaitlistForm({ className }: { className?: string }) {
               Join the Waitlist
             </h2>
             <p className="mx-auto mt-5 mb-10 max-w-2xl px-4 text-center leading-tight tracking-tight text-muted-foreground sm:text-lg">
-              The fastest way to see how Riven transforms your e-commerce operations is to see how
+              The fastest way to see how Cranium transforms your e-commerce operations is to see how
               it fits into your business. Join the waitlist, and be the firs
             </p>
 

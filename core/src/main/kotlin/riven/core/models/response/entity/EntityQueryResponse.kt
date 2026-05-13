@@ -1,7 +1,7 @@
-package riven.core.models.response.entity
+package cranium.core.models.response.entity
 
 import io.swagger.v3.oas.annotations.media.Schema
-import riven.core.models.entity.Entity
+import cranium.core.models.entity.Entity
 
 @Schema(description = "Paginated response from an entity query")
 data class EntityQueryResponse(

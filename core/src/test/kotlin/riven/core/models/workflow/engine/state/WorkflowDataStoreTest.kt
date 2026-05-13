@@ -1,10 +1,10 @@
-package riven.core.models.workflow.engine.state
+package cranium.core.models.workflow.engine.state
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import riven.core.enums.util.OperationType
-import riven.core.enums.workflow.WorkflowStatus
+import cranium.core.enums.util.OperationType
+import cranium.core.enums.workflow.WorkflowStatus
 import java.time.Instant
 import java.util.UUID
 import java.util.concurrent.CountDownLatch

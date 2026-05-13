@@ -2,13 +2,13 @@
 
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button } from '@riven/ui/button';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandList } from '@riven/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
+import { Button } from '@cranium/ui/button';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandList } from '@cranium/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@cranium/ui/popover';
 
-import type { ClassNameProps } from '@riven/utils';
+import type { ClassNameProps } from '@cranium/utils';
 import { IconColour, IconType } from '@/lib/types/common';
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 import { FileQuestionMark } from 'lucide-react';
 
 import { type Icon } from '@/lib/types/common';

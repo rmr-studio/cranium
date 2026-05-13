@@ -1,8 +1,8 @@
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Section } from '@/components/ui/section';
 import Link from 'next/link';
@@ -15,12 +15,12 @@ interface Question {
 
 const FAQ: Question[] = [
   {
-    question: 'What does Riven actually do?',
-    answer: `Riven is an intelligence and growth platform. Deploying AI powered agents, executing data driven decisions from the context embued all around from marketing, to sales, to product usage, to support, and to the moment your customer picks up their stuff and leaves. Each of these tools will only ever see its own slice. Riven sees everything, and provides you with the tools to grow, with automations rapidly acting on the signals surfaced.
+    question: 'What does Cranium actually do?',
+    answer: `Cranium is an intelligence and growth platform. Deploying AI powered agents, executing data dcranium decisions from the context embued all around from marketing, to sales, to product usage, to support, and to the moment your customer picks up their stuff and leaves. Each of these tools will only ever see its own slice. Cranium sees everything, and provides you with the tools to grow, with automations rapidly acting on the signals surfaced.
     `,
   },
   {
-    question: 'Who uses Riven?',
+    question: 'Who uses Cranium?',
     answer: `
     DTC e-commerce teams. Maybe you're the founder who is also somehow the entire analytics department.
     Maybe you're the head of ops who spends half the week pulling reports instead of acting on them.
@@ -28,9 +28,9 @@ const FAQ: Question[] = [
     You just need to know what's going on without it becoming your whole day.`,
   },
   {
-    question: 'Does Riven replace my existing tools?',
+    question: 'Does Cranium replace my existing tools?',
     answer: `
-    No. Riven wraps around the tools you already use. It connects them and links the data between them
+    No. Cranium wraps around the tools you already use. It connects them and links the data between them
     so you can see relationships and patterns that are impossible to spot when everything lives in separate tabs.`,
   },
   {
@@ -40,10 +40,10 @@ const FAQ: Question[] = [
       Stripe knows your payments but not your customer conversations.
       Intercom knows your support history but has no idea where each customer came from.
       They're all good at their own thing. None of them see the full picture.
-      Riven connects them into one shared data layer with an AI that can reason across all of it at once.`,
+      Cranium connects them into one shared data layer with an AI that can reason across all of it at once.`,
   },
   {
-    question: 'How does Riven ensure AI answers are accurate?',
+    question: 'How does Cranium ensure AI answers are accurate?',
     answer: `
     The AI only works with your actual connected data. It's not guessing from training data.
     Every answer links back to the source records so you can check what it's referencing.
@@ -65,17 +65,17 @@ const FAQ: Question[] = [
     and get an actual list back. No SQL, no exports. There are also visual filters, saved views, and tagging for people who prefer to click around.`,
   },
   {
-    question: 'How is Riven different from just using N8N/Zapier and ChatGPT?',
+    question: 'How is Cranium different from just using N8N/Zapier and ChatGPT?',
     answer: `You can absolutely pipe tools into ChatGPT with Zapier and get useful answers. What you can't do is build memory.    
-  Riven learns as it goes — every pattern it finds, every action you take, every outcome that follows — all stays 
+  Cranium learns as it goes — every pattern it finds, every action you take, every outcome that follows — all stays 
   connected to your data model. By month three it knows things about your business that a one-shot prompt never will.  
   It doesn't just see what's happening now. It sees it in the context of everything that came before.    `,
   },
   {
-    question: 'How is Riven different from other analytics tools?',
+    question: 'How is Cranium different from other analytics tools?',
     answer: `
     Most analytics tools show you charts about what happened. Many data sources. One flat dashboard.
-    Riven connects all of your tools and lets you go further: tag accounts, set rules, push segments to other platforms, and track what happens next.
+    Cranium connects all of your tools and lets you go further: tag accounts, set rules, push segments to other platforms, and track what happens next.
     It's a place your team works from, not just looks at.`,
   },
 
@@ -90,7 +90,7 @@ const FAQ: Question[] = [
     question: 'Is my data secure?',
     answer: `
     Encrypted at rest and in transit. We will never use your data to train AI models.
-    Riven is open source, so you can read the code and see exactly how your data is handled.
+    Cranium is open source, so you can read the code and see exactly how your data is handled.
     If you need full control, self-hosting is an option. Your data never has to leave your infrastructure. We're also working toward SOC 2 before launch.`,
   },
 ];

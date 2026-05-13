@@ -3,9 +3,12 @@ tags:
   - adr/accepted
   - architecture/decision
 Created: 2026-03-06
-Updated: 2026-03-06
+Updated: 2026-05-13
 ---
+
 # ADR-007: Magic Byte Content Validation via Apache Tika
+
+> **Still in force after the 2026-05 architecture pivot** — see [[architecture-pivot]] §Reuse / Rework / Replace / Delete. The file pipeline is not in the v1 surface but is harmless to keep; this decision is unchanged.
 
 ---
 
@@ -18,6 +21,7 @@ The platform accepts file uploads from users and must validate that uploaded fil
 - Client-provided `Content-Type` headers are trivially spoofable and cannot be trusted
 
 The content validation system must:
+
 1. **Detect the actual content type** of uploaded bytes, independent of filename extension or client-provided headers
 2. **Enforce per-domain allowlists** — different storage domains (AVATAR, future: ATTACHMENT, DOCUMENT) allow different content types
 3. **Enforce per-domain file size limits** — avatars have different size constraints than document attachments
@@ -103,6 +107,6 @@ Trust the `Content-Type` header from the multipart upload request.
 
 ## Related
 
-- [[riven/docs/system-design/feature-design/2. Planned/Provider-Agnostic File Storage]] -- Feature design using this content validation approach
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-005 Strategy Pattern with Conditional Bean Selection for Storage Providers]] -- Storage provider abstraction
-- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/File Storage]] -- Sub-domain plan for the Storage domain
+- [[cranium/docs/system-design/feature-design/2. Planned/Provider-Agnostic File Storage]] -- Feature design using this content validation approach
+- [[2. Areas/2.1 Startup & Content/Cranium/2. System Design/decisions/ADR-005 Strategy Pattern with Conditional Bean Selection for Storage Providers]] -- Storage provider abstraction
+- [[cranium/docs/system-design/feature-design/_Sub-Domain Plans/File Storage]] -- Sub-domain plan for the Storage domain

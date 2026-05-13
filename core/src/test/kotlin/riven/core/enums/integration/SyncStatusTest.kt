@@ -1,9 +1,9 @@
-package riven.core.enums.integration
+package cranium.core.enums.integration
 
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import riven.core.enums.integration.SyncStatus
+import cranium.core.enums.integration.SyncStatus
 
 class SyncStatusTest {
 

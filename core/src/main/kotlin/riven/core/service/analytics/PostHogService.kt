@@ -1,4 +1,4 @@
-package riven.core.service.analytics
+package cranium.core.service.analytics
 
 import java.util.UUID
 

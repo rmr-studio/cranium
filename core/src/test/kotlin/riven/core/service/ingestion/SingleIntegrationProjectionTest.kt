@@ -1,4 +1,4 @@
-package riven.core.service.ingestion
+package cranium.core.service.ingestion
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -10,11 +10,11 @@ import org.junit.jupiter.api.TestInstance
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.testcontainers.junit.jupiter.Testcontainers
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.enums.integration.SourceType
-import riven.core.models.core.DTC_ECOMMERCE_MODELS
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.service.util.factory.entity.EntityFactory
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.enums.integration.SourceType
+import cranium.core.models.core.DTC_ECOMMERCE_MODELS
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.service.util.factory.entity.EntityFactory
 import java.util.*
 
 /**

@@ -1,12 +1,12 @@
 import { BrandIcons, Integration } from '@/components/ui/diagrams/brand-icons';
 import { cn } from '@/lib/utils';
-import { Logo } from '@riven/ui/logo';
+import { Logo } from '@cranium/ui/logo';
 
 /**
  * Customer Knowledge Query — chat with grounded answer + floating recs overlay.
  *
  * Two stacked layers:
- *  1. Long Q&A chat (user question → Riven answer with findings + sources).
+ *  1. Long Q&A chat (user question → Cranium answer with findings + sources).
  *     Naturally clips at the bottom so we get the "scroll for more" feel.
  *  2. Floating "Recommended actions" card overlapping the bottom of the chat
  *     as the secondary action surface.
@@ -47,11 +47,11 @@ function Chat() {
           ER
         </div>
       </div>
-      {/* Riven response head */}
+      {/* Cranium response head */}
       <div className="mb-2.5 flex items-center gap-2">
         <Logo size={20} />
         <span className="font-display text-[13px] tracking-tight text-heading sm:text-[15px]">
-          Riven
+          Cranium
         </span>
         <ToolsPill />
       </div>

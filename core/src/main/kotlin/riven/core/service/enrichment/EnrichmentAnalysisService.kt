@@ -1,33 +1,33 @@
-package riven.core.service.enrichment
+package cranium.core.service.enrichment
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import tools.jackson.databind.ObjectMapper
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.enums.connotation.ConnotationStatus
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.models.catalog.ConnotationSignals
-import riven.core.models.connotation.AttributeClassificationSnapshot
-import riven.core.models.connotation.ClusterMemberSnapshot
-import riven.core.models.connotation.EntityMetadata
-import riven.core.models.connotation.EntityMetadataSnapshot
-import riven.core.models.connotation.RelationalMetadata
-import riven.core.models.connotation.RelationalReferenceResolution
-import riven.core.models.connotation.RelationshipSemanticDefinitionSnapshot
-import riven.core.models.connotation.RelationshipSummarySnapshot
-import riven.core.models.connotation.SentimentMetadata
-import riven.core.models.connotation.StructuralMetadata
-import riven.core.models.enrichment.EnrichmentContext
-import riven.core.repository.connotation.EntityConnotationRepository
-import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.repository.workflow.ExecutionQueueRepository
-import riven.core.repository.workspace.WorkspaceRepository
-import riven.core.service.catalog.ManifestCatalogService
-import riven.core.service.connotation.ConnotationAnalysisService
-import riven.core.service.entity.EntityAttributeService
-import riven.core.util.ServiceUtil
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.enums.connotation.ConnotationStatus
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.models.catalog.ConnotationSignals
+import cranium.core.models.connotation.AttributeClassificationSnapshot
+import cranium.core.models.connotation.ClusterMemberSnapshot
+import cranium.core.models.connotation.EntityMetadata
+import cranium.core.models.connotation.EntityMetadataSnapshot
+import cranium.core.models.connotation.RelationalMetadata
+import cranium.core.models.connotation.RelationalReferenceResolution
+import cranium.core.models.connotation.RelationshipSemanticDefinitionSnapshot
+import cranium.core.models.connotation.RelationshipSummarySnapshot
+import cranium.core.models.connotation.SentimentMetadata
+import cranium.core.models.connotation.StructuralMetadata
+import cranium.core.models.enrichment.EnrichmentContext
+import cranium.core.repository.connotation.EntityConnotationRepository
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.repository.workflow.ExecutionQueueRepository
+import cranium.core.repository.workspace.WorkspaceRepository
+import cranium.core.service.catalog.ManifestCatalogService
+import cranium.core.service.connotation.ConnotationAnalysisService
+import cranium.core.service.entity.EntityAttributeService
+import cranium.core.util.ServiceUtil
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -45,7 +45,7 @@ import java.util.UUID
  * **Constructor dep count:** 10 (ceiling ≤ 10 per ENRICH-02 — this is the max allowed).
  * Sentiment + manifest helpers stayed on this service per 01-CONTEXT byte-identity precedence decision.
  *
- * **Workspace lookup:** Uses [WorkspaceRepository] directly rather than [riven.core.service.workspace.WorkspaceService].
+ * **Workspace lookup:** Uses [WorkspaceRepository] directly rather than [cranium.core.service.workspace.WorkspaceService].
  * Plan 01-CONTEXT explicitly resolved this: WorkspaceService carries `@PreAuthorize` + exception-mapping
  * that would alter exception-thrown shape on missing-workspace (AccessDeniedException vs NotFoundException
  * from `findOrThrow`), breaking the byte-identical snapshot gate (ENRICH-03). Phase 2 may revisit when
@@ -97,7 +97,7 @@ class EnrichmentAnalysisService(
      * @return Complete context snapshot for downstream activities
      * @throws IllegalStateException if the queue item cannot be claimed (missing, wrong job
      *   type, or already in a terminal state)
-     * @throws riven.core.exceptions.NotFoundException if the queue item disappears between
+     * @throws cranium.core.exceptions.NotFoundException if the queue item disappears between
      *   the CAS and the re-fetch
      */
     @Transactional
@@ -183,7 +183,7 @@ class EnrichmentAnalysisService(
      * Resolves the SENTIMENT metadata for this enrichment cycle, gated on the workspace flag
      * and the entity type's manifest connotation signals.
      *
-     * Returns a [SentimentMetadata] with [riven.core.enums.connotation.ConnotationStatus.NOT_APPLICABLE]
+     * Returns a [SentimentMetadata] with [cranium.core.enums.connotation.ConnotationStatus.NOT_APPLICABLE]
      * (default) when:
      * - the workspace has not opted in (`connotation_enabled = false`),
      * - the entity type has no manifest connotation signals (custom user-defined type or

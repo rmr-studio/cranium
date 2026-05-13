@@ -1,12 +1,12 @@
-package riven.core.service.util.factory
+package cranium.core.service.util.factory
 
-import riven.core.entity.notification.NotificationEntity
-import riven.core.entity.notification.NotificationReadEntity
-import riven.core.enums.notification.NotificationReferenceType
-import riven.core.enums.notification.NotificationType
-import riven.core.enums.notification.ReviewPriority
-import riven.core.enums.notification.SystemSeverity
-import riven.core.models.notification.NotificationContent
+import cranium.core.entity.notification.NotificationEntity
+import cranium.core.entity.notification.NotificationReadEntity
+import cranium.core.enums.notification.NotificationReferenceType
+import cranium.core.enums.notification.NotificationType
+import cranium.core.enums.notification.ReviewPriority
+import cranium.core.enums.notification.SystemSeverity
+import cranium.core.models.notification.NotificationContent
 import java.time.ZonedDateTime
 import java.util.UUID
 

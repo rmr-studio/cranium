@@ -1,6 +1,6 @@
-package riven.core.models.response.identity
+package cranium.core.models.response.identity
 
-import riven.core.enums.integration.SourceType
+import cranium.core.enums.integration.SourceType
 import java.time.ZonedDateTime
 import java.util.UUID
 

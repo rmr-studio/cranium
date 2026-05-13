@@ -1,10 +1,10 @@
-package riven.core.projection.user
+package cranium.core.projection.user
 
-import riven.core.enums.workspace.WorkspaceDisplay
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.models.user.UserDisplay
-import riven.core.models.workspace.WorkspaceMember
-import riven.core.util.AvatarUrlResolver
+import cranium.core.enums.workspace.WorkspaceDisplay
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.models.user.UserDisplay
+import cranium.core.models.workspace.WorkspaceMember
+import cranium.core.util.AvatarUrlResolver
 import java.time.Instant
 import java.time.ZoneId
 import java.util.*

@@ -1,6 +1,6 @@
 'use client';
 
-import { Logo } from '@riven/ui';
+import { Logo } from '@cranium/ui';
 import { motion } from 'motion/react';
 
 export const AppSplash = () => {

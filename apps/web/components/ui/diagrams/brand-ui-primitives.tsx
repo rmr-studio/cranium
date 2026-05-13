@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { Logo } from '@riven/ui/logo';
+import { Logo } from '@cranium/ui/logo';
 
 export function ShowcaseIconRail({
   icons,

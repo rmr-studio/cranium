@@ -6,7 +6,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@riven/ui/select'
+} from '@cranium/ui/select'
 import type { FilterOperator } from '@/lib/types/models/FilterOperator';
 import type { OperatorOption } from './query-builder.utils';
 

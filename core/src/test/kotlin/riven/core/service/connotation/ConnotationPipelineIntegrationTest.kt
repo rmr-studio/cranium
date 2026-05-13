@@ -1,4 +1,4 @@
-package riven.core.service.connotation
+package cranium.core.service.connotation
 
 import ch.qos.logback.classic.spi.Configurator
 import io.github.oshai.kotlinlogging.KLogger
@@ -31,36 +31,36 @@ import org.springframework.test.context.TestPropertySource
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
-import riven.core.entity.entity.EntityEntity
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.entity.workflow.ExecutionQueueEntity
-import riven.core.enums.catalog.ManifestType
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.connotation.ConnotationStatus
-import riven.core.enums.core.DataType
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.enums.integration.SourceType
-import riven.core.enums.workflow.ExecutionJobType
-import riven.core.enums.workflow.ExecutionQueueStatus
-import riven.core.models.catalog.ConnotationSignals
-import riven.core.models.catalog.ScaleMappingType
-import riven.core.models.catalog.SentimentScale
-import riven.core.models.common.validation.Schema
-import riven.core.models.connotation.AnalysisTier
-import riven.core.models.connotation.SentimentLabel
-import riven.core.repository.catalog.CatalogEntityTypeRepository
-import riven.core.repository.catalog.ManifestCatalogRepository
-import riven.core.repository.connotation.EntityConnotationRepository
-import riven.core.repository.entity.EntityAttributeRepository
-import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.repository.workflow.ExecutionQueueRepository
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.enrichment.EnrichmentAnalysisService
-import riven.core.service.util.SchemaInitializer
-import riven.core.service.util.factory.catalog.CatalogFactory
-import riven.core.service.util.factory.entity.EntityFactory
+import cranium.core.entity.entity.EntityEntity
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.entity.workflow.ExecutionQueueEntity
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.connotation.ConnotationStatus
+import cranium.core.enums.core.DataType
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.enums.integration.SourceType
+import cranium.core.enums.workflow.ExecutionJobType
+import cranium.core.enums.workflow.ExecutionQueueStatus
+import cranium.core.models.catalog.ConnotationSignals
+import cranium.core.models.catalog.ScaleMappingType
+import cranium.core.models.catalog.SentimentScale
+import cranium.core.models.common.validation.Schema
+import cranium.core.models.connotation.AnalysisTier
+import cranium.core.models.connotation.SentimentLabel
+import cranium.core.repository.catalog.CatalogEntityTypeRepository
+import cranium.core.repository.catalog.ManifestCatalogRepository
+import cranium.core.repository.connotation.EntityConnotationRepository
+import cranium.core.repository.entity.EntityAttributeRepository
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.repository.workflow.ExecutionQueueRepository
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.enrichment.EnrichmentAnalysisService
+import cranium.core.service.util.SchemaInitializer
+import cranium.core.service.util.factory.catalog.CatalogFactory
+import cranium.core.service.util.factory.entity.EntityFactory
 import tools.jackson.databind.node.JsonNodeFactory
 import java.time.ZonedDateTime
 import java.time.temporal.TemporalAccessor
@@ -78,7 +78,7 @@ private object ConnotationPipelineTestContainer {
     val instance: PostgreSQLContainer = PostgreSQLContainer(
         DockerImageName.parse("pgvector/pgvector:pg16").asCompatibleSubstituteFor("postgres")
     )
-        .withDatabaseName("riven_connotation_pipeline_test")
+        .withDatabaseName("cranium_connotation_pipeline_test")
         .withUsername("test")
         .withPassword("test")
 
@@ -90,17 +90,17 @@ private object ConnotationPipelineTestContainer {
 /**
  * Spring configuration for the DETERMINISTIC connotation pipeline integration test.
  *
- * Loads the real [riven.core.service.enrichment.EnrichmentAnalysisService] -> [riven.core.service.connotation.ConnotationAnalysisService] ->
- * [riven.core.service.connotation.DeterministicConnotationMapper] chain, the real [riven.core.service.catalog.ManifestCatalogService],
- * the real [riven.core.service.entity.EntityAttributeService], and all repositories. Mocks are limited to:
+ * Loads the real [cranium.core.service.enrichment.EnrichmentAnalysisService] -> [cranium.core.service.connotation.ConnotationAnalysisService] ->
+ * [cranium.core.service.connotation.DeterministicConnotationMapper] chain, the real [cranium.core.service.catalog.ManifestCatalogService],
+ * the real [cranium.core.service.entity.EntityAttributeService], and all repositories. Mocks are limited to:
  *
  * - [WorkflowClient] / Temporal — `analyzeSemantics` does not dispatch a workflow.
  * - `WorkspaceService` / `WorkspaceSecurity` — workspace flag is overridden to enabled in-place via JDBC; security
  *   is short-circuited because Spring Security is excluded from the auto-config and `@PreAuthorize`
  *   decoration is not active without it.
- * - [riven.core.service.activity.ActivityService] — the Activity insert path uses a CHECK constraint
+ * - [cranium.core.service.activity.ActivityService] — the Activity insert path uses a CHECK constraint
  *   on `operation` that does not yet include `ANALYZE`;
- * - [riven.core.service.enrichment.provider.EmbeddingProvider] — embedding generation is downstream of
+ * - [cranium.core.service.enrichment.provider.EmbeddingProvider] — embedding generation is downstream of
  *   `analyzeSemantics` and out of scope.
  */
 @Configuration
@@ -119,20 +119,20 @@ private object ConnotationPipelineTestContainer {
         "io.temporal.spring.boot.autoconfigure.TestServerAutoConfiguration",
     ],
 )
-@EnableJpaRepositories(basePackages = ["riven.core.repository"])
-@EntityScan("riven.core.entity")
+@EnableJpaRepositories(basePackages = ["cranium.core.repository"])
+@EntityScan("cranium.core.entity")
 @EnableJpaAuditing(
     auditorAwareRef = "connotationPipelineAuditorProvider",
     dateTimeProviderRef = "connotationPipelineDateTimeProvider",
 )
 @org.springframework.context.annotation.Import(
-    riven.core.configuration.util.LoggerConfig::class,
-    riven.core.service.enrichment.EnrichmentAnalysisService::class,
-    riven.core.service.enrichment.EnrichmentContextAssembler::class,
-    riven.core.service.connotation.ConnotationAnalysisService::class,
-    riven.core.service.connotation.DeterministicConnotationMapper::class,
-    riven.core.service.catalog.ManifestCatalogService::class,
-    riven.core.service.entity.EntityAttributeService::class,
+    cranium.core.configuration.util.LoggerConfig::class,
+    cranium.core.service.enrichment.EnrichmentAnalysisService::class,
+    cranium.core.service.enrichment.EnrichmentContextAssembler::class,
+    cranium.core.service.connotation.ConnotationAnalysisService::class,
+    cranium.core.service.connotation.DeterministicConnotationMapper::class,
+    cranium.core.service.catalog.ManifestCatalogService::class,
+    cranium.core.service.entity.EntityAttributeService::class,
 )
 class ConnotationPipelineIntegrationTestConfig {
 
@@ -151,20 +151,20 @@ class ConnotationPipelineIntegrationTestConfig {
      * Defining them as plain `@Bean`s sidesteps the detection.
      */
     @Bean
-    fun connotationAnalysisConfigurationProperties(): riven.core.configuration.properties.ConnotationAnalysisConfigurationProperties =
-        riven.core.configuration.properties.ConnotationAnalysisConfigurationProperties()
+    fun connotationAnalysisConfigurationProperties(): cranium.core.configuration.properties.ConnotationAnalysisConfigurationProperties =
+        cranium.core.configuration.properties.ConnotationAnalysisConfigurationProperties()
 
     @Bean
-    fun enrichmentConfigurationProperties(): riven.core.configuration.properties.EnrichmentConfigurationProperties =
-        riven.core.configuration.properties.EnrichmentConfigurationProperties()
+    fun enrichmentConfigurationProperties(): cranium.core.configuration.properties.EnrichmentConfigurationProperties =
+        cranium.core.configuration.properties.EnrichmentConfigurationProperties()
 
     @Bean
-    fun manifestConfigurationProperties(): riven.core.configuration.properties.ManifestConfigurationProperties =
-        riven.core.configuration.properties.ManifestConfigurationProperties(autoLoad = false)
+    fun manifestConfigurationProperties(): cranium.core.configuration.properties.ManifestConfigurationProperties =
+        cranium.core.configuration.properties.ManifestConfigurationProperties(autoLoad = false)
 
     @Bean
-    fun queryConfigurationProperties(): riven.core.configuration.properties.QueryConfigurationProperties =
-        riven.core.configuration.properties.QueryConfigurationProperties()
+    fun queryConfigurationProperties(): cranium.core.configuration.properties.QueryConfigurationProperties =
+        cranium.core.configuration.properties.QueryConfigurationProperties()
 
     /** Stub AuthTokenService — no JWT context is set up for integration tests. */
     @Bean
@@ -183,8 +183,8 @@ class ConnotationPipelineIntegrationTestConfig {
      * via constructor on services that depend on it. Mocked-permissive for safety.
      */
     @Bean
-    fun workspaceSecurity(): riven.core.configuration.auth.WorkspaceSecurity {
-        val mock = org.mockito.Mockito.mock(riven.core.configuration.auth.WorkspaceSecurity::class.java)
+    fun workspaceSecurity(): cranium.core.configuration.auth.WorkspaceSecurity {
+        val mock = org.mockito.Mockito.mock(cranium.core.configuration.auth.WorkspaceSecurity::class.java)
         org.mockito.Mockito.doReturn(true).`when`(mock).hasWorkspace(org.mockito.kotlin.any())
         org.mockito.Mockito.doReturn(true).`when`(mock)
             .hasWorkspaceRole(org.mockito.kotlin.any(), org.mockito.kotlin.any())
@@ -197,8 +197,8 @@ class ConnotationPipelineIntegrationTestConfig {
      * SENTIMENT path — short-circuit it via a thin mock.
      */
     @Bean
-    fun workspaceService(): riven.core.service.workspace.WorkspaceService {
-        val mock = org.mockito.Mockito.mock(riven.core.service.workspace.WorkspaceService::class.java)
+    fun workspaceService(): cranium.core.service.workspace.WorkspaceService {
+        val mock = org.mockito.Mockito.mock(cranium.core.service.workspace.WorkspaceService::class.java)
         org.mockito.Mockito.doReturn(true).`when`(mock).isConnotationEnabled(org.mockito.kotlin.any())
         return mock
     }
@@ -206,20 +206,20 @@ class ConnotationPipelineIntegrationTestConfig {
     /**
      * `ActivityService` is mocked because the `activity_logs` table CHECK constraint on
      * `operation` does not yet include the `ANALYZE` value emitted by
-     * [riven.core.service.connotation.ConnotationAnalysisService.analyze]. The activity-log
+     * [cranium.core.service.connotation.ConnotationAnalysisService.analyze]. The activity-log
      * write path has unit-test coverage in `ConnotationAnalysisServiceTest` already; this
      * integration test focuses on the snapshot-persistence path.
      */
     @Bean
-    fun activityService(): riven.core.service.activity.ActivityService =
-        org.mockito.Mockito.mock(riven.core.service.activity.ActivityService::class.java)
+    fun activityService(): cranium.core.service.activity.ActivityService =
+        org.mockito.Mockito.mock(cranium.core.service.activity.ActivityService::class.java)
 
     @Bean
     fun workflowClient(): WorkflowClient = org.mockito.Mockito.mock(WorkflowClient::class.java)
 
     @Bean
-    fun embeddingProvider(): riven.core.service.enrichment.provider.EmbeddingProvider =
-        org.mockito.Mockito.mock(riven.core.service.enrichment.provider.EmbeddingProvider::class.java)
+    fun embeddingProvider(): cranium.core.service.enrichment.provider.EmbeddingProvider =
+        org.mockito.Mockito.mock(cranium.core.service.enrichment.provider.EmbeddingProvider::class.java)
 }
 
 /**
@@ -231,12 +231,12 @@ class ConnotationPipelineIntegrationTestConfig {
  * snapshot persisted to `entity_connotation` with the correct score, label, and themes.
  *
  * The manifest loader is intentionally bypassed — the loader has its own unit tests
- * ([riven.core.service.catalog.ManifestUpsertService] etc.). Instead, the catalog row, workspace
+ * ([cranium.core.service.catalog.ManifestUpsertService] etc.). Instead, the catalog row, workspace
  * entity type, entity instance, and `entity_attributes` rows are seeded directly via repositories.
- * This exercises the live runtime chain: [riven.core.service.enrichment.EnrichmentAnalysisService.analyzeSemantics]
+ * This exercises the live runtime chain: [cranium.core.service.enrichment.EnrichmentAnalysisService.analyzeSemantics]
  *  -> `persistConnotationSnapshot`
- *  -> [riven.core.service.connotation.ConnotationAnalysisService.analyze]
- *  -> [riven.core.service.connotation.DeterministicConnotationMapper.analyze]
+ *  -> [cranium.core.service.connotation.ConnotationAnalysisService.analyze]
+ *  -> [cranium.core.service.connotation.DeterministicConnotationMapper.analyze]
  *  -> JSONB write to `entity_connotation`.
  *
  * The final assertion runs a Layer-4-style JSONB predicate query
@@ -253,8 +253,8 @@ class ConnotationPipelineIntegrationTestConfig {
     properties = [
         "spring.jpa.hibernate.ddl-auto=none",
         "spring.main.allow-bean-definition-overriding=true",
-        "riven.manifests.auto-load=false",
-        "riven.connector.enabled=false",
+        "cranium.manifests.auto-load=false",
+        "cranium.connector.enabled=false",
     ]
 )
 @Testcontainers
@@ -434,7 +434,7 @@ class ConnotationPipelineIntegrationTest {
 
     /**
      * Creates a `manifest_catalog` row + matching `catalog_entity_types` row with
-     * a DETERMINISTIC LINEAR `connotationSignals` block. Bypasses [riven.core.service.catalog.ManifestUpsertService]
+     * a DETERMINISTIC LINEAR `connotationSignals` block. Bypasses [cranium.core.service.catalog.ManifestUpsertService]
      * — the upsert path is exercised by its own unit/integration tests. Returns the manifest ID.
      */
     private fun seedCatalogManifestWithConnotationSignals(): UUID {
@@ -489,7 +489,7 @@ class ConnotationPipelineIntegrationTest {
     /**
      * Creates the workspace entity type that points back to the catalog manifest via
      * `sourceManifestId`. The `attributeKeyMapping` is what
-     * [riven.core.service.enrichment.EnrichmentService.resolveAttributeValues] uses to translate
+     * [cranium.core.service.enrichment.EnrichmentService.resolveAttributeValues] uses to translate
      * manifest keys (`satisfaction_score`, `tags`) to per-workspace attribute UUIDs.
      */
     private fun seedWorkspaceEntityType(manifestId: UUID): EntityTypeEntity {

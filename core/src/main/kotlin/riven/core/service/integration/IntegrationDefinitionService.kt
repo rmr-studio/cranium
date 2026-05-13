@@ -1,11 +1,11 @@
-package riven.core.service.integration
+package cranium.core.service.integration
 
 import org.springframework.stereotype.Service
-import riven.core.entity.integration.IntegrationDefinitionEntity
-import riven.core.enums.integration.IntegrationCategory
-import riven.core.exceptions.NotFoundException
-import riven.core.repository.integration.IntegrationDefinitionRepository
-import riven.core.util.ServiceUtil.findOrThrow
+import cranium.core.entity.integration.IntegrationDefinitionEntity
+import cranium.core.enums.integration.IntegrationCategory
+import cranium.core.exceptions.NotFoundException
+import cranium.core.repository.integration.IntegrationDefinitionRepository
+import cranium.core.util.ServiceUtil.findOrThrow
 import java.util.*
 
 /**

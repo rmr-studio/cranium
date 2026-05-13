@@ -1,4 +1,4 @@
-package riven.core.service.workflow.identity
+package cranium.core.service.workflow.identity
 
 import io.temporal.activity.ActivityOptions
 import io.temporal.common.RetryOptions
@@ -10,7 +10,7 @@ import java.util.UUID
  * Implementation of [IdentityMatchWorkflow] for the identity matching pipeline.
  *
  * This class is NOT a Spring bean — Temporal manages its lifecycle. It is instantiated by
- * Temporal's worker via a factory in [riven.core.configuration.workflow.TemporalWorkerConfiguration].
+ * Temporal's worker via a factory in [cranium.core.configuration.workflow.TemporalWorkerConfiguration].
  *
  * DETERMINISM RULES:
  * - Uses Workflow.getLogger() for logging

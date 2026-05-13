@@ -1,4 +1,4 @@
-package riven.core.service.workspace
+package cranium.core.service.workspace
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.context.ApplicationEventPublisher
@@ -7,28 +7,28 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
-import riven.core.entity.workspace.WorkspaceEntity
-import riven.core.entity.workspace.WorkspaceMemberEntity
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.util.OperationType
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.exceptions.NotFoundException
-import riven.core.models.analytics.WorkspaceCreatedEvent
-import riven.core.models.analytics.WorkspaceUpdatedEvent
-import riven.core.models.common.markDeleted
-import riven.core.models.request.workspace.SaveWorkspaceRequest
-import riven.core.models.websocket.WorkspaceChangeEvent
-import riven.core.models.request.user.SaveUserRequest
-import riven.core.models.workspace.Workspace
-import riven.core.models.workspace.WorkspaceMember
-import riven.core.repository.workspace.WorkspaceMemberRepository
-import riven.core.repository.workspace.WorkspaceRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.activity.log
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.storage.StorageService
-import riven.core.service.user.UserService
-import riven.core.util.ServiceUtil.findOrThrow
+import cranium.core.entity.workspace.WorkspaceEntity
+import cranium.core.entity.workspace.WorkspaceMemberEntity
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.util.OperationType
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.exceptions.NotFoundException
+import cranium.core.models.analytics.WorkspaceCreatedEvent
+import cranium.core.models.analytics.WorkspaceUpdatedEvent
+import cranium.core.models.common.markDeleted
+import cranium.core.models.request.workspace.SaveWorkspaceRequest
+import cranium.core.models.websocket.WorkspaceChangeEvent
+import cranium.core.models.request.user.SaveUserRequest
+import cranium.core.models.workspace.Workspace
+import cranium.core.models.workspace.WorkspaceMember
+import cranium.core.repository.workspace.WorkspaceMemberRepository
+import cranium.core.repository.workspace.WorkspaceRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.activity.log
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.storage.StorageService
+import cranium.core.service.user.UserService
+import cranium.core.util.ServiceUtil.findOrThrow
 import java.util.*
 
 @Service
@@ -161,7 +161,7 @@ class WorkspaceService(
 
     private fun logWorkspaceActivity(userId: UUID, workspaceId: UUID, name: String, isUpdate: Boolean = false) {
         activityService.log(
-            activity = riven.core.enums.activity.Activity.WORKSPACE,
+            activity = cranium.core.enums.activity.Activity.WORKSPACE,
             operation = if (isUpdate) OperationType.UPDATE else OperationType.CREATE,
             userId = userId,
             workspaceId = workspaceId,
@@ -251,7 +251,7 @@ class WorkspaceService(
                 workspaceRepository.save(this)
                 // Log the activity of deleting an workspace
                 activityService.log(
-                    activity = riven.core.enums.activity.Activity.WORKSPACE,
+                    activity = cranium.core.enums.activity.Activity.WORKSPACE,
                     operation = OperationType.DELETE,
                     userId = userId,
                     workspaceId = workspaceId,
@@ -299,7 +299,7 @@ class WorkspaceService(
 
             workspaceMemberRepository.deleteById(id).also {
                 activityService.log(
-                    activity = riven.core.enums.activity.Activity.WORKSPACE_MEMBER,
+                    activity = cranium.core.enums.activity.Activity.WORKSPACE_MEMBER,
                     operation = OperationType.DELETE,
                     userId = userId,
                     workspaceId = workspaceId,
@@ -337,7 +337,7 @@ class WorkspaceService(
                 it.toModel()
             }.also {
                 activityService.log(
-                    activity = riven.core.enums.activity.Activity.WORKSPACE_MEMBER,
+                    activity = cranium.core.enums.activity.Activity.WORKSPACE_MEMBER,
                     operation = OperationType.UPDATE,
                     userId = userId,
                     workspaceId = workspaceId,

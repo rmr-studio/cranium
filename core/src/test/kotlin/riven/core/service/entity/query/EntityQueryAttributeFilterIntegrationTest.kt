@@ -1,13 +1,13 @@
-package riven.core.service.entity.query
+package cranium.core.service.entity.query
 
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import riven.core.enums.entity.query.FilterOperator
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.models.entity.query.EntityQuery
-import riven.core.models.entity.query.filter.FilterValue
-import riven.core.models.entity.query.filter.QueryFilter
+import cranium.core.enums.entity.query.FilterOperator
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.models.entity.query.EntityQuery
+import cranium.core.models.entity.query.filter.FilterValue
+import cranium.core.models.entity.query.filter.QueryFilter
 
 /**
  * Integration tests for attribute filtering and logical composition.

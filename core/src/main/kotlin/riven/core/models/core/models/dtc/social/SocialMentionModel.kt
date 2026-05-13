@@ -1,22 +1,22 @@
-package riven.core.models.core.models.dtc.social
+package cranium.core.models.core.models.dtc.social
 
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.DataType
-import riven.core.enums.entity.EntityTypeRole
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.models.common.validation.SchemaOptions
-import riven.core.models.core.AttributeSemantics
-import riven.core.models.core.CoreModelAttribute
-import riven.core.models.core.ProjectionAcceptRule
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.DataType
+import cranium.core.enums.entity.EntityTypeRole
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.models.common.validation.SchemaOptions
+import cranium.core.models.core.AttributeSemantics
+import cranium.core.models.core.CoreModelAttribute
+import cranium.core.models.core.ProjectionAcceptRule
 
 /**
  * Social Mention — a brand mention from a non-owned account (UGC, customer content, press).
  */
-object SocialMentionModel : riven.core.models.core.CoreModelDefinition(
+object SocialMentionModel : cranium.core.models.core.CoreModelDefinition(
     key = "social-mention",
     displayNameSingular = "Social Mention",
     displayNamePlural = "Social Mentions",

@@ -1,4 +1,4 @@
-package riven.core.models.connector
+package cranium.core.models.connector
 
 /** Result of a dry-run gate validation. */
 data class ConnectorTestResult(

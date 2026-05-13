@@ -1,4 +1,4 @@
-package riven.core.enums.workspace
+package cranium.core.enums.workspace
 
 enum class WorkspaceRoles(val authority: Int) {
     OWNER(3),

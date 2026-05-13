@@ -1,10 +1,15 @@
 ---
 tags:
-  - adr/proposed
+  - adr/superseded
   - architecture/decision
 Created: 2026-02-13
+Updated: 2026-05-13
+Superseded By: "[[ADR-021 GitHub-Only v1, Slack and Notion as v1.1]]"
 ---
+
 # ADR-001: Nango as Integration Infrastructure
+
+> **Superseded by the 2026-05 architecture pivot.** v1 ships GitHub only (read-only PAT for the scan, GitHub App for the PR bot); the Nango integration sync — the 3-pass Temporal workflow, `SchemaMappingService`, the webhook controller, the multi-provider connection model — is deleted in Phase 1c. Slack/Notion are v1.1 enrichment built as hardcoded `SourceConnector` implementations, not via Nango or a manifest engine. The HMAC-webhook-validation pattern is preserved (git history / a [[Wiki/Cranium]] page) for the v1.1 connectors. See [[architecture-pivot]] §Reuse / Rework / Replace / Delete and [[ADR-021 GitHub-Only v1, Slack and Notion as v1.1]].
 
 ---
 
@@ -86,19 +91,19 @@ No official Java/Kotlin SDK exists for Nango -- integration is via direct REST A
 
 ## Implementation Notes
 
-- **NangoClientWrapper service** at `riven.core.service.integration.NangoClientWrapper`. Provides `getConnection()`, `listConnections()`, and `deleteConnection()` methods wrapping Nango REST API calls.
-- **Configuration via environment variables:** `NANGO_SECRET_KEY` (required for API authentication), `NANGO_BASE_URL` (defaults to `https://api.nango.dev`), `NANGO_WEBHOOK_SECRET` (for webhook signature verification). Bound via `NangoConfigurationProperties` with `@ConfigurationProperties(prefix = "riven.nango")`.
+- **NangoClientWrapper service** at `cranium.core.service.integration.NangoClientWrapper`. Provides `getConnection()`, `listConnections()`, and `deleteConnection()` methods wrapping Nango REST API calls.
+- **Configuration via environment variables:** `NANGO_SECRET_KEY` (required for API authentication), `NANGO_BASE_URL` (defaults to `https://api.nango.dev`), `NANGO_WEBHOOK_SECRET` (for webhook signature verification). Bound via `NangoConfigurationProperties` with `@ConfigurationProperties(prefix = "cranium.nango")`.
 - **Uses qualified WebClient bean** (`@Qualifier("nangoWebClient")`) configured in `NangoClientConfiguration` to avoid conflicts with other HTTP clients in the application (e.g., Supabase, workflow HTTP actions).
 - **Retry logic:** 3 retries with exponential backoff (2-second base interval), filtered on `RateLimitException`. Non-rate-limit errors (4xx, 5xx) are not retried -- they are mapped to `NangoApiException` with the HTTP status code for upstream error classification.
 - **Runtime validation** of secret key via `ensureConfigured()` rather than startup validation. This allows the application to start without Nango configured (for existing deployments or environments where integration features are not yet enabled). The first actual API call will fail with a clear error message if the key is missing.
 - **Custom exceptions:** `RateLimitException` (for 429 responses, triggers retry), `NangoApiException` (for other API errors, includes HTTP status code), `InvalidStateTransitionException` (for connection state machine violations, maps to 409 Conflict).
-- **Connection lifecycle** managed by `IntegrationConnectionService` with a 10-state `ConnectionStatus` enum. State transitions validated via `canTransitionTo()` before any status update. See [[riven/docs/system-design/flows/Integration Connection Lifecycle]] for the full state machine.
+- **Connection lifecycle** managed by `IntegrationConnectionService` with a 10-state `ConnectionStatus` enum. State transitions validated via `canTransitionTo()` before any status update. See [[cranium/docs/system-design/flows/Integration Connection Lifecycle]] for the full state machine.
 
 ---
 
 ## Related
 
-- [[riven/docs/system-design/feature-design/3. Active/Integration Access Layer]]
-- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]]
-- [[riven/docs/system-design/feature-design/5. Backlog/Integration Schema Mapping]]
-- [[riven/docs/system-design/flows/Integration Connection Lifecycle]]
+- [[cranium/docs/system-design/feature-design/3. Active/Integration Access Layer]]
+- [[cranium/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]]
+- [[cranium/docs/system-design/feature-design/5. Backlog/Integration Schema Mapping]]
+- [[cranium/docs/system-design/flows/Integration Connection Lifecycle]]

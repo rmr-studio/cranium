@@ -16,7 +16,7 @@ Multi-tenant workspace-scoped backend API for a configurable data platform with 
 ## Architecture Rules
 
 - **Pattern:** Layered architecture — Controller → Service → Repository, with separate Entity (JPA) and Model (domain) layers.
-- **Package structure:** `riven.core.{layer}.{domain}` — e.g. `controller.entity`, `service.entity`, `repository.entity`, `entity.entity`, `models.entity`. Follow this convention for all new code.
+- **Package structure:** `cranium.core.{layer}.{domain}` — e.g. `controller.entity`, `service.entity`, `repository.entity`, `entity.entity`, `models.entity`. Follow this convention for all new code.
 - **Single Gradle module** — no module boundaries. All domain separation is via packages.
 - **Dependency direction:** Controllers depend on services. Services depend on repositories and other services. Repositories depend only on entities. Models are standalone. Cross-domain communication is through direct service injection.
 - **Security enforcement:** Workspace access control via `@PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")` and `@PostAuthorize` on **service methods**, not controllers. Controllers delegate to services and return `ResponseEntity`.
@@ -33,7 +33,7 @@ Multi-tenant workspace-scoped backend API for a configurable data platform with 
 - **Entity-to-model mapping** via `toModel()` methods defined on the JPA entity class. Do not use MapStruct or separate mapper classes.
 - **Repository lookups:** Use `ServiceUtil.findOrThrow { repository.findById(id) }` for single-entity fetches. This throws `NotFoundException` on miss.
 - **Preconditions:** Use `require()` and `requireNotNull()` for argument validation in services. These produce `IllegalArgumentException`, caught by the global `@ControllerAdvice`.
-- **Error handling:** Throw domain-specific exceptions (`NotFoundException`, `ConflictException`, `SchemaValidationException`, `UniqueConstraintViolationException`, `WorkflowValidationException`). These are mapped to HTTP status codes by `ExceptionHandler` in `riven.core.exceptions`. Do not catch-and-swallow — let exceptions propagate to the advice.
+- **Error handling:** Throw domain-specific exceptions (`NotFoundException`, `ConflictException`, `SchemaValidationException`, `UniqueConstraintViolationException`, `WorkflowValidationException`). These are mapped to HTTP status codes by `ExceptionHandler` in `cranium.core.exceptions`. Do not catch-and-swallow — let exceptions propagate to the advice.
 - **Swagger annotations:** Add `@Operation`, `@ApiResponses` to all controller endpoints. Use `@Tag(name = "domain")` at class level.
 - **UUID everywhere:** All primary keys are `UUID` with `@GeneratedValue(strategy = GenerationType.UUID)`. Use `UUID` for path variables and request fields.
 - **Never manually generate UUIDs for JPA-managed entities.** When an entity uses `@GeneratedValue(strategy = GenerationType.UUID)` with `id: UUID? = null`, always leave the `id` as `null` (or omit it) when constructing new entities. Setting `id = UUID.randomUUID()` causes Spring Data's `save()` to call `merge()` instead of `persist()`, resulting in `StaleObjectStateException` because Hibernate tries to find a non-existent row. Let JPA generate the ID — that's what `@GeneratedValue` is for.
@@ -41,7 +41,7 @@ Multi-tenant workspace-scoped backend API for a configurable data platform with 
 - **JSONB columns:** Use Hypersistence `@Type(JsonBinaryType::class)` with `columnDefinition = "jsonb"` for dynamic payload columns.
 - **Enums over string literals:** Always use enums for fixed sets of values (types, statuses, categories). Never use raw strings in `when` branches, model fields, or API contracts when the set of valid values is known and finite. Use `@JsonProperty` on enum values for JSON serialization. This ensures compile-time exhaustiveness checks, IDE discoverability, and catches invalid values at deserialization rather than deep in business logic.
 - **Naming:** Services are `{Domain}Service`, repositories are `{Domain}Repository`, controllers are `{Domain}Controller`, entities are `{Domain}Entity`. Enums live in `enums.{domain}`.
-- **Configuration properties:** Always access application configuration via `@ConfigurationProperties` data classes in `configuration/properties/` (or the relevant `configuration/{domain}/` package). Do not use `@Value` annotations to inject individual properties — use a typed configuration bean instead. This ensures type safety, IDE discoverability, and centralised defaults. Existing properties classes follow the pattern: `@ConfigurationProperties(prefix = "riven.{domain}")` on a data class with default values.
+- **Configuration properties:** Always access application configuration via `@ConfigurationProperties` data classes in `configuration/properties/` (or the relevant `configuration/{domain}/` package). Do not use `@Value` annotations to inject individual properties — use a typed configuration bean instead. This ensures type safety, IDE discoverability, and centralised defaults. Existing properties classes follow the pattern: `@ConfigurationProperties(prefix = "cranium.{domain}")` on a data class with default values.
 
 ## Service and Function Design
 
@@ -93,7 +93,7 @@ Multi-tenant workspace-scoped backend API for a configurable data platform with 
 - **Frameworks:** JUnit 5, Mockito via `mockito-kotlin` (prefer `whenever`/`verify` over `Mockito.when`/`Mockito.verify`).
 - **Unit tests:** `@SpringBootTest` with targeted `classes = [...]` to load only the service under test + its security config. Mock all dependencies with `@MockitoBean`.
 - **Security in tests:** Use the custom `@WithUserPersona` annotation (in `service.util`) to set up JWT security context with workspace roles. This is **mandatory** for any test that touches JWT-authenticated code paths — it sets up a real `JwtAuthenticationToken` with a signed JWT in the `SecurityContext`, which both `@PreAuthorize` (authority checks) and `AuthTokenService.getUserId()` (principal extraction) depend on. Apply it at **class level** for a test-wide persona, or at **method level** to override for specific test cases. **Important:** JUnit 5 `@Nested` inner classes do **not** inherit the outer class's `@WithUserPersona` — you must re-apply it on the nested class or on individual methods within it if those tests call code that reads the JWT principal (e.g. `authTokenService.getUserId()`).
-- **Test data:** Use factory classes in `src/test/kotlin/riven/core/service/util/factory/` — extend these for new domains. **Never construct JPA entities inline in tests** — always use or create a factory method. If a factory doesn't exist for the entity, add one. This applies to all entity construction in test files, including mock return values and argument captors.
+- **Test data:** Use factory classes in `src/test/kotlin/cranium/core/service/util/factory/` — extend these for new domains. **Never construct JPA entities inline in tests** — always use or create a factory method. If a factory doesn't exist for the entity, add one. This applies to all entity construction in test files, including mock return values and argument captors.
 - **Integration tests:** Use `@ActiveProfiles("integration")` with Testcontainers PostgreSQL. Base classes provide shared container and `@DynamicPropertySource` wiring. Exclude security and Temporal auto-configuration.
 - **Unit test profile:** `application-test.yml` uses H2 in PostgreSQL-compat mode with `ddl-auto: create-drop`.
 - **Run tests:** `./gradlew test`
@@ -116,7 +116,7 @@ Multi-tenant workspace-scoped backend API for a configurable data platform with 
 - **Build:** `./gradlew build`
 - **Run locally:** `./gradlew bootRun` — requires env vars: `POSTGRES_DB_JDBC`, `JWT_SECRET_KEY`, `JWT_AUTH_URL`, `SUPABASE_URL`, `SUPABASE_KEY`, `SERVER_PORT`, `ORIGIN_API_URL`, `TEMPORAL_SERVER_ADDRESS`
 - **Run tests:** `./gradlew test`
-- **Docker build:** `docker build -t riven-core .` (multi-stage, skips tests)
+- **Docker build:** `docker build -t cranium-core .` (multi-stage, skips tests)
 
 ## Always Perform List
 
@@ -275,6 +275,7 @@ tool as your FIRST action. Do NOT answer directly, do NOT use other tools first.
 The skill has specialized workflows that produce better results than ad-hoc answers.
 
 Key routing rules:
+
 - Product ideas, "is this worth building", brainstorming → invoke office-hours
 - Bugs, errors, "why is this broken", 500 errors → invoke investigate
 - Ship, deploy, push, create PR → invoke ship

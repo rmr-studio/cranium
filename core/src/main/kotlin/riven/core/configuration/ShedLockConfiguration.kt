@@ -1,4 +1,4 @@
-package riven.core.configuration
+package cranium.core.configuration
 
 import net.javacrumbs.shedlock.core.LockProvider
 import net.javacrumbs.shedlock.provider.jdbctemplate.JdbcTemplateLockProvider

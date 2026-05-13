@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,77 +12,56 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
+import type { BlockListConfiguration } from './BlockListConfiguration';
+import {
+    BlockListConfigurationFromJSON,
+    BlockListConfigurationToJSON
+} from './BlockListConfiguration';
+import type { BlockMeta } from './BlockMeta';
+import {
+    BlockMetaFromJSON,
+    BlockMetaToJSON
+} from './BlockMeta';
+import type { BlockMetadataType } from './BlockMetadataType';
+import {
+    BlockMetadataTypeFromJSON,
+    BlockMetadataTypeToJSON
+} from './BlockMetadataType';
 import type { BlockReferenceFetchPolicy } from './BlockReferenceFetchPolicy';
 import {
     BlockReferenceFetchPolicyFromJSON,
-    BlockReferenceFetchPolicyFromJSONTyped,
-    BlockReferenceFetchPolicyToJSON,
-    BlockReferenceFetchPolicyToJSONTyped,
+    BlockReferenceFetchPolicyToJSON
 } from './BlockReferenceFetchPolicy';
 import type { Entity } from './Entity';
 import {
     EntityFromJSON,
-    EntityFromJSONTyped,
-    EntityToJSON,
-    EntityToJSONTyped,
+    EntityToJSON
 } from './Entity';
-import type { BlockListConfiguration } from './BlockListConfiguration';
-import {
-    BlockListConfigurationFromJSON,
-    BlockListConfigurationFromJSONTyped,
-    BlockListConfigurationToJSON,
-    BlockListConfigurationToJSONTyped,
-} from './BlockListConfiguration';
-import type { BlockMetadataType } from './BlockMetadataType';
-import {
-    BlockMetadataTypeFromJSON,
-    BlockMetadataTypeFromJSONTyped,
-    BlockMetadataTypeToJSON,
-    BlockMetadataTypeToJSONTyped,
-} from './BlockMetadataType';
-import type { ListDisplayConfig } from './ListDisplayConfig';
-import {
-    ListDisplayConfigFromJSON,
-    ListDisplayConfigFromJSONTyped,
-    ListDisplayConfigToJSON,
-    ListDisplayConfigToJSONTyped,
-} from './ListDisplayConfig';
-import type { ReferenceItem } from './ReferenceItem';
-import {
-    ReferenceItemFromJSON,
-    ReferenceItemFromJSONTyped,
-    ReferenceItemToJSON,
-    ReferenceItemToJSONTyped,
-} from './ReferenceItem';
-import type { Projection } from './Projection';
-import {
-    ProjectionFromJSON,
-    ProjectionFromJSONTyped,
-    ProjectionToJSON,
-    ProjectionToJSONTyped,
-} from './Projection';
-import type { Presentation } from './Presentation';
-import {
-    PresentationFromJSON,
-    PresentationFromJSONTyped,
-    PresentationToJSON,
-    PresentationToJSONTyped,
-} from './Presentation';
-import type { BlockMeta } from './BlockMeta';
-import {
-    BlockMetaFromJSON,
-    BlockMetaFromJSONTyped,
-    BlockMetaToJSON,
-    BlockMetaToJSONTyped,
-} from './BlockMeta';
 import type { ListConfig } from './ListConfig';
 import {
     ListConfigFromJSON,
-    ListConfigFromJSONTyped,
-    ListConfigToJSON,
-    ListConfigToJSONTyped,
+    ListConfigToJSON
 } from './ListConfig';
+import type { ListDisplayConfig } from './ListDisplayConfig';
+import {
+    ListDisplayConfigFromJSON,
+    ListDisplayConfigToJSON
+} from './ListDisplayConfig';
+import type { Presentation } from './Presentation';
+import {
+    PresentationFromJSON,
+    PresentationToJSON
+} from './Presentation';
+import type { Projection } from './Projection';
+import {
+    ProjectionFromJSON,
+    ProjectionToJSON
+} from './Projection';
+import type { ReferenceItem } from './ReferenceItem';
+import {
+    ReferenceItemFromJSON,
+    ReferenceItemToJSON
+} from './ReferenceItem';
 
 /**
  * 

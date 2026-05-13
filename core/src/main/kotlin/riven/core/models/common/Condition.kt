@@ -1,10 +1,10 @@
-package riven.core.models.common
+package cranium.core.models.common
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import tools.jackson.databind.annotation.JsonTypeIdResolver
-import riven.core.configuration.util.CaseInsensitiveTypeIdResolver
-import riven.core.models.common.json.JsonValue
+import cranium.core.configuration.util.CaseInsensitiveTypeIdResolver
+import cranium.core.models.common.json.JsonValue
 
 /** Simple boolean predicate */
 data class Condition(

@@ -1,4 +1,4 @@
-package riven.core.configuration.websocket
+package cranium.core.configuration.websocket
 
 import org.springframework.context.annotation.Configuration
 import org.springframework.messaging.simp.config.ChannelRegistration
@@ -9,8 +9,8 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer
 import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration
-import riven.core.configuration.properties.SecurityConfigurationProperties
-import riven.core.configuration.properties.WebSocketConfigurationProperties
+import cranium.core.configuration.properties.SecurityConfigurationProperties
+import cranium.core.configuration.properties.WebSocketConfigurationProperties
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -43,7 +43,7 @@ class WebSocketConfig(
 
     override fun configureWebSocketTransport(registration: WebSocketTransportRegistration) {
         require(wsProperties.sendTimeoutMs in 0..Int.MAX_VALUE) {
-            "riven.websocket.send-timeout-ms (${wsProperties.sendTimeoutMs}) must be between 0 and ${Int.MAX_VALUE}"
+            "cranium.websocket.send-timeout-ms (${wsProperties.sendTimeoutMs}) must be between 0 and ${Int.MAX_VALUE}"
         }
         registration
             .setMessageSizeLimit(wsProperties.maxMessageSizeBytes)

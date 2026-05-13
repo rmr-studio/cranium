@@ -6,8 +6,8 @@ import { useDisableIntegration } from '@/components/feature-modules/integrations
 import { useIntegrationStatus } from '@/components/feature-modules/integrations/hooks/query/use-integration-status';
 import { useIntegrations } from '@/components/feature-modules/integrations/hooks/query/use-integrations';
 import { ConnectionStatus } from '@/lib/types/integration';
-import { Badge } from '@riven/ui/badge';
-import { Button } from '@riven/ui/button';
+import { Badge } from '@cranium/ui/badge';
+import { Button } from '@cranium/ui/button';
 import { ArrowLeft, Check, Clock, Puzzle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';

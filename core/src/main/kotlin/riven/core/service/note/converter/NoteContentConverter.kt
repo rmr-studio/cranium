@@ -1,4 +1,4 @@
-package riven.core.service.note.converter
+package cranium.core.service.note.converter
 
 /**
  * Converts raw content from an integration source into BlockNote-compatible blocks.

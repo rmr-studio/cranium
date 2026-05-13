@@ -1,19 +1,19 @@
-package riven.core.service.workflow
+package cranium.core.service.workflow
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
-import riven.core.enums.workflow.WorkflowNodeType
-import riven.core.models.workflow.node.config.WorkflowFunctionConfig
-import riven.core.models.workflow.node.config.WorkflowNodeConfig
-import riven.core.models.workflow.node.config.WorkflowNodeConfigField
-import riven.core.models.workflow.node.config.WorkflowNodeOutputMetadata
-import riven.core.models.workflow.node.config.WorkflowNodeTypeMetadata
-import riven.core.models.workflow.node.config.actions.*
-import riven.core.models.workflow.node.config.controls.WorkflowConditionControlConfig
-import riven.core.models.workflow.node.config.trigger.WorkflowEntityEventTriggerConfig
-import riven.core.models.workflow.node.config.trigger.WorkflowFunctionTriggerConfig
-import riven.core.models.workflow.node.config.trigger.WorkflowScheduleTriggerConfig
-import riven.core.models.workflow.node.config.trigger.WorkflowWebhookTriggerConfig
+import cranium.core.enums.workflow.WorkflowNodeType
+import cranium.core.models.workflow.node.config.WorkflowFunctionConfig
+import cranium.core.models.workflow.node.config.WorkflowNodeConfig
+import cranium.core.models.workflow.node.config.WorkflowNodeConfigField
+import cranium.core.models.workflow.node.config.WorkflowNodeOutputMetadata
+import cranium.core.models.workflow.node.config.WorkflowNodeTypeMetadata
+import cranium.core.models.workflow.node.config.actions.*
+import cranium.core.models.workflow.node.config.controls.WorkflowConditionControlConfig
+import cranium.core.models.workflow.node.config.trigger.WorkflowEntityEventTriggerConfig
+import cranium.core.models.workflow.node.config.trigger.WorkflowFunctionTriggerConfig
+import cranium.core.models.workflow.node.config.trigger.WorkflowScheduleTriggerConfig
+import cranium.core.models.workflow.node.config.trigger.WorkflowWebhookTriggerConfig
 import kotlin.reflect.KClass
 import kotlin.reflect.full.companionObjectInstance
 

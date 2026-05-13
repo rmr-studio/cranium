@@ -1,8 +1,8 @@
-package riven.core.service.integration.sync
+package cranium.core.service.integration.sync
 
 import io.temporal.workflow.WorkflowInterface
 import io.temporal.workflow.WorkflowMethod
-import riven.core.models.integration.sync.IntegrationSyncWorkflowInput
+import cranium.core.models.integration.sync.IntegrationSyncWorkflowInput
 
 /**
  * Temporal workflow interface for executing an integration data sync.

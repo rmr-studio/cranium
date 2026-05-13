@@ -1,4 +1,4 @@
-package riven.core.service.workflow.enrichment
+package cranium.core.service.workflow.enrichment
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
@@ -25,10 +25,10 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import riven.core.configuration.workflow.TemporalWorkerConfiguration
-import riven.core.models.enrichment.EnrichmentContext
-import riven.core.service.enrichment.EmbeddingConsumer
-import riven.core.service.util.factory.EnrichmentFactory
+import cranium.core.configuration.workflow.TemporalWorkerConfiguration
+import cranium.core.models.enrichment.EnrichmentContext
+import cranium.core.service.enrichment.EmbeddingConsumer
+import cranium.core.service.util.factory.EnrichmentFactory
 import java.time.Duration
 import java.util.UUID
 import java.util.concurrent.TimeUnit
@@ -41,8 +41,8 @@ import java.util.concurrent.TimeUnit
  * 1. Embedding terminal failure does not retry analysis nor propagate as a workflow failure.
  * 2. Analysis success persists the semantic snapshot regardless of embedding outcome
  *    (verified by proxy: analyzeSemantics stub returning a context stands in for the
- *    real [riven.core.service.enrichment.EnrichmentAnalysisService.analyzeSemantics] side-effect,
- *    which is unit-tested separately in [riven.core.service.enrichment.EnrichmentAnalysisServiceTest]).
+ *    real [cranium.core.service.enrichment.EnrichmentAnalysisService.analyzeSemantics] side-effect,
+ *    which is unit-tested separately in [cranium.core.service.enrichment.EnrichmentAnalysisServiceTest]).
  * 3. The workflow scaffold accepts a [List]<[ConsumerActivity]> of size > 1 — injecting a second
  *    test-only consumer verifies that both run (embedding AND the test consumer).
  * 4. A non-embedding consumer failure is also swallowed — the embedding consumer still runs.
@@ -178,7 +178,7 @@ class EnrichmentWorkflowIT {
          * regardless of embedding outcome.
          *
          * The analyzeSemantics stub returning the fixture context is the proxy for "persistence
-         * happened" — the real [riven.core.service.enrichment.EnrichmentAnalysisService.analyzeSemantics]
+         * happened" — the real [cranium.core.service.enrichment.EnrichmentAnalysisService.analyzeSemantics]
          * upserts the `entity_connotation` snapshot before returning the context. The workflow's
          * runCatching semantics ensure the snapshot is never rolled back when embedding fails.
          *

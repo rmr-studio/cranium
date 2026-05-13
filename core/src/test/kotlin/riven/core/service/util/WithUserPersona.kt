@@ -1,4 +1,4 @@
-package riven.core.service.util
+package cranium.core.service.util
 
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSHeader
@@ -13,7 +13,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
-import riven.core.enums.workspace.WorkspaceRoles
+import cranium.core.enums.workspace.WorkspaceRoles
 import java.lang.annotation.Inherited
 import java.time.Instant
 import java.util.*

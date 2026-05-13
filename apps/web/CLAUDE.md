@@ -1,4 +1,4 @@
-# CLAUDE.md — Riven Landing Page + Marketing
+# CLAUDE.md — Cranium Landing Page + Marketing
 
 ## Importing
 

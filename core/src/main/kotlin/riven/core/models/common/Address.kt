@@ -1,4 +1,4 @@
-package riven.core.models.common
+package cranium.core.models.common
 
 data class Address(
     val street: String,

@@ -1,4 +1,4 @@
-package riven.core.enums.connector
+package cranium.core.enums.connector
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonValue

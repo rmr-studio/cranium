@@ -1,4 +1,4 @@
-package riven.core.entity.enrichment
+package cranium.core.entity.enrichment
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -24,9 +24,9 @@ import org.springframework.transaction.annotation.Transactional
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
-import riven.core.repository.enrichment.EntityEmbeddingRepository
-import riven.core.service.util.SchemaInitializer
-import riven.core.service.util.factory.enrichment.EnrichmentFactory
+import cranium.core.repository.enrichment.EntityEmbeddingRepository
+import cranium.core.service.util.SchemaInitializer
+import cranium.core.service.util.factory.enrichment.EnrichmentFactory
 import java.util.UUID
 
 /**
@@ -59,8 +59,8 @@ import java.util.UUID
         "io.temporal.spring.boot.autoconfigure.TestServerAutoConfiguration",
     ],
 )
-@EnableJpaRepositories(basePackages = ["riven.core.repository.enrichment"])
-@EntityScan("riven.core.entity.enrichment")
+@EnableJpaRepositories(basePackages = ["cranium.core.repository.enrichment"])
+@EntityScan("cranium.core.entity.enrichment")
 class EntityEmbeddingHibernate7IntegrationTestConfig
 
 @SpringBootTest(
@@ -82,7 +82,7 @@ class EntityEmbeddingHibernate7IntegrationTest {
         val postgres: PostgreSQLContainer = PostgreSQLContainer(
             DockerImageName.parse("pgvector/pgvector:pg16").asCompatibleSubstituteFor("postgres")
         )
-            .withDatabaseName("riven_h7_vector")
+            .withDatabaseName("cranium_h7_vector")
             .withUsername("test")
             .withPassword("test")
 

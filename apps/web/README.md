@@ -1,4 +1,4 @@
-# @riven/web
+# @cranium/web
 
 Marketing website and landing page.
 
@@ -14,7 +14,7 @@ Marketing website and landing page.
 
 ```sh
 # From the monorepo root
-pnpm --filter @riven/web dev
+pnpm --filter @cranium/web dev
 ```
 
 Runs on [http://localhost:3000](http://localhost:3000).
@@ -27,7 +27,7 @@ Create `apps/web/.env.local`:
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
-NEXT_PUBLIC_CDN_URL=https://cdn.riven.software
+NEXT_PUBLIC_CDN_URL=https://cdn.cranium.software
 ```
 
 ## Project structure

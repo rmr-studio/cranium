@@ -1,4 +1,4 @@
-package riven.core.filter.integration
+package cranium.core.filter.integration
 
 import io.github.oshai.kotlinlogging.KLogger
 import jakarta.servlet.FilterChain
@@ -11,7 +11,7 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
-import riven.core.configuration.properties.NangoConfigurationProperties
+import cranium.core.configuration.properties.NangoConfigurationProperties
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import kotlin.test.assertEquals

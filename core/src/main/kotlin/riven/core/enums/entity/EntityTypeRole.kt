@@ -1,4 +1,4 @@
-package riven.core.enums.entity
+package cranium.core.enums.entity
 
 /**
  * The Entity Type Surface role dictates how an entity/entity type is used within the application. As entities

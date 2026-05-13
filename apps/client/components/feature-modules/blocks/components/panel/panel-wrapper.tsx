@@ -1,7 +1,7 @@
 "use client";
-import type { ChildNodeProps, ClassNameProps } from '@riven/utils';
+import type { ChildNodeProps, ClassNameProps } from '@cranium/utils';
 import type { EntityType } from "@/lib/types/entity";
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 import { AnimatePresence } from "framer-motion";
 import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useBlockEdit } from "../../context/block-edit-provider";

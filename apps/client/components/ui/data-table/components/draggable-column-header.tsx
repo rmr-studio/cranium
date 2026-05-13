@@ -1,7 +1,7 @@
 'use client';
 
-import { TableHead } from '@riven/ui/table';
-import { cn } from '@riven/utils';
+import { TableHead } from '@cranium/ui/table';
+import { cn } from '@cranium/utils';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Header, flexRender } from '@tanstack/react-table';

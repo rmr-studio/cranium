@@ -1,4 +1,4 @@
-package riven.core.service.catalog
+package cranium.core.service.catalog
 
 import org.springframework.boot.health.contributor.AbstractHealthIndicator
 import org.springframework.boot.health.contributor.Health

@@ -16,12 +16,12 @@ import { CurrencySelector } from '@/components/ui/forms/currency/form-currency-p
 import { WorkspacePlan, type Workspace } from '@/lib/types/workspace';
 import { isValidCurrency } from '@/lib/util/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@riven/ui/button';
-import { CardContent, CardFooter } from '@riven/ui/card';
-import { Input } from '@riven/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@riven/ui/select';
-import type { ClassNameProps } from '@riven/utils';
-import { cn } from '@riven/utils';
+import { Button } from '@cranium/ui/button';
+import { CardContent, CardFooter } from '@cranium/ui/card';
+import { Input } from '@cranium/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@cranium/ui/select';
+import type { ClassNameProps } from '@cranium/utils';
+import { cn } from '@cranium/utils';
 import { Link, SquareArrowUpRight } from 'lucide-react';
 import { FC } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';

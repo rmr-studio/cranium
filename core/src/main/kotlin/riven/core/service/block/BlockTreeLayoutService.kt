@@ -1,11 +1,11 @@
-package riven.core.service.block
+package cranium.core.service.block
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.block.BlockTreeLayoutEntity
-import riven.core.models.block.layout.TreeLayout
-import riven.core.repository.block.BlockTreeLayoutRepository
-import riven.core.util.ServiceUtil.findOrThrow
+import cranium.core.entity.block.BlockTreeLayoutEntity
+import cranium.core.models.block.layout.TreeLayout
+import cranium.core.repository.block.BlockTreeLayoutRepository
+import cranium.core.util.ServiceUtil.findOrThrow
 import java.util.*
 
 
@@ -55,7 +55,7 @@ class BlockTreeLayoutService(
     fun extractBlockIdsFromTreeLayout(treeLayout: TreeLayout): Set<UUID> {
         val ids = mutableSetOf<UUID>()
 
-        fun traverseWidgets(widgets: List<riven.core.models.block.layout.Widget>?) {
+        fun traverseWidgets(widgets: List<cranium.core.models.block.layout.Widget>?) {
             widgets?.forEach { widget ->
                 // Extract block ID from widget content
                 widget.content?.id?.let { idString ->

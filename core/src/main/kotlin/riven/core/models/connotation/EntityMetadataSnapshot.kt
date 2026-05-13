@@ -1,13 +1,13 @@
-package riven.core.models.connotation
+package cranium.core.models.connotation
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.connotation.ConnotationStatus
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.enums.integration.SourceType
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.connotation.ConnotationStatus
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.enums.integration.SourceType
 import java.time.ZonedDateTime
 
 /**
@@ -173,7 +173,7 @@ data class RelationalReferenceResolution(
  *
  * Mirrors `EntityTypeSemanticMetadataEntity` / `RelationshipDefinitionEntity` /
  * `EntityTypeEntity` columns, but captures the per-entity view of which definitions
- * applied at embed time. Stored so a manifest-driven re-embed can detect drift via
+ * applied at embed time. Stored so a manifest-dcranium re-embed can detect drift via
  * the schema reconciliation hook.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)

@@ -1,4 +1,4 @@
-package riven.core.validation.entity
+package cranium.core.validation.entity
 
 import jakarta.validation.ConstraintValidatorContext
 import org.junit.jupiter.api.Assertions.*
@@ -6,11 +6,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
-import riven.core.enums.entity.EntitySelectType
-import riven.core.enums.entity.query.FilterOperator
-import riven.core.models.entity.query.filter.FilterValue
-import riven.core.models.entity.query.filter.QueryFilter
-import riven.core.models.request.entity.DeleteEntityRequest
+import cranium.core.enums.entity.EntitySelectType
+import cranium.core.enums.entity.query.FilterOperator
+import cranium.core.models.entity.query.filter.FilterValue
+import cranium.core.models.entity.query.filter.QueryFilter
+import cranium.core.models.request.entity.DeleteEntityRequest
 import java.util.*
 
 class DeleteEntityRequestValidatorTest {

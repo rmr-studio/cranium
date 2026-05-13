@@ -1,4 +1,4 @@
-package riven.core
+package cranium.core
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan

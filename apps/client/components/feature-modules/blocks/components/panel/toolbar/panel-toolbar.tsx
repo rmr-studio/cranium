@@ -7,10 +7,10 @@
  * for implementation reference.
  */
 
-import { Button } from '@riven/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@riven/ui/tooltip';
-import { cn } from '@riven/utils';
+import { Button } from '@cranium/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@cranium/ui/popover';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@cranium/ui/tooltip';
+import { cn } from '@cranium/utils';
 import { Check, CommandIcon, Edit3, InfoIcon, PlusIcon, X } from 'lucide-react';
 import { FC, ReactNode, RefObject } from 'react';
 

@@ -1,4 +1,4 @@
-package riven.core.entity.block
+package cranium.core.entity.block
 
 import jakarta.persistence.*
 import java.time.ZonedDateTime
@@ -42,4 +42,4 @@ data class BlockChildEntity(
 
     @Column(name = "deleted_at", nullable = true)
     override var deletedAt: ZonedDateTime? = null,
-) : riven.core.models.common.SoftDeletable
+) : cranium.core.models.common.SoftDeletable

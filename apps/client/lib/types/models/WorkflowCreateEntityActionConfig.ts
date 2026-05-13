@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,28 +12,21 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
+import type { WorkflowActionType } from './WorkflowActionType';
+import {
+    WorkflowActionTypeFromJSON,
+    WorkflowActionTypeToJSON
+} from './WorkflowActionType';
 import type { WorkflowNodeConfigField } from './WorkflowNodeConfigField';
 import {
     WorkflowNodeConfigFieldFromJSON,
-    WorkflowNodeConfigFieldFromJSONTyped,
-    WorkflowNodeConfigFieldToJSON,
-    WorkflowNodeConfigFieldToJSONTyped,
+    WorkflowNodeConfigFieldToJSON
 } from './WorkflowNodeConfigField';
 import type { WorkflowNodeType } from './WorkflowNodeType';
 import {
     WorkflowNodeTypeFromJSON,
-    WorkflowNodeTypeFromJSONTyped,
-    WorkflowNodeTypeToJSON,
-    WorkflowNodeTypeToJSONTyped,
+    WorkflowNodeTypeToJSON
 } from './WorkflowNodeType';
-import type { WorkflowActionType } from './WorkflowActionType';
-import {
-    WorkflowActionTypeFromJSON,
-    WorkflowActionTypeFromJSONTyped,
-    WorkflowActionTypeToJSON,
-    WorkflowActionTypeToJSONTyped,
-} from './WorkflowActionType';
 
 /**
  * Configuration for CREATE_ENTITY action nodes.

@@ -1,23 +1,23 @@
-package riven.core.service.entity.type
+package cranium.core.service.entity.type
 
 import org.springframework.stereotype.Service
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.enums.core.DataType
-import riven.core.exceptions.SchemaValidationException
-import riven.core.exceptions.UniqueConstraintViolationException
-import riven.core.models.common.json.JsonValue
-import riven.core.models.entity.EntityTypeSchema
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.models.entity.payload.EntityAttributeRequest
-import riven.core.models.request.entity.type.SaveAttributeDefinitionRequest
-import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.EntityUniqueValuesRepository
-import riven.core.enums.common.validation.SchemaType
-import riven.core.service.entity.EntityAttributeService
-import riven.core.enums.entity.semantics.SemanticMetadataTargetType
-import riven.core.service.entity.EntityTypeSemanticMetadataService
-import riven.core.service.entity.EntityValidationService
-import riven.core.service.schema.SchemaService
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.enums.core.DataType
+import cranium.core.exceptions.SchemaValidationException
+import cranium.core.exceptions.UniqueConstraintViolationException
+import cranium.core.models.common.json.JsonValue
+import cranium.core.models.entity.EntityTypeSchema
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.models.entity.payload.EntityAttributeRequest
+import cranium.core.models.request.entity.type.SaveAttributeDefinitionRequest
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.repository.entity.EntityUniqueValuesRepository
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.service.entity.EntityAttributeService
+import cranium.core.enums.entity.semantics.SemanticMetadataTargetType
+import cranium.core.service.entity.EntityTypeSemanticMetadataService
+import cranium.core.service.entity.EntityValidationService
+import cranium.core.service.schema.SchemaService
 import java.util.*
 
 @Service

@@ -1,11 +1,11 @@
-package riven.core.models.integration.mapping
+package cranium.core.models.integration.mapping
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
 import tools.jackson.databind.annotation.JsonTypeIdResolver
-import riven.core.configuration.util.CaseInsensitiveTypeIdResolver
-import riven.core.enums.integration.CoercionType
+import cranium.core.configuration.util.CaseInsensitiveTypeIdResolver
+import cranium.core.enums.integration.CoercionType
 
 /**
  * Sealed class hierarchy representing field transformation strategies for integration mappings.

@@ -1,8 +1,8 @@
-package riven.core.service.util.factory
+package cranium.core.service.util.factory
 
-import riven.core.models.ingestion.adapter.ColumnSchema
-import riven.core.models.ingestion.adapter.SchemaIntrospectionResult
-import riven.core.models.ingestion.adapter.TableSchema
+import cranium.core.models.ingestion.adapter.ColumnSchema
+import cranium.core.models.ingestion.adapter.SchemaIntrospectionResult
+import cranium.core.models.ingestion.adapter.TableSchema
 
 /** Test factory for Postgres adapter schema-introspection fixtures (Phase 3). */
 object PostgresIntrospectionFactory {

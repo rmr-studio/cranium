@@ -1,4 +1,4 @@
-package riven.core.entity.util
+package cranium.core.entity.util
 
 import jakarta.persistence.Column
 import jakarta.persistence.EntityListeners

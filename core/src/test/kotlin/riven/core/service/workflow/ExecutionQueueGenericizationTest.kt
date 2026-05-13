@@ -1,4 +1,4 @@
-package riven.core.service.workflow
+package cranium.core.service.workflow
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -7,17 +7,17 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.enums.workflow.ExecutionJobType
-import riven.core.entity.workflow.ExecutionQueueEntity
-import riven.core.repository.workflow.ExecutionQueueRepository
-import riven.core.repository.workflow.WorkflowDefinitionRepository
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.util.BaseServiceTest
-import riven.core.service.util.SecurityTestConfig
-import riven.core.service.util.factory.workflow.ExecutionQueueFactory
-import riven.core.service.util.factory.workflow.WorkflowFactory
-import riven.core.service.workflow.queue.WorkflowExecutionQueueService
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.enums.workflow.ExecutionJobType
+import cranium.core.entity.workflow.ExecutionQueueEntity
+import cranium.core.repository.workflow.ExecutionQueueRepository
+import cranium.core.repository.workflow.WorkflowDefinitionRepository
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.util.BaseServiceTest
+import cranium.core.service.util.SecurityTestConfig
+import cranium.core.service.util.factory.workflow.ExecutionQueueFactory
+import cranium.core.service.util.factory.workflow.WorkflowFactory
+import cranium.core.service.workflow.queue.WorkflowExecutionQueueService
 import java.util.*
 
 /**

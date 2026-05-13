@@ -1,4 +1,4 @@
-package riven.core.service.enrichment
+package cranium.core.service.enrichment
 
 import io.github.oshai.kotlinlogging.KLogger
 import io.temporal.client.WorkflowClient
@@ -8,16 +8,16 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.support.TransactionSynchronization
 import org.springframework.transaction.support.TransactionSynchronizationManager
-import riven.core.configuration.workflow.TemporalWorkerConfiguration
-import riven.core.entity.entity.EntityEntity
-import riven.core.entity.workflow.ExecutionQueueEntity
-import riven.core.enums.integration.SourceType
-import riven.core.enums.workflow.ExecutionJobType
-import riven.core.enums.workflow.ExecutionQueueStatus
-import riven.core.repository.entity.EntityRepository
-import riven.core.repository.workflow.ExecutionQueueRepository
-import riven.core.service.workflow.enrichment.EnrichmentWorkflow
-import riven.core.util.ServiceUtil
+import cranium.core.configuration.workflow.TemporalWorkerConfiguration
+import cranium.core.entity.entity.EntityEntity
+import cranium.core.entity.workflow.ExecutionQueueEntity
+import cranium.core.enums.integration.SourceType
+import cranium.core.enums.workflow.ExecutionJobType
+import cranium.core.enums.workflow.ExecutionQueueStatus
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.repository.workflow.ExecutionQueueRepository
+import cranium.core.service.workflow.enrichment.EnrichmentWorkflow
+import cranium.core.util.ServiceUtil
 import java.util.*
 
 /**
@@ -79,7 +79,7 @@ class EnrichmentQueueService(
 
     /**
      * Bulk-enqueue ENRICHMENT items for every non-INTEGRATION, non-deleted entity of [entityTypeId]
-     * in [workspaceId]. Hooked from [riven.core.service.catalog.SchemaReconciliationService] when
+     * in [workspaceId]. Hooked from [cranium.core.service.catalog.SchemaReconciliationService] when
      * a manifest schema change invalidates the STRUCTURAL metadata snapshots stored in
      * `entity_connotation`.
      *
@@ -116,7 +116,7 @@ class EnrichmentQueueService(
      * orphaned workflows when the transaction rolls back after Temporal dispatch. When no
      * transaction is active (e.g. unit tests without a real tx), dispatches immediately
      * as a fallback — matching the pattern in
-     * [riven.core.service.entity.EntityTypeSemanticMetadataService].
+     * [cranium.core.service.entity.EntityTypeSemanticMetadataService].
      */
     private fun startEnrichmentWorkflowAfterCommit(queueItemId: UUID) {
         val dispatch: () -> Unit = {

@@ -1,9 +1,9 @@
-package riven.core.service.workflow.identity
+package cranium.core.service.workflow.identity
 
 import io.temporal.activity.ActivityInterface
 import io.temporal.activity.ActivityMethod
-import riven.core.models.identity.CandidateMatch
-import riven.core.models.identity.ScoredCandidate
+import cranium.core.models.identity.CandidateMatch
+import cranium.core.models.identity.ScoredCandidate
 import java.util.UUID
 
 /**

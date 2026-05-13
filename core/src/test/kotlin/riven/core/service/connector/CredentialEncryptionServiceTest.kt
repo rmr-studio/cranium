@@ -1,4 +1,4 @@
-package riven.core.service.connector
+package cranium.core.service.connector
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.assertArrayEquals
@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
-import riven.core.configuration.properties.DataConnectorConfigurationProperties
-import riven.core.exceptions.connector.CryptoException
-import riven.core.exceptions.connector.DataCorruptionException
+import cranium.core.configuration.properties.DataConnectorConfigurationProperties
+import cranium.core.exceptions.connector.CryptoException
+import cranium.core.exceptions.connector.DataCorruptionException
 import java.util.Base64
 
 /**

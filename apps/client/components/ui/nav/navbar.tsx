@@ -9,9 +9,9 @@ import {
   useSidePanelActions,
 } from '@/components/ui/sidebar/context/side-panel-provider';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useIsMobile } from '@riven/hooks';
-import { Button } from '@riven/ui/button';
-import { ThemeToggle } from '@riven/ui/theme-toggle';
+import { useIsMobile } from '@cranium/hooks';
+import { Button } from '@cranium/ui/button';
+import { ThemeToggle } from '@cranium/ui/theme-toggle';
 import { AnimatePresence } from 'framer-motion';
 import { Menu, PanelLeftOpen } from 'lucide-react';
 import Link from 'next/link';

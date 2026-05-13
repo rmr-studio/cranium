@@ -5,7 +5,7 @@ import {
     ContextMenuSeparator,
     ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import type { ChildNodeProps } from '@riven/utils';
+import type { ChildNodeProps } from '@cranium/utils';
 import { FC, Fragment, useMemo } from "react";
 import type { QuickActionItem } from "@/lib/types/block";
 

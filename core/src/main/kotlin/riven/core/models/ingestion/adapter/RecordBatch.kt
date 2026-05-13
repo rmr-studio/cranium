@@ -1,4 +1,4 @@
-package riven.core.models.ingestion.adapter
+package cranium.core.models.ingestion.adapter
 
 /**
  * Neutral batch result returned by an `IngestionAdapter.fetchRecords` call.

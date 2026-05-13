@@ -1,4 +1,4 @@
-package riven.core.util
+package cranium.core.util
 
 import tools.jackson.databind.DeserializationContext
 import tools.jackson.databind.JsonNode

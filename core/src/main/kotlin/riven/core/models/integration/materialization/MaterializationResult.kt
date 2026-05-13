@@ -1,6 +1,6 @@
-package riven.core.models.integration.materialization
+package cranium.core.models.integration.materialization
 
-import riven.core.models.response.integration.EnabledEntityTypeSummary
+import cranium.core.models.response.integration.EnabledEntityTypeSummary
 
 /**
  * Result of materializing integration templates into workspace-scoped entity types.

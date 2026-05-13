@@ -1,8 +1,8 @@
-package riven.core.repository.workflow
+package cranium.core.repository.workflow
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
-import riven.core.entity.workflow.execution.WorkflowExecutionNodeEntity
+import cranium.core.entity.workflow.execution.WorkflowExecutionNodeEntity
 import java.util.UUID
 
 /**

@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,21 +12,16 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { WorkflowTriggerType } from './WorkflowTriggerType';
-import {
-    WorkflowTriggerTypeFromJSON,
-    WorkflowTriggerTypeFromJSONTyped,
-    WorkflowTriggerTypeToJSON,
-    WorkflowTriggerTypeToJSONTyped,
-} from './WorkflowTriggerType';
 import type { WorkflowStatus } from './WorkflowStatus';
 import {
     WorkflowStatusFromJSON,
-    WorkflowStatusFromJSONTyped,
-    WorkflowStatusToJSON,
-    WorkflowStatusToJSONTyped,
+    WorkflowStatusToJSON
 } from './WorkflowStatus';
+import type { WorkflowTriggerType } from './WorkflowTriggerType';
+import {
+    WorkflowTriggerTypeFromJSON,
+    WorkflowTriggerTypeToJSON
+} from './WorkflowTriggerType';
 
 /**
  * 

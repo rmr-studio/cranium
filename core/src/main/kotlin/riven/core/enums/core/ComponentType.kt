@@ -1,4 +1,4 @@
-package riven.core.enums.core
+package cranium.core.enums.core
 
 enum class ComponentType {
     // Containers

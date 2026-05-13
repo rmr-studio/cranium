@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { ChildNodeProps } from '@riven/utils';
+import { ChildNodeProps } from '@cranium/utils';
 
 interface SectionDividerProps extends ChildNodeProps {
   className?: string;

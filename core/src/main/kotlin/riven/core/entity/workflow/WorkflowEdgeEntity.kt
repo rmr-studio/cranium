@@ -1,10 +1,10 @@
-package riven.core.entity.workflow
+package cranium.core.entity.workflow
 
 import jakarta.persistence.*
 import org.hibernate.annotations.SQLRestriction
-import riven.core.entity.util.AuditableSoftDeletableEntity
-import riven.core.models.workflow.WorkflowEdge
-import riven.core.models.workflow.node.WorkflowNode
+import cranium.core.entity.util.AuditableSoftDeletableEntity
+import cranium.core.models.workflow.WorkflowEdge
+import cranium.core.models.workflow.node.WorkflowNode
 import java.util.*
 
 @Entity

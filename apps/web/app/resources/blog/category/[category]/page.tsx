@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!label) return {};
   return {
     title: `${label} — Blog`,
-    description: `Browse ${label.toLowerCase()} articles on the Riven blog.`,
+    description: `Browse ${label.toLowerCase()} articles on the Cranium blog.`,
   };
 }
 

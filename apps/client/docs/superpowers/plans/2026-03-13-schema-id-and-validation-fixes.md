@@ -1,6 +1,6 @@
 # SchemaType.Id Support & Validation Fixes Implementation Plan
 
-> **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED: Use superpowers:subagent-dcranium-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add full SchemaType.Id support (read-only auto-generated field with configurable prefix) and fix the options-merge bug where inherent attributeType constraints (e.g., Rating min/max) are silently ignored.
 

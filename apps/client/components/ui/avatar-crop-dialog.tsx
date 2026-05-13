@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { getCroppedImage } from '@/components/ui/crop-utils';
-import { Button } from '@riven/ui/button';
+import { Button } from '@cranium/ui/button';
 import { ImageUp, SearchIcon, SearchCheckIcon } from 'lucide-react';
 import { FC, useCallback, useRef, useState } from 'react';
 import Cropper from 'react-easy-crop';

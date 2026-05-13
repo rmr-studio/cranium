@@ -1,4 +1,4 @@
-package riven.core.exceptions
+package cranium.core.exceptions
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.http.HttpStatus
@@ -9,15 +9,15 @@ import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
-import riven.core.configuration.properties.ApplicationConfigurationProperties
+import cranium.core.configuration.properties.ApplicationConfigurationProperties
 import tools.jackson.core.JacksonException
-import riven.core.enums.common.ApiError
-import riven.core.exceptions.connector.MappingValidationException
-import riven.core.exceptions.connector.ReadOnlyVerificationException
-import riven.core.exceptions.connector.SsrfRejectedException
-import riven.core.exceptions.query.QueryExecutionException
-import riven.core.exceptions.query.QueryFilterException
-import riven.core.models.response.common.ErrorResponse
+import cranium.core.enums.common.ApiError
+import cranium.core.exceptions.connector.MappingValidationException
+import cranium.core.exceptions.connector.ReadOnlyVerificationException
+import cranium.core.exceptions.connector.SsrfRejectedException
+import cranium.core.exceptions.query.QueryExecutionException
+import cranium.core.exceptions.query.QueryFilterException
+import cranium.core.models.response.common.ErrorResponse
 
 @ControllerAdvice
 class ExceptionHandler(private val logger: KLogger, private val config: ApplicationConfigurationProperties) {

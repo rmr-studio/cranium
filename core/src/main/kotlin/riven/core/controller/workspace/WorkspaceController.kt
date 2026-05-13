@@ -1,4 +1,4 @@
-package riven.core.controller.workspace
+package cranium.core.controller.workspace
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -9,14 +9,14 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.models.core.DTC_ECOMMERCE_MODELS
-import riven.core.models.request.workspace.SaveWorkspaceRequest
-import riven.core.models.response.catalog.TemplateInstallationResponse
-import riven.core.models.workspace.Workspace
-import riven.core.models.workspace.WorkspaceMember
-import riven.core.service.catalog.TemplateInstallationService
-import riven.core.service.workspace.WorkspaceService
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.models.core.DTC_ECOMMERCE_MODELS
+import cranium.core.models.request.workspace.SaveWorkspaceRequest
+import cranium.core.models.response.catalog.TemplateInstallationResponse
+import cranium.core.models.workspace.Workspace
+import cranium.core.models.workspace.WorkspaceMember
+import cranium.core.service.catalog.TemplateInstallationService
+import cranium.core.service.workspace.WorkspaceService
 import java.util.*
 
 @RestController

@@ -1,4 +1,4 @@
-package riven.core.configuration.auth
+package cranium.core.configuration.auth
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.core.convert.converter.Converter
@@ -7,7 +7,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.stereotype.Component
-import riven.core.enums.workspace.WorkspaceRoles
+import cranium.core.enums.workspace.WorkspaceRoles
 import java.util.*
 
 @Component

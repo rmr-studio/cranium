@@ -8,7 +8,7 @@ const items = [
     label: 'Catching the signal',
     metric: 'Action in days, not weeks or months.',
     description:
-      "Like a team member that doesn't sleep. Riven spots problems, patterns and opportunities before you even see them. Acting on it automaticlaly or giving you everything you need to act fast.",
+      "Like a team member that doesn't sleep. Cranium spots problems, patterns and opportunities before you even see them. Acting on it automaticlaly or giving you everything you need to act fast.",
   },
   {
     label: 'Stop the research & triage',
@@ -26,7 +26,7 @@ const items = [
     label: 'No more manual execution',
     metric: 'Automate repetitive tasks',
     description:
-      'Riven studies the outcomes of past actions to know exactly what to do, and when, to get the best outcome. Then it does it, autonomously (or with your approval), every time.',
+      'Cranium studies the outcomes of past actions to know exactly what to do, and when, to get the best outcome. Then it does it, autonomously (or with your approval), every time.',
   },
 ];
 
@@ -42,7 +42,7 @@ export function TimeSaved() {
         {/* Heading */}
         <div className="mb-14 px-8 sm:px-12 md:mb-20">
           <h2 className="font-bit text-2xl leading-none sm:text-4xl md:text-5xl lg:text-6xl">
-            What you get with Riven.
+            What you get with Cranium.
           </h2>
           <p className="mt-4 max-w-3xl font-display text-base leading-none tracking-tighter text-content/90">
             Agents watch the data, surface what matters, and execute the next step with context from

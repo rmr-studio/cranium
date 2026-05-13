@@ -1,6 +1,6 @@
 # Phase 1: Entity Foundation Refactors Implementation Plan
 
-> **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED: Use superpowers:subagent-dcranium-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Refactor the entity module's foundational infrastructure — centralized query keys, auth-gated query wrapper, error normalization improvements, and performance fixes — to create a stable base for testing and observability work in subsequent phases.
 

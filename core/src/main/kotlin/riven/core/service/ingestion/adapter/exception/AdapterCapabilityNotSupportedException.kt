@@ -1,4 +1,4 @@
-package riven.core.service.ingestion.adapter.exception
+package cranium.core.service.ingestion.adapter.exception
 
 /**
  * The requested capability is not implemented by this adapter (e.g. calling

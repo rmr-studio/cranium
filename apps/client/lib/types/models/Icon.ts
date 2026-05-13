@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,21 +12,16 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { IconType } from './IconType';
-import {
-    IconTypeFromJSON,
-    IconTypeFromJSONTyped,
-    IconTypeToJSON,
-    IconTypeToJSONTyped,
-} from './IconType';
 import type { IconColour } from './IconColour';
 import {
     IconColourFromJSON,
-    IconColourFromJSONTyped,
-    IconColourToJSON,
-    IconColourToJSONTyped,
+    IconColourToJSON
 } from './IconColour';
+import type { IconType } from './IconType';
+import {
+    IconTypeFromJSON,
+    IconTypeToJSON
+} from './IconType';
 
 /**
  * 

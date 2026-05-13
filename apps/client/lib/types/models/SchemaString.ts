@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -16,37 +16,27 @@ import { mapValues } from '../runtime';
 import type { DataFormat } from './DataFormat';
 import {
     DataFormatFromJSON,
-    DataFormatFromJSONTyped,
-    DataFormatToJSON,
-    DataFormatToJSONTyped,
+    DataFormatToJSON
 } from './DataFormat';
 import type { DataType } from './DataType';
 import {
     DataTypeFromJSON,
-    DataTypeFromJSONTyped,
-    DataTypeToJSON,
-    DataTypeToJSONTyped,
+    DataTypeToJSON
 } from './DataType';
-import type { SchemaOptions } from './SchemaOptions';
-import {
-    SchemaOptionsFromJSON,
-    SchemaOptionsFromJSONTyped,
-    SchemaOptionsToJSON,
-    SchemaOptionsToJSONTyped,
-} from './SchemaOptions';
 import type { Icon } from './Icon';
 import {
     IconFromJSON,
-    IconFromJSONTyped,
-    IconToJSON,
-    IconToJSONTyped,
+    IconToJSON
 } from './Icon';
+import type { SchemaOptions } from './SchemaOptions';
+import {
+    SchemaOptionsFromJSON,
+    SchemaOptionsToJSON
+} from './SchemaOptions';
 import type { SchemaType } from './SchemaType';
 import {
     SchemaTypeFromJSON,
-    SchemaTypeFromJSONTyped,
-    SchemaTypeToJSON,
-    SchemaTypeToJSONTyped,
+    SchemaTypeToJSON
 } from './SchemaType';
 
 /**

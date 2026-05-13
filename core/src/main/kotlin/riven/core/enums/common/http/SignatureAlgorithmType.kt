@@ -1,4 +1,4 @@
-package riven.core.enums.common.http
+package cranium.core.enums.common.http
 
 enum class SignatureAlgorithmType {
     HMAC_SHA256,

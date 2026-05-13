@@ -1,15 +1,15 @@
-package riven.core.service.util.factory.block
+package cranium.core.service.util.factory.block
 
-import riven.core.enums.core.ComponentType
-import riven.core.models.block.display.*
-import riven.core.models.common.Condition
-import riven.core.models.common.Op
-import riven.core.models.common.Operand
-import riven.core.models.common.grid.GridRect
-import riven.core.models.common.grid.LayoutGrid
-import riven.core.models.common.grid.LayoutGridItem
-import riven.core.models.common.structure.FormStructure
-import riven.core.models.common.theme.ThemeTokens
+import cranium.core.enums.core.ComponentType
+import cranium.core.models.block.display.*
+import cranium.core.models.common.Condition
+import cranium.core.models.common.Op
+import cranium.core.models.common.Operand
+import cranium.core.models.common.grid.GridRect
+import cranium.core.models.common.grid.LayoutGrid
+import cranium.core.models.common.grid.LayoutGridItem
+import cranium.core.models.common.structure.FormStructure
+import cranium.core.models.common.theme.ThemeTokens
 
 /**
  * Factory for mock BlockRenderStructure (and wrappers) used in unit tests.

@@ -1,11 +1,11 @@
-package riven.core.service.catalog
+package cranium.core.service.catalog
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
-import riven.core.entity.integration.IntegrationDefinitionEntity
-import riven.core.enums.integration.IntegrationCategory
-import riven.core.models.catalog.ScannedManifest
-import riven.core.repository.integration.IntegrationDefinitionRepository
+import cranium.core.entity.integration.IntegrationDefinitionEntity
+import cranium.core.enums.integration.IntegrationCategory
+import cranium.core.models.catalog.ScannedManifest
+import cranium.core.repository.integration.IntegrationDefinitionRepository
 import java.time.ZonedDateTime
 
 /**

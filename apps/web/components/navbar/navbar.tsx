@@ -14,7 +14,7 @@ import { NAV_LINKS_FLAT } from '@/lib/navigation';
 import { scrollToHashOnLoad, scrollToSection } from '@/lib/scroll';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/providers/auth-provider';
-import { Logo } from '@riven/ui/logo';
+import { Logo } from '@cranium/ui/logo';
 import { Mail, Menu } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
@@ -87,7 +87,7 @@ export function Navbar() {
                 secondaryClassName="fill-logo-secondary"
                 tertiaryClassName="fill-logo-tertiary"
               />
-              <div className="font-display text-2xl tracking-tighter text-primary">riven</div>
+              <div className="font-display text-2xl tracking-tighter text-primary">cranium</div>
             </Link>
 
             {/* Nav Links - desktop only */}

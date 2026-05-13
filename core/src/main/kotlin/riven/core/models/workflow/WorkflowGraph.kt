@@ -1,6 +1,6 @@
-package riven.core.models.workflow
+package cranium.core.models.workflow
 
-import riven.core.models.workflow.node.WorkflowNode
+import cranium.core.models.workflow.node.WorkflowNode
 import java.util.UUID
 
 /**

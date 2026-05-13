@@ -1,10 +1,10 @@
-package riven.core.service.entity
+package cranium.core.service.entity
 
 import io.github.oshai.kotlinlogging.KLogger
 import jakarta.persistence.EntityManager
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.entity.EntityTypeEntity
+import cranium.core.entity.entity.EntityTypeEntity
 import java.util.UUID
 
 /**

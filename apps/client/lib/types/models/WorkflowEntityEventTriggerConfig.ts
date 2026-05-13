@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,35 +12,26 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
+import type { OperationType } from './OperationType';
+import {
+    OperationTypeFromJSON,
+    OperationTypeToJSON
+} from './OperationType';
 import type { WorkflowNodeConfigField } from './WorkflowNodeConfigField';
 import {
     WorkflowNodeConfigFieldFromJSON,
-    WorkflowNodeConfigFieldFromJSONTyped,
-    WorkflowNodeConfigFieldToJSON,
-    WorkflowNodeConfigFieldToJSONTyped,
+    WorkflowNodeConfigFieldToJSON
 } from './WorkflowNodeConfigField';
 import type { WorkflowNodeType } from './WorkflowNodeType';
 import {
     WorkflowNodeTypeFromJSON,
-    WorkflowNodeTypeFromJSONTyped,
-    WorkflowNodeTypeToJSON,
-    WorkflowNodeTypeToJSONTyped,
+    WorkflowNodeTypeToJSON
 } from './WorkflowNodeType';
 import type { WorkflowTriggerType } from './WorkflowTriggerType';
 import {
     WorkflowTriggerTypeFromJSON,
-    WorkflowTriggerTypeFromJSONTyped,
-    WorkflowTriggerTypeToJSON,
-    WorkflowTriggerTypeToJSONTyped,
+    WorkflowTriggerTypeToJSON
 } from './WorkflowTriggerType';
-import type { OperationType } from './OperationType';
-import {
-    OperationTypeFromJSON,
-    OperationTypeFromJSONTyped,
-    OperationTypeToJSON,
-    OperationTypeToJSONTyped,
-} from './OperationType';
 
 /**
  * Configuration for ENTITY_EVENT trigger nodes. Triggers workflow execution when entity operations occur.

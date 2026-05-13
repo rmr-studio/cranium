@@ -1,11 +1,11 @@
 'use client';
 
 import { Checkbox } from '@/components/ui/checkbox';
-import { Button } from '@riven/ui/button';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@riven/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
+import { Button } from '@cranium/ui/button';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@cranium/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@cranium/ui/popover';
 import { EntityType } from '@/lib/types/entity';
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 import { Check, ChevronsUpDown, Repeat } from 'lucide-react';
 import { FC, useState } from 'react';
 

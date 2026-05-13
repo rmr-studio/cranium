@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
-import { Logo } from '@riven/ui/logo';
-import { ClassNameProps } from '@riven/utils';
+import { Logo } from '@cranium/ui/logo';
+import { ClassNameProps } from '@cranium/utils';
 import { FC } from 'react';
 import { RAIL_ITEMS } from './data';
 import { Icon, icons } from './primitives';

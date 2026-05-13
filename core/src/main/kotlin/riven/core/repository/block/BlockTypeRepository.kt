@@ -1,7 +1,7 @@
-package riven.core.repository.block
+package cranium.core.repository.block
 
 import org.springframework.data.jpa.repository.JpaRepository
-import riven.core.entity.block.BlockTypeEntity
+import cranium.core.entity.block.BlockTypeEntity
 import java.util.*
 
 interface BlockTypeRepository : JpaRepository<BlockTypeEntity, UUID> {

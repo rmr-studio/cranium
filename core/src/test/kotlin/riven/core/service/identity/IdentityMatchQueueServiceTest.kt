@@ -1,4 +1,4 @@
-package riven.core.service.identity
+package cranium.core.service.identity
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -11,10 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.enums.workflow.ExecutionJobType
-import riven.core.enums.workflow.ExecutionQueueStatus
-import riven.core.repository.workflow.ExecutionQueueRepository
-import riven.core.service.util.factory.workflow.ExecutionQueueFactory
+import cranium.core.enums.workflow.ExecutionJobType
+import cranium.core.enums.workflow.ExecutionQueueStatus
+import cranium.core.repository.workflow.ExecutionQueueRepository
+import cranium.core.service.util.factory.workflow.ExecutionQueueFactory
 import java.util.UUID
 
 /**
@@ -50,7 +50,7 @@ class IdentityMatchQueueServiceTest {
 
         service.enqueueIfNotPending(entityId, workspaceId)
 
-        val captor = argumentCaptor<riven.core.entity.workflow.ExecutionQueueEntity>()
+        val captor = argumentCaptor<cranium.core.entity.workflow.ExecutionQueueEntity>()
         verify(executionQueueRepository).save(captor.capture())
 
         val saved = captor.firstValue
@@ -96,7 +96,7 @@ class IdentityMatchQueueServiceTest {
 
         service.enqueueIfNotPending(entityId, workspaceId)
 
-        val captor = argumentCaptor<riven.core.entity.workflow.ExecutionQueueEntity>()
+        val captor = argumentCaptor<cranium.core.entity.workflow.ExecutionQueueEntity>()
         verify(executionQueueRepository).save(captor.capture())
         assertEquals(null, captor.firstValue.workflowDefinitionId)
     }

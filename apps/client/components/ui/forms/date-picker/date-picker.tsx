@@ -45,10 +45,10 @@ import * as React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DayPicker, Matcher, TZDate } from 'react-day-picker';
 
-import { Button, buttonVariants } from '@riven/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
-import { ScrollArea } from '@riven/ui/scroll-area';
-import { cn } from '@riven/utils';
+import { Button, buttonVariants } from '@cranium/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@cranium/ui/popover';
+import { ScrollArea } from '@cranium/ui/scroll-area';
+import { cn } from '@cranium/utils';
 export type CalendarProps = Omit<React.ComponentProps<typeof DayPicker>, 'mode'>;
 
 const AM_VALUE = 0;

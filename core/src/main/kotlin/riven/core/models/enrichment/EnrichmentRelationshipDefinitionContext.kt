@@ -1,4 +1,4 @@
-package riven.core.models.enrichment
+package cranium.core.models.enrichment
 
 /**
  * Semantic definition context for a single relationship type on the entity type being enriched.

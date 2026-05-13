@@ -1,10 +1,15 @@
 ---
 tags:
-  - adr/proposed
+  - adr/superseded
   - architecture/decision
 Created: 2026-03-16
+Updated: 2026-05-13
+Superseded By: "[[ADR-021 GitHub-Only v1, Slack and Notion as v1.1]]"
 ---
+
 # ADR-010: Webhook-Driven Connection Creation
+
+> **Superseded by the 2026-05 architecture pivot.** The whole integration-connection lifecycle (the 10-state `ConnectionStatus` enum, `IntegrationInstallation`, the Nango auth-webhook-driven connection creation, template materialization on connect) goes with the Nango integration sync, deleted in Phase 1c — v1 ships GitHub only (read-only PAT for the scan, GitHub App for the PR bot). The HMAC-webhook-*validation* pattern referenced here is preserved (git history / a [[Wiki/Cranium]] page) for the v1.1 source connectors. See [[architecture-pivot]] §Reuse / Rework / Replace / Delete, [[ADR-021 GitHub-Only v1, Slack and Notion as v1.1]], and [[ADR-001 Nango as Integration Infrastructure]].
 
 ---
 
@@ -29,7 +34,7 @@ Remove `PENDING_AUTHORIZATION` and `AUTHORIZING` from the `ConnectionStatus` enu
 ## Rationale
 
 - **`PENDING_AUTHORIZATION` and `AUTHORIZING` have no observable effect** — the backend cannot influence the OAuth flow and these states exist only as bookkeeping that the frontend ignores; no business logic branches on these states
-- **Webhook-driven creation is more reliable** — the connection is only created after OAuth actually succeeds, eliminating orphaned connection records for abandoned or failed OAuth flows
+- **Webhook-dcranium creation is more reliable** — the connection is only created after OAuth actually succeeds, eliminating orphaned connection records for abandoned or failed OAuth flows
 - **Decoupling installation from connection creation** enables the frontend to show a clear lifecycle: `PENDING_CONNECTION` (waiting for user to complete OAuth) to `ACTIVE` (OAuth succeeded, connection established), with `FAILED` for timeout or error cases
 - **`InstallationStatus` surfaces auth failures** that were previously invisible — if the webhook never arrives (OAuth abandoned or Nango error), the installation stays in `PENDING_CONNECTION` and can be timed out to `FAILED`, giving the user actionable feedback
 - **Simplifies the state machine** from 10 states to 8, reducing the number of valid transitions and the cognitive load for developers working with connection lifecycle code
@@ -60,7 +65,7 @@ Instead of relying on Nango's auth webhook, have the frontend poll the Nango API
 
 - **Pros:** No dependency on webhook delivery. Frontend controls the timing.
 - **Cons:** Adds latency (polling interval). Unnecessary API calls to Nango. No server-side event to trigger materialization — must either poll server-side as well or wait for the next frontend request. More complex frontend logic.
-- **Why rejected:** Webhook-driven is more efficient and provides a clear server-side trigger for downstream processing (connection creation, template materialization, initial sync).
+- **Why rejected:** Webhook-dcranium is more efficient and provides a clear server-side trigger for downstream processing (connection creation, template materialization, initial sync).
 
 ---
 
@@ -108,7 +113,7 @@ Instead of relying on Nango's auth webhook, have the frontend poll the Nango API
 
 ## Related
 
-- [[riven/docs/system-design/flows/Integration Data Sync Pipeline]] — Feature design for the sync pipeline triggered after connection creation
-- [[riven/docs/system-design/flows/Integration Connection Lifecycle]] — Existing documentation that must be updated to reflect the simplified state machine
-- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]] — Sub-domain plan for entity sync processing
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-001 Nango as Integration Infrastructure]] — Decision to use Nango, whose webhook delivery model is central to this design
+- [[cranium/docs/system-design/flows/Integration Data Sync Pipeline]] — Feature design for the sync pipeline triggered after connection creation
+- [[cranium/docs/system-design/flows/Integration Connection Lifecycle]] — Existing documentation that must be updated to reflect the simplified state machine
+- [[cranium/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]] — Sub-domain plan for entity sync processing
+- [[2. Areas/2.1 Startup & Content/Cranium/2. System Design/decisions/ADR-001 Nango as Integration Infrastructure]] — Decision to use Nango, whose webhook delivery model is central to this design

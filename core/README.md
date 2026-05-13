@@ -1,4 +1,4 @@
-# Riven Core
+# Cranium Core
 
 Backend API server.
 
@@ -31,20 +31,20 @@ OpenAPI spec at `/docs/v3/api-docs` when the server is running. Swagger UI at `/
 
 Configure via `core/.env` or Spring Boot `application.properties`:
 
-| Variable | Description |
-|----------|-------------|
-| `POSTGRES_DB_JDBC` | PostgreSQL JDBC connection string |
-| `JWT_AUTH_URL` | Supabase Auth URL |
-| `JWT_SECRET_KEY` | JWT signing secret |
-| `SUPABASE_URL` | Supabase project URL |
-| `SUPABASE_KEY` | Supabase service key |
-| `ORIGIN_API_URL` | Allowed CORS origin |
+| Variable                  | Description                                         |
+| ------------------------- | --------------------------------------------------- |
+| `POSTGRES_DB_JDBC`        | PostgreSQL JDBC connection string                   |
+| `JWT_AUTH_URL`            | Supabase Auth URL                                   |
+| `JWT_SECRET_KEY`          | JWT signing secret                                  |
+| `SUPABASE_URL`            | Supabase project URL                                |
+| `SUPABASE_KEY`            | Supabase service key                                |
+| `ORIGIN_API_URL`          | Allowed CORS origin                                 |
 | `TEMPORAL_SERVER_ADDRESS` | Temporal server address (default: `localhost:7233`) |
 
 ## Project structure
 
 ```
-src/main/kotlin/riven/core/
+src/main/kotlin/cranium/core/
   configuration/    # Spring beans, security, properties
   controller/       # REST endpoints (by domain)
   service/          # Business logic (by domain)

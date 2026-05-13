@@ -1,9 +1,9 @@
-package riven.core.repository.workflow
+package cranium.core.repository.workflow
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
-import riven.core.entity.workflow.WorkflowDefinitionVersionEntity
+import cranium.core.entity.workflow.WorkflowDefinitionVersionEntity
 import java.util.*
 
 /**

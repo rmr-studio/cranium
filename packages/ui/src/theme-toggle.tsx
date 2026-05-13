@@ -1,6 +1,6 @@
 "use client";
 
-import { cn, type ClassNameProps } from "@riven/utils";
+import { cn, type ClassNameProps } from "@cranium/utils";
 import { useTheme } from "next-themes";
 import { FC } from "react";
 import { Button } from "./button";

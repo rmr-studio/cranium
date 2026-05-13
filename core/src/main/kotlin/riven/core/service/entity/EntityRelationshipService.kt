@@ -1,34 +1,34 @@
-package riven.core.service.entity
+package cranium.core.service.entity
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.entity.EntityRelationshipEntity
-import riven.core.enums.activity.Activity
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.RelationshipTargetKind
-import riven.core.enums.integration.SourceType
-import riven.core.enums.util.OperationType
-import riven.core.exceptions.ConflictException
-import riven.core.exceptions.InvalidRelationshipException
-import riven.core.models.common.markDeleted
-import riven.core.models.entity.EntityLink
-import riven.core.models.entity.RelationshipDefinition
-import riven.core.models.entity.RelationshipTargetRule
-import riven.core.models.request.entity.AddRelationshipRequest
-import riven.core.models.request.entity.UpdateRelationshipRequest
-import riven.core.models.response.entity.RelationshipResponse
-import riven.core.projection.entity.toEntityLink
-import riven.core.repository.entity.EntityRelationshipRepository
-import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.RelationshipDefinitionRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.activity.log
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.entity.type.EntityTypeRelationshipService
-import riven.core.util.ServiceUtil
+import cranium.core.entity.entity.EntityRelationshipEntity
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.enums.entity.RelationshipTargetKind
+import cranium.core.enums.integration.SourceType
+import cranium.core.enums.util.OperationType
+import cranium.core.exceptions.ConflictException
+import cranium.core.exceptions.InvalidRelationshipException
+import cranium.core.models.common.markDeleted
+import cranium.core.models.entity.EntityLink
+import cranium.core.models.entity.RelationshipDefinition
+import cranium.core.models.entity.RelationshipTargetRule
+import cranium.core.models.request.entity.AddRelationshipRequest
+import cranium.core.models.request.entity.UpdateRelationshipRequest
+import cranium.core.models.response.entity.RelationshipResponse
+import cranium.core.projection.entity.toEntityLink
+import cranium.core.repository.entity.EntityRelationshipRepository
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.repository.entity.RelationshipDefinitionRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.activity.log
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.entity.type.EntityTypeRelationshipService
+import cranium.core.util.ServiceUtil
 import java.util.*
 
 /**
@@ -117,7 +117,7 @@ class EntityRelationshipService(
      * System-side replace: drives all rows for `(sourceId, definitionId, targetKind)` toward
      * the desired `targetIds` set, hard-deleting absent targets and inserting new ones.
      *
-     * Used by the knowledge ingestion layer ([riven.core.service.knowledge.AbstractKnowledgeEntityIngestionService])
+     * Used by the knowledge ingestion layer ([cranium.core.service.knowledge.AbstractKnowledgeEntityIngestionService])
      * to reconcile system relationships (`ATTACHMENT`, `MENTION`, `DEFINES`) without going
      * through the JWT-bound CRUD path. New rows carry the supplied [linkSource] so downstream
      * consumers can distinguish user-authored vs integration-sourced edges.

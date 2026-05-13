@@ -1,8 +1,8 @@
-package riven.core.repository.catalog
+package cranium.core.repository.catalog
 
 import org.springframework.data.jpa.repository.JpaRepository
-import riven.core.entity.catalog.CatalogSemanticMetadataEntity
-import riven.core.enums.entity.semantics.SemanticMetadataTargetType
+import cranium.core.entity.catalog.CatalogSemanticMetadataEntity
+import cranium.core.enums.entity.semantics.SemanticMetadataTargetType
 import java.util.*
 
 /**

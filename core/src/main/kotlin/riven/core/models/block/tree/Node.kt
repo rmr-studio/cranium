@@ -1,12 +1,12 @@
-package riven.core.models.block.tree
+package cranium.core.models.block.tree
 
 import tools.jackson.databind.annotation.JsonDeserialize
 import tools.jackson.databind.ValueDeserializer
 import io.swagger.v3.oas.annotations.media.DiscriminatorMapping
 import io.swagger.v3.oas.annotations.media.Schema
-import riven.core.deserializer.NodeDeserializer
-import riven.core.enums.block.node.NodeType
-import riven.core.models.block.Block
+import cranium.core.deserializer.NodeDeserializer
+import cranium.core.enums.block.node.NodeType
+import cranium.core.models.block.Block
 
 @Schema(hidden = true)
 @JsonDeserialize(using = NodeDeserializer::class)

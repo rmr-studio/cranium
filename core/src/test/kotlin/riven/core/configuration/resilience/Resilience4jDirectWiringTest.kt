@@ -1,4 +1,4 @@
-package riven.core.configuration.resilience
+package cranium.core.configuration.resilience
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry

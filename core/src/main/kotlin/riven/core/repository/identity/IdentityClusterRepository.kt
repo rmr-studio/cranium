@@ -1,7 +1,7 @@
-package riven.core.repository.identity
+package cranium.core.repository.identity
 
 import org.springframework.data.jpa.repository.JpaRepository
-import riven.core.entity.identity.IdentityClusterEntity
+import cranium.core.entity.identity.IdentityClusterEntity
 import java.util.Optional
 import java.util.UUID
 

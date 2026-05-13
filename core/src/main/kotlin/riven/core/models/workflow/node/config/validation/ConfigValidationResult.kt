@@ -1,4 +1,4 @@
-package riven.core.models.workflow.node.config.validation
+package cranium.core.models.workflow.node.config.validation
 
 /**
  * Aggregated result of config validation.

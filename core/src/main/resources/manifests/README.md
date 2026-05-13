@@ -2,7 +2,7 @@
 
 ## Overview
 
-Manifests are declarative JSON files that define entity types, relationships, and field mappings for the Riven platform. They are loaded into the manifest catalog on every application startup and serve as blueprints for workspace data models.
+Manifests are declarative JSON files that define entity types, relationships, and field mappings for the Cranium platform. They are loaded into the manifest catalog on every application startup and serve as blueprints for workspace data models.
 
 There are three manifest types:
 
@@ -37,6 +37,7 @@ src/main/resources/manifests/
 ## Key Naming Convention
 
 All manifest keys must match the pattern `^[a-z][a-z0-9-]*$`:
+
 - Starts with a lowercase letter
 - Contains only lowercase letters, digits, and hyphens
 - Examples: `customer`, `saas-startup`, `hubspot`, `sales-pipeline`
@@ -99,15 +100,32 @@ A template composes entity types and defines relationships between them. Entity 
   "description": "A workspace template for SaaS businesses with customers, subscriptions, and products",
   "entityTypes": [
     { "$ref": "models/customer" },
-    { "$ref": "models/product", "extend": { "attributes": { "mrr": { "key": "CURRENCY", "type": "number", "label": "MRR" } } } },
+    {
+      "$ref": "models/product",
+      "extend": {
+        "attributes": {
+          "mrr": { "key": "CURRENCY", "type": "number", "label": "MRR" }
+        }
+      }
+    },
     {
       "key": "subscription",
       "name": "Subscription",
       "displayName": { "singular": "Subscription", "plural": "Subscriptions" },
       "semanticGroup": "TRANSACTION",
       "attributes": {
-        "status": { "key": "SELECT", "type": "string", "label": "Status", "options": { "enum": ["active", "cancelled", "past_due"] } },
-        "start_date": { "key": "DATE", "type": "string", "format": "date", "label": "Start Date" }
+        "status": {
+          "key": "SELECT",
+          "type": "string",
+          "label": "Status",
+          "options": { "enum": ["active", "cancelled", "past_due"] }
+        },
+        "start_date": {
+          "key": "DATE",
+          "type": "string",
+          "format": "date",
+          "label": "Start Date"
+        }
       }
     }
   ],
@@ -126,6 +144,7 @@ A template composes entity types and defines relationships between them. Entity 
 ## `$ref` Syntax
 
 The `$ref` field references a model file:
+
 - Format: `"$ref": "models/<model-key>"`
 - Resolves to: `models/<model-key>.json` in the manifests directory
 - The referenced model must exist in the `models/` directory
@@ -159,6 +178,7 @@ When a template references a model via `$ref`, it can optionally include an `ext
 ```
 
 **Merge rules:**
+
 - **Shallow additive merge.** New attributes are added to the model's attributes.
 - **Existing attributes from the referenced model are NOT overwritten.** If the model defines an `email` attribute and the `extend` block also defines `email`, the model's version takes precedence.
 - **No deletion semantics.** You cannot remove inherited attributes from a model.
@@ -183,7 +203,13 @@ An integration manifest is similar to a template but includes integration-specif
       "semanticGroup": "CUSTOMER",
       "readonly": true,
       "attributes": {
-        "email": { "key": "EMAIL", "type": "string", "format": "email", "label": "Email", "required": true },
+        "email": {
+          "key": "EMAIL",
+          "type": "string",
+          "format": "email",
+          "label": "Email",
+          "required": true
+        },
         "firstname": { "key": "TEXT", "type": "string", "label": "First Name" },
         "lastname": { "key": "TEXT", "type": "string", "label": "Last Name" }
       }
@@ -203,6 +229,7 @@ An integration manifest is similar to a template but includes integration-specif
 ```
 
 Key differences from templates:
+
 - Entity types are always defined inline (no `$ref`)
 - Entity types typically have `"readonly": true`
 - The `key` must match the corresponding `integration_definitions.slug`
@@ -256,6 +283,7 @@ For relationships that target multiple entity types or need per-target configura
 ```
 
 **The two formats are mutually exclusive.** A relationship uses either:
+
 - `targetEntityTypeKey` + `cardinality` (shorthand), OR
 - `targetRules` array (full format)
 
@@ -265,18 +293,18 @@ Never both.
 
 Each attribute in the `attributes` map has the following fields:
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `key` | string (SchemaType enum) | Yes | UI control type: TEXT, OBJECT, NUMBER, CHECKBOX, DATE, DATETIME, RATING, PHONE, EMAIL, URL, CURRENCY, PERCENTAGE, SELECT, MULTI_SELECT, FILE_ATTACHMENT, LOCATION |
-| `type` | string (DataType enum) | Yes | Data type: string, number, boolean, object, array, null |
-| `label` | string | No | Human-readable label |
-| `format` | string (DataFormat enum) | No | Validation format: date, date-time, email, phone-number, currency, uri, percentage |
-| `required` | boolean | No | Whether the attribute is required |
-| `unique` | boolean | No | Whether values must be unique across entities |
-| `protected` | boolean | No | Whether the attribute is system-protected |
-| `icon` | object | No | Icon with `type` (Lucide name) and `colour` |
-| `options` | object | No | Validation options: `default`, `regex`, `enum`, `enumSorting`, `minLength`, `maxLength`, `minimum`, `maximum` |
-| `semantics` | object | No | Semantic metadata (see below) |
+| Field       | Type                     | Required | Description                                                                                                                                                       |
+| ----------- | ------------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `key`       | string (SchemaType enum) | Yes      | UI control type: TEXT, OBJECT, NUMBER, CHECKBOX, DATE, DATETIME, RATING, PHONE, EMAIL, URL, CURRENCY, PERCENTAGE, SELECT, MULTI_SELECT, FILE_ATTACHMENT, LOCATION |
+| `type`      | string (DataType enum)   | Yes      | Data type: string, number, boolean, object, array, null                                                                                                           |
+| `label`     | string                   | No       | Human-readable label                                                                                                                                              |
+| `format`    | string (DataFormat enum) | No       | Validation format: date, date-time, email, phone-number, currency, uri, percentage                                                                                |
+| `required`  | boolean                  | No       | Whether the attribute is required                                                                                                                                 |
+| `unique`    | boolean                  | No       | Whether values must be unique across entities                                                                                                                     |
+| `protected` | boolean                  | No       | Whether the attribute is system-protected                                                                                                                         |
+| `icon`      | object                   | No       | Icon with `type` (Lucide name) and `colour`                                                                                                                       |
+| `options`   | object                   | No       | Validation options: `default`, `regex`, `enum`, `enumSorting`, `minLength`, `maxLength`, `minimum`, `maximum`                                                     |
+| `semantics` | object                   | No       | Semantic metadata (see below)                                                                                                                                     |
 
 ## Semantics
 
@@ -316,6 +344,7 @@ Relationships have `definition` and `tags` but **no `classification`** (classifi
 ```
 
 **Classification values** (SemanticAttributeClassification enum):
+
 - `IDENTIFIER` -- Uniquely identifies an entity (e.g., email, employee ID)
 - `CATEGORICAL` -- Groups entities into discrete categories (e.g., industry, status)
 - `QUANTITATIVE` -- Numeric measurement (e.g., revenue, salary)

@@ -1,4 +1,4 @@
-package riven.core.models.connotation
+package cranium.core.models.connotation
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

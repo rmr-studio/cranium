@@ -1,6 +1,6 @@
-package riven.core.models.integration.mapping
+package cranium.core.models.integration.mapping
 
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
 
 /**
  * Result of applying field mappings to a source data record.

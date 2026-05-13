@@ -7,8 +7,8 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@riven/ui/input';
-import { Button } from '@riven/ui/button';
+import { Input } from '@cranium/ui/input';
+import { Button } from '@cranium/ui/button';
 import {
   Select,
   SelectContent,

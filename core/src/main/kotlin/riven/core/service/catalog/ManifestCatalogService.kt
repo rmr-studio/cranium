@@ -1,14 +1,14 @@
-package riven.core.service.catalog
+package cranium.core.service.catalog
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
-import riven.core.enums.catalog.ManifestType
-import riven.core.exceptions.NotFoundException
-import riven.core.models.catalog.CatalogEntityTypeModel
-import riven.core.models.catalog.ConnotationSignals
-import riven.core.models.catalog.ManifestDetail
-import riven.core.repository.catalog.*
-import riven.core.repository.entity.EntityTypeRepository
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.exceptions.NotFoundException
+import cranium.core.models.catalog.CatalogEntityTypeModel
+import cranium.core.models.catalog.ConnotationSignals
+import cranium.core.models.catalog.ManifestDetail
+import cranium.core.repository.catalog.*
+import cranium.core.repository.entity.EntityTypeRepository
 import java.util.*
 
 /**
@@ -113,7 +113,7 @@ class ManifestCatalogService(
     // ------ Private Helpers ------
 
     private fun hydrateEntityTypes(
-        entityTypes: List<riven.core.entity.catalog.CatalogEntityTypeEntity>
+        entityTypes: List<cranium.core.entity.catalog.CatalogEntityTypeEntity>
     ): List<CatalogEntityTypeModel> {
         val entityTypeIds = entityTypes.mapNotNull { it.id }
         val semanticsByEntityType = catalogSemanticMetadataRepository

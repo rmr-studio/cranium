@@ -1,6 +1,6 @@
 # Side Panel Portal Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-dcranium-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Transform the side panel from a flat navigation list into a stack-based content portal that can display detail views pushed from main content, with back navigation, resizable width, and mobile sheet fallback.
 
@@ -508,7 +508,7 @@ git commit -m "feat(side-panel): add Zustand store with navigation stack, push/p
 import { createContext, useContext, useEffect, useRef, type ReactNode } from 'react';
 import { useStore } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
-import { useIsMobile } from '@riven/hooks';
+import { useIsMobile } from '@cranium/hooks';
 import {
   createSidePanelStore,
   type SidePanelStore,
@@ -698,7 +698,7 @@ export function PanelSkeleton() {
 
 'use client';
 
-import { Button } from '@riven/ui/button';
+import { Button } from '@cranium/ui/button';
 import { ChevronLeft, X } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
@@ -921,7 +921,7 @@ First create the error fallback component:
 ```typescript
 'use client';
 
-import { Button } from '@riven/ui/button';
+import { Button } from '@cranium/ui/button';
 import { AlertCircle, RotateCcw } from 'lucide-react';
 
 interface PanelErrorFallbackProps {
@@ -1197,10 +1197,10 @@ Replace the entire contents of `components/ui/sidebar/icon-rail.tsx`:
 import { useProfile } from '@/components/feature-modules/user/hooks/use-profile';
 import { WorkspaceIcon } from '@/components/feature-modules/workspace/components/workspace-icon';
 import { useWorkspaceStore } from '@/components/feature-modules/workspace/provider/workspace-provider';
-import { Logo } from '@riven/ui/logo';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@riven/ui/tooltip';
-import { cn } from '@riven/utils';
-import { useIsMobile } from '@riven/hooks';
+import { Logo } from '@cranium/ui/logo';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@cranium/ui/tooltip';
+import { cn } from '@cranium/utils';
+import { useIsMobile } from '@cranium/hooks';
 import { BookOpen, Building2, CogIcon, SquareDashedMousePointer, StickyNote, TrendingUpDown } from 'lucide-react';
 import { Kbd, KbdGroup } from '../kbd';
 import { Skeleton } from '../skeleton';
@@ -1353,9 +1353,9 @@ import {
   usePanelOpen,
   useSidePanelActions,
 } from '@/components/ui/sidebar/context/side-panel-provider';
-import { Button } from '@riven/ui/button';
-import { ThemeToggle } from '@riven/ui/theme-toggle';
-import { useIsMobile } from '@riven/hooks';
+import { Button } from '@cranium/ui/button';
+import { ThemeToggle } from '@cranium/ui/theme-toggle';
+import { useIsMobile } from '@cranium/hooks';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Menu, PanelLeftOpen } from 'lucide-react';
 import Link from 'next/link';
@@ -1452,7 +1452,7 @@ import { WebSocketSubscriptionManager } from '@/components/feature-modules/works
 import { Navbar } from '@/components/ui/nav/navbar';
 import { DashboardShell } from '@/components/ui/sidebar/dashboard-shell';
 import { SidePanelProvider } from '@/components/ui/sidebar/context/side-panel-provider';
-import type { ChildNodeProps } from '@riven/utils';
+import type { ChildNodeProps } from '@cranium/utils';
 import { FC } from 'react';
 
 const layout: FC<ChildNodeProps> = ({ children }) => {
@@ -1487,7 +1487,7 @@ Create `components/ui/sidebar/dashboard-shell.tsx`:
 
 'use client';
 
-import { useIsMobile } from '@riven/hooks';
+import { useIsMobile } from '@cranium/hooks';
 import { type ReactNode, useEffect, useRef } from 'react';
 import { type ImperativePanelHandle } from 'react-resizable-panels';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '../resizable';
@@ -1708,8 +1708,8 @@ import { createSidePanelStore, type SidePanelStoreApi } from '../stores/side-pan
 import { SidePanelProvider, useSidePanelStore } from '../context/side-panel-provider';
 import type { SidePanelView } from '../types/side-panel.types';
 
-// Mock @riven/hooks
-jest.mock('@riven/hooks', () => ({
+// Mock @cranium/hooks
+jest.mock('@cranium/hooks', () => ({
   useIsMobile: () => false,
 }));
 

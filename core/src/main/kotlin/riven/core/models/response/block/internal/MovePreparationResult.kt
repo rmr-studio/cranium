@@ -1,6 +1,6 @@
-package riven.core.models.response.block.internal
+package cranium.core.models.response.block.internal
 
-import riven.core.entity.block.BlockChildEntity
+import cranium.core.entity.block.BlockChildEntity
 
 
 data class MovePreparationResult(

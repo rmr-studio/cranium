@@ -1,4 +1,4 @@
-package riven.core.service.identity
+package cranium.core.service.identity
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.enums.identity.MatchSignalType
-import riven.core.service.util.factory.identity.IdentityFactory
+import cranium.core.enums.identity.MatchSignalType
+import cranium.core.service.util.factory.identity.IdentityFactory
 import java.util.UUID
 
 @SpringBootTest(classes = [IdentityMatchScoringService::class])

@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { Check, ChevronsUpDown } from 'lucide-react';
-import { Input } from '@riven/ui/input';
-import { Button } from '@riven/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
+import { Input } from '@cranium/ui/input';
+import { Button } from '@cranium/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@cranium/ui/popover';
 import {
   Command,
   CommandEmpty,
@@ -12,8 +12,8 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@riven/ui/command';
-import { cn } from '@riven/utils';
+} from '@cranium/ui/command';
+import { cn } from '@cranium/utils';
 import { SchemaType } from '@/lib/types/models/SchemaType';
 import { FilterOperator } from '@/lib/types/models/FilterOperator';
 import type { SchemaUUID } from '@/lib/types/models/SchemaUUID';

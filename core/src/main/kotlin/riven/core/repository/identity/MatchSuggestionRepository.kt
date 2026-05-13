@@ -1,9 +1,9 @@
-package riven.core.repository.identity
+package cranium.core.repository.identity
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
-import riven.core.entity.identity.MatchSuggestionEntity
+import cranium.core.entity.identity.MatchSuggestionEntity
 import java.util.UUID
 
 
@@ -83,7 +83,7 @@ interface MatchSuggestionRepository : JpaRepository<MatchSuggestionEntity, UUID>
         SELECT COUNT(m) FROM MatchSuggestionEntity m
         WHERE m.workspaceId = :workspaceId
           AND (m.sourceEntityId = :entityId OR m.targetEntityId = :entityId)
-          AND m.status = riven.core.enums.identity.MatchSuggestionStatus.PENDING
+          AND m.status = cranium.core.enums.identity.MatchSuggestionStatus.PENDING
         """
     )
     fun countPendingForEntity(

@@ -1,11 +1,11 @@
-package riven.core.configuration.integration
+package cranium.core.configuration.integration
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import riven.core.configuration.properties.NangoConfigurationProperties
-import riven.core.filter.integration.NangoWebhookHmacFilter
+import cranium.core.configuration.properties.NangoConfigurationProperties
+import cranium.core.filter.integration.NangoWebhookHmacFilter
 
 /**
  * Registers the NangoWebhookHmacFilter scoped to the Nango webhook endpoint.

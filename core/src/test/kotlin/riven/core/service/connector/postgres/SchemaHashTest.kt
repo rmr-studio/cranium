@@ -1,8 +1,8 @@
-package riven.core.service.connector.postgres
+package cranium.core.service.connector.postgres
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import riven.core.service.util.factory.PostgresIntrospectionFactory.column
+import cranium.core.service.util.factory.PostgresIntrospectionFactory.column
 
 /**
  * Phase 3 plan 03-01 PG-06 coverage for [SchemaHasher]. Test names inherit

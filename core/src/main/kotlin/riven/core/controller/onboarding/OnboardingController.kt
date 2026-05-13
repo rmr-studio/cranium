@@ -1,4 +1,4 @@
-package riven.core.controller.onboarding
+package cranium.core.controller.onboarding
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
-import riven.core.models.request.onboarding.CompleteOnboardingRequest
-import riven.core.models.response.onboarding.CompleteOnboardingResponse
-import riven.core.service.onboarding.OnboardingService
+import cranium.core.models.request.onboarding.CompleteOnboardingRequest
+import cranium.core.models.response.onboarding.CompleteOnboardingResponse
+import cranium.core.service.onboarding.OnboardingService
 
 @RestController
 @RequestMapping("/api/v1/onboarding")

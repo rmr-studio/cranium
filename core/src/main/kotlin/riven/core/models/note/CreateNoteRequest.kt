@@ -1,4 +1,4 @@
-package riven.core.models.note
+package cranium.core.models.note
 
 data class CreateNoteRequest(
     val title: String? = null,

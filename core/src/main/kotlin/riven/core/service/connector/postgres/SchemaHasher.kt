@@ -1,10 +1,10 @@
-package riven.core.service.connector.postgres
+package cranium.core.service.connector.postgres
 
 import tools.jackson.databind.MapperFeature
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.databind.json.JsonMapper
 import tools.jackson.module.kotlin.KotlinModule
-import riven.core.models.ingestion.adapter.ColumnSchema
+import cranium.core.models.ingestion.adapter.ColumnSchema
 import java.security.MessageDigest
 
 /**

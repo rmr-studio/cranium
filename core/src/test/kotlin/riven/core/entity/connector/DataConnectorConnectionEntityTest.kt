@@ -1,4 +1,4 @@
-package riven.core.entity.connector
+package cranium.core.entity.connector
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
@@ -27,8 +27,8 @@ import org.springframework.transaction.annotation.Transactional
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
-import riven.core.repository.connector.DataConnectorConnectionRepository
-import riven.core.service.util.factory.dataconnector.DataConnectorConnectionEntityFactory
+import cranium.core.repository.connector.DataConnectorConnectionRepository
+import cranium.core.service.util.factory.dataconnector.DataConnectorConnectionEntityFactory
 import java.time.ZonedDateTime
 import java.time.temporal.TemporalAccessor
 import java.util.Optional
@@ -41,12 +41,12 @@ import java.util.UUID
  * Uses Testcontainers `pgvector/pgvector:pg16` + `@ActiveProfiles("integration")`
  * per core/CLAUDE.md Testing Rules. H2 cannot emulate Postgres `bytea`
  * round-trips with FK constraints, so Testcontainers is mandatory — same
- * precedent as [riven.core.entity.entity.SourceTypeJpaRoundTripTest].
+ * precedent as [cranium.core.entity.entity.SourceTypeJpaRoundTripTest].
  *
  * Covers:
  *  - Round-trip: encrypted_credentials + iv bytea preserved byte-for-byte
  *  - Soft-delete: `deleted = true` → `findById` returns empty via
- *    `@SQLRestriction` on [riven.core.entity.util.AuditableSoftDeletableEntity]
+ *    `@SQLRestriction` on [cranium.core.entity.util.AuditableSoftDeletableEntity]
  *  - Workspace scoping: `findByWorkspaceId` returns only rows in that workspace
  */
 @Configuration
@@ -65,8 +65,8 @@ import java.util.UUID
         "io.temporal.spring.boot.autoconfigure.TestServerAutoConfiguration",
     ],
 )
-@EnableJpaRepositories(basePackages = ["riven.core.repository.connector"])
-@EntityScan("riven.core.entity.connector")
+@EnableJpaRepositories(basePackages = ["cranium.core.repository.connector"])
+@EntityScan("cranium.core.entity.connector")
 @EnableJpaAuditing(
     auditorAwareRef = "dataConnectorConnectionRoundTripAuditorProvider",
     dateTimeProviderRef = "dataConnectorConnectionRoundTripDateTimeProvider",
@@ -96,7 +96,7 @@ class DataConnectorConnectionEntityTest {
         val postgres: PostgreSQLContainer = PostgreSQLContainer(
             DockerImageName.parse("pgvector/pgvector:pg16").asCompatibleSubstituteFor("postgres")
         )
-            .withDatabaseName("riven_test")
+            .withDatabaseName("cranium_test")
             .withUsername("test")
             .withPassword("test")
 
@@ -124,7 +124,7 @@ class DataConnectorConnectionEntityTest {
 
     /**
      * Hibernate's `ddl-auto: create-drop` only generates tables for scanned
-     * entities. We deliberately scan only `riven.core.entity.dataconnector`
+     * entities. We deliberately scan only `cranium.core.entity.dataconnector`
      * to avoid dragging in the full entity graph (WorkspaceInviteEntity ->
      * UserEntity etc.), so we hand-create the minimal `workspaces` table
      * that the dats_connector_connection FK targets.

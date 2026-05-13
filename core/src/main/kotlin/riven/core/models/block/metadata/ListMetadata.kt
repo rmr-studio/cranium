@@ -1,7 +1,7 @@
-package riven.core.models.block.metadata
+package cranium.core.models.block.metadata
 
-import riven.core.enums.block.node.ListFilterLogicType
-import riven.core.enums.block.structure.BlockListOrderingMode
+import cranium.core.enums.block.node.ListFilterLogicType
+import cranium.core.enums.block.structure.BlockListOrderingMode
 
 interface ListMetadata<T> {
     val config: ListConfig

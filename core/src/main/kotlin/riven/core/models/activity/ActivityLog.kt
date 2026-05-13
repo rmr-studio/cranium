@@ -1,9 +1,9 @@
-package riven.core.models.activity
+package cranium.core.models.activity
 
-import riven.core.enums.activity.Activity
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.util.OperationType
-import riven.core.models.common.json.JsonObject
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.util.OperationType
+import cranium.core.models.common.json.JsonObject
 import java.time.ZonedDateTime
 import java.util.*
 

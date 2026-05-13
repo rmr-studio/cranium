@@ -1,16 +1,16 @@
-package riven.core.models.core.base
+package cranium.core.models.core.base
 
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.DataType
-import riven.core.enums.core.DynamicDefaultFunction
-import riven.core.models.common.validation.DefaultValue
-import riven.core.models.common.validation.SchemaOptions
-import riven.core.models.core.AttributeSemantics
-import riven.core.models.core.CoreModelAttribute
-import riven.core.models.core.CoreModelRelationship
-import riven.core.models.core.RelationshipSemantics
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.DataType
+import cranium.core.enums.core.DynamicDefaultFunction
+import cranium.core.models.common.validation.DefaultValue
+import cranium.core.models.common.validation.SchemaOptions
+import cranium.core.models.core.AttributeSemantics
+import cranium.core.models.core.CoreModelAttribute
+import cranium.core.models.core.CoreModelRelationship
+import cranium.core.models.core.RelationshipSemantics
 
 /**
  * Shared attributes and relationships for the Customer model across all business types.

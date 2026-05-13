@@ -1,10 +1,10 @@
-package riven.core.repository.entity
+package cranium.core.repository.entity
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
-import riven.core.entity.entity.EntityTypeSemanticMetadataEntity
-import riven.core.enums.entity.semantics.SemanticMetadataTargetType
+import cranium.core.entity.entity.EntityTypeSemanticMetadataEntity
+import cranium.core.enums.entity.semantics.SemanticMetadataTargetType
 import java.util.*
 
 /**

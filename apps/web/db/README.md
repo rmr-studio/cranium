@@ -1,6 +1,6 @@
 # Landing Page Database Scripts
 
-SQL scripts for all Supabase tables used by the getriven.io landing page and blog.
+SQL scripts for all Supabase tables used by the getcranium.io landing page and blog.
 
 These are separate from the core application database (`core/db/`). The landing page uses its own tables in the same Supabase project but with different RLS policies — anon access for waitlist signups, service-role-only for blog analytics.
 

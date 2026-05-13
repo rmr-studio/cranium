@@ -1,9 +1,9 @@
-package riven.core.entity.catalog
+package cranium.core.entity.catalog
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.Type
-import riven.core.models.catalog.WorkspaceTemplateInstallationModel
+import cranium.core.models.catalog.WorkspaceTemplateInstallationModel
 import java.time.ZonedDateTime
 import java.util.*
 

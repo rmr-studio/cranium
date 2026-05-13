@@ -1,7 +1,7 @@
-package riven.core.models.connector.response
+package cranium.core.models.connector.response
 
-import riven.core.enums.common.validation.SchemaType
-import riven.core.models.connector.CursorIndexWarning
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.models.connector.CursorIndexWarning
 import java.util.UUID
 
 /**

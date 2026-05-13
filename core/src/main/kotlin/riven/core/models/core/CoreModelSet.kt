@@ -1,29 +1,29 @@
-package riven.core.models.core
+package cranium.core.models.core
 
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.models.core.models.AcquisitionSourceModel
-import riven.core.models.core.models.OrderLineItemModel
-import riven.core.models.core.models.OrderModel
-import riven.core.models.core.models.ProductModel
-import riven.core.models.core.models.SupportTicketModel
-import riven.core.models.core.base.CommunicationModel
-import riven.core.models.core.models.dtc.DtcBillingEventModel
-import riven.core.models.core.models.dtc.DtcChurnEventModel
-import riven.core.models.core.models.dtc.DtcCustomerModel
-import riven.core.models.core.models.dtc.commerce.CollectionModel
-import riven.core.models.core.models.dtc.commerce.DiscountModel
-import riven.core.models.core.models.dtc.commerce.ProductReviewModel
-import riven.core.models.core.models.dtc.commerce.ProductVariantModel
-import riven.core.models.core.models.dtc.commerce.ReturnModel
-import riven.core.models.core.models.dtc.fulfillment.CarrierModel
-import riven.core.models.core.models.dtc.fulfillment.ShipmentEventModel
-import riven.core.models.core.models.dtc.fulfillment.ShipmentModel
-import riven.core.models.core.models.dtc.marketing.AdCreativeModel
-import riven.core.models.core.models.dtc.marketing.AdSpendEventModel
-import riven.core.models.core.models.dtc.marketing.CampaignModel
-import riven.core.models.core.models.dtc.social.SocialCommentModel
-import riven.core.models.core.models.dtc.social.SocialMentionModel
-import riven.core.models.core.models.dtc.social.SocialPostModel
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.models.core.models.AcquisitionSourceModel
+import cranium.core.models.core.models.OrderLineItemModel
+import cranium.core.models.core.models.OrderModel
+import cranium.core.models.core.models.ProductModel
+import cranium.core.models.core.models.SupportTicketModel
+import cranium.core.models.core.base.CommunicationModel
+import cranium.core.models.core.models.dtc.DtcBillingEventModel
+import cranium.core.models.core.models.dtc.DtcChurnEventModel
+import cranium.core.models.core.models.dtc.DtcCustomerModel
+import cranium.core.models.core.models.dtc.commerce.CollectionModel
+import cranium.core.models.core.models.dtc.commerce.DiscountModel
+import cranium.core.models.core.models.dtc.commerce.ProductReviewModel
+import cranium.core.models.core.models.dtc.commerce.ProductVariantModel
+import cranium.core.models.core.models.dtc.commerce.ReturnModel
+import cranium.core.models.core.models.dtc.fulfillment.CarrierModel
+import cranium.core.models.core.models.dtc.fulfillment.ShipmentEventModel
+import cranium.core.models.core.models.dtc.fulfillment.ShipmentModel
+import cranium.core.models.core.models.dtc.marketing.AdCreativeModel
+import cranium.core.models.core.models.dtc.marketing.AdSpendEventModel
+import cranium.core.models.core.models.dtc.marketing.CampaignModel
+import cranium.core.models.core.models.dtc.social.SocialCommentModel
+import cranium.core.models.core.models.dtc.social.SocialMentionModel
+import cranium.core.models.core.models.dtc.social.SocialPostModel
 
 /**
  * A set of core models that form a complete lifecycle data model for a business type.
@@ -38,8 +38,8 @@ data class CoreModelSet(
     val manifestKey: String,
     val name: String,
     val description: String,
-    val models: List<riven.core.models.core.CoreModelDefinition>,
-    val additionalRelationships: List<riven.core.models.core.CoreModelRelationship> = emptyList(),
+    val models: List<cranium.core.models.core.CoreModelDefinition>,
+    val additionalRelationships: List<cranium.core.models.core.CoreModelRelationship> = emptyList(),
 )
 
 // ------ Model Set ------

@@ -1,4 +1,4 @@
-package riven.core.service.entity
+package cranium.core.service.entity
 
 import tools.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Assertions.*
@@ -7,26 +7,26 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.entity.EntityEntity
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.DataFormat
-import riven.core.enums.core.DataType
-import riven.core.enums.entity.validation.EntityTypeChangeType
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.models.common.validation.Schema
-import riven.core.models.common.validation.SchemaOptions
-import riven.core.models.entity.EntityTypeSchema
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.models.entity.payload.EntityAttributeRelationPayloadReference
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.schema.SchemaService
-import riven.core.service.util.BaseServiceTest
-import riven.core.service.util.WithUserPersona
-import riven.core.service.util.WorkspaceRole
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.entity.entity.EntityEntity
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.DataFormat
+import cranium.core.enums.core.DataType
+import cranium.core.enums.entity.validation.EntityTypeChangeType
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.models.common.validation.Schema
+import cranium.core.models.common.validation.SchemaOptions
+import cranium.core.models.entity.EntityTypeSchema
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.models.entity.payload.EntityAttributeRelationPayloadReference
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.schema.SchemaService
+import cranium.core.service.util.BaseServiceTest
+import cranium.core.service.util.WithUserPersona
+import cranium.core.service.util.WorkspaceRole
 import java.util.*
 
 @SpringBootTest(
@@ -1691,7 +1691,7 @@ class EntityValidationServiceTest : BaseServiceTest() {
 
     private fun createEntity(
         typeId: UUID,
-        payload: Map<UUID, riven.core.models.entity.payload.EntityAttributePayload>,
+        payload: Map<UUID, cranium.core.models.entity.payload.EntityAttributePayload>,
         workspaceId: UUID = this.workspaceId
     ): Pair<EntityEntity, Map<UUID, EntityAttributePrimitivePayload>> {
         val entity = EntityEntity(

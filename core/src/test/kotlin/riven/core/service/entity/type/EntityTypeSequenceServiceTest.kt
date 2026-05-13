@@ -1,4 +1,4 @@
-package riven.core.service.entity.type
+package cranium.core.service.entity.type
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -8,12 +8,12 @@ import org.mockito.kotlin.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.entity.EntityTypeSequenceEntity
-import riven.core.entity.entity.EntityTypeSequenceId
-import riven.core.repository.entity.EntityTypeSequenceRepository
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.util.BaseServiceTest
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.entity.entity.EntityTypeSequenceEntity
+import cranium.core.entity.entity.EntityTypeSequenceId
+import cranium.core.repository.entity.EntityTypeSequenceRepository
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.util.BaseServiceTest
 import java.util.*
 
 @SpringBootTest(

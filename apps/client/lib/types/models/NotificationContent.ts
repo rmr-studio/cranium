@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,10 +12,9 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import { type Information, InformationFromJSONTyped, InformationToJSON, InformationToJSONTyped } from './Information';
-import { type ReviewRequest, ReviewRequestFromJSONTyped, ReviewRequestToJSON, ReviewRequestToJSONTyped } from './ReviewRequest';
-import { type System, SystemFromJSONTyped, SystemToJSON, SystemToJSONTyped } from './System';
+import { type Information, InformationFromJSONTyped, InformationToJSONTyped } from './Information';
+import { type ReviewRequest, ReviewRequestFromJSONTyped, ReviewRequestToJSONTyped } from './ReviewRequest';
+import { type System, SystemFromJSONTyped, SystemToJSONTyped } from './System';
 /**
  * 
  * @export

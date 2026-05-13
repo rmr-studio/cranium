@@ -1,7 +1,7 @@
-package riven.core.models.block.tree
+package cranium.core.models.block.tree
 
-import riven.core.entity.util.AuditableModel
-import riven.core.models.block.layout.TreeLayout
+import cranium.core.entity.util.AuditableModel
+import cranium.core.models.block.layout.TreeLayout
 import java.io.Serializable
 import java.time.ZonedDateTime
 import java.util.*

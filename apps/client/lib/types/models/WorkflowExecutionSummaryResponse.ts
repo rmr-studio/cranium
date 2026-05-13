@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,20 +12,15 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
 import type { WorkflowExecutionNodeRecord } from './WorkflowExecutionNodeRecord';
 import {
     WorkflowExecutionNodeRecordFromJSON,
-    WorkflowExecutionNodeRecordFromJSONTyped,
-    WorkflowExecutionNodeRecordToJSON,
-    WorkflowExecutionNodeRecordToJSONTyped,
+    WorkflowExecutionNodeRecordToJSON
 } from './WorkflowExecutionNodeRecord';
 import type { WorkflowExecutionRecord } from './WorkflowExecutionRecord';
 import {
     WorkflowExecutionRecordFromJSON,
-    WorkflowExecutionRecordFromJSONTyped,
-    WorkflowExecutionRecordToJSON,
-    WorkflowExecutionRecordToJSONTyped,
+    WorkflowExecutionRecordToJSON
 } from './WorkflowExecutionRecord';
 
 /**

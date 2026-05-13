@@ -1,12 +1,12 @@
-package riven.core.deserializer
+package cranium.core.deserializer
 
 import tools.jackson.core.JsonParser
 import tools.jackson.databind.DeserializationContext
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.ValueDeserializer
-import riven.core.models.block.layout.RenderContent
-import riven.core.models.block.layout.TreeLayout
-import riven.core.models.block.layout.Widget
+import cranium.core.models.block.layout.RenderContent
+import cranium.core.models.block.layout.TreeLayout
+import cranium.core.models.block.layout.Widget
 
 /**
  * Custom deserializer for Widget that handles the stringified content field from Gridstack.

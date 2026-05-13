@@ -1,16 +1,16 @@
-package riven.core.models.enrichment
+package cranium.core.models.enrichment
 
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.enums.common.validation.SchemaType
-import riven.core.models.connotation.SentimentMetadata
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.models.connotation.SentimentMetadata
 import java.util.*
 
 /**
  * Transient merge view assembled by
- * [riven.core.service.enrichment.EnrichmentService.analyzeSemantics] and consumed by
- * [riven.core.service.enrichment.SemanticTextBuilderService] and downstream activities.
+ * [cranium.core.service.enrichment.EnrichmentService.analyzeSemantics] and consumed by
+ * [cranium.core.service.enrichment.SemanticTextBuilderService] and downstream activities.
  *
  * Combines the persisted polymorphic snapshot metadata (RELATIONAL summaries / cluster /
  * STRUCTURAL type metadata, also written to `entity_connotation`) with live entity payload

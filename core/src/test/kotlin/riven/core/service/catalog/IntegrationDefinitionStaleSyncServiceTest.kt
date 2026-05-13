@@ -1,15 +1,15 @@
-package riven.core.service.catalog
+package cranium.core.service.catalog
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
-import riven.core.entity.catalog.ManifestCatalogEntity
-import riven.core.entity.integration.IntegrationDefinitionEntity
-import riven.core.enums.catalog.ManifestType
-import riven.core.enums.integration.IntegrationCategory
-import riven.core.repository.catalog.ManifestCatalogRepository
-import riven.core.repository.integration.IntegrationDefinitionRepository
+import cranium.core.entity.catalog.ManifestCatalogEntity
+import cranium.core.entity.integration.IntegrationDefinitionEntity
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.enums.integration.IntegrationCategory
+import cranium.core.repository.catalog.ManifestCatalogRepository
+import cranium.core.repository.integration.IntegrationDefinitionRepository
 import java.util.*
 
 class IntegrationDefinitionStaleSyncServiceTest {

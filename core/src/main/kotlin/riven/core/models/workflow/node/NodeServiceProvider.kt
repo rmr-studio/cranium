@@ -1,4 +1,4 @@
-package riven.core.models.workflow.node
+package cranium.core.models.workflow.node
 
 import kotlin.reflect.KClass
 
@@ -34,10 +34,10 @@ import kotlin.reflect.KClass
  *
  * ## Implementation
  *
- * The Spring implementation ([riven.core.service.workflow.WorkflowNodeServiceInjectionProvider])
+ * The Spring implementation ([cranium.core.service.workflow.WorkflowNodeServiceInjectionProvider])
  * wraps ApplicationContext to provide service resolution.
  *
- * @see riven.core.service.workflow.WorkflowNodeServiceInjectionProvider
+ * @see cranium.core.service.workflow.WorkflowNodeServiceInjectionProvider
  */
 interface NodeServiceProvider {
     /**

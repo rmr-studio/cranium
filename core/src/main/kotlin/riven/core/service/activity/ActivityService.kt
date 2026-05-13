@@ -1,14 +1,14 @@
-package riven.core.service.activity
+package cranium.core.service.activity
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
-import riven.core.entity.activity.ActivityLogEntity
-import riven.core.enums.activity.Activity
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.util.OperationType
-import riven.core.models.activity.ActivityLog
-import riven.core.models.common.json.JsonObject
-import riven.core.repository.activity.ActivityLogRepository
+import cranium.core.entity.activity.ActivityLogEntity
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.util.OperationType
+import cranium.core.models.activity.ActivityLog
+import cranium.core.models.common.json.JsonObject
+import cranium.core.repository.activity.ActivityLogRepository
 import java.time.ZonedDateTime
 import java.util.*
 

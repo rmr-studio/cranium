@@ -1,4 +1,4 @@
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 import { FC, JSX } from 'react';
 import { z } from 'zod';
 import { createRenderElement } from '../../util/render/render-element.registry';

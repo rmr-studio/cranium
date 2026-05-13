@@ -1,6 +1,6 @@
-package riven.core.models.request.entity
+package cranium.core.models.request.entity
 
-import riven.core.enums.integration.SourceType
+import cranium.core.enums.integration.SourceType
 import java.util.*
 
 data class AddRelationshipRequest(

@@ -1,9 +1,9 @@
 'use client';
 
-import { Button } from '@riven/ui/button';
-import { Input } from '@riven/ui/input';
-import { Label } from '@riven/ui/label';
-import { ScrollArea } from '@riven/ui/scroll-area';
+import { Button } from '@cranium/ui/button';
+import { Input } from '@cranium/ui/input';
+import { Label } from '@cranium/ui/label';
+import { ScrollArea } from '@cranium/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
@@ -11,8 +11,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@riven/ui/select';
-import { cn } from '@riven/utils';
+} from '@cranium/ui/select';
+import { cn } from '@cranium/utils';
 import { X } from 'lucide-react';
 import { useEffect } from 'react';
 import { useDataTableActions, useDataTableStore } from '../data-table-provider';

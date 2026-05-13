@@ -1,35 +1,35 @@
-package riven.core.service.ingestion.adapter.nango
+package cranium.core.service.ingestion.adapter.nango
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Component
-import riven.core.enums.integration.SourceType
-import riven.core.exceptions.NangoApiException
-import riven.core.exceptions.RateLimitException
-import riven.core.exceptions.TransientNangoException
-import riven.core.models.ingestion.adapter.RecordBatch
-import riven.core.models.ingestion.adapter.SchemaIntrospectionResult
-import riven.core.models.ingestion.adapter.SourceRecord
-import riven.core.models.ingestion.adapter.SyncMode
-import riven.core.models.integration.NangoRecord
-import riven.core.models.integration.NangoRecordsPage
-import riven.core.service.ingestion.adapter.AdapterCallContext
-import riven.core.service.ingestion.adapter.IngestionAdapter
-import riven.core.service.ingestion.adapter.NangoCallContext
-import riven.core.service.ingestion.adapter.SourceTypeAdapter
-import riven.core.service.ingestion.adapter.exception.AdapterAuthException
-import riven.core.service.ingestion.adapter.exception.AdapterCapabilityNotSupportedException
-import riven.core.service.ingestion.adapter.exception.AdapterConnectionRefusedException
-import riven.core.service.ingestion.adapter.exception.AdapterUnavailableException
-import riven.core.service.ingestion.adapter.exception.FatalAdapterException
-import riven.core.service.ingestion.adapter.exception.TransientAdapterException
-import riven.core.service.integration.NangoClientWrapper
+import cranium.core.enums.integration.SourceType
+import cranium.core.exceptions.NangoApiException
+import cranium.core.exceptions.RateLimitException
+import cranium.core.exceptions.TransientNangoException
+import cranium.core.models.ingestion.adapter.RecordBatch
+import cranium.core.models.ingestion.adapter.SchemaIntrospectionResult
+import cranium.core.models.ingestion.adapter.SourceRecord
+import cranium.core.models.ingestion.adapter.SyncMode
+import cranium.core.models.integration.NangoRecord
+import cranium.core.models.integration.NangoRecordsPage
+import cranium.core.service.ingestion.adapter.AdapterCallContext
+import cranium.core.service.ingestion.adapter.IngestionAdapter
+import cranium.core.service.ingestion.adapter.NangoCallContext
+import cranium.core.service.ingestion.adapter.SourceTypeAdapter
+import cranium.core.service.ingestion.adapter.exception.AdapterAuthException
+import cranium.core.service.ingestion.adapter.exception.AdapterCapabilityNotSupportedException
+import cranium.core.service.ingestion.adapter.exception.AdapterConnectionRefusedException
+import cranium.core.service.ingestion.adapter.exception.AdapterUnavailableException
+import cranium.core.service.ingestion.adapter.exception.FatalAdapterException
+import cranium.core.service.ingestion.adapter.exception.TransientAdapterException
+import cranium.core.service.integration.NangoClientWrapper
 
 /**
  * IngestionAdapter implementation that delegates to [NangoClientWrapper].
  *
  * Phase 1 responsibility: expose Nango-backed integrations through the neutral
  * adapter contract and translate Nango-specific exceptions into the
- * [riven.core.service.ingestion.adapter.exception.AdapterException] hierarchy
+ * [cranium.core.service.ingestion.adapter.exception.AdapterException] hierarchy
  * so the Phase 4 Temporal orchestrator can classify retries uniformly.
  *
  * This adapter is registered but NOT yet consumed by

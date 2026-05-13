@@ -9,9 +9,9 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { OAuthProvider } from '@/lib/auth';
-import { Button } from '@riven/ui/button';
-import { CardContent, CardHeader } from '@riven/ui/card';
-import { Input } from '@riven/ui/input';
+import { Button } from '@cranium/ui/button';
+import { CardContent, CardHeader } from '@cranium/ui/card';
+import { Input } from '@cranium/ui/input';
 import Link from 'next/link';
 import { FC, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';

@@ -2,7 +2,7 @@
 
 import { SchemaType } from '@/lib/types/common';
 import { EntityPropertyType, EntityType, SystemRelationshipType } from '@/lib/types/entity';
-import { TableCell, TableRow } from '@riven/ui/table';
+import { TableCell, TableRow } from '@cranium/ui/table';
 import { Row } from '@tanstack/react-table';
 import { FC, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { useFormState } from 'react-hook-form';

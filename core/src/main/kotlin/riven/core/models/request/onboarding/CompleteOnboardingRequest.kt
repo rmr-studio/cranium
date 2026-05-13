@@ -1,14 +1,14 @@
-package riven.core.models.request.onboarding
+package cranium.core.models.request.onboarding
 
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
-import riven.core.enums.knowledge.DefinitionCategory
-import riven.core.enums.user.AcquisitionChannel
-import riven.core.enums.workspace.WorkspacePlan
-import riven.core.enums.workspace.WorkspaceRoles
+import cranium.core.enums.knowledge.DefinitionCategory
+import cranium.core.enums.user.AcquisitionChannel
+import cranium.core.enums.workspace.WorkspacePlan
+import cranium.core.enums.workspace.WorkspaceRoles
 
 data class CompleteOnboardingRequest(
     @field:Valid

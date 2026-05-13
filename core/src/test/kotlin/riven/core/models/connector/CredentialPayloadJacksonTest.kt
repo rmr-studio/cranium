@@ -1,4 +1,4 @@
-package riven.core.models.connector
+package cranium.core.models.connector
 
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.databind.DatabindException
@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
-import riven.core.enums.connector.SslMode
+import cranium.core.enums.connector.SslMode
 
 /**
  * Jackson round-trip coverage for [CredentialPayload] and [SslMode].

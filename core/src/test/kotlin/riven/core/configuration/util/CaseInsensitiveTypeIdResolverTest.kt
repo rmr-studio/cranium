@@ -1,4 +1,4 @@
-package riven.core.configuration.util
+package cranium.core.configuration.util
 
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.databind.exc.InvalidTypeIdException
@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import riven.core.models.entity.query.filter.FilterValue
-import riven.core.models.entity.query.filter.QueryFilter
-import riven.core.models.integration.mapping.FieldTransform
+import cranium.core.models.entity.query.filter.FilterValue
+import cranium.core.models.entity.query.filter.QueryFilter
+import cranium.core.models.integration.mapping.FieldTransform
 
 /**
  * Verifies that [CaseInsensitiveTypeIdResolver] accepts any casing of type discriminator

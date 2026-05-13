@@ -1,4 +1,4 @@
-package riven.core.service.workspace
+package cranium.core.service.workspace
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Test
@@ -9,21 +9,21 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.web.multipart.MultipartFile
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.workspace.WorkspaceEntity
-import riven.core.entity.workspace.WorkspaceMemberEntity
-import riven.core.enums.workspace.WorkspacePlan
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.models.request.workspace.SaveWorkspaceRequest
-import riven.core.models.user.User
-import riven.core.repository.workspace.WorkspaceMemberRepository
-import riven.core.repository.workspace.WorkspaceRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.storage.StorageService
-import riven.core.service.user.UserService
-import riven.core.service.util.WithUserPersona
-import riven.core.service.util.WorkspaceRole
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.entity.workspace.WorkspaceEntity
+import cranium.core.entity.workspace.WorkspaceMemberEntity
+import cranium.core.enums.workspace.WorkspacePlan
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.models.request.workspace.SaveWorkspaceRequest
+import cranium.core.models.user.User
+import cranium.core.repository.workspace.WorkspaceMemberRepository
+import cranium.core.repository.workspace.WorkspaceRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.storage.StorageService
+import cranium.core.service.user.UserService
+import cranium.core.service.util.WithUserPersona
+import cranium.core.service.util.WorkspaceRole
 import java.util.*
 
 @SpringBootTest(

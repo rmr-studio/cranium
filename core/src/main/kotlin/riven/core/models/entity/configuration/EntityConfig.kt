@@ -1,6 +1,6 @@
-package riven.core.models.entity.configuration
+package cranium.core.models.entity.configuration
 
-import riven.core.models.common.structure.FormStructure
+import cranium.core.models.common.structure.FormStructure
 
 data class EntityConfig(
     val form: FormStructure,

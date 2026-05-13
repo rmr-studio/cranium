@@ -27,7 +27,7 @@ export function TerminalChrome() {
               boxShadow: '0 0 0 2.5px oklch(0.7 0.18 145 / 0.18)',
             }}
           />
-          riven-mcp · connected
+          cranium-mcp · connected
         </span>
       </div>
     </div>
@@ -42,7 +42,7 @@ export function TerminalBody() {
     >
       <Line className="text-[oklch(0.55_0.01_92)]">Welcome to Claude Code (v2.4.1)</Line>
       <Line className="text-[oklch(0.55_0.01_92)]">
-        MCP servers loaded: <span className="text-[oklch(0.78_0.15_145)]">riven</span>,{' '}
+        MCP servers loaded: <span className="text-[oklch(0.78_0.15_145)]">cranium</span>,{' '}
         <span className="text-[oklch(0.78_0.15_145)]">shopify</span>,{' '}
         <span className="text-[oklch(0.78_0.15_145)]">klaviyo</span>
       </Line>
@@ -78,11 +78,11 @@ export function TerminalBody() {
       <Spacer />
 
       <ClaudeBlock>
-        Pulling the last two cohorts from Riven — comparing Mar vs Apr buyers across channels.
+        Pulling the last two cohorts from Cranium — comparing Mar vs Apr buyers across channels.
       </ClaudeBlock>
 
       <McpCard
-        ns="riven"
+        ns="cranium"
         method="analytics.cohort_diff"
         meta="metric=repeat_60d · window=Apr vs Mar 2026"
       >
@@ -98,7 +98,7 @@ export function TerminalBody() {
         upstream.
       </ClaudeBlock>
 
-      <McpCard ns="riven" method="insights.surface" meta="scope=klaviyo · since=2026-04-01">
+      <McpCard ns="cranium" method="insights.surface" meta="scope=klaviyo · since=2026-04-01">
         <FindingLine
           tone="bad"
           name="Welcome Series"

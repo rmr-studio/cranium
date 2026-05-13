@@ -1,13 +1,13 @@
 import { BrandShopify, BrandSlack } from '@/components/ui/diagrams/brand-icons';
 import { cn } from '@/lib/utils';
-import { Logo } from '@riven/ui/logo';
-import { ClassNameProps } from '@riven/utils';
+import { Logo } from '@cranium/ui/logo';
+import { ClassNameProps } from '@cranium/utils';
 import { Mail, Search } from 'lucide-react';
 
 /**
  * Static action-memory diagram.
  *
- * Story: a user teaches Riven a procedure once in chat → Riven runs it →
+ * Story: a user teaches Cranium a procedure once in chat → Cranium runs it →
  * the procedure becomes saved memory + a glossary term.
  *
  * - **Portrait** (default → md): vertical narrative stack. Chat → run →
@@ -138,7 +138,7 @@ export const ChatCard: React.FC<ChatCardProps> = ({ compact, className }) => {
       <CardRibbon left="Chat · #merch-ops" right="Today · 14:02" />
 
       <div className={cn('flex flex-col gap-3', compact ? 'px-3 py-3' : 'px-4 py-4')}>
-        <Message author="Riven" badge="APP" time="14:02" avatar={<></>}>
+        <Message author="Cranium" badge="APP" time="14:02" avatar={<></>}>
           <span>Flagging </span>
           <b className="text-heading">Linen Field Tee · Sand</b>
           <span> — </span>
@@ -188,7 +188,7 @@ export const ChatCard: React.FC<ChatCardProps> = ({ compact, className }) => {
         </Message>
 
         {!compact && (
-          <Message author="Riven" badge="APP" time="14:05" avatar={<Logo size={18} />}>
+          <Message author="Cranium" badge="APP" time="14:05" avatar={<Logo size={18} />}>
             Got it. Running it now and saving this as the standard for hero-SKU spikes →
           </Message>
         )}
@@ -361,7 +361,7 @@ function RunCard({ compact }: { compact?: boolean } = {}) {
             Running procedure
           </div>
           <div className="mt-0.5 font-mono text-[9px] tracking-wider text-muted-foreground uppercase">
-            Riven · internal execution
+            Cranium · internal execution
           </div>
         </div>
       </div>

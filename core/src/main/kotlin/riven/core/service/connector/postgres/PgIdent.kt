@@ -1,4 +1,4 @@
-package riven.core.service.connector.postgres
+package cranium.core.service.connector.postgres
 
 /**
  * Safe double-quoting of Postgres SQL identifiers (schema, table, column names).

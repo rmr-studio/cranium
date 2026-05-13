@@ -1,13 +1,13 @@
-package riven.core.entity.integration
+package cranium.core.entity.integration
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.Type
-import riven.core.entity.util.AuditableEntity
-import riven.core.enums.integration.InstallationStatus
-import riven.core.models.common.SoftDeletable
-import riven.core.models.integration.SyncConfiguration
+import cranium.core.entity.util.AuditableEntity
+import cranium.core.enums.integration.InstallationStatus
+import cranium.core.models.common.SoftDeletable
+import cranium.core.models.integration.SyncConfiguration
 import java.time.ZonedDateTime
 import java.util.*
 

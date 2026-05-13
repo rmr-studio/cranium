@@ -1,4 +1,4 @@
-package riven.core.configuration.util
+package cranium.core.configuration.util
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo

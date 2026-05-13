@@ -1,7 +1,7 @@
-package riven.core.models.workflow.node.config
+package cranium.core.models.workflow.node.config
 
-import riven.core.enums.workflow.WorkflowNodeType
-import riven.core.enums.workflow.WorkflowUtilityActionType
+import cranium.core.enums.workflow.WorkflowNodeType
+import cranium.core.enums.workflow.WorkflowUtilityActionType
 
 /**
  * Configuration interface for UTILITY category nodes.

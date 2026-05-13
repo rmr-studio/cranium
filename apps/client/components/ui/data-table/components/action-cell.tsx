@@ -3,8 +3,8 @@
 import { Checkbox } from '@/components/ui/checkbox';
 import type { ActionColumnConfig, ActionVisibility } from '@/components/ui/data-table/data-table.types';
 import type { DraggableAttributes, DraggableSyntheticListeners } from '@dnd-kit/core';
-import { TableCell } from '@riven/ui/table';
-import { cn } from '@riven/utils';
+import { TableCell } from '@cranium/ui/table';
+import { cn } from '@cranium/utils';
 import { GripVertical } from 'lucide-react';
 import type { ReactNode } from 'react';
 

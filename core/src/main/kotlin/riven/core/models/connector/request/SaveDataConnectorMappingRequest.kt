@@ -1,12 +1,12 @@
-package riven.core.models.connector.request
+package cranium.core.models.connector.request
 
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticGroup
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticGroup
 
 /**
  * Request body for POST /api/v1/custom-sources/connections/{id}/schema/tables/{tableName}/mapping.

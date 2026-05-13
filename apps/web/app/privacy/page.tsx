@@ -34,14 +34,14 @@ export default function PrivacyPolicy() {
           {/* Introduction */}
           <section>
             <p>
-              Riven is a product of RMR Studios (ABN 75 879 339 311), referred to in this policy as
+              Cranium is a product of RMR Studios (ABN 75 879 339 311), referred to in this policy as
               &ldquo;we,&rdquo; &ldquo;our,&rdquo; or &ldquo;us.&rdquo; We are committed to
               protecting your privacy. This Privacy Policy explains how your personal information is
-              collected, used, and disclosed by Riven.
+              collected, used, and disclosed by Cranium.
             </p>
             <p>
               This Privacy Policy applies to our website, and its associated subdomains
-              (collectively, our &ldquo;Service&rdquo;) alongside our application, Riven. By
+              (collectively, our &ldquo;Service&rdquo;) alongside our application, Cranium. By
               accessing or using our Service, you signify that you have read, understood, and agree
               to our collection, storage, use, and disclosure of your personal information as
               described in this Privacy Policy and our Terms of Service.
@@ -62,17 +62,17 @@ export default function PrivacyPolicy() {
                 information about you such as your language preference or login information.
               </li>
               <li>
-                <strong>Country:</strong> where Riven or the owners/founders of Riven are based, in
+                <strong>Country:</strong> where Cranium or the owners/founders of Cranium are based, in
                 this case is Australia.
               </li>
               <li>
                 <strong>Customer:</strong> refers to the company, organization or person that signs
-                up to use the Riven Service to manage the relationships with your consumers or
+                up to use the Cranium Service to manage the relationships with your consumers or
                 service users.
               </li>
               <li>
                 <strong>Device:</strong> any internet connected device such as a phone, tablet,
-                computer or any other device that can be used to visit Riven and use the services.
+                computer or any other device that can be used to visit Cranium and use the services.
               </li>
               <li>
                 <strong>IP address:</strong> Every device connected to the Internet is assigned a
@@ -81,7 +81,7 @@ export default function PrivacyPolicy() {
                 location from which a device is connecting to the Internet.
               </li>
               <li>
-                <strong>Personnel:</strong> refers to those individuals who are employed by Riven or
+                <strong>Personnel:</strong> refers to those individuals who are employed by Cranium or
                 are under contract to perform a service on behalf of one of the parties.
               </li>
               <li>
@@ -90,7 +90,7 @@ export default function PrivacyPolicy() {
                 allows for the identification or identifiability of a natural person.
               </li>
               <li>
-                <strong>Service:</strong> refers to the service provided by Riven as described in
+                <strong>Service:</strong> refers to the service provided by Cranium as described in
                 the relative terms (if available) and on this platform.
               </li>
               <li>
@@ -99,11 +99,11 @@ export default function PrivacyPolicy() {
                 products or services we think may interest you.
               </li>
               <li>
-                <strong>Website:</strong> Riven&rsquo;s site, which can be accessed via this URL:
-                riven.dev
+                <strong>Website:</strong> Cranium&rsquo;s site, which can be accessed via this URL:
+                cranium.dev
               </li>
               <li>
-                <strong>You:</strong> a person or entity that is registered with Riven to use the
+                <strong>You:</strong> a person or entity that is registered with Cranium to use the
                 Services.
               </li>
             </ul>
@@ -149,9 +149,9 @@ export default function PrivacyPolicy() {
 
           {/* End user info from third parties */}
           <section>
-            <h2>When does Riven use end user information from third parties?</h2>
+            <h2>When does Cranium use end user information from third parties?</h2>
             <p>
-              Riven will collect End User Data necessary to provide the Riven services to our
+              Cranium will collect End User Data necessary to provide the Cranium services to our
               customers.
             </p>
             <p>
@@ -165,12 +165,12 @@ export default function PrivacyPolicy() {
 
           {/* Customer info from third parties */}
           <section>
-            <h2>When does Riven use customer information from third parties?</h2>
+            <h2>When does Cranium use customer information from third parties?</h2>
             <p>
               We receive some information from the third parties when you contact us. For example,
-              when you submit your email address to us to show interest in becoming a Riven
+              when you submit your email address to us to show interest in becoming a Cranium
               customer, we receive information from a third party that provides automated fraud
-              detection services to Riven. We also occasionally collect information that is made
+              detection services to Cranium. We also occasionally collect information that is made
               publicly available on social media websites. You can control how much of your
               information social media websites make public by visiting these websites and changing
               your privacy settings.
@@ -220,7 +220,7 @@ export default function PrivacyPolicy() {
           <section>
             <h2>Where and when is information collected from customers and end users?</h2>
             <p>
-              Riven will collect personal information that you submit to us. We may also receive
+              Cranium will collect personal information that you submit to us. We may also receive
               personal information about you from third parties as described above.
             </p>
           </section>
@@ -250,7 +250,7 @@ export default function PrivacyPolicy() {
           <section>
             <h2>How Long Do We Keep Your Information?</h2>
             <p>
-              We keep your information only so long as we need it to provide Riven to you and
+              We keep your information only so long as we need it to provide Cranium to you and
               fulfill the purposes described in this policy. This is also the case for anyone that
               we share your information with and who carries out services on our behalf. When we no
               longer need to use your information and there is no need for us to keep it to comply
@@ -271,7 +271,7 @@ export default function PrivacyPolicy() {
               with special access rights to such systems, and are required to keep the information
               confidential. After a transaction, your private information (credit cards, social
               security numbers, financials, etc.) is never kept on file. We cannot, however, ensure
-              or warrant the absolute security of any information you transmit to Riven or guarantee
+              or warrant the absolute security of any information you transmit to Cranium or guarantee
               that your information on the Service may not be accessed, disclosed, altered, or
               destroyed by a breach of any of our physical, technical, or managerial safeguards.
             </p>
@@ -281,7 +281,7 @@ export default function PrivacyPolicy() {
           <section>
             <h2>Could my information be transferred to other countries?</h2>
             <p>
-              Riven is incorporated in Australia. Information collected via our website, through
+              Cranium is incorporated in Australia. Information collected via our website, through
               direct interactions with you, or from use of our help services may be transferred from
               time to time to our offices or personnel, or to third parties, located throughout the
               world, and may be viewed and hosted anywhere in the world, including countries that
@@ -293,7 +293,7 @@ export default function PrivacyPolicy() {
 
           {/* Security */}
           <section>
-            <h2>Is the information collected through the Riven Service secure?</h2>
+            <h2>Is the information collected through the Cranium Service secure?</h2>
             <p>
               We take precautions to protect the security of your information. We have physical,
               electronic, and managerial procedures to help safeguard, prevent unauthorized access,
@@ -311,8 +311,8 @@ export default function PrivacyPolicy() {
           <section>
             <h2>Can I update or correct my information?</h2>
             <p>
-              The rights you have to request updates or corrections to the information Riven
-              collects depend on your relationship with Riven. Personnel may update or correct their
+              The rights you have to request updates or corrections to the information Cranium
+              collects depend on your relationship with Cranium. Personnel may update or correct their
               information as detailed in our internal company employment policies.
             </p>
             <p>
@@ -350,7 +350,7 @@ export default function PrivacyPolicy() {
           <section>
             <h2>Personnel</h2>
             <p>
-              If you are a Riven worker or applicant, we collect information you voluntarily provide
+              If you are a Cranium worker or applicant, we collect information you voluntarily provide
               to us. We use the information collected for Human Resources purposes in order to
               administer benefits to workers and screen applicants.
             </p>
@@ -369,8 +369,8 @@ export default function PrivacyPolicy() {
             <h2>Sale of Business</h2>
             <p>
               We reserve the right to transfer information to a third party in the event of a sale,
-              merger or other transfer of all or substantially all of the assets of Riven or any of
-              its Corporate Affiliates (as defined herein), or that portion of Riven or any of its
+              merger or other transfer of all or substantially all of the assets of Cranium or any of
+              its Corporate Affiliates (as defined herein), or that portion of Cranium or any of its
               Corporate Affiliates to which the Service relates, or in the event that we discontinue
               our business or file a petition or have filed against us a petition in bankruptcy,
               reorganization or similar proceeding, provided that the third party agrees to adhere
@@ -385,7 +385,7 @@ export default function PrivacyPolicy() {
               We may disclose information (including personal information) about you to our
               Corporate Affiliates. For purposes of this Privacy Policy, &ldquo;Corporate
               Affiliate&rdquo; means any person or entity which directly or indirectly controls, is
-              controlled by or is under common control with Riven, whether by ownership or
+              controlled by or is under common control with Cranium, whether by ownership or
               otherwise. Any information relating to you that we provide to our Corporate Affiliates
               will be treated by those Corporate Affiliates in accordance with the terms of this
               Privacy Policy.
@@ -408,7 +408,7 @@ export default function PrivacyPolicy() {
               other local, state, national, or international laws.
             </p>
             <p>
-              By using Riven or contacting us directly, you signify your acceptance of this Privacy
+              By using Cranium or contacting us directly, you signify your acceptance of this Privacy
               Policy. If you do not agree to this Privacy Policy, you should not engage with our
               website, or use our services. Continued use of the website, direct engagement with us,
               or following the posting of changes to this Privacy Policy that do not significantly
@@ -433,7 +433,7 @@ export default function PrivacyPolicy() {
             <h2>Links to Other Websites</h2>
             <p>
               This Privacy Policy applies only to the Services. The Services may contain links to
-              other websites not operated or controlled by Riven. We are not responsible for the
+              other websites not operated or controlled by Cranium. We are not responsible for the
               content, accuracy or opinions expressed in such websites, and such websites are not
               investigated, monitored or checked for accuracy or completeness by us. Please remember
               that when you use a link to go from the Services to another website, our Privacy
@@ -448,7 +448,7 @@ export default function PrivacyPolicy() {
           <section>
             <h2>Cookies</h2>
             <p>
-              Riven uses &ldquo;Cookies&rdquo; to identify the areas of our website that you have
+              Cranium uses &ldquo;Cookies&rdquo; to identify the areas of our website that you have
               visited. A Cookie is a small piece of data stored on your computer or mobile device by
               your web browser. We use Cookies to enhance the performance and functionality of our
               website but are non-essential to their use. However, without these cookies, certain
@@ -523,9 +523,9 @@ export default function PrivacyPolicy() {
               websites or services (&ldquo;Third-Party Services&rdquo;).
             </p>
             <p>
-              You acknowledge and agree that Riven shall not be responsible for any Third-Party
+              You acknowledge and agree that Cranium shall not be responsible for any Third-Party
               Services, including their accuracy, completeness, timeliness, validity, copyright
-              compliance, legality, decency, quality or any other aspect thereof. Riven does not
+              compliance, legality, decency, quality or any other aspect thereof. Cranium does not
               assume and shall not have any liability or responsibility to you or any other person
               or entity for any Third-Party Services.
             </p>
@@ -635,7 +635,7 @@ export default function PrivacyPolicy() {
               GDPR adds some new requirements regarding how companies should protect
               individuals&rsquo; personal data that they collect and process. It also raises the
               stakes for compliance by increasing enforcement and imposing greater fines for breach.
-              Beyond these facts it&rsquo;s simply the right thing to do. At Riven we strongly
+              Beyond these facts it&rsquo;s simply the right thing to do. At Cranium we strongly
               believe that your data privacy is very important and we already have solid security
               and privacy practices in place that go beyond the requirements of this new regulation.
             </p>
@@ -645,7 +645,7 @@ export default function PrivacyPolicy() {
             <h2>Individual Data Subject&rsquo;s Rights — Data Access, Portability and Deletion</h2>
             <p>
               We are committed to helping our customers meet the data subject rights requirements of
-              GDPR. Riven processes or stores all personal data in fully vetted, DPA compliant
+              GDPR. Cranium processes or stores all personal data in fully vetted, DPA compliant
               vendors. We do store all conversation and personal data for up to 6 years unless your
               account is deleted. In which case, we dispose of all data in accordance with our Terms
               of Service and Privacy Policy, but we will not hold it longer than 60 days.

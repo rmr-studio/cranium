@@ -51,7 +51,7 @@
 
 ## 2026-05-01 — Entity domain split: JWT path vs system bus
 
-**Trigger:** Extracted `EntityIngestionService` from `EntityService` to separate JWT-fronted CRUD (still on `EntityService`, `@PreAuthorize`-guarded) from system-driven persistence (`EntityIngestionService`, no JWT). Background callers (knowledge ingestion services, Temporal backfill activities, projectors) now inject `EntityIngestionService`.
+**Trigger:** Extracted `EntityIngestionService` from `EntityService` to separate JWT-fronted CRUD (still on `EntityService`, `@PreAuthorize`-guarded) from system-dcranium persistence (`EntityIngestionService`, no JWT). Background callers (knowledge ingestion services, Temporal backfill activities, projectors) now inject `EntityIngestionService`.
 
 **Affected vault notes:**
 

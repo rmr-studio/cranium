@@ -1,10 +1,10 @@
-package riven.core.service.catalog
+package cranium.core.service.catalog
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.enums.catalog.ManifestType
-import riven.core.repository.catalog.ManifestCatalogRepository
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.repository.catalog.ManifestCatalogRepository
 
 /**
  * Post-load reconciliation: marks catalog entries stale if they were NOT

@@ -1,8 +1,8 @@
-package riven.core.service.identity
+package cranium.core.service.identity
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
-import riven.core.enums.identity.MatchSignalType
+import cranium.core.enums.identity.MatchSignalType
 import java.text.Normalizer
 
 /**

@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,98 +12,16 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { QueryProjection } from './QueryProjection';
+import type { WorkflowNodeConfig } from './WorkflowNodeConfig';
 import {
-    QueryProjectionFromJSON,
-    QueryProjectionFromJSONTyped,
-    QueryProjectionToJSON,
-    QueryProjectionToJSONTyped,
-} from './QueryProjection';
-import type { WorkflowNodeConfigField } from './WorkflowNodeConfigField';
-import {
-    WorkflowNodeConfigFieldFromJSON,
-    WorkflowNodeConfigFieldFromJSONTyped,
-    WorkflowNodeConfigFieldToJSON,
-    WorkflowNodeConfigFieldToJSONTyped,
-} from './WorkflowNodeConfigField';
-import type { SchemaString } from './SchemaString';
-import {
-    SchemaStringFromJSON,
-    SchemaStringFromJSONTyped,
-    SchemaStringToJSON,
-    SchemaStringToJSONTyped,
-} from './SchemaString';
-import type { BulkUpdateErrorHandling } from './BulkUpdateErrorHandling';
-import {
-    BulkUpdateErrorHandlingFromJSON,
-    BulkUpdateErrorHandlingFromJSONTyped,
-    BulkUpdateErrorHandlingToJSON,
-    BulkUpdateErrorHandlingToJSONTyped,
-} from './BulkUpdateErrorHandling';
-import type { WorkflowNodeType } from './WorkflowNodeType';
-import {
-    WorkflowNodeTypeFromJSON,
-    WorkflowNodeTypeFromJSONTyped,
-    WorkflowNodeTypeToJSON,
-    WorkflowNodeTypeToJSONTyped,
-} from './WorkflowNodeType';
-import type { EntityQuery } from './EntityQuery';
-import {
-    EntityQueryFromJSON,
-    EntityQueryFromJSONTyped,
-    EntityQueryToJSON,
-    EntityQueryToJSONTyped,
-} from './EntityQuery';
-import type { RequestMethodType } from './RequestMethodType';
-import {
-    RequestMethodTypeFromJSON,
-    RequestMethodTypeFromJSONTyped,
-    RequestMethodTypeToJSON,
-    RequestMethodTypeToJSONTyped,
-} from './RequestMethodType';
+    WorkflowNodeConfigFromJSONTyped,
+    WorkflowNodeConfigToJSONTyped
+} from './WorkflowNodeConfig';
 import type { WorkflowUtilityActionType } from './WorkflowUtilityActionType';
 import {
     WorkflowUtilityActionTypeFromJSON,
-    WorkflowUtilityActionTypeFromJSONTyped,
-    WorkflowUtilityActionTypeToJSON,
-    WorkflowUtilityActionTypeToJSONTyped,
+    WorkflowUtilityActionTypeToJSON
 } from './WorkflowUtilityActionType';
-import type { Signature } from './Signature';
-import {
-    SignatureFromJSON,
-    SignatureFromJSONTyped,
-    SignatureToJSON,
-    SignatureToJSONTyped,
-} from './Signature';
-import type { QueryPagination } from './QueryPagination';
-import {
-    QueryPaginationFromJSON,
-    QueryPaginationFromJSONTyped,
-    QueryPaginationToJSON,
-    QueryPaginationToJSONTyped,
-} from './QueryPagination';
-import type { OperationType } from './OperationType';
-import {
-    OperationTypeFromJSON,
-    OperationTypeFromJSONTyped,
-    OperationTypeToJSON,
-    OperationTypeToJSONTyped,
-} from './OperationType';
-import type { AuthenticationType } from './AuthenticationType';
-import {
-    AuthenticationTypeFromJSON,
-    AuthenticationTypeFromJSONTyped,
-    AuthenticationTypeToJSON,
-    AuthenticationTypeToJSONTyped,
-} from './AuthenticationType';
-import type { WorkflowNodeConfig } from './WorkflowNodeConfig';
-import {
-    WorkflowNodeConfigFromJSON,
-    WorkflowNodeConfigFromJSONTyped,
-    WorkflowNodeConfigToJSON,
-    WorkflowNodeConfigToJSONTyped,
-} from './WorkflowNodeConfig';
 
 /**
  * 

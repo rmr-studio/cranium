@@ -1,10 +1,10 @@
-package riven.core.service.connector.postgres
+package cranium.core.service.connector.postgres
 
-import riven.core.enums.common.validation.SchemaType
+import cranium.core.enums.common.validation.SchemaType
 
 /**
  * Maps a raw Postgres data-type literal (as returned by `INFORMATION_SCHEMA`
- * or `pg_attribute.format_type`) to Riven's [SchemaType] enum.
+ * or `pg_attribute.format_type`) to Cranium's [SchemaType] enum.
  *
  * Stateless utility — no Spring bean required. Callers invoke directly.
  *

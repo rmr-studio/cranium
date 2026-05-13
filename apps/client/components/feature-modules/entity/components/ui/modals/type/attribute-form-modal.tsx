@@ -10,7 +10,7 @@ import {
   RelationshipDefinition,
 } from '@/lib/types/entity';
 import { attributeTypes } from '@/lib/util/form/schema.util';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@riven/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@cranium/ui/dialog';
 import { Lock, Loader2 } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { FC, useEffect, useMemo, useState } from 'react';

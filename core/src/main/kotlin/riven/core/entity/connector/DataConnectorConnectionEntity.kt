@@ -1,4 +1,4 @@
-package riven.core.entity.connector
+package cranium.core.entity.connector
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -9,9 +9,9 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import org.hibernate.annotations.SQLRestriction
-import riven.core.entity.util.AuditableSoftDeletableEntity
-import riven.core.enums.integration.ConnectionStatus
-import riven.core.models.connector.DataConnectorConnectionModel
+import cranium.core.entity.util.AuditableSoftDeletableEntity
+import cranium.core.enums.integration.ConnectionStatus
+import cranium.core.models.connector.DataConnectorConnectionModel
 import java.time.ZonedDateTime
 import java.util.UUID
 

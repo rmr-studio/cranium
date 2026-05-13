@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,27 +12,20 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
 import type { EntityLink } from './EntityLink';
 import {
     EntityLinkFromJSON,
-    EntityLinkFromJSONTyped,
-    EntityLinkToJSON,
-    EntityLinkToJSONTyped,
+    EntityLinkToJSON
 } from './EntityLink';
 import type { EntityPropertyType } from './EntityPropertyType';
 import {
     EntityPropertyTypeFromJSON,
-    EntityPropertyTypeFromJSONTyped,
-    EntityPropertyTypeToJSON,
-    EntityPropertyTypeToJSONTyped,
+    EntityPropertyTypeToJSON
 } from './EntityPropertyType';
 import type { SchemaType } from './SchemaType';
 import {
     SchemaTypeFromJSON,
-    SchemaTypeFromJSONTyped,
-    SchemaTypeToJSON,
-    SchemaTypeToJSONTyped,
+    SchemaTypeToJSON
 } from './SchemaType';
 
 /**

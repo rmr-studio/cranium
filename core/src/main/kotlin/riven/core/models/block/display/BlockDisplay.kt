@@ -1,6 +1,6 @@
-package riven.core.models.block.display
+package cranium.core.models.block.display
 
-import riven.core.models.common.structure.FormStructure
+import cranium.core.models.common.structure.FormStructure
 
 /**
  * Defines the UI structure of:

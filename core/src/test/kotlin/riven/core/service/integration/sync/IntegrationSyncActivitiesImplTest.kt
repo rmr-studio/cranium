@@ -1,4 +1,4 @@
-package riven.core.service.integration.sync
+package cranium.core.service.integration.sync
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -24,43 +24,43 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.transaction.support.TransactionTemplate
-import riven.core.entity.integration.IntegrationConnectionEntity
-import riven.core.entity.integration.IntegrationSyncStateEntity
-import riven.core.enums.catalog.ManifestType
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.DataType
-import riven.core.enums.integration.ConnectionStatus
-import riven.core.enums.integration.SourceType
-import riven.core.enums.integration.SyncStatus
-import riven.core.models.common.validation.Schema
-import riven.core.models.entity.configuration.ColumnConfiguration
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.models.integration.NangoRecord
-import riven.core.models.integration.NangoRecordAction
-import riven.core.models.integration.NangoRecordMetadata
-import riven.core.models.integration.NangoRecordsPage
-import riven.core.models.integration.mapping.FieldCoverage
-import riven.core.models.integration.mapping.MappingResult
-import riven.core.models.integration.mapping.MappingError
-import riven.core.models.integration.sync.IntegrationSyncWorkflowInput
-import riven.core.models.integration.sync.SyncProcessingResult
-import riven.core.repository.catalog.CatalogEntityTypeRepository
-import riven.core.repository.catalog.CatalogFieldMappingRepository
-import riven.core.repository.catalog.ManifestCatalogRepository
-import riven.core.repository.entity.EntityRelationshipRepository
-import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.repository.entity.RelationshipDefinitionRepository
-import riven.core.repository.integration.IntegrationConnectionRepository
-import riven.core.repository.integration.IntegrationDefinitionRepository
-import riven.core.repository.integration.IntegrationSyncStateRepository
-import riven.core.service.entity.EntityAttributeService
-import riven.core.service.integration.IntegrationHealthService
-import riven.core.service.integration.NangoClientWrapper
-import riven.core.service.integration.mapping.SchemaMappingService
-import riven.core.service.util.factory.catalog.CatalogFactory
-import riven.core.service.util.factory.entity.EntityFactory
-import riven.core.service.util.factory.integration.IntegrationFactory
+import cranium.core.entity.integration.IntegrationConnectionEntity
+import cranium.core.entity.integration.IntegrationSyncStateEntity
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.DataType
+import cranium.core.enums.integration.ConnectionStatus
+import cranium.core.enums.integration.SourceType
+import cranium.core.enums.integration.SyncStatus
+import cranium.core.models.common.validation.Schema
+import cranium.core.models.entity.configuration.ColumnConfiguration
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.models.integration.NangoRecord
+import cranium.core.models.integration.NangoRecordAction
+import cranium.core.models.integration.NangoRecordMetadata
+import cranium.core.models.integration.NangoRecordsPage
+import cranium.core.models.integration.mapping.FieldCoverage
+import cranium.core.models.integration.mapping.MappingResult
+import cranium.core.models.integration.mapping.MappingError
+import cranium.core.models.integration.sync.IntegrationSyncWorkflowInput
+import cranium.core.models.integration.sync.SyncProcessingResult
+import cranium.core.repository.catalog.CatalogEntityTypeRepository
+import cranium.core.repository.catalog.CatalogFieldMappingRepository
+import cranium.core.repository.catalog.ManifestCatalogRepository
+import cranium.core.repository.entity.EntityRelationshipRepository
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.repository.entity.RelationshipDefinitionRepository
+import cranium.core.repository.integration.IntegrationConnectionRepository
+import cranium.core.repository.integration.IntegrationDefinitionRepository
+import cranium.core.repository.integration.IntegrationSyncStateRepository
+import cranium.core.service.entity.EntityAttributeService
+import cranium.core.service.integration.IntegrationHealthService
+import cranium.core.service.integration.NangoClientWrapper
+import cranium.core.service.integration.mapping.SchemaMappingService
+import cranium.core.service.util.factory.catalog.CatalogFactory
+import cranium.core.service.util.factory.entity.EntityFactory
+import cranium.core.service.util.factory.integration.IntegrationFactory
 import java.util.*
 
 /**
@@ -103,8 +103,8 @@ class IntegrationSyncActivitiesImplTest {
             catalogEntityTypeRepository: CatalogEntityTypeRepository,
             entityTypeRepository: EntityTypeRepository,
             integrationHealthService: IntegrationHealthService,
-            entityProjectionService: riven.core.service.ingestion.EntityProjectionService,
-            noteEmbeddingService: riven.core.service.note.NoteEmbeddingService,
+            entityProjectionService: cranium.core.service.ingestion.EntityProjectionService,
+            noteEmbeddingService: cranium.core.service.note.NoteEmbeddingService,
             objectMapper: tools.jackson.databind.ObjectMapper,
             resourceLoader: org.springframework.core.io.ResourceLoader,
             transactionTemplate: TransactionTemplate,
@@ -183,10 +183,10 @@ class IntegrationSyncActivitiesImplTest {
     private lateinit var integrationHealthService: IntegrationHealthService
 
     @MockitoBean
-    private lateinit var entityProjectionService: riven.core.service.ingestion.EntityProjectionService
+    private lateinit var entityProjectionService: cranium.core.service.ingestion.EntityProjectionService
 
     @MockitoBean
-    private lateinit var noteEmbeddingService: riven.core.service.note.NoteEmbeddingService
+    private lateinit var noteEmbeddingService: cranium.core.service.note.NoteEmbeddingService
 
     @MockitoBean
     private lateinit var objectMapper: tools.jackson.databind.ObjectMapper
@@ -281,7 +281,7 @@ class IntegrationSyncActivitiesImplTest {
 
     /** Sets up the full model context resolution chain. */
     private fun setupModelContextMocks(
-        entityType: riven.core.entity.entity.EntityTypeEntity = buildEntityType(),
+        entityType: cranium.core.entity.entity.EntityTypeEntity = buildEntityType(),
     ) {
         whenever(definitionRepository.findById(integrationId))
             .thenReturn(Optional.of(buildDefinition()))
@@ -334,7 +334,7 @@ class IntegrationSyncActivitiesImplTest {
 
         // Default entity save: return entity with ID
         whenever(entityRepository.save(any())).thenAnswer { invocation ->
-            val entity = invocation.arguments[0] as riven.core.entity.entity.EntityEntity
+            val entity = invocation.arguments[0] as cranium.core.entity.entity.EntityEntity
             if (entity.id == null) entity.copy(id = entityId) else entity
         }
         whenever(connectionRepository.save(any())).thenAnswer { it.arguments[0] }
@@ -437,7 +437,7 @@ class IntegrationSyncActivitiesImplTest {
 
             val result = activitiesImpl.fetchAndProcessRecords(workflowInput)
 
-            val captor = argumentCaptor<riven.core.entity.entity.EntityEntity>()
+            val captor = argumentCaptor<cranium.core.entity.entity.EntityEntity>()
             verify(entityRepository).save(captor.capture())
             val saved = captor.firstValue
             assertEquals(SourceType.INTEGRATION, saved.sourceType)
@@ -468,7 +468,7 @@ class IntegrationSyncActivitiesImplTest {
             val result = activitiesImpl.fetchAndProcessRecords(workflowInput)
 
             // Should update the existing entity (save called with existing entity)
-            val captor = argumentCaptor<riven.core.entity.entity.EntityEntity>()
+            val captor = argumentCaptor<cranium.core.entity.entity.EntityEntity>()
             verify(entityRepository).save(captor.capture())
             assertEquals(entityId, captor.firstValue.id) // Updates existing, doesn't create new
             assertEquals(1, result.recordsSynced)
@@ -509,7 +509,7 @@ class IntegrationSyncActivitiesImplTest {
 
             val result = activitiesImpl.fetchAndProcessRecords(workflowInput)
 
-            val captor = argumentCaptor<riven.core.entity.entity.EntityEntity>()
+            val captor = argumentCaptor<cranium.core.entity.entity.EntityEntity>()
             verify(entityRepository).save(captor.capture())
             assertEquals(externalId, captor.firstValue.sourceExternalId)
             assertEquals(1, result.recordsSynced)
@@ -532,7 +532,7 @@ class IntegrationSyncActivitiesImplTest {
 
             val result = activitiesImpl.fetchAndProcessRecords(workflowInput)
 
-            val captor = argumentCaptor<riven.core.entity.entity.EntityEntity>()
+            val captor = argumentCaptor<cranium.core.entity.entity.EntityEntity>()
             verify(entityRepository).save(captor.capture())
             assertTrue(captor.firstValue.deleted)
             assertNotNull(captor.firstValue.deletedAt)
@@ -580,7 +580,7 @@ class IntegrationSyncActivitiesImplTest {
         fun `mapping warnings proceed with partial data`() {
             val record = buildNangoRecord(action = NangoRecordAction.ADDED)
             val warningMapping = buildSuccessMappingResult().copy(
-                warnings = listOf(riven.core.models.integration.mapping.MappingWarning("phone", "phone", "Source field not found"))
+                warnings = listOf(cranium.core.models.integration.mapping.MappingWarning("phone", "phone", "Source field not found"))
             )
             whenever(nangoClientWrapper.fetchRecords(any(), any(), any(), anyOrNull(), anyOrNull(), anyOrNull()))
                 .thenReturn(NangoRecordsPage(records = listOf(record), nextCursor = null))

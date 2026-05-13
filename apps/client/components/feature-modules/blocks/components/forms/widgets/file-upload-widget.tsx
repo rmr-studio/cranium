@@ -1,10 +1,10 @@
 'use client';
 
 import { OptionalTooltip } from '@/components/ui/optional-tooltip';
-import { Button } from '@riven/ui/button';
-import { Label } from '@riven/ui/label';
+import { Button } from '@cranium/ui/button';
+import { Label } from '@cranium/ui/label';
 import { Upload, X, CircleAlert } from 'lucide-react';
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 import { FC, useRef } from 'react';
 import { FormWidgetProps } from '../form-widget.types';
 

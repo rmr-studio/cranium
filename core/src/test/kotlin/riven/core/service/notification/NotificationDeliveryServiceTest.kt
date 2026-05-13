@@ -1,4 +1,4 @@
-package riven.core.service.notification
+package cranium.core.service.notification
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -11,13 +11,13 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.enums.notification.NotificationReferenceType
-import riven.core.enums.notification.NotificationType
-import riven.core.enums.notification.ReviewPriority
-import riven.core.models.notification.Notification
-import riven.core.models.request.notification.CreateNotificationRequest
-import riven.core.service.util.BaseServiceTest
-import riven.core.service.util.factory.NotificationFactory
+import cranium.core.enums.notification.NotificationReferenceType
+import cranium.core.enums.notification.NotificationType
+import cranium.core.enums.notification.ReviewPriority
+import cranium.core.models.notification.Notification
+import cranium.core.models.request.notification.CreateNotificationRequest
+import cranium.core.service.util.BaseServiceTest
+import cranium.core.service.util.factory.NotificationFactory
 import java.time.ZonedDateTime
 import java.util.UUID
 

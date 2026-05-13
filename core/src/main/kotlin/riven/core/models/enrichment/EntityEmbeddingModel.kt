@@ -1,4 +1,4 @@
-package riven.core.models.enrichment
+package cranium.core.models.enrichment
 
 import java.time.ZonedDateTime
 import java.util.*

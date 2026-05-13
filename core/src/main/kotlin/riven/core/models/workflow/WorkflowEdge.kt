@@ -1,7 +1,7 @@
-package riven.core.models.workflow
+package cranium.core.models.workflow
 
-import riven.core.entity.workflow.WorkflowEdgeEntity
-import riven.core.models.workflow.node.WorkflowNode
+import cranium.core.entity.workflow.WorkflowEdgeEntity
+import cranium.core.models.workflow.node.WorkflowNode
 import java.util.*
 
 data class WorkflowEdge(

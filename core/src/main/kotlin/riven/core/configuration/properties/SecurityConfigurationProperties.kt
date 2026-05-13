@@ -1,11 +1,11 @@
-package riven.core.configuration.properties
+package cranium.core.configuration.properties
 
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.Size
 import org.springframework.boot.context.properties.ConfigurationProperties
 
-@ConfigurationProperties("riven.security")
+@ConfigurationProperties("cranium.security")
 data class SecurityConfigurationProperties(
     @field:NotBlank(message = "JWT secret key must not be blank")
     @field:Size(min = 32, message = "JWT secret key must be at least 32 characters long")

@@ -1,8 +1,8 @@
-package riven.core.models.request.integration
+package cranium.core.models.request.integration
 
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
-import riven.core.models.integration.SyncConfiguration
+import cranium.core.models.integration.SyncConfiguration
 import java.util.*
 
 data class EnableIntegrationRequest(

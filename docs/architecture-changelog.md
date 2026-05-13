@@ -17,9 +17,10 @@
 **New cross-domain dependencies:** No new cross-domain dependencies. Changes are internal to the enrichment domain.
 
 **New components introduced:**
-- `EnrichmentAnalysisService` (`riven.core.service.enrichment`) — analysis half of enrichment pipeline.
-- `EnrichmentEmbeddingService` (`riven.core.service.enrichment`) — embedding half of enrichment pipeline.
-- `EmbeddingConsumer` (`riven.core.service.enrichment`) — Phase 1 ConsumerActivity (first fan-out point; future siblings: Synthesis, JSONB projection).
+
+- `EnrichmentAnalysisService` (`cranium.core.service.enrichment`) — analysis half of enrichment pipeline.
+- `EnrichmentEmbeddingService` (`cranium.core.service.enrichment`) — embedding half of enrichment pipeline.
+- `EmbeddingConsumer` (`cranium.core.service.enrichment`) — Phase 1 ConsumerActivity (first fan-out point; future siblings: Synthesis, JSONB projection).
 
 ## 2026-05-04 — Enrichment Consumer-Independence IT + Temporal Testing Patterns (Plan 01-04)
 
@@ -35,6 +36,7 @@
 **New cross-domain dependencies:** No new cross-domain dependencies. Test-only changes.
 
 **New components introduced:**
+
 - `EnrichmentWorkflowIT` (`src/test/.../enrichment`) — integration test class proving ENRICH-05; contains `ActivityDelegate` and `DelegatingActivitiesImpl` test helpers and `TestEnrichmentWorkflowImpl` workflow subclass.
 
 ## 2026-05-04 — Workspace full-text search (Notion-style ranked tsvector)
@@ -54,7 +56,7 @@
 **New components introduced:**
 
 - `entities.search_vector tsvector` column + GIN index `idx_entities_search_vector` (partial on `deleted = false`).
-- `EntitySearchService` (`riven.core.service.entity.EntitySearchService`) — recompute + workspace-scoped FTS query. Single owner of the `tsvector` lifecycle.
+- `EntitySearchService` (`cranium.core.service.entity.EntitySearchService`) — recompute + workspace-scoped FTS query. Single owner of the `tsvector` lifecycle.
 - `SchemaOptions.excludeFromSearch` — per-attribute opt-out flag honoured by the recompute path.
 
 ## 2026-05-04 — Knowledge link projection on entity reads (replaces note_count)
@@ -66,16 +68,16 @@
 - `Entity` model gains a top-level `knowledgeRefs: Map<typeKey, List<EntityLink>>`. Populated from inverse `ATTACHMENT` / `MENTION` / `DEFINES` edges where the source entity type carries `surface_role = KNOWLEDGE`. Replaces the dropped `entities.note_count` aggregate (commit `c82df2ec`) without re-introducing a maintenance trigger.
 - `EntityLink` extended with `direction: RelationshipDirection` (`FORWARD` / `INVERSE`) and `systemType: SystemRelationshipType?` so callers can disambiguate inbound knowledge edges from outbound user-defined relationships without re-fetching the relationship definition.
 - `EntityRelationshipService.findRelatedEntities` now returns a flat `List<EntityLink>` (single) / `Map<UUID, List<EntityLink>>` (batched). Partition into `relationships` vs. `knowledgeRefs` happens in `EntityEntity.toModel` via the new `List<EntityLink>.partitionForEntityProjection()` helper. The relationship-picker map remains scoped to forward edges + inverse `CONNECTED_ENTITIES` (no semantic shift for existing UI consumers).
-- `EntityRelationshipRepository.findInverseEntityLinksByTargetId{,In}` widened: predicate admits inverse rows when a `relationship_target_rule` matches *or* `system_type = CONNECTED_ENTITIES` *or* (`system_type IN (ATTACHMENT, MENTION, DEFINES)` AND the source entity type's `surface_role = KNOWLEDGE`). `target_kind = 'ENTITY'` is enforced so structural DEFINES edges (targeting `ENTITY_TYPE` / `ATTRIBUTE` / `RELATIONSHIP`) cannot leak into entity-instance lookups. Both forward and inverse queries now project `direction` + `systemType` columns.
+- `EntityRelationshipRepository.findInverseEntityLinksByTargetId{,In}` widened: predicate admits inverse rows when a `relationship_target_rule` matches _or_ `system_type = CONNECTED_ENTITIES` _or_ (`system_type IN (ATTACHMENT, MENTION, DEFINES)` AND the source entity type's `surface_role = KNOWLEDGE`). `target_kind = 'ENTITY'` is enforced so structural DEFINES edges (targeting `ENTITY_TYPE` / `ATTRIBUTE` / `RELATIONSHIP`) cannot leak into entity-instance lookups. Both forward and inverse queries now project `direction` + `systemType` columns.
 - Frontend `Entity.noteCount` retired in favour of deriving the count off `knowledgeRefs.note` filtered by `systemType === 'ATTACHMENT'`. `entity-data-table.tsx` updated; note save/delete mutation invalidations comment-corrected to reference `knowledgeRefs`.
-- `RelationshipDirection` enum added (`riven.core.enums.entity`) and surfaced in the frontend type bundle alongside the expanded `SystemRelationshipType` (`Attachment`, `Mention`, `Defines`, `Includes` now exported in addition to `ConnectedEntities`).
+- `RelationshipDirection` enum added (`cranium.core.enums.entity`) and surfaced in the frontend type bundle alongside the expanded `SystemRelationshipType` (`Attachment`, `Mention`, `Defines`, `Includes` now exported in addition to `ConnectedEntities`).
 
 **New cross-domain dependencies:** No (the existing Entity ↔ Knowledge edge already flowed through `entity_relationships`; this change widens the read projection only).
 
 **New components introduced:**
 
-- `riven.core.enums.entity.RelationshipDirection` — direction discriminator on relationship link rows.
-- `riven.core.models.entity.partitionForEntityProjection` (extension on `List<EntityLink>`) + `PartitionedEntityLinks` data class — single-pass partition used by `EntityEntity.toModel` and `EntityQueryFacadeService.hydrateRelationships` so the same routing rule is applied everywhere.
+- `cranium.core.enums.entity.RelationshipDirection` — direction discriminator on relationship link rows.
+- `cranium.core.models.entity.partitionForEntityProjection` (extension on `List<EntityLink>`) + `PartitionedEntityLinks` data class — single-pass partition used by `EntityEntity.toModel` and `EntityQueryFacadeService.hydrateRelationships` so the same routing rule is applied everywhere.
 
 ## 2026-05-04 — Dev-mode legacy decommission (Phases D + F collapsed)
 
@@ -84,7 +86,7 @@
 **What changed:**
 
 - Project moved to dev-mode posture: `core/CLAUDE.md` Database section now explicitly forbids data migrations / backfill workflows / dual-write paths unless requested. Schema files are the source of truth and the database is wipeable. Legacy code superseded by a refactor must be deleted in the same change rather than left behind a "Phase F decommission" placeholder.
-- Deleted the entire `riven.core.workflow.migration` package: `NoteBackfillWorkflow*`, `NoteBackfillActivities*`, `GlossaryBackfillWorkflow*`, `GlossaryBackfillActivities*`, `BackfillIntegrityErrors`, plus the matching tests. `TemporalWorkerConfiguration` no longer registers the `migration` task queue or its activity beans.
+- Deleted the entire `cranium.core.workflow.migration` package: `NoteBackfillWorkflow*`, `NoteBackfillActivities*`, `GlossaryBackfillWorkflow*`, `GlossaryBackfillActivities*`, `BackfillIntegrityErrors`, plus the matching tests. `TemporalWorkerConfiguration` no longer registers the `migration` task queue or its activity beans.
 - Deleted the legacy notes / glossary tables and JPA scaffolding: `notes` + `note_entity_attachments` SQL files, `NoteEntity`, `NoteEntityAttachment`, `NoteRepository`, `NoteEntityAttachmentRepository`, `workspace_business_definitions` SQL file, `WorkspaceBusinessDefinitionEntity`, `WorkspaceBusinessDefinitionRepository`. Knowledge data is now exclusively entity-backed.
 - Phase D Task 20 done in the same change: `NoteEmbeddingService` rewritten to flow through `NoteEntityIngestionService` instead of `NoteRepository` / `NoteEntityAttachmentRepository`. Integration notes upsert as `entities` rows with `ATTACHMENT` relationships pointing at resolved targets; soft-delete replaces the previous hard-delete. Activity logging contract preserved.
 - New `entities.pending_associations` JSONB column persists unresolved foreign references captured at sync time. `NoteEntityIngestionService.NoteIngestionInput` carries `pendingAssociations`; `postSave` writes it to the saved entity. `NoteEntityIngestionService.reconcileAttachments` provides a relationship-only update path used by `NoteEmbeddingService.reconcileUnattachedNotes` so reconciliation retries don't blank attribute payloads.
@@ -114,13 +116,13 @@
 - `NoteEntityProjector.unwrapNoteAttributes` and `matchesPlaintext` now throw `SchemaValidationException` instead of silently coercing missing required mappings (`title`/`content`/`plaintext`) to empty values. `listNotes` resolves the plaintext / title attribute IDs once and passes them into `matchesPlaintext` to avoid the per-row `findById` lookup that previously masked corrupt notes during search.
 - `NoteBackfillActivitiesImpl` and `GlossaryBackfillActivitiesImpl` narrowed `DataIntegrityViolationException` handling: only PostgreSQL `SQLState 23505` (unique-constraint races) is treated as `skipped`; FK / NOT NULL / check-constraint violations now route to the `failed` counter so real integrity bugs surface in batch metrics. New shared helper `BackfillIntegrityErrors.isUniqueViolation(e)`.
 - `EntityRelationshipRepository`: replaced two derived `deleteAllBySourceIdAndDefinitionIdAndTargetKind*` methods with explicit `@Modifying @Query` JPQL `DELETE` statements per CLAUDE.md JPQL rule.
-- `CommunicationModel.type` SchemaOption now derives its enum list from the new `riven.core.enums.core.CommunicationType` enum, preserving the existing kebab-case wire contract via `@JsonProperty` annotations.
+- `CommunicationModel.type` SchemaOption now derives its enum list from the new `cranium.core.enums.core.CommunicationType` enum, preserving the existing kebab-case wire contract via `@JsonProperty` annotations.
 
 **New cross-domain dependencies:** No (existing dependencies tightened, no new edges).
 
 **New components introduced:**
 
-- `riven.core.enums.core.CommunicationType` — enum backing `CommunicationModel.type` SchemaOptions.
+- `cranium.core.enums.core.CommunicationType` — enum backing `CommunicationModel.type` SchemaOptions.
 - `EntityIngestionService.clearRelationshipsByKindInternal` + `EntityRelationshipService.clearAllOfKindForDefinition` — system-bus methods for clearing parent-scoped relationship rows when reconciliation cannot supply a `targetParentId`.
 - `BackfillIntegrityErrors.isUniqueViolation` — shared SQLState-aware helper for backfill activities.
 
@@ -156,11 +158,11 @@
 - Introduced `AbstractKnowledgeEntityIngestionService` — extensible base for every knowledge-domain entity (Note, Glossary, future Memo / SOP / Policy / Decision / Meeting / Incident). Subclasses provide an entity-type key, an attribute-payload mapper, and the relationship batches; the base owns workspace lookup, idempotent upsert by `(workspaceId, sourceIntegrationId, sourceExternalId)`, and relationship reconciliation.
 - Introduced `NoteEntityIngestionService` (subclass of the abstract base) as the single emission point for note ingestion, used by `NoteService` (user-authored) and earmarked for the integration sync path in Phase D.
 - Cut over `NoteService` to entity-backed reads + writes. New `NoteEntityProjector` reshapes entity rows + `ATTACHMENT` relationship rows back into the existing `Note` / `WorkspaceNote` DTO contract; `NoteController` JSON wire format is unchanged. Legacy `NoteRepository` / `NoteEntityAttachmentRepository` JPA scaffolding stays live (Phase F deletes it) but is no longer referenced from `NoteService`.
-- Added system-driven entry points on `EntityService` (`saveEntityInternal`, `softDeleteEntityInternal`, `replaceRelationshipsInternal`, `findByIdInternal`, `findByTypeKeyInternal`) and a corresponding `EntityRelationshipService.replaceForDefinition` that bypass the JWT-bound auth path so background contexts (Temporal activities, ingestion services) can drive entity mutations.
+- Added system-dcranium entry points on `EntityService` (`saveEntityInternal`, `softDeleteEntityInternal`, `replaceRelationshipsInternal`, `findByIdInternal`, `findByTypeKeyInternal`) and a corresponding `EntityRelationshipService.replaceForDefinition` that bypass the JWT-bound auth path so background contexts (Temporal activities, ingestion services) can drive entity mutations.
 - Introduced `RelationshipTargetKind` enum (`ENTITY` / `ENTITY_TYPE` / `ATTRIBUTE`) and threaded it through the abstract base + `replaceRelationshipsInternal` for forward-compat with Phase C glossary `DEFINES` edges. Phase C (Task 16) materialises the corresponding `entity_relationships.target_kind` column.
 - Added `NoteBackfillWorkflow` + `NoteBackfillActivities[Impl]` — paginated, idempotent Temporal workflow that walks the legacy `notes` table for a workspace and upserts each row into the entity layer. Registered on a new `migration` task queue in `TemporalWorkerConfiguration`. Idempotency contract: `sourceExternalId = "legacy:{noteId}"` for user-authored rows; duplicate-key violations from the ingestion path report `skipped`, not `failed`.
 
-**New cross-domain dependencies:** Yes — Note → Entity (new): `NoteService` and `NoteEntityIngestionService` now persist note state through `EntityService` rather than `NoteRepository`. Note → Knowledge (new): `NoteEntityIngestionService` extends `AbstractKnowledgeEntityIngestionService` in `riven.core.service.knowledge`. Workflow.migration → Note (new): `NoteBackfillActivitiesImpl` reads from the legacy `NoteRepository` and writes through `NoteEntityIngestionService`.
+**New cross-domain dependencies:** Yes — Note → Entity (new): `NoteService` and `NoteEntityIngestionService` now persist note state through `EntityService` rather than `NoteRepository`. Note → Knowledge (new): `NoteEntityIngestionService` extends `AbstractKnowledgeEntityIngestionService` in `cranium.core.service.knowledge`. Workflow.migration → Note (new): `NoteBackfillActivitiesImpl` reads from the legacy `NoteRepository` and writes through `NoteEntityIngestionService`.
 
 **New components introduced:**
 
@@ -182,7 +184,7 @@
 - `ConnotationAdminService.reanalyzeAxisWhereVersionMismatch(axis, tier, workspaceId)` enqueues every entity in a workspace whose persisted SENTIMENT-axis `analysisVersion` differs from the active config value. Backed by new `ExecutionQueueRepository.enqueueByAxisVersionMismatch` native query using `IS DISTINCT FROM` over `connotation_metadata->'axes'->'SENTIMENT'->>'analysisVersion'`.
 - `integration.schema.json` extended with optional `connotationSignals` block on `integrationEntityType` (`tier`, `sentimentAttribute`, `sentimentScale {sourceMin, sourceMax, targetMin, targetMax, mappingType: LINEAR|THRESHOLD}`, `themeAttributes`). `ManifestResolverService` cross-validates `sentimentAttribute` and `themeAttributes` against the entity type's declared attribute keys; failures log warn and drop the field rather than rejecting the manifest (consistent with existing relationship/field-mapping handling). Persisted via new `catalog_entity_types.connotation_signals` JSONB column.
 - New per-workspace `connotation_enabled` boolean column (default `false`) on `workspaces` gates SENTIMENT axis enrichment; RELATIONAL and STRUCTURAL axes always populate. Accessor `WorkspaceService.isConnotationEnabled(workspaceId)`.
-- `ConnotationAnalysisConfigurationProperties` (`riven.connotation.tier1-current-version`, default `v1`) controls the analysis-version stamp. Auto-discovered via existing `@ConfigurationPropertiesScan`.
+- `ConnotationAnalysisConfigurationProperties` (`cranium.connotation.tier1-current-version`, default `v1`) controls the analysis-version stamp. Auto-discovered via existing `@ConfigurationPropertiesScan`.
 - `EnrichmentService.persistConnotationEnvelope` resolves the SENTIMENT axis through `ConnotationAnalysisService` when the workspace flag is enabled and the entity type has manifest signals. Otherwise leaves the axis at `NOT_APPLICABLE`. The pre-computed axis flows into both the persisted envelope and the transient `EnrichmentContext.sentiment` (only when status is `ANALYZED`).
 - `SemanticTextBuilderService` emits a "Connotation Context" section (≤ 300 chars) when the context carries an `ANALYZED` SENTIMENT axis. Lowest-priority optional section — last in section order, first to drop under truncation.
 - `activity_logs.operation` CHECK constraint extended to allow `ANALYZE` and `REANALYZE`; column widened to `VARCHAR(20)`. The previous CHECK would have blocked all connotation activity logs in production.
@@ -191,6 +193,7 @@
 - Tier model `tier: AnalysisTier` (enum) on `ConnotationSignals` rather than `String` — applied the project's "enums over string literals" rule despite the plan typing it as `String`.
 
 **New cross-domain dependencies:** Yes
+
 - Enrichment → Connotation: `EnrichmentService` injects `ConnotationAnalysisService`.
 - Enrichment → Catalog: `EnrichmentService` injects `ManifestCatalogService` for `getConnotationSignalsForEntityType`.
 - Enrichment → Workspace: `EnrichmentService` injects `WorkspaceService.isConnotationEnabled`.
@@ -230,7 +233,7 @@
 
 - Created `IdentityMatchQueueProcessorService`: claims IDENTITY_MATCH items from the execution queue and starts `IdentityMatchWorkflow` on the `identity.match` Temporal task queue; handles `WorkflowExecutionAlreadyStarted` as idempotent success
 - Created `IdentityMatchDispatcherService`: `@Scheduled` + `@SchedulerLock` poller for the IDENTITY_MATCH queue and stale item recovery; uses unique ShedLock names (`processIdentityMatchQueue`, `recoverStaleIdentityMatchItems`) to avoid contention with the workflow execution dispatcher
-- Removed `@ConditionalOnProperty(riven.workflow.engine.enabled)` from `WorkflowExecutionDispatcherService` and `WorkflowExecutionQueueProcessorService` — Temporal is a required infrastructure dependency, not optional
+- Removed `@ConditionalOnProperty(cranium.workflow.engine.enabled)` from `WorkflowExecutionDispatcherService` and `WorkflowExecutionQueueProcessorService` — Temporal is a required infrastructure dependency, not optional
 - `EntityService` now publishes `IdentityMatchTriggerEvent` after every `saveEntity()` call; only IDENTIFIER-classified attribute values are included (via `EntityTypeClassificationService`); event fires within the `@Transactional` boundary so `@TransactionalEventListener(AFTER_COMMIT)` in the listener fires post-commit
 - Full pipeline is now wired: `EntityService` → `IdentityMatchTriggerEvent` → `IdentityMatchTriggerListener` → `IdentityMatchQueueService` → execution queue → `IdentityMatchDispatcherService` → `IdentityMatchQueueProcessorService` → Temporal `IdentityMatchWorkflow`
 
@@ -361,7 +364,7 @@
 
 **What changed:**
 
-- Extracted system-driven entity persistence out of `EntityService` into a new `EntityIngestionService` bean. The `*Internal` methods (`saveEntityInternal`, `softDeleteEntityInternal`, `replaceRelationshipsInternal`, `findByIdInternal`, `findByTypeKeyInternal`) now live there. `EntityService` retains the JWT-fronted CRUD path with `@PreAuthorize` / `@PostAuthorize`. The split establishes an architectural boundary: controllers go through `EntityService`; background callers (Temporal activities, knowledge ingestion, projectors) go through `EntityIngestionService`.
+- Extracted system-dcranium entity persistence out of `EntityService` into a new `EntityIngestionService` bean. The `*Internal` methods (`saveEntityInternal`, `softDeleteEntityInternal`, `replaceRelationshipsInternal`, `findByIdInternal`, `findByTypeKeyInternal`) now live there. `EntityService` retains the JWT-fronted CRUD path with `@PreAuthorize` / `@PostAuthorize`. The split establishes an architectural boundary: controllers go through `EntityService`; background callers (Temporal activities, knowledge ingestion, projectors) go through `EntityIngestionService`.
 - Updated callers to inject `EntityIngestionService`: `AbstractKnowledgeEntityIngestionService` (and subclasses `NoteEntityIngestionService`, `GlossaryEntityIngestionService`), `NoteService`, `WorkspaceBusinessDefinitionService`.
 - Dropped the unused `readonly` parameter from the system-bus save path. Readonly state is derived from `sourceType` (`SourceType.INTEGRATION`); there is no separate `readonly` column on `entities`.
 - Added an internal `getOrCreateSystemDefinitionInternal` variant on `EntityTypeRelationshipService` (no `@PreAuthorize`) so the template installer can idempotently seed knowledge-domain system relationship edges (`ATTACHMENT`, `MENTION`, `DEFINES`) on **reused** entity types during install, not just newly created ones.
@@ -369,12 +372,12 @@
 - `EntityRelationshipService.replaceForDefinition` now scopes reconciliation by `target_parent_id` for sub-reference target kinds (`ATTRIBUTE`, `RELATIONSHIP`); a new repository method `deleteAllBySourceIdAndDefinitionIdAndTargetKindAndTargetParentIdAndTargetIdIn` carries the parent guard into the delete query.
 - Extended the `entity_relationships` unique index to include `target_kind` and `COALESCE(target_parent_id, '00000000-0000-0000-0000-000000000000'::uuid)` so polymorphic targets cannot collide on `target_id` alone.
 - Added `@PreAuthorize("@workspaceSecurity.hasWorkspace(#workspaceId)")` to public methods on `NoteEntityProjector` and `GlossaryEntityProjector`. `GlossaryEntityProjector` now throws `NotFoundException` / `SchemaValidationException` instead of `IllegalStateException` / `error()` so misconfigured workspaces map to 404 / 422 instead of 500.
-- Knowledge-domain string literals (`"note"`, `"glossary"`) replaced with a new `KnowledgeEntityTypeKey` enum in `riven.core.enums.knowledge`.
-- Moved 12 core model definitions from `riven.core.models.core.models.base` to `riven.core.models.core.base` (package path no longer doubles the `models` segment).
+- Knowledge-domain string literals (`"note"`, `"glossary"`) replaced with a new `KnowledgeEntityTypeKey` enum in `cranium.core.enums.knowledge`.
+- Moved 12 core model definitions from `cranium.core.models.core.models.base` to `cranium.core.models.core.base` (package path no longer doubles the `models` segment).
 
 **New cross-domain dependencies:** No — the new boundary is internal to the Entity domain. Knowledge / Note services already depended on `EntityService`; they now depend on `EntityIngestionService` instead. Net dependency surface is unchanged.
 
 **New components introduced:**
 
-- `EntityIngestionService` (`riven.core.service.entity.EntityIngestionService`) — system-bus persistence for entities. Owns `saveEntityInternal` / `softDeleteEntityInternal` / `replaceRelationshipsInternal` / `findByIdInternal` / `findByTypeKeyInternal`. Documented at class level as system-only; must not be injected into JWT-fronted controllers.
-- `KnowledgeEntityTypeKey` enum (`riven.core.enums.knowledge.KnowledgeEntityTypeKey`) — typed wrapper for the workspace entity-type keys `note` / `glossary` used by the catalog manifest, knowledge ingestion services, and projectors.
+- `EntityIngestionService` (`cranium.core.service.entity.EntityIngestionService`) — system-bus persistence for entities. Owns `saveEntityInternal` / `softDeleteEntityInternal` / `replaceRelationshipsInternal` / `findByIdInternal` / `findByTypeKeyInternal`. Documented at class level as system-only; must not be injected into JWT-fronted controllers.
+- `KnowledgeEntityTypeKey` enum (`cranium.core.enums.knowledge.KnowledgeEntityTypeKey`) — typed wrapper for the workspace entity-type keys `note` / `glossary` used by the catalog manifest, knowledge ingestion services, and projectors.

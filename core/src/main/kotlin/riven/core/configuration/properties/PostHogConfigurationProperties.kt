@@ -1,8 +1,8 @@
-package riven.core.configuration.properties
+package cranium.core.configuration.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 
-@ConfigurationProperties(prefix = "riven.posthog")
+@ConfigurationProperties(prefix = "cranium.posthog")
 data class PostHogConfigurationProperties(
     val enabled: Boolean = false,
     val apiKey: String = "",

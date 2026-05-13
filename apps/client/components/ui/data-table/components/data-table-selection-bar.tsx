@@ -1,7 +1,7 @@
 'use client';
 
-import { Button } from '@riven/ui/button';
-import { cn } from '@riven/utils';
+import { Button } from '@cranium/ui/button';
+import { cn } from '@cranium/utils';
 import { X } from 'lucide-react';
 import { TooltipProvider } from '../../tooltip';
 import { useCellSelectionOverview } from '../data-table-provider';

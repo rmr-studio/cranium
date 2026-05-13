@@ -2,7 +2,7 @@
 
 import { DesktopShell } from '@/components/ui/sidebar/desktop-shell';
 import { MobileShell } from '@/components/ui/sidebar/mobile-shell';
-import { useIsMobile } from '@riven/hooks';
+import { useIsMobile } from '@cranium/hooks';
 import { type ReactNode } from 'react';
 
 interface DashboardShellProps {

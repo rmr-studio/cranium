@@ -1,16 +1,16 @@
-package riven.core.entity.user
+package cranium.core.entity.user
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.Type
-import riven.core.entity.util.AuditableSoftDeletableEntity
-import riven.core.entity.workspace.WorkspaceEntity
-import riven.core.enums.user.AcquisitionChannel
-import riven.core.models.user.User
-import riven.core.models.user.UserDisplay
-import riven.core.models.workspace.WorkspaceMember
-import riven.core.util.AvatarUrlResolver
+import cranium.core.entity.util.AuditableSoftDeletableEntity
+import cranium.core.entity.workspace.WorkspaceEntity
+import cranium.core.enums.user.AcquisitionChannel
+import cranium.core.models.user.User
+import cranium.core.models.user.UserDisplay
+import cranium.core.models.workspace.WorkspaceMember
+import cranium.core.util.AvatarUrlResolver
 import java.time.ZonedDateTime
 import java.util.*
 

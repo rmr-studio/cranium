@@ -1,7 +1,7 @@
-package riven.core.models.entity.query
+package cranium.core.models.entity.query
 
 import io.swagger.v3.oas.annotations.media.Schema
-import riven.core.models.entity.query.filter.QueryFilter
+import cranium.core.models.entity.query.filter.QueryFilter
 import java.util.*
 
 /**

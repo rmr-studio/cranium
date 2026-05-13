@@ -1,15 +1,15 @@
-package riven.core.service.integration.mapping
+package cranium.core.service.integration.mapping
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
-import riven.core.enums.integration.CoercionType
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.models.integration.mapping.FieldCoverage
-import riven.core.models.integration.mapping.FieldTransform
-import riven.core.models.integration.mapping.MappingError
-import riven.core.models.integration.mapping.MappingResult
-import riven.core.models.integration.mapping.MappingWarning
-import riven.core.models.integration.mapping.ResolvedFieldMapping
+import cranium.core.enums.integration.CoercionType
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.models.integration.mapping.FieldCoverage
+import cranium.core.models.integration.mapping.FieldTransform
+import cranium.core.models.integration.mapping.MappingError
+import cranium.core.models.integration.mapping.MappingResult
+import cranium.core.models.integration.mapping.MappingWarning
+import cranium.core.models.integration.mapping.ResolvedFieldMapping
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.format.DateTimeParseException

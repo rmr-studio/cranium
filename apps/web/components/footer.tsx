@@ -13,11 +13,11 @@ const footerLinks = {
 const socialLinks = [
   {
     label: 'X',
-    href: 'https://x.com/withriven',
+    href: 'https://x.com/withcranium',
   },
   {
     label: 'LinkedIn',
-    href: 'https://linkedin.com/company/getriven',
+    href: 'https://linkedin.com/company/getcranium',
   },
 ];
 
@@ -25,7 +25,7 @@ export function Footer() {
   return (
     <footer className="z-[0] border-t border-t-content/35 bg-background">
       <div className="mx-auto flex max-w-[min(90vw,var(--breakpoint-3xl))] flex-col justify-between space-y-4 px-6 py-8 text-xs sm:px-20 sm:text-sm xl:flex-row">
-        <div className="w-full text-start font-display text-content xl:text-start">getriven.io</div>
+        <div className="w-full text-start font-display text-content xl:text-start">getcranium.io</div>
         <div className="w-full text-start font-display text-content xl:text-center">
           Proactive Ecommerce Company Brain
         </div>
@@ -102,7 +102,7 @@ export function Footer() {
       </div>
 
       <div className="overflow-hidden border-t border-t-content/30 font-bit text-[32vw] leading-none font-semibold whitespace-nowrap">
-        riven
+        cranium
       </div>
     </footer>
   );

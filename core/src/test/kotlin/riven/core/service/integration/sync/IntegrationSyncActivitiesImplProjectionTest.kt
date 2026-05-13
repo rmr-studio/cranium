@@ -1,4 +1,4 @@
-package riven.core.service.integration.sync
+package cranium.core.service.integration.sync
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.BeforeEach
@@ -11,22 +11,22 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.transaction.support.TransactionTemplate
-import riven.core.models.ingestion.ProjectionResult
-import riven.core.repository.catalog.CatalogEntityTypeRepository
-import riven.core.repository.catalog.CatalogFieldMappingRepository
-import riven.core.repository.catalog.ManifestCatalogRepository
-import riven.core.repository.entity.EntityRelationshipRepository
-import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.repository.entity.RelationshipDefinitionRepository
-import riven.core.repository.integration.IntegrationConnectionRepository
-import riven.core.repository.integration.IntegrationDefinitionRepository
-import riven.core.repository.integration.IntegrationSyncStateRepository
-import riven.core.service.entity.EntityAttributeService
-import riven.core.service.ingestion.EntityProjectionService
-import riven.core.service.integration.IntegrationHealthService
-import riven.core.service.integration.NangoClientWrapper
-import riven.core.service.integration.mapping.SchemaMappingService
+import cranium.core.models.ingestion.ProjectionResult
+import cranium.core.repository.catalog.CatalogEntityTypeRepository
+import cranium.core.repository.catalog.CatalogFieldMappingRepository
+import cranium.core.repository.catalog.ManifestCatalogRepository
+import cranium.core.repository.entity.EntityRelationshipRepository
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.repository.entity.RelationshipDefinitionRepository
+import cranium.core.repository.integration.IntegrationConnectionRepository
+import cranium.core.repository.integration.IntegrationDefinitionRepository
+import cranium.core.repository.integration.IntegrationSyncStateRepository
+import cranium.core.service.entity.EntityAttributeService
+import cranium.core.service.ingestion.EntityProjectionService
+import cranium.core.service.integration.IntegrationHealthService
+import cranium.core.service.integration.NangoClientWrapper
+import cranium.core.service.integration.mapping.SchemaMappingService
 import java.util.*
 
 /**
@@ -64,7 +64,7 @@ class IntegrationSyncActivitiesImplProjectionTest {
             entityTypeRepository: EntityTypeRepository,
             integrationHealthService: IntegrationHealthService,
             entityProjectionService: EntityProjectionService,
-            noteEmbeddingService: riven.core.service.note.NoteEmbeddingService,
+            noteEmbeddingService: cranium.core.service.note.NoteEmbeddingService,
             objectMapper: tools.jackson.databind.ObjectMapper,
             resourceLoader: org.springframework.core.io.ResourceLoader,
             transactionTemplate: TransactionTemplate,
@@ -114,7 +114,7 @@ class IntegrationSyncActivitiesImplProjectionTest {
     @MockitoBean private lateinit var entityTypeRepository: EntityTypeRepository
     @MockitoBean private lateinit var integrationHealthService: IntegrationHealthService
     @MockitoBean private lateinit var entityProjectionService: EntityProjectionService
-    @MockitoBean private lateinit var noteEmbeddingService: riven.core.service.note.NoteEmbeddingService
+    @MockitoBean private lateinit var noteEmbeddingService: cranium.core.service.note.NoteEmbeddingService
     @MockitoBean private lateinit var objectMapper: tools.jackson.databind.ObjectMapper
     @MockitoBean private lateinit var resourceLoader: org.springframework.core.io.ResourceLoader
     @MockitoBean private lateinit var transactionTemplate: TransactionTemplate

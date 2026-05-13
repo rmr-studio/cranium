@@ -1,9 +1,9 @@
-package riven.core.service.workflow.engine
+package cranium.core.service.workflow.engine
 
 import io.temporal.workflow.WorkflowInterface
 import io.temporal.workflow.WorkflowMethod
-import riven.core.models.workflow.engine.WorkflowExecutionInput
-import riven.core.models.workflow.engine.WorkflowExecutionResult
+import cranium.core.models.workflow.engine.WorkflowExecutionInput
+import cranium.core.models.workflow.engine.WorkflowExecutionResult
 
 /**
  * Temporal workflow interface for executing workflow definitions.

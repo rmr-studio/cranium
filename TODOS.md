@@ -1,7 +1,8 @@
 # TODOS
 
 ## P2 — Connotation Backfill Observability Metric
-**What:** Add Micrometer metric `riven.connotation.entities_pending_backfill_count` per workspace per entity type. Counts entities with no `entity_connotation` row (or stale `envelopeVersion`) so operators can monitor lazy-backfill progress.
+
+**What:** Add Micrometer metric `cranium.connotation.entities_pending_backfill_count` per workspace per entity type. Counts entities with no `entity_connotation` row (or stale `envelopeVersion`) so operators can monitor lazy-backfill progress.
 **Why:** When the connotation envelope ships (Phase A of `2026-04-18-entity-connotation-pipeline.md`), existing entities have no `entity_connotation` row. They populate lazily on next enrichment. Layer 4 predicate queries (e.g. `WHERE axes.SENTIMENT.sentiment < -0.5`) silently exclude pre-deploy entities until they re-enrich. Without this metric, query coverage gaps are invisible.
 **Pros:** Operator-facing visibility into lazy-backfill progress; alertable; dashboard signal for Layer 4 query coverage gaps.
 **Cons:** Adds Micrometer instrumentation surface (~30 min CC); minor.
@@ -9,6 +10,7 @@
 **Depends on:** Phase A of entity-connotation-pipeline plan merged.
 
 ## P2 — Frontend: Source Attribution UI
+
 **What:** Integration-sourced notes should show a source badge (e.g., HubSpot icon), lock icon for readonly, and disabled edit/delete buttons.
 **Why:** Users currently can't distinguish integration notes from user-created notes. Without visual cues, they'll try to edit readonly notes and hit a 403.
 **Pros:** Clear UX for mixed note sources, prevents confusion.
@@ -17,6 +19,7 @@
 **Depends on:** Note embedding pipeline shipping (backend).
 
 ## P2 — Frontend: Multi-Entity Note Context Display
+
 **What:** Workspace notes list should show all attached entities for entity-spanning notes, not just one.
 **Why:** With the join table migration, notes can be attached to multiple entities. The current WorkspaceNote enrichment returns entity context but the frontend breadcrumb only shows one entity.
 **Pros:** Full context for notes attached to contact + deal + ticket.
@@ -25,6 +28,7 @@
 **Depends on:** Entity-spanning notes migration shipping (backend).
 
 ## P3 — Performance: EXPLAIN ANALYZE Join Table Queries
+
 **What:** Run EXPLAIN ANALYZE on entity-scoped note queries after join table migration to verify index usage and query cost.
 **Why:** All entity-scoped queries now JOIN through note_entity_attachments instead of direct WHERE entity_id. Need to confirm the idx_note_attachments_entity index is used.
 **Pros:** Catches performance regressions early.
@@ -33,6 +37,7 @@
 **Depends on:** Entity-spanning notes migration deployed to a database with realistic data volume.
 
 ## P2 — Unify IntegrationSyncWorkflow via IngestionOrchestrator
+
 **What:** Migrate IntegrationSyncActivitiesImpl (801 lines) to delegate record-processing to IngestionOrchestrator through NangoAdapter. Eliminates split path between custom-source and Nango pipelines.
 **Why:** Two-layer data plan ships NangoAdapter as thin wrapper but never wires it. Leaves parallel scaffolding that drifts over time.
 **Pros:** Single record-processing pipeline; one place to fix bugs in mapping/upsert/resolution/projection.
@@ -41,6 +46,7 @@
 **Depends on:** Custom source Postgres adapter shipped and validated with Mac.
 
 ## P2 — Schema Drift Detection for Custom Sources
+
 **What:** Detect and surface user DB schema changes (added/removed/renamed columns) between syncs.
 **Why:** Two-layer plan Open Question #2 defers to "next introspection surfaces unmapped column, user decides." No proactive detection of removed or renamed columns.
 **Pros:** User sees schema changes before they break sync; prevents silent data loss when a source column disappears.
@@ -49,15 +55,17 @@
 **Depends on:** PostgresAdapter + SchemaInferenceService shipped.
 
 ## P1 — OnboardingFirstInsightService (DTC trust moment)
+
 **What:** Post-Shopify-connect service runs one canned cross-domain query and renders an "insight card" on the onboarding step. Library of 5 canned queries: shipping-delay-support-overlap, repeat-customer-discount-dependency, high-return-SKU, ad-creative-to-cohort-overlap, packaging-complaint-cluster. Needs LOADING / EMPTY (<3 results fallback) / ERROR / PARTIAL / SUCCESS states on the card.
 **Why:** Converts "data pipe" feeling into "AI analyst" feeling in 60 seconds. Positioning-critical — the first 60s of post-connect UX is where "proactive AI signals" gets believed or doesn't.
 **Pros:** Trust moment. Delivers on the D2C repositioning story at first contact.
 **Cons:** Shopify first-sync is async (minutes). Needs a state-delivery mechanism: WebSocket push (existing WorkspaceEvent pattern) or polling endpoint. Without it the card can stall at LOADING.
-**Context:** Deferred from the 2026-04-22 DTC ecom repositioning plan. Canned-query library lives as Kotlin code (5 query builders in OnboardingFirstInsightService), not DB or prompt templates — keeps it testable and versionable. Requires `riven.onboarding.first_insight.hit_rate` metric to track whether canned queries match real brand data.
+**Context:** Deferred from the 2026-04-22 DTC ecom repositioning plan. Canned-query library lives as Kotlin code (5 query builders in OnboardingFirstInsightService), not DB or prompt templates — keeps it testable and versionable. Requires `cranium.onboarding.first_insight.hit_rate` metric to track whether canned queries match real brand data.
 **Depends on:** DTC core-model expansion (23 models) shipped + at least one real Shopify adapter.
 
 ## P1 — Signal Layer + SignalDerivationWorkflow
-**What:** Add 4 signal models — CohortDriftEvent, CreativeFatigueEvent, ChurnRiskSignal, DiscountDependentSignal — as first-class entities in a new signal layer. Scaffolding: Temporal workflow `SignalDerivationWorkflow` with 1/day schedule per workspace, activity stubs per signal type, feature flag `riven.signals.derivation.enabled` (default false), metrics `riven.signal.derivation.{duration,success_rate}`. Real derivation logic follows per-signal in subsequent PRs.
+
+**What:** Add 4 signal models — CohortDriftEvent, CreativeFatigueEvent, ChurnRiskSignal, DiscountDependentSignal — as first-class entities in a new signal layer. Scaffolding: Temporal workflow `SignalDerivationWorkflow` with 1/day schedule per workspace, activity stubs per signal type, feature flag `cranium.signals.derivation.enabled` (default false), metrics `cranium.signal.derivation.{duration,success_rate}`. Real derivation logic follows per-signal in subsequent PRs.
 **Why:** This is the product's "proactive AI behavioural signals" positioning made concrete as data. Without signals, DTC repositioning ships a shape without substance.
 **Pros:** First-class queryable entities that agents can reason over. Foundation for the "I traced it to 87 comments + 12 tickets" platonic-ideal insight.
 **Cons:** Signal models straddle user-facing (consumed by workspace) and system-produced (written from Temporal). Audit context pitfall `jpa-auditing-temporal` applies — Temporal workers have no SecurityContext, system user UUID must be stamped explicitly. Schedule registration path (boot scan, workspace-creation hook, admin endpoint) needs decision. Jitter needed or all workspaces fire at 00:00 UTC simultaneously.
@@ -65,6 +73,7 @@
 **Depends on:** DTC core-model expansion shipped.
 
 ## P1 — SocialMention PII / GDPR policy
+
 **What:** Policy document covering PII handling for SocialMention, SocialComment, and ProductReview models — ingesting third-party user content (handles, emails, review text) from people who never signed consent with the brand. Includes GDPR/CCPA delete-request surface and identity-resolution-bridging-SocialMention-to-Customer-via-handle (re-identification-adjacent).
 **Why:** Gates Meta/Instagram/TikTok adapter ship. Ingesting non-consented PII without a policy is a company-level liability.
 **Pros:** Protects the company. Gives adapter engineers clear rules.
@@ -73,14 +82,16 @@
 **Depends on:** Nothing in code — a doc/policy task.
 
 ## P3 — N+1 in TemplateMaterializationService.installProjectionRules
+
 **What:** `installProjectionRules` at `TemplateMaterializationService.kt:455-467` calls `projectionRuleRepository.existsByWorkspaceAndSourceAndTarget(...)` per (source entity type × core model match) pair. Worst case with 23 catalog types × ~20 projection targets = ~460 DB round-trips on workspace manifest install. Batch the existence check (one query over the full source set).
 **Why:** Pre-existing N+1, worsened by DTC catalog expansion (9→23 models).
 **Pros:** One-time workspace-install path that currently takes a few hundred round-trips reduces to single-digit queries.
 **Cons:** Not hot-path, runs once per workspace. Low urgency.
-**Context:** Identified during plan-eng-review for the DTC ecom repositioning. The loop lives at lines 455-467 in `core/src/main/kotlin/riven/core/service/integration/materialization/TemplateMaterializationService.kt`.
+**Context:** Identified during plan-eng-review for the DTC ecom repositioning. The loop lives at lines 455-467 in `core/src/main/kotlin/cranium/core/service/integration/materialization/TemplateMaterializationService.kt`.
 **Depends on:** Nothing — independent refactor.
 
 ## P2 — CollectionCohortMirror + CohortModel (future synthesis layer)
+
 **What:** Cohorts conceptualized as a "synthesis layer" on top of Customer — not a first-class model. Explore whether Shopify Collections (product groupings) should auto-derive customer-cohort views via post-purchase analysis, or whether cohorts belong purely as query-derived entities built by agents.
 **Why:** Original plan's "Collection → Cohort mirror" mapped products to customer groups, which is semantically muddy. But the underlying insight — that brand-curated product sets can reveal customer segments — is real.
 **Pros:** Gets to the "VIP tier 2 customers" insight without requiring manual cohort creation.
@@ -89,6 +100,7 @@
 **Depends on:** Synthesis layer design.
 
 ## P3 — ReturnReasonClassifier (async LLM classifier)
+
 **What:** LLM-backed classifier for Return entity reason text → fixed taxonomy (DAMAGE, WRONG_SIZE, QUALITY, EXPECTATION_MISMATCH, SHIPPING_DELAY, CHANGED_MIND, OTHER). Run as post-materialization Temporal activity, not inline with ingestion. Cache by content hash. Fall back to OTHER on LLM failure.
 **Why:** Unlocks cohort-level return-reason analysis. Native Shopify return reasons are free-text and low-fidelity.
 **Pros:** Structured return reasons queryable across cohorts + time.
@@ -97,7 +109,8 @@
 **Depends on:** Return model shipped (this PR), Temporal activity pattern, cache infrastructure.
 
 ## P2 — Reinstate DevSeed for DTC catalog
-**What:** Rebuild the dev-only seed pipeline (DevSeedController + DevSeedService + DevSeedDataGenerator + DevSeedConfigurationProperties + DevSeedResponse) keyed on the DTC model set. Seed realistic mock entities for all 23 DTC entity types and their relationships. Toggle via `riven.dev.seed.enabled=true`.
+
+**What:** Rebuild the dev-only seed pipeline (DevSeedController + DevSeedService + DevSeedDataGenerator + DevSeedConfigurationProperties + DevSeedResponse) keyed on the DTC model set. Seed realistic mock entities for all 23 DTC entity types and their relationships. Toggle via `cranium.dev.seed.enabled=true`.
 **Why:** DevSeed was ripped during the DTC repositioning because the old implementation hardcoded B2C_SAAS model keys (`"subscription"`, `"feature-usage-event"`) in `DevSeedDataGenerator.kt:120-125`. Rebuilding is faster than migrating. Dev UX suffers without realistic mock data — running the app locally against an empty catalog makes frontend + flow work painful.
 **Pros:** Fast local iteration on the frontend (realistic data shape + volume), integration-test seed path, demoable dev environment.
 **Cons:** 500-600 lines of new Kotlin across the service/generator. Per-model generator functions needed for the 23 DTC types (campaigns, ad creatives, shipments, returns, reviews, etc.). Test coverage.
@@ -105,9 +118,19 @@
 **Depends on:** DTC catalog expansion shipped (this PR).
 
 ## P3 — Observability for DTC catalog expansion
-**What:** Metrics and alerts for the DTC catalog surface: `riven.onboarding.first_insight.hit_rate` (when first-insight ships), `riven.signal.derivation.{duration,success_rate}` per signal type per workspace, `riven.classifier.return_reason.{cache_hit_rate,llm_error_rate}`, alert on inert signal worker staying inert >30 days.
+
+**What:** Metrics and alerts for the DTC catalog surface: `cranium.onboarding.first_insight.hit_rate` (when first-insight ships), `cranium.signal.derivation.{duration,success_rate}` per signal type per workspace, `cranium.classifier.return_reason.{cache_hit_rate,llm_error_rate}`, alert on inert signal worker staying inert >30 days.
 **Why:** Positioning-critical for "proactive AI signals" claim. Without metrics, there's no accountability for whether the canned queries actually match real brand data.
 **Pros:** Release accountability + product north-star signal visibility.
 **Cons:** Needs meters registered per Micrometer pattern. Each signal ships with its metric surface.
 **Context:** Deferred from 2026-04-22 DTC ecom plan. Ships incrementally with each feature (first-insight, signal derivation, classifier).
 **Depends on:** The features themselves.
+
+## P3 — Phase 3 design pass for Cranium web surfaces
+
+**What:** A dedicated `/plan-design-review` + `/design-consultation` pass before Phase 3 of the architecture-pivot plan (`~/.gstack/projects/Cranium/jared-unknown-eng-review-architecture-20260512-193441.md`) builds the web graph view, decision queue, page reader, PR-bot comment, and `scan_runs` failure surface — in `apps/client` (the dashboard app; `apps/web` is the marketing site). Covers: re-derive the app's DESIGN.md Product Context — resolve which of `apps/client/DESIGN.md` vs `apps/web/DESIGN.md` is the app's source of truth first (`apps/web/DESIGN.md` currently describes an app but `apps/web/app/` is marketing routes), then update references → Sourcegraph / Backstage / Obsidian / Graphite (not the current Attio/Linear/Midday B2B-CRM set); graph-primary vs article-primary navigation model (recommendation: article-primary, graph as a contextual mini-map + a full-screen explore mode — a 5k-node org graph is unreadable as a landing view); monochrome + semantic-only graph palette (`--warning` = stale, `--edit` = ambiguous-resolution pending, `--destructive` = synthesis-failed, `--chart-1..5` for domain clustering at most — not a rainbow force graph); decision-queue-as-inbox not dashboard (Linear Triage / GitHub "review requested" pattern, list rows with one action each, keyboard nav j/k/enter); empty / loading / error states for all 4 surfaces (notably: decision-queue-empty is a *success* state — "you're caught up", not "No items found"; new-repo graph needs a "scan in progress, N%" state); freshness ("synthesized N events ago / M not yet folded in") + `pages.confidence` visual treatment — this is the trust signal, must not be a grey timestamp; where `scan_runs` `parsed/skipped/synthesis_failed` counts surface to a human (the data model already supports it; the surface is undesigned); graph a11y — a force-directed canvas is invisible to screen readers, needs a parallel list/tree view of the same data (the article's backlinks list can be it) + the explicit decision that the graph is desktop-only (mobile gets the article reader + decision queue, no graph); PR-bot comment copy written verbatim (GitHub-native: collapsed `<details>`, suggested-reviewer UI, text-first, no images-as-content).
+**Why:** Phase 3 currently specifies the 4 surfaces at ~1–2 sentences each, against a DESIGN.md whose product context is the pre-pivot product. Without a dedicated design pass, Phase 3 ships AI-slop defaults (force-directed rainbow graph homepage, 3-column card grids, "No items found" × 4) and the trust signals (freshness, confidence) come out invisible.
+**Pros:** Catches the design decisions while they're cheap (planning, not implementation); keeps the new surfaces inside the existing icon-rail shell instead of inventing chrome; protects the LLM-wiki trust story (confidence + freshness UI).
+**Cons:** Phase 3 is the most distant phase (after enrichment-PR2-P3 → Phase 1a/1b/1c → Phase 2) — doing this too early risks designing against a data model that still moves; gate it on "data model stable post-Phase-2".
+**Context:** Output of the 2026-05-12 `/plan-design-review` (+ the same-day `/plan-eng-review` re-review, ER1) on the architecture-pivot plan. Those reviews added a "Phase 1d — `apps/client` collapse" sub-phase (1d-rename: the `dashboard/workspace/[id]/entity/[key]` reader/list/settings routes → page reader/list/settings; 1d-delete: entity-TYPE management / relationship-def editor / manifest-catalog / integration-sync screens when their backend goes in 1c; keep auth + dashboard shell) so Phase 3's new surfaces start in a clean shell. `apps/web` is the marketing site — untouched. The aesthetic system (Geist, oklch zero-chroma, 56px dark icon rail, density rules, shadow tokens, Framer-Motion-for-comprehension-only) is product-agnostic and carries over as-is — only the Product Context / who-it's-for / reference-sites need re-deriving.
+**Depends on:** Architecture-pivot Phase 2 complete + data model stable (the `pages` / `page_links` / `source_entities` schema settled). Soft-blocked by: the Temporal Synthesis Layer Notion doc + enrichment-PR2 "future consumers" contract being updated to "writes into `pages` / `page_history`" (the doc-sync TODO already in the plan).

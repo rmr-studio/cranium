@@ -1,7 +1,7 @@
-package riven.core.repository.catalog
+package cranium.core.repository.catalog
 
 import org.springframework.data.jpa.repository.JpaRepository
-import riven.core.entity.catalog.CatalogRelationshipEntity
+import cranium.core.entity.catalog.CatalogRelationshipEntity
 import java.util.*
 
 /**

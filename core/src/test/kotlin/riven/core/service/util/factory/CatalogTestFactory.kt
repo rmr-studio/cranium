@@ -1,11 +1,11 @@
-package riven.core.service.util.factory
+package cranium.core.service.util.factory
 
-import riven.core.enums.catalog.ManifestType
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.models.catalog.*
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.models.catalog.*
 import java.util.*
 
 object CatalogTestFactory {

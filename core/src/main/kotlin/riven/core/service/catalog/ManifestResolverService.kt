@@ -1,4 +1,4 @@
-package riven.core.service.catalog
+package cranium.core.service.catalog
 
 import tools.jackson.core.JacksonException
 import tools.jackson.databind.JsonNode
@@ -7,10 +7,10 @@ import tools.jackson.databind.node.ArrayNode
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
-import riven.core.enums.catalog.ManifestType
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.models.catalog.*
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.models.catalog.*
 
 /**
  * Resolves scanned manifests into fully resolved manifests ready for persistence.

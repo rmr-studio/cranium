@@ -1,4 +1,4 @@
-package riven.core.service.catalog
+package cranium.core.service.catalog
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -12,10 +12,10 @@ import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.atLeastOnce
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
-import riven.core.enums.catalog.ManifestType
-import riven.core.models.catalog.ScaleMappingType
-import riven.core.models.catalog.ScannedManifest
-import riven.core.models.connotation.AnalysisTier
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.models.catalog.ScaleMappingType
+import cranium.core.models.catalog.ScannedManifest
+import cranium.core.models.connotation.AnalysisTier
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.databind.json.JsonMapper

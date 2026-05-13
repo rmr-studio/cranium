@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -15,16 +15,14 @@
 import type { Path } from './Path';
 import {
     instanceOfPath,
-    PathFromJSON,
     PathFromJSONTyped,
-    PathToJSON,
+    PathToJSON
 } from './Path';
 import type { Value } from './Value';
 import {
     instanceOfValue,
-    ValueFromJSON,
     ValueFromJSONTyped,
-    ValueToJSON,
+    ValueToJSON
 } from './Value';
 
 /**

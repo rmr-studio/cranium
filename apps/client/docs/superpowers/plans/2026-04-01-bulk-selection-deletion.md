@@ -1,6 +1,6 @@
 # Bulk Selection & Deletion Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-dcranium-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace page-scoped row selection with a server-aware "select all" mode that tracks the full query result count, supports exclusions, and powers a dual-mode deletion API (BY_ID for individual selection, ALL with filter+exclusions for bulk).
 
@@ -1124,8 +1124,8 @@ Replace the full content of `entity-table-action-bar.tsx`:
 ```typescript
 'use client';
 
-import { Button } from '@riven/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@riven/ui/tooltip';
+import { Button } from '@cranium/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@cranium/ui/tooltip';
 
 import type { QueryFilter } from '@/lib/types/entity';
 import { Ellipsis, Trash2 } from 'lucide-react';
@@ -1207,8 +1207,8 @@ Replace the full content of `delete-entity-modal.tsx`:
 ```typescript
 'use client';
 
-import { Button } from '@riven/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@riven/ui/dialog';
+import { Button } from '@cranium/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@cranium/ui/dialog';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { FC, useMemo, useState } from 'react';
 import { useDeleteEntityMutation } from '../../../../hooks/mutation/instance/use-delete-entity-mutation';

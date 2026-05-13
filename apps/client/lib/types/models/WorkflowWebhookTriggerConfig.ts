@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,56 +12,41 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { WorkflowNodeConfigField } from './WorkflowNodeConfigField';
+import type { AuthenticationType } from './AuthenticationType';
 import {
-    WorkflowNodeConfigFieldFromJSON,
-    WorkflowNodeConfigFieldFromJSONTyped,
-    WorkflowNodeConfigFieldToJSON,
-    WorkflowNodeConfigFieldToJSONTyped,
-} from './WorkflowNodeConfigField';
+    AuthenticationTypeFromJSON,
+    AuthenticationTypeToJSON
+} from './AuthenticationType';
+import type { RequestMethodType } from './RequestMethodType';
+import {
+    RequestMethodTypeFromJSON,
+    RequestMethodTypeToJSON
+} from './RequestMethodType';
 import type { SchemaString } from './SchemaString';
 import {
     SchemaStringFromJSON,
-    SchemaStringFromJSONTyped,
-    SchemaStringToJSON,
-    SchemaStringToJSONTyped,
+    SchemaStringToJSON
 } from './SchemaString';
 import type { Signature } from './Signature';
 import {
     SignatureFromJSON,
-    SignatureFromJSONTyped,
-    SignatureToJSON,
-    SignatureToJSONTyped,
+    SignatureToJSON
 } from './Signature';
+import type { WorkflowNodeConfigField } from './WorkflowNodeConfigField';
+import {
+    WorkflowNodeConfigFieldFromJSON,
+    WorkflowNodeConfigFieldToJSON
+} from './WorkflowNodeConfigField';
 import type { WorkflowNodeType } from './WorkflowNodeType';
 import {
     WorkflowNodeTypeFromJSON,
-    WorkflowNodeTypeFromJSONTyped,
-    WorkflowNodeTypeToJSON,
-    WorkflowNodeTypeToJSONTyped,
+    WorkflowNodeTypeToJSON
 } from './WorkflowNodeType';
 import type { WorkflowTriggerType } from './WorkflowTriggerType';
 import {
     WorkflowTriggerTypeFromJSON,
-    WorkflowTriggerTypeFromJSONTyped,
-    WorkflowTriggerTypeToJSON,
-    WorkflowTriggerTypeToJSONTyped,
+    WorkflowTriggerTypeToJSON
 } from './WorkflowTriggerType';
-import type { RequestMethodType } from './RequestMethodType';
-import {
-    RequestMethodTypeFromJSON,
-    RequestMethodTypeFromJSONTyped,
-    RequestMethodTypeToJSON,
-    RequestMethodTypeToJSONTyped,
-} from './RequestMethodType';
-import type { AuthenticationType } from './AuthenticationType';
-import {
-    AuthenticationTypeFromJSON,
-    AuthenticationTypeFromJSONTyped,
-    AuthenticationTypeToJSON,
-    AuthenticationTypeToJSONTyped,
-} from './AuthenticationType';
 
 /**
  * Configuration for WEBHOOK trigger nodes. Triggers workflow execution when an HTTP webhook is received.

@@ -1,4 +1,4 @@
-package riven.core.service.connector
+package cranium.core.service.connector
 
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.module.kotlin.readValue
@@ -7,27 +7,27 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.connector.DataConnectorConnectionEntity
-import riven.core.enums.activity.Activity
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.connector.SslMode
-import riven.core.enums.integration.ConnectionStatus
-import riven.core.enums.util.OperationType
-import riven.core.exceptions.connector.CryptoException
-import riven.core.exceptions.connector.DataCorruptionException
-import riven.core.exceptions.connector.ReadOnlyVerificationException
-import riven.core.exceptions.connector.SsrfRejectedException
-import riven.core.models.connector.ConnectorTestResult
-import riven.core.models.connector.CredentialPayload
-import riven.core.models.connector.DataConnectorConnectionModel
-import riven.core.models.connector.request.CreateDataConnectorConnectionRequest
-import riven.core.models.connector.request.DataConnectorConnectionTestRequest
-import riven.core.models.connector.request.UpdateDataConnectorConnectionRequest
-import riven.core.repository.connector.DataConnectorConnectionRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.connector.pool.WorkspaceConnectionPoolManager
-import riven.core.util.ServiceUtil.findOrThrow
+import cranium.core.entity.connector.DataConnectorConnectionEntity
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.connector.SslMode
+import cranium.core.enums.integration.ConnectionStatus
+import cranium.core.enums.util.OperationType
+import cranium.core.exceptions.connector.CryptoException
+import cranium.core.exceptions.connector.DataCorruptionException
+import cranium.core.exceptions.connector.ReadOnlyVerificationException
+import cranium.core.exceptions.connector.SsrfRejectedException
+import cranium.core.models.connector.ConnectorTestResult
+import cranium.core.models.connector.CredentialPayload
+import cranium.core.models.connector.DataConnectorConnectionModel
+import cranium.core.models.connector.request.CreateDataConnectorConnectionRequest
+import cranium.core.models.connector.request.DataConnectorConnectionTestRequest
+import cranium.core.models.connector.request.UpdateDataConnectorConnectionRequest
+import cranium.core.repository.connector.DataConnectorConnectionRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.connector.pool.WorkspaceConnectionPoolManager
+import cranium.core.util.ServiceUtil.findOrThrow
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -46,7 +46,7 @@ import java.util.UUID
  * thrown to the HTTP layer (per locked Phase-2 decision).
  */
 @Service
-@ConditionalOnProperty(prefix = "riven.connector", name = ["enabled"], havingValue = "true")
+@ConditionalOnProperty(prefix = "cranium.connector", name = ["enabled"], havingValue = "true")
 class DataConnectorConnectionService(
     private val logger: KLogger,
     private val repository: DataConnectorConnectionRepository,

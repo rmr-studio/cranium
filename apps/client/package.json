@@ -1,5 +1,5 @@
 {
-  "name": "@riven/client",
+  "name": "@cranium/client",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -38,9 +38,9 @@
     "@radix-ui/react-toggle": "^1.1.10",
     "@radix-ui/react-toggle-group": "^1.1.11",
     "@react-google-maps/api": "^2.20.7",
-    "@riven/hooks": "workspace:*",
-    "@riven/ui": "workspace:*",
-    "@riven/utils": "workspace:*",
+    "@cranium/hooks": "workspace:*",
+    "@cranium/ui": "workspace:*",
+    "@cranium/utils": "workspace:*",
     "@stomp/stompjs": "^7.3.0",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.50.0",
@@ -93,7 +93,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@openapitools/openapi-generator-cli": "^2.28.0",
-    "@riven/tsconfig": "workspace:*",
+    "@cranium/tsconfig": "workspace:*",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",

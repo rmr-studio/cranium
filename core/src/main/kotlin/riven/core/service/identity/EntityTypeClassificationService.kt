@@ -1,11 +1,11 @@
-package riven.core.service.identity
+package cranium.core.service.identity
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.entity.semantics.SemanticMetadataTargetType
-import riven.core.enums.identity.MatchSignalType
-import riven.core.repository.entity.EntityTypeSemanticMetadataRepository
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.enums.entity.semantics.SemanticMetadataTargetType
+import cranium.core.enums.identity.MatchSignalType
+import cranium.core.repository.entity.EntityTypeSemanticMetadataRepository
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 

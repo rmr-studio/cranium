@@ -4,7 +4,7 @@ import { WebSocketSubscriptionManager } from '@/components/feature-modules/works
 import { Navbar } from '@/components/ui/nav/navbar';
 import { SidePanelProvider } from '@/components/ui/sidebar/context/side-panel-provider';
 import { DashboardShell } from '@/components/ui/sidebar/dashboard-shell';
-import type { ChildNodeProps } from '@riven/utils';
+import type { ChildNodeProps } from '@cranium/utils';
 import { FC } from 'react';
 
 const layout: FC<ChildNodeProps> = ({ children }) => {

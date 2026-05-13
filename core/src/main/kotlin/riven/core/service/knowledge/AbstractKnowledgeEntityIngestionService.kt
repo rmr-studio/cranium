@@ -1,17 +1,17 @@
-package riven.core.service.knowledge
+package cranium.core.service.knowledge
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.entity.EntityEntity
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.enums.entity.RelationshipTargetKind
-import riven.core.enums.entity.SystemRelationshipType
-import riven.core.enums.integration.SourceType
-import riven.core.repository.entity.EntityRelationshipRepository
-import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.service.entity.EntityIngestionService
-import riven.core.service.entity.type.EntityTypeRelationshipService
+import cranium.core.entity.entity.EntityEntity
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.enums.entity.RelationshipTargetKind
+import cranium.core.enums.entity.SystemRelationshipType
+import cranium.core.enums.integration.SourceType
+import cranium.core.repository.entity.EntityRelationshipRepository
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.service.entity.EntityIngestionService
+import cranium.core.service.entity.type.EntityTypeRelationshipService
 import java.util.UUID
 
 /**
@@ -140,7 +140,7 @@ abstract class AbstractKnowledgeEntityIngestionService<TInput : KnowledgeIngesti
      * Two shapes are supported:
      *   - integration-sourced inputs: `(workspaceId, sourceIntegrationId, sourceExternalId)`
      *     uniquely identifies the entity (matches the ingestion path used by
-     *     [riven.core.service.note.NoteEmbeddingService]);
+     *     [cranium.core.service.note.NoteEmbeddingService]);
      *   - workspace-internal inputs (e.g. glossary backfill, where there is no integration):
      *     `(workspaceId, sourceExternalId)` is used. Subclasses scope their own external-id
      *     namespace (e.g. `legacy:{uuid}`) to avoid cross-type collisions.

@@ -1,4 +1,4 @@
-import { useIsomorphicLayoutEffect } from '@riven/hooks';
+import { useIsomorphicLayoutEffect } from '@cranium/hooks';
 import { useRef, useState } from 'react';
 
 export function useContainerScale(internalWidth: number) {

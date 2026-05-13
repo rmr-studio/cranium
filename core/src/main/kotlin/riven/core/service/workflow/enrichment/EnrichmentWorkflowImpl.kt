@@ -1,9 +1,9 @@
-package riven.core.service.workflow.enrichment
+package cranium.core.service.workflow.enrichment
 
 import io.temporal.activity.ActivityOptions
 import io.temporal.common.RetryOptions
 import io.temporal.workflow.Workflow
-import riven.core.service.enrichment.EmbeddingConsumer
+import cranium.core.service.enrichment.EmbeddingConsumer
 import java.time.Duration
 import java.util.UUID
 
@@ -11,7 +11,7 @@ import java.util.UUID
  * Implementation of [EnrichmentWorkflow] for the entity embedding pipeline.
  *
  * This class is NOT a Spring bean — Temporal manages its lifecycle. It is instantiated by
- * Temporal's worker via a factory in [riven.core.configuration.workflow.TemporalWorkerConfiguration].
+ * Temporal's worker via a factory in [cranium.core.configuration.workflow.TemporalWorkerConfiguration].
  *
  * DETERMINISM RULES:
  * - Uses Workflow.getLogger() for logging (NOT KLogger — not determinism-safe)

@@ -1,13 +1,13 @@
-package riven.core.entity.entity
+package cranium.core.entity.entity
 
 import tools.jackson.databind.JsonNode
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.Type
-import riven.core.entity.util.AuditableSoftDeletableEntity
-import riven.core.enums.common.validation.SchemaType
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.entity.util.AuditableSoftDeletableEntity
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
 import java.time.ZonedDateTime
 import java.util.*
 import jakarta.persistence.Entity as JPAEntity

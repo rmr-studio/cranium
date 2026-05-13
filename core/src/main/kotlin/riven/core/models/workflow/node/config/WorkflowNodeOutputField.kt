@@ -1,6 +1,6 @@
-package riven.core.models.workflow.node.config
+package cranium.core.models.workflow.node.config
 
-import riven.core.enums.workflow.OutputFieldType
+import cranium.core.enums.workflow.OutputFieldType
 import java.util.UUID
 
 data class WorkflowNodeOutputField(

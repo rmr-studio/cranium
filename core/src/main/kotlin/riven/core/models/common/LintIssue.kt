@@ -1,6 +1,6 @@
-package riven.core.models.common
+package cranium.core.models.common
 
-import riven.core.enums.common.validation.IssueLevel
+import cranium.core.enums.common.validation.IssueLevel
 
 data class LintIssue(
     val path: String,

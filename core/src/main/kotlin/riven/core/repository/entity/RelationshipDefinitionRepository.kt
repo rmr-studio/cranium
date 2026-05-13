@@ -1,10 +1,10 @@
-package riven.core.repository.entity
+package cranium.core.repository.entity
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
-import riven.core.entity.entity.RelationshipDefinitionEntity
-import riven.core.enums.entity.SystemRelationshipType
+import cranium.core.entity.entity.RelationshipDefinitionEntity
+import cranium.core.enums.entity.SystemRelationshipType
 import java.util.*
 
 @Repository

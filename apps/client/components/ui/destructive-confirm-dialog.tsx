@@ -10,7 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Input } from '@riven/ui/input';
+import { Input } from '@cranium/ui/input';
 import { FC, useCallback, useState } from 'react';
 
 interface DestructiveConfirmDialogProps {

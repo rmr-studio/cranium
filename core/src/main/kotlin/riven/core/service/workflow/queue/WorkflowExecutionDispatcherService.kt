@@ -1,4 +1,4 @@
-package riven.core.service.workflow.queue
+package cranium.core.service.workflow.queue
 
 import io.github.oshai.kotlinlogging.KLogger
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock

@@ -1,7 +1,7 @@
 'use client';
 
-import { Button } from '@riven/ui/button';
-import { Input } from '@riven/ui/input';
+import { Button } from '@cranium/ui/button';
+import { Input } from '@cranium/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DefinitionCategory } from '@/lib/types/workspace';
 import { cn } from '@/lib/util/utils';

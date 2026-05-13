@@ -1,4 +1,4 @@
-package riven.core.service.workflow.enrichment
+package cranium.core.service.workflow.enrichment
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
@@ -11,10 +11,10 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import riven.core.configuration.workflow.TemporalWorkerConfiguration
-import riven.core.models.enrichment.EnrichmentContext
-import riven.core.service.enrichment.EmbeddingConsumer
-import riven.core.service.util.factory.EnrichmentFactory
+import cranium.core.configuration.workflow.TemporalWorkerConfiguration
+import cranium.core.models.enrichment.EnrichmentContext
+import cranium.core.service.enrichment.EmbeddingConsumer
+import cranium.core.service.util.factory.EnrichmentFactory
 import java.util.UUID
 
 /**

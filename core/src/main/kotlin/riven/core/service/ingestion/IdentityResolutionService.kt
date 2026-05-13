@@ -1,14 +1,14 @@
-package riven.core.service.ingestion
+package cranium.core.service.ingestion
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
-import riven.core.entity.entity.EntityAttributeEntity
-import riven.core.entity.entity.EntityEntity
-import riven.core.models.ingestion.MatchType
-import riven.core.models.ingestion.ResolutionResult
-import riven.core.repository.entity.EntityAttributeRepository
-import riven.core.repository.entity.EntityRepository
-import riven.core.service.identity.EntityTypeClassificationService
+import cranium.core.entity.entity.EntityAttributeEntity
+import cranium.core.entity.entity.EntityEntity
+import cranium.core.models.ingestion.MatchType
+import cranium.core.models.ingestion.ResolutionResult
+import cranium.core.repository.entity.EntityAttributeRepository
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.service.identity.EntityTypeClassificationService
 import java.util.UUID
 
 /**

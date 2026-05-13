@@ -1,18 +1,18 @@
-package riven.core.models.identity
+package cranium.core.models.identity
 
 import java.util.UUID
 
 /**
  * Domain event published after an entity is saved or updated.
  *
- * Carries the minimum information needed for [riven.core.service.entity.IdentityMatchTriggerListener]
+ * Carries the minimum information needed for [cranium.core.service.entity.IdentityMatchTriggerListener]
  * to decide whether to enqueue an IDENTITY_MATCH job:
  * - Which entity was saved and in which workspace
  * - Whether this is a create or an update
  * - Old and new values for IDENTIFIER-classified attributes (enables change detection on update)
  *
  * Published by EntityService after commit via [org.springframework.context.ApplicationEventPublisher].
- * Consumed by [riven.core.service.entity.IdentityMatchTriggerListener] via
+ * Consumed by [cranium.core.service.entity.IdentityMatchTriggerListener] via
  * [@TransactionalEventListener(AFTER_COMMIT)][org.springframework.transaction.event.TransactionalEventListener].
  */
 data class IdentityMatchTriggerEvent(

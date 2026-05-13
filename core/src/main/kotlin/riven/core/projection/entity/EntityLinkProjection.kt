@@ -1,11 +1,11 @@
-package riven.core.projection.entity
+package cranium.core.projection.entity
 
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.entity.RelationshipDirection
-import riven.core.enums.entity.SystemRelationshipType
-import riven.core.models.common.Icon
-import riven.core.models.entity.EntityLink
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.entity.RelationshipDirection
+import cranium.core.enums.entity.SystemRelationshipType
+import cranium.core.models.common.Icon
+import cranium.core.models.entity.EntityLink
 import java.util.*
 
 /**

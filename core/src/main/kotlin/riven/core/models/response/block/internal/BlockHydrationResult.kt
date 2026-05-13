@@ -1,6 +1,6 @@
-package riven.core.models.response.block.internal
+package cranium.core.models.response.block.internal
 
-import riven.core.models.block.tree.ReferencePayload
+import cranium.core.models.block.tree.ReferencePayload
 import java.util.*
 
 /**

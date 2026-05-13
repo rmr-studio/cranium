@@ -1,8 +1,8 @@
-package riven.core.models.workflow
+package cranium.core.models.workflow
 
-import riven.core.entity.util.AuditableModel
-import riven.core.enums.workflow.WorkflowDefinitionStatus
-import riven.core.models.common.Icon
+import cranium.core.entity.util.AuditableModel
+import cranium.core.enums.workflow.WorkflowDefinitionStatus
+import cranium.core.models.common.Icon
 import java.time.ZonedDateTime
 import java.util.*
 

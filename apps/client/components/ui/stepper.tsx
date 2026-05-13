@@ -1,6 +1,6 @@
 'use client';
 
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 import { CheckIcon, LoaderCircle } from 'lucide-react';
 import * as React from 'react';
 import { createContext, useContext } from 'react';

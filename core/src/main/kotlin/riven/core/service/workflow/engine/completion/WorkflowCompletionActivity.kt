@@ -1,9 +1,9 @@
-package riven.core.service.workflow.engine.completion
+package cranium.core.service.workflow.engine.completion
 
 import io.temporal.activity.ActivityInterface
 import io.temporal.activity.ActivityMethod
-import riven.core.enums.workflow.WorkflowStatus
-import riven.core.models.workflow.engine.error.WorkflowExecutionError
+import cranium.core.enums.workflow.WorkflowStatus
+import cranium.core.models.workflow.engine.error.WorkflowExecutionError
 import java.util.*
 
 /**

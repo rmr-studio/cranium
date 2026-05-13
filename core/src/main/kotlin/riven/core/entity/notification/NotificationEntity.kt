@@ -1,4 +1,4 @@
-package riven.core.entity.notification
+package cranium.core.entity.notification
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.Column
@@ -11,11 +11,11 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.Type
-import riven.core.entity.util.AuditableSoftDeletableEntity
-import riven.core.enums.notification.NotificationReferenceType
-import riven.core.enums.notification.NotificationType
-import riven.core.models.notification.Notification
-import riven.core.models.notification.NotificationContent
+import cranium.core.entity.util.AuditableSoftDeletableEntity
+import cranium.core.enums.notification.NotificationReferenceType
+import cranium.core.enums.notification.NotificationType
+import cranium.core.models.notification.Notification
+import cranium.core.models.notification.NotificationContent
 import java.time.ZonedDateTime
 import java.util.UUID
 

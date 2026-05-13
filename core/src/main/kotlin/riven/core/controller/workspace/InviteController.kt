@@ -1,12 +1,12 @@
-package riven.core.controller.workspace
+package cranium.core.controller.workspace
 
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.models.workspace.WorkspaceInvite
-import riven.core.service.workspace.WorkspaceInviteService
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.models.workspace.WorkspaceInvite
+import cranium.core.service.workspace.WorkspaceInviteService
 import java.util.*
 
 @RestController

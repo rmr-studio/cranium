@@ -1,4 +1,4 @@
-package riven.core.controller.connector
+package cranium.core.controller.connector
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -16,15 +16,15 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import riven.core.models.connector.request.SaveDataConnectorMappingRequest
-import riven.core.models.connector.response.DataConnectorMappingSaveResponse
-import riven.core.models.connector.response.DataConnectorSchemaResponse
-import riven.core.service.connector.mapping.DataConnectorFieldMappingService
-import riven.core.service.connector.mapping.DataConnectorSchemaInferenceService
+import cranium.core.models.connector.request.SaveDataConnectorMappingRequest
+import cranium.core.models.connector.response.DataConnectorMappingSaveResponse
+import cranium.core.models.connector.response.DataConnectorSchemaResponse
+import cranium.core.service.connector.mapping.DataConnectorFieldMappingService
+import cranium.core.service.connector.mapping.DataConnectorSchemaInferenceService
 import java.util.UUID
 
 @RestController
-@ConditionalOnProperty(prefix = "riven.connector", name = ["enabled"], havingValue = "true")
+@ConditionalOnProperty(prefix = "cranium.connector", name = ["enabled"], havingValue = "true")
 @RequestMapping("/api/v1/custom-sources/connections/{connectionId}")
 @Tag(
     name = "custom-source-mapping",

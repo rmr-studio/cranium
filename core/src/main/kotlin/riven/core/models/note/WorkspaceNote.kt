@@ -1,7 +1,7 @@
-package riven.core.models.note
+package cranium.core.models.note
 
-import riven.core.entity.util.AuditableModel
-import riven.core.enums.note.NoteSourceType
+import cranium.core.entity.util.AuditableModel
+import cranium.core.enums.note.NoteSourceType
 import java.time.ZonedDateTime
 import java.util.*
 

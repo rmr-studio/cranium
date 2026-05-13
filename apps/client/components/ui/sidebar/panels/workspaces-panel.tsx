@@ -12,9 +12,9 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@riven/ui/dropdown-menu';
-import { Button } from '@riven/ui/button';
-import { cn } from '@riven/utils';
+} from '@cranium/ui/dropdown-menu';
+import { Button } from '@cranium/ui/button';
+import { cn } from '@cranium/utils';
 import {
   Check,
   ChevronsUpDown,

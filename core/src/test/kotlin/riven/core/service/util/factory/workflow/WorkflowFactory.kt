@@ -1,19 +1,19 @@
-package riven.core.service.util.factory.workflow
+package cranium.core.service.util.factory.workflow
 
-import riven.core.entity.workflow.WorkflowDefinitionEntity
-import riven.core.entity.workflow.WorkflowDefinitionVersionEntity
-import riven.core.entity.workflow.WorkflowNodeEntity
-import riven.core.entity.workflow.execution.WorkflowExecutionEntity
-import riven.core.entity.workflow.execution.WorkflowExecutionNodeEntity
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.workflow.WorkflowDefinitionStatus
-import riven.core.enums.workflow.WorkflowNodeType
-import riven.core.enums.workflow.WorkflowStatus
-import riven.core.enums.workflow.WorkflowTriggerType
-import riven.core.models.workflow.WorkflowGraphReference
-import riven.core.models.workflow.node.config.WorkflowFunctionConfig
-import riven.core.models.workflow.node.config.WorkflowNodeConfig
+import cranium.core.entity.workflow.WorkflowDefinitionEntity
+import cranium.core.entity.workflow.WorkflowDefinitionVersionEntity
+import cranium.core.entity.workflow.WorkflowNodeEntity
+import cranium.core.entity.workflow.execution.WorkflowExecutionEntity
+import cranium.core.entity.workflow.execution.WorkflowExecutionNodeEntity
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.workflow.WorkflowDefinitionStatus
+import cranium.core.enums.workflow.WorkflowNodeType
+import cranium.core.enums.workflow.WorkflowStatus
+import cranium.core.enums.workflow.WorkflowTriggerType
+import cranium.core.models.workflow.WorkflowGraphReference
+import cranium.core.models.workflow.node.config.WorkflowFunctionConfig
+import cranium.core.models.workflow.node.config.WorkflowNodeConfig
 import java.time.ZonedDateTime
 import java.util.*
 

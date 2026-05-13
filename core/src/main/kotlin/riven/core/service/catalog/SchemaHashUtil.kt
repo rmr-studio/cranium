@@ -1,4 +1,4 @@
-package riven.core.service.catalog
+package cranium.core.service.catalog
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.math.BigDecimal

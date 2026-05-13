@@ -1,4 +1,4 @@
-package riven.core.service.entity.query
+package cranium.core.service.entity.query
 
 /**
  * Holds paired data and count SQL queries assembled from filter visitor output.
@@ -9,7 +9,7 @@ package riven.core.service.entity.query
  * row count without ordering or pagination.
  *
  * The executor (Phase 5) runs these queries separately -- potentially in parallel --
- * and combines the results into an [riven.core.models.entity.query.EntityQueryResult].
+ * and combines the results into an [cranium.core.models.entity.query.EntityQueryResult].
  *
  * @property dataQuery SELECT e.id query with ORDER BY, LIMIT, and OFFSET clauses
  * @property countQuery SELECT COUNT(*) query with the same WHERE clause but no ORDER BY or LIMIT/OFFSET.

@@ -1,4 +1,4 @@
-import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@riven/ui/command';
+import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@cranium/ui/command';
 import { CommandIcon } from "lucide-react";
 import { FC } from "react";
 import type { QuickActionItem } from "@/lib/types/block";

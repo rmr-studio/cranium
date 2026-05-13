@@ -2,8 +2,8 @@
 
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/util/utils';
-import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from '@riven/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
+import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from '@cranium/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@cranium/ui/popover';
 import { Plus, X } from 'lucide-react';
 import * as React from 'react';
 

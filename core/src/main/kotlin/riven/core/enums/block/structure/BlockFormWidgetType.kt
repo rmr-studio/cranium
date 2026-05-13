@@ -1,4 +1,4 @@
-package riven.core.enums.block.structure
+package cranium.core.enums.block.structure
 
 enum class BlockFormWidgetType {
     TEXT_INPUT,

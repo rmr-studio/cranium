@@ -1,7 +1,7 @@
-package riven.core.models.response.onboarding
+package cranium.core.models.response.onboarding
 
-import riven.core.models.user.UserDisplay
-import riven.core.models.workspace.Workspace
+import cranium.core.models.user.UserDisplay
+import cranium.core.models.workspace.Workspace
 
 data class CompleteOnboardingResponse(
     val workspace: Workspace,

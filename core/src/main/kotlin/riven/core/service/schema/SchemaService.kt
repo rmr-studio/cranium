@@ -1,18 +1,18 @@
-package riven.core.service.schema
+package cranium.core.service.schema
 
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.ObjectMapper
 import com.networknt.schema.SchemaRegistry
 import com.networknt.schema.SpecificationVersion
 import org.springframework.stereotype.Service
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.common.validation.ValidationScope
-import riven.core.enums.core.DataFormat
-import riven.core.enums.core.DataType
-import riven.core.exceptions.SchemaValidationException
-import riven.core.models.common.json.JsonObject
-import riven.core.models.common.json.JsonValue
-import riven.core.models.common.validation.Schema
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.common.validation.ValidationScope
+import cranium.core.enums.core.DataFormat
+import cranium.core.enums.core.DataType
+import cranium.core.exceptions.SchemaValidationException
+import cranium.core.models.common.json.JsonObject
+import cranium.core.models.common.json.JsonValue
+import cranium.core.models.common.validation.Schema
 import java.net.URI
 import java.time.LocalDate
 import java.time.OffsetDateTime

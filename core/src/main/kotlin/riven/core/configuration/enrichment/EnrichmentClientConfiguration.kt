@@ -1,4 +1,4 @@
-package riven.core.configuration.enrichment
+package cranium.core.configuration.enrichment
 
 import jakarta.annotation.PostConstruct
 import org.springframework.beans.factory.annotation.Qualifier
@@ -6,8 +6,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.reactive.function.client.WebClient
-import riven.core.configuration.properties.EnrichmentConfigurationProperties
-import riven.core.enums.enrichment.EmbeddingProvider
+import cranium.core.configuration.properties.EnrichmentConfigurationProperties
+import cranium.core.enums.enrichment.EmbeddingProvider
 
 @Configuration
 @EnableConfigurationProperties(EnrichmentConfigurationProperties::class)
@@ -19,7 +19,7 @@ class EnrichmentClientConfiguration(
     fun validateProperties() {
         if (properties.provider == EmbeddingProvider.OPENAI) {
             require(properties.openai.apiKey.isNotBlank()) {
-                "riven.enrichment.openai.api-key must be set when provider is OPENAI"
+                "cranium.enrichment.openai.api-key must be set when provider is OPENAI"
             }
         }
     }

@@ -1,11 +1,11 @@
-package riven.core.service.identity
+package cranium.core.service.identity
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
-import riven.core.enums.identity.MatchSignalType
+import cranium.core.enums.identity.MatchSignalType
 
 class IdentityNormalizationServiceTest {
 

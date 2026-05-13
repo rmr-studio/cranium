@@ -1,4 +1,4 @@
-package riven.core.controller.entity
+package cranium.core.controller.entity
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -10,16 +10,16 @@ import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import riven.core.models.entity.Entity
-import riven.core.models.request.entity.AddRelationshipRequest
-import riven.core.models.request.entity.DeleteEntityRequest
-import riven.core.models.request.entity.SaveEntityRequest
-import riven.core.models.request.entity.UpdateRelationshipRequest
-import riven.core.models.response.entity.RelationshipResponse
-import riven.core.models.response.entity.DeleteEntityResponse
-import riven.core.models.response.entity.SaveEntityResponse
-import riven.core.service.entity.EntityRelationshipService
-import riven.core.service.entity.EntityService
+import cranium.core.models.entity.Entity
+import cranium.core.models.request.entity.AddRelationshipRequest
+import cranium.core.models.request.entity.DeleteEntityRequest
+import cranium.core.models.request.entity.SaveEntityRequest
+import cranium.core.models.request.entity.UpdateRelationshipRequest
+import cranium.core.models.response.entity.RelationshipResponse
+import cranium.core.models.response.entity.DeleteEntityResponse
+import cranium.core.models.response.entity.SaveEntityResponse
+import cranium.core.service.entity.EntityRelationshipService
+import cranium.core.service.entity.EntityService
 import java.util.*
 
 @RestController

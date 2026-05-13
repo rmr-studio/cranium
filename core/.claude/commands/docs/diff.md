@@ -24,7 +24,7 @@ Analyze all code changes on the current branch relative to `main`, then write or
 
 ## Vault Location
 
-`../docs/system-design/` — relative to the core repo root. Absolute path: `/home/jared/dev/riven/docs/system-design/`
+`../docs/system-design/` — relative to the core repo root. Absolute path: `/home/jared/dev/cranium/docs/system-design/`
 
 ## Domain Structure
 
@@ -41,29 +41,29 @@ domains/
 
 ## Package-to-Domain Mapping
 
-| Source package pattern | Domain folder |
-|------------------------|---------------|
-| `*.entity.*`, `*.entities.*` | `Entities/` |
-| `*.workflow.*` | `Workflows/` |
-| `*.workspace.*`, `*.user.*` | `Workspaces & Users/` |
-| `*.block.*` | `Knowledge/` |
-| `*.integration.*` | `Integrations/` |
-| `*.activity.*` | Cross-cutting (log in the primary domain of the caller) |
-| `*.configuration.*`, `*.config.*` | Infrastructure (typically cross-cutting) |
-| `*.exceptions.*` | Cross-cutting |
-| `db/schema/*` | Map to domain by table name prefix |
+| Source package pattern            | Domain folder                                           |
+| --------------------------------- | ------------------------------------------------------- |
+| `*.entity.*`, `*.entities.*`      | `Entities/`                                             |
+| `*.workflow.*`                    | `Workflows/`                                            |
+| `*.workspace.*`, `*.user.*`       | `Workspaces & Users/`                                   |
+| `*.block.*`                       | `Knowledge/`                                            |
+| `*.integration.*`                 | `Integrations/`                                         |
+| `*.activity.*`                    | Cross-cutting (log in the primary domain of the caller) |
+| `*.configuration.*`, `*.config.*` | Infrastructure (typically cross-cutting)                |
+| `*.exceptions.*`                  | Cross-cutting                                           |
+| `db/schema/*`                     | Map to domain by table name prefix                      |
 
 ## Templates
 
-Located at `/home/jared/dev/riven/docs/templates/Documentation/`:
+Located at `/home/jared/dev/cranium/docs/templates/Documentation/`:
 
-| Template | Use When |
-|----------|----------|
-| `Component Overview.md` | Service has 5+ public methods, complex dependencies, or non-trivial business logic |
-| `Component Overview - Quick.md` | Simple services, utility classes, entities, enums, DTOs |
-| `Subdomain Overview.md` | Located at `/home/jared/dev/riven/docs/templates/Domain/Subdomain Overview.md` — new subdomain introduced |
-| `Domain Overview.md` | Located at `/home/jared/dev/riven/docs/templates/Domain/Domain Overview.md` — new domain introduced |
-| `Architecture Flow - Quick.md` | New cross-domain flow introduced by the diff |
+| Template                        | Use When                                                                                                    |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `Component Overview.md`         | Service has 5+ public methods, complex dependencies, or non-trivial business logic                          |
+| `Component Overview - Quick.md` | Simple services, utility classes, entities, enums, DTOs                                                     |
+| `Subdomain Overview.md`         | Located at `/home/jared/dev/cranium/docs/templates/Domain/Subdomain Overview.md` — new subdomain introduced |
+| `Domain Overview.md`            | Located at `/home/jared/dev/cranium/docs/templates/Domain/Domain Overview.md` — new domain introduced       |
+| `Architecture Flow - Quick.md`  | New cross-domain flow introduced by the diff                                                                |
 
 ## Vault Conventions
 
@@ -129,21 +129,27 @@ Domain: Entities
 Read the following to calibrate documentation voice and depth:
 
 ### Templates
+
 Read these template files (only the ones needed based on Step 3 findings):
-- `/home/jared/dev/riven/docs/templates/Documentation/Component Overview.md` (if full component docs needed)
-- `/home/jared/dev/riven/docs/templates/Documentation/Component Overview - Quick.md` (if quick docs needed)
-- `/home/jared/dev/riven/docs/templates/Domain/Subdomain Overview.md` (if new subdomains)
-- `/home/jared/dev/riven/docs/templates/Documentation/Architecture Flow - Quick.md` (if new flows)
+
+- `/home/jared/dev/cranium/docs/templates/Documentation/Component Overview.md` (if full component docs needed)
+- `/home/jared/dev/cranium/docs/templates/Documentation/Component Overview - Quick.md` (if quick docs needed)
+- `/home/jared/dev/cranium/docs/templates/Domain/Subdomain Overview.md` (if new subdomains)
+- `/home/jared/dev/cranium/docs/templates/Documentation/Architecture Flow - Quick.md` (if new flows)
 
 ### Exemplar Docs
+
 For each affected domain/subdomain, read 1-2 existing component docs to calibrate:
+
 - Voice, tone, and level of detail
 - How method signatures are formatted
 - How dependencies are listed
 - How business logic is described
 
 ### Index Docs
+
 Read the existing domain index and subdomain index docs that will need updating:
+
 - `../docs/system-design/domains/{Domain}/{Domain}.md`
 - `../docs/system-design/domains/{Domain}/{Subdomain}/{Subdomain}.md`
 
@@ -154,44 +160,47 @@ Write a structured analysis to the plan file with the following sections. This r
 ### Plan File Sections
 
 **1. Change Summary**
+
 - What the branch does (high-level purpose)
 - Commits involved (from Step 2)
 - Scope of changes (files changed, domains touched)
 
 **2. Existing Documents to Update**
 
-| Document | Domain / Subdomain | Sections Affected | What Changed |
-|----------|-------------------|-------------------|--------------|
+| Document               | Domain / Subdomain     | Sections Affected            | What Changed            |
+| ---------------------- | ---------------------- | ---------------------------- | ----------------------- |
 | `EntityTypeService.md` | Entities / Type System | Public Methods, Dependencies | Added `getFoo()` method |
 
 **3. New Documents to Create**
 
-| Component | Domain / Subdomain | Template | Rationale |
-|-----------|-------------------|----------|-----------|
-| `FooService` | Entities / Type System | Full | 7 public methods, complex validation |
+| Component    | Domain / Subdomain     | Template | Rationale                            |
+| ------------ | ---------------------- | -------- | ------------------------------------ |
+| `FooService` | Entities / Type System | Full     | 7 public methods, complex validation |
 
 Include the Full vs Quick template rationale for each: Full when 5+ public methods, complex dependencies, or non-trivial business logic; Quick otherwise.
 
 **4. Index Documents to Update**
 
-| Document | What to Add |
-|----------|-------------|
+| Document         | What to Add                      |
+| ---------------- | -------------------------------- |
 | `Type System.md` | Add FooService to component list |
 
 **5. New Flow/Subdomain Docs** (if applicable)
 
-| Name | Type | Template | Trigger/Rationale |
-|------|------|----------|-------------------|
-| `Semantic Metadata` | Subdomain | Subdomain Overview | New subdomain introduced by diff |
-| `Semantic Metadata Resolution` | Flow | Quick | New cross-domain flow |
+| Name                           | Type      | Template           | Trigger/Rationale                |
+| ------------------------------ | --------- | ------------------ | -------------------------------- |
+| `Semantic Metadata`            | Subdomain | Subdomain Overview | New subdomain introduced by diff |
+| `Semantic Metadata Resolution` | Flow      | Quick              | New cross-domain flow            |
 
 **6. Architecture Impact**
+
 - New cross-domain dependencies introduced by the diff
 - Changed API surface (new/modified endpoints)
 - New components and their architectural roles
 - Pattern deviations or extensions from existing conventions
 
 **7. Points to Consider**
+
 - Documentation gaps that may need manual attention
 - Areas where the diff touched code but existing docs were already accurate (no update needed)
 - Architectural observations from the diff (inconsistencies, notable patterns)
@@ -208,7 +217,9 @@ After writing the plan, call `ExitPlanMode` for user approval. Do NOT proceed to
 After user approval, spawn Task sub-agents (up to 3 parallel) grouped by work type:
 
 ### Agent Group 1: New Component Docs
+
 For each new component doc, the sub-agent must:
+
 - Use the appropriate template (Full or Quick) as the structural skeleton
 - Populate every section with real content from the diff:
   - **Responsibilities**: Derived from the class's public methods and their logic
@@ -223,7 +234,9 @@ For each new component doc, the sub-agent must:
 - Write the file to `../docs/system-design/domains/{Domain}/{Subdomain}/{ComponentName}.md`
 
 ### Agent Group 2: Existing Doc Edits
+
 For each existing doc to update:
+
 - Read the current file content
 - Update ONLY the sections affected by the diff
 - Preserve all existing content that wasn't changed
@@ -232,11 +245,13 @@ For each existing doc to update:
 - Update Responsibilities if the service's scope expanded
 
 ### Agent Group 3: Index Doc Updates + Flow Docs
+
 - Update subdomain index docs: add new components to the component list/table
 - Update domain index docs: add new subdomains if created
 - Create any new flow docs using the Architecture Flow - Quick template
 
 **Sub-agent instructions must include:**
+
 - The relevant template content
 - The diff content for the files they're documenting
 - The exemplar doc content for voice calibration
@@ -260,21 +275,25 @@ After all documents are written, verify quality:
 Present to the user:
 
 ### 1. Documents Created
-| Name | Type | Path |
-|------|------|------|
+
+| Name            | Type             | Path                            |
+| --------------- | ---------------- | ------------------------------- |
 | `FooService.md` | Component (Full) | `domains/Entities/Type System/` |
 
 ### 2. Documents Updated
-| Name | Sections Edited | Why |
-|------|----------------|-----|
-| `EntityTypeService.md` | Public Methods | Added `getFoo()` from branch changes |
+
+| Name                   | Sections Edited | Why                                  |
+| ---------------------- | --------------- | ------------------------------------ |
+| `EntityTypeService.md` | Public Methods  | Added `getFoo()` from branch changes |
 
 ### 3. Architectural Impact
+
 - New cross-domain dependencies introduced by the diff
 - New components and their roles
 - Changed API surface (new/modified endpoints)
 
 ### 4. Points of Consideration
+
 - Documentation gaps that may need manual attention
 - Areas where the diff touched code but existing docs were already accurate
 - Architectural observations from the diff (potential inconsistencies, patterns worth noting)
@@ -282,6 +301,7 @@ Present to the user:
 </process>
 
 <success_criteria>
+
 - All new components from the diff have authored documentation with no template placeholders
 - Existing docs affected by the diff are updated with targeted section edits
 - Subdomain and domain index docs reflect the new components
@@ -289,5 +309,5 @@ Present to the user:
 - Frontmatter is valid with correct tags, dates, and domains
 - User approved the structured analysis plan via `ExitPlanMode` before any files were written
 - Summary report covers created docs, updated docs, architectural impact, and considerations
-</success_criteria>
-</output>
+  </success_criteria>
+  </output>

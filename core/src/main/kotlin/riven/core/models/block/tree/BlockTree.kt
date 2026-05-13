@@ -1,4 +1,4 @@
-package riven.core.models.block.tree
+package cranium.core.models.block.tree
 
 import tools.jackson.databind.ValueDeserializer
 import tools.jackson.databind.annotation.JsonDeserialize

@@ -1,14 +1,14 @@
-package riven.core.service.entity.type
+package cranium.core.service.entity.type
 
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.DataType
-import riven.core.models.common.validation.Schema
-import riven.core.service.util.factory.entity.EntityFactory
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.DataType
+import cranium.core.models.common.validation.Schema
+import cranium.core.service.util.factory.entity.EntityFactory
 import java.util.*
 
 class EntityTypeProtectionGuardTest {

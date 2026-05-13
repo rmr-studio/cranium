@@ -1,10 +1,10 @@
-package riven.core.repository.entity
+package cranium.core.repository.entity
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
-import riven.core.entity.entity.EntityTypeSequenceEntity
-import riven.core.entity.entity.EntityTypeSequenceId
+import cranium.core.entity.entity.EntityTypeSequenceEntity
+import cranium.core.entity.entity.EntityTypeSequenceId
 import java.util.*
 
 /**

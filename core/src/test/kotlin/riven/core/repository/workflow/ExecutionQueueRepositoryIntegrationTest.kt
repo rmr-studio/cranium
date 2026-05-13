@@ -1,4 +1,4 @@
-package riven.core.repository.workflow
+package cranium.core.repository.workflow
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.assertj.core.api.Assertions.assertThat
@@ -29,16 +29,16 @@ import org.springframework.transaction.annotation.Transactional
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
-import riven.core.entity.connotation.EntityConnotationEntity
-import riven.core.enums.connotation.ConnotationStatus
-import riven.core.enums.workflow.ExecutionJobType
-import riven.core.enums.workflow.ExecutionQueueStatus
-import riven.core.models.connotation.EntityMetadata
-import riven.core.models.connotation.EntityMetadataSnapshot
-import riven.core.models.connotation.SentimentMetadata
-import riven.core.service.util.factory.enrichment.EnrichmentFactory
-import riven.core.repository.connotation.EntityConnotationRepository
-import riven.core.service.util.SchemaInitializer
+import cranium.core.entity.connotation.EntityConnotationEntity
+import cranium.core.enums.connotation.ConnotationStatus
+import cranium.core.enums.workflow.ExecutionJobType
+import cranium.core.enums.workflow.ExecutionQueueStatus
+import cranium.core.models.connotation.EntityMetadata
+import cranium.core.models.connotation.EntityMetadataSnapshot
+import cranium.core.models.connotation.SentimentMetadata
+import cranium.core.service.util.factory.enrichment.EnrichmentFactory
+import cranium.core.repository.connotation.EntityConnotationRepository
+import cranium.core.service.util.SchemaInitializer
 import java.time.ZonedDateTime
 import java.time.temporal.TemporalAccessor
 import java.util.Optional
@@ -55,7 +55,7 @@ private object ExecutionQueueRepositoryTestContainer {
     val instance: PostgreSQLContainer = PostgreSQLContainer(
         DockerImageName.parse("pgvector/pgvector:pg16").asCompatibleSubstituteFor("postgres")
     )
-        .withDatabaseName("riven_queue_repo_test")
+        .withDatabaseName("cranium_queue_repo_test")
         .withUsername("test")
         .withPassword("test")
 
@@ -87,14 +87,14 @@ private object ExecutionQueueRepositoryTestContainer {
 )
 @EnableJpaRepositories(
     basePackages = [
-        "riven.core.repository.workflow",
-        "riven.core.repository.connotation",
+        "cranium.core.repository.workflow",
+        "cranium.core.repository.connotation",
     ]
 )
 @EntityScan(
     basePackages = [
-        "riven.core.entity.workflow",
-        "riven.core.entity.connotation",
+        "cranium.core.entity.workflow",
+        "cranium.core.entity.connotation",
     ]
 )
 @EnableJpaAuditing(

@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,28 +12,21 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { QueryProjection } from './QueryProjection';
-import {
-    QueryProjectionFromJSON,
-    QueryProjectionFromJSONTyped,
-    QueryProjectionToJSON,
-    QueryProjectionToJSONTyped,
-} from './QueryProjection';
 import type { QueryFilter } from './QueryFilter';
 import {
     QueryFilterFromJSON,
-    QueryFilterFromJSONTyped,
-    QueryFilterToJSON,
-    QueryFilterToJSONTyped,
+    QueryFilterToJSON
 } from './QueryFilter';
 import type { QueryPagination } from './QueryPagination';
 import {
     QueryPaginationFromJSON,
-    QueryPaginationFromJSONTyped,
-    QueryPaginationToJSON,
-    QueryPaginationToJSONTyped,
+    QueryPaginationToJSON
 } from './QueryPagination';
+import type { QueryProjection } from './QueryProjection';
+import {
+    QueryProjectionFromJSON,
+    QueryProjectionToJSON
+} from './QueryProjection';
 
 /**
  * Request body for querying entities with filtering, pagination, and sorting

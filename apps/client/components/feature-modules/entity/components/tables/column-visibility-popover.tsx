@@ -1,8 +1,8 @@
 'use client';
 
-import { Button } from '@riven/ui/button';
-import { Input } from '@riven/ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
+import { Button } from '@cranium/ui/button';
+import { Input } from '@cranium/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@cranium/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { IconCell } from '@/components/ui/icon/icon-cell';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';

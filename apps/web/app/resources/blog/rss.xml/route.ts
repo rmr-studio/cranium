@@ -1,6 +1,6 @@
 import { getAllPosts } from '@/lib/blog';
 
-const BASE_URL = 'https://getriven.io';
+const BASE_URL = 'https://getcranium.io';
 
 export async function GET() {
   const posts = await getAllPosts();
@@ -17,7 +17,7 @@ export async function GET() {
       <guid isPermaLink="true">${BASE_URL}/resources/blog/${post.slug}</guid>
       <description><![CDATA[${escapeCdata(post.description)}]]></description>
       <pubDate>${new Date(post.date).toUTCString()}</pubDate>
-      <author>jared@riven.software (${post.author})</author>
+      <author>jared@cranium.software (${post.author})</author>
     </item>`,
     )
     .join('');
@@ -25,7 +25,7 @@ export async function GET() {
   const feed = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Riven Blog</title>
+    <title>Cranium Blog</title>
     <link>${BASE_URL}/resources/blog</link>
     <description>Tool comparisons, operational intelligence, and cross-domain analytics insights.</description>
     <language>en-us</language>

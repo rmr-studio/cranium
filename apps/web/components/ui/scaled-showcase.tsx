@@ -1,7 +1,7 @@
 'use client';
 
 import { useContainerScale } from '@/hooks/use-container-scale';
-import { useIsMobile } from '@riven/hooks';
+import { useIsMobile } from '@cranium/hooks';
 import type { ReactNode } from 'react';
 
 const MOBILE_WIDTH = 800;

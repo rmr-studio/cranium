@@ -1,11 +1,11 @@
-package riven.core.service.catalog
+package cranium.core.service.catalog
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.enums.catalog.ManifestType
-import riven.core.repository.catalog.ManifestCatalogRepository
-import riven.core.repository.integration.IntegrationDefinitionRepository
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.repository.catalog.ManifestCatalogRepository
+import cranium.core.repository.integration.IntegrationDefinitionRepository
 
 /**
  * Syncs the `stale` flag on integration_definitions to match

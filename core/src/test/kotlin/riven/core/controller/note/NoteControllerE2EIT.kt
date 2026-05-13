@@ -1,4 +1,4 @@
-package riven.core.controller.note
+package cranium.core.controller.note
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.BeforeEach
@@ -18,14 +18,14 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
-import riven.core.configuration.properties.ApplicationConfigurationProperties
-import riven.core.enums.note.NoteSourceType
-import riven.core.exceptions.ExceptionHandler
-import riven.core.models.note.Note
-import riven.core.models.note.NoteEntityContext
-import riven.core.models.note.WorkspaceNote
-import riven.core.service.note.NoteService
-import riven.core.util.CursorPage
+import cranium.core.configuration.properties.ApplicationConfigurationProperties
+import cranium.core.enums.note.NoteSourceType
+import cranium.core.exceptions.ExceptionHandler
+import cranium.core.models.note.Note
+import cranium.core.models.note.NoteEntityContext
+import cranium.core.models.note.WorkspaceNote
+import cranium.core.service.note.NoteService
+import cranium.core.util.CursorPage
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.util.UUID

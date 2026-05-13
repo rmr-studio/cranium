@@ -1,10 +1,10 @@
 'use client';
 
-import { Badge } from '@riven/ui/badge';
-import { Label } from '@riven/ui/label';
-import { Popover, PopoverContent, PopoverAnchor } from '@riven/ui/popover';
+import { Badge } from '@cranium/ui/badge';
+import { Label } from '@cranium/ui/label';
+import { Popover, PopoverContent, PopoverAnchor } from '@cranium/ui/popover';
 import { OptionalTooltip } from '@/components/ui/optional-tooltip';
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 import { Check, CircleAlert, Plus, X } from 'lucide-react';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import type { FormWidgetProps } from '@/components/feature-modules/blocks/components/forms/form-widget.types';

@@ -1,29 +1,29 @@
-package riven.core.service.workflow.engine.coordinator
+package cranium.core.service.workflow.engine.coordinator
 
 import io.github.oshai.kotlinlogging.KLogger
 import io.temporal.activity.Activity
 import io.temporal.failure.ApplicationFailure
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClientResponseException
-import riven.core.entity.workflow.WorkflowEdgeEntity
-import riven.core.entity.workflow.execution.WorkflowExecutionNodeEntity
-import riven.core.enums.workflow.WorkflowNodeType
-import riven.core.enums.workflow.WorkflowStatus
-import riven.core.models.workflow.engine.NodeExecutionResult
-import riven.core.models.workflow.engine.state.WorkflowExecutionPhase
-import riven.core.models.workflow.engine.state.WorkflowState
-import riven.core.models.workflow.engine.state.StepOutput
-import riven.core.models.workflow.engine.state.WorkflowDataStore
-import riven.core.models.workflow.engine.state.WorkflowMetadata
-import riven.core.models.workflow.engine.error.NodeExecutionError
-import riven.core.models.workflow.engine.error.RetryAttempt
-import riven.core.models.workflow.node.NodeServiceProvider
-import riven.core.models.workflow.node.WorkflowNode
-import riven.core.models.workflow.node.config.actions.*
-import riven.core.models.workflow.node.config.controls.WorkflowConditionControlConfig
-import riven.core.repository.workflow.WorkflowExecutionNodeRepository
-import riven.core.service.workflow.engine.error.WorkflowErrorClassifier
-import riven.core.service.workflow.state.WorkflowNodeInputResolverService
+import cranium.core.entity.workflow.WorkflowEdgeEntity
+import cranium.core.entity.workflow.execution.WorkflowExecutionNodeEntity
+import cranium.core.enums.workflow.WorkflowNodeType
+import cranium.core.enums.workflow.WorkflowStatus
+import cranium.core.models.workflow.engine.NodeExecutionResult
+import cranium.core.models.workflow.engine.state.WorkflowExecutionPhase
+import cranium.core.models.workflow.engine.state.WorkflowState
+import cranium.core.models.workflow.engine.state.StepOutput
+import cranium.core.models.workflow.engine.state.WorkflowDataStore
+import cranium.core.models.workflow.engine.state.WorkflowMetadata
+import cranium.core.models.workflow.engine.error.NodeExecutionError
+import cranium.core.models.workflow.engine.error.RetryAttempt
+import cranium.core.models.workflow.node.NodeServiceProvider
+import cranium.core.models.workflow.node.WorkflowNode
+import cranium.core.models.workflow.node.config.actions.*
+import cranium.core.models.workflow.node.config.controls.WorkflowConditionControlConfig
+import cranium.core.repository.workflow.WorkflowExecutionNodeRepository
+import cranium.core.service.workflow.engine.error.WorkflowErrorClassifier
+import cranium.core.service.workflow.state.WorkflowNodeInputResolverService
 import java.time.Instant
 import java.time.ZonedDateTime
 import java.util.*
@@ -60,8 +60,8 @@ import java.util.*
 @Service
 class WorkflowCoordinationService(
     private val workflowExecutionNodeRepository: WorkflowExecutionNodeRepository,
-    private val workflowNodeRepository: riven.core.repository.workflow.WorkflowNodeRepository,
-    private val workflowEdgeRepository: riven.core.repository.workflow.WorkflowEdgeRepository,
+    private val workflowNodeRepository: cranium.core.repository.workflow.WorkflowNodeRepository,
+    private val workflowEdgeRepository: cranium.core.repository.workflow.WorkflowEdgeRepository,
     private val nodeServiceProvider: NodeServiceProvider,
     private val workflowNodeInputResolverService: WorkflowNodeInputResolverService,
     private val workflowGraphCoordinationService: WorkflowGraphCoordinationService,

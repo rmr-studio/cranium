@@ -11,11 +11,11 @@ import {
   RelationshipDefinition,
 } from '@/lib/types/entity';
 import { uuid } from '@/lib/util/utils';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@riven/ui/tooltip';
-import { Button } from '@riven/ui/button';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@riven/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
-import { cn } from '@riven/utils';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@cranium/ui/tooltip';
+import { Button } from '@cranium/ui/button';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@cranium/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@cranium/ui/popover';
+import { cn } from '@cranium/utils';
 import { Check, ChevronDown, EyeOff, Minus, X } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { FC, useEffect, useMemo, useState } from 'react';

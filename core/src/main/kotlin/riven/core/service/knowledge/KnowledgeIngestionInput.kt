@@ -1,8 +1,8 @@
-package riven.core.service.knowledge
+package cranium.core.service.knowledge
 
-import riven.core.enums.entity.RelationshipTargetKind
-import riven.core.enums.entity.SystemRelationshipType
-import riven.core.enums.integration.SourceType
+import cranium.core.enums.entity.RelationshipTargetKind
+import cranium.core.enums.entity.SystemRelationshipType
+import cranium.core.enums.integration.SourceType
 import java.util.UUID
 
 /**

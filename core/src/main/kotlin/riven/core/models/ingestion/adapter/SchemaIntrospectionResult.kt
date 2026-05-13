@@ -1,4 +1,4 @@
-package riven.core.models.ingestion.adapter
+package cranium.core.models.ingestion.adapter
 
 /**
  * Result of an adapter schema introspection call.
@@ -31,7 +31,7 @@ data class TableSchema(
  *
  * `typeLiteral` is the source-system type string (e.g. `"bigint"`, `"text"`,
  * `"timestamp with time zone"` for Postgres). The mapper layer (Phase 3)
- * translates this into a Riven `SchemaType`.
+ * translates this into a Cranium `SchemaType`.
  *
  * @property name Source-system column name.
  * @property typeLiteral Source-system-native type string, verbatim.

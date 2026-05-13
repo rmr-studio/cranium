@@ -1,4 +1,4 @@
-package riven.core.exceptions
+package cranium.core.exceptions
 
 class NotFoundException(message: String) : RuntimeException(message)
 class ConflictException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)

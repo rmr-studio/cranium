@@ -11,7 +11,7 @@ import { useIntegrations } from '@/components/feature-modules/integrations/hooks
 import { useSidePanelActions } from '@/components/ui/sidebar/context/side-panel-provider';
 import { ConnectionStatus } from '@/lib/types/integration';
 import { cn } from '@/lib/util/utils';
-import { Input } from '@riven/ui/input';
+import { Input } from '@cranium/ui/input';
 import { toast } from 'sonner';
 
 const CATEGORY_TABS = [
@@ -76,7 +76,7 @@ export function IntegrationCatalog() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Integrations</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Connect your tools to sync data into Riven.
+          Connect your tools to sync data into Cranium.
         </p>
       </div>
 

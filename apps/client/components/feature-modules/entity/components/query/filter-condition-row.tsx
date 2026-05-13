@@ -1,7 +1,7 @@
 'use client';
 
 import { X } from 'lucide-react';
-import { Button } from '@riven/ui/button';
+import { Button } from '@cranium/ui/button';
 import { motion } from 'framer-motion';
 import type { EntityType, RelationshipDefinition } from '@/lib/types/entity';
 import type { FilterOperator } from '@/lib/types/models/FilterOperator';

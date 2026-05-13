@@ -2,10 +2,10 @@
 
 ## Project Structure & Module Organisation
 
-This service is a single Spring Boot module: domain and application logic live in `src/main/kotlin/riven`, with packages
+This service is a single Spring Boot module: domain and application logic live in `src/main/kotlin/cranium`, with packages
 mirroring feature boundaries (auth, storage, pdf, etc.). Shared config and resources sit in `src/main/resources`;
 database bootstrap SQL lives in `src/main/resources/db/schema.sql` and feeds Postgres on first run. Place unit fixtures
-under `src/test/kotlin/riven`, mirroring the production package you cover; Gradle’s default `build/` output and wrapper
+under `src/test/kotlin/cranium`, mirroring the production package you cover; Gradle’s default `build/` output and wrapper
 files should remain untouched by hand.
 
 ## Build, Test, and Development Commands
@@ -24,7 +24,7 @@ semantics over optional wrappers.
 
 ## Testing Guidelines
 
-Tests live beside their targets in `src/test/kotlin/riven` and should be suffixed with `Test` (for example,
+Tests live beside their targets in `src/test/kotlin/cranium` and should be suffixed with `Test` (for example,
 `InvoiceControllerTest`). Leverage Spring Boot’s test slices and Mockito for mocking external integrations; use H2 to
 exercise JPA boundaries without external dependencies. Strive for high coverage on service and controller layers, and
 add regression tests for every reported defect before the fix lands.

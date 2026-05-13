@@ -68,7 +68,7 @@ export const customerScenario: ShowcaseScenario = {
           <EntityChip icon={<BrandStripe size={12} />} label="pi_3QxM" />
         </div>,
         <span key="e" className="truncate text-sm text-muted-foreground">
-          sarah.chen@rivendor.io
+          sarah.chen@craniumdor.io
         </span>,
       ],
     },

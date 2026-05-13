@@ -5,7 +5,7 @@ import { get } from "lodash";
 import type { BlockType } from "@/lib/types/block";
 import { useBlockEdit } from "../../context/block-edit-provider";
 import { formWidgetRegistry } from "./form-widget.registry";
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 
 interface BlockFormProps {
   blockId: string;

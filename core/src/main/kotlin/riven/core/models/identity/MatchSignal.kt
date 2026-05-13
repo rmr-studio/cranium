@@ -1,10 +1,10 @@
-package riven.core.models.identity
+package cranium.core.models.identity
 
-import riven.core.enums.identity.MatchSignalType
-import riven.core.enums.identity.MatchSource
+import cranium.core.enums.identity.MatchSignalType
+import cranium.core.enums.identity.MatchSource
 
 /**
- * Per-signal detail stored in the JSONB breakdown on [riven.core.entity.identity.MatchSuggestionEntity].
+ * Per-signal detail stored in the JSONB breakdown on [cranium.core.entity.identity.MatchSuggestionEntity].
  *
  * Captures both sides of the comparison along with the raw similarity and the
  * weight that was applied for this signal type.

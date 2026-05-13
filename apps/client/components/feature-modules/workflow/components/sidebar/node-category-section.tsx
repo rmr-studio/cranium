@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 import {
     Collapsible,
     CollapsibleContent,

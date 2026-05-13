@@ -1,6 +1,6 @@
-package riven.core.models.integration.mapping
+package cranium.core.models.integration.mapping
 
-import riven.core.enums.common.validation.SchemaType
+import cranium.core.enums.common.validation.SchemaType
 
 /**
  * A fully resolved field mapping combining the source path, transform strategy,

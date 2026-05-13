@@ -1,4 +1,4 @@
-package riven.core.models.workflow.node.config.validation
+package cranium.core.models.workflow.node.config.validation
 
 /**
  * Field-level validation error for workflow node configurations.

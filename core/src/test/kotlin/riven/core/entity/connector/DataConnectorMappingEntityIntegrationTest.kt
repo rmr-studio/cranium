@@ -1,4 +1,4 @@
-package riven.core.entity.connector
+package cranium.core.entity.connector
 
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
@@ -29,12 +29,12 @@ import org.springframework.transaction.annotation.Transactional
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
-import riven.core.repository.connector.DataConnectorConnectionRepository
-import riven.core.repository.connector.DataConnectorFieldMappingRepository
-import riven.core.repository.connector.DataConnectorTableMappingRepository
-import riven.core.service.util.factory.DataConnectorFieldMappingEntityFactory
-import riven.core.service.util.factory.DataConnectorTableMappingEntityFactory
-import riven.core.service.util.factory.dataconnector.DataConnectorConnectionEntityFactory
+import cranium.core.repository.connector.DataConnectorConnectionRepository
+import cranium.core.repository.connector.DataConnectorFieldMappingRepository
+import cranium.core.repository.connector.DataConnectorTableMappingRepository
+import cranium.core.service.util.factory.DataConnectorFieldMappingEntityFactory
+import cranium.core.service.util.factory.DataConnectorTableMappingEntityFactory
+import cranium.core.service.util.factory.dataconnector.DataConnectorConnectionEntityFactory
 import java.time.ZonedDateTime
 import java.time.temporal.TemporalAccessor
 import java.util.Optional
@@ -51,7 +51,7 @@ import java.util.UUID
  *    (workspace, connection, table, column)
  *  - FK ON DELETE CASCADE from mappings to data_connector_connections
  *
- * Scanning limited to `riven.core.entity.connector` to avoid dragging in
+ * Scanning limited to `cranium.core.entity.connector` to avoid dragging in
  * the full entity graph (Phase 2 lesson). The `workspaces` table needed for
  * the Phase 2 connection FK is hand-created via JdbcTemplate.
  */
@@ -71,8 +71,8 @@ import java.util.UUID
         "io.temporal.spring.boot.autoconfigure.TestServerAutoConfiguration",
     ],
 )
-@EnableJpaRepositories(basePackages = ["riven.core.repository.connector"])
-@EntityScan("riven.core.entity.connector")
+@EnableJpaRepositories(basePackages = ["cranium.core.repository.connector"])
+@EntityScan("cranium.core.entity.connector")
 @EnableJpaAuditing(
     auditorAwareRef = "dataConnectorMappingAuditorProvider",
     dateTimeProviderRef = "dataConnectorMappingDateTimeProvider",
@@ -102,7 +102,7 @@ class DataConnectorMappingEntityIntegrationTest {
         val postgres: PostgreSQLContainer = PostgreSQLContainer(
             DockerImageName.parse("pgvector/pgvector:pg16").asCompatibleSubstituteFor("postgres"),
         )
-            .withDatabaseName("riven_test")
+            .withDatabaseName("cranium_test")
             .withUsername("test")
             .withPassword("test")
 
@@ -136,7 +136,7 @@ class DataConnectorMappingEntityIntegrationTest {
 
     /**
      * Hibernate's `ddl-auto: create-drop` only generates tables for scanned
-     * entities. We scope the scan to `riven.core.entity.connector`, which
+     * entities. We scope the scan to `cranium.core.entity.connector`, which
      * transitively drags in the Phase 2 [DataConnectorConnectionEntity] —
      * that entity FKs to `workspaces`, so we hand-create it.
      */

@@ -1,9 +1,9 @@
-package riven.core.entity.entity
+package cranium.core.entity.entity
 
 import jakarta.persistence.*
-import riven.core.entity.util.AuditableEntity
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.models.entity.RelationshipTargetRule
+import cranium.core.entity.util.AuditableEntity
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.models.entity.RelationshipTargetRule
 import java.util.*
 
 /**

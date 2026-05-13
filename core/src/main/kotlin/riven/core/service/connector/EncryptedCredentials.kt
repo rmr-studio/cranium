@@ -1,4 +1,4 @@
-package riven.core.service.connector
+package cranium.core.service.connector
 
 /**
  * Encrypted-credential value class: the AEAD ciphertext (including GCM auth tag),

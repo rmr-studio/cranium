@@ -1,4 +1,4 @@
-package riven.core.service.entity.query
+package cranium.core.service.entity.query
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
@@ -10,22 +10,22 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Service
-import riven.core.configuration.properties.QueryConfigurationProperties
-import riven.core.exceptions.NotFoundException
-import riven.core.exceptions.query.InvalidAttributeReferenceException
-import riven.core.exceptions.query.QueryExecutionException
-import riven.core.exceptions.query.QueryValidationException
-import riven.core.enums.entity.query.QueryDirection
-import riven.core.models.entity.RelationshipDefinition
-import riven.core.models.entity.query.EntityQuery
-import riven.core.models.entity.query.EntityQueryResult
-import riven.core.models.entity.query.QueryProjection
-import riven.core.models.entity.query.filter.QueryFilter
-import riven.core.models.entity.query.pagination.QueryPagination
-import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.service.entity.EntityAttributeService
-import riven.core.service.entity.type.EntityTypeRelationshipService
+import cranium.core.configuration.properties.QueryConfigurationProperties
+import cranium.core.exceptions.NotFoundException
+import cranium.core.exceptions.query.InvalidAttributeReferenceException
+import cranium.core.exceptions.query.QueryExecutionException
+import cranium.core.exceptions.query.QueryValidationException
+import cranium.core.enums.entity.query.QueryDirection
+import cranium.core.models.entity.RelationshipDefinition
+import cranium.core.models.entity.query.EntityQuery
+import cranium.core.models.entity.query.EntityQueryResult
+import cranium.core.models.entity.query.QueryProjection
+import cranium.core.models.entity.query.filter.QueryFilter
+import cranium.core.models.entity.query.pagination.QueryPagination
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.service.entity.EntityAttributeService
+import cranium.core.service.entity.type.EntityTypeRelationshipService
 import java.util.*
 import javax.sql.DataSource
 
@@ -36,7 +36,7 @@ private val logger = KotlinLogging.logger {}
  *
  * Takes an [EntityQuery] with optional filter criteria, validates all filter references
  * against the entity type schema, executes parameterized SQL via [NamedParameterJdbcTemplate],
- * and returns an [EntityQueryResult] with typed [riven.core.models.entity.Entity] domain models
+ * and returns an [EntityQueryResult] with typed [cranium.core.models.entity.Entity] domain models
  * preserving pagination order.
  *
  * @property entityTypeRepository Repository for loading entity type schemas
@@ -235,7 +235,7 @@ class EntityQueryService(
     ) {
         if (filter == null) return
 
-        val errors = mutableListOf<riven.core.exceptions.query.QueryFilterException>()
+        val errors = mutableListOf<cranium.core.exceptions.query.QueryFilterException>()
 
         // Part A: Attribute ID validation
         walkFilterForAttributes(filter, attributeIds, errors)
@@ -262,7 +262,7 @@ class EntityQueryService(
     private fun walkFilterForAttributes(
         filter: QueryFilter,
         attributeIds: Set<UUID>,
-        errors: MutableList<riven.core.exceptions.query.QueryFilterException>,
+        errors: MutableList<cranium.core.exceptions.query.QueryFilterException>,
     ) {
         when (filter) {
             is QueryFilter.Attribute -> {

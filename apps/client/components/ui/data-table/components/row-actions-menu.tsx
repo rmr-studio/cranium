@@ -1,9 +1,9 @@
 'use client';
 
 import { MoreVertical } from 'lucide-react';
-import { Button } from '@riven/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@riven/ui/dropdown-menu';
-import { cn } from '@riven/utils';
+import { Button } from '@cranium/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@cranium/ui/dropdown-menu';
+import { cn } from '@cranium/utils';
 import type { RowActionsConfig } from '../data-table.types';
 
 interface RowActionsMenuProps<TData> {

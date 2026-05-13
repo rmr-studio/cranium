@@ -16,11 +16,11 @@ import {
   RelationshipDefinition,
 } from '@/lib/types/entity';
 import { debounce } from '@/lib/util/debounce.util';
-import type { ClassNameProps } from '@riven/utils';
-import { cn } from '@riven/utils';
+import type { ClassNameProps } from '@cranium/utils';
+import { cn } from '@cranium/utils';
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Button } from '@riven/ui/button';
+import { Button } from '@cranium/ui/button';
 import { Row, SortingState } from '@tanstack/react-table';
 import { MoreHorizontal, Plus, StickyNote } from 'lucide-react';
 import dynamic from 'next/dynamic';

@@ -1,6 +1,6 @@
 'use client';
 
-import { useIsMobile } from '@riven/hooks';
+import { useIsMobile } from '@cranium/hooks';
 import { useEffect, useRef, useState } from 'react';
 
 interface UseShaderVisibilityResult {

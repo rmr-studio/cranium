@@ -1,10 +1,10 @@
-package riven.core.service.entity.query
+package cranium.core.service.entity.query
 
 import org.springframework.stereotype.Component
-import riven.core.enums.entity.query.QueryDirection
-import riven.core.models.entity.query.filter.QueryFilter
-import riven.core.models.entity.query.filter.RelationshipFilter
-import riven.core.models.entity.query.filter.TypeBranch
+import cranium.core.enums.entity.query.QueryDirection
+import cranium.core.models.entity.query.filter.QueryFilter
+import cranium.core.models.entity.query.filter.RelationshipFilter
+import cranium.core.models.entity.query.filter.TypeBranch
 import java.util.*
 
 /**

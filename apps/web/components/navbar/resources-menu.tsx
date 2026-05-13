@@ -1,7 +1,7 @@
 import {
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuTrigger,
+    NavigationMenuContent,
+    NavigationMenuItem,
+    NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu';
 import { BookOpen, FileQuestionMark, FileText } from 'lucide-react';
 import Link from 'next/link';
@@ -46,7 +46,7 @@ export function ResourcesMenu() {
             <div className="h-full w-full">
               <DropdownListItem
                 label="FAQ"
-                description="Find answers to common questions about Riven"
+                description="Find answers to common questions about Cranium"
                 href="/resources/faq"
                 icon={FileQuestionMark}
               />

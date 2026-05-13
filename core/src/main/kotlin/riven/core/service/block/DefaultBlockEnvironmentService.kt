@@ -1,25 +1,25 @@
-package riven.core.service.block
+package cranium.core.service.block
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.block.BlockTreeLayoutEntity
-import riven.core.entity.block.BlockTypeEntity
-import riven.core.enums.block.layout.RenderType
-import riven.core.enums.block.node.NodeType
-import riven.core.enums.block.node.SystemBlockTypes
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.models.block.layout.RenderContent
-import riven.core.models.block.layout.TreeLayout
-import riven.core.models.block.layout.Widget
-import riven.core.models.block.layout.options.BreakpointConfig
-import riven.core.models.block.layout.options.ColumnOptions
-import riven.core.models.block.layout.options.DraggableOptions
-import riven.core.models.block.layout.options.ResizableOptions
-import riven.core.models.block.metadata.EntityReferenceMetadata
-import riven.core.models.block.metadata.ReferenceItem
-import riven.core.models.block.tree.BlockTreeLayout
-import riven.core.models.request.block.CreateBlockRequest
-import riven.core.repository.block.BlockTreeLayoutRepository
+import cranium.core.entity.block.BlockTreeLayoutEntity
+import cranium.core.entity.block.BlockTypeEntity
+import cranium.core.enums.block.layout.RenderType
+import cranium.core.enums.block.node.NodeType
+import cranium.core.enums.block.node.SystemBlockTypes
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.models.block.layout.RenderContent
+import cranium.core.models.block.layout.TreeLayout
+import cranium.core.models.block.layout.Widget
+import cranium.core.models.block.layout.options.BreakpointConfig
+import cranium.core.models.block.layout.options.ColumnOptions
+import cranium.core.models.block.layout.options.DraggableOptions
+import cranium.core.models.block.layout.options.ResizableOptions
+import cranium.core.models.block.metadata.EntityReferenceMetadata
+import cranium.core.models.block.metadata.ReferenceItem
+import cranium.core.models.block.tree.BlockTreeLayout
+import cranium.core.models.request.block.CreateBlockRequest
+import cranium.core.repository.block.BlockTreeLayoutRepository
 import java.util.*
 
 /**

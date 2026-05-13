@@ -1,4 +1,4 @@
-package riven.core.util
+package cranium.core.util
 
 import java.time.ZonedDateTime
 import java.util.Base64

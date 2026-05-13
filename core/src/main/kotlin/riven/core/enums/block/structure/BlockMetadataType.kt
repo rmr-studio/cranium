@@ -1,4 +1,4 @@
-package riven.core.enums.block.structure
+package cranium.core.enums.block.structure
 
 // ----- Discriminator enum with wire values -----
 enum class BlockMetadataType {

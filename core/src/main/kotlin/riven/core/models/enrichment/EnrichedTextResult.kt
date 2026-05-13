@@ -1,4 +1,4 @@
-package riven.core.models.enrichment
+package cranium.core.models.enrichment
 
 /**
  * Result of the enriched text construction step in the embedding pipeline.

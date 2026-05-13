@@ -1,4 +1,4 @@
-package riven.core.service.connector.mapping
+package cranium.core.service.connector.mapping
 
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.module.kotlin.readValue
@@ -7,31 +7,31 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.connector.DataConnectorFieldMappingEntity
-import riven.core.entity.connector.DataConnectorTableMappingEntity
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.models.connector.CredentialPayload
-import riven.core.models.connector.CursorIndexWarning
-import riven.core.models.connector.response.ColumnSchemaResponse
-import riven.core.models.connector.response.DataConnectorSchemaResponse
-import riven.core.models.connector.response.DriftStatus
-import riven.core.models.connector.response.ExistingMappingRef
-import riven.core.models.connector.response.FkTargetRef
-import riven.core.models.connector.response.TableSchemaResponse
-import riven.core.models.ingestion.adapter.ColumnSchema
-import riven.core.models.ingestion.adapter.TableSchema
-import riven.core.repository.connector.DataConnectorConnectionRepository
-import riven.core.repository.connector.DataConnectorFieldMappingRepository
-import riven.core.repository.connector.DataConnectorTableMappingRepository
-import riven.core.service.connector.CredentialEncryptionService
-import riven.core.service.connector.EncryptedCredentials
-import riven.core.service.connector.postgres.ForeignKeyMetadata
-import riven.core.service.connector.postgres.PgTypeMapper
-import riven.core.service.connector.postgres.PostgresAdapter
-import riven.core.service.connector.postgres.SchemaHasher
-import riven.core.service.ingestion.adapter.PostgresCallContext
-import riven.core.util.ServiceUtil.findOrThrow
+import cranium.core.entity.connector.DataConnectorFieldMappingEntity
+import cranium.core.entity.connector.DataConnectorTableMappingEntity
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.models.connector.CredentialPayload
+import cranium.core.models.connector.CursorIndexWarning
+import cranium.core.models.connector.response.ColumnSchemaResponse
+import cranium.core.models.connector.response.DataConnectorSchemaResponse
+import cranium.core.models.connector.response.DriftStatus
+import cranium.core.models.connector.response.ExistingMappingRef
+import cranium.core.models.connector.response.FkTargetRef
+import cranium.core.models.connector.response.TableSchemaResponse
+import cranium.core.models.ingestion.adapter.ColumnSchema
+import cranium.core.models.ingestion.adapter.TableSchema
+import cranium.core.repository.connector.DataConnectorConnectionRepository
+import cranium.core.repository.connector.DataConnectorFieldMappingRepository
+import cranium.core.repository.connector.DataConnectorTableMappingRepository
+import cranium.core.service.connector.CredentialEncryptionService
+import cranium.core.service.connector.EncryptedCredentials
+import cranium.core.service.connector.postgres.ForeignKeyMetadata
+import cranium.core.service.connector.postgres.PgTypeMapper
+import cranium.core.service.connector.postgres.PostgresAdapter
+import cranium.core.service.connector.postgres.SchemaHasher
+import cranium.core.service.ingestion.adapter.PostgresCallContext
+import cranium.core.util.ServiceUtil.findOrThrow
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -46,7 +46,7 @@ import java.util.UUID
  * each table mapping's `schemaHash` + `lastIntrospectedAt` are also updated.
  */
 @Service
-@ConditionalOnProperty(prefix = "riven.connector", name = ["enabled"], havingValue = "true")
+@ConditionalOnProperty(prefix = "cranium.connector", name = ["enabled"], havingValue = "true")
 class DataConnectorSchemaInferenceService(
     private val postgresAdapter: PostgresAdapter,
     private val encryptionService: CredentialEncryptionService,

@@ -1,6 +1,6 @@
 # Blog Publishing Guide
 
-How to write, format, and publish blog posts on getriven.io.
+How to write, format, and publish blog posts on getcranium.io.
 
 ## Quick Start
 
@@ -47,31 +47,31 @@ featured: false
 
 ### Required Fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `title` | string | Post title. Target keyword should be in the title. Under 60 chars for SEO. |
-| `description` | string | Meta description. 150-160 chars. Appears in search results and OG previews. |
-| `date` | string | Publish date in `YYYY-MM-DD` format. |
-| `author` | string | Author name. |
-| `category` | string | One of the valid categories (see below). |
-| `tags` | string[] | Array of lowercase tags for related posts and search. |
+| Field         | Type     | Description                                                                 |
+| ------------- | -------- | --------------------------------------------------------------------------- |
+| `title`       | string   | Post title. Target keyword should be in the title. Under 60 chars for SEO.  |
+| `description` | string   | Meta description. 150-160 chars. Appears in search results and OG previews. |
+| `date`        | string   | Publish date in `YYYY-MM-DD` format.                                        |
+| `author`      | string   | Author name.                                                                |
+| `category`    | string   | One of the valid categories (see below).                                    |
+| `tags`        | string[] | Array of lowercase tags for related posts and search.                       |
 
 ### Optional Fields
 
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `updated` | string | same as `date` | Last updated date. Shows "Last updated" on page if different from `date`. Visible update dates get 1.8x more AI citations. |
-| `coverImage` | string | none | Path to cover image in Cloudflare CDN (relative to CDN root, e.g., `images/blog/post-name.webp`). Used in the featured hero on the blog index. |
-| `featured` | boolean | `false` | Set to `true` to pin this post as the hero on the blog index. Only one post should be featured at a time. If none is featured, the most recent post becomes the hero. |
+| Field        | Type    | Default        | Description                                                                                                                                                           |
+| ------------ | ------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `updated`    | string  | same as `date` | Last updated date. Shows "Last updated" on page if different from `date`. Visible update dates get 1.8x more AI citations.                                            |
+| `coverImage` | string  | none           | Path to cover image in Cloudflare CDN (relative to CDN root, e.g., `images/blog/post-name.webp`). Used in the featured hero on the blog index.                        |
+| `featured`   | boolean | `false`        | Set to `true` to pin this post as the hero on the blog index. Only one post should be featured at a time. If none is featured, the most recent post becomes the hero. |
 
 ### Valid Categories
 
-| Category Slug | Display Label | Use For |
-|--------------|---------------|---------|
-| `tool-comparison` | Tool Comparisons | "[Tool A] vs [Tool B]" posts comparing tools in categories Riven integrates with |
-| `operational-intelligence` | Operational Intelligence | "How to [do X] across [multiple tools]" operational content |
-| `category-definition` | Category Definitions | "What is [concept]?" definitional content that establishes vocabulary |
-| `changelog` | Changelog | Product updates, feature releases, version notes |
+| Category Slug              | Display Label            | Use For                                                                            |
+| -------------------------- | ------------------------ | ---------------------------------------------------------------------------------- |
+| `tool-comparison`          | Tool Comparisons         | "[Tool A] vs [Tool B]" posts comparing tools in categories Cranium integrates with |
+| `operational-intelligence` | Operational Intelligence | "How to [do X] across [multiple tools]" operational content                        |
+| `category-definition`      | Category Definitions     | "What is [concept]?" definitional content that establishes vocabulary              |
+| `changelog`                | Changelog                | Product updates, feature releases, version notes                                   |
 
 ## Post Structure
 
@@ -92,7 +92,7 @@ Follow this structure for every post. Optimized for human readability and AI ext
    Each section: answer first, then supporting detail.
 
 5. CROSS-DOMAIN CONNECTION (one section)
-   Where Riven fits — how these tools connect to the broader stack.
+   Where Cranium fits — how these tools connect to the broader stack.
    Not a sales pitch. A genuine observation about data fragmentation.
 
 6. FAQ SECTION (## Frequently Asked Questions)
@@ -110,6 +110,7 @@ MDX is Markdown with JSX component support. Standard Markdown works — tables, 
 ### Headings
 
 Use `##` (H2) for main sections and `###` (H3) for sub-sections. These automatically get:
+
 - Anchor links (hover to see the link icon)
 - Table of contents entries (for posts with multiple H2s)
 - Heading IDs for deep linking
@@ -121,9 +122,9 @@ Don't use `#` (H1) — the post title from frontmatter is the H1.
 Standard Markdown tables render with styled headers and borders:
 
 ```markdown
-| Feature | Tool A | Tool B |
-|---------|--------|--------|
-| Pricing | $39/mo | $19/mo |
+| Feature | Tool A | Tool B  |
+| ------- | ------ | ------- |
+| Pricing | $39/mo | $19/mo  |
 | API     | REST   | GraphQL |
 ```
 
@@ -186,7 +187,7 @@ Before publishing:
 - [ ] H2/H3 headings are phrased as questions readers ask
 - [ ] Comparison table present (for tool comparison posts)
 - [ ] FAQ section with 3-5 questions and concise answers
-- [ ] Riven mention limited to one clearly separated section
+- [ ] Cranium mention limited to one clearly separated section
 - [ ] No fluff intro — opens with the answer
 - [ ] `updated` date set (visible update dates increase AI citations)
 - [ ] Sources cited where applicable
@@ -213,7 +214,7 @@ Posts are organized into topic clusters via categories. Each category has a page
 
 ### Content Pillars (from strategy docs)
 
-1. **Tool Comparisons** — "[Tool A] vs [Tool B]" for tools Riven integrates with. Target high-intent search queries. Include a "cross-domain connection" section.
+1. **Tool Comparisons** — "[Tool A] vs [Tool B]" for tools Cranium integrates with. Target high-intent search queries. Include a "cross-domain connection" section.
 2. **Operational Intelligence** — "How to [task] across [tools]". Address cross-tool visibility problems.
 3. **Category Definitions** — "What is [concept]?" Define the vocabulary and mental models for cross-domain intelligence.
 4. **Changelog** — Product updates and feature releases. Shorter format, version-focused.

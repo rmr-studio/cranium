@@ -1,14 +1,14 @@
-package riven.core.models.core
+package cranium.core.models.core
 
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.entity.EntityTypeRole
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.models.catalog.NormalizedRelationship
-import riven.core.models.catalog.ResolvedEntityType
-import riven.core.models.catalog.ResolvedSemantics
-import riven.core.models.common.validation.DefaultValue
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.entity.EntityTypeRole
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.models.catalog.NormalizedRelationship
+import cranium.core.models.catalog.ResolvedEntityType
+import cranium.core.models.catalog.ResolvedSemantics
+import cranium.core.models.common.validation.DefaultValue
 
 /**
  * Abstract base for all core lifecycle model definitions.
@@ -35,10 +35,10 @@ abstract class CoreModelDefinition(
     val semanticGroup: SemanticGroup = SemanticGroup.UNCATEGORIZED,
     val lifecycleDomain: LifecycleDomain = LifecycleDomain.UNCATEGORIZED,
     val identifierKey: String,
-    val attributes: Map<String, riven.core.models.core.CoreModelAttribute>,
-    val relationships: List<riven.core.models.core.CoreModelRelationship> = emptyList(),
-    val projectionAccepts: List<riven.core.models.core.ProjectionAcceptRule> = emptyList(),
-    val aggregations: List<riven.core.models.core.AggregationColumnDefinition> = emptyList(),
+    val attributes: Map<String, cranium.core.models.core.CoreModelAttribute>,
+    val relationships: List<cranium.core.models.core.CoreModelRelationship> = emptyList(),
+    val projectionAccepts: List<cranium.core.models.core.ProjectionAcceptRule> = emptyList(),
+    val aggregations: List<cranium.core.models.core.AggregationColumnDefinition> = emptyList(),
     val semanticDefinition: String? = null,
     val semanticTags: List<String> = emptyList(),
 ) {
@@ -73,7 +73,7 @@ abstract class CoreModelDefinition(
         return relationships.map { it.toNormalized() }
     }
 
-    private fun buildAttributeMap(attr: riven.core.models.core.CoreModelAttribute): Map<String, Any> {
+    private fun buildAttributeMap(attr: cranium.core.models.core.CoreModelAttribute): Map<String, Any> {
         val map = mutableMapOf<String, Any>(
             "key" to attr.schemaType.name,
             "type" to attr.dataType.jsonValue,

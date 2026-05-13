@@ -1,23 +1,23 @@
-package riven.core.models.core.models.dtc.commerce
+package cranium.core.models.core.models.dtc.commerce
 
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.DataType
-import riven.core.enums.entity.EntityTypeRole
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.models.common.validation.SchemaOptions
-import riven.core.models.core.AttributeSemantics
-import riven.core.models.core.CoreModelAttribute
-import riven.core.models.core.ProjectionAcceptRule
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.DataType
+import cranium.core.enums.entity.EntityTypeRole
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.models.common.validation.SchemaOptions
+import cranium.core.models.core.AttributeSemantics
+import cranium.core.models.core.CoreModelAttribute
+import cranium.core.models.core.ProjectionAcceptRule
 
 /**
  * Return — a product return with a classified reason. Source for return-rate and
  * return-cohort analysis. Reason is classified via a taxonomy (set at ingestion, optionally LLM-backed).
  */
-object ReturnModel : riven.core.models.core.CoreModelDefinition(
+object ReturnModel : cranium.core.models.core.CoreModelDefinition(
     key = "return",
     displayNameSingular = "Return",
     displayNamePlural = "Returns",

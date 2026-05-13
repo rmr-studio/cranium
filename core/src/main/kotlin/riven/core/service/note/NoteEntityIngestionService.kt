@@ -1,20 +1,20 @@
-package riven.core.service.note
+package cranium.core.service.note
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
-import riven.core.entity.entity.EntityEntity
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.enums.entity.SystemRelationshipType
-import riven.core.enums.integration.SourceType
-import riven.core.enums.knowledge.KnowledgeEntityTypeKey
-import riven.core.repository.entity.EntityRelationshipRepository
-import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.service.entity.EntityIngestionService
-import riven.core.service.entity.type.EntityTypeRelationshipService
-import riven.core.service.knowledge.AbstractKnowledgeEntityIngestionService
-import riven.core.service.knowledge.KnowledgeIngestionInput
-import riven.core.service.knowledge.KnowledgeRelationshipBatch
+import cranium.core.entity.entity.EntityEntity
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.enums.entity.SystemRelationshipType
+import cranium.core.enums.integration.SourceType
+import cranium.core.enums.knowledge.KnowledgeEntityTypeKey
+import cranium.core.repository.entity.EntityRelationshipRepository
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.service.entity.EntityIngestionService
+import cranium.core.service.entity.type.EntityTypeRelationshipService
+import cranium.core.service.knowledge.AbstractKnowledgeEntityIngestionService
+import cranium.core.service.knowledge.KnowledgeIngestionInput
+import cranium.core.service.knowledge.KnowledgeRelationshipBatch
 import java.util.UUID
 
 /**

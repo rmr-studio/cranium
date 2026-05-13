@@ -1,4 +1,4 @@
-package riven.core.entity.notification
+package cranium.core.entity.notification
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity

@@ -1,10 +1,15 @@
 ---
 tags:
-  - adr/accepted
+  - adr/superseded
   - architecture/decision
 Created: 2026-03-16
+Updated: 2026-05-13
+Superseded By: "[[ADR-018 One pages Table Family for Synthesis Storage]]"
 ---
+
 # ADR-008: Integration-Based Entity Types as Readonly Materialized Views
+
+> **Superseded by the 2026-05 architecture pivot.** (Note: there are two ADRs numbered 008 in this folder — this one and "ADR-008 Temporal for Integration Sync Orchestration"; renumbering is deferred to avoid breaking links.) The "integration entity types as readonly materialized views, separate from user types" model is gone — there are no user-creatable entity types and no integration-sourced entity types after the pivot. **Everything is a `Page`** of one of 7 fixed kinds; the Layer-0 raw artifacts (PRs, commits, files, ADR files, later Slack/Notion) live in `source_entities`, and the synthesis pages are the LLM-maintained wiki articles over them. The two-layer split (raw source vs synthesized view) survives; the readonly-materialized-view framing does not. See [[architecture-pivot]] §Reuse / Rework / Replace / Delete, [[ADR-018 One pages Table Family for Synthesis Storage]], and [[ADR-014 Deterministic Source-Entity Creation plus Batched LLM Synthesis]].
 
 ---
 
@@ -30,12 +35,12 @@ Integration-based entity types are **readonly, protected materialized views** of
 
 ### Core properties of integration entity types
 
-| Property | Value | Enforced by |
-|----------|-------|-------------|
-| `sourceType` | `SourceType.INTEGRATION` | Set during materialization, immutable |
-| `sourceIntegrationId` | UUID of the `IntegrationDefinitionEntity` | Set during materialization, immutable |
-| `readonly` | `true` | Blocks schema modifications in `EntityTypeService` |
-| `protected` | `true` | Blocks deletion by users |
+| Property              | Value                                     | Enforced by                                        |
+| --------------------- | ----------------------------------------- | -------------------------------------------------- |
+| `sourceType`          | `SourceType.INTEGRATION`                  | Set during materialization, immutable              |
+| `sourceIntegrationId` | UUID of the `IntegrationDefinitionEntity` | Set during materialization, immutable              |
+| `readonly`            | `true`                                    | Blocks schema modifications in `EntityTypeService` |
+| `protected`           | `true`                                    | Blocks deletion by users                           |
 
 ### What readonly means in practice
 
@@ -47,15 +52,15 @@ Integration-based entity types are **readonly, protected materialized views** of
 
 Entity instances created by integration sync carry source metadata directly on `EntityEntity`:
 
-| Field | Purpose |
-|-------|---------|
-| `sourceType` | `INTEGRATION` — discriminates synced records from user-created ones |
-| `sourceIntegrationId` | Which integration synced this entity |
-| `sourceExternalId` | Record ID in the external system (e.g., HubSpot contact ID) |
-| `sourceUrl` | URL to view the record in the source system |
-| `firstSyncedAt` | When this entity was first synced |
-| `lastSyncedAt` | When this entity was last updated from the integration |
-| `syncVersion` | Monotonic version counter for deduplication |
+| Field                 | Purpose                                                             |
+| --------------------- | ------------------------------------------------------------------- |
+| `sourceType`          | `INTEGRATION` — discriminates synced records from user-created ones |
+| `sourceIntegrationId` | Which integration synced this entity                                |
+| `sourceExternalId`    | Record ID in the external system (e.g., HubSpot contact ID)         |
+| `sourceUrl`           | URL to view the record in the source system                         |
+| `firstSyncedAt`       | When this entity was first synced                                   |
+| `lastSyncedAt`        | When this entity was last updated from the integration              |
+| `syncVersion`         | Monotonic version counter for deduplication                         |
 
 These fields exist on the entity row itself — no separate provenance table is needed because there is no attribute-level tracking. The `SourceType` enum (`USER_CREATED`, `INTEGRATION`, `IMPORT`, `API`, `WORKFLOW`) discriminates origin across the system.
 
@@ -133,7 +138,7 @@ Keep physical separation but create database views that join integration entitie
 
 - The `SourceType` enum (`USER_CREATED`, `INTEGRATION`, `IMPORT`, `API`, `WORKFLOW`) serves as the universal discriminator for entity origin across both entity types and entity instances. It remains unchanged by this decision.
 - Entity-level source fields (`sourceType`, `sourceIntegrationId`, `sourceExternalId`, `sourceUrl`, `firstSyncedAt`, `lastSyncedAt`, `syncVersion`) on `EntityEntity` are actively used by the sync pipeline and are not affected by the removal of attribute-level provenance.
-- Integration entity type schemas are defined in declarative JSON manifests (see [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]) and materialized into workspaces by `TemplateMaterializationService`. This materialization path is unchanged.
+- Integration entity type schemas are defined in declarative JSON manifests (see [[2. Areas/2.1 Startup & Content/Cranium/2. System Design/decisions/ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]) and materialized into workspaces by `TemplateMaterializationService`. This materialization path is unchanged.
 
 ---
 
@@ -149,10 +154,10 @@ Keep physical separation but create database views that join integration entitie
 
 ## Related
 
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-001 Nango as Integration Infrastructure]]
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]
-- [[riven/docs/system-design/integrations/Integration Domain Strategy]]
-- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]]
-- [[riven/docs/system-design/feature-design/3. Active/Integration Access Layer]]
-- [[riven/docs/system-design/flows/Integration Connection Lifecycle]]
-- [[riven/docs/system-design/feature-design/4. Completed/Predefined Integration Entity Types]]
+- [[2. Areas/2.1 Startup & Content/Cranium/2. System Design/decisions/ADR-001 Nango as Integration Infrastructure]]
+- [[2. Areas/2.1 Startup & Content/Cranium/2. System Design/decisions/ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates]]
+- [[cranium/docs/system-design/integrations/Integration Domain Strategy]]
+- [[cranium/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]]
+- [[cranium/docs/system-design/feature-design/3. Active/Integration Access Layer]]
+- [[cranium/docs/system-design/flows/Integration Connection Lifecycle]]
+- [[cranium/docs/system-design/feature-design/4. Completed/Predefined Integration Entity Types]]

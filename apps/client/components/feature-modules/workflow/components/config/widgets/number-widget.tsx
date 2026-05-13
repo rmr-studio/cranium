@@ -1,8 +1,8 @@
 "use client";
 
 import type { FC } from "react";
-import { Input } from '@riven/ui/input';
-import { Label } from '@riven/ui/label';
+import { Input } from '@cranium/ui/input';
+import { Label } from '@cranium/ui/label';
 import type { ConfigWidgetProps } from "./config-widget.types";
 
 export const NumberWidget: FC<ConfigWidgetProps<number>> = ({

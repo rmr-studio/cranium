@@ -1,4 +1,4 @@
-package riven.core.service.connector.mapping
+package cranium.core.service.connector.mapping
 
 import io.github.oshai.kotlinlogging.KLogger
 import tools.jackson.databind.ObjectMapper
@@ -7,41 +7,41 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.connector.DataConnectorFieldMappingEntity
-import riven.core.entity.connector.DataConnectorTableMappingEntity
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.entity.entity.RelationshipDefinitionEntity
-import riven.core.enums.activity.Activity
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.core.DataType
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.integration.SourceType
-import riven.core.enums.util.OperationType
-import riven.core.exceptions.connector.MappingValidationException
-import riven.core.models.common.validation.Schema
-import riven.core.models.connector.CredentialPayload
-import riven.core.models.connector.CursorIndexWarning
-import riven.core.models.connector.request.SaveDataConnectorMappingRequest
-import riven.core.models.connector.response.DataConnectorMappingSaveResponse
-import riven.core.models.connector.response.PendingRelationship
-import riven.core.models.entity.EntityTypeSchema
-import riven.core.models.ingestion.adapter.ColumnSchema
-import riven.core.repository.connector.DataConnectorConnectionRepository
-import riven.core.repository.connector.DataConnectorFieldMappingRepository
-import riven.core.repository.connector.DataConnectorTableMappingRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.repository.entity.RelationshipDefinitionRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.activity.log
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.connector.CredentialEncryptionService
-import riven.core.service.connector.EncryptedCredentials
-import riven.core.service.connector.postgres.ForeignKeyMetadata
-import riven.core.service.connector.postgres.PostgresAdapter
-import riven.core.service.connector.postgres.SchemaHasher
-import riven.core.service.ingestion.adapter.PostgresCallContext
-import riven.core.util.ServiceUtil.findOrThrow
+import cranium.core.entity.connector.DataConnectorFieldMappingEntity
+import cranium.core.entity.connector.DataConnectorTableMappingEntity
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.entity.entity.RelationshipDefinitionEntity
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.core.DataType
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.enums.integration.SourceType
+import cranium.core.enums.util.OperationType
+import cranium.core.exceptions.connector.MappingValidationException
+import cranium.core.models.common.validation.Schema
+import cranium.core.models.connector.CredentialPayload
+import cranium.core.models.connector.CursorIndexWarning
+import cranium.core.models.connector.request.SaveDataConnectorMappingRequest
+import cranium.core.models.connector.response.DataConnectorMappingSaveResponse
+import cranium.core.models.connector.response.PendingRelationship
+import cranium.core.models.entity.EntityTypeSchema
+import cranium.core.models.ingestion.adapter.ColumnSchema
+import cranium.core.repository.connector.DataConnectorConnectionRepository
+import cranium.core.repository.connector.DataConnectorFieldMappingRepository
+import cranium.core.repository.connector.DataConnectorTableMappingRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.repository.entity.RelationshipDefinitionRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.activity.log
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.connector.CredentialEncryptionService
+import cranium.core.service.connector.EncryptedCredentials
+import cranium.core.service.connector.postgres.ForeignKeyMetadata
+import cranium.core.service.connector.postgres.PostgresAdapter
+import cranium.core.service.connector.postgres.SchemaHasher
+import cranium.core.service.ingestion.adapter.PostgresCallContext
+import cranium.core.util.ServiceUtil.findOrThrow
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -58,7 +58,7 @@ import java.util.UUID
  * 6. mark published → 7. log activity → 8. build response.
  */
 @Service
-@ConditionalOnProperty(prefix = "riven.connector", name = ["enabled"], havingValue = "true")
+@ConditionalOnProperty(prefix = "cranium.connector", name = ["enabled"], havingValue = "true")
 class DataConnectorFieldMappingService(
     private val postgresAdapter: PostgresAdapter,
     private val encryptionService: CredentialEncryptionService,

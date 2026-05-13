@@ -1,15 +1,15 @@
-package riven.core.entity.entity
+package cranium.core.entity.entity
 
 import jakarta.persistence.*
 import org.hibernate.annotations.SQLRestriction
-import riven.core.entity.util.AuditableSoftDeletableEntity
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.SystemRelationshipType
-import riven.core.models.common.Icon
-import riven.core.models.entity.RelationshipDefinition
-import riven.core.models.entity.RelationshipTargetRule
+import cranium.core.entity.util.AuditableSoftDeletableEntity
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.enums.entity.SystemRelationshipType
+import cranium.core.models.common.Icon
+import cranium.core.models.entity.RelationshipDefinition
+import cranium.core.models.entity.RelationshipTargetRule
 import java.util.*
 
 @Entity

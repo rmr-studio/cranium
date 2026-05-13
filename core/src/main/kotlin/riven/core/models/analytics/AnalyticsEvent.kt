@@ -1,4 +1,4 @@
-package riven.core.models.analytics
+package cranium.core.models.analytics
 
 sealed interface AnalyticsEvent {
     val eventName: String

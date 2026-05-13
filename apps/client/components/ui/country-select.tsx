@@ -1,4 +1,4 @@
-import { Button } from '@riven/ui/button';
+import { Button } from '@cranium/ui/button';
 import {
   Command,
   CommandEmpty,
@@ -6,9 +6,9 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@riven/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
-import { cn } from '@riven/utils';
+} from '@cranium/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@cranium/ui/popover';
+import { cn } from '@cranium/utils';
 import { useState } from 'react';
 import * as RPNInput from 'react-phone-number-input';
 import { ScrollArea } from './scroll-area';

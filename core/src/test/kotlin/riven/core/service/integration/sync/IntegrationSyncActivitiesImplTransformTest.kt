@@ -1,4 +1,4 @@
-package riven.core.service.integration.sync
+package cranium.core.service.integration.sync
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -17,40 +17,40 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.transaction.support.TransactionTemplate
-import riven.core.enums.catalog.ManifestType
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.DataType
-import riven.core.enums.integration.CoercionType
-import riven.core.enums.integration.SourceType
-import riven.core.models.common.validation.Schema
-import riven.core.models.entity.configuration.ColumnConfiguration
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.models.integration.NangoRecord
-import riven.core.models.integration.NangoRecordAction
-import riven.core.models.integration.NangoRecordMetadata
-import riven.core.models.integration.NangoRecordsPage
-import riven.core.models.integration.mapping.FieldCoverage
-import riven.core.models.integration.mapping.FieldTransform
-import riven.core.models.integration.mapping.MappingResult
-import riven.core.models.integration.mapping.ResolvedFieldMapping
-import riven.core.models.integration.sync.IntegrationSyncWorkflowInput
-import riven.core.repository.catalog.CatalogEntityTypeRepository
-import riven.core.repository.catalog.CatalogFieldMappingRepository
-import riven.core.repository.catalog.ManifestCatalogRepository
-import riven.core.repository.entity.EntityRelationshipRepository
-import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.repository.entity.RelationshipDefinitionRepository
-import riven.core.repository.integration.IntegrationConnectionRepository
-import riven.core.repository.integration.IntegrationDefinitionRepository
-import riven.core.repository.integration.IntegrationSyncStateRepository
-import riven.core.service.entity.EntityAttributeService
-import riven.core.service.integration.IntegrationHealthService
-import riven.core.service.integration.NangoClientWrapper
-import riven.core.service.integration.mapping.SchemaMappingService
-import riven.core.service.util.factory.catalog.CatalogFactory
-import riven.core.service.util.factory.entity.EntityFactory
-import riven.core.service.util.factory.integration.IntegrationFactory
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.DataType
+import cranium.core.enums.integration.CoercionType
+import cranium.core.enums.integration.SourceType
+import cranium.core.models.common.validation.Schema
+import cranium.core.models.entity.configuration.ColumnConfiguration
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.models.integration.NangoRecord
+import cranium.core.models.integration.NangoRecordAction
+import cranium.core.models.integration.NangoRecordMetadata
+import cranium.core.models.integration.NangoRecordsPage
+import cranium.core.models.integration.mapping.FieldCoverage
+import cranium.core.models.integration.mapping.FieldTransform
+import cranium.core.models.integration.mapping.MappingResult
+import cranium.core.models.integration.mapping.ResolvedFieldMapping
+import cranium.core.models.integration.sync.IntegrationSyncWorkflowInput
+import cranium.core.repository.catalog.CatalogEntityTypeRepository
+import cranium.core.repository.catalog.CatalogFieldMappingRepository
+import cranium.core.repository.catalog.ManifestCatalogRepository
+import cranium.core.repository.entity.EntityRelationshipRepository
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.repository.entity.RelationshipDefinitionRepository
+import cranium.core.repository.integration.IntegrationConnectionRepository
+import cranium.core.repository.integration.IntegrationDefinitionRepository
+import cranium.core.repository.integration.IntegrationSyncStateRepository
+import cranium.core.service.entity.EntityAttributeService
+import cranium.core.service.integration.IntegrationHealthService
+import cranium.core.service.integration.NangoClientWrapper
+import cranium.core.service.integration.mapping.SchemaMappingService
+import cranium.core.service.util.factory.catalog.CatalogFactory
+import cranium.core.service.util.factory.entity.EntityFactory
+import cranium.core.service.util.factory.integration.IntegrationFactory
 import java.util.*
 
 /**
@@ -92,8 +92,8 @@ class IntegrationSyncActivitiesImplTransformTest {
             catalogEntityTypeRepository: CatalogEntityTypeRepository,
             entityTypeRepository: EntityTypeRepository,
             integrationHealthService: IntegrationHealthService,
-            entityProjectionService: riven.core.service.ingestion.EntityProjectionService,
-            noteEmbeddingService: riven.core.service.note.NoteEmbeddingService,
+            entityProjectionService: cranium.core.service.ingestion.EntityProjectionService,
+            noteEmbeddingService: cranium.core.service.note.NoteEmbeddingService,
             objectMapper: tools.jackson.databind.ObjectMapper,
             resourceLoader: org.springframework.core.io.ResourceLoader,
             transactionTemplate: TransactionTemplate,
@@ -143,8 +143,8 @@ class IntegrationSyncActivitiesImplTransformTest {
     @MockitoBean private lateinit var catalogEntityTypeRepository: CatalogEntityTypeRepository
     @MockitoBean private lateinit var entityTypeRepository: EntityTypeRepository
     @MockitoBean private lateinit var integrationHealthService: IntegrationHealthService
-    @MockitoBean private lateinit var entityProjectionService: riven.core.service.ingestion.EntityProjectionService
-    @MockitoBean private lateinit var noteEmbeddingService: riven.core.service.note.NoteEmbeddingService
+    @MockitoBean private lateinit var entityProjectionService: cranium.core.service.ingestion.EntityProjectionService
+    @MockitoBean private lateinit var noteEmbeddingService: cranium.core.service.note.NoteEmbeddingService
     @MockitoBean private lateinit var objectMapper: tools.jackson.databind.ObjectMapper
     @MockitoBean private lateinit var resourceLoader: org.springframework.core.io.ResourceLoader
     @MockitoBean private lateinit var transactionTemplate: TransactionTemplate
@@ -177,7 +177,7 @@ class IntegrationSyncActivitiesImplTransformTest {
             callback.doInTransaction(org.mockito.Mockito.mock(org.springframework.transaction.TransactionStatus::class.java))
         }
         whenever(entityRepository.save(any())).thenAnswer { invocation ->
-            val entity = invocation.arguments[0] as riven.core.entity.entity.EntityEntity
+            val entity = invocation.arguments[0] as cranium.core.entity.entity.EntityEntity
             if (entity.id == null) entity.copy(id = UUID.randomUUID()) else entity
         }
     }

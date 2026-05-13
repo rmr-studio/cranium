@@ -1,7 +1,7 @@
-package riven.core.service.util.factory.dataconnector
+package cranium.core.service.util.factory.dataconnector
 
-import riven.core.entity.connector.DataConnectorConnectionEntity
-import riven.core.enums.integration.ConnectionStatus
+import cranium.core.entity.connector.DataConnectorConnectionEntity
+import cranium.core.enums.integration.ConnectionStatus
 import java.time.ZonedDateTime
 import java.util.UUID
 

@@ -1,4 +1,4 @@
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@riven/ui/command';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@cranium/ui/command';
 import type { EntityType } from "@/lib/types/entity";
 import type { BlockType } from "@/lib/types/block";
 import { FC, Fragment, RefObject } from "react";

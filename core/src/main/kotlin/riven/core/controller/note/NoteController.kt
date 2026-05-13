@@ -1,4 +1,4 @@
-package riven.core.controller.note
+package cranium.core.controller.note
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -9,12 +9,12 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
-import riven.core.models.note.CreateNoteRequest
-import riven.core.models.note.Note
-import riven.core.models.note.UpdateNoteRequest
-import riven.core.models.note.WorkspaceNote
-import riven.core.service.note.NoteService
-import riven.core.util.CursorPage
+import cranium.core.models.note.CreateNoteRequest
+import cranium.core.models.note.Note
+import cranium.core.models.note.UpdateNoteRequest
+import cranium.core.models.note.WorkspaceNote
+import cranium.core.service.note.NoteService
+import cranium.core.util.CursorPage
 import java.util.*
 
 @RestController

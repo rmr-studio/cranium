@@ -1,4 +1,4 @@
-package riven.core.models.workspace
+package cranium.core.models.workspace
 
 data class WorkspacePaymentDetails(
     var bsb: String? = null,

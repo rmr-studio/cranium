@@ -8,7 +8,7 @@ import { ColumnFilter, DataTable, FilterOption, SearchConfig } from '.';
 import { Badge } from '../badge';
 
 /**
- * Schema-Driven Data Table
+ * Schema-Dcranium Data Table
  *
  * Automatically configures columns, filters, and search based on a Schema definition.
  *
@@ -212,7 +212,7 @@ function generateSearchConfigFromSchema<TData extends Record<string, any>>(
 }
 
 /**
- * Schema-driven DataTable component
+ * Schema-dcranium DataTable component
  */
 export function SchemaDataTable<TData extends Record<string, any>>({
   schema,

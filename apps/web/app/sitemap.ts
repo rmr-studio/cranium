@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getAllPosts, getCategories } from "@/lib/blog";
 
-const BASE_URL = "https://getriven.io";
+const BASE_URL = "https://getcranium.io";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [

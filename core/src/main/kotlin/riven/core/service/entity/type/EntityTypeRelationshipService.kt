@@ -1,36 +1,36 @@
-package riven.core.service.entity.type
+package cranium.core.service.entity.type
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.entity.RelationshipDefinitionEntity
-import riven.core.entity.entity.RelationshipTargetRuleEntity
-import riven.core.enums.activity.Activity
+import cranium.core.entity.entity.RelationshipDefinitionEntity
+import cranium.core.entity.entity.RelationshipTargetRuleEntity
+import cranium.core.enums.activity.Activity
 import org.springframework.dao.DataIntegrityViolationException
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.SystemRelationshipType
-import riven.core.enums.entity.semantics.SemanticMetadataTargetType
-import riven.core.enums.util.OperationType
-import riven.core.models.entity.RelationshipDefinition
-import riven.core.models.entity.RelationshipTargetRule
-import riven.core.models.request.entity.type.SaveRelationshipDefinitionRequest
-import riven.core.models.request.entity.type.SaveTargetRuleRequest
-import riven.core.repository.entity.EntityRelationshipRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.repository.entity.RelationshipDefinitionRepository
-import riven.core.repository.entity.RelationshipTargetRuleRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.activity.log
-import riven.core.service.auth.AuthTokenService
-import riven.core.models.response.entity.type.DeleteDefinitionImpact
-import riven.core.service.entity.EntityTypeSemanticMetadataService
-import riven.core.exceptions.NotFoundException
-import riven.core.util.ServiceUtil
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.enums.entity.SystemRelationshipType
+import cranium.core.enums.entity.semantics.SemanticMetadataTargetType
+import cranium.core.enums.util.OperationType
+import cranium.core.models.entity.RelationshipDefinition
+import cranium.core.models.entity.RelationshipTargetRule
+import cranium.core.models.request.entity.type.SaveRelationshipDefinitionRequest
+import cranium.core.models.request.entity.type.SaveTargetRuleRequest
+import cranium.core.repository.entity.EntityRelationshipRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.repository.entity.RelationshipDefinitionRepository
+import cranium.core.repository.entity.RelationshipTargetRuleRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.activity.log
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.models.response.entity.type.DeleteDefinitionImpact
+import cranium.core.service.entity.EntityTypeSemanticMetadataService
+import cranium.core.exceptions.NotFoundException
+import cranium.core.util.ServiceUtil
 import java.util.*
 
 /**
@@ -70,7 +70,7 @@ class EntityTypeRelationshipService(
     /**
      * Internal variant of [createRelationshipDefinition] without @PreAuthorize.
      *
-     * Used by [riven.core.service.catalog.TemplateInstallationService] during onboarding
+     * Used by [cranium.core.service.catalog.TemplateInstallationService] during onboarding
      * when the workspace was just created and the JWT does not yet contain the new
      * workspace's role authorities.
      *
@@ -566,7 +566,7 @@ class EntityTypeRelationshipService(
     /**
      * Internal variant of [createSystemConnectionDefinition] without @PreAuthorize.
      *
-     * Used by [riven.core.service.catalog.TemplateInstallationService] during onboarding
+     * Used by [cranium.core.service.catalog.TemplateInstallationService] during onboarding
      * when the JWT does not yet contain the new workspace's role authorities.
      */
     @Transactional
@@ -598,7 +598,7 @@ class EntityTypeRelationshipService(
 
     /**
      * Internal variant of [getOrCreateSystemDefinition] without @PreAuthorize. Used by
-     * [riven.core.service.catalog.TemplateInstallationService] during onboarding where the JWT
+     * [cranium.core.service.catalog.TemplateInstallationService] during onboarding where the JWT
      * does not yet contain the new workspace's role authorities, and by the reused-entity-type
      * promotion path where the seeding must be idempotent. Activity logging is skipped when
      * [userId] is null (background / pre-auth contexts).

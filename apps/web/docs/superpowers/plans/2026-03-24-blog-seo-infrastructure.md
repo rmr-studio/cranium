@@ -1,6 +1,6 @@
 # Blog & SEO Infrastructure Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-dcranium-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build a complete MDX blog system with SEO infrastructure, topic clusters, and featured blog sections on the landing page — all ungated, optimized for search engines and AI citation.
 
@@ -517,7 +517,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/api/'],
       },
     ],
-    sitemap: 'https://getriven.io/sitemap.xml',
+    sitemap: 'https://getcranium.io/sitemap.xml',
   };
 }
 ```
@@ -532,7 +532,7 @@ Replace `apps/web/app/sitemap.ts`:
 import type { MetadataRoute } from 'next';
 import { getAllPosts, getCategories } from '@/lib/blog';
 
-const BASE_URL = 'https://getriven.io';
+const BASE_URL = 'https://getcranium.io';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -1484,7 +1484,7 @@ export const metadata: Metadata = {
   description:
     'Tool comparisons, operational intelligence, and cross-domain analytics insights for scaling businesses.',
   openGraph: {
-    title: 'Blog | Riven',
+    title: 'Blog | Cranium',
     description:
       'Tool comparisons, operational intelligence, and cross-domain analytics insights for scaling businesses.',
   },
@@ -1579,7 +1579,7 @@ function ArticleJsonLd({ post }: { post: Awaited<ReturnType<typeof getPostBySlug
     datePublished: post.date,
     dateModified: post.updated ?? post.date,
     author: { '@type': 'Person', name: post.author },
-    publisher: { '@type': 'Organization', name: 'Riven', url: 'https://getriven.io' },
+    publisher: { '@type': 'Organization', name: 'Cranium', url: 'https://getcranium.io' },
   };
   return (
     <script
@@ -1595,13 +1595,13 @@ function BreadcrumbJsonLd({ post }: { post: Awaited<ReturnType<typeof getPostByS
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://getriven.io' },
-      { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://getriven.io/blog' },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://getcranium.io' },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://getcranium.io/blog' },
       {
         '@type': 'ListItem',
         position: 3,
         name: CATEGORY_LABELS[post.category],
-        item: `https://getriven.io/blog/category/${post.category}`,
+        item: `https://getcranium.io/blog/category/${post.category}`,
       },
       { '@type': 'ListItem', position: 4, name: post.title },
     ],
@@ -1721,7 +1721,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!label) return {};
   return {
     title: `${label} — Blog`,
-    description: `Browse ${label.toLowerCase()} articles on the Riven blog.`,
+    description: `Browse ${label.toLowerCase()} articles on the Cranium blog.`,
   };
 }
 
@@ -1755,7 +1755,7 @@ Create `apps/web/app/blog/rss.xml/route.ts`:
 ```typescript
 import { getAllPosts } from '@/lib/blog';
 
-const BASE_URL = 'https://getriven.io';
+const BASE_URL = 'https://getcranium.io';
 
 export async function GET() {
   const posts = await getAllPosts();
@@ -1770,7 +1770,7 @@ export async function GET() {
       <guid isPermaLink="true">${BASE_URL}/blog/${post.slug}</guid>
       <description><![CDATA[${post.description}]]></description>
       <pubDate>${new Date(post.date).toUTCString()}</pubDate>
-      <author>jared@riven.software (${post.author})</author>
+      <author>jared@cranium.software (${post.author})</author>
     </item>`,
     )
     .join('');
@@ -1778,7 +1778,7 @@ export async function GET() {
   const feed = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Riven Blog</title>
+    <title>Cranium Blog</title>
     <link>${BASE_URL}/blog</link>
     <description>Tool comparisons, operational intelligence, and cross-domain analytics insights.</description>
     <language>en-us</language>
@@ -1825,7 +1825,7 @@ export async function GET(request: NextRequest) {
           fontWeight: 700,
         }}
       >
-        Riven Blog
+        Cranium Blog
       </div>,
       { width: 1200, height: 630 },
     );
@@ -1885,7 +1885,7 @@ export async function GET(request: NextRequest) {
         <span>
           {post.author} &middot; {post.readTime} min read
         </span>
-        <span style={{ fontSize: 20, fontWeight: 700, color: '#fff' }}>Riven</span>
+        <span style={{ fontSize: 20, fontWeight: 700, color: '#fff' }}>Cranium</span>
       </div>
     </div>,
     {

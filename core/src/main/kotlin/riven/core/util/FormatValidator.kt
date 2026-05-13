@@ -1,6 +1,6 @@
-package riven.core.util
+package cranium.core.util
 
-import riven.core.enums.core.DataFormat
+import cranium.core.enums.core.DataFormat
 import java.net.URI
 import java.time.LocalDate
 import java.time.OffsetDateTime

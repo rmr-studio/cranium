@@ -1,4 +1,4 @@
-package riven.core.models.entity
+package cranium.core.models.entity
 
 import java.util.*
 

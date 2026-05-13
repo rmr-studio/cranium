@@ -1,4 +1,4 @@
-package riven.core.enums.entity
+package cranium.core.enums.entity
 
 /**
  * System-managed relationship kinds. Generic on purpose — the same enum value

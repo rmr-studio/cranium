@@ -1,4 +1,4 @@
-package riven.core.service.connector
+package cranium.core.service.connector
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.assertj.core.api.Assertions.assertThat
@@ -8,7 +8,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
-import riven.core.exceptions.connector.SsrfRejectedException
+import cranium.core.exceptions.connector.SsrfRejectedException
 import java.net.InetAddress
 import java.net.UnknownHostException
 

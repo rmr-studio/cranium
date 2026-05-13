@@ -1,17 +1,17 @@
-package riven.core.service.util.factory.identity
+package cranium.core.service.util.factory.identity
 
-import riven.core.entity.entity.EntityTypeSemanticMetadataEntity
-import riven.core.entity.identity.IdentityClusterEntity
-import riven.core.entity.identity.IdentityClusterMemberEntity
-import riven.core.entity.identity.MatchSuggestionEntity
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.entity.semantics.SemanticMetadataTargetType
-import riven.core.enums.identity.MatchSignalType
-import riven.core.enums.identity.MatchSource
-import riven.core.enums.identity.MatchSuggestionStatus
-import riven.core.models.identity.CandidateMatch
-import riven.core.models.identity.MatchSignal
-import riven.core.models.identity.ScoredCandidate
+import cranium.core.entity.entity.EntityTypeSemanticMetadataEntity
+import cranium.core.entity.identity.IdentityClusterEntity
+import cranium.core.entity.identity.IdentityClusterMemberEntity
+import cranium.core.entity.identity.MatchSuggestionEntity
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.enums.entity.semantics.SemanticMetadataTargetType
+import cranium.core.enums.identity.MatchSignalType
+import cranium.core.enums.identity.MatchSource
+import cranium.core.enums.identity.MatchSuggestionStatus
+import cranium.core.models.identity.CandidateMatch
+import cranium.core.models.identity.MatchSignal
+import cranium.core.models.identity.ScoredCandidate
 import java.math.BigDecimal
 import java.util.UUID
 

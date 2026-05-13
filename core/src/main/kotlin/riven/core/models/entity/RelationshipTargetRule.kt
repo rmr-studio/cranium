@@ -1,6 +1,6 @@
-package riven.core.models.entity
+package cranium.core.models.entity
 
-import riven.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.enums.entity.EntityRelationshipCardinality
 import java.time.ZonedDateTime
 import java.util.*
 

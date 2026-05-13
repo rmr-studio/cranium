@@ -13,7 +13,7 @@ export { SortDir } from '../models/SortDir';
 export { Presentation } from '../models/Presentation';
 export { ReferenceType } from '../models/ReferenceType';
 
-import type { ChildNodeProps } from '@riven/utils';
+import type { ChildNodeProps } from '@cranium/utils';
 import type { EntityType } from '@/lib/types/entity';
 import type { ReactNode } from 'react';
 import type { GridStack, GridStackNode, GridStackOptions, GridStackWidget } from 'gridstack';

@@ -1,11 +1,11 @@
-package riven.core.enums.integration
+package cranium.core.enums.integration
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * Primitive type targets for field value coercion during integration mapping.
  *
- * Distinct from [riven.core.enums.common.validation.SchemaType] which describes
+ * Distinct from [cranium.core.enums.common.validation.SchemaType] which describes
  * what an attribute means — this enum describes what a value should be cast to.
  */
 enum class CoercionType {

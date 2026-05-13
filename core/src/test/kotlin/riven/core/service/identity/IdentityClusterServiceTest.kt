@@ -1,4 +1,4 @@
-package riven.core.service.identity
+package cranium.core.service.identity
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -15,33 +15,33 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.identity.IdentityClusterEntity
-import riven.core.entity.identity.IdentityClusterMemberEntity
-import riven.core.enums.activity.Activity
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.util.OperationType
-import riven.core.exceptions.ConflictException
-import riven.core.exceptions.NotFoundException
-import riven.core.models.common.json.JsonObject
-import riven.core.models.identity.IdentityCluster
-import riven.core.models.request.identity.AddClusterMemberRequest
-import riven.core.models.request.identity.RenameClusterRequest
-import riven.core.models.response.identity.ClusterDetailResponse
-import riven.core.models.response.identity.ClusterMemberContext
-import riven.core.repository.identity.IdentityClusterMemberRepository
-import riven.core.repository.identity.IdentityClusterRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.entity.EntityRelationshipService
-import riven.core.service.entity.EntityService
-import riven.core.service.util.BaseServiceTest
-import riven.core.service.util.SecurityTestConfig
-import riven.core.service.util.WithUserPersona
-import riven.core.service.util.WorkspaceRole
-import riven.core.service.util.factory.entity.EntityFactory
-import riven.core.service.util.factory.identity.IdentityFactory
-import riven.core.enums.workspace.WorkspaceRoles
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.entity.identity.IdentityClusterEntity
+import cranium.core.entity.identity.IdentityClusterMemberEntity
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.util.OperationType
+import cranium.core.exceptions.ConflictException
+import cranium.core.exceptions.NotFoundException
+import cranium.core.models.common.json.JsonObject
+import cranium.core.models.identity.IdentityCluster
+import cranium.core.models.request.identity.AddClusterMemberRequest
+import cranium.core.models.request.identity.RenameClusterRequest
+import cranium.core.models.response.identity.ClusterDetailResponse
+import cranium.core.models.response.identity.ClusterMemberContext
+import cranium.core.repository.identity.IdentityClusterMemberRepository
+import cranium.core.repository.identity.IdentityClusterRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.entity.EntityRelationshipService
+import cranium.core.service.entity.EntityService
+import cranium.core.service.util.BaseServiceTest
+import cranium.core.service.util.SecurityTestConfig
+import cranium.core.service.util.WithUserPersona
+import cranium.core.service.util.WorkspaceRole
+import cranium.core.service.util.factory.entity.EntityFactory
+import cranium.core.service.util.factory.identity.IdentityFactory
+import cranium.core.enums.workspace.WorkspaceRoles
 import java.time.ZonedDateTime
 import java.util.Optional
 import java.util.UUID
@@ -429,7 +429,7 @@ class IdentityClusterServiceTest : BaseServiceTest() {
         return result
     }
 
-    private fun buildEntityEntity(entityId: UUID, entityWorkspaceId: UUID): riven.core.entity.entity.EntityEntity =
+    private fun buildEntityEntity(entityId: UUID, entityWorkspaceId: UUID): cranium.core.entity.entity.EntityEntity =
         EntityFactory.createEntityEntity(id = entityId, workspaceId = entityWorkspaceId)
 
     private fun buildClusterDetailResponse(clusterId: UUID): ClusterDetailResponse =
@@ -443,21 +443,21 @@ class IdentityClusterServiceTest : BaseServiceTest() {
             updatedAt = ZonedDateTime.now(),
         )
 
-    private fun buildRelationshipResponse(): riven.core.models.response.entity.RelationshipResponse =
-        riven.core.models.response.entity.RelationshipResponse(
+    private fun buildRelationshipResponse(): cranium.core.models.response.entity.RelationshipResponse =
+        cranium.core.models.response.entity.RelationshipResponse(
             id = UUID.randomUUID(),
             sourceEntityId = UUID.randomUUID(),
             targetEntityId = UUID.randomUUID(),
             definitionId = UUID.randomUUID(),
             definitionName = "SYSTEM_CONNECTION",
             semanticContext = null,
-            linkSource = riven.core.enums.integration.SourceType.IDENTITY_MATCH,
+            linkSource = cranium.core.enums.integration.SourceType.IDENTITY_MATCH,
             createdAt = ZonedDateTime.now(),
             updatedAt = ZonedDateTime.now(),
         )
 
-    private fun buildActivityLog(): riven.core.models.activity.ActivityLog =
-        riven.core.models.activity.ActivityLog(
+    private fun buildActivityLog(): cranium.core.models.activity.ActivityLog =
+        cranium.core.models.activity.ActivityLog(
             id = UUID.randomUUID(),
             userId = userId,
             workspaceId = workspaceId,

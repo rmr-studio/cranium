@@ -1,5 +1,5 @@
 import { createRenderElement } from '../../util/render/render-element.registry';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@riven/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@cranium/ui/card';
 import React, { FC } from 'react';
 import { z } from 'zod';
 import { AddressCard } from '../bespoke/AddressCard';

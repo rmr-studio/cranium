@@ -1,4 +1,4 @@
-package riven.core.service.enrichment
+package cranium.core.service.enrichment
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -6,16 +6,16 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.connotation.ConnotationStatus
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.enums.integration.SourceType
-import riven.core.models.connotation.AnalysisTier
-import riven.core.models.connotation.SentimentLabel
-import riven.core.models.connotation.SentimentMetadata
-import riven.core.service.util.factory.enrichment.EnrichmentFactory
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.connotation.ConnotationStatus
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.enums.integration.SourceType
+import cranium.core.models.connotation.AnalysisTier
+import cranium.core.models.connotation.SentimentLabel
+import cranium.core.models.connotation.SentimentMetadata
+import cranium.core.service.util.factory.enrichment.EnrichmentFactory
 import java.util.UUID
 import kotlin.test.assertContains
 import kotlin.test.assertTrue
@@ -792,7 +792,7 @@ class SemanticTextBuilderServiceTest {
          * many relationship summaries with long category strings, and many relationship
          * definitions with long definition text.
          */
-        private fun massiveContext(): riven.core.models.enrichment.EnrichmentContext {
+        private fun massiveContext(): cranium.core.models.enrichment.EnrichmentContext {
             val longValue = "V".repeat(500)
             // 40 IDENTIFIER attributes × ~515 chars each ≈ 20,600 chars for section 3 alone
             val attributes = (1..40).map { i ->

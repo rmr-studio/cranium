@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -14,45 +14,33 @@
 
 import type { CountMatches } from './CountMatches';
 import {
-    instanceOfCountMatches,
-    CountMatchesFromJSON,
     CountMatchesFromJSONTyped,
-    CountMatchesToJSON,
+    CountMatchesToJSON
 } from './CountMatches';
 import type { Exists } from './Exists';
 import {
-    instanceOfExists,
-    ExistsFromJSON,
     ExistsFromJSONTyped,
-    ExistsToJSON,
+    ExistsToJSON
 } from './Exists';
 import type { NotExists } from './NotExists';
 import {
-    instanceOfNotExists,
-    NotExistsFromJSON,
     NotExistsFromJSONTyped,
-    NotExistsToJSON,
+    NotExistsToJSON
 } from './NotExists';
 import type { TargetEquals } from './TargetEquals';
 import {
-    instanceOfTargetEquals,
-    TargetEqualsFromJSON,
     TargetEqualsFromJSONTyped,
-    TargetEqualsToJSON,
+    TargetEqualsToJSON
 } from './TargetEquals';
 import type { TargetMatches } from './TargetMatches';
 import {
-    instanceOfTargetMatches,
-    TargetMatchesFromJSON,
     TargetMatchesFromJSONTyped,
-    TargetMatchesToJSON,
+    TargetMatchesToJSON
 } from './TargetMatches';
 import type { TargetTypeMatches } from './TargetTypeMatches';
 import {
-    instanceOfTargetTypeMatches,
-    TargetTypeMatchesFromJSON,
     TargetTypeMatchesFromJSONTyped,
-    TargetTypeMatchesToJSON,
+    TargetTypeMatchesToJSON
 } from './TargetTypeMatches';
 
 /**

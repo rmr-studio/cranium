@@ -1,6 +1,6 @@
-package riven.core.models.response.integration
+package cranium.core.models.response.integration
 
-import riven.core.models.integration.SyncConfiguration
+import cranium.core.models.integration.SyncConfiguration
 import java.util.*
 
 data class IntegrationEnablementResponse(

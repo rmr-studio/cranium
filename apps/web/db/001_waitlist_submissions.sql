@@ -1,4 +1,4 @@
--- Waitlist submission table for getriven.io landing page
+-- Waitlist submission table for getcranium.io landing page
 -- Stores waitlist signups and optional survey responses from the multi-step form
 
 create table if not exists public.waitlist_submissions (

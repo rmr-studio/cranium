@@ -1,17 +1,17 @@
 'use client';
 
+import { OnboardNavControls } from '@/components/feature-modules/onboarding/components/onboard-nav-controls';
+import { OnboardStepForm } from '@/components/feature-modules/onboarding/components/onboard-step-form';
+import { ONBOARD_STEPS } from '@/components/feature-modules/onboarding/config/onboard-steps';
+import { useCompleteOnboardingMutation } from '@/components/feature-modules/onboarding/hooks/mutation/use-complete-onboarding-mutation';
+import {
+    useOnboardStepState,
+    useOnboardSubmission,
+} from '@/components/feature-modules/onboarding/hooks/use-onboard-store';
 import { Propless } from '@/lib/interfaces/interface';
 import { Loader2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { FC } from 'react';
-import { ONBOARD_STEPS } from '@/components/feature-modules/onboarding/config/onboard-steps';
-import { useCompleteOnboardingMutation } from '@/components/feature-modules/onboarding/hooks/mutation/use-complete-onboarding-mutation';
-import {
-  useOnboardStepState,
-  useOnboardSubmission,
-} from '@/components/feature-modules/onboarding/hooks/use-onboard-store';
-import { OnboardNavControls } from '@/components/feature-modules/onboarding/components/onboard-nav-controls';
-import { OnboardStepForm } from '@/components/feature-modules/onboarding/components/onboard-step-form';
 
 const OnboardProgress: FC = () => {
   const { currentStep } = useOnboardStepState();
@@ -54,7 +54,7 @@ export const OnboardFormPanel: FC<Propless> = () => {
     <div className="flex h-full flex-col px-10 py-8">
       {/* Logo — always visible */}
       <div className="shrink-0">
-        <span className="font-display text-lg tracking-tight">Riven</span>
+        <span className="font-display text-lg tracking-tight">Cranium</span>
       </div>
 
       {submissionStatus === 'idle' && (

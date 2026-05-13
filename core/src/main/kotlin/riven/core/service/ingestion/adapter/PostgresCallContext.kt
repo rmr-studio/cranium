@@ -1,4 +1,4 @@
-package riven.core.service.ingestion.adapter
+package cranium.core.service.ingestion.adapter
 
 import java.util.UUID
 
@@ -13,7 +13,7 @@ import java.util.UUID
  * @property workspaceId Workspace attribution — forwarded to the logger and
  *   Phase 4 orchestrator event trail.
  * @property connectionId Identifier that keys the per-connection Hikari pool
- *   and maps back to [riven.core.entity.connector.DataConnectorConnectionEntity].
+ *   and maps back to [cranium.core.entity.connector.DataConnectorConnectionEntity].
  * @property schema Postgres schema to introspect / fetch from. Defaults to `public`.
  * @property tableName Null during introspection; required for fetch. Quoted
  *   verbatim on the SQL path to support mixed-case identifiers.
@@ -21,7 +21,7 @@ import java.util.UUID
  *   Null means "no cursor column known" — fetch falls back to PK comparison.
  * @property primaryKeyColumn PK column used for insert-only PK-fallback fetch
  *   when [cursorColumn] is null. If both are null, fetch throws
- *   [riven.core.service.ingestion.adapter.exception.AdapterCapabilityNotSupportedException].
+ *   [cranium.core.service.ingestion.adapter.exception.AdapterCapabilityNotSupportedException].
  * @property cursorColumnIsTimestamp Gate: when `true`, [cursorColumn] is bound
  *   as a `timestamptz` parameter; when `false`, bound as its natural JDBC type.
  */

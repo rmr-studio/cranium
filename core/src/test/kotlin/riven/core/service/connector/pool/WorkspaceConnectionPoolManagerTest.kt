@@ -1,11 +1,11 @@
-package riven.core.service.connector.pool
+package cranium.core.service.connector.pool
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
-import riven.core.configuration.properties.ConnectorPoolProperties
-import riven.core.enums.connector.SslMode
-import riven.core.models.connector.CredentialPayload
+import cranium.core.configuration.properties.ConnectorPoolProperties
+import cranium.core.enums.connector.SslMode
+import cranium.core.models.connector.CredentialPayload
 import java.util.UUID
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds

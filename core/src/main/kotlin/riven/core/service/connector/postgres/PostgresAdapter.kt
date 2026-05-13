@@ -1,28 +1,28 @@
-package riven.core.service.connector.postgres
+package cranium.core.service.connector.postgres
 
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.module.kotlin.readValue
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
-import riven.core.enums.integration.SourceType
-import riven.core.models.connector.CredentialPayload
-import riven.core.models.ingestion.adapter.RecordBatch
-import riven.core.models.ingestion.adapter.SchemaIntrospectionResult
-import riven.core.models.ingestion.adapter.SyncMode
-import riven.core.repository.connector.DataConnectorConnectionRepository
-import riven.core.service.connector.CredentialEncryptionService
-import riven.core.service.connector.EncryptedCredentials
-import riven.core.service.connector.pool.WorkspaceConnectionPoolManager
-import riven.core.service.ingestion.adapter.AdapterCallContext
-import riven.core.service.ingestion.adapter.IngestionAdapter
-import riven.core.service.ingestion.adapter.PostgresCallContext
-import riven.core.service.ingestion.adapter.SourceTypeAdapter
-import riven.core.service.ingestion.adapter.exception.AdapterAuthException
-import riven.core.service.ingestion.adapter.exception.AdapterConnectionRefusedException
-import riven.core.service.ingestion.adapter.exception.AdapterException
-import riven.core.service.ingestion.adapter.exception.AdapterUnavailableException
-import riven.core.util.ServiceUtil.findOrThrow
+import cranium.core.enums.integration.SourceType
+import cranium.core.models.connector.CredentialPayload
+import cranium.core.models.ingestion.adapter.RecordBatch
+import cranium.core.models.ingestion.adapter.SchemaIntrospectionResult
+import cranium.core.models.ingestion.adapter.SyncMode
+import cranium.core.repository.connector.DataConnectorConnectionRepository
+import cranium.core.service.connector.CredentialEncryptionService
+import cranium.core.service.connector.EncryptedCredentials
+import cranium.core.service.connector.pool.WorkspaceConnectionPoolManager
+import cranium.core.service.ingestion.adapter.AdapterCallContext
+import cranium.core.service.ingestion.adapter.IngestionAdapter
+import cranium.core.service.ingestion.adapter.PostgresCallContext
+import cranium.core.service.ingestion.adapter.SourceTypeAdapter
+import cranium.core.service.ingestion.adapter.exception.AdapterAuthException
+import cranium.core.service.ingestion.adapter.exception.AdapterConnectionRefusedException
+import cranium.core.service.ingestion.adapter.exception.AdapterException
+import cranium.core.service.ingestion.adapter.exception.AdapterUnavailableException
+import cranium.core.util.ServiceUtil.findOrThrow
 import java.sql.SQLException
 import javax.sql.DataSource
 
@@ -36,11 +36,11 @@ import javax.sql.DataSource
  * the Phase 4 Temporal orchestrator can classify retries uniformly.
  *
  * Registered with `@SourceTypeAdapter(SourceType.CONNECTOR)` — discovered by
- * [riven.core.service.ingestion.adapter.SourceTypeAdapterRegistry].
+ * [cranium.core.service.ingestion.adapter.SourceTypeAdapterRegistry].
  */
 @Component
 @SourceTypeAdapter(SourceType.CONNECTOR)
-@ConditionalOnProperty(prefix = "riven.connector", name = ["enabled"], havingValue = "true")
+@ConditionalOnProperty(prefix = "cranium.connector", name = ["enabled"], havingValue = "true")
 class PostgresAdapter(
     private val poolManager: WorkspaceConnectionPoolManager,
     private val connectionRepository: DataConnectorConnectionRepository,

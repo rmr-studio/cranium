@@ -1,10 +1,10 @@
-package riven.core.models.request.entity.type
+package cranium.core.models.request.entity.type
 
 import tools.jackson.databind.ValueDeserializer
 import tools.jackson.databind.annotation.JsonDeserialize
 import io.swagger.v3.oas.annotations.media.DiscriminatorMapping
 import io.swagger.v3.oas.annotations.media.Schema
-import riven.core.enums.entity.EntityTypeRequestDefinition
+import cranium.core.enums.entity.EntityTypeRequestDefinition
 import java.util.*
 
 

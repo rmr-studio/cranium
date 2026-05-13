@@ -1,15 +1,14 @@
 <p align="center">
-  <img src="https://cdn.riven.software/images/og-image.jpg" alt="Riven Dashboard" width="100%" />
+  <img src="https://cdn.cranium.software/images/og-image.jpg" alt="Cranium Dashboard" width="100%" />
 </p>
-<h1 align="center">Riven</h1>
+<h1 align="center">Cranium</h1>
 
 <p align="center">
 
-
 </p>
 
 <p align="center">
-  <a href="https://getriven.io"><strong>Website</strong></a> ·
+  <a href="https://getcranium.io"><strong>Website</strong></a> ·
   <a href="#getting-started"><strong>Getting Started</strong></a> ·
   <a href="#tech-stack"><strong>Tech Stack</strong></a> ·
   <a href="#architecture"><strong>Architecture</strong></a>
@@ -18,7 +17,5 @@
 <br />
 
 <p align="center">
-  <img src="https://cdn.riven.software/images/dashboard-preview.png" alt="Riven Dashboard" width="100%" />
+  <img src="https://cdn.cranium.software/images/dashboard-preview.png" alt="Cranium Dashboard" width="100%" />
 </p>
-
-

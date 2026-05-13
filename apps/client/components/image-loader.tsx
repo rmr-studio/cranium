@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 
 const defaultColorCombinations = [
   { start: 'hsl(220, 15%, 8%)', middle: 'hsl(200, 12%, 18%)', end: 'hsl(240, 10%, 12%)' },

@@ -1,8 +1,8 @@
-package riven.core.models.entity
+package cranium.core.models.entity
 
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.entity.semantics.SemanticMetadataTargetType
-import riven.core.enums.identity.MatchSignalType
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.enums.entity.semantics.SemanticMetadataTargetType
+import cranium.core.enums.identity.MatchSignalType
 import java.time.ZonedDateTime
 import java.util.*
 

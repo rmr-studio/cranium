@@ -1,5 +1,5 @@
-import { Badge } from '@riven/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@riven/ui/card';
+import { Badge } from '@cranium/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@cranium/ui/card';
 import { format, parseISO } from 'date-fns';
 import { FC } from 'react';
 

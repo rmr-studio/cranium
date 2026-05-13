@@ -1,12 +1,12 @@
-package riven.core.entity.integration
+package cranium.core.entity.integration
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.Type
 import org.hibernate.annotations.UpdateTimestamp
-import riven.core.enums.integration.SyncKeyType
-import riven.core.enums.integration.SyncStatus
-import riven.core.models.integration.IntegrationSyncState
+import cranium.core.enums.integration.SyncKeyType
+import cranium.core.enums.integration.SyncStatus
+import cranium.core.models.integration.IntegrationSyncState
 import java.time.ZonedDateTime
 import java.util.*
 

@@ -1,4 +1,4 @@
-package riven.core.controller.integration
+package cranium.core.controller.integration
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -7,13 +7,13 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import riven.core.models.integration.IntegrationConnectionModel
-import riven.core.models.integration.IntegrationDefinitionModel
-import riven.core.models.request.integration.DisableIntegrationRequest
-import riven.core.models.response.integration.IntegrationDisableResponse
-import riven.core.service.integration.IntegrationConnectionService
-import riven.core.service.integration.IntegrationDefinitionService
-import riven.core.service.integration.IntegrationEnablementService
+import cranium.core.models.integration.IntegrationConnectionModel
+import cranium.core.models.integration.IntegrationDefinitionModel
+import cranium.core.models.request.integration.DisableIntegrationRequest
+import cranium.core.models.response.integration.IntegrationDisableResponse
+import cranium.core.service.integration.IntegrationConnectionService
+import cranium.core.service.integration.IntegrationDefinitionService
+import cranium.core.service.integration.IntegrationEnablementService
 import java.util.*
 
 @RestController

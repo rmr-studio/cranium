@@ -1,4 +1,4 @@
-package riven.core.service.ingestion.adapter
+package cranium.core.service.ingestion.adapter
 
 import java.time.Instant
 import java.util.UUID

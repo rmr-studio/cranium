@@ -8,8 +8,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@riven/ui/input';
-import { Button } from '@riven/ui/button';
+import { Input } from '@cranium/ui/input';
+import { Button } from '@cranium/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { DefinitionCategory } from '@/lib/types/workspace';
 import { cn } from '@/lib/util/utils';

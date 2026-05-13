@@ -1,22 +1,22 @@
-package riven.core.models.core.models.dtc.fulfillment
+package cranium.core.models.core.models.dtc.fulfillment
 
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.DataType
-import riven.core.enums.entity.EntityTypeRole
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.models.common.validation.SchemaOptions
-import riven.core.models.core.AttributeSemantics
-import riven.core.models.core.CoreModelAttribute
-import riven.core.models.core.ProjectionAcceptRule
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.DataType
+import cranium.core.enums.entity.EntityTypeRole
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.models.common.validation.SchemaOptions
+import cranium.core.models.core.AttributeSemantics
+import cranium.core.models.core.CoreModelAttribute
+import cranium.core.models.core.ProjectionAcceptRule
 
 /**
  * Shipment Event — a status update for a shipment (label_created, in_transit, delivered, exception).
  */
-object ShipmentEventModel : riven.core.models.core.CoreModelDefinition(
+object ShipmentEventModel : cranium.core.models.core.CoreModelDefinition(
     key = "shipment-event",
     displayNameSingular = "Shipment Event",
     displayNamePlural = "Shipment Events",

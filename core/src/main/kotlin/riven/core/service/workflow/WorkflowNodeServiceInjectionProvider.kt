@@ -1,8 +1,8 @@
-package riven.core.service.workflow
+package cranium.core.service.workflow
 
 import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Service
-import riven.core.models.workflow.node.NodeServiceProvider
+import cranium.core.models.workflow.node.NodeServiceProvider
 import kotlin.reflect.KClass
 
 /**

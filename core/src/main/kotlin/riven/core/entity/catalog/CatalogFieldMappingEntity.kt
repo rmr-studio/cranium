@@ -1,10 +1,10 @@
-package riven.core.entity.catalog
+package cranium.core.entity.catalog
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.Type
 import org.hibernate.annotations.UpdateTimestamp
-import riven.core.models.catalog.CatalogFieldMappingModel
+import cranium.core.models.catalog.CatalogFieldMappingModel
 import java.time.ZonedDateTime
 import java.util.*
 

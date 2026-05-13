@@ -16,10 +16,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@riven/ui/select';
+} from '@cranium/ui/select';
 import { EntityRelationshipCardinality, EntityType } from '@/lib/types/entity';
 import { cn } from '@/lib/util/utils';
-import { Button } from '@riven/ui/button';
+import { Button } from '@cranium/ui/button';
 import {
   Command,
   CommandEmpty,
@@ -27,8 +27,8 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@riven/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
+} from '@cranium/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@cranium/ui/popover';
 import { Check, ChevronsUpDown, MoreHorizontal, Repeat, X } from 'lucide-react';
 import { FC, useState } from 'react';
 import { useFormContext } from 'react-hook-form';

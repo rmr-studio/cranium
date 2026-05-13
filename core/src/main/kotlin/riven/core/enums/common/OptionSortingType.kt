@@ -1,4 +1,4 @@
-package riven.core.enums.common
+package cranium.core.enums.common
 
 enum class OptionSortingType {
     MANUAL,

@@ -13,8 +13,8 @@ import {
   type FieldValues,
 } from 'react-hook-form';
 
-import { cn } from '@riven/utils';
-import { Label } from '@riven/ui/label';
+import { cn } from '@cranium/utils';
+import { Label } from '@cranium/ui/label';
 
 const Form = FormProvider;
 

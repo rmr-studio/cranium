@@ -1,4 +1,4 @@
-package riven.core.service.workflow.engine.coordinator
+package cranium.core.service.workflow.engine.coordinator
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -10,13 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.models.workflow.node.NodeServiceProvider
-import riven.core.repository.workflow.WorkflowEdgeRepository
-import riven.core.repository.workflow.WorkflowExecutionNodeRepository
-import riven.core.repository.workflow.WorkflowNodeRepository
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.workflow.state.WorkflowNodeInputResolverService
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.models.workflow.node.NodeServiceProvider
+import cranium.core.repository.workflow.WorkflowEdgeRepository
+import cranium.core.repository.workflow.WorkflowExecutionNodeRepository
+import cranium.core.repository.workflow.WorkflowNodeRepository
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.workflow.state.WorkflowNodeInputResolverService
 import java.util.*
 
 /**

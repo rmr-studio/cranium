@@ -1,8 +1,8 @@
-package riven.core.models.request.block
+package cranium.core.models.request.block
 
-import riven.core.enums.common.validation.ValidationScope
-import riven.core.models.block.BlockTypeSchema
-import riven.core.models.block.display.BlockDisplay
+import cranium.core.enums.common.validation.ValidationScope
+import cranium.core.models.block.BlockTypeSchema
+import cranium.core.models.block.display.BlockDisplay
 import java.util.*
 
 data class CreateBlockTypeRequest(

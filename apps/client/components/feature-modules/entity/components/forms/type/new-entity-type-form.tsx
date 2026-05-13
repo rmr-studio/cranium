@@ -16,16 +16,16 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@riven/ui/select';
+} from '@cranium/ui/select';
 import { TagInput } from '@/components/ui/tag-input';
 import { EntityType, SemanticGroup } from '@/lib/types/entity';
 import { cn } from '@/lib/util/utils';
 import { PopoverClose } from '@radix-ui/react-popover';
-import { Button } from '@riven/ui/button';
-import { Input } from '@riven/ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
-import { Textarea } from '@riven/ui/textarea';
-import type { ChildNodeProps } from '@riven/utils';
+import { Button } from '@cranium/ui/button';
+import { Input } from '@cranium/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@cranium/ui/popover';
+import { Textarea } from '@cranium/ui/textarea';
+import type { ChildNodeProps } from '@cranium/utils';
 import { Plus } from 'lucide-react';
 import { FC } from 'react';
 import {

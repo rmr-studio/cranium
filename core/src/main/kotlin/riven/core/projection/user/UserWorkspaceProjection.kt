@@ -1,6 +1,6 @@
-package riven.core.projection.user
+package cranium.core.projection.user
 
-import riven.core.entity.user.UserEntity
+import cranium.core.entity.user.UserEntity
 
 interface UserWorkspaceProjection {
     fun getUserEntity(): UserEntity

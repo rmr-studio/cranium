@@ -1,4 +1,4 @@
-package riven.core.service.entity.type
+package cranium.core.service.entity.type
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -8,32 +8,32 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.entity.RelationshipDefinitionEntity
-import riven.core.entity.entity.RelationshipTargetRuleEntity
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.SystemRelationshipType
-import riven.core.enums.integration.SourceType
-import riven.core.enums.entity.semantics.SemanticMetadataTargetType
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.models.request.entity.type.SaveRelationshipDefinitionRequest
-import riven.core.models.request.entity.type.SaveTargetRuleRequest
-import riven.core.repository.entity.EntityRelationshipRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.repository.entity.RelationshipDefinitionRepository
-import riven.core.repository.entity.RelationshipTargetRuleRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.entity.EntityTypeSemanticMetadataService
-import riven.core.service.util.BaseServiceTest
-import riven.core.service.util.SecurityTestConfig
-import riven.core.service.util.WithUserPersona
-import riven.core.service.util.WorkspaceRole
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.entity.entity.RelationshipDefinitionEntity
+import cranium.core.entity.entity.RelationshipTargetRuleEntity
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.enums.entity.SystemRelationshipType
+import cranium.core.enums.integration.SourceType
+import cranium.core.enums.entity.semantics.SemanticMetadataTargetType
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.models.request.entity.type.SaveRelationshipDefinitionRequest
+import cranium.core.models.request.entity.type.SaveTargetRuleRequest
+import cranium.core.repository.entity.EntityRelationshipRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.repository.entity.RelationshipDefinitionRepository
+import cranium.core.repository.entity.RelationshipTargetRuleRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.entity.EntityTypeSemanticMetadataService
+import cranium.core.service.util.BaseServiceTest
+import cranium.core.service.util.SecurityTestConfig
+import cranium.core.service.util.WithUserPersona
+import cranium.core.service.util.WorkspaceRole
 import org.junit.jupiter.api.Nested
-import riven.core.service.util.factory.entity.EntityFactory
+import cranium.core.service.util.factory.entity.EntityFactory
 import java.util.*
 
 @SpringBootTest(
@@ -720,7 +720,7 @@ class EntityTypeRelationshipServiceTest : BaseServiceTest() {
         whenever(entityTypeRepository.findById(targetEntityTypeId)).thenReturn(Optional.of(entityType))
         whenever(targetRuleRepository.findByRelationshipDefinitionId(defId)).thenReturn(listOf(unrelatedRule))
 
-        assertThrows(riven.core.exceptions.NotFoundException::class.java) {
+        assertThrows(cranium.core.exceptions.NotFoundException::class.java) {
             service.removeTargetRule(workspaceId, defId, targetEntityTypeId, impactConfirmed = false)
         }
     }

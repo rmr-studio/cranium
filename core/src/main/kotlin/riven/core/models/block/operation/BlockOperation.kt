@@ -1,9 +1,9 @@
-package riven.core.models.block.operation
+package cranium.core.models.block.operation
 
 import tools.jackson.databind.annotation.JsonDeserialize
 import io.swagger.v3.oas.annotations.media.Schema
-import riven.core.deserializer.BlockOperationDeserializer
-import riven.core.enums.block.request.BlockOperationType
+import cranium.core.deserializer.BlockOperationDeserializer
+import cranium.core.enums.block.request.BlockOperationType
 import java.util.*
 
 @Schema(hidden = true)

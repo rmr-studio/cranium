@@ -1,4 +1,4 @@
-package riven.core.service.entity
+package cranium.core.service.entity
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -14,27 +14,27 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.entity.entity.EntityTypeSemanticMetadataEntity
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.DataType
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.identity.MatchSignalType
-import riven.core.enums.entity.semantics.SemanticMetadataTargetType
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.exceptions.NotFoundException
-import riven.core.models.common.validation.Schema
-import riven.core.models.request.entity.type.BulkSaveSemanticMetadataRequest
-import riven.core.models.request.entity.type.SaveSemanticMetadataRequest
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.repository.entity.EntityTypeSemanticMetadataRepository
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.identity.EntityTypeClassificationService
-import riven.core.service.util.BaseServiceTest
-import riven.core.service.util.SecurityTestConfig
-import riven.core.service.util.WithUserPersona
-import riven.core.service.util.WorkspaceRole
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.entity.entity.EntityTypeSemanticMetadataEntity
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.DataType
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.enums.identity.MatchSignalType
+import cranium.core.enums.entity.semantics.SemanticMetadataTargetType
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.exceptions.NotFoundException
+import cranium.core.models.common.validation.Schema
+import cranium.core.models.request.entity.type.BulkSaveSemanticMetadataRequest
+import cranium.core.models.request.entity.type.SaveSemanticMetadataRequest
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.repository.entity.EntityTypeSemanticMetadataRepository
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.identity.EntityTypeClassificationService
+import cranium.core.service.util.BaseServiceTest
+import cranium.core.service.util.SecurityTestConfig
+import cranium.core.service.util.WithUserPersona
+import cranium.core.service.util.WorkspaceRole
 import java.util.Optional
 import java.util.UUID
 
@@ -540,7 +540,7 @@ class EntityTypeSemanticMetadataServiceTest : BaseServiceTest() {
                     )
                 )
             ),
-            columnConfiguration = riven.core.models.entity.configuration.ColumnConfiguration(order = listOf(attrId)),
+            columnConfiguration = cranium.core.models.entity.configuration.ColumnConfiguration(order = listOf(attrId)),
             identifierKey = attrId,
         )
     }

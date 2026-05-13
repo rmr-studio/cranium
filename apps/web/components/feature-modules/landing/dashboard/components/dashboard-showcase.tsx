@@ -50,7 +50,7 @@ export function DashboardShowcase() {
             </h3>
 
             <p className="mx-4 mt-4 max-w-3xl text-center text-base leading-tight text-content">
-              Riven explores and surfaces patterns, trends and insights hidden deep in your data.
+              Cranium explores and surfaces patterns, trends and insights hidden deep in your data.
               From channel performance to cohort health to churn risks, it has never been easier to
               understand your customers from a singular glance
             </p>

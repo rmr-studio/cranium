@@ -1,12 +1,12 @@
-package riven.core.models.block.operation
+package cranium.core.models.block.operation
 
 import com.fasterxml.jackson.annotation.JsonTypeName
 import tools.jackson.databind.ValueDeserializer
 import tools.jackson.databind.annotation.JsonDeserialize
 import io.swagger.v3.oas.annotations.media.DiscriminatorMapping
 import io.swagger.v3.oas.annotations.media.Schema
-import riven.core.enums.block.request.BlockOperationType
-import riven.core.models.block.tree.*
+import cranium.core.enums.block.request.BlockOperationType
+import cranium.core.models.block.tree.*
 import java.util.*
 
 @JsonTypeName("UPDATE_BLOCK")

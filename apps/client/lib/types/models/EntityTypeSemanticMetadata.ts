@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,28 +12,21 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { SemanticMetadataTargetType } from './SemanticMetadataTargetType';
-import {
-    SemanticMetadataTargetTypeFromJSON,
-    SemanticMetadataTargetTypeFromJSONTyped,
-    SemanticMetadataTargetTypeToJSON,
-    SemanticMetadataTargetTypeToJSONTyped,
-} from './SemanticMetadataTargetType';
 import type { MatchSignalType } from './MatchSignalType';
 import {
     MatchSignalTypeFromJSON,
-    MatchSignalTypeFromJSONTyped,
-    MatchSignalTypeToJSON,
-    MatchSignalTypeToJSONTyped,
+    MatchSignalTypeToJSON
 } from './MatchSignalType';
 import type { SemanticAttributeClassification } from './SemanticAttributeClassification';
 import {
     SemanticAttributeClassificationFromJSON,
-    SemanticAttributeClassificationFromJSONTyped,
-    SemanticAttributeClassificationToJSON,
-    SemanticAttributeClassificationToJSONTyped,
+    SemanticAttributeClassificationToJSON
 } from './SemanticAttributeClassification';
+import type { SemanticMetadataTargetType } from './SemanticMetadataTargetType';
+import {
+    SemanticMetadataTargetTypeFromJSON,
+    SemanticMetadataTargetTypeToJSON
+} from './SemanticMetadataTargetType';
 
 /**
  * 

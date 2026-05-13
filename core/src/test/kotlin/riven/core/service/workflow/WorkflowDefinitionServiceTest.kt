@@ -1,4 +1,4 @@
-package riven.core.service.workflow
+package cranium.core.service.workflow
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -8,26 +8,26 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.workflow.WorkflowDefinitionEntity
-import riven.core.entity.workflow.WorkflowDefinitionVersionEntity
-import riven.core.enums.activity.Activity
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.util.OperationType
-import riven.core.enums.workflow.WorkflowDefinitionStatus
-import riven.core.exceptions.NotFoundException
-import riven.core.models.request.workflow.CreateWorkflowDefinitionRequest
-import riven.core.models.request.workflow.UpdateWorkflowDefinitionRequest
-import riven.core.repository.workflow.WorkflowDefinitionRepository
-import riven.core.repository.workflow.WorkflowDefinitionVersionRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.util.BaseServiceTest
-import riven.core.service.util.SecurityTestConfig
-import riven.core.service.util.factory.workflow.WorkflowFactory
-import riven.core.repository.workflow.WorkflowEdgeRepository
-import riven.core.repository.workflow.WorkflowNodeRepository
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.entity.workflow.WorkflowDefinitionEntity
+import cranium.core.entity.workflow.WorkflowDefinitionVersionEntity
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.util.OperationType
+import cranium.core.enums.workflow.WorkflowDefinitionStatus
+import cranium.core.exceptions.NotFoundException
+import cranium.core.models.request.workflow.CreateWorkflowDefinitionRequest
+import cranium.core.models.request.workflow.UpdateWorkflowDefinitionRequest
+import cranium.core.repository.workflow.WorkflowDefinitionRepository
+import cranium.core.repository.workflow.WorkflowDefinitionVersionRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.util.BaseServiceTest
+import cranium.core.service.util.SecurityTestConfig
+import cranium.core.service.util.factory.workflow.WorkflowFactory
+import cranium.core.repository.workflow.WorkflowEdgeRepository
+import cranium.core.repository.workflow.WorkflowNodeRepository
 import java.util.*
 
 @SpringBootTest(

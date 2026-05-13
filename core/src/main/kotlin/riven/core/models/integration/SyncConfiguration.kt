@@ -1,6 +1,6 @@
-package riven.core.models.integration
+package cranium.core.models.integration
 
-import riven.core.enums.integration.SyncScope
+import cranium.core.enums.integration.SyncScope
 
 data class SyncConfiguration(
     val syncScope: SyncScope = SyncScope.ALL,

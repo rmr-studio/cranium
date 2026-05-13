@@ -1,4 +1,4 @@
-package riven.core.service.ingestion.adapter.exception
+package cranium.core.service.ingestion.adapter.exception
 
 /**
  * Base for all adapter-raised exceptions.

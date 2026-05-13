@@ -1,5 +1,5 @@
 {
-  "extends": "@riven/tsconfig/nextjs.json",
+  "extends": "@cranium/tsconfig/nextjs.json",
   "compilerOptions": {
     "jsx": "react-jsx",
     "incremental": true,

@@ -1,13 +1,13 @@
-package riven.core.service.identity
+package cranium.core.service.identity
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.workflow.ExecutionQueueEntity
-import riven.core.enums.workflow.ExecutionJobType
-import riven.core.enums.workflow.ExecutionQueueStatus
-import riven.core.repository.workflow.ExecutionQueueRepository
+import cranium.core.entity.workflow.ExecutionQueueEntity
+import cranium.core.enums.workflow.ExecutionJobType
+import cranium.core.enums.workflow.ExecutionQueueStatus
+import cranium.core.repository.workflow.ExecutionQueueRepository
 import java.time.ZonedDateTime
 import java.util.UUID
 

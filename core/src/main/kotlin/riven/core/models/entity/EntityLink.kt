@@ -1,8 +1,8 @@
-package riven.core.models.entity
+package cranium.core.models.entity
 
-import riven.core.enums.entity.RelationshipDirection
-import riven.core.enums.entity.SystemRelationshipType
-import riven.core.models.common.Icon
+import cranium.core.enums.entity.RelationshipDirection
+import cranium.core.enums.entity.SystemRelationshipType
+import cranium.core.models.common.Icon
 import java.util.*
 
 /**

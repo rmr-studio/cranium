@@ -1,8 +1,8 @@
-# CLAUDE.md — Riven Client
+# CLAUDE.md — Cranium Client
 
 ## Project Overview
 
-Riven is a unified business tooling SaaS platform that aims to connect all tools that a business uses together through integrations and flexible data modelling to provide contextual knowledge and cross domain intelligence. This is the Next.js 15 frontend (App Router, React 19, TypeScript strict) backed by a Spring Boot API at `localhost:8081`. Auth aims to be agnostic, through implementable interfaces. But is currently using supabase as its primary source. The API contract is defined by an OpenAPI spec served by the backend, with types generated via `openapi-generator-cli` (typescript-fetch) into `lib/types/`. UI is built with shadcn/ui (new-york style) + Tailwind 4 + Framer Motion.
+Cranium is a unified business tooling SaaS platform that aims to connect all tools that a business uses together through integrations and flexible data modelling to provide contextual knowledge and cross domain intelligence. This is the Next.js 15 frontend (App Router, React 19, TypeScript strict) backed by a Spring Boot API at `localhost:8081`. Auth aims to be agnostic, through implementable interfaces. But is currently using supabase as its primary source. The API contract is defined by an OpenAPI spec served by the backend, with types generated via `openapi-generator-cli` (typescript-fetch) into `lib/types/`. UI is built with shadcn/ui (new-york style) + Tailwind 4 + Framer Motion.
 
 **API contract:** OpenAPI spec fetched at generation time from `http://localhost:8081/docs/v3/api-docs`. Generated output in `lib/types/`. Regenerate with `npm run types`.
 

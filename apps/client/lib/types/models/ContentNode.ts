@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,28 +12,21 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { ReferencePayload } from './ReferencePayload';
-import {
-    ReferencePayloadFromJSON,
-    ReferencePayloadFromJSONTyped,
-    ReferencePayloadToJSON,
-    ReferencePayloadToJSONTyped,
-} from './ReferencePayload';
-import type { NodeType } from './NodeType';
-import {
-    NodeTypeFromJSON,
-    NodeTypeFromJSONTyped,
-    NodeTypeToJSON,
-    NodeTypeToJSONTyped,
-} from './NodeType';
 import type { Block } from './Block';
 import {
     BlockFromJSON,
-    BlockFromJSONTyped,
-    BlockToJSON,
-    BlockToJSONTyped,
+    BlockToJSON
 } from './Block';
+import type { NodeType } from './NodeType';
+import {
+    NodeTypeFromJSON,
+    NodeTypeToJSON
+} from './NodeType';
+import type { ReferencePayload } from './ReferencePayload';
+import {
+    ReferencePayloadFromJSON,
+    ReferencePayloadToJSON
+} from './ReferencePayload';
 
 /**
  * Content node containing a block with optional children

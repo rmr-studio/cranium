@@ -1,8 +1,8 @@
-package riven.core.service.workflow.engine.coordinator
+package cranium.core.service.workflow.engine.coordinator
 
 import org.springframework.stereotype.Service
-import riven.core.entity.workflow.WorkflowEdgeEntity
-import riven.core.models.workflow.node.WorkflowNode
+import cranium.core.entity.workflow.WorkflowEdgeEntity
+import cranium.core.models.workflow.node.WorkflowNode
 import java.util.*
 
 /**

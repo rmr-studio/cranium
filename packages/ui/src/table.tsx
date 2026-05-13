@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { cn } from "@riven/utils";
+import { cn } from "@cranium/utils";
 
 function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
@@ -91,7 +91,10 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
   );
 }
 
-function TableCaption({ className, ...props }: React.ComponentProps<"caption">) {
+function TableCaption({
+  className,
+  ...props
+}: React.ComponentProps<"caption">) {
   return (
     <caption
       data-slot="table-caption"

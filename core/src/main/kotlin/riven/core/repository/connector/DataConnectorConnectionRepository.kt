@@ -1,8 +1,8 @@
-package riven.core.repository.connector
+package cranium.core.repository.connector
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
-import riven.core.entity.connector.DataConnectorConnectionEntity
+import cranium.core.entity.connector.DataConnectorConnectionEntity
 import java.util.Optional
 import java.util.UUID
 
@@ -10,7 +10,7 @@ import java.util.UUID
  * Spring Data JPA repository for [DataConnectorConnectionEntity].
  *
  * Soft-delete filtering is automatic via `@SQLRestriction("deleted = false")`
- * on [riven.core.entity.util.AuditableSoftDeletableEntity] — derived queries
+ * on [cranium.core.entity.util.AuditableSoftDeletableEntity] — derived queries
  * here never need to repeat `AND deleted = false`.
  */
 @Repository

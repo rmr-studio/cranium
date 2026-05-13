@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,34 +12,15 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { FilterOperator } from './FilterOperator';
-import {
-    FilterOperatorFromJSON,
-    FilterOperatorFromJSONTyped,
-    FilterOperatorToJSON,
-    FilterOperatorToJSONTyped,
-} from './FilterOperator';
-import type { QueryFilter } from './QueryFilter';
-import {
-    QueryFilterFromJSON,
-    QueryFilterFromJSONTyped,
-    QueryFilterToJSON,
-    QueryFilterToJSONTyped,
-} from './QueryFilter';
 import type { RelationshipFilter } from './RelationshipFilter';
 import {
-    RelationshipFilterFromJSON,
     RelationshipFilterFromJSONTyped,
-    RelationshipFilterToJSON,
-    RelationshipFilterToJSONTyped,
+    RelationshipFilterToJSONTyped
 } from './RelationshipFilter';
 import type { TypeBranch } from './TypeBranch';
 import {
     TypeBranchFromJSON,
-    TypeBranchFromJSONTyped,
-    TypeBranchToJSON,
-    TypeBranchToJSONTyped,
+    TypeBranchToJSON
 } from './TypeBranch';
 
 /**

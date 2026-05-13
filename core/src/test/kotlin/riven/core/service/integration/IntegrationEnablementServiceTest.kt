@@ -1,4 +1,4 @@
-package riven.core.service.integration
+package cranium.core.service.integration
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.*
@@ -10,24 +10,24 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.integration.IntegrationConnectionEntity
-import riven.core.entity.integration.IntegrationDefinitionEntity
-import riven.core.entity.integration.WorkspaceIntegrationInstallationEntity
-import riven.core.enums.integration.ConnectionStatus
-import riven.core.enums.integration.IntegrationCategory
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.exceptions.NotFoundException
-import riven.core.models.request.integration.DisableIntegrationRequest
-import riven.core.repository.integration.IntegrationDefinitionRepository
-import riven.core.repository.integration.WorkspaceIntegrationInstallationRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.entity.type.EntityTypeService
-import riven.core.models.integration.IntegrationSoftDeleteResult
-import riven.core.service.util.SecurityTestConfig
-import riven.core.service.util.WithUserPersona
-import riven.core.service.util.WorkspaceRole
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.entity.integration.IntegrationConnectionEntity
+import cranium.core.entity.integration.IntegrationDefinitionEntity
+import cranium.core.entity.integration.WorkspaceIntegrationInstallationEntity
+import cranium.core.enums.integration.ConnectionStatus
+import cranium.core.enums.integration.IntegrationCategory
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.exceptions.NotFoundException
+import cranium.core.models.request.integration.DisableIntegrationRequest
+import cranium.core.repository.integration.IntegrationDefinitionRepository
+import cranium.core.repository.integration.WorkspaceIntegrationInstallationRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.entity.type.EntityTypeService
+import cranium.core.models.integration.IntegrationSoftDeleteResult
+import cranium.core.service.util.SecurityTestConfig
+import cranium.core.service.util.WithUserPersona
+import cranium.core.service.util.WorkspaceRole
 import org.junit.jupiter.api.assertThrows
 import org.springframework.security.access.AccessDeniedException
 import java.util.*
@@ -41,7 +41,7 @@ import java.util.*
  * - Security access control
  *
  * Note: enableIntegration() was removed in Phase 2 — integration enablement is now
- * webhook-driven. Connection creation happens via the Nango auth webhook handler.
+ * webhook-dcranium. Connection creation happens via the Nango auth webhook handler.
  */
 @SpringBootTest(
     classes = [

@@ -1,4 +1,4 @@
-package riven.core.enums.entity.semantics
+package cranium.core.enums.entity.semantics
 
 /**
  * Discriminator enum identifying which domain object a semantic metadata record describes.

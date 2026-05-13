@@ -1,16 +1,16 @@
-package riven.core.service.enrichment
+package cranium.core.service.enrichment
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.configuration.properties.EnrichmentConfigurationProperties
-import riven.core.entity.enrichment.EntityEmbeddingEntity
-import riven.core.enums.workflow.ExecutionQueueStatus
-import riven.core.models.enrichment.EnrichmentContext
-import riven.core.repository.enrichment.EntityEmbeddingRepository
-import riven.core.repository.workflow.ExecutionQueueRepository
-import riven.core.service.enrichment.provider.EmbeddingProvider
-import riven.core.util.ServiceUtil
+import cranium.core.configuration.properties.EnrichmentConfigurationProperties
+import cranium.core.entity.enrichment.EntityEmbeddingEntity
+import cranium.core.enums.workflow.ExecutionQueueStatus
+import cranium.core.models.enrichment.EnrichmentContext
+import cranium.core.repository.enrichment.EntityEmbeddingRepository
+import cranium.core.repository.workflow.ExecutionQueueRepository
+import cranium.core.service.enrichment.provider.EmbeddingProvider
+import cranium.core.util.ServiceUtil
 import java.util.UUID
 
 /**
@@ -20,7 +20,7 @@ import java.util.UUID
  * [EnrichmentContext], generates a vector via [EmbeddingProvider], upserts the embedding record
  * (delete + insert pattern), and marks the execution queue item as COMPLETED.
  *
- * This service is invoked by [riven.core.service.workflow.enrichment.EnrichmentActivitiesImpl]
+ * This service is invoked by [cranium.core.service.workflow.enrichment.EnrichmentActivitiesImpl]
  * as the implementation of the `embedAndStore` Temporal activity. All three steps run in a
  * single transaction: if the queue-completion save fails, the embedding row is rolled back and
  * Temporal will retry the activity.
@@ -50,7 +50,7 @@ class EnrichmentEmbeddingService(
      * @param context The enrichment context snapshot (provides entity/type IDs, schema version)
      * @param queueItemId The queue item to mark completed after successful embedding storage
      * @throws IllegalArgumentException if the generated embedding dimensions do not match configured vectorDimensions
-     * @throws riven.core.exceptions.NotFoundException if the queue item does not exist
+     * @throws cranium.core.exceptions.NotFoundException if the queue item does not exist
      */
     @Transactional
     fun embedAndStore(context: EnrichmentContext, queueItemId: UUID) {
@@ -109,7 +109,7 @@ class EnrichmentEmbeddingService(
      * so a duplicate workflow invocation cannot regress a successfully completed job, nor overwrite
      * an existing failure reason.
      *
-     * Invoked from [riven.core.service.workflow.enrichment.EnrichmentWorkflowImpl.embed] via the
+     * Invoked from [cranium.core.service.workflow.enrichment.EnrichmentWorkflowImpl.embed] via the
      * `markQueueItemFailed` Temporal activity.
      *
      * @param queueItemId Row to transition.

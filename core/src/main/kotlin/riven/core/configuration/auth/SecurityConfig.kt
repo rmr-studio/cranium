@@ -1,4 +1,4 @@
-package riven.core.configuration.auth
+package cranium.core.configuration.auth
 
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.context.annotation.Bean
@@ -16,8 +16,8 @@ import org.springframework.security.web.access.AccessDeniedHandler
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
-import riven.core.configuration.properties.SecurityConfigurationProperties
-import riven.core.configuration.properties.WebSocketConfigurationProperties
+import cranium.core.configuration.properties.SecurityConfigurationProperties
+import cranium.core.configuration.properties.WebSocketConfigurationProperties
 import javax.crypto.spec.SecretKeySpec
 
 @Configuration

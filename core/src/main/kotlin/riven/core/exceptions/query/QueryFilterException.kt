@@ -1,7 +1,7 @@
-package riven.core.exceptions.query
+package cranium.core.exceptions.query
 
-import riven.core.enums.core.DataType
-import riven.core.enums.entity.query.FilterOperator
+import cranium.core.enums.core.DataType
+import cranium.core.enums.entity.query.FilterOperator
 import java.util.*
 
 /**

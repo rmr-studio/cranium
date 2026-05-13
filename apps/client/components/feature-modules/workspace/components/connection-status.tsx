@@ -3,7 +3,7 @@
 import { useWebSocket } from '@/hooks/websocket/use-websocket';
 import type { ConnectionState } from '@/components/provider/websocket-provider';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 
 const stateConfig: Record<ConnectionState, { color: string; pulse: boolean; label: string }> = {
   CONNECTED: { color: 'bg-green-500', pulse: false, label: 'Connected' },

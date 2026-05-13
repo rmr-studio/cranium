@@ -1,4 +1,4 @@
-package riven.core.service.ingestion
+package cranium.core.service.ingestion
 
 import tools.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KLogger
@@ -29,23 +29,23 @@ import org.springframework.test.context.TestPropertySource
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
-import riven.core.entity.entity.EntityAttributeEntity
-import riven.core.entity.entity.EntityEntity
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.integration.SourceType
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.models.ingestion.ProjectionResult
-import riven.core.repository.entity.*
-import riven.core.repository.integration.ProjectionRuleRepository
-import riven.core.service.catalog.ManifestResolverService
-import riven.core.service.catalog.ManifestScannerService
-import riven.core.service.catalog.ManifestUpsertService
-import riven.core.service.catalog.TemplateInstallationService
-import riven.core.service.entity.EntityAttributeService
-import riven.core.service.entity.type.EntityTypeService
-import riven.core.service.integration.materialization.TemplateMaterializationService
-import riven.core.service.util.SchemaInitializer
-import riven.core.service.util.factory.entity.EntityFactory
+import cranium.core.entity.entity.EntityAttributeEntity
+import cranium.core.entity.entity.EntityEntity
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.integration.SourceType
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.models.ingestion.ProjectionResult
+import cranium.core.repository.entity.*
+import cranium.core.repository.integration.ProjectionRuleRepository
+import cranium.core.service.catalog.ManifestResolverService
+import cranium.core.service.catalog.ManifestScannerService
+import cranium.core.service.catalog.ManifestUpsertService
+import cranium.core.service.catalog.TemplateInstallationService
+import cranium.core.service.entity.EntityAttributeService
+import cranium.core.service.entity.type.EntityTypeService
+import cranium.core.service.integration.materialization.TemplateMaterializationService
+import cranium.core.service.util.SchemaInitializer
+import cranium.core.service.util.factory.entity.EntityFactory
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -56,7 +56,7 @@ object ProjectionTestContainer {
     val instance: PostgreSQLContainer = PostgreSQLContainer(
         DockerImageName.parse("pgvector/pgvector:pg16").asCompatibleSubstituteFor("postgres")
     )
-        .withDatabaseName("riven_e2e")
+        .withDatabaseName("cranium_e2e")
         .withUsername("test")
         .withPassword("test")
 
@@ -87,34 +87,34 @@ object ProjectionTestContainer {
         "io.temporal.spring.boot.autoconfigure.TestServerAutoConfiguration",
     ],
 )
-@EnableJpaRepositories(basePackages = ["riven.core.repository"])
-@EntityScan("riven.core.entity")
-@org.springframework.boot.context.properties.ConfigurationPropertiesScan(basePackages = ["riven.core.configuration.properties"])
+@EnableJpaRepositories(basePackages = ["cranium.core.repository"])
+@EntityScan("cranium.core.entity")
+@org.springframework.boot.context.properties.ConfigurationPropertiesScan(basePackages = ["cranium.core.configuration.properties"])
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider", dateTimeProviderRef = "dateTimeProvider")
 @ComponentScan(
     basePackages = [
-        "riven.core.service.ingestion",
-        "riven.core.service.entity",
-        "riven.core.service.identity",
-        "riven.core.service.catalog",
-        "riven.core.service.integration.materialization",
-        "riven.core.service.lifecycle",
-        "riven.core.service.schema",
-        "riven.core.configuration.util",
-        "riven.core.configuration.properties",
-        "riven.core.lifecycle",
+        "cranium.core.service.ingestion",
+        "cranium.core.service.entity",
+        "cranium.core.service.identity",
+        "cranium.core.service.catalog",
+        "cranium.core.service.integration.materialization",
+        "cranium.core.service.lifecycle",
+        "cranium.core.service.schema",
+        "cranium.core.configuration.util",
+        "cranium.core.configuration.properties",
+        "cranium.core.lifecycle",
     ],
     excludeFilters = [
         ComponentScan.Filter(
             type = org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE,
             classes = [
-                riven.core.service.workflow.queue.WorkflowExecutionQueueService::class,
-                riven.core.service.identity.IdentityMatchQueueProcessorService::class,
-                riven.core.service.identity.IdentityMatchDispatcherService::class,
-                // NangoAdapter requires NangoClientWrapper (in riven.core.service.integration,
+                cranium.core.service.workflow.queue.WorkflowExecutionQueueService::class,
+                cranium.core.service.identity.IdentityMatchQueueProcessorService::class,
+                cranium.core.service.identity.IdentityMatchDispatcherService::class,
+                // NangoAdapter requires NangoClientWrapper (in cranium.core.service.integration,
                 // which is not scanned by this config — Nango HTTP layer is intentionally
                 // excluded from the projection pipeline tests).
-                riven.core.service.ingestion.adapter.nango.NangoAdapter::class,
+                cranium.core.service.ingestion.adapter.nango.NangoAdapter::class,
             ]
         ),
     ],
@@ -145,9 +145,9 @@ class ProjectionPipelineIntegrationTestConfig {
      * No SecurityContext is available in integration tests, so the real implementation would throw.
      */
     @Bean
-    fun authTokenService(logger: KLogger): riven.core.service.auth.AuthTokenService {
+    fun authTokenService(logger: KLogger): cranium.core.service.auth.AuthTokenService {
         val testUserId = UUID.fromString("e0000000-0000-0000-0000-000000000099")
-        return object : riven.core.service.auth.AuthTokenService(logger) {
+        return object : cranium.core.service.auth.AuthTokenService(logger) {
             override fun getUserId(): UUID = testUserId
             override fun getUserEmail(): String = "e2e@test.com"
         }
@@ -158,8 +158,8 @@ class ProjectionPipelineIntegrationTestConfig {
      * Always returns true since integration tests do not enforce workspace access control.
      */
     @Bean
-    fun workspaceSecurity(): riven.core.configuration.auth.WorkspaceSecurity {
-        val mock = org.mockito.Mockito.mock(riven.core.configuration.auth.WorkspaceSecurity::class.java)
+    fun workspaceSecurity(): cranium.core.configuration.auth.WorkspaceSecurity {
+        val mock = org.mockito.Mockito.mock(cranium.core.configuration.auth.WorkspaceSecurity::class.java)
         org.mockito.Mockito.doReturn(true).`when`(mock).hasWorkspace(org.mockito.kotlin.any())
         org.mockito.Mockito.doReturn(true).`when`(mock)
             .hasWorkspaceRole(org.mockito.kotlin.any(), org.mockito.kotlin.any())
@@ -167,15 +167,15 @@ class ProjectionPipelineIntegrationTestConfig {
     }
 
     @Bean
-    fun workflowExecutionQueueService(): riven.core.service.workflow.queue.WorkflowExecutionQueueService =
-        org.mockito.Mockito.mock(riven.core.service.workflow.queue.WorkflowExecutionQueueService::class.java)
+    fun workflowExecutionQueueService(): cranium.core.service.workflow.queue.WorkflowExecutionQueueService =
+        org.mockito.Mockito.mock(cranium.core.service.workflow.queue.WorkflowExecutionQueueService::class.java)
 
     @Bean
     fun activityService(
         logger: KLogger,
-        activityLogRepository: riven.core.repository.activity.ActivityLogRepository
-    ): riven.core.service.activity.ActivityService =
-        riven.core.service.activity.ActivityService(logger, activityLogRepository)
+        activityLogRepository: cranium.core.repository.activity.ActivityLogRepository
+    ): cranium.core.service.activity.ActivityService =
+        cranium.core.service.activity.ActivityService(logger, activityLogRepository)
 
     /**
      * Mock EnrichmentQueueService bean — SchemaReconciliationService depends on it for the
@@ -184,8 +184,8 @@ class ProjectionPipelineIntegrationTestConfig {
      * intentionally not wired into this config.
      */
     @Bean
-    fun enrichmentQueueService(): riven.core.service.enrichment.EnrichmentQueueService =
-        org.mockito.Mockito.mock(riven.core.service.enrichment.EnrichmentQueueService::class.java)
+    fun enrichmentQueueService(): cranium.core.service.enrichment.EnrichmentQueueService =
+        org.mockito.Mockito.mock(cranium.core.service.enrichment.EnrichmentQueueService::class.java)
 }
 
 /**
@@ -206,8 +206,8 @@ class ProjectionPipelineIntegrationTestConfig {
     properties = [
         "spring.jpa.hibernate.ddl-auto=none",
         "spring.main.allow-bean-definition-overriding=true",
-        "riven.manifests.auto-load=false",
-        "riven.connector.enabled=false",
+        "cranium.manifests.auto-load=false",
+        "cranium.connector.enabled=false",
     ]
 )
 @Testcontainers
@@ -404,7 +404,7 @@ abstract class ProjectionPipelineIntegrationTestBase {
             .filter { it.sourceType == SourceType.PROJECTED && it.workspaceId == workspaceId }
     }
 
-    protected fun findEntityTypeByKey(key: String): riven.core.entity.entity.EntityTypeEntity {
+    protected fun findEntityTypeByKey(key: String): cranium.core.entity.entity.EntityTypeEntity {
         return entityTypeRepository.findByworkspaceIdAndKey(workspaceId, key).orElseThrow {
             AssertionError("Entity type '$key' not found in workspace $workspaceId")
         }

@@ -1,7 +1,7 @@
-package riven.core.models.request.block
+package cranium.core.models.request.block
 
-import riven.core.models.block.BlockType
-import riven.core.models.block.metadata.Metadata
+import cranium.core.models.block.BlockType
+import cranium.core.models.block.metadata.Metadata
 import java.util.*
 
 /**

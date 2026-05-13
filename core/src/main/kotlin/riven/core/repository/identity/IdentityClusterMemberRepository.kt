@@ -1,10 +1,10 @@
-package riven.core.repository.identity
+package cranium.core.repository.identity
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
-import riven.core.entity.identity.IdentityClusterMemberEntity
+import cranium.core.entity.identity.IdentityClusterMemberEntity
 import java.util.UUID
 
 /**
@@ -25,7 +25,7 @@ interface IdentityClusterMemberRepository : JpaRepository<IdentityClusterMemberE
     /**
      * Returns the membership for a specific entity within a specific cluster, or null if not found.
      *
-     * Used by [riven.core.service.identity.IdentityClusterService] to verify a target member
+     * Used by [cranium.core.service.identity.IdentityClusterService] to verify a target member
      * is actually in the cluster before creating a relationship with the new entity.
      */
     fun findByClusterIdAndEntityId(clusterId: UUID, entityId: UUID): IdentityClusterMemberEntity?

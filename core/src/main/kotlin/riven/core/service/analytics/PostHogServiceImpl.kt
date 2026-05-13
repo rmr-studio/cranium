@@ -1,4 +1,4 @@
-package riven.core.service.analytics
+package cranium.core.service.analytics
 
 import com.posthog.server.PostHogCaptureOptions
 import com.posthog.server.PostHogInterface

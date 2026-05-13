@@ -1,13 +1,13 @@
-package riven.core.service.integration
+package cranium.core.service.integration
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.integration.IntegrationSyncStateEntity
-import riven.core.enums.integration.ConnectionStatus
-import riven.core.enums.integration.SyncStatus
-import riven.core.repository.integration.IntegrationConnectionRepository
-import riven.core.repository.integration.IntegrationSyncStateRepository
+import cranium.core.entity.integration.IntegrationSyncStateEntity
+import cranium.core.enums.integration.ConnectionStatus
+import cranium.core.enums.integration.SyncStatus
+import cranium.core.repository.integration.IntegrationConnectionRepository
+import cranium.core.repository.integration.IntegrationSyncStateRepository
 import java.util.UUID
 
 /**
@@ -24,7 +24,7 @@ import java.util.UUID
  * This service has no [@PreAuthorize] — it is invoked from a Temporal activity, not a
  * web request, so there is no JWT security context available.
  *
- * @see riven.core.service.integration.sync.IntegrationSyncActivitiesImpl
+ * @see cranium.core.service.integration.sync.IntegrationSyncActivitiesImpl
  */
 @Service
 class IntegrationHealthService(

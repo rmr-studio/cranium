@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@riven/ui/button';
+import { Button } from '@cranium/ui/button';
 import { FC } from 'react';
 import { ONBOARD_STEPS } from '@/components/feature-modules/onboarding/config/onboard-steps';
 import { useCompleteOnboardingMutation } from '@/components/feature-modules/onboarding/hooks/mutation/use-complete-onboarding-mutation';

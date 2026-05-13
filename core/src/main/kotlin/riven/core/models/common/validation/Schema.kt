@@ -1,12 +1,12 @@
-package riven.core.models.common.validation
+package cranium.core.models.common.validation
 
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.DataFormat
-import riven.core.enums.core.DataType
-import riven.core.models.common.Icon
-import riven.core.models.common.json.JsonObject
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.DataFormat
+import cranium.core.enums.core.DataType
+import cranium.core.models.common.Icon
+import cranium.core.models.common.json.JsonObject
 
 /**
  * The Schema defines the structure and data storage requirements for a given object.

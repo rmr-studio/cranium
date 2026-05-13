@@ -1,24 +1,24 @@
-package riven.core.service.knowledge
+package cranium.core.service.knowledge
 
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
-import riven.core.entity.entity.EntityEntity
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.enums.entity.RelationshipTargetKind
-import riven.core.enums.entity.SystemRelationshipType
-import riven.core.enums.knowledge.DefinitionCategory
-import riven.core.enums.knowledge.DefinitionSource
-import riven.core.enums.knowledge.DefinitionStatus
-import riven.core.enums.knowledge.KnowledgeEntityTypeKey
-import riven.core.exceptions.NotFoundException
-import riven.core.exceptions.SchemaValidationException
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.models.knowledge.AttributeRef
-import riven.core.models.knowledge.GlossaryTerm
-import riven.core.repository.entity.EntityRelationshipRepository
-import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.service.entity.EntityAttributeService
+import cranium.core.entity.entity.EntityEntity
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.enums.entity.RelationshipTargetKind
+import cranium.core.enums.entity.SystemRelationshipType
+import cranium.core.enums.knowledge.DefinitionCategory
+import cranium.core.enums.knowledge.DefinitionSource
+import cranium.core.enums.knowledge.DefinitionStatus
+import cranium.core.enums.knowledge.KnowledgeEntityTypeKey
+import cranium.core.exceptions.NotFoundException
+import cranium.core.exceptions.SchemaValidationException
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.models.knowledge.AttributeRef
+import cranium.core.models.knowledge.GlossaryTerm
+import cranium.core.repository.entity.EntityRelationshipRepository
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.service.entity.EntityAttributeService
 import java.util.UUID
 
 /**

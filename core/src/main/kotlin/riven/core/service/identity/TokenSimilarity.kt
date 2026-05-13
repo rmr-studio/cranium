@@ -1,4 +1,4 @@
-package riven.core.service.identity
+package cranium.core.service.identity
 
 /**
  * Overlap coefficient computation on word token sets.

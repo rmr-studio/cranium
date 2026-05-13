@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,21 +12,16 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { Option } from './Option';
-import {
-    OptionFromJSON,
-    OptionFromJSONTyped,
-    OptionToJSON,
-    OptionToJSONTyped,
-} from './Option';
 import type { BlockFormWidgetType } from './BlockFormWidgetType';
 import {
     BlockFormWidgetTypeFromJSON,
-    BlockFormWidgetTypeFromJSONTyped,
-    BlockFormWidgetTypeToJSON,
-    BlockFormWidgetTypeToJSONTyped,
+    BlockFormWidgetTypeToJSON
 } from './BlockFormWidgetType';
+import type { Option } from './Option';
+import {
+    OptionFromJSON,
+    OptionToJSON
+} from './Option';
 
 /**
  * 

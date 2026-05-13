@@ -1,4 +1,4 @@
--- Blog analytics table for getriven.io
+-- Blog analytics table for getcranium.io
 -- Tracks page views and engagement metrics for blog posts
 -- Lightweight first-party analytics alongside PostHog
 

@@ -1,10 +1,10 @@
-package riven.core.models.request.entity.type
+package cranium.core.models.request.entity.type
 
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.models.common.Icon
-import riven.core.models.common.display.DisplayName
-import riven.core.models.entity.configuration.ColumnConfiguration
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.models.common.Icon
+import cranium.core.models.common.display.DisplayName
+import cranium.core.models.entity.configuration.ColumnConfiguration
 import java.util.*
 
 data class UpdateEntityTypeConfigurationRequest(

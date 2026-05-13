@@ -1,6 +1,6 @@
-package riven.core.repository.block
+package cranium.core.repository.block
 
-import riven.core.entity.block.BlockChildEntity
+import cranium.core.entity.block.BlockChildEntity
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import java.util.*

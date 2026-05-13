@@ -1,5 +1,5 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@riven/ui/card';
-import { cn } from '@riven/utils';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@cranium/ui/card';
+import { cn } from '@cranium/utils';
 import { FC, ReactNode, useEffect, useRef } from 'react';
 import { z } from 'zod';
 import { RenderElementMetadata } from '../../util/block/block.registry';

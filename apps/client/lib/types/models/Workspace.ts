@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,20 +12,15 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
 import type { WorkspaceDefaultCurrency } from './WorkspaceDefaultCurrency';
 import {
     WorkspaceDefaultCurrencyFromJSON,
-    WorkspaceDefaultCurrencyFromJSONTyped,
-    WorkspaceDefaultCurrencyToJSON,
-    WorkspaceDefaultCurrencyToJSONTyped,
+    WorkspaceDefaultCurrencyToJSON
 } from './WorkspaceDefaultCurrency';
 import type { WorkspacePlan } from './WorkspacePlan';
 import {
     WorkspacePlanFromJSON,
-    WorkspacePlanFromJSONTyped,
-    WorkspacePlanToJSON,
-    WorkspacePlanToJSONTyped,
+    WorkspacePlanToJSON
 } from './WorkspacePlan';
 
 /**

@@ -10,7 +10,7 @@ declare namespace NodeJS {
     /** Supabase anonymous/public key */
     NEXT_PUBLIC_SUPABASE_ANON_KEY: string;
 
-    /** Canonical site URL for metadata/OG (e.g. https://getriven.io) */
+    /** Canonical site URL for metadata/OG (e.g. https://getcranium.io) */
     NEXT_PUBLIC_SITE_URL?: string;
     /** URL to the client/dashboard app (e.g. http://localhost:3001) */
     NEXT_PUBLIC_CLIENT_URL?: string;

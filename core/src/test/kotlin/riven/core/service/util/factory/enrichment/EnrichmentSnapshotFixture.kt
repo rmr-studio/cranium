@@ -1,34 +1,34 @@
-package riven.core.service.util.factory.enrichment
+package cranium.core.service.util.factory.enrichment
 
-import riven.core.entity.entity.EntityTypeSemanticMetadataEntity
-import riven.core.entity.entity.RelationshipDefinitionEntity
-import riven.core.entity.entity.RelationshipTargetRuleEntity
-import riven.core.entity.identity.IdentityClusterMemberEntity
-import riven.core.entity.workflow.ExecutionQueueEntity
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.connotation.ConnotationStatus
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.enums.entity.semantics.SemanticMetadataTargetType
-import riven.core.enums.integration.SourceType
-import riven.core.enums.workflow.ExecutionJobType
-import riven.core.enums.workflow.ExecutionQueueStatus
-import riven.core.models.catalog.ConnotationSignals
-import riven.core.models.catalog.ScaleMappingType
-import riven.core.models.catalog.SentimentScale
-import riven.core.models.connotation.AnalysisTier
-import riven.core.models.connotation.SentimentMetadata
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.service.util.factory.WorkspaceFactory
-import riven.core.service.util.factory.entity.EntityFactory
-import riven.core.service.util.factory.identity.IdentityFactory
-import riven.core.service.util.factory.workflow.ExecutionQueueFactory
+import cranium.core.entity.entity.EntityTypeSemanticMetadataEntity
+import cranium.core.entity.entity.RelationshipDefinitionEntity
+import cranium.core.entity.entity.RelationshipTargetRuleEntity
+import cranium.core.entity.identity.IdentityClusterMemberEntity
+import cranium.core.entity.workflow.ExecutionQueueEntity
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.connotation.ConnotationStatus
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.enums.entity.semantics.SemanticMetadataTargetType
+import cranium.core.enums.integration.SourceType
+import cranium.core.enums.workflow.ExecutionJobType
+import cranium.core.enums.workflow.ExecutionQueueStatus
+import cranium.core.models.catalog.ConnotationSignals
+import cranium.core.models.catalog.ScaleMappingType
+import cranium.core.models.catalog.SentimentScale
+import cranium.core.models.connotation.AnalysisTier
+import cranium.core.models.connotation.SentimentMetadata
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.service.util.factory.WorkspaceFactory
+import cranium.core.service.util.factory.entity.EntityFactory
+import cranium.core.service.util.factory.identity.IdentityFactory
+import cranium.core.service.util.factory.workflow.ExecutionQueueFactory
 import java.time.ZonedDateTime
 import java.util.UUID
 
 /**
- * Deterministic in-memory fixture for [riven.core.service.enrichment.EnrichmentService.analyzeSemantics] snapshot tests.
+ * Deterministic in-memory fixture for [cranium.core.service.enrichment.EnrichmentService.analyzeSemantics] snapshot tests.
  *
  * All IDs are FIXED so the produced JSON is reproducible across runs. This fixture exercises:
  * - A primary entity with ≥ 2 attributes, including one RELATIONAL_REFERENCE (resolves to a real identifier).
@@ -377,31 +377,31 @@ object EnrichmentSnapshotFixture {
         val entityId: UUID,
         val entityTypeId: UUID,
 
-        val workspace: riven.core.entity.workspace.WorkspaceEntity,
-        val entity: riven.core.entity.entity.EntityEntity,
-        val entityType: riven.core.entity.entity.EntityTypeEntity,
+        val workspace: cranium.core.entity.workspace.WorkspaceEntity,
+        val entity: cranium.core.entity.entity.EntityEntity,
+        val entityType: cranium.core.entity.entity.EntityTypeEntity,
         val queueItem: ExecutionQueueEntity,
 
         val allPrimaryMetadata: List<EntityTypeSemanticMetadataEntity>,
-        val entityAttributes: Map<UUID, riven.core.models.entity.payload.EntityAttributePrimitivePayload>,
+        val entityAttributes: Map<UUID, cranium.core.models.entity.payload.EntityAttributePrimitivePayload>,
 
-        val referencedEntity: riven.core.entity.entity.EntityEntity,
-        val referencedEntityType: riven.core.entity.entity.EntityTypeEntity,
+        val referencedEntity: cranium.core.entity.entity.EntityEntity,
+        val referencedEntityType: cranium.core.entity.entity.EntityTypeEntity,
         val metaRefTypeIdentifier: EntityTypeSemanticMetadataEntity,
-        val referencedEntityAttributes: Map<UUID, riven.core.models.entity.payload.EntityAttributePrimitivePayload>,
+        val referencedEntityAttributes: Map<UUID, cranium.core.models.entity.payload.EntityAttributePrimitivePayload>,
 
         val relationshipDefinition: RelationshipDefinitionEntity,
         val targetRule: RelationshipTargetRuleEntity,
-        val relationshipEntity: riven.core.entity.entity.EntityRelationshipEntity,
+        val relationshipEntity: cranium.core.entity.entity.EntityRelationshipEntity,
 
-        val relatedEntity: riven.core.entity.entity.EntityEntity,
+        val relatedEntity: cranium.core.entity.entity.EntityEntity,
         val metaCategoricalAttr: EntityTypeSemanticMetadataEntity,
-        val relatedEntityAttributes: Map<UUID, riven.core.models.entity.payload.EntityAttributePrimitivePayload>,
+        val relatedEntityAttributes: Map<UUID, cranium.core.models.entity.payload.EntityAttributePrimitivePayload>,
 
         val primaryClusterMember: IdentityClusterMemberEntity,
         val allClusterMembers: List<IdentityClusterMemberEntity>,
-        val clusterMemberEntity: riven.core.entity.entity.EntityEntity,
-        val clusterMemberEntityType: riven.core.entity.entity.EntityTypeEntity,
+        val clusterMemberEntity: cranium.core.entity.entity.EntityEntity,
+        val clusterMemberEntityType: cranium.core.entity.entity.EntityTypeEntity,
 
         val connotationSignals: ConnotationSignals,
         val analyzedSentiment: SentimentMetadata,

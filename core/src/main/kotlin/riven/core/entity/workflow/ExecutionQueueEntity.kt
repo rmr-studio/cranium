@@ -1,12 +1,12 @@
-package riven.core.entity.workflow
+package cranium.core.entity.workflow
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import kotlinx.serialization.json.JsonObject
 import org.hibernate.annotations.Type
-import riven.core.enums.workflow.ExecutionJobType
-import riven.core.enums.workflow.ExecutionQueueStatus
-import riven.core.models.workflow.engine.queue.ExecutionQueueRequest
+import cranium.core.enums.workflow.ExecutionJobType
+import cranium.core.enums.workflow.ExecutionQueueStatus
+import cranium.core.models.workflow.engine.queue.ExecutionQueueRequest
 import java.time.ZonedDateTime
 import java.util.*
 

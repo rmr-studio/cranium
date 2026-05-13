@@ -1,4 +1,4 @@
-package riven.core
+package cranium.core
 
 //@SpringBootTest
 //class CoreApplicationTests {

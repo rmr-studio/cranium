@@ -1,8 +1,8 @@
-package riven.core.models.request.notification
+package cranium.core.models.request.notification
 
-import riven.core.enums.notification.NotificationReferenceType
-import riven.core.enums.notification.NotificationType
-import riven.core.models.notification.NotificationContent
+import cranium.core.enums.notification.NotificationReferenceType
+import cranium.core.enums.notification.NotificationType
+import cranium.core.models.notification.NotificationContent
 import java.time.ZonedDateTime
 import java.util.UUID
 

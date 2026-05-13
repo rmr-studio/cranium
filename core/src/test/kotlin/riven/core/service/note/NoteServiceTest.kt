@@ -1,4 +1,4 @@
-package riven.core.service.note
+package cranium.core.service.note
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -13,20 +13,20 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.enums.integration.SourceType
-import riven.core.enums.note.NoteSourceType
-import riven.core.exceptions.NotFoundException
-import riven.core.models.note.CreateNoteRequest
-import riven.core.models.note.Note
-import riven.core.models.note.UpdateNoteRequest
-import riven.core.models.note.WorkspaceNote
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.entity.EntityIngestionService
-import riven.core.service.util.BaseServiceTest
-import riven.core.service.util.SecurityTestConfig
-import riven.core.service.util.factory.entity.EntityFactory
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.enums.integration.SourceType
+import cranium.core.enums.note.NoteSourceType
+import cranium.core.exceptions.NotFoundException
+import cranium.core.models.note.CreateNoteRequest
+import cranium.core.models.note.Note
+import cranium.core.models.note.UpdateNoteRequest
+import cranium.core.models.note.WorkspaceNote
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.entity.EntityIngestionService
+import cranium.core.service.util.BaseServiceTest
+import cranium.core.service.util.SecurityTestConfig
+import cranium.core.service.util.factory.entity.EntityFactory
 import java.util.UUID
 
 /**
@@ -166,7 +166,7 @@ class NoteServiceTest : BaseServiceTest() {
 
     @Test
     fun `getWorkspaceNotes delegates to projector`() {
-        val expected = riven.core.util.CursorPage(
+        val expected = cranium.core.util.CursorPage(
             items = listOf<WorkspaceNote>(),
             nextCursor = null,
             totalCount = 0L,

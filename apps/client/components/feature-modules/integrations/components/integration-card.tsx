@@ -6,8 +6,8 @@ import Image from 'next/image';
 import { DefinitionDetailView } from '@/components/ui/sidebar/types/side-panel.types';
 import { IntegrationDefinitionModel } from '@/lib/types/integration';
 import { cn } from '@/lib/util/utils';
-import { Badge } from '@riven/ui/badge';
-import { Card } from '@riven/ui/card';
+import { Badge } from '@cranium/ui/badge';
+import { Card } from '@cranium/ui/card';
 
 interface IntegrationCardProps {
   onClick: (view: DefinitionDetailView) => void;

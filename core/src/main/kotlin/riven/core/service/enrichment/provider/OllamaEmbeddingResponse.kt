@@ -1,4 +1,4 @@
-package riven.core.service.enrichment.provider
+package cranium.core.service.enrichment.provider
 
 /**
  * Jackson deserialization DTO for the Ollama embeddings API response.

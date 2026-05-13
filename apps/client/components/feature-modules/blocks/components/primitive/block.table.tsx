@@ -1,5 +1,5 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@riven/ui/card';
-import { cn } from '@riven/utils';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@cranium/ui/card';
+import { cn } from '@cranium/utils';
 import { FC } from 'react';
 
 type Row = { key: string; value: string };

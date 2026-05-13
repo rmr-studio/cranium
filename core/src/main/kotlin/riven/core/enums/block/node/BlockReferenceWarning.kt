@@ -1,4 +1,4 @@
-package riven.core.enums.block.node
+package cranium.core.enums.block.node
 
 enum class BlockReferenceWarning {
     MISSING,

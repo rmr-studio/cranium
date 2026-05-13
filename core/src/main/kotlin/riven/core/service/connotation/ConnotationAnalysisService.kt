@@ -1,19 +1,19 @@
-package riven.core.service.connotation
+package cranium.core.service.connotation
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
-import riven.core.configuration.properties.ConnotationAnalysisConfigurationProperties
-import riven.core.enums.activity.Activity
-import riven.core.enums.connotation.ConnotationStatus
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.util.OperationType
-import riven.core.models.catalog.ConnotationSignals
-import riven.core.models.connotation.AnalysisTier
-import riven.core.models.connotation.SentimentAnalysisOutcome
-import riven.core.models.connotation.SentimentMetadata
-import riven.core.service.activity.ActivityService
-import riven.core.service.activity.log
-import riven.core.service.auth.AuthTokenService
+import cranium.core.configuration.properties.ConnotationAnalysisConfigurationProperties
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.connotation.ConnotationStatus
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.util.OperationType
+import cranium.core.models.catalog.ConnotationSignals
+import cranium.core.models.connotation.AnalysisTier
+import cranium.core.models.connotation.SentimentAnalysisOutcome
+import cranium.core.models.connotation.SentimentMetadata
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.activity.log
+import cranium.core.service.auth.AuthTokenService
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -26,7 +26,7 @@ import java.util.UUID
  * an observable outcome (logged + persisted) rather than a thrown error that aborts the
  * workflow before activity logging fires.
  *
- * Always returns a [riven.core.models.connotation.SentimentMetadata] — DETERMINISTIC mapping
+ * Always returns a [cranium.core.models.connotation.SentimentMetadata] — DETERMINISTIC mapping
  * failures and unsupported tiers are both encoded as `status = FAILED` rather than thrown, so
  * the enrichment pipeline can persist the sentinel without aborting RELATIONAL/STRUCTURAL
  * metadata writes.
@@ -39,7 +39,7 @@ import java.util.UUID
  * Activity logging fires on every analyze call regardless of outcome.
  *
  * No `@PreAuthorize` — this service runs inside a Temporal activity (via
- * [riven.core.service.enrichment.EnrichmentService.analyzeSemantics]) where there is no JWT
+ * [cranium.core.service.enrichment.EnrichmentService.analyzeSemantics]) where there is no JWT
  * security context. Workspace ownership is established by the caller before reaching this
  * dispatcher; activity logging uses [AuthTokenService.getUserIdOrSystem] so the seeded system
  * user appears as the actor when no JWT is present.

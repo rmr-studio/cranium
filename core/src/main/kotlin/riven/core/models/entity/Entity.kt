@@ -1,11 +1,11 @@
-package riven.core.models.entity
+package cranium.core.models.entity
 
-import riven.core.entity.util.AuditableModel
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.integration.SourceType
-import riven.core.models.common.Icon
-import riven.core.models.entity.payload.EntityAttribute
+import cranium.core.entity.util.AuditableModel
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.integration.SourceType
+import cranium.core.models.common.Icon
+import cranium.core.models.entity.payload.EntityAttribute
 import java.time.ZonedDateTime
 import java.util.*
 

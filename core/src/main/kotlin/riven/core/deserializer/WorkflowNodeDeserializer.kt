@@ -1,18 +1,18 @@
-package riven.core.deserializer
+package cranium.core.deserializer
 
 import tools.jackson.core.JsonParser
 import tools.jackson.databind.DeserializationContext
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.ValueDeserializer
-import riven.core.enums.workflow.*
-import riven.core.models.workflow.node.config.*
-import riven.core.models.workflow.node.config.actions.*
-import riven.core.models.workflow.node.config.trigger.WorkflowEntityEventTriggerConfig
-import riven.core.models.workflow.node.config.trigger.WorkflowFunctionTriggerConfig
-import riven.core.models.workflow.node.config.trigger.WorkflowScheduleTriggerConfig
-import riven.core.models.workflow.node.config.trigger.WorkflowWebhookTriggerConfig
-import riven.core.models.workflow.node.config.controls.WorkflowConditionControlConfig
-import riven.core.util.getEnumFromField
+import cranium.core.enums.workflow.*
+import cranium.core.models.workflow.node.config.*
+import cranium.core.models.workflow.node.config.actions.*
+import cranium.core.models.workflow.node.config.trigger.WorkflowEntityEventTriggerConfig
+import cranium.core.models.workflow.node.config.trigger.WorkflowFunctionTriggerConfig
+import cranium.core.models.workflow.node.config.trigger.WorkflowScheduleTriggerConfig
+import cranium.core.models.workflow.node.config.trigger.WorkflowWebhookTriggerConfig
+import cranium.core.models.workflow.node.config.controls.WorkflowConditionControlConfig
+import cranium.core.util.getEnumFromField
 
 /**
  * Jackson deserializer for [WorkflowNodeConfig].

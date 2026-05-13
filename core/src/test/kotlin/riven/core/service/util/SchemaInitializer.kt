@@ -1,4 +1,4 @@
-package riven.core.service.util
+package cranium.core.service.util
 
 import org.slf4j.LoggerFactory
 import java.nio.file.Files

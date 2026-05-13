@@ -1,4 +1,4 @@
-package riven.core.service.catalog
+package cranium.core.service.catalog
 
 import tools.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KLogger
@@ -6,16 +6,16 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
-import riven.core.entity.catalog.*
-import riven.core.enums.catalog.ManifestType
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.models.catalog.*
-import riven.core.repository.catalog.*
-import riven.core.service.util.factory.catalog.CatalogFactory
+import cranium.core.entity.catalog.*
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.models.catalog.*
+import cranium.core.repository.catalog.*
+import cranium.core.service.util.factory.catalog.CatalogFactory
 import java.time.ZonedDateTime
 import java.util.*
 

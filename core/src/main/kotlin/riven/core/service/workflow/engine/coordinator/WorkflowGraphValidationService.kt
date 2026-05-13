@@ -1,11 +1,11 @@
-package riven.core.service.workflow.engine.coordinator
+package cranium.core.service.workflow.engine.coordinator
 
 import org.springframework.stereotype.Service
-import riven.core.entity.workflow.WorkflowEdgeEntity
-import riven.core.enums.workflow.WorkflowControlType
-import riven.core.models.workflow.engine.coordinator.WorkflowGraphValidationResult
-import riven.core.models.workflow.node.WorkflowNode
-import riven.core.models.workflow.node.config.WorkflowControlConfig
+import cranium.core.entity.workflow.WorkflowEdgeEntity
+import cranium.core.enums.workflow.WorkflowControlType
+import cranium.core.models.workflow.engine.coordinator.WorkflowGraphValidationResult
+import cranium.core.models.workflow.node.WorkflowNode
+import cranium.core.models.workflow.node.config.WorkflowControlConfig
 import java.util.*
 
 /**

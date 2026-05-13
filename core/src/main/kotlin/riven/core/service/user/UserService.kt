@@ -1,19 +1,19 @@
-package riven.core.service.user
+package cranium.core.service.user
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
-import riven.core.entity.user.UserEntity
-import riven.core.exceptions.NotFoundException
-import riven.core.models.request.user.SaveUserRequest
-import riven.core.models.user.User
-import riven.core.projection.user.toWorkspaceMember
-import riven.core.repository.user.UserRepository
-import riven.core.repository.workspace.WorkspaceRepository
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.storage.StorageService
-import riven.core.util.ServiceUtil.findOrThrow
+import cranium.core.entity.user.UserEntity
+import cranium.core.exceptions.NotFoundException
+import cranium.core.models.request.user.SaveUserRequest
+import cranium.core.models.user.User
+import cranium.core.projection.user.toWorkspaceMember
+import cranium.core.repository.user.UserRepository
+import cranium.core.repository.workspace.WorkspaceRepository
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.storage.StorageService
+import cranium.core.util.ServiceUtil.findOrThrow
 import java.util.*
 
 @Service

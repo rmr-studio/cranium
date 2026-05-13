@@ -1,4 +1,4 @@
-package riven.core.models.block.metadata
+package cranium.core.models.block.metadata
 
 data class BlockListConfiguration(
     override val listType: List<String>? = null,

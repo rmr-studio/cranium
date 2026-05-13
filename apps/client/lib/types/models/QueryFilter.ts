@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -14,38 +14,28 @@
 
 import type { And } from './And';
 import {
-    instanceOfAnd,
-    AndFromJSON,
     AndFromJSONTyped,
-    AndToJSON,
+    AndToJSON
 } from './And';
 import type { Attribute } from './Attribute';
 import {
-    instanceOfAttribute,
-    AttributeFromJSON,
     AttributeFromJSONTyped,
-    AttributeToJSON,
+    AttributeToJSON
 } from './Attribute';
 import type { IsRelatedTo } from './IsRelatedTo';
 import {
-    instanceOfIsRelatedTo,
-    IsRelatedToFromJSON,
     IsRelatedToFromJSONTyped,
-    IsRelatedToToJSON,
+    IsRelatedToToJSON
 } from './IsRelatedTo';
 import type { Or } from './Or';
 import {
-    instanceOfOr,
-    OrFromJSON,
     OrFromJSONTyped,
-    OrToJSON,
+    OrToJSON
 } from './Or';
 import type { Relationship } from './Relationship';
 import {
-    instanceOfRelationship,
-    RelationshipFromJSON,
     RelationshipFromJSONTyped,
-    RelationshipToJSON,
+    RelationshipToJSON
 } from './Relationship';
 
 /**

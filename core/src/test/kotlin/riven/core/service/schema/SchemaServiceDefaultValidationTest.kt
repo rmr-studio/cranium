@@ -1,18 +1,18 @@
-package riven.core.service.schema
+package cranium.core.service.schema
 
 import tools.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.DataFormat
-import riven.core.enums.core.DataType
-import riven.core.models.common.validation.Schema
-import riven.core.models.common.validation.SchemaOptions
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.util.BaseServiceTest
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.DataFormat
+import cranium.core.enums.core.DataType
+import cranium.core.models.common.validation.Schema
+import cranium.core.models.common.validation.SchemaOptions
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.util.BaseServiceTest
 import java.util.*
 
 @SpringBootTest(

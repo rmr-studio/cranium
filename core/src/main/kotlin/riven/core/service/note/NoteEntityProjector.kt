@@ -1,25 +1,25 @@
-package riven.core.service.note
+package cranium.core.service.note
 
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
-import riven.core.entity.entity.EntityEntity
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.enums.entity.SystemRelationshipType
-import riven.core.enums.integration.SourceType
-import riven.core.enums.knowledge.KnowledgeEntityTypeKey
-import riven.core.enums.note.NoteSourceType
-import riven.core.exceptions.NotFoundException
-import riven.core.exceptions.SchemaValidationException
-import riven.core.models.note.Note
-import riven.core.models.note.NoteEntityContext
-import riven.core.models.note.WorkspaceNote
-import riven.core.repository.entity.EntityAttributeRepository
-import riven.core.repository.entity.EntityRelationshipRepository
-import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.service.entity.EntityAttributeService
-import riven.core.util.CursorPage
-import riven.core.util.CursorPagination
+import cranium.core.entity.entity.EntityEntity
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.enums.entity.SystemRelationshipType
+import cranium.core.enums.integration.SourceType
+import cranium.core.enums.knowledge.KnowledgeEntityTypeKey
+import cranium.core.enums.note.NoteSourceType
+import cranium.core.exceptions.NotFoundException
+import cranium.core.exceptions.SchemaValidationException
+import cranium.core.models.note.Note
+import cranium.core.models.note.NoteEntityContext
+import cranium.core.models.note.WorkspaceNote
+import cranium.core.repository.entity.EntityAttributeRepository
+import cranium.core.repository.entity.EntityRelationshipRepository
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.service.entity.EntityAttributeService
+import cranium.core.util.CursorPage
+import cranium.core.util.CursorPagination
 import java.util.UUID
 
 /**
@@ -233,7 +233,7 @@ class NoteEntityProjector(
      */
     private fun unwrapNoteAttributes(
         noteType: EntityTypeEntity,
-        attrs: Map<UUID, riven.core.models.entity.payload.EntityAttributePrimitivePayload>,
+        attrs: Map<UUID, cranium.core.models.entity.payload.EntityAttributePrimitivePayload>,
     ): Triple<String, List<Map<String, Any>>, String> {
         val mapping = noteType.attributeKeyMapping
             ?: error("note entity type missing attributeKeyMapping")

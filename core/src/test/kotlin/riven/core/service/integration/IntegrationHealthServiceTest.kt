@@ -1,4 +1,4 @@
-package riven.core.service.integration
+package cranium.core.service.integration
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -14,12 +14,12 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.entity.integration.IntegrationConnectionEntity
-import riven.core.enums.integration.ConnectionStatus
-import riven.core.enums.integration.SyncStatus
-import riven.core.repository.integration.IntegrationConnectionRepository
-import riven.core.repository.integration.IntegrationSyncStateRepository
-import riven.core.service.util.factory.integration.IntegrationFactory
+import cranium.core.entity.integration.IntegrationConnectionEntity
+import cranium.core.enums.integration.ConnectionStatus
+import cranium.core.enums.integration.SyncStatus
+import cranium.core.repository.integration.IntegrationConnectionRepository
+import cranium.core.repository.integration.IntegrationSyncStateRepository
+import cranium.core.service.util.factory.integration.IntegrationFactory
 import java.util.*
 
 /**

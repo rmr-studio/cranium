@@ -1,7 +1,7 @@
-package riven.core.models.block.metadata
+package cranium.core.models.block.metadata
 
 import io.swagger.v3.oas.annotations.media.Schema
-import riven.core.enums.block.structure.BlockReferenceFetchPolicy
+import cranium.core.enums.block.structure.BlockReferenceFetchPolicy
 import java.util.*
 
 

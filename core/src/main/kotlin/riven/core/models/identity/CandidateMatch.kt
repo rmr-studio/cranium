@@ -1,7 +1,7 @@
-package riven.core.models.identity
+package cranium.core.models.identity
 
-import riven.core.enums.identity.MatchSignalType
-import riven.core.enums.identity.MatchSource
+import cranium.core.enums.identity.MatchSignalType
+import cranium.core.enums.identity.MatchSource
 import java.util.UUID
 
 /**

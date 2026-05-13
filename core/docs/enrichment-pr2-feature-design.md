@@ -18,50 +18,54 @@ Outcome: every entity's embedding text incorporates KNOWLEDGE backlinks (notes t
 
 ## Architecture decisions (locked)
 
-| # | Decision | Rationale |
-|---|---|---|
-| 1A | Reuse `findRelatedEntities` + 1 new query for type/attribute DEFINES | DRY; KNOWLEDGE-inverse predicate stays in one place |
-| 2A | Ship `EnrichmentContextAssembler` at ~10 deps, add constructor-count assertion (≤12) | Premature to split further before observing read clusters |
-| 3A | `EntityKnowledgeViewProjector` is a separate service; view stays a pure data class | Future projections (JSONB, LLM-wiki) become sibling services |
-| 4-i.A | View transported in-memory between Temporal activities | No premature persistence; size guard log catches drift |
-| 4-ii.A | Each consumer = its own Temporal activity in `EnrichmentWorkflow` | Native fan-out; per-activity retry; visible control flow |
-| 4-iii.A | `EntityKnowledgeView` is the canonical artifact; all projections derive from it | Single contract |
-| 5A | Drop `EntityBacklinks` intermediate DTO; assembler buckets `EntityLink`s directly into view sections | One transformation, no orphan shapes |
-| 6A | Eight distinct section data classes; no sealed hierarchy | Type-safe; uniformity here is shallow |
-| 7A | Projector uses sequential phase methods | Each phase unit-testable; matches CLAUDE.md function-length guidance |
-| 8A | Telemetry ships with `keptCount`/`droppedCount`/`charCount`; `tokenCount` deferred | Decoupled from embedding provider; honest naming |
-| 9A | Two regression snapshots: `EnrichmentContext` byte-identity for Phase 1 commit; `EntityKnowledgeView` structural snapshot post-Phase-3 | Honest framing of contract change |
-| 10A | Single parameterized IT covering 6-case backlink matrix | Tests the integration point Issue 1A bets on |
-| 11A | Three-tier truncation tests: per-phase + invariant + e2e | Catches phase bugs, ordering bugs, realistic regressions |
-| 12A | Workflow test asserts consumer independence; scaffolding accepts list of consumer activities | Adding Synthesis later doesn't rewrite tests |
-| 13A | Batch fetch KNOWLEDGE excerpts via existing `EntityAttributeService.getAttributesForEntities` | Bounded query count; uses existing infrastructure |
-| 14A | Truncate at assembler boundary, not projector; size guard log at 1MB | View entering Temporal is bounded |
-| 15A | Trust partial index + EXPLAIN gate in IT; re-check at production scale | Don't pre-optimize without data |
-| 16A | Per-entity assembler calls + timing telemetry; defer batch variants | Telemetry tells us when batching matters |
+| #       | Decision                                                                                                                               | Rationale                                                            |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| 1A      | Reuse `findRelatedEntities` + 1 new query for type/attribute DEFINES                                                                   | DRY; KNOWLEDGE-inverse predicate stays in one place                  |
+| 2A      | Ship `EnrichmentContextAssembler` at ~10 deps, add constructor-count assertion (≤12)                                                   | Premature to split further before observing read clusters            |
+| 3A      | `EntityKnowledgeViewProjector` is a separate service; view stays a pure data class                                                     | Future projections (JSONB, LLM-wiki) become sibling services         |
+| 4-i.A   | View transported in-memory between Temporal activities                                                                                 | No premature persistence; size guard log catches drift               |
+| 4-ii.A  | Each consumer = its own Temporal activity in `EnrichmentWorkflow`                                                                      | Native fan-out; per-activity retry; visible control flow             |
+| 4-iii.A | `EntityKnowledgeView` is the canonical artifact; all projections derive from it                                                        | Single contract                                                      |
+| 5A      | Drop `EntityBacklinks` intermediate DTO; assembler buckets `EntityLink`s directly into view sections                                   | One transformation, no orphan shapes                                 |
+| 6A      | Eight distinct section data classes; no sealed hierarchy                                                                               | Type-safe; uniformity here is shallow                                |
+| 7A      | Projector uses sequential phase methods                                                                                                | Each phase unit-testable; matches CLAUDE.md function-length guidance |
+| 8A      | Telemetry ships with `keptCount`/`droppedCount`/`charCount`; `tokenCount` deferred                                                     | Decoupled from embedding provider; honest naming                     |
+| 9A      | Two regression snapshots: `EnrichmentContext` byte-identity for Phase 1 commit; `EntityKnowledgeView` structural snapshot post-Phase-3 | Honest framing of contract change                                    |
+| 10A     | Single parameterized IT covering 6-case backlink matrix                                                                                | Tests the integration point Issue 1A bets on                         |
+| 11A     | Three-tier truncation tests: per-phase + invariant + e2e                                                                               | Catches phase bugs, ordering bugs, realistic regressions             |
+| 12A     | Workflow test asserts consumer independence; scaffolding accepts list of consumer activities                                           | Adding Synthesis later doesn't rewrite tests                         |
+| 13A     | Batch fetch KNOWLEDGE excerpts via existing `EntityAttributeService.getAttributesForEntities`                                          | Bounded query count; uses existing infrastructure                    |
+| 14A     | Truncate at assembler boundary, not projector; size guard log at 1MB                                                                   | View entering Temporal is bounded                                    |
+| 15A     | Trust partial index + EXPLAIN gate in IT; re-check at production scale                                                                 | Don't pre-optimize without data                                      |
+| 16A     | Per-entity assembler calls + timing telemetry; defer batch variants                                                                    | Telemetry tells us when batching matters                             |
 
 ---
 
 ## Service decomposition (Phase 1)
 
-`EnrichmentService.kt` (19 deps) is deleted. Replaced by four services in `riven.core.service.enrichment.*`:
+`EnrichmentService.kt` (19 deps) is deleted. Replaced by four services in `cranium.core.service.enrichment.*`:
 
 ### `EnrichmentQueueService`
+
 **Responsibility:** queue lifecycle + Temporal dispatch.
 **Deps (~5):** `ExecutionQueueRepository`, `WorkflowClient`, `EnrichmentConfigurationProperties`, `EnrichmentAnalysisService`, `KLogger`.
 **Public methods:** `enqueueAndProcess(entityId)`, `enqueueByEntityType(typeId)`.
 
 ### `EnrichmentContextAssembler`
+
 **Responsibility:** read-side aggregation; produce `EntityKnowledgeView`.
 **Deps (~10):** `EntityRepository`, `EntityTypeRepository`, `EntityTypeSemanticMetadataRepository`, `EntityAttributeService`, `EntityRelationshipService` (note: service, not repo — leverages `findRelatedEntities`), `RelationshipDefinitionRepository`, `IdentityClusterMemberRepository`, `RelationshipTargetRuleRepository`, `WorkspaceService`, `KLogger`.
 **Public method:** `assemble(entityId, workspaceId): EntityKnowledgeView`.
 **Test invariant:** constructor parameter count ≤ 12.
 
 ### `EnrichmentAnalysisService`
+
 **Responsibility:** claim queue item, build view via assembler, persist `EntityMetadataSnapshot` to `entity_connotation`, return view.
 **Deps (~6):** `EnrichmentContextAssembler`, `ConnotationAnalysisService`, `EntityConnotationRepository`, `ObjectMapper`, `ExecutionQueueRepository`, `KLogger`.
 **Public method:** `analyzeSemantics(queueItemId): EntityKnowledgeView`.
 
 ### `EnrichmentEmbeddingService`
+
 **Responsibility:** project view to text via projector, embed, upsert vector, complete queue item.
 **Deps (~5):** `EntityKnowledgeViewProjector`, `EmbeddingProvider`, `EntityEmbeddingRepository`, `ExecutionQueueRepository`, `KLogger`.
 **Public method:** `embedAndStore(view, queueItemId)`.
@@ -167,23 +171,23 @@ The KNOWLEDGE-inverse predicate covers ENTITY-target backlinks. Glossary entitie
 ```kotlin
 // EntityRelationshipRepository
 @Query("""
-    SELECT new riven.core.projection.entity.GlossaryDefinitionRow(
+    SELECT new cranium.core.projection.entity.GlossaryDefinitionRow(
         r.sourceId, r.targetKind, r.targetId, r.targetParentId, r.createdAt
     )
     FROM EntityRelationshipEntity r
     WHERE r.workspaceId = :workspaceId
       AND r.targetKind IN (
-          riven.core.enums.entity.RelationshipTargetKind.ENTITY_TYPE,
-          riven.core.enums.entity.RelationshipTargetKind.ATTRIBUTE,
-          riven.core.enums.entity.RelationshipTargetKind.RELATIONSHIP
+          cranium.core.enums.entity.RelationshipTargetKind.ENTITY_TYPE,
+          cranium.core.enums.entity.RelationshipTargetKind.ATTRIBUTE,
+          cranium.core.enums.entity.RelationshipTargetKind.RELATIONSHIP
       )
       AND (
-        (r.targetKind = riven.core.enums.entity.RelationshipTargetKind.ENTITY_TYPE
+        (r.targetKind = cranium.core.enums.entity.RelationshipTargetKind.ENTITY_TYPE
          AND r.targetId = :entityTypeId)
         OR
         (r.targetKind IN (
-           riven.core.enums.entity.RelationshipTargetKind.ATTRIBUTE,
-           riven.core.enums.entity.RelationshipTargetKind.RELATIONSHIP
+           cranium.core.enums.entity.RelationshipTargetKind.ATTRIBUTE,
+           cranium.core.enums.entity.RelationshipTargetKind.RELATIONSHIP
          )
          AND r.targetParentId = :entityTypeId)
       )
@@ -219,6 +223,7 @@ EnrichmentWorkflow (Temporal)
 ```
 
 **Properties enforced by tests (Decision 12A):**
+
 - Analysis activity success is independent of any consumer's success.
 - Each consumer activity has its own retry policy.
 - Adding a consumer = adding an activity in the workflow definition; no service-layer change.
@@ -232,7 +237,7 @@ EnrichmentWorkflow (Temporal)
 `EnrichmentConfigurationProperties` (existing) gains:
 
 ```kotlin
-@ConfigurationProperties(prefix = "riven.enrichment")
+@ConfigurationProperties(prefix = "cranium.enrichment")
 data class EnrichmentConfigurationProperties(
     // ...existing fields...
     val knowledgeBacklinkCap: Int = 3,
@@ -258,14 +263,14 @@ data class EnrichmentConfigurationProperties(
 
 5. **Parameterized IT — 6-case backlink matrix.** Single test class `EnrichmentBacklinkMatrixIT` with one fixture per case:
 
-| Case | Source role | Target shape | Surfaces in section |
-|---|---|---|---|
-| Note `MENTION` → customer | KNOWLEDGE | ENTITY | `knowledgeBacklinks` |
-| Glossary `DEFINES` → entity_type | KNOWLEDGE | ENTITY_TYPE | `typeNarrative` |
-| Glossary `DEFINES` → attribute | KNOWLEDGE | ATTRIBUTE | `attributes[].narrative` |
-| Glossary `DEFINES` → relationship | KNOWLEDGE | RELATIONSHIP | (assembler decides, likely `typeNarrative` adjacent) |
-| Customer `SYSTEM_CONNECTION` → vendor | CATALOG | ENTITY | `catalogBacklinks` |
-| Order inverse via target_rule → customer | CATALOG | ENTITY | `catalogBacklinks` |
+| Case                                     | Source role | Target shape | Surfaces in section                                  |
+| ---------------------------------------- | ----------- | ------------ | ---------------------------------------------------- |
+| Note `MENTION` → customer                | KNOWLEDGE   | ENTITY       | `knowledgeBacklinks`                                 |
+| Glossary `DEFINES` → entity_type         | KNOWLEDGE   | ENTITY_TYPE  | `typeNarrative`                                      |
+| Glossary `DEFINES` → attribute           | KNOWLEDGE   | ATTRIBUTE    | `attributes[].narrative`                             |
+| Glossary `DEFINES` → relationship        | KNOWLEDGE   | RELATIONSHIP | (assembler decides, likely `typeNarrative` adjacent) |
+| Customer `SYSTEM_CONNECTION` → vendor    | CATALOG     | ENTITY       | `catalogBacklinks`                                   |
+| Order inverse via target_rule → customer | CATALOG     | ENTITY       | `catalogBacklinks`                                   |
 
 6. **Cross-workspace isolation test:** glossary in workspace A defining a customer entity_type that also exists in workspace B — workspace B's view is unaffected.
 7. **Soft-delete filter test:** glossary entity with `deleted=true` is excluded automatically (`@SQLRestriction` baseline).
@@ -305,30 +310,35 @@ data class EnrichmentConfigurationProperties(
 ## Critical files
 
 ### New (Phase 1)
-- `src/main/kotlin/riven/core/service/enrichment/EnrichmentQueueService.kt`
-- `src/main/kotlin/riven/core/service/enrichment/EnrichmentContextAssembler.kt`
-- `src/main/kotlin/riven/core/service/enrichment/EnrichmentAnalysisService.kt`
-- `src/main/kotlin/riven/core/service/enrichment/EnrichmentEmbeddingService.kt`
-- `src/main/kotlin/riven/core/service/enrichment/EntityKnowledgeViewProjector.kt`
+
+- `src/main/kotlin/cranium/core/service/enrichment/EnrichmentQueueService.kt`
+- `src/main/kotlin/cranium/core/service/enrichment/EnrichmentContextAssembler.kt`
+- `src/main/kotlin/cranium/core/service/enrichment/EnrichmentAnalysisService.kt`
+- `src/main/kotlin/cranium/core/service/enrichment/EnrichmentEmbeddingService.kt`
+- `src/main/kotlin/cranium/core/service/enrichment/EntityKnowledgeViewProjector.kt`
 
 ### Deleted (Phase 1)
-- `src/main/kotlin/riven/core/service/enrichment/EnrichmentService.kt`
-- `src/main/kotlin/riven/core/service/enrichment/SemanticTextBuilderService.kt` (Phase 3)
+
+- `src/main/kotlin/cranium/core/service/enrichment/EnrichmentService.kt`
+- `src/main/kotlin/cranium/core/service/enrichment/SemanticTextBuilderService.kt` (Phase 3)
 
 ### Modified (Phase 1)
-- `src/main/kotlin/riven/core/service/workflow/enrichment/EnrichmentActivitiesImpl.kt` — re-wire activities to the new service boundaries; add per-consumer activity scheduling.
+
+- `src/main/kotlin/cranium/core/service/workflow/enrichment/EnrichmentActivitiesImpl.kt` — re-wire activities to the new service boundaries; add per-consumer activity scheduling.
 
 ### New (Phase 2)
-- `src/main/kotlin/riven/core/models/entity/knowledge/EntityKnowledgeView.kt`
-- `src/main/kotlin/riven/core/models/entity/knowledge/KnowledgeSections.kt`
-- `src/main/kotlin/riven/core/models/entity/knowledge/SectionTypes.kt` (8 section data classes; one file or split per section)
-- `src/main/kotlin/riven/core/models/entity/knowledge/TruncationBudget.kt`
-- `src/main/kotlin/riven/core/models/entity/knowledge/TruncationResult.kt`
-- `src/main/kotlin/riven/core/projection/entity/GlossaryDefinitionRow.kt`
+
+- `src/main/kotlin/cranium/core/models/entity/knowledge/EntityKnowledgeView.kt`
+- `src/main/kotlin/cranium/core/models/entity/knowledge/KnowledgeSections.kt`
+- `src/main/kotlin/cranium/core/models/entity/knowledge/SectionTypes.kt` (8 section data classes; one file or split per section)
+- `src/main/kotlin/cranium/core/models/entity/knowledge/TruncationBudget.kt`
+- `src/main/kotlin/cranium/core/models/entity/knowledge/TruncationResult.kt`
+- `src/main/kotlin/cranium/core/projection/entity/GlossaryDefinitionRow.kt`
 
 ### Modified (Phase 2)
-- `src/main/kotlin/riven/core/repository/entity/EntityRelationshipRepository.kt` — add `findGlossaryDefinitionsForType`; add `sourceSurfaceRole` to existing `EntityLink` projection if absent.
-- `src/main/kotlin/riven/core/configuration/properties/EnrichmentConfigurationProperties.kt` — add `knowledgeBacklinkCap`, `viewPayloadWarnBytes`.
+
+- `src/main/kotlin/cranium/core/repository/entity/EntityRelationshipRepository.kt` — add `findGlossaryDefinitionsForType`; add `sourceSurfaceRole` to existing `EntityLink` projection if absent.
+- `src/main/kotlin/cranium/core/configuration/properties/EnrichmentConfigurationProperties.kt` — add `knowledgeBacklinkCap`, `viewPayloadWarnBytes`.
 
 ---
 
@@ -357,23 +367,23 @@ Three commits, each independently green:
 
 Resolved via interactive `/feature-plan` review on 2026-05-04. All 16 decisions accepted as recommended.
 
-| Section | Issue | Decision |
-|---|---|---|
-| Architecture | 1 Backlink read path | 1A reuse + 1 new query |
-| Architecture | 2 Assembler dep count | 2A ship at ~10, ceiling 12 |
-| Architecture | 3 Projector location | 3A separate service |
-| Architecture | 4-i View transport | 4-i.A in-memory |
-| Architecture | 4-ii Consumer wiring | 4-ii.A Temporal activities |
-| Architecture | 4-iii Canonical artifact | 4-iii.A `EntityKnowledgeView` |
-| Code Quality | 5 `EntityBacklinks` DTO | 5A drop |
-| Code Quality | 6 Section type uniformity | 6A distinct classes |
-| Code Quality | 7 Truncation projector | 7A sequential phase methods |
-| Code Quality | 8 Telemetry granularity | 8A `charCount`, defer `tokenCount` |
-| Tests | 9 Regression snapshot scope | 9A two snapshots, phase-gated |
-| Tests | 10 Backlink coverage | 10A 6-case parameterized IT |
-| Tests | 11 Truncation tests | 11A three-tier (per-phase + invariant + e2e) |
-| Tests | 12 Fan-out test contract | 12A consumer-independence assertion |
-| Performance | 13 KNOWLEDGE excerpt fetch | 13A batch via existing service |
-| Performance | 14 Temporal payload size | 14A truncate at assembler + size guard |
-| Performance | 15 Index selection | 15A trust plan + EXPLAIN gate |
-| Performance | 16 Batch enrichment | 16A timing telemetry, defer batching |
+| Section      | Issue                       | Decision                                     |
+| ------------ | --------------------------- | -------------------------------------------- |
+| Architecture | 1 Backlink read path        | 1A reuse + 1 new query                       |
+| Architecture | 2 Assembler dep count       | 2A ship at ~10, ceiling 12                   |
+| Architecture | 3 Projector location        | 3A separate service                          |
+| Architecture | 4-i View transport          | 4-i.A in-memory                              |
+| Architecture | 4-ii Consumer wiring        | 4-ii.A Temporal activities                   |
+| Architecture | 4-iii Canonical artifact    | 4-iii.A `EntityKnowledgeView`                |
+| Code Quality | 5 `EntityBacklinks` DTO     | 5A drop                                      |
+| Code Quality | 6 Section type uniformity   | 6A distinct classes                          |
+| Code Quality | 7 Truncation projector      | 7A sequential phase methods                  |
+| Code Quality | 8 Telemetry granularity     | 8A `charCount`, defer `tokenCount`           |
+| Tests        | 9 Regression snapshot scope | 9A two snapshots, phase-gated                |
+| Tests        | 10 Backlink coverage        | 10A 6-case parameterized IT                  |
+| Tests        | 11 Truncation tests         | 11A three-tier (per-phase + invariant + e2e) |
+| Tests        | 12 Fan-out test contract    | 12A consumer-independence assertion          |
+| Performance  | 13 KNOWLEDGE excerpt fetch  | 13A batch via existing service               |
+| Performance  | 14 Temporal payload size    | 14A truncate at assembler + size guard       |
+| Performance  | 15 Index selection          | 15A trust plan + EXPLAIN gate                |
+| Performance  | 16 Batch enrichment         | 16A timing telemetry, defer batching         |

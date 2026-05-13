@@ -1,4 +1,4 @@
-package riven.core.configuration.workflow
+package cranium.core.configuration.workflow
 
 import io.temporal.client.WorkflowClient
 import io.temporal.serviceclient.WorkflowServiceStubs
@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-@ConditionalOnProperty(name = ["riven.workflow.engine.enabled"], havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(name = ["cranium.workflow.engine.enabled"], havingValue = "true", matchIfMissing = true)
 class TemporalEngineConfiguration(private val config: TemporalEngineConfigurationProperties) {
     @Bean(destroyMethod = "shutdown")
     fun workflowServiceStubs(): WorkflowServiceStubs {

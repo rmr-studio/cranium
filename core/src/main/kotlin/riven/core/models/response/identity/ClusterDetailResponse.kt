@@ -1,4 +1,4 @@
-package riven.core.models.response.identity
+package cranium.core.models.response.identity
 
 import java.time.ZonedDateTime
 import java.util.UUID

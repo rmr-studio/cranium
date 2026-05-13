@@ -1,26 +1,26 @@
-package riven.core.service.note
+package cranium.core.service.note
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.entity.EntityEntity
-import riven.core.enums.activity.Activity
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.integration.SourceType
-import riven.core.enums.knowledge.KnowledgeEntityTypeKey
-import riven.core.enums.util.OperationType
-import riven.core.exceptions.NotFoundException
-import riven.core.models.note.CreateNoteRequest
-import riven.core.models.note.Note
-import riven.core.models.note.UpdateNoteRequest
-import riven.core.models.note.WorkspaceNote
-import riven.core.service.activity.ActivityService
-import riven.core.service.activity.log
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.entity.EntityIngestionService
-import riven.core.util.CursorPage
+import cranium.core.entity.entity.EntityEntity
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.integration.SourceType
+import cranium.core.enums.knowledge.KnowledgeEntityTypeKey
+import cranium.core.enums.util.OperationType
+import cranium.core.exceptions.NotFoundException
+import cranium.core.models.note.CreateNoteRequest
+import cranium.core.models.note.Note
+import cranium.core.models.note.UpdateNoteRequest
+import cranium.core.models.note.WorkspaceNote
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.activity.log
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.entity.EntityIngestionService
+import cranium.core.util.CursorPage
 import java.util.UUID
 
 /**

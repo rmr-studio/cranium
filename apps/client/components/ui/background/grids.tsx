@@ -1,4 +1,4 @@
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 import React from 'react';
 
 type BGVariantType =

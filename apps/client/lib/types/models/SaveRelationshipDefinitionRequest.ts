@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,56 +12,41 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
 import type { EntityRelationshipCardinality } from './EntityRelationshipCardinality';
 import {
     EntityRelationshipCardinalityFromJSON,
-    EntityRelationshipCardinalityFromJSONTyped,
-    EntityRelationshipCardinalityToJSON,
-    EntityRelationshipCardinalityToJSONTyped,
+    EntityRelationshipCardinalityToJSON
 } from './EntityRelationshipCardinality';
-import type { SaveTargetRuleRequest } from './SaveTargetRuleRequest';
-import {
-    SaveTargetRuleRequestFromJSON,
-    SaveTargetRuleRequestFromJSONTyped,
-    SaveTargetRuleRequestToJSON,
-    SaveTargetRuleRequestToJSONTyped,
-} from './SaveTargetRuleRequest';
-import type { SaveSemanticMetadataRequest } from './SaveSemanticMetadataRequest';
-import {
-    SaveSemanticMetadataRequestFromJSON,
-    SaveSemanticMetadataRequestFromJSONTyped,
-    SaveSemanticMetadataRequestToJSON,
-    SaveSemanticMetadataRequestToJSONTyped,
-} from './SaveSemanticMetadataRequest';
-import type { SchemaUUID } from './SchemaUUID';
-import {
-    SchemaUUIDFromJSON,
-    SchemaUUIDFromJSONTyped,
-    SchemaUUIDToJSON,
-    SchemaUUIDToJSONTyped,
-} from './SchemaUUID';
 import type { EntityTypeRequestDefinition } from './EntityTypeRequestDefinition';
 import {
     EntityTypeRequestDefinitionFromJSON,
-    EntityTypeRequestDefinitionFromJSONTyped,
-    EntityTypeRequestDefinitionToJSON,
-    EntityTypeRequestDefinitionToJSONTyped,
+    EntityTypeRequestDefinitionToJSON
 } from './EntityTypeRequestDefinition';
-import type { IconType } from './IconType';
-import {
-    IconTypeFromJSON,
-    IconTypeFromJSONTyped,
-    IconTypeToJSON,
-    IconTypeToJSONTyped,
-} from './IconType';
 import type { IconColour } from './IconColour';
 import {
     IconColourFromJSON,
-    IconColourFromJSONTyped,
-    IconColourToJSON,
-    IconColourToJSONTyped,
+    IconColourToJSON
 } from './IconColour';
+import type { IconType } from './IconType';
+import {
+    IconTypeFromJSON,
+    IconTypeToJSON
+} from './IconType';
+import type { SaveSemanticMetadataRequest } from './SaveSemanticMetadataRequest';
+import {
+    SaveSemanticMetadataRequestFromJSON,
+    SaveSemanticMetadataRequestToJSON
+} from './SaveSemanticMetadataRequest';
+import type { SaveTargetRuleRequest } from './SaveTargetRuleRequest';
+import {
+    SaveTargetRuleRequestFromJSON,
+    SaveTargetRuleRequestToJSON
+} from './SaveTargetRuleRequest';
+import type { SchemaUUID } from './SchemaUUID';
+import {
+    SchemaUUIDFromJSON,
+    SchemaUUIDToJSON
+} from './SchemaUUID';
 
 /**
  * Request to save a relationship definition for an entity type

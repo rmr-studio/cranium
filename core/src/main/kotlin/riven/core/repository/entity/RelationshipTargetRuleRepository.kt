@@ -1,9 +1,9 @@
-package riven.core.repository.entity
+package cranium.core.repository.entity
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.entity.RelationshipTargetRuleEntity
+import cranium.core.entity.entity.RelationshipTargetRuleEntity
 import java.util.*
 
 @Repository

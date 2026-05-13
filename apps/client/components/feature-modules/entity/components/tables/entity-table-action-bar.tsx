@@ -1,7 +1,7 @@
 'use client';
 
-import { Button } from '@riven/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@riven/ui/tooltip';
+import { Button } from '@cranium/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@cranium/ui/tooltip';
 
 import type { QueryFilter } from '@/lib/types/entity';
 import { Ellipsis, Trash2 } from 'lucide-react';

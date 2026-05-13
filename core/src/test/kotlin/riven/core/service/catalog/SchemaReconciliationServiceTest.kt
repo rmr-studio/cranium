@@ -1,4 +1,4 @@
-package riven.core.service.catalog
+package cranium.core.service.catalog
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -15,33 +15,33 @@ import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.TransactionDefinition
 import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.support.SimpleTransactionStatus
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.enums.activity.Activity
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.core.DataFormat
-import riven.core.enums.core.DataType
-import riven.core.enums.entity.validation.EntityTypeChangeType
-import riven.core.enums.util.OperationType
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.models.catalog.ReconciliationImpact
-import riven.core.models.catalog.ReconciliationResult
-import riven.core.models.catalog.SchemaHealthResponse
-import riven.core.models.catalog.SchemaHealthStatusType
-import riven.core.models.common.validation.Schema
-import riven.core.models.entity.EntityTypeSchema
-import riven.core.repository.catalog.CatalogEntityTypeRepository
-import riven.core.repository.entity.EntityAttributeRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.enrichment.EnrichmentQueueService
-import riven.core.service.util.BaseServiceTest
-import riven.core.service.util.SecurityTestConfig
-import riven.core.service.util.WithUserPersona
-import riven.core.service.util.WorkspaceRole
-import riven.core.service.util.factory.catalog.CatalogFactory
-import riven.core.service.util.factory.entity.EntityFactory
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.core.DataFormat
+import cranium.core.enums.core.DataType
+import cranium.core.enums.entity.validation.EntityTypeChangeType
+import cranium.core.enums.util.OperationType
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.models.catalog.ReconciliationImpact
+import cranium.core.models.catalog.ReconciliationResult
+import cranium.core.models.catalog.SchemaHealthResponse
+import cranium.core.models.catalog.SchemaHealthStatusType
+import cranium.core.models.common.validation.Schema
+import cranium.core.models.entity.EntityTypeSchema
+import cranium.core.repository.catalog.CatalogEntityTypeRepository
+import cranium.core.repository.entity.EntityAttributeRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.enrichment.EnrichmentQueueService
+import cranium.core.service.util.BaseServiceTest
+import cranium.core.service.util.SecurityTestConfig
+import cranium.core.service.util.WithUserPersona
+import cranium.core.service.util.WorkspaceRole
+import cranium.core.service.util.factory.catalog.CatalogFactory
+import cranium.core.service.util.factory.entity.EntityFactory
 import java.util.*
 
 @SpringBootTest(
@@ -488,7 +488,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
 
             service.reconcileIfNeeded(workspaceId, listOf(entityType))
 
-            val captor = argumentCaptor<riven.core.entity.entity.EntityTypeEntity>()
+            val captor = argumentCaptor<cranium.core.entity.entity.EntityTypeEntity>()
             verify(entityTypeRepository).save(captor.capture())
             assertEquals("new-hash", captor.firstValue.sourceSchemaHash)
             assertFalse(captor.firstValue.pendingSchemaUpdate)
@@ -525,7 +525,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
 
             service.reconcileIfNeeded(workspaceId, listOf(entityType))
 
-            val captor = argumentCaptor<riven.core.entity.entity.EntityTypeEntity>()
+            val captor = argumentCaptor<cranium.core.entity.entity.EntityTypeEntity>()
             verify(entityTypeRepository).save(captor.capture())
             assertTrue(captor.firstValue.pendingSchemaUpdate)
         }
@@ -563,7 +563,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
 
             service.reconcileIfNeeded(workspaceId, listOf(entityType))
 
-            val captor = argumentCaptor<riven.core.entity.entity.EntityTypeEntity>()
+            val captor = argumentCaptor<cranium.core.entity.entity.EntityTypeEntity>()
             verify(entityTypeRepository).save(captor.capture())
             val saved = captor.firstValue
             val savedProps = saved.schema.properties!!
@@ -608,7 +608,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
 
             service.reconcileIfNeeded(workspaceId, listOf(entityType))
 
-            val captor = argumentCaptor<riven.core.entity.entity.EntityTypeEntity>()
+            val captor = argumentCaptor<cranium.core.entity.entity.EntityTypeEntity>()
             verify(entityTypeRepository).save(captor.capture())
             // No changes between schemas, so hash should be stamped
             assertEquals("catalog-hash", captor.firstValue.sourceSchemaHash)
@@ -836,7 +836,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
 
             service.reconcileIfNeeded(workspaceId, listOf(entityType))
 
-            val captor = argumentCaptor<riven.core.entity.entity.EntityTypeEntity>()
+            val captor = argumentCaptor<cranium.core.entity.entity.EntityTypeEntity>()
             verify(entityTypeRepository).save(captor.capture())
             val saved = captor.firstValue
             assertFalse(saved.pendingSchemaUpdate, "Flag should be cleared when no breaking changes remain")
@@ -886,7 +886,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
 
             service.reconcileIfNeeded(workspaceId, listOf(entityType))
 
-            val captor = argumentCaptor<riven.core.entity.entity.EntityTypeEntity>()
+            val captor = argumentCaptor<cranium.core.entity.entity.EntityTypeEntity>()
             verify(entityTypeRepository).save(captor.capture())
             assertFalse(captor.firstValue.pendingSchemaUpdate,
                 "Stale pending flag should be cleared when hashes match")
@@ -1125,7 +1125,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
 
             service.applyBreakingChanges(workspaceId, listOf(entityTypeId), impactConfirmed = true)
 
-            val captor = argumentCaptor<riven.core.entity.entity.EntityTypeEntity>()
+            val captor = argumentCaptor<cranium.core.entity.entity.EntityTypeEntity>()
             verify(entityTypeRepository).save(captor.capture())
             assertFalse(captor.firstValue.pendingSchemaUpdate)
         }
@@ -1163,7 +1163,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
 
             service.applyBreakingChanges(workspaceId, listOf(entityTypeId), impactConfirmed = true)
 
-            val captor = argumentCaptor<riven.core.entity.entity.EntityTypeEntity>()
+            val captor = argumentCaptor<cranium.core.entity.entity.EntityTypeEntity>()
             verify(entityTypeRepository).save(captor.capture())
             assertEquals("updated-hash", captor.firstValue.sourceSchemaHash)
         }
@@ -1811,7 +1811,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
 
             service.reconcileIfNeeded(workspaceId, listOf(entityType))
 
-            val captor = argumentCaptor<riven.core.entity.entity.EntityTypeEntity>()
+            val captor = argumentCaptor<cranium.core.entity.entity.EntityTypeEntity>()
             verify(entityTypeRepository).save(captor.capture())
             val saved = captor.firstValue
 
@@ -1858,7 +1858,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
 
             service.reconcileIfNeeded(workspaceId, listOf(entityType))
 
-            val captor = argumentCaptor<riven.core.entity.entity.EntityTypeEntity>()
+            val captor = argumentCaptor<cranium.core.entity.entity.EntityTypeEntity>()
             verify(entityTypeRepository).save(captor.capture())
             val emailUuid = UUID.fromString(mapping["email"])
             val updatedAttr = captor.firstValue.schema.properties?.get(emailUuid)
@@ -1893,7 +1893,7 @@ class SchemaReconciliationServiceTest : BaseServiceTest() {
 
             service.reconcileIfNeeded(workspaceId, listOf(entityType))
 
-            val captor = argumentCaptor<riven.core.entity.entity.EntityTypeEntity>()
+            val captor = argumentCaptor<cranium.core.entity.entity.EntityTypeEntity>()
             verify(entityTypeRepository).save(captor.capture())
             val emailUuid = UUID.fromString(mapping["email"])
             val updatedAttr = captor.firstValue.schema.properties?.get(emailUuid)

@@ -178,7 +178,7 @@ function RunCard({ compact }: { compact?: boolean } = {}) {
             Running procedure
           </div>
           <div className="mt-0.5 font-mono text-[9px] tracking-wider text-muted-foreground uppercase">
-            Riven · internal execution
+            Cranium · internal execution
           </div>
         </div>
       </div>

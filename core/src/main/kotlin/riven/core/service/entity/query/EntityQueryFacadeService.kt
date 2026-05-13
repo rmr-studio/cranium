@@ -1,18 +1,18 @@
-package riven.core.service.entity.query
+package cranium.core.service.entity.query
 
 import io.github.oshai.kotlinlogging.KLogger
 import kotlinx.coroutines.runBlocking
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
-import riven.core.models.entity.Entity
-import riven.core.models.entity.partitionForEntityProjection
-import riven.core.models.entity.payload.EntityAttribute
-import riven.core.models.entity.payload.EntityAttributeRelationPayload
-import riven.core.models.entity.query.EntityQuery
-import riven.core.models.entity.query.QueryProjection
-import riven.core.models.request.entity.EntityQueryRequest
-import riven.core.models.response.entity.EntityQueryResponse
-import riven.core.service.entity.EntityRelationshipService
+import cranium.core.models.entity.Entity
+import cranium.core.models.entity.partitionForEntityProjection
+import cranium.core.models.entity.payload.EntityAttribute
+import cranium.core.models.entity.payload.EntityAttributeRelationPayload
+import cranium.core.models.entity.query.EntityQuery
+import cranium.core.models.entity.query.QueryProjection
+import cranium.core.models.request.entity.EntityQueryRequest
+import cranium.core.models.response.entity.EntityQueryResponse
+import cranium.core.service.entity.EntityRelationshipService
 import java.util.*
 
 /**

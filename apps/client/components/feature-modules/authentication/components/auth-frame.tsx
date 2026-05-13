@@ -1,6 +1,6 @@
 'use client';
 
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 
 const STROKE_CLASS = 'text-foreground/25';
 

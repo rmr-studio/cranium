@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,20 +12,15 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
 import type { CursorIndexWarning } from './CursorIndexWarning';
 import {
     CursorIndexWarningFromJSON,
-    CursorIndexWarningFromJSONTyped,
-    CursorIndexWarningToJSON,
-    CursorIndexWarningToJSONTyped,
+    CursorIndexWarningToJSON
 } from './CursorIndexWarning';
 import type { PendingRelationship } from './PendingRelationship';
 import {
     PendingRelationshipFromJSON,
-    PendingRelationshipFromJSONTyped,
-    PendingRelationshipToJSON,
-    PendingRelationshipToJSONTyped,
+    PendingRelationshipToJSON
 } from './PendingRelationship';
 
 /**

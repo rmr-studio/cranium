@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,28 +12,21 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { SemanticGroup } from './SemanticGroup';
-import {
-    SemanticGroupFromJSON,
-    SemanticGroupFromJSONTyped,
-    SemanticGroupToJSON,
-    SemanticGroupToJSONTyped,
-} from './SemanticGroup';
-import type { SaveDataConnectorFieldMappingRequest } from './SaveDataConnectorFieldMappingRequest';
-import {
-    SaveDataConnectorFieldMappingRequestFromJSON,
-    SaveDataConnectorFieldMappingRequestFromJSONTyped,
-    SaveDataConnectorFieldMappingRequestToJSON,
-    SaveDataConnectorFieldMappingRequestToJSONTyped,
-} from './SaveDataConnectorFieldMappingRequest';
 import type { LifecycleDomain } from './LifecycleDomain';
 import {
     LifecycleDomainFromJSON,
-    LifecycleDomainFromJSONTyped,
-    LifecycleDomainToJSON,
-    LifecycleDomainToJSONTyped,
+    LifecycleDomainToJSON
 } from './LifecycleDomain';
+import type { SaveDataConnectorFieldMappingRequest } from './SaveDataConnectorFieldMappingRequest';
+import {
+    SaveDataConnectorFieldMappingRequestFromJSON,
+    SaveDataConnectorFieldMappingRequestToJSON
+} from './SaveDataConnectorFieldMappingRequest';
+import type { SemanticGroup } from './SemanticGroup';
+import {
+    SemanticGroupFromJSON,
+    SemanticGroupToJSON
+} from './SemanticGroup';
 
 /**
  * 

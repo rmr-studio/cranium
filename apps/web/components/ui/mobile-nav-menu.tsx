@@ -2,7 +2,7 @@
 
 import { DitherTransition } from '@/components/ui/dither-transition';
 import { LinkProps, NavbarProps } from '@/lib/interface';
-import { Logo } from '@riven/ui/logo';
+import { Logo } from '@cranium/ui/logo';
 import { X } from 'lucide-react';
 import Link from 'next/link';
 import React, { Dispatch, FC, useEffect, useState } from 'react';
@@ -89,7 +89,7 @@ export const MobileNavbar: FC<MobileNavbarExtendedProps> = ({
             <div className="flex items-center gap-3">
               <Link href="/" onClick={() => setIsOpen(false)} className="flex items-center gap-1.5">
                 <Logo size={22} className="fill-logo-primary" />
-                <span className="mt-0.5 text-lg font-bold text-logo-primary">Riven</span>
+                <span className="mt-0.5 text-lg font-bold text-logo-primary">Cranium</span>
               </Link>
             </div>
             <Button

@@ -1,4 +1,4 @@
-package riven.core.service.catalog
+package cranium.core.service.catalog
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test

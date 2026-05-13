@@ -1,6 +1,6 @@
-package riven.core.models.response.block
+package cranium.core.models.response.block
 
-import riven.core.models.block.BlockEnvironment
+import cranium.core.models.block.BlockEnvironment
 
 data class OverwriteEnvironmentResponse(
     val success: Boolean,

@@ -1,4 +1,4 @@
-package riven.core.service.connector
+package cranium.core.service.connector
 
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.module.kotlin.jacksonObjectMapper
@@ -24,30 +24,30 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.connector.DataConnectorConnectionEntity
-import riven.core.enums.activity.Activity
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.connector.SslMode
-import riven.core.enums.integration.ConnectionStatus
-import riven.core.enums.util.OperationType
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.exceptions.NotFoundException
-import riven.core.exceptions.connector.CryptoException
-import riven.core.exceptions.connector.DataCorruptionException
-import riven.core.exceptions.connector.ReadOnlyVerificationException
-import riven.core.exceptions.connector.SsrfRejectedException
-import riven.core.models.connector.CredentialPayload
-import riven.core.models.connector.request.CreateDataConnectorConnectionRequest
-import riven.core.models.connector.request.UpdateDataConnectorConnectionRequest
-import riven.core.repository.connector.DataConnectorConnectionRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.connector.pool.WorkspaceConnectionPoolManager
-import riven.core.service.util.SecurityTestConfig
-import riven.core.service.util.WithUserPersona
-import riven.core.service.util.WorkspaceRole
-import riven.core.service.util.factory.dataconnector.DataConnectorConnectionEntityFactory
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.entity.connector.DataConnectorConnectionEntity
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.connector.SslMode
+import cranium.core.enums.integration.ConnectionStatus
+import cranium.core.enums.util.OperationType
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.exceptions.NotFoundException
+import cranium.core.exceptions.connector.CryptoException
+import cranium.core.exceptions.connector.DataCorruptionException
+import cranium.core.exceptions.connector.ReadOnlyVerificationException
+import cranium.core.exceptions.connector.SsrfRejectedException
+import cranium.core.models.connector.CredentialPayload
+import cranium.core.models.connector.request.CreateDataConnectorConnectionRequest
+import cranium.core.models.connector.request.UpdateDataConnectorConnectionRequest
+import cranium.core.repository.connector.DataConnectorConnectionRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.connector.pool.WorkspaceConnectionPoolManager
+import cranium.core.service.util.SecurityTestConfig
+import cranium.core.service.util.WithUserPersona
+import cranium.core.service.util.WorkspaceRole
+import cranium.core.service.util.factory.dataconnector.DataConnectorConnectionEntityFactory
 import java.net.InetAddress
 import java.util.Optional
 import java.util.UUID
@@ -68,7 +68,7 @@ import java.util.UUID
         DataConnectorConnectionService::class,
     ],
 )
-@TestPropertySource(properties = ["riven.connector.enabled=true"])
+@TestPropertySource(properties = ["cranium.connector.enabled=true"])
 @WithUserPersona(
     userId = "11111111-1111-1111-1111-111111111111",
     email = "test@test.com",

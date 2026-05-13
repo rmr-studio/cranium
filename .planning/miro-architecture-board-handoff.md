@@ -7,7 +7,7 @@
 
 ## Goal
 
-Populate a new Miro board with system architecture diagrams, flow diagrams, and ER diagrams based on `/home/jared/dev/riven/docs/system-design/flows/` (14 flow docs) and current backend codebase state. Purpose: visualize architecture to support design and expansion planning.
+Populate a new Miro board with system architecture diagrams, flow diagrams, and ER diagrams based on `/home/jared/dev/cranium/docs/system-design/flows/` (14 flow docs) and current backend codebase state. Purpose: visualize architecture to support design and expansion planning.
 
 ## User decisions captured
 
@@ -24,27 +24,27 @@ Populate a new Miro board with system architecture diagrams, flow diagrams, and 
    - `mcp__miro__diagram_get_dsl`
    - `mcp__miro__doc_create`
    - `mcp__miro__context_explore`
-3. Working dir: `/home/jared/dev/riven/`
-4. Flow docs: `/home/jared/dev/riven/docs/system-design/flows/`
+3. Working dir: `/home/jared/dev/cranium/`
+4. Flow docs: `/home/jared/dev/cranium/docs/system-design/flows/`
 
 ## Flow doc inventory (all read this session)
 
-| # | Doc | Status | Use for |
-|---|---|---|---|
-| 1 | `Auth & Authorization.md` | FULL | Flowchart + sequence |
-| 2 | `Entity CRUD.md` | FULL (create/retrieve/delete sub-flows) | 3 sequence diagrams or 1 combined flowchart |
-| 3 | `Entity Type Definition.md` | FULL (incl. decision tree for breaking changes) | Flowchart |
-| 4 | `Flow - Node Input Resolution.md` | STUB only | Skip |
-| 5 | `Flow - File Upload.md` | FULL | Sequence diagram |
-| 6 | `Flow - Semantic Metadata Lifecycle Sync.md` | FULL (4 sub-flows) | Flowchart showing lifecycle events |
-| 7 | `Flow - Signed URL Download.md` | FULL | Sequence diagram |
-| 8 | `Flow - Stale Item Recovery.md` | STUB only | Skip (content exists in Queue Processing §Stale Item Recovery Path) |
-| 9 | `Flow - Workflow Execution Queueing.md` | STUB only | Skip (covered by Queue Processing + Workflow Execution) |
-| 10 | `Integration Connection Lifecycle.md` | FULL (10-state machine) | State diagram (use flowchart DSL — no state diagram type in Miro) + sequence for connect/disconnect |
-| 11 | `Integration Data Sync Pipeline.md` | FULL (3 paths: auth webhook, sync webhook, sync workflow) | 3 sequence diagrams |
-| 12 | `Invitation Acceptance.md` | FULL | Sequence diagram |
-| 13 | `Queue Processing.md` | FULL | Sequence diagram + stale recovery flowchart |
-| 14 | `Workflow Execution.md` | FULL (incl. DAG execution detail) | 2 sequence diagrams (main + DAG) |
+| #   | Doc                                          | Status                                                    | Use for                                                                                             |
+| --- | -------------------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| 1   | `Auth & Authorization.md`                    | FULL                                                      | Flowchart + sequence                                                                                |
+| 2   | `Entity CRUD.md`                             | FULL (create/retrieve/delete sub-flows)                   | 3 sequence diagrams or 1 combined flowchart                                                         |
+| 3   | `Entity Type Definition.md`                  | FULL (incl. decision tree for breaking changes)           | Flowchart                                                                                           |
+| 4   | `Flow - Node Input Resolution.md`            | STUB only                                                 | Skip                                                                                                |
+| 5   | `Flow - File Upload.md`                      | FULL                                                      | Sequence diagram                                                                                    |
+| 6   | `Flow - Semantic Metadata Lifecycle Sync.md` | FULL (4 sub-flows)                                        | Flowchart showing lifecycle events                                                                  |
+| 7   | `Flow - Signed URL Download.md`              | FULL                                                      | Sequence diagram                                                                                    |
+| 8   | `Flow - Stale Item Recovery.md`              | STUB only                                                 | Skip (content exists in Queue Processing §Stale Item Recovery Path)                                 |
+| 9   | `Flow - Workflow Execution Queueing.md`      | STUB only                                                 | Skip (covered by Queue Processing + Workflow Execution)                                             |
+| 10  | `Integration Connection Lifecycle.md`        | FULL (10-state machine)                                   | State diagram (use flowchart DSL — no state diagram type in Miro) + sequence for connect/disconnect |
+| 11  | `Integration Data Sync Pipeline.md`          | FULL (3 paths: auth webhook, sync webhook, sync workflow) | 3 sequence diagrams                                                                                 |
+| 12  | `Invitation Acceptance.md`                   | FULL                                                      | Sequence diagram                                                                                    |
+| 13  | `Queue Processing.md`                        | FULL                                                      | Sequence diagram + stale recovery flowchart                                                         |
+| 14  | `Workflow Execution.md`                      | FULL (incl. DAG execution detail)                         | 2 sequence diagrams (main + DAG)                                                                    |
 
 ## Diagrams to create
 
@@ -87,25 +87,13 @@ Row 7 (y=6000): Storage cluster
 ### Suggested diagrams (priority order)
 
 **Priority 1 — foundational:**
+
 1. **System Architecture Overview** (flowchart) — Client → REST controllers → Services → {PostgreSQL, Temporal, Nango, Local Storage, Supabase JWKS}. Group services by domain (Workspaces & Users, Entities, Workflows, Integrations, Storage, Knowledge).
 2. **ER Diagram — Core Domain** (entity_relationship) — `workspaces`, `workspace_members`, `workspace_invites`, `entity_types`, `entities`, `entity_unique_values`, `entity_relationships`, `entity_type_semantic_metadata`, `workflow_definitions`, `workflow_execution_queue`, `workflow_execution`, `workflow_execution_nodes`, `integration_definitions`, `integration_connections`, `integration_sync_state`, `file_metadata`, `shedlock`, `activity_log`.
 
-**Priority 2 — critical flows:**
-3. **Auth & Authorization** (uml_sequence) — full JWT → @PreAuthorize → RLS chain. Source: flow doc §Happy Path.
-4. **Workflow Execution end-to-end** (uml_sequence) — Client → Controller → Queue → Dispatcher → Temporal → Orchestration → Coordination → Completion. Condensed from flow doc high-level diagram.
-5. **DAG Execution detail** (uml_sequence) — GraphCoordination → QueueManagement → Store → nodeExecutor loop.
-6. **Queue Processing** (uml_sequence) — Scheduled → ShedLock → claimBatch → processItem (REQUIRES_NEW) → capacity check → dispatch/release.
-7. **Integration Sync Pipeline — main workflow** (uml_sequence) — IntegrationSyncWorkflow 3-pass (fetch+process / relationships / sync state+health).
+**Priority 2 — critical flows:** 3. **Auth & Authorization** (uml_sequence) — full JWT → @PreAuthorize → RLS chain. Source: flow doc §Happy Path. 4. **Workflow Execution end-to-end** (uml_sequence) — Client → Controller → Queue → Dispatcher → Temporal → Orchestration → Coordination → Completion. Condensed from flow doc high-level diagram. 5. **DAG Execution detail** (uml_sequence) — GraphCoordination → QueueManagement → Store → nodeExecutor loop. 6. **Queue Processing** (uml_sequence) — Scheduled → ShedLock → claimBatch → processItem (REQUIRES_NEW) → capacity check → dispatch/release. 7. **Integration Sync Pipeline — main workflow** (uml_sequence) — IntegrationSyncWorkflow 3-pass (fetch+process / relationships / sync state+health).
 
-**Priority 3 — remaining flows:**
-8. **Connection Lifecycle** (flowchart) — 10-state machine as flowchart since Miro has no state diagram type. Nodes = states, edges = valid transitions.
-9. **Sync Pipeline — Auth webhook path** (uml_sequence) — Nango → Controller (HMAC) → Service → ConnectionService → TemplateMaterialization.
-10. **Entity CRUD — Create** (uml_sequence) — Controller → Security → EntityService → Validation → Persist → Relationships → Activity.
-11. **Entity Type Definition** (flowchart) — decision tree for breaking change impact analysis.
-12. **Semantic Metadata Lifecycle** (flowchart) — 6 events (publish, attribute add/remove, relationship add/remove, entity type soft-delete) each triggering metadata create/hard-delete/soft-delete.
-13. **File Upload** (uml_sequence) — Controller → Security → StorageService → ContentValidation (Tika) → LocalStorage → Metadata save → SignedUrl gen.
-14. **Signed URL Download** (uml_sequence) — unauthenticated; HMAC validation → file read → metadata lookup → streaming response.
-15. **Invitation Acceptance** (uml_sequence) — two phases (create invite, accept invite).
+**Priority 3 — remaining flows:** 8. **Connection Lifecycle** (flowchart) — 10-state machine as flowchart since Miro has no state diagram type. Nodes = states, edges = valid transitions. 9. **Sync Pipeline — Auth webhook path** (uml_sequence) — Nango → Controller (HMAC) → Service → ConnectionService → TemplateMaterialization. 10. **Entity CRUD — Create** (uml_sequence) — Controller → Security → EntityService → Validation → Persist → Relationships → Activity. 11. **Entity Type Definition** (flowchart) — decision tree for breaking change impact analysis. 12. **Semantic Metadata Lifecycle** (flowchart) — 6 events (publish, attribute add/remove, relationship add/remove, entity type soft-delete) each triggering metadata create/hard-delete/soft-delete. 13. **File Upload** (uml_sequence) — Controller → Security → StorageService → ContentValidation (Tika) → LocalStorage → Metadata save → SignedUrl gen. 14. **Signed URL Download** (uml_sequence) — unauthenticated; HMAC validation → file read → metadata lookup → streaming response. 15. **Invitation Acceptance** (uml_sequence) — two phases (create invite, accept invite).
 
 ## Implementation approach for fresh session
 
@@ -117,7 +105,7 @@ Row 7 (y=6000): Storage cluster
 3. **Get DSL spec once per type** — three types needed: `flowchart`, `uml_sequence`, `entity_relationship`. Call `diagram_get_dsl` once per type, reuse spec across all diagrams of that type.
 4. **Capture board URL** from first diagram's response. Pass as `miro_url` for all subsequent diagrams.
 5. **Create in priority order** — stop between priorities to let user review. Priority 1 alone establishes board and is valuable. Priorities 2+3 can be batched in later sessions.
-6. **Titles** — use format "Riven — <Area>: <Flow Name>" so they sort nicely on the board.
+6. **Titles** — use format "Cranium — <Area>: <Flow Name>" so they sort nicely on the board.
 7. **Create a doc_create** as a board-level README at x=0, y=-4500 with links to each cluster and short description. Markdown only (no code blocks or tables).
 
 ## Key content references per diagram
@@ -147,6 +135,7 @@ Domain modules referenced in flows (paths into `core/`):
 - **Storage** — StorageController, StorageService, ContentValidationService (Apache Tika), LocalStorageProvider, FileMetadataRepository, SignedUrlService (HMAC-SHA256)
 
 External dependencies:
+
 - **PostgreSQL** (with RLS policies + ShedLock table)
 - **Temporal** (workflow orchestration for both workflow execution + integration sync)
 - **Nango Cloud** (OAuth + sync webhooks)
@@ -156,6 +145,7 @@ External dependencies:
 ## Memory notes relevant
 
 From `MEMORY.md`:
+
 - `docs/` is separate git repo — no commits needed to core for this work since we're only writing to Miro.
 - Two-layer data model (Source + Projection) per `project_two_layer_data_model.md` — worth including in ER if diagraming deeply.
 - Integration entities are readonly per `project_integration_entity_architecture.md` — note this in Sync Pipeline diagram annotations.
@@ -163,6 +153,7 @@ From `MEMORY.md`:
 ## Estimated context cost per diagram
 
 Each diagram_create call ≈ 3-5% context (DSL text + response). 15 diagrams ≈ 50-75% context from scratch. A fresh session with no flow doc re-reading (use this handoff as source) should fit comfortably:
+
 - Handoff read: ~5%
 - DSL specs (3 calls): ~6%
 - 15 diagrams: ~60%
@@ -175,4 +166,4 @@ If tight, split into 2 sessions: Priority 1+2 first (~8 diagrams), Priority 3 se
 
 Paste this into fresh session:
 
-> Continue populating the Miro system architecture board per `/home/jared/dev/riven/.planning/miro-architecture-board-handoff.md`. Read the handoff, then execute Priority 1 diagrams (System Architecture Overview flowchart + Core Domain ER). Don't re-read the flow docs — the handoff captures what's needed. Create the new Miro board via the first diagram_create call. Report board URL back. Caveman mode still active.
+> Continue populating the Miro system architecture board per `/home/jared/dev/cranium/.planning/miro-architecture-board-handoff.md`. Read the handoff, then execute Priority 1 diagrams (System Architecture Overview flowchart + Core Domain ER). Don't re-read the flow docs — the handoff captures what's needed. Create the new Miro board via the first diagram_create call. Report board URL back. Caveman mode still active.

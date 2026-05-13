@@ -1,4 +1,4 @@
-package riven.core.enums.invoice
+package cranium.core.enums.invoice
 
 enum class InvoiceStatus {
     // This status indicates that the invoice has been created but not yet paid.

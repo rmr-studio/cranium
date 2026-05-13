@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { ClassNameProps } from '@riven/utils';
+import { ClassNameProps } from '@cranium/utils';
 import { FC } from 'react';
 import type { Signal } from './data';
 import { SIGNALS } from './data';

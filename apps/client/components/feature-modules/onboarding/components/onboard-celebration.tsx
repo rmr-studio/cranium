@@ -1,7 +1,7 @@
 'use client';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@riven/ui';
+import { Button } from '@cranium/ui';
 import { Propless } from '@/lib/interfaces/interface';
 import { AlertTriangle, X } from 'lucide-react';
 import { motion } from 'motion/react';

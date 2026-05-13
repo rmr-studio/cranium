@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,21 +12,16 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { NoteSourceType } from './NoteSourceType';
-import {
-    NoteSourceTypeFromJSON,
-    NoteSourceTypeFromJSONTyped,
-    NoteSourceTypeToJSON,
-    NoteSourceTypeToJSONTyped,
-} from './NoteSourceType';
 import type { NoteEntityContext } from './NoteEntityContext';
 import {
     NoteEntityContextFromJSON,
-    NoteEntityContextFromJSONTyped,
-    NoteEntityContextToJSON,
-    NoteEntityContextToJSONTyped,
+    NoteEntityContextToJSON
 } from './NoteEntityContext';
+import type { NoteSourceType } from './NoteSourceType';
+import {
+    NoteSourceTypeFromJSON,
+    NoteSourceTypeToJSON
+} from './NoteSourceType';
 
 /**
  * 

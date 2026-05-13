@@ -1,11 +1,11 @@
-package riven.core.service.entity.query
+package cranium.core.service.entity.query
 
 import org.springframework.stereotype.Component
-import riven.core.enums.entity.query.QueryDirection
-import riven.core.exceptions.query.FilterNestingDepthExceededException
-import riven.core.exceptions.query.RelationshipDepthExceededException
-import riven.core.models.entity.query.filter.FilterValue
-import riven.core.models.entity.query.filter.QueryFilter
+import cranium.core.enums.entity.query.QueryDirection
+import cranium.core.exceptions.query.FilterNestingDepthExceededException
+import cranium.core.exceptions.query.RelationshipDepthExceededException
+import cranium.core.models.entity.query.filter.FilterValue
+import cranium.core.models.entity.query.filter.QueryFilter
 import java.util.*
 
 /**
@@ -30,7 +30,7 @@ import java.util.*
  *
  * Filters exceeding either limit throw the corresponding exception:
  * [FilterNestingDepthExceededException] or
- * [riven.core.exceptions.query.RelationshipDepthExceededException].
+ * [cranium.core.exceptions.query.RelationshipDepthExceededException].
  *
  * ## Entity Alias Propagation
  *
@@ -93,7 +93,7 @@ class AttributeFilterVisitor(
      *   Pass a different alias when generating SQL for nested relationship filter contexts.
      * @return SqlFragment with parameterized SQL and bound values
      * @throws FilterNestingDepthExceededException if AND/OR nesting exceeds [maxNestingDepth]
-     * @throws riven.core.exceptions.query.RelationshipDepthExceededException if relationship depth exceeds [maxRelationshipDepth]
+     * @throws cranium.core.exceptions.query.RelationshipDepthExceededException if relationship depth exceeds [maxRelationshipDepth]
      * @throws IllegalStateException if unresolved template expressions are encountered
      */
     fun visit(
@@ -239,7 +239,7 @@ class AttributeFilterVisitor(
      * @param paramGen Parameter name generator
      * @param entityAlias Table alias for the entity being filtered
      * @return SQL fragment with EXISTS/NOT EXISTS subquery
-     * @throws riven.core.exceptions.query.RelationshipDepthExceededException if depth exceeds [maxRelationshipDepth]
+     * @throws cranium.core.exceptions.query.RelationshipDepthExceededException if depth exceeds [maxRelationshipDepth]
      */
     private fun visitRelationship(
         filter: QueryFilter.Relationship,

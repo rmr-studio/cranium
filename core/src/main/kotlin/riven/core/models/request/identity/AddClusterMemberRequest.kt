@@ -1,4 +1,4 @@
-package riven.core.models.request.identity
+package cranium.core.models.request.identity
 
 import java.util.UUID
 

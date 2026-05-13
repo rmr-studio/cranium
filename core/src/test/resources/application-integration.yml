@@ -1,5 +1,5 @@
 server:
-  port: 0  # Random port for tests
+  port: 0 # Random port for tests
 
 spring:
   datasource:
@@ -13,7 +13,7 @@ spring:
         format_sql: true
     show-sql: false
   flyway:
-    enabled: false  # Disable Flyway for tests - use Hibernate schema generation
+    enabled: false # Disable Flyway for tests - use Hibernate schema generation
   security:
     oauth2:
       resourceserver:
@@ -23,7 +23,7 @@ spring:
     workers-auto-discovery:
       packages: []
 
-riven:
+cranium:
   security:
     jwt-secret-key: integration-test-secret-key-minimum-32-chars-long
     jwt-issuer: http://localhost:9999
@@ -66,7 +66,7 @@ springdoc:
 
 logging:
   level:
-    riven.core: INFO
+    cranium.core: INFO
     org.springframework: WARN
     org.hibernate: WARN
     org.testcontainers: INFO

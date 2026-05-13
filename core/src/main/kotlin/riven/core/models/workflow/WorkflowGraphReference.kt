@@ -1,4 +1,4 @@
-package riven.core.models.workflow
+package cranium.core.models.workflow
 
 import java.util.*
 

@@ -1,10 +1,10 @@
 'use client';
 
-import { Button } from '@riven/ui/button';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@riven/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
-import type { ClassNameProps } from '@riven/utils';
-import { cn } from '@riven/utils';
+import { Button } from '@cranium/ui/button';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@cranium/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@cranium/ui/popover';
+import type { ClassNameProps } from '@cranium/utils';
+import { cn } from '@cranium/utils';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { FC, useState } from 'react';
 import { ScrollArea } from '../../scroll-area';

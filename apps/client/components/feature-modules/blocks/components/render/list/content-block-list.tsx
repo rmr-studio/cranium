@@ -7,9 +7,9 @@
 
 'use client';
 
-import { Button } from '@riven/ui/button';
+import { Button } from '@cranium/ui/button';
 import { BlockListOrderingMode, ListFilterLogicType } from "@/lib/types/block";
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 import {
   closestCenter,
   DndContext,

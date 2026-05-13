@@ -1,4 +1,4 @@
-package riven.core.util
+package cranium.core.util
 
 /**
  * Normalizes business definition terms for uniqueness comparison.

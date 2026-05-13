@@ -1,4 +1,4 @@
-package riven.core.service.catalog
+package cranium.core.service.catalog
 
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.ObjectMapper
@@ -12,9 +12,9 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
-import riven.core.enums.catalog.ManifestType
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.models.catalog.ScannedManifest
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.models.catalog.ScannedManifest
 
 class ManifestResolverServiceTest {
 

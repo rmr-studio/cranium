@@ -1,4 +1,4 @@
-package riven.core.controller.knowledge
+package cranium.core.controller.knowledge
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.BeforeEach
@@ -18,16 +18,16 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
-import riven.core.configuration.properties.ApplicationConfigurationProperties
-import riven.core.enums.knowledge.DefinitionCategory
-import riven.core.enums.knowledge.DefinitionSource
-import riven.core.enums.knowledge.DefinitionStatus
-import riven.core.exceptions.ExceptionHandler
-import riven.core.models.knowledge.AttributeRef
-import riven.core.models.knowledge.GlossaryTerm
-import riven.core.service.entity.EntityTypeSemanticMetadataService
-import riven.core.service.entity.type.EntityTypeService
-import riven.core.service.knowledge.GlossaryService
+import cranium.core.configuration.properties.ApplicationConfigurationProperties
+import cranium.core.enums.knowledge.DefinitionCategory
+import cranium.core.enums.knowledge.DefinitionSource
+import cranium.core.enums.knowledge.DefinitionStatus
+import cranium.core.exceptions.ExceptionHandler
+import cranium.core.models.knowledge.AttributeRef
+import cranium.core.models.knowledge.GlossaryTerm
+import cranium.core.service.entity.EntityTypeSemanticMetadataService
+import cranium.core.service.entity.type.EntityTypeService
+import cranium.core.service.knowledge.GlossaryService
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.util.UUID

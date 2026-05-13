@@ -1,4 +1,4 @@
-package riven.core.models.analytics
+package cranium.core.models.analytics
 
 import java.time.ZonedDateTime
 import java.util.UUID

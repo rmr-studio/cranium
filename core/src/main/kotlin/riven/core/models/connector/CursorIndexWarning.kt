@@ -1,4 +1,4 @@
-package riven.core.models.connector
+package cranium.core.models.connector
 
 /**
  * Surfaced on GET /schema and POST /mapping when the chosen (or auto-detected)

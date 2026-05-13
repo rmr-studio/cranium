@@ -1,13 +1,13 @@
-package riven.core.service.entity.query
+package cranium.core.service.entity.query
 
 import org.springframework.stereotype.Component
-import riven.core.exceptions.query.InvalidRelationshipReferenceException
-import riven.core.exceptions.query.QueryFilterException
-import riven.core.exceptions.query.RelationshipDepthExceededException
-import riven.core.exceptions.query.UnsupportedIsRelatedToConditionException
-import riven.core.models.entity.RelationshipDefinition
-import riven.core.models.entity.query.filter.QueryFilter
-import riven.core.models.entity.query.filter.RelationshipFilter
+import cranium.core.exceptions.query.InvalidRelationshipReferenceException
+import cranium.core.exceptions.query.QueryFilterException
+import cranium.core.exceptions.query.RelationshipDepthExceededException
+import cranium.core.exceptions.query.UnsupportedIsRelatedToConditionException
+import cranium.core.models.entity.RelationshipDefinition
+import cranium.core.models.entity.query.filter.QueryFilter
+import cranium.core.models.entity.query.filter.RelationshipFilter
 import java.util.*
 
 /**
@@ -42,7 +42,7 @@ class QueryFilterValidator {
      *
      * Walks the entire tree collecting all validation errors. Returns an empty
      * list if the filter is valid. Callers should wrap non-empty results in
-     * [riven.core.exceptions.query.QueryValidationException] if they wish to throw.
+     * [cranium.core.exceptions.query.QueryValidationException] if they wish to throw.
      *
      * @param filter The root filter to validate
      * @param relationshipDefinitions Pre-loaded map of relationship ID to definition.

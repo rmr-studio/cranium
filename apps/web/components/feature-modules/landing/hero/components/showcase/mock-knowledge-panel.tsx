@@ -5,7 +5,7 @@ import { AnimatePresence, motion, type Variants } from 'motion/react';
 
 import type { ShowcaseScenario } from '@/components/feature-modules/landing/hero/components/showcase/scenario-types';
 import { MockBreadcrumb } from '@/components/ui/diagrams/brand-ui-primitives';
-import { ClassNameProps, cn } from '@riven/utils';
+import { ClassNameProps, cn } from '@cranium/utils';
 import { FC } from 'react';
 
 export type KnowledgePanelScenario = Pick<

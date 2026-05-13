@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 import { categoryMeta, categoryOrder } from "../../config/node-types.config";
 import { WorkflowNodeType, WorkflowNodeMetadata } from "@/lib/types/workflow";
 import { useNodeLibrary } from "../../hooks/use-node-library";

@@ -1,9 +1,9 @@
-package riven.core.entity.util
+package cranium.core.entity.util
 
 import jakarta.persistence.Column
 import jakarta.persistence.MappedSuperclass
 import org.hibernate.annotations.SQLRestriction
-import riven.core.models.common.SoftDeletable
+import cranium.core.models.common.SoftDeletable
 import java.time.ZonedDateTime
 
 /**

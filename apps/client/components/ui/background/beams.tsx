@@ -1,5 +1,5 @@
 'use client';
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 import { motion } from 'framer-motion';
 import React from 'react';
 

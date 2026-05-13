@@ -1,4 +1,4 @@
-package riven.core.configuration.auth
+package cranium.core.configuration.auth
 
 import com.fasterxml.jackson.databind.type.TypeFactory
 import io.swagger.v3.core.converter.AnnotatedType

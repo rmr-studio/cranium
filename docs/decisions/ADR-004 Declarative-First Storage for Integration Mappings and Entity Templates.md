@@ -1,11 +1,15 @@
 ---
 tags:
-  - adr/accepted
+  - adr/superseded
   - architecture/decision
 Created: 2026-02-28
-Updated: 2026-02-28
+Updated: 2026-05-13
+Superseded By: "[[architecture-pivot]]"
 ---
+
 # ADR-004: Declarative-First Storage for Integration Mappings and Entity Templates
+
+> **Superseded by the 2026-05 architecture pivot.** The manifest/catalog engine (`models/`, `templates/`, `integrations/`, `bundles/`, `ManifestLoaderService`, the dual Kotlin+JSON pipelines, `ManifestUpsertService`) is deleted in Phase 1c — GitHub-only v1 is one hardcoded scanner, not a manifest engine. Page-kind definitions (including each kind's synthesis contract) live in Kotlin as sealed `Page` subclasses, added via PR like a `CoreModelDefinition` — compile-time safety over contribution friction for rarely-changing core defs. The "core-models-kotlin-vs-json" call wins. See [[architecture-pivot]] §Reuse / Rework / Replace / Delete, [[ADR-011 Reuse Storage Spine, Rebuild Type and Projection Machinery]], [[ADR-018 One pages Table Family for Synthesis Storage]], and [[ADR-021 GitHub-Only v1, Slack and Notion as v1.1]].
 
 ---
 
@@ -19,9 +23,10 @@ The system requires two categories of reusable entity type definitions that must
 
 Both categories share the same core requirement: definitions must be **statically stored**, **reusable across workspaces**, **version-controlled**, and **extensible by the community** without requiring deep application knowledge.
 
-The existing architecture has an unresolved tension. [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-001 Nango as Integration Infrastructure]] established that the integration catalog is database-stored to avoid redeployment when adding new integrations. But the [[riven/docs/system-design/feature-design/5. Backlog/Integration Schema Mapping]] feature design implies per-integration code — each integration platform having "its own interface definition" for entity type templates and schema mapping guides. This effectively reintroduces the redeployment problem: every new integration or mapping change requires a code change, a build, and a release.
+The existing architecture has an unresolved tension. [[2. Areas/2.1 Startup & Content/Cranium/2. System Design/decisions/ADR-001 Nango as Integration Infrastructure]] established that the integration catalog is database-stored to avoid redeployment when adding new integrations. But the [[cranium/docs/system-design/feature-design/5. Backlog/Integration Schema Mapping]] feature design implies per-integration code — each integration platform having "its own interface definition" for entity type templates and schema mapping guides. This effectively reintroduces the redeployment problem: every new integration or mapping change requires a code change, a build, and a release.
 
 Additionally, the application is **self-hostable and open source**. This creates two specific extensibility requirements:
+
 - **Community contributors** need to be able to add new integrations and templates without deep Kotlin/Spring Boot expertise
 - **Self-hosters** need to be able to add custom integrations without forking the codebase
 
@@ -69,7 +74,7 @@ templates/                       # workspace bootstrapping bundles (compose from
 
 Common entity types that appear across multiple templates (e.g., Customer, Invoice, Communication) are defined once as **shared model files**. Each file is a self-contained entity type definition with attributes, validation rules, and semantic metadata.
 
-Shared models are the base building blocks. They serve two purposes: they are referenced and composed by templates via `$ref`, and they are independently installable into workspaces as standalone entity types (see [[riven/docs/system-design/feature-design/3. Active/Declarative Manifest Catalog and Consumption Pipeline]]). Each shared model is persisted in the manifest catalog on startup and available for workspace installation outside of template onboarding. Shared models do **not** declare relationships — they don't know what other models will be present in any given template. Relationships are declared at the composition layer (see below).
+Shared models are the base building blocks. They serve two purposes: they are referenced and composed by templates via `$ref`, and they are independently installable into workspaces as standalone entity types (see [[cranium/docs/system-design/feature-design/3. Active/Declarative Manifest Catalog and Consumption Pipeline]]). Each shared model is persisted in the manifest catalog on startup and available for workspace installation outside of template onboarding. Shared models do **not** declare relationships — they don't know what other models will be present in any given template. Relationships are declared at the composition layer (see below).
 
 #### Template Composition via `$ref` with Merge
 
@@ -104,8 +109,8 @@ Templates declare their entity types as a mix of **references to shared models**
     {
       "key": "churn-event",
       "name": "Churn Event",
-      "attributes": { },
-      "semantics": { }
+      "attributes": {},
+      "semantics": {}
     }
   ],
   "relationships": [
@@ -160,12 +165,13 @@ Templates declare their entity types as a mix of **references to shared models**
       }
     }
   ],
-  "analyticalBriefs": [ ],
-  "exampleQueries": [ ]
+  "analyticalBriefs": [],
+  "exampleQueries": []
 }
 ```
 
 **Merge semantics:**
+
 - `$ref` resolves the shared model as the base definition
 - `extend` performs a **shallow merge at each level**: top-level `attributes` are merged (new keys added, existing keys untouched), top-level `semantics` fields are merged (explicit values override, omitted values preserved from base)
 - Attributes defined in `extend` are **additive** — they cannot remove or replace base attributes, only add new ones or override specific properties of existing ones
@@ -222,12 +228,12 @@ Note that `protected` is omitted — the manifest loader infers `true` from the 
 
 Relationships are declared at the **composition layer** — the manifest that knows which entity types are present:
 
-| Layer | Declares relationships? | Why |
-|-------|------------------------|-----|
-| Shared models (`models/`) | No | Doesn't know what other models are present in the consuming template |
-| Template manifests (`templates/`) | Yes — between all included entity types (both `$ref` and inline) | Knows the full composition; `source`/`target` reference entity type keys |
-| Integration manifests (`integrations/`) | Yes — between own entity types only | Knows its own model set |
-| Runtime (identity resolution) | Yes — cross-integration links | Discovered dynamically via [[Connected Entities for READONLY Entity Types]], not statically declarable in manifests |
+| Layer                                   | Declares relationships?                                          | Why                                                                                                                 |
+| --------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Shared models (`models/`)               | No                                                               | Doesn't know what other models are present in the consuming template                                                |
+| Template manifests (`templates/`)       | Yes — between all included entity types (both `$ref` and inline) | Knows the full composition; `source`/`target` reference entity type keys                                            |
+| Integration manifests (`integrations/`) | Yes — between own entity types only                              | Knows its own model set                                                                                             |
+| Runtime (identity resolution)           | Yes — cross-integration links                                    | Discovered dynamically via [[Connected Entities for READONLY Entity Types]], not statically declarable in manifests |
 
 The `source` and `target` fields in a relationship reference entity type keys. The manifest loader validates that both ends of every declared relationship exist in the manifest's resolved entity type set. A relationship referencing a nonexistent key logs a warning and is skipped.
 
@@ -241,59 +247,61 @@ Relationships use a **dual-format** design — a shorthand for single-target def
 
 **Definition-level fields:**
 
-| Field | Shorthand | Full | Required | Default | Maps to |
-|-------|:---------:|:----:|----------|---------|---------|
-| `key` | ✓ | ✓ | Yes | — | Stable identifier for idempotent upsert |
-| `source` | ✓ | ✓ | Yes | — | `sourceEntityTypeId` (resolved from entity type key) |
-| `name` | ✓ | ✓ | No | Auto-generated from target | `RelationshipDefinition.name` |
-| `icon` | ✓ | ✓ | No | `{ "type": "LINK", "colour": "NEUTRAL" }` | `iconType`, `iconColour` |
-| `protected` | ✓ | ✓ | No | `false` for templates, `true` for integrations | `RelationshipDefinition.protected` |
-| `cardinality` | ✓ | — | Shorthand: Yes | — | `cardinalityDefault` |
-| `cardinalityDefault` | — | ✓ | Full: Yes | — | `cardinalityDefault` |
-| `allowPolymorphic` | — | ✓ | No | `false` | `allowPolymorphic` |
-| `target` | ✓ | — | Shorthand: Yes | — | Creates single `RelationshipTargetRule` |
-| `targetRules` | — | ✓ | Full: Yes | — | Creates multiple `RelationshipTargetRule` records |
-| `inverseVisible` | ✓ | — | No | `false` | Single rule's `inverseVisible` |
-| `inverseName` | ✓ | — | No | `null` | Single rule's `inverseName` |
-| `semantics` | ✓ | ✓ | No | — | `EntityTypeSemanticMetadata` (targetType=RELATIONSHIP) |
+| Field                | Shorthand | Full | Required       | Default                                        | Maps to                                                |
+| -------------------- | :-------: | :--: | -------------- | ---------------------------------------------- | ------------------------------------------------------ |
+| `key`                |     ✓     |  ✓   | Yes            | —                                              | Stable identifier for idempotent upsert                |
+| `source`             |     ✓     |  ✓   | Yes            | —                                              | `sourceEntityTypeId` (resolved from entity type key)   |
+| `name`               |     ✓     |  ✓   | No             | Auto-generated from target                     | `RelationshipDefinition.name`                          |
+| `icon`               |     ✓     |  ✓   | No             | `{ "type": "LINK", "colour": "NEUTRAL" }`      | `iconType`, `iconColour`                               |
+| `protected`          |     ✓     |  ✓   | No             | `false` for templates, `true` for integrations | `RelationshipDefinition.protected`                     |
+| `cardinality`        |     ✓     |  —   | Shorthand: Yes | —                                              | `cardinalityDefault`                                   |
+| `cardinalityDefault` |     —     |  ✓   | Full: Yes      | —                                              | `cardinalityDefault`                                   |
+| `allowPolymorphic`   |     —     |  ✓   | No             | `false`                                        | `allowPolymorphic`                                     |
+| `target`             |     ✓     |  —   | Shorthand: Yes | —                                              | Creates single `RelationshipTargetRule`                |
+| `targetRules`        |     —     |  ✓   | Full: Yes      | —                                              | Creates multiple `RelationshipTargetRule` records      |
+| `inverseVisible`     |     ✓     |  —   | No             | `false`                                        | Single rule's `inverseVisible`                         |
+| `inverseName`        |     ✓     |  —   | No             | `null`                                         | Single rule's `inverseName`                            |
+| `semantics`          |     ✓     |  ✓   | No             | —                                              | `EntityTypeSemanticMetadata` (targetType=RELATIONSHIP) |
 
 **Target rule fields (full format `targetRules[]`):**
 
-| Field | Required | Default | Maps to |
-|-------|----------|---------|---------|
-| `target` | Yes* | — | `targetEntityTypeId` (resolved from key) |
-| `semanticTypeConstraint` | No | `null` | `semanticTypeConstraint` |
-| `cardinalityOverride` | No | `null` | `cardinalityOverride` |
-| `inverseVisible` | No | `false` | `inverseVisible` |
-| `inverseName` | No | `null` | `inverseName` |
+| Field                    | Required | Default | Maps to                                  |
+| ------------------------ | -------- | ------- | ---------------------------------------- |
+| `target`                 | Yes\*    | —       | `targetEntityTypeId` (resolved from key) |
+| `semanticTypeConstraint` | No       | `null`  | `semanticTypeConstraint`                 |
+| `cardinalityOverride`    | No       | `null`  | `cardinalityOverride`                    |
+| `inverseVisible`         | No       | `false` | `inverseVisible`                         |
+| `inverseName`            | No       | `null`  | `inverseName`                            |
 
 \* Either `target` or `semanticTypeConstraint` must be specified.
 
 **Semantics object:**
 
-| Field | Required | Maps to |
-|-------|----------|---------|
-| `definition` | No | `EntityTypeSemanticMetadata.definition` |
-| `tags` | No | `EntityTypeSemanticMetadata.tags` |
+| Field        | Required | Maps to                                 |
+| ------------ | -------- | --------------------------------------- |
+| `definition` | No       | `EntityTypeSemanticMetadata.definition` |
+| `tags`       | No       | `EntityTypeSemanticMetadata.tags`       |
 
 `classification` is omitted — not applicable to relationships (only meaningful for attribute-level semantic metadata).
 
 #### What a Manifest Defines
 
 A manifest defines:
+
 - **Entity type schemas** — attribute definitions, data types, validation rules (inline or via `$ref` to shared models with optional `extend`)
 - **Field mappings** (integrations only) — source field to target attribute mappings with optional declarative transformations (type coercion, value mapping, default values, simple expressions)
 - **Relationship definitions** — how entity types within the manifest connect to each other, using a dual-format schema (shorthand for single-target, full for multi-target/polymorphic). Definitions map 1:1 to `RelationshipDefinitionEntity` + `RelationshipTargetRuleEntity` records and support the full field set: name, icon, cardinality, inverse visibility, target rules, and semantic metadata. See **Relationship Manifest Reference** above for the complete schema.
-- **Semantic metadata** — natural language definitions, attribute classifications, tags (per [[riven/docs/system-design/feature-design/2. Planned/Semantic Metadata Foundation]])
+- **Semantic metadata** — natural language definitions, attribute classifications, tags (per [[cranium/docs/system-design/feature-design/2. Planned/Semantic Metadata Foundation]])
 - **Integration metadata** (integrations only) — which Nango provider key to use, sync direction, supported models
 
 ### 2. Database as Runtime Store
 
 On application startup, a **manifest loader** scans the manifest directories, validates each manifest against a JSON Schema, and upserts the definitions into the database. The database is the runtime query surface — application code reads definitions from the database, not from the filesystem at request time.
 
-This preserves the existing pattern established in [[riven/docs/system-design/feature-design/3. Active/Integration Access Layer]] where integration definitions are queryable via standard JPA repositories. The manifests simply replace the Flyway seed migrations (V005) as the source of catalog data.
+This preserves the existing pattern established in [[cranium/docs/system-design/feature-design/3. Active/Integration Access Layer]] where integration definitions are queryable via standard JPA repositories. The manifests simply replace the Flyway seed migrations (V005) as the source of catalog data.
 
 **Loading behavior:**
+
 - Manifests are loaded on every application startup (idempotent upsert)
 - Definitions from manifests are marked with a `source = 'MANIFEST'` discriminator
 - The loader validates manifest structure before writing to the database
@@ -303,6 +311,7 @@ This preserves the existing pattern established in [[riven/docs/system-design/fe
 ### 3. Generic Mapping Engine (code, deployed once)
 
 A single **generic mapping engine** in code interprets the declarative field mappings at runtime. This engine handles:
+
 - Simple field-to-field mapping (`source.email` → `target.email_address`)
 - Type coercion (`string` → `number`, date format conversion)
 - Value mapping (enum translation: HubSpot's `"subscriber"` → `"active"`)
@@ -343,7 +352,7 @@ Each integration and template is defined as a Kotlin class implementing an inter
 
 - **Pros:** Compile-time type safety. IDE support (autocomplete, refactoring). Mapping logic can use arbitrary Kotlin expressions. Testable with standard unit testing.
 - **Cons:** Every new integration or template requires a code change, build, and deployment. Community contributors must understand Kotlin and the application's service layer. Self-hosters cannot extend without forking. The number of classes grows linearly with integrations — at 50+ integrations, the codebase becomes cluttered with near-identical boilerplate differing only in field names.
-- **Why rejected:** The contribution model does not scale. The redeployment requirement directly contradicts the earlier decision (in [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-001 Nango as Integration Infrastructure]]) to avoid per-integration code for commodity concerns. Field mappings are data, not behavior — expressing them as code is over-engineering.
+- **Why rejected:** The contribution model does not scale. The redeployment requirement directly contradicts the earlier decision (in [[2. Areas/2.1 Startup & Content/Cranium/2. System Design/decisions/ADR-001 Nango as Integration Infrastructure]]) to avoid per-integration code for commodity concerns. Field mappings are data, not behavior — expressing them as code is over-engineering.
 
 ### Option 2: Database-Only with SQL Seed Migrations
 
@@ -373,7 +382,7 @@ Expose REST endpoints that allow self-hosters to register custom integrations an
 - Manifest files are version-controlled, diffable, and reviewable through standard Git workflows
 - The generic mapping engine is written and tested once, then reused across all integrations — reduced maintenance surface
 - Boot-time validation catches malformed manifests before they reach the database
-- Existing database-backed query patterns ([[riven/docs/system-design/feature-design/3. Active/Integration Access Layer]] JPA repositories) are preserved — the manifest loader is a write path change, not a read path change
+- Existing database-backed query patterns ([[cranium/docs/system-design/feature-design/3. Active/Integration Access Layer]] JPA repositories) are preserved — the manifest loader is a write path change, not a read path change
 
 ### Negative
 
@@ -386,14 +395,14 @@ Expose REST endpoints that allow self-hosters to register custom integrations an
 
 - The existing V005 seed migration for integration definitions is superseded by the manifest loader. V005 can be retained as a no-op migration for existing deployments or removed in a future cleanup.
 - Integration entity type schemas defined in manifests follow the same structural conventions as user-created entity types — they use the same attribute definition format, relationship definition format, and semantic metadata shape. The only difference is the `readonly` flag and the `source` discriminator.
-- Custom transformation plugins follow a registry pattern — they are registered by name in the application and referenced by name in manifests. This is analogous to the existing [[riven/docs/system-design/domains/Workflows/Node Execution/WorkflowNodeConfigRegistry]] pattern used for workflow node types.
+- Custom transformation plugins follow a registry pattern — they are registered by name in the application and referenced by name in manifests. This is analogous to the existing [[cranium/docs/system-design/domains/Workflows/Node Execution/WorkflowNodeConfigRegistry]] pattern used for workflow node types.
 
 ---
 
 ## Implementation Notes
 
 - **Manifest JSON Schema:** Define a JSON Schema for both integration manifests and template manifests. Publish the schema in the repository (e.g., `schemas/integration-manifest.schema.json`) so contributors can validate locally before submitting PRs. The schema covers entity type definitions, field mappings, relationship definitions, semantic metadata, and integration-specific configuration.
-- **Manifest Loader Service:** A Spring `@Component` that runs on application startup (via `@EventListener(ApplicationReadyEvent::class)` or `ApplicationRunner`). Scans the manifest directories, validates each file against the JSON Schema, and upserts definitions into the database. Uses `source = 'MANIFEST'` to distinguish manifest-loaded definitions from any future runtime-defined definitions. For template manifests, the loader resolves `$ref` references against shared model files first, applies `extend` merges, then writes the fully resolved entity type definitions to the database. Shared models are persisted in the manifest catalog as first-class entries (type = `MODEL`) alongside templates and integrations. During template loading, the loader still reads models into an in-memory lookup map for `$ref` resolution (the resolution is a load-time operation, not a runtime DB query). Template `$ref` resolution produces fully resolved entity types stored as separate rows under the template's catalog entry. A model may therefore appear in the catalog multiple times: once as its standalone MODEL entry, and once (potentially with `extend` overrides) under each template that references it. See [[riven/docs/system-design/feature-design/3. Active/Declarative Manifest Catalog and Consumption Pipeline]] for the full catalog storage model and consumption pipeline.
+- **Manifest Loader Service:** A Spring `@Component` that runs on application startup (via `@EventListener(ApplicationReadyEvent::class)` or `ApplicationRunner`). Scans the manifest directories, validates each file against the JSON Schema, and upserts definitions into the database. Uses `source = 'MANIFEST'` to distinguish manifest-loaded definitions from any future runtime-defined definitions. For template manifests, the loader resolves `$ref` references against shared model files first, applies `extend` merges, then writes the fully resolved entity type definitions to the database. Shared models are persisted in the manifest catalog as first-class entries (type = `MODEL`) alongside templates and integrations. During template loading, the loader still reads models into an in-memory lookup map for `$ref` resolution (the resolution is a load-time operation, not a runtime DB query). Template `$ref` resolution produces fully resolved entity types stored as separate rows under the template's catalog entry. A model may therefore appear in the catalog multiple times: once as its standalone MODEL entry, and once (potentially with `extend` overrides) under each template that references it. See [[cranium/docs/system-design/feature-design/3. Active/Declarative Manifest Catalog and Consumption Pipeline]] for the full catalog storage model and consumption pipeline.
 - **Shared Model Resolution:** The loader reads `models/` first and holds them in memory as a lookup map keyed by model slug (filename without extension). When processing a template manifest, each `$ref` entry is resolved against this map. If a `$ref` references a model that does not exist, the loader logs a warning and skips that entity type. The `extend` merge applies shallow property merging: `extend.attributes` keys are merged into the base attributes map, `extend.semantics` fields override corresponding base fields. No deep recursive merge — each merge point is one level deep.
 - **Generic Mapping Engine:** A stateless service that accepts a raw external payload (JSON) and a field mapping definition (from the manifest) and produces an entity attribute payload. The engine applies mappings sequentially: extract source value → apply transform → validate type → assign to target attribute. Transformations are a sealed class hierarchy: `DirectMapping`, `TypeCoercion`, `ValueMapping`, `JsonPathExtraction`, `DefaultValue`, `Conditional`, `PluginTransform`.
 - **Custom Plugin Registry:** A Spring bean registry where custom transformation plugins register themselves by name. Manifests reference plugins by name string. If a manifest references an unregistered plugin, the manifest loader logs a warning and skips that specific mapping (not the entire manifest).
@@ -420,12 +429,12 @@ Expose REST endpoints that allow self-hosters to register custom integrations an
 
 ## Related
 
-- [[riven/docs/system-design/feature-design/5. Backlog/Integration Schema Mapping]]
-- [[riven/docs/system-design/feature-design/4. Completed/Predefined Integration Entity Types]]
-- [[riven/docs/system-design/feature-design/4. Completed/Semantic Metadata Baked Entity Data Model Templates]]
-- [[riven/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]]
-- [[riven/docs/system-design/feature-design/3. Active/Integration Access Layer]]
-- [[2. Areas/2.1 Startup & Content/Riven/2. System Design/decisions/ADR-001 Nango as Integration Infrastructure]]
-- [[riven/docs/system-design/feature-design/2. Planned/Semantic Metadata Foundation]]
-- [[riven/docs/system-design/domains/Workflows/Node Execution/WorkflowNodeConfigRegistry]]
-- [[riven/docs/system-design/feature-design/3. Active/Declarative Manifest Catalog and Consumption Pipeline]]
+- [[cranium/docs/system-design/feature-design/5. Backlog/Integration Schema Mapping]]
+- [[cranium/docs/system-design/feature-design/4. Completed/Predefined Integration Entity Types]]
+- [[cranium/docs/system-design/feature-design/4. Completed/Semantic Metadata Baked Entity Data Model Templates]]
+- [[cranium/docs/system-design/feature-design/_Sub-Domain Plans/Entity Integration Sync]]
+- [[cranium/docs/system-design/feature-design/3. Active/Integration Access Layer]]
+- [[2. Areas/2.1 Startup & Content/Cranium/2. System Design/decisions/ADR-001 Nango as Integration Infrastructure]]
+- [[cranium/docs/system-design/feature-design/2. Planned/Semantic Metadata Foundation]]
+- [[cranium/docs/system-design/domains/Workflows/Node Execution/WorkflowNodeConfigRegistry]]
+- [[cranium/docs/system-design/feature-design/3. Active/Declarative Manifest Catalog and Consumption Pipeline]]

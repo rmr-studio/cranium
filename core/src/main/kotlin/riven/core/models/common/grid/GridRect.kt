@@ -1,4 +1,4 @@
-package riven.core.models.common.grid
+package cranium.core.models.common.grid
 
 data class GridRect(
     val x: Int,

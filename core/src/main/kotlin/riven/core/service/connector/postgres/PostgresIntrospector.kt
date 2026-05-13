@@ -1,11 +1,11 @@
-package riven.core.service.connector.postgres
+package cranium.core.service.connector.postgres
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
-import riven.core.models.ingestion.adapter.ColumnSchema
-import riven.core.models.ingestion.adapter.SchemaIntrospectionResult
-import riven.core.models.ingestion.adapter.TableSchema
+import cranium.core.models.ingestion.adapter.ColumnSchema
+import cranium.core.models.ingestion.adapter.SchemaIntrospectionResult
+import cranium.core.models.ingestion.adapter.TableSchema
 import javax.sql.DataSource
 
 /**
@@ -17,7 +17,7 @@ import javax.sql.DataSource
  * logged; plan 03-03 skips them when materialising relationships.
  */
 @Component
-@ConditionalOnProperty(prefix = "riven.connector", name = ["enabled"], havingValue = "true")
+@ConditionalOnProperty(prefix = "cranium.connector", name = ["enabled"], havingValue = "true")
 class PostgresIntrospector(
     private val logger: KLogger,
 ) {

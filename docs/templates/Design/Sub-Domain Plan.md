@@ -1,11 +1,12 @@
 ---
 tags:
   - architecture/subdomain-plan
-Created: {{date:DD-MM-YYYY}}
+Created: { { date:DD-MM-YYYY } }
 Updated:
 Domains:
   - "[[Domain]]"
 ---
+
 # Sub-Domain Plan: {{title}}
 
 ---
@@ -51,17 +52,17 @@ graph TD
 
 ### Core Components
 
-| Component | Responsibility | Status |
-| --------- | -------------- | ------ |
+| Component | Responsibility | Status                    |
+| --------- | -------------- | ------------------------- |
 |           |                | Planned / Built / Partial |
 
 ### Key Design Decisions
 
 _Architectural choices that shape how features in this sub-domain are built_
 
-|Decision|Rationale|Alternatives Rejected|
-|---|---|---|
-||||
+| Decision | Rationale | Alternatives Rejected |
+| -------- | --------- | --------------------- |
+|          |           |                       |
 
 ---
 
@@ -89,7 +90,7 @@ _Additional flows (error handling, async processing, feedback loops)_
 > Features belonging to this sub-domain and their current pipeline status.
 
 ```dataviewjs
-const base = "2. Areas/2.1 Startup & Business/Riven/2. System Design/feature-design";
+const base = "2. Areas/2.1 Startup & Business/Cranium/2. System Design/feature-design";
 const pages = dv.pages(`"${base}"`)
   .where(p => p.file.name !== "feature-design")
   .where(p => {
@@ -149,11 +150,11 @@ graph LR
 
 _Recommended build order based on dependencies and value delivery_
 
-| Phase | Features | Rationale |
-| ----- | -------- | --------- |
+| Phase | Features | Rationale                             |
+| ----- | -------- | ------------------------------------- |
 | 1     |          | Foundation — unblocks everything else |
-| 2     |          | Core capability |
-| 3     |          | Enhancement / polish |
+| 2     |          | Core capability                       |
+| 3     |          | Enhancement / polish                  |
 
 ---
 
@@ -161,15 +162,15 @@ _Recommended build order based on dependencies and value delivery_
 
 ### Depends On
 
-| Domain / Sub-Domain | What We Need | Integration Point |
-| -------------------- | ------------ | ----------------- |
-|                      |              | API / Event / Direct |
+| Domain / Sub-Domain | What We Need | Integration Point    |
+| ------------------- | ------------ | -------------------- |
+|                     |              | API / Event / Direct |
 
 ### Consumed By
 
-| Domain / Sub-Domain | What They Need | Integration Point |
-| -------------------- | -------------- | ----------------- |
-|                      |                | API / Event / Direct |
+| Domain / Sub-Domain | What They Need | Integration Point    |
+| ------------------- | -------------- | -------------------- |
+|                     |                | API / Event / Direct |
 
 ### Cross-Cutting Concerns
 

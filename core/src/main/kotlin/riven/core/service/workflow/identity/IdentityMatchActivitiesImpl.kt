@@ -1,12 +1,12 @@
-package riven.core.service.workflow.identity
+package cranium.core.service.workflow.identity
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Component
-import riven.core.models.identity.CandidateMatch
-import riven.core.models.identity.ScoredCandidate
-import riven.core.service.identity.IdentityMatchCandidateService
-import riven.core.service.identity.IdentityMatchScoringService
-import riven.core.service.identity.IdentityMatchSuggestionService
+import cranium.core.models.identity.CandidateMatch
+import cranium.core.models.identity.ScoredCandidate
+import cranium.core.service.identity.IdentityMatchCandidateService
+import cranium.core.service.identity.IdentityMatchScoringService
+import cranium.core.service.identity.IdentityMatchSuggestionService
 import java.util.UUID
 
 /**
@@ -15,8 +15,8 @@ import java.util.UUID
  * This bean is a thin delegation layer — all business logic lives in the three
  * matching services. No matching or persistence logic belongs here.
  *
- * Registered on the [riven.core.configuration.workflow.TemporalWorkerConfiguration.IDENTITY_MATCH_QUEUE]
- * task queue by [riven.core.configuration.workflow.TemporalWorkerConfiguration].
+ * Registered on the [cranium.core.configuration.workflow.TemporalWorkerConfiguration.IDENTITY_MATCH_QUEUE]
+ * task queue by [cranium.core.configuration.workflow.TemporalWorkerConfiguration].
  *
  * @property candidateService finds candidate entities via pg_trgm blocking query
  * @property scoringService applies the weighted average scoring formula

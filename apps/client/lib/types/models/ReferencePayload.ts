@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -14,17 +14,15 @@
 
 import type { BlockTreeReference } from './BlockTreeReference';
 import {
-    instanceOfBlockTreeReference,
-    BlockTreeReferenceFromJSON,
     BlockTreeReferenceFromJSONTyped,
     BlockTreeReferenceToJSON,
+    instanceOfBlockTreeReference
 } from './BlockTreeReference';
 import type { EntityReference } from './EntityReference';
 import {
-    instanceOfEntityReference,
-    EntityReferenceFromJSON,
     EntityReferenceFromJSONTyped,
     EntityReferenceToJSON,
+    instanceOfEntityReference
 } from './EntityReference';
 
 /**

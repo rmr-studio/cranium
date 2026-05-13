@@ -1,4 +1,4 @@
-package riven.core.service.catalog
+package cranium.core.service.catalog
 
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.databind.node.ObjectNode
@@ -9,9 +9,9 @@ import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.core.io.Resource
 import org.springframework.core.io.support.ResourcePatternResolver
 import org.springframework.stereotype.Service
-import riven.core.configuration.properties.ManifestConfigurationProperties
-import riven.core.enums.catalog.ManifestType
-import riven.core.models.catalog.ScannedManifest
+import cranium.core.configuration.properties.ManifestConfigurationProperties
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.models.catalog.ScannedManifest
 
 /**
  * Scans classpath for manifest files (models, templates, integrations),

@@ -1,21 +1,21 @@
-package riven.core.entity.entity
+package cranium.core.entity.entity
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.Type
-import riven.core.entity.util.AuditableSoftDeletableEntity
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.entity.EntityTypeRole
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.enums.integration.SourceType
-import riven.core.models.common.Icon
-import riven.core.models.common.display.DisplayName
-import riven.core.models.entity.EntityType
-import riven.core.models.entity.EntityTypeSchema
-import riven.core.models.entity.configuration.ColumnConfiguration
+import cranium.core.entity.util.AuditableSoftDeletableEntity
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.entity.EntityTypeRole
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.enums.integration.SourceType
+import cranium.core.models.common.Icon
+import cranium.core.models.common.display.DisplayName
+import cranium.core.models.entity.EntityType
+import cranium.core.models.entity.EntityTypeSchema
+import cranium.core.models.entity.configuration.ColumnConfiguration
 import java.util.*
 
 /**

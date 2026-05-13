@@ -1,10 +1,10 @@
-package riven.core.entity.enrichment
+package cranium.core.entity.enrichment
 
 import jakarta.persistence.*
 import org.hibernate.annotations.Array
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.type.SqlTypes
-import riven.core.models.enrichment.EntityEmbeddingModel
+import cranium.core.models.enrichment.EntityEmbeddingModel
 import java.time.ZonedDateTime
 import java.util.*
 

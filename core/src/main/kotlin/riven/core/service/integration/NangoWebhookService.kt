@@ -1,4 +1,4 @@
-package riven.core.service.integration
+package cranium.core.service.integration
 
 import io.github.oshai.kotlinlogging.KLogger
 import io.temporal.client.WorkflowClient
@@ -6,22 +6,22 @@ import io.temporal.client.WorkflowExecutionAlreadyStarted
 import io.temporal.client.WorkflowOptions
 import org.springframework.stereotype.Service
 import org.springframework.transaction.support.TransactionTemplate
-import riven.core.configuration.workflow.TemporalWorkerConfiguration
-import riven.core.entity.integration.IntegrationConnectionEntity
-import riven.core.entity.integration.WorkspaceIntegrationInstallationEntity
-import riven.core.enums.activity.Activity
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.integration.ConnectionStatus
-import riven.core.enums.integration.InstallationStatus
-import riven.core.enums.util.OperationType
-import riven.core.models.integration.NangoWebhookPayload
-import riven.core.models.integration.sync.IntegrationSyncWorkflowInput
-import riven.core.repository.integration.IntegrationConnectionRepository
-import riven.core.repository.integration.IntegrationDefinitionRepository
-import riven.core.repository.integration.WorkspaceIntegrationInstallationRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.integration.materialization.TemplateMaterializationService
-import riven.core.service.integration.sync.IntegrationSyncWorkflow
+import cranium.core.configuration.workflow.TemporalWorkerConfiguration
+import cranium.core.entity.integration.IntegrationConnectionEntity
+import cranium.core.entity.integration.WorkspaceIntegrationInstallationEntity
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.integration.ConnectionStatus
+import cranium.core.enums.integration.InstallationStatus
+import cranium.core.enums.util.OperationType
+import cranium.core.models.integration.NangoWebhookPayload
+import cranium.core.models.integration.sync.IntegrationSyncWorkflowInput
+import cranium.core.repository.integration.IntegrationConnectionRepository
+import cranium.core.repository.integration.IntegrationDefinitionRepository
+import cranium.core.repository.integration.WorkspaceIntegrationInstallationRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.integration.materialization.TemplateMaterializationService
+import cranium.core.service.integration.sync.IntegrationSyncWorkflow
 import java.util.*
 
 /**
@@ -72,10 +72,10 @@ class NangoWebhookService(
      * ## Nango Tag Field Mapping
      *
      * Nango's webhook tags have typed field names (endUserId, organizationId, endUserEmail)
-     * but we repurpose them to carry Riven-specific UUIDs because Nango doesn't support
+     * but we repurpose them to carry Cranium-specific UUIDs because Nango doesn't support
      * custom metadata fields. The mapping is:
      *
-     * | Nango Tag Field   | Riven Value              | Rationale                           |
+     * | Nango Tag Field   | Cranium Value              | Rationale                           |
      * |-------------------|--------------------------|-------------------------------------|
      * | endUserId         | userId (UUID)            | Closest semantic match              |
      * | organizationId    | workspaceId (UUID)       | Org ~ workspace                     |

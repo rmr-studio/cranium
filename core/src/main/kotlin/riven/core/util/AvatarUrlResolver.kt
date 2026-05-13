@@ -1,4 +1,4 @@
-package riven.core.util
+package cranium.core.util
 
 import java.util.*
 

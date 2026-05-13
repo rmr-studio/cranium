@@ -1,4 +1,4 @@
-package riven.core.entity.identity
+package cranium.core.entity.identity
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.Column
@@ -10,10 +10,10 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import org.hibernate.annotations.Type
-import riven.core.entity.util.AuditableSoftDeletableEntity
-import riven.core.enums.identity.MatchSuggestionStatus
-import riven.core.models.common.json.JsonObject
-import riven.core.models.identity.MatchSuggestion
+import cranium.core.entity.util.AuditableSoftDeletableEntity
+import cranium.core.enums.identity.MatchSuggestionStatus
+import cranium.core.models.common.json.JsonObject
+import cranium.core.models.identity.MatchSuggestion
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 import java.util.UUID

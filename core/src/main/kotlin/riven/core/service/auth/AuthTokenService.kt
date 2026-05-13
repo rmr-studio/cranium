@@ -1,4 +1,4 @@
-package riven.core.service.auth
+package cranium.core.service.auth
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.security.access.AccessDeniedException

@@ -1,6 +1,6 @@
-package riven.core.models.workflow.node.config
+package cranium.core.models.workflow.node.config
 
-import riven.core.enums.workflow.WorkflowNodeConfigFieldType
+import cranium.core.enums.workflow.WorkflowNodeConfigFieldType
 
 data class WorkflowNodeConfigField(
     val key: String,

@@ -1,16 +1,16 @@
-package riven.core.service.connotation
+package cranium.core.service.connotation
 
 import org.springframework.stereotype.Service
-import riven.core.enums.connotation.ConnotationStatus
-import riven.core.models.catalog.ConnotationSignals
-import riven.core.models.catalog.ScaleMappingType
-import riven.core.models.catalog.SentimentScale
-import riven.core.models.common.json.JsonValue
-import riven.core.models.connotation.AnalysisTier
-import riven.core.models.connotation.SentimentAnalysisOutcome
-import riven.core.models.connotation.SentimentFailureReason
-import riven.core.models.connotation.SentimentLabel
-import riven.core.models.connotation.SentimentMetadata
+import cranium.core.enums.connotation.ConnotationStatus
+import cranium.core.models.catalog.ConnotationSignals
+import cranium.core.models.catalog.ScaleMappingType
+import cranium.core.models.catalog.SentimentScale
+import cranium.core.models.common.json.JsonValue
+import cranium.core.models.connotation.AnalysisTier
+import cranium.core.models.connotation.SentimentAnalysisOutcome
+import cranium.core.models.connotation.SentimentFailureReason
+import cranium.core.models.connotation.SentimentLabel
+import cranium.core.models.connotation.SentimentMetadata
 import java.time.ZonedDateTime
 
 /**

@@ -1,7 +1,7 @@
 'use client';
 
 import { useWorkspaceStore } from '@/components/feature-modules/workspace/provider/workspace-provider';
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 import { CalendarHeart, TrendingUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';

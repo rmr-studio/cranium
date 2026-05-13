@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -15,44 +15,38 @@
 import type { WorkflowActionConfig } from './WorkflowActionConfig';
 import {
     instanceOfWorkflowActionConfig,
-    WorkflowActionConfigFromJSON,
     WorkflowActionConfigFromJSONTyped,
-    WorkflowActionConfigToJSON,
+    WorkflowActionConfigToJSON
 } from './WorkflowActionConfig';
 import type { WorkflowControlConfig } from './WorkflowControlConfig';
 import {
     instanceOfWorkflowControlConfig,
-    WorkflowControlConfigFromJSON,
     WorkflowControlConfigFromJSONTyped,
-    WorkflowControlConfigToJSON,
+    WorkflowControlConfigToJSON
 } from './WorkflowControlConfig';
 import type { WorkflowFunctionConfig } from './WorkflowFunctionConfig';
 import {
     instanceOfWorkflowFunctionConfig,
-    WorkflowFunctionConfigFromJSON,
     WorkflowFunctionConfigFromJSONTyped,
-    WorkflowFunctionConfigToJSON,
+    WorkflowFunctionConfigToJSON
 } from './WorkflowFunctionConfig';
 import type { WorkflowParseConfig } from './WorkflowParseConfig';
 import {
     instanceOfWorkflowParseConfig,
-    WorkflowParseConfigFromJSON,
     WorkflowParseConfigFromJSONTyped,
-    WorkflowParseConfigToJSON,
+    WorkflowParseConfigToJSON
 } from './WorkflowParseConfig';
 import type { WorkflowTriggerConfig } from './WorkflowTriggerConfig';
 import {
     instanceOfWorkflowTriggerConfig,
-    WorkflowTriggerConfigFromJSON,
     WorkflowTriggerConfigFromJSONTyped,
-    WorkflowTriggerConfigToJSON,
+    WorkflowTriggerConfigToJSON
 } from './WorkflowTriggerConfig';
 import type { WorkflowUtilityConfig } from './WorkflowUtilityConfig';
 import {
     instanceOfWorkflowUtilityConfig,
-    WorkflowUtilityConfigFromJSON,
     WorkflowUtilityConfigFromJSONTyped,
-    WorkflowUtilityConfigToJSON,
+    WorkflowUtilityConfigToJSON
 } from './WorkflowUtilityConfig';
 
 /**

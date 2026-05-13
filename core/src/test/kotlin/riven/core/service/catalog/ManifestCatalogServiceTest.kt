@@ -1,4 +1,4 @@
-package riven.core.service.catalog
+package cranium.core.service.catalog
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -7,15 +7,15 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
-import riven.core.repository.catalog.CatalogEntityTypeRepository
-import riven.core.repository.catalog.CatalogFieldMappingRepository
-import riven.core.repository.catalog.CatalogRelationshipRepository
-import riven.core.repository.catalog.CatalogRelationshipTargetRuleRepository
-import riven.core.repository.catalog.CatalogSemanticMetadataRepository
-import riven.core.repository.catalog.ManifestCatalogRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.service.util.factory.catalog.CatalogFactory
-import riven.core.service.util.factory.entity.EntityFactory
+import cranium.core.repository.catalog.CatalogEntityTypeRepository
+import cranium.core.repository.catalog.CatalogFieldMappingRepository
+import cranium.core.repository.catalog.CatalogRelationshipRepository
+import cranium.core.repository.catalog.CatalogRelationshipTargetRuleRepository
+import cranium.core.repository.catalog.CatalogSemanticMetadataRepository
+import cranium.core.repository.catalog.ManifestCatalogRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.service.util.factory.catalog.CatalogFactory
+import cranium.core.service.util.factory.entity.EntityFactory
 import java.util.Optional
 import java.util.UUID
 

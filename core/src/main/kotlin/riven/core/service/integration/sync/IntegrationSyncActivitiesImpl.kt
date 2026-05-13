@@ -1,46 +1,46 @@
-package riven.core.service.integration.sync
+package cranium.core.service.integration.sync
 
 import io.github.oshai.kotlinlogging.KLogger
 import io.temporal.activity.Activity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.support.TransactionTemplate
-import riven.core.entity.catalog.CatalogEntityTypeEntity
-import riven.core.entity.entity.EntityEntity
-import riven.core.entity.entity.EntityRelationshipEntity
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.entity.integration.IntegrationSyncStateEntity
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.integration.CoercionType
-import riven.core.enums.integration.ConnectionStatus
-import riven.core.enums.integration.SourceType
-import riven.core.enums.integration.SyncKeyType
-import riven.core.enums.integration.SyncStatus
-import riven.core.models.integration.NangoRecord
-import riven.core.models.integration.NangoRecordAction
-import riven.core.models.integration.sync.IntegrationSyncWorkflowInput
-import riven.core.models.integration.sync.RelationshipPending
-import riven.core.models.integration.sync.SyncProcessingResult
+import cranium.core.entity.catalog.CatalogEntityTypeEntity
+import cranium.core.entity.entity.EntityEntity
+import cranium.core.entity.entity.EntityRelationshipEntity
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.entity.integration.IntegrationSyncStateEntity
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.integration.CoercionType
+import cranium.core.enums.integration.ConnectionStatus
+import cranium.core.enums.integration.SourceType
+import cranium.core.enums.integration.SyncKeyType
+import cranium.core.enums.integration.SyncStatus
+import cranium.core.models.integration.NangoRecord
+import cranium.core.models.integration.NangoRecordAction
+import cranium.core.models.integration.sync.IntegrationSyncWorkflowInput
+import cranium.core.models.integration.sync.RelationshipPending
+import cranium.core.models.integration.sync.SyncProcessingResult
 import tools.jackson.databind.ObjectMapper
 import org.springframework.core.io.ResourceLoader
-import riven.core.models.integration.mapping.FieldTransform
-import riven.core.models.integration.mapping.ResolvedFieldMapping
-import riven.core.models.note.NoteContentFormat
-import riven.core.models.note.NoteEmbeddingConfig
-import riven.core.repository.catalog.CatalogEntityTypeRepository
-import riven.core.repository.catalog.CatalogFieldMappingRepository
-import riven.core.repository.catalog.ManifestCatalogRepository
-import riven.core.repository.entity.EntityRelationshipRepository
-import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.repository.entity.RelationshipDefinitionRepository
-import riven.core.repository.integration.IntegrationConnectionRepository
-import riven.core.repository.integration.IntegrationDefinitionRepository
-import riven.core.repository.integration.IntegrationSyncStateRepository
-import riven.core.service.entity.EntityAttributeService
-import riven.core.service.integration.IntegrationHealthService
-import riven.core.service.integration.NangoClientWrapper
-import riven.core.service.integration.mapping.SchemaMappingService
+import cranium.core.models.integration.mapping.FieldTransform
+import cranium.core.models.integration.mapping.ResolvedFieldMapping
+import cranium.core.models.note.NoteContentFormat
+import cranium.core.models.note.NoteEmbeddingConfig
+import cranium.core.repository.catalog.CatalogEntityTypeRepository
+import cranium.core.repository.catalog.CatalogFieldMappingRepository
+import cranium.core.repository.catalog.ManifestCatalogRepository
+import cranium.core.repository.entity.EntityRelationshipRepository
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.repository.entity.RelationshipDefinitionRepository
+import cranium.core.repository.integration.IntegrationConnectionRepository
+import cranium.core.repository.integration.IntegrationDefinitionRepository
+import cranium.core.repository.integration.IntegrationSyncStateRepository
+import cranium.core.service.entity.EntityAttributeService
+import cranium.core.service.integration.IntegrationHealthService
+import cranium.core.service.integration.NangoClientWrapper
+import cranium.core.service.integration.mapping.SchemaMappingService
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -74,8 +74,8 @@ class IntegrationSyncActivitiesImpl(
     private val catalogEntityTypeRepository: CatalogEntityTypeRepository,
     private val entityTypeRepository: EntityTypeRepository,
     private val integrationHealthService: IntegrationHealthService,
-    private val entityProjectionService: riven.core.service.ingestion.EntityProjectionService,
-    private val noteEmbeddingService: riven.core.service.note.NoteEmbeddingService,
+    private val entityProjectionService: cranium.core.service.ingestion.EntityProjectionService,
+    private val noteEmbeddingService: cranium.core.service.note.NoteEmbeddingService,
     private val objectMapper: ObjectMapper,
     private val resourceLoader: ResourceLoader,
     private val transactionTemplate: TransactionTemplate,
@@ -816,7 +816,7 @@ class IntegrationSyncActivitiesImpl(
     private fun collectRelationshipPending(
         payload: Map<String, Any?>,
         entityId: UUID,
-        relationshipDefinitions: List<riven.core.entity.entity.RelationshipDefinitionEntity>,
+        relationshipDefinitions: List<cranium.core.entity.entity.RelationshipDefinitionEntity>,
         relationshipPending: MutableList<RelationshipPending>,
     ) {
         for (definition in relationshipDefinitions) {
@@ -970,7 +970,7 @@ class IntegrationSyncActivitiesImpl(
         val fieldMappings: Map<String, ResolvedFieldMapping>,
         val keyMapping: Map<String, UUID>,
         val externalIdField: String,
-        val relationshipDefinitions: List<riven.core.entity.entity.RelationshipDefinitionEntity>,
+        val relationshipDefinitions: List<cranium.core.entity.entity.RelationshipDefinitionEntity>,
     )
 
     /** Aggregated result of processing a single batch of records. */

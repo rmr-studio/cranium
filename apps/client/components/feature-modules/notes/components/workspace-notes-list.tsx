@@ -6,7 +6,7 @@ import { useWorkspace } from '@/components/feature-modules/workspace/hooks/query
 import { BreadCrumbGroup, BreadCrumbTrail } from '@/components/ui/breadcrumb-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { groupNotesByDate } from '@/lib/util/note/note-grouping.util';
-import { Input } from '@riven/ui/input';
+import { Input } from '@cranium/ui/input';
 import { Search, StickyNote } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 

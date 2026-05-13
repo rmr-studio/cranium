@@ -1,4 +1,4 @@
-package riven.core.models.workflow.node.config.actions
+package cranium.core.models.workflow.node.config.actions
 
 import com.fasterxml.jackson.annotation.JsonTypeName
 import tools.jackson.databind.ValueDeserializer
@@ -6,34 +6,34 @@ import tools.jackson.databind.annotation.JsonDeserialize
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.media.Schema
 import kotlinx.coroutines.runBlocking
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.workflow.BulkUpdateErrorHandling
-import riven.core.enums.workflow.OutputFieldType
-import riven.core.enums.workflow.WorkflowActionType
-import riven.core.enums.workflow.WorkflowNodeConfigFieldType
-import riven.core.enums.workflow.WorkflowNodeType
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.models.entity.payload.EntityAttributeRequest
-import riven.core.models.entity.query.EntityQuery
-import riven.core.models.entity.query.pagination.QueryPagination
-import riven.core.models.request.entity.SaveEntityRequest
-import riven.core.models.workflow.engine.state.BulkUpdateEntityOutput
-import riven.core.models.workflow.engine.state.NodeOutput
-import riven.core.models.workflow.engine.state.WorkflowDataStore
-import riven.core.models.workflow.node.NodeServiceProvider
-import riven.core.models.workflow.node.config.WorkflowActionConfig
-import riven.core.models.workflow.node.config.WorkflowNodeConfigField
-import riven.core.models.workflow.node.config.WorkflowNodeOutputField
-import riven.core.models.workflow.node.config.WorkflowNodeOutputMetadata
-import riven.core.models.workflow.node.config.WorkflowNodeTypeMetadata
-import riven.core.models.workflow.node.config.validation.ConfigValidationError
-import riven.core.models.workflow.node.config.validation.ConfigValidationResult
-import riven.core.models.workflow.node.service
-import riven.core.service.entity.EntityService
-import riven.core.service.entity.query.EntityQueryService
-import riven.core.service.workflow.state.WorkflowNodeConfigValidationService
-import riven.core.service.workflow.state.WorkflowNodeInputResolverService
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.workflow.BulkUpdateErrorHandling
+import cranium.core.enums.workflow.OutputFieldType
+import cranium.core.enums.workflow.WorkflowActionType
+import cranium.core.enums.workflow.WorkflowNodeConfigFieldType
+import cranium.core.enums.workflow.WorkflowNodeType
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.models.entity.payload.EntityAttributeRequest
+import cranium.core.models.entity.query.EntityQuery
+import cranium.core.models.entity.query.pagination.QueryPagination
+import cranium.core.models.request.entity.SaveEntityRequest
+import cranium.core.models.workflow.engine.state.BulkUpdateEntityOutput
+import cranium.core.models.workflow.engine.state.NodeOutput
+import cranium.core.models.workflow.engine.state.WorkflowDataStore
+import cranium.core.models.workflow.node.NodeServiceProvider
+import cranium.core.models.workflow.node.config.WorkflowActionConfig
+import cranium.core.models.workflow.node.config.WorkflowNodeConfigField
+import cranium.core.models.workflow.node.config.WorkflowNodeOutputField
+import cranium.core.models.workflow.node.config.WorkflowNodeOutputMetadata
+import cranium.core.models.workflow.node.config.WorkflowNodeTypeMetadata
+import cranium.core.models.workflow.node.config.validation.ConfigValidationError
+import cranium.core.models.workflow.node.config.validation.ConfigValidationResult
+import cranium.core.models.workflow.node.service
+import cranium.core.service.entity.EntityService
+import cranium.core.service.entity.query.EntityQueryService
+import cranium.core.service.workflow.state.WorkflowNodeConfigValidationService
+import cranium.core.service.workflow.state.WorkflowNodeInputResolverService
 import java.util.*
 
 private val log = KotlinLogging.logger {}
@@ -318,7 +318,7 @@ data class WorkflowBulkUpdateEntityActionConfig(
      */
     private fun collectMatchingEntityIds(
         entityQueryService: EntityQueryService,
-        resolvedFilter: riven.core.models.entity.query.filter.QueryFilter?,
+        resolvedFilter: cranium.core.models.entity.query.filter.QueryFilter?,
         workspaceId: UUID
     ): List<UUID> {
         val allEntityIds = mutableListOf<UUID>()

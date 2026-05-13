@@ -1,6 +1,6 @@
-package riven.core.models.workflow.engine.error
+package cranium.core.models.workflow.engine.error
 
-import riven.core.enums.workflow.WorkflowErrorType
+import cranium.core.enums.workflow.WorkflowErrorType
 import java.time.ZonedDateTime
 import java.util.*
 

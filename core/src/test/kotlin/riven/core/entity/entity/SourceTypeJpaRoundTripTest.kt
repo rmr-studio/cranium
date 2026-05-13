@@ -1,4 +1,4 @@
-package riven.core.entity.entity
+package cranium.core.entity.entity
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -23,9 +23,9 @@ import org.springframework.transaction.annotation.Transactional
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
-import riven.core.enums.integration.SourceType
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.service.util.factory.entity.EntityFactory
+import cranium.core.enums.integration.SourceType
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.service.util.factory.entity.EntityFactory
 import java.time.ZonedDateTime
 import java.time.temporal.TemporalAccessor
 import java.util.Optional
@@ -61,8 +61,8 @@ import java.util.UUID
         "io.temporal.spring.boot.autoconfigure.TestServerAutoConfiguration",
     ],
 )
-@EnableJpaRepositories(basePackages = ["riven.core.repository.entity"])
-@EntityScan("riven.core.entity.entity")
+@EnableJpaRepositories(basePackages = ["cranium.core.repository.entity"])
+@EntityScan("cranium.core.entity.entity")
 @EnableJpaAuditing(
     auditorAwareRef = "sourceTypeRoundTripAuditorProvider",
     dateTimeProviderRef = "sourceTypeRoundTripDateTimeProvider",
@@ -92,7 +92,7 @@ class SourceTypeJpaRoundTripTest {
         val postgres: PostgreSQLContainer = PostgreSQLContainer(
             DockerImageName.parse("pgvector/pgvector:pg16").asCompatibleSubstituteFor("postgres")
         )
-            .withDatabaseName("riven_test")
+            .withDatabaseName("cranium_test")
             .withUsername("test")
             .withPassword("test")
 

@@ -1,22 +1,22 @@
-package riven.core.service.identity
+package cranium.core.service.identity
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
-import riven.core.entity.entity.EntityEntity
-import riven.core.entity.identity.IdentityClusterMemberEntity
-import riven.core.exceptions.NotFoundException
-import riven.core.models.response.identity.ClusterDetailResponse
-import riven.core.models.response.identity.ClusterMemberContext
-import riven.core.models.response.identity.ClusterSummaryResponse
-import riven.core.models.response.identity.PendingMatchCountResponse
-import riven.core.models.response.identity.SuggestionResponse
-import riven.core.repository.identity.IdentityClusterMemberRepository
-import riven.core.repository.identity.IdentityClusterRepository
-import riven.core.repository.identity.MatchSuggestionRepository
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.entity.EntityService
-import riven.core.util.ServiceUtil.findOrThrow
+import cranium.core.entity.entity.EntityEntity
+import cranium.core.entity.identity.IdentityClusterMemberEntity
+import cranium.core.exceptions.NotFoundException
+import cranium.core.models.response.identity.ClusterDetailResponse
+import cranium.core.models.response.identity.ClusterMemberContext
+import cranium.core.models.response.identity.ClusterSummaryResponse
+import cranium.core.models.response.identity.PendingMatchCountResponse
+import cranium.core.models.response.identity.SuggestionResponse
+import cranium.core.repository.identity.IdentityClusterMemberRepository
+import cranium.core.repository.identity.IdentityClusterRepository
+import cranium.core.repository.identity.MatchSuggestionRepository
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.entity.EntityService
+import cranium.core.util.ServiceUtil.findOrThrow
 import java.util.UUID
 
 /**

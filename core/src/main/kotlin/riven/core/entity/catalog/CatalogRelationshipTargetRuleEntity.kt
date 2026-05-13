@@ -1,9 +1,9 @@
-package riven.core.entity.catalog
+package cranium.core.entity.catalog
 
 import jakarta.persistence.*
 import org.hibernate.annotations.UpdateTimestamp
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.models.catalog.CatalogRelationshipTargetRuleModel
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.models.catalog.CatalogRelationshipTargetRuleModel
 import java.time.ZonedDateTime
 import java.util.*
 

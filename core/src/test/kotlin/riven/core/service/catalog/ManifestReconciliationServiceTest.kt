@@ -1,13 +1,13 @@
-package riven.core.service.catalog
+package cranium.core.service.catalog
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
-import riven.core.entity.catalog.ManifestCatalogEntity
-import riven.core.enums.catalog.ManifestType
-import riven.core.repository.catalog.ManifestCatalogRepository
+import cranium.core.entity.catalog.ManifestCatalogEntity
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.repository.catalog.ManifestCatalogRepository
 import java.util.*
 
 class ManifestReconciliationServiceTest {

@@ -8,7 +8,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@riven/ui/input';
+import { Input } from '@cranium/ui/input';
 import { AvatarUploader } from '@/components/ui/avatar-uploader';
 import { AVATAR_VALIDATION } from '@/lib/util/avatar/avatar-validation';
 import { useAuth } from '@/components/provider/auth-context';

@@ -11,7 +11,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
-    show-sql: ${riven.include-stack-trace}
+    show-sql: ${cranium.include-stack-trace}
   security:
     oauth2:
       resourceserver:
@@ -20,10 +20,10 @@ spring:
   temporal:
     workers-auto-discovery:
       packages:
-        - riven.core.service.workflow
+        - cranium.core.service.workflow
 server:
   port: ${SERVER_PORT}
-riven:
+cranium:
   security:
     jwt-secret-key: ${JWT_SECRET_KEY}
     jwt-issuer: ${SUPABASE_URL}
@@ -87,9 +87,9 @@ storage:
   presigned-upload:
     expiry-seconds: 900
   supabase:
-    bucket: ${STORAGE_SUPABASE_BUCKET:riven-storage}
+    bucket: ${STORAGE_SUPABASE_BUCKET:cranium-storage}
   s3:
-    bucket: ${STORAGE_S3_BUCKET:riven-storage}
+    bucket: ${STORAGE_S3_BUCKET:cranium-storage}
     region: ${STORAGE_S3_REGION:us-east-1}
     access-key-id: ${STORAGE_S3_ACCESS_KEY_ID:}
     secret-access-key: ${STORAGE_S3_SECRET_ACCESS_KEY:}

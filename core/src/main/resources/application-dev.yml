@@ -1,7 +1,7 @@
 storage:
   provider: supabase
 
-riven:
+cranium:
   dev:
     seed:
       enabled: true

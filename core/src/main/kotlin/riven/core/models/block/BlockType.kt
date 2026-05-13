@@ -1,9 +1,9 @@
-package riven.core.models.block
+package cranium.core.models.block
 
-import riven.core.enums.common.validation.ValidationScope
-import riven.core.models.block.display.BlockDisplay
-import riven.core.models.block.display.BlockTypeNesting
-import riven.core.models.common.validation.Schema
+import cranium.core.enums.common.validation.ValidationScope
+import cranium.core.models.block.display.BlockDisplay
+import cranium.core.models.block.display.BlockTypeNesting
+import cranium.core.models.common.validation.Schema
 import java.time.ZonedDateTime
 import java.util.*
 

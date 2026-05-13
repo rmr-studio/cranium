@@ -1,12 +1,12 @@
-package riven.core.entity.block
+package cranium.core.entity.block
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.Type
-import riven.core.entity.util.AuditableSoftDeletableEntity
-import riven.core.models.block.layout.TreeLayout
-import riven.core.models.block.tree.BlockTreeLayout
+import cranium.core.entity.util.AuditableSoftDeletableEntity
+import cranium.core.models.block.layout.TreeLayout
+import cranium.core.models.block.tree.BlockTreeLayout
 import java.util.*
 
 

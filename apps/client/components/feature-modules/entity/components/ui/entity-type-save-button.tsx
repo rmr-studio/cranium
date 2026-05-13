@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@riven/ui/button';
+import { Button } from '@cranium/ui/button';
 import { Save } from 'lucide-react';
 import { FC, useState } from 'react';
 import { useConfigForm, useConfigIsDirty } from '../../context/configuration-provider';

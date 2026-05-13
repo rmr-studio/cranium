@@ -1,15 +1,15 @@
-package riven.core.service.workflow.queue
+package cranium.core.service.workflow.queue
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.entity.workflow.ExecutionQueueEntity
-import riven.core.enums.workflow.ExecutionJobType
-import riven.core.enums.workflow.ExecutionQueueStatus
-import riven.core.exceptions.NotFoundException
-import riven.core.models.common.json.JsonObject
-import riven.core.repository.workflow.ExecutionQueueRepository
-import riven.core.repository.workflow.WorkflowDefinitionRepository
+import cranium.core.entity.workflow.ExecutionQueueEntity
+import cranium.core.enums.workflow.ExecutionJobType
+import cranium.core.enums.workflow.ExecutionQueueStatus
+import cranium.core.exceptions.NotFoundException
+import cranium.core.models.common.json.JsonObject
+import cranium.core.repository.workflow.ExecutionQueueRepository
+import cranium.core.repository.workflow.WorkflowDefinitionRepository
 import java.time.ZonedDateTime
 import java.util.UUID
 

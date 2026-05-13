@@ -1,4 +1,4 @@
-package riven.core.service.entity
+package cranium.core.service.entity
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -8,30 +8,30 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.entity.EntityRelationshipEntity
-import riven.core.entity.entity.RelationshipDefinitionEntity
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.SystemRelationshipType
-import riven.core.enums.integration.SourceType
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.exceptions.ConflictException
-import riven.core.exceptions.InvalidRelationshipException
-import riven.core.exceptions.NotFoundException
-import riven.core.models.entity.RelationshipDefinition
-import riven.core.models.entity.RelationshipTargetRule
-import riven.core.models.request.entity.AddRelationshipRequest
-import riven.core.models.request.entity.UpdateRelationshipRequest
-import riven.core.repository.entity.EntityRelationshipRepository
-import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.RelationshipDefinitionRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.entity.type.EntityTypeRelationshipService
-import riven.core.service.util.BaseServiceTest
-import riven.core.service.util.WithUserPersona
-import riven.core.service.util.WorkspaceRole
-import riven.core.service.util.factory.entity.EntityFactory
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.entity.entity.EntityRelationshipEntity
+import cranium.core.entity.entity.RelationshipDefinitionEntity
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.enums.entity.SystemRelationshipType
+import cranium.core.enums.integration.SourceType
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.exceptions.ConflictException
+import cranium.core.exceptions.InvalidRelationshipException
+import cranium.core.exceptions.NotFoundException
+import cranium.core.models.entity.RelationshipDefinition
+import cranium.core.models.entity.RelationshipTargetRule
+import cranium.core.models.request.entity.AddRelationshipRequest
+import cranium.core.models.request.entity.UpdateRelationshipRequest
+import cranium.core.repository.entity.EntityRelationshipRepository
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.repository.entity.RelationshipDefinitionRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.entity.type.EntityTypeRelationshipService
+import cranium.core.service.util.BaseServiceTest
+import cranium.core.service.util.WithUserPersona
+import cranium.core.service.util.WorkspaceRole
+import cranium.core.service.util.factory.entity.EntityFactory
 import java.util.*
 
 @SpringBootTest(
@@ -103,9 +103,9 @@ class EntityRelationshipServiceRelationshipCrudTest : BaseServiceTest() {
             workspaceId = workspaceId,
             sourceEntityTypeId = sourceEntityTypeId,
             name = "Typed Relationship",
-            icon = riven.core.models.common.Icon(
-                riven.core.enums.common.icon.IconType.LINK,
-                riven.core.enums.common.icon.IconColour.NEUTRAL,
+            icon = cranium.core.models.common.Icon(
+                cranium.core.enums.common.icon.IconType.LINK,
+                cranium.core.enums.common.icon.IconColour.NEUTRAL,
             ),
             cardinalityDefault = cardinality,
             protected = false,

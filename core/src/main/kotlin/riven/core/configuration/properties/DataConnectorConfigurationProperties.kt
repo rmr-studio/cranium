@@ -1,4 +1,4 @@
-package riven.core.configuration.properties
+package cranium.core.configuration.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 
@@ -6,16 +6,16 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  * Configuration properties for the custom-source subsystem (Phase 2).
  *
  * @property enabled When `false` (the default) the custom-source beans
- *   ([riven.core.service.connector.CredentialEncryptionService],
- *   [riven.core.service.connector.DataConnectorConnectionService], and the
+ *   ([cranium.core.service.connector.CredentialEncryptionService],
+ *   [cranium.core.service.connector.DataConnectorConnectionService], and the
  *   controller) are not created, so deployments that do not opt in are not
  *   required to supply [credentialEncryptionKey].
  * @property credentialEncryptionKey Base64-encoded 32-byte (256-bit) AES key used by
- *   [riven.core.service.connector.CredentialEncryptionService]. Supplied via the
+ *   [cranium.core.service.connector.CredentialEncryptionService]. Supplied via the
  *   `RIVEN_CREDENTIAL_ENCRYPTION_KEY` environment variable; must be set when
  *   [enabled] is `true` or the encryption service fails fast at bean init.
  */
-@ConfigurationProperties(prefix = "riven.connector")
+@ConfigurationProperties(prefix = "cranium.connector")
 data class DataConnectorConfigurationProperties(
     val enabled: Boolean = false,
     val credentialEncryptionKey: String = "",
@@ -24,7 +24,7 @@ data class DataConnectorConfigurationProperties(
     init {
         if (enabled) {
             require(credentialEncryptionKey.isNotBlank()) {
-                "RIVEN_CREDENTIAL_ENCRYPTION_KEY must be set (base64-encoded 32-byte key) when riven.connector.enabled=true"
+                "RIVEN_CREDENTIAL_ENCRYPTION_KEY must be set (base64-encoded 32-byte key) when cranium.connector.enabled=true"
             }
             val decodedKey = try {
                 java.util.Base64.getDecoder().decode(credentialEncryptionKey)

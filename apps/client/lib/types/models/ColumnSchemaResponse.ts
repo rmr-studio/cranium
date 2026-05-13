@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,27 +12,20 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
 import type { ExistingMappingRef } from './ExistingMappingRef';
 import {
     ExistingMappingRefFromJSON,
-    ExistingMappingRefFromJSONTyped,
-    ExistingMappingRefToJSON,
-    ExistingMappingRefToJSONTyped,
+    ExistingMappingRefToJSON
 } from './ExistingMappingRef';
 import type { FkTargetRef } from './FkTargetRef';
 import {
     FkTargetRefFromJSON,
-    FkTargetRefFromJSONTyped,
-    FkTargetRefToJSON,
-    FkTargetRefToJSONTyped,
+    FkTargetRefToJSON
 } from './FkTargetRef';
 import type { SchemaType } from './SchemaType';
 import {
     SchemaTypeFromJSON,
-    SchemaTypeFromJSONTyped,
-    SchemaTypeToJSON,
-    SchemaTypeToJSONTyped,
+    SchemaTypeToJSON
 } from './SchemaType';
 
 /**

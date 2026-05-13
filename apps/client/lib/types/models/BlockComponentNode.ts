@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -13,41 +13,31 @@
  */
 
 import { mapValues } from '../runtime';
-import type { Condition } from './Condition';
-import {
-    ConditionFromJSON,
-    ConditionFromJSONTyped,
-    ConditionToJSON,
-    ConditionToJSONTyped,
-} from './Condition';
 import type { BlockBinding } from './BlockBinding';
 import {
     BlockBindingFromJSON,
-    BlockBindingFromJSONTyped,
-    BlockBindingToJSON,
-    BlockBindingToJSONTyped,
+    BlockBindingToJSON
 } from './BlockBinding';
-import type { ComponentType } from './ComponentType';
-import {
-    ComponentTypeFromJSON,
-    ComponentTypeFromJSONTyped,
-    ComponentTypeToJSON,
-    ComponentTypeToJSONTyped,
-} from './ComponentType';
-import type { LayoutGrid } from './LayoutGrid';
-import {
-    LayoutGridFromJSON,
-    LayoutGridFromJSONTyped,
-    LayoutGridToJSON,
-    LayoutGridToJSONTyped,
-} from './LayoutGrid';
 import type { BlockFetchPolicy } from './BlockFetchPolicy';
 import {
     BlockFetchPolicyFromJSON,
-    BlockFetchPolicyFromJSONTyped,
-    BlockFetchPolicyToJSON,
-    BlockFetchPolicyToJSONTyped,
+    BlockFetchPolicyToJSON
 } from './BlockFetchPolicy';
+import type { ComponentType } from './ComponentType';
+import {
+    ComponentTypeFromJSON,
+    ComponentTypeToJSON
+} from './ComponentType';
+import type { Condition } from './Condition';
+import {
+    ConditionFromJSON,
+    ConditionToJSON
+} from './Condition';
+import type { LayoutGrid } from './LayoutGrid';
+import {
+    LayoutGridFromJSON,
+    LayoutGridToJSON
+} from './LayoutGrid';
 
 /**
  * 

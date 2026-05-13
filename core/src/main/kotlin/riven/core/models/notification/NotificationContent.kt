@@ -1,11 +1,11 @@
-package riven.core.models.notification
+package cranium.core.models.notification
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import tools.jackson.databind.annotation.JsonTypeIdResolver
-import riven.core.configuration.util.CaseInsensitiveTypeIdResolver
-import riven.core.enums.notification.ReviewPriority
-import riven.core.enums.notification.SystemSeverity
+import cranium.core.configuration.util.CaseInsensitiveTypeIdResolver
+import cranium.core.enums.notification.ReviewPriority
+import cranium.core.enums.notification.SystemSeverity
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, property = "type")
 @JsonTypeIdResolver(CaseInsensitiveTypeIdResolver::class)

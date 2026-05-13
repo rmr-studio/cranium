@@ -1,6 +1,6 @@
-package riven.core.models.enrichment
+package cranium.core.models.enrichment
 
-import riven.core.enums.integration.SourceType
+import cranium.core.enums.integration.SourceType
 
 /**
  * Summary of a single entity type within the cluster that the entity being enriched belongs to.

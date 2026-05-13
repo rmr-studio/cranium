@@ -1,7 +1,7 @@
-package riven.core.models.request.workflow
+package cranium.core.models.request.workflow
 
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
 
 /**
  * Request model for creating a new workflow definition.

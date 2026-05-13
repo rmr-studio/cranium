@@ -1,12 +1,12 @@
-package riven.core.deserializer
+package cranium.core.deserializer
 
 import tools.jackson.core.JsonParser
 import tools.jackson.databind.DeserializationContext
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.ValueDeserializer
-import riven.core.enums.block.request.BlockOperationType
-import riven.core.models.block.operation.*
-import riven.core.util.getEnumFromField
+import cranium.core.enums.block.request.BlockOperationType
+import cranium.core.models.block.operation.*
+import cranium.core.util.getEnumFromField
 
 /**
  * Jackson deserializer for [BlockOperation].

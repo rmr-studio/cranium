@@ -1,4 +1,4 @@
-package riven.core.service.ingestion
+package cranium.core.service.ingestion
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -11,9 +11,9 @@ import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.testcontainers.junit.jupiter.Testcontainers
-import riven.core.entity.entity.EntityTypeEntity
-import riven.core.service.util.factory.entity.EntityFactory
-import riven.core.enums.integration.SourceType
+import cranium.core.entity.entity.EntityTypeEntity
+import cranium.core.service.util.factory.entity.EntityFactory
+import cranium.core.enums.integration.SourceType
 import java.util.UUID
 
 /**

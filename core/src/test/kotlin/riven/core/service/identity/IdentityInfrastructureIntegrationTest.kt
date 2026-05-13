@@ -1,4 +1,4 @@
-package riven.core.service.identity
+package cranium.core.service.identity
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -27,10 +27,10 @@ import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
-import riven.core.repository.identity.IdentityClusterMemberRepository
-import riven.core.repository.identity.IdentityClusterRepository
-import riven.core.repository.identity.MatchSuggestionRepository
-import riven.core.service.util.factory.identity.IdentityFactory
+import cranium.core.repository.identity.IdentityClusterMemberRepository
+import cranium.core.repository.identity.IdentityClusterRepository
+import cranium.core.repository.identity.MatchSuggestionRepository
+import cranium.core.service.util.factory.identity.IdentityFactory
 import java.time.ZonedDateTime
 import java.time.temporal.TemporalAccessor
 import java.util.Optional
@@ -58,8 +58,8 @@ import java.util.UUID
         "io.temporal.spring.boot.autoconfigure.TestServerAutoConfiguration",
     ],
 )
-@EnableJpaRepositories(basePackages = ["riven.core.repository.identity"])
-@EntityScan("riven.core.entity.identity")
+@EnableJpaRepositories(basePackages = ["cranium.core.repository.identity"])
+@EntityScan("cranium.core.entity.identity")
 @EnableJpaAuditing(auditorAwareRef = "identityAuditorProvider", dateTimeProviderRef = "identityDateTimeProvider")
 class IdentityInfrastructureIntegrationTestConfig {
 
@@ -109,7 +109,7 @@ class IdentityInfrastructureIntegrationTest {
         val postgres: PostgreSQLContainer = PostgreSQLContainer(
             DockerImageName.parse("pgvector/pgvector:pg16").asCompatibleSubstituteFor("postgres")
         )
-            .withDatabaseName("riven_test")
+            .withDatabaseName("cranium_test")
             .withUsername("test")
             .withPassword("test")
 
@@ -281,7 +281,7 @@ class IdentityInfrastructureIntegrationTest {
             "Expected CHECK constraint violation for non-canonical UUID ordering"
         ) {
             matchSuggestionRepository.saveAndFlush(
-                riven.core.entity.identity.MatchSuggestionEntity(
+                cranium.core.entity.identity.MatchSuggestionEntity(
                     workspaceId = workspaceId,
                     sourceEntityId = targetId,
                     targetEntityId = sourceId,

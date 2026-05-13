@@ -1,5 +1,5 @@
 import { AuthBackground } from '@/components/feature-modules/authentication/components/auth-background';
-import { Card } from '@riven/ui/card';
+import { Card } from '@cranium/ui/card';
 import { FCWC, Propless } from '@/lib/interfaces/interface';
 
 export const AuthFormWrapper: FCWC<Propless> = ({ children }) => {

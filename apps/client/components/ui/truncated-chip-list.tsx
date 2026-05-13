@@ -1,8 +1,8 @@
 'use client';
 
 import { IconColour, IconType } from '@/lib/types/common';
-import { Badge } from '@riven/ui/badge';
-import { cn } from '@riven/utils';
+import { Badge } from '@cranium/ui/badge';
+import { cn } from '@cranium/utils';
 import { FC, ReactNode } from 'react';
 import { IconCell } from '@/components/ui/icon/icon-cell';
 

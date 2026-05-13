@@ -1,4 +1,4 @@
-package riven.core.service.workflow
+package cranium.core.service.workflow
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -7,18 +7,18 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import riven.core.entity.workflow.WorkflowEdgeEntity
-import riven.core.exceptions.WorkflowValidationException
-import riven.core.models.workflow.engine.state.WorkflowExecutionPhase
-import riven.core.models.workflow.engine.state.WorkflowState
-import riven.core.models.workflow.engine.state.WorkflowDataStore
-import riven.core.models.workflow.engine.state.WorkflowMetadata
-import riven.core.models.workflow.node.WorkflowNode
-import riven.core.models.workflow.node.config.actions.WorkflowCreateEntityActionConfig
-import riven.core.service.workflow.engine.coordinator.WorkflowGraphCoordinationService
-import riven.core.service.workflow.engine.coordinator.WorkflowGraphQueueManagementService
-import riven.core.service.workflow.engine.coordinator.WorkflowGraphTopologicalSorterService
-import riven.core.service.workflow.engine.coordinator.WorkflowGraphValidationService
+import cranium.core.entity.workflow.WorkflowEdgeEntity
+import cranium.core.exceptions.WorkflowValidationException
+import cranium.core.models.workflow.engine.state.WorkflowExecutionPhase
+import cranium.core.models.workflow.engine.state.WorkflowState
+import cranium.core.models.workflow.engine.state.WorkflowDataStore
+import cranium.core.models.workflow.engine.state.WorkflowMetadata
+import cranium.core.models.workflow.node.WorkflowNode
+import cranium.core.models.workflow.node.config.actions.WorkflowCreateEntityActionConfig
+import cranium.core.service.workflow.engine.coordinator.WorkflowGraphCoordinationService
+import cranium.core.service.workflow.engine.coordinator.WorkflowGraphQueueManagementService
+import cranium.core.service.workflow.engine.coordinator.WorkflowGraphTopologicalSorterService
+import cranium.core.service.workflow.engine.coordinator.WorkflowGraphValidationService
 import java.time.Instant
 import java.util.*
 

@@ -1,4 +1,4 @@
-package riven.core.configuration.util
+package cranium.core.configuration.util
 
 import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging

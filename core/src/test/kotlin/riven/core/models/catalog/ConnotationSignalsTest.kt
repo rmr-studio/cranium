@@ -1,8 +1,8 @@
-package riven.core.models.catalog
+package cranium.core.models.catalog
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import riven.core.models.connotation.AnalysisTier
+import cranium.core.models.connotation.AnalysisTier
 import tools.jackson.databind.json.JsonMapper
 import tools.jackson.module.kotlin.KotlinModule
 

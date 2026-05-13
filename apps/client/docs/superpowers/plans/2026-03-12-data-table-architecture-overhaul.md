@@ -1,6 +1,6 @@
 # Data Table Architecture Overhaul
 
-> **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED: Use superpowers:subagent-dcranium-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Restructure the shared DataTable component to cleanly support divergent use cases (entity instance tables vs config tables) through composition, fix action column visibility, separate column drag from resize, and add comprehensive test coverage.
 
@@ -107,8 +107,8 @@ git commit -m "feat(data-table): add ActionColumnConfig type system for per-elem
 ```typescript
 'use client';
 
-import { TableCell } from '@riven/ui/table';
-import { cn } from '@riven/utils';
+import { TableCell } from '@cranium/ui/table';
+import { cn } from '@cranium/utils';
 import { GripVertical } from 'lucide-react';
 import { Checkbox } from '../../checkbox';
 import { useDataTableStore } from '../data-table-provider';
@@ -531,8 +531,8 @@ In `draggable-column-header.tsx`, the key change is moving `attributes` and `lis
 ```typescript
 'use client';
 
-import { TableHead } from '@riven/ui/table';
-import { cn } from '@riven/utils';
+import { TableHead } from '@cranium/ui/table';
+import { cn } from '@cranium/utils';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Header, flexRender } from '@tanstack/react-table';
@@ -1241,10 +1241,10 @@ import {
   RelationshipDefinition,
 } from '@/lib/types/entity';
 import { debounce } from '@/lib/util/debounce.util';
-import type { ClassNameProps } from '@riven/utils';
-import { cn } from '@riven/utils';
+import type { ClassNameProps } from '@cranium/utils';
+import { cn } from '@cranium/utils';
 
-import { Button } from '@riven/ui/button';
+import { Button } from '@cranium/ui/button';
 import { Row } from '@tanstack/react-table';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { MoreHorizontal, Plus } from 'lucide-react';

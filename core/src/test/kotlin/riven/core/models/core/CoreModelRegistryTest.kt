@@ -1,22 +1,22 @@
-package riven.core.models.core
+package cranium.core.models.core
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.Assertions.*
-import riven.core.enums.catalog.ManifestType
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.DataType
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.EntityTypeRole
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.models.core.models.OrderLineItemModel
-import riven.core.models.core.models.ProductModel
-import riven.core.models.core.base.BillingEventBase
-import riven.core.models.core.base.ChurnEventBase
-import riven.core.models.core.base.CommunicationModel
-import riven.core.models.core.base.CustomerBase
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.DataType
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.enums.entity.EntityTypeRole
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.models.core.models.OrderLineItemModel
+import cranium.core.models.core.models.ProductModel
+import cranium.core.models.core.base.BillingEventBase
+import cranium.core.models.core.base.ChurnEventBase
+import cranium.core.models.core.base.CommunicationModel
+import cranium.core.models.core.base.CustomerBase
 
 
 class CoreModelRegistryTest {

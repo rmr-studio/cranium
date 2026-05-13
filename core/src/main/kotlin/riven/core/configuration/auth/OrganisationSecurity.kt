@@ -1,10 +1,10 @@
-package riven.core.configuration.auth
+package cranium.core.configuration.auth
 
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.stereotype.Component
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.models.workspace.WorkspaceMember
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.models.workspace.WorkspaceMember
 import java.util.*
 
 @Component

@@ -1,7 +1,7 @@
-package riven.core.repository.workflow.projection
+package cranium.core.repository.workflow.projection
 
-import riven.core.entity.workflow.WorkflowDefinitionEntity
-import riven.core.entity.workflow.WorkflowDefinitionVersionEntity
+import cranium.core.entity.workflow.WorkflowDefinitionEntity
+import cranium.core.entity.workflow.WorkflowDefinitionVersionEntity
 
 /**
  * Projection for workflow definition with its published version.

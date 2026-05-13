@@ -1,6 +1,6 @@
-package riven.core.models.request.user
+package cranium.core.models.request.user
 
-import riven.core.enums.user.AcquisitionChannel
+import cranium.core.enums.user.AcquisitionChannel
 import java.time.ZonedDateTime
 import java.util.*
 

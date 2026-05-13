@@ -1,10 +1,10 @@
-package riven.core.service.analytics
+package cranium.core.service.analytics
 
 import org.springframework.stereotype.Component
 import org.springframework.transaction.event.TransactionPhase
 import org.springframework.transaction.event.TransactionalEventListener
-import riven.core.models.analytics.WorkspaceCreatedEvent
-import riven.core.models.analytics.WorkspaceUpdatedEvent
+import cranium.core.models.analytics.WorkspaceCreatedEvent
+import cranium.core.models.analytics.WorkspaceUpdatedEvent
 import java.time.ZonedDateTime
 
 @Component

@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,21 +12,16 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { WorkflowNodeType } from './WorkflowNodeType';
-import {
-    WorkflowNodeTypeFromJSON,
-    WorkflowNodeTypeFromJSONTyped,
-    WorkflowNodeTypeToJSON,
-    WorkflowNodeTypeToJSONTyped,
-} from './WorkflowNodeType';
 import type { IconType } from './IconType';
 import {
     IconTypeFromJSON,
-    IconTypeFromJSONTyped,
-    IconTypeToJSON,
-    IconTypeToJSONTyped,
+    IconTypeToJSON
 } from './IconType';
+import type { WorkflowNodeType } from './WorkflowNodeType';
+import {
+    WorkflowNodeTypeFromJSON,
+    WorkflowNodeTypeToJSON
+} from './WorkflowNodeType';
 
 /**
  * Display metadata for a workflow node type

@@ -1,4 +1,4 @@
-package riven.core.service.util
+package cranium.core.service.util
 
 import tools.jackson.databind.DeserializationFeature
 import tools.jackson.databind.ObjectMapper

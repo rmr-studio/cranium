@@ -1,11 +1,11 @@
-package riven.core.repository.connotation
+package cranium.core.repository.connotation
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
-import riven.core.entity.connotation.EntityConnotationEntity
+import cranium.core.entity.connotation.EntityConnotationEntity
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -40,7 +40,7 @@ interface EntityConnotationRepository : JpaRepository<EntityConnotationEntity, U
      *
      * @param entityId The entity UUID this snapshot describes
      * @param workspaceId The workspace the entity belongs to
-     * @param snapshotJson The serialised [riven.core.models.connotation.EntityMetadataSnapshot]
+     * @param snapshotJson The serialised [cranium.core.models.connotation.EntityMetadataSnapshot]
      * @param now The timestamp to write into `created_at` (insert path) and `updated_at` (both paths)
      * @return Number of rows affected (always 1)
      */

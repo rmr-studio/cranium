@@ -1,12 +1,12 @@
-package riven.core.service.websocket
+package cranium.core.service.websocket
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
 import org.springframework.messaging.simp.SimpMessagingTemplate
-import riven.core.enums.util.OperationType
-import riven.core.enums.websocket.WebSocketChannel
-import riven.core.models.websocket.*
+import cranium.core.enums.util.OperationType
+import cranium.core.enums.websocket.WebSocketChannel
+import cranium.core.models.websocket.*
 import io.github.oshai.kotlinlogging.KLogger
 import java.util.UUID
 

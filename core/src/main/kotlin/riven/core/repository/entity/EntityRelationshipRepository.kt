@@ -1,12 +1,12 @@
-package riven.core.repository.entity
+package cranium.core.repository.entity
 
 import jakarta.persistence.LockModeType
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
-import riven.core.entity.entity.EntityRelationshipEntity
-import riven.core.projection.entity.EntityLinkProjection
+import cranium.core.entity.entity.EntityRelationshipEntity
+import cranium.core.projection.entity.EntityLinkProjection
 import java.util.*
 
 
@@ -97,7 +97,7 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
     fun deleteAllBySourceIdAndDefinitionIdAndTargetKindAndTargetIdIn(
         sourceId: UUID,
         definitionId: UUID,
-        targetKind: riven.core.enums.entity.RelationshipTargetKind,
+        targetKind: cranium.core.enums.entity.RelationshipTargetKind,
         targetIds: Collection<UUID>,
     )
 
@@ -121,7 +121,7 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
     fun deleteAllBySourceIdAndDefinitionIdAndTargetKindAndTargetParentIdAndTargetIdIn(
         sourceId: UUID,
         definitionId: UUID,
-        targetKind: riven.core.enums.entity.RelationshipTargetKind,
+        targetKind: cranium.core.enums.entity.RelationshipTargetKind,
         targetParentId: UUID,
         targetIds: Collection<UUID>,
     )
@@ -145,7 +145,7 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
     fun deleteAllBySourceIdAndDefinitionIdAndTargetKind(
         sourceId: UUID,
         definitionId: UUID,
-        targetKind: riven.core.enums.entity.RelationshipTargetKind,
+        targetKind: cranium.core.enums.entity.RelationshipTargetKind,
     )
 
     /**
@@ -164,7 +164,7 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
     fun findAllBySourceIdAndDefinitionIdAndTargetKind(
         sourceId: UUID,
         definitionId: UUID,
-        targetKind: riven.core.enums.entity.RelationshipTargetKind,
+        targetKind: cranium.core.enums.entity.RelationshipTargetKind,
     ): List<EntityRelationshipEntity>
 
     /**
@@ -205,7 +205,7 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
     """)
     fun findBySourceIdAndDefinitionSystemType(
         sourceId: UUID,
-        systemType: riven.core.enums.entity.SystemRelationshipType,
+        systemType: cranium.core.enums.entity.SystemRelationshipType,
     ): List<EntityRelationshipEntity>
 
     /**
@@ -221,7 +221,7 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
     """)
     fun findAllBySourceIdInAndDefinitionSystemType(
         sourceIds: Collection<UUID>,
-        systemType: riven.core.enums.entity.SystemRelationshipType,
+        systemType: cranium.core.enums.entity.SystemRelationshipType,
     ): List<EntityRelationshipEntity>
 
     /**
@@ -237,7 +237,7 @@ interface EntityRelationshipRepository : JpaRepository<EntityRelationshipEntity,
     """)
     fun findByTargetIdAndDefinitionSystemType(
         targetId: UUID,
-        systemType: riven.core.enums.entity.SystemRelationshipType,
+        systemType: cranium.core.enums.entity.SystemRelationshipType,
     ): List<EntityRelationshipEntity>
 
     /**

@@ -1,12 +1,12 @@
-package riven.core.models.workflow.node.config.actions
+package cranium.core.models.workflow.node.config.actions
 
-import riven.core.models.entity.query.filter.FilterValue
-import riven.core.models.entity.query.filter.QueryFilter
-import riven.core.models.entity.query.filter.RelationshipFilter
-import riven.core.models.workflow.engine.state.WorkflowDataStore
-import riven.core.models.workflow.node.config.validation.ConfigValidationError
-import riven.core.service.workflow.state.WorkflowNodeConfigValidationService
-import riven.core.service.workflow.state.WorkflowNodeInputResolverService
+import cranium.core.models.entity.query.filter.FilterValue
+import cranium.core.models.entity.query.filter.QueryFilter
+import cranium.core.models.entity.query.filter.RelationshipFilter
+import cranium.core.models.workflow.engine.state.WorkflowDataStore
+import cranium.core.models.workflow.node.config.validation.ConfigValidationError
+import cranium.core.service.workflow.state.WorkflowNodeConfigValidationService
+import cranium.core.service.workflow.state.WorkflowNodeInputResolverService
 
 /**
  * Shared utilities for filter template validation and resolution.

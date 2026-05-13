@@ -1,4 +1,4 @@
-package riven.core.models.integration.projection
+package cranium.core.models.integration.projection
 
 import java.util.UUID
 

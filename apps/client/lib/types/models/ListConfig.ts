@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,34 +12,25 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
 import type { BlockListOrderingMode } from './BlockListOrderingMode';
 import {
     BlockListOrderingModeFromJSON,
-    BlockListOrderingModeFromJSONTyped,
-    BlockListOrderingModeToJSON,
-    BlockListOrderingModeToJSONTyped,
+    BlockListOrderingModeToJSON
 } from './BlockListOrderingMode';
-import type { ListFilterLogicType } from './ListFilterLogicType';
-import {
-    ListFilterLogicTypeFromJSON,
-    ListFilterLogicTypeFromJSONTyped,
-    ListFilterLogicTypeToJSON,
-    ListFilterLogicTypeToJSONTyped,
-} from './ListFilterLogicType';
 import type { FilterSpec } from './FilterSpec';
 import {
     FilterSpecFromJSON,
-    FilterSpecFromJSONTyped,
-    FilterSpecToJSON,
-    FilterSpecToJSONTyped,
+    FilterSpecToJSON
 } from './FilterSpec';
+import type { ListFilterLogicType } from './ListFilterLogicType';
+import {
+    ListFilterLogicTypeFromJSON,
+    ListFilterLogicTypeToJSON
+} from './ListFilterLogicType';
 import type { SortSpec } from './SortSpec';
 import {
     SortSpecFromJSON,
-    SortSpecFromJSONTyped,
-    SortSpecToJSON,
-    SortSpecToJSONTyped,
+    SortSpecToJSON
 } from './SortSpec';
 
 /**

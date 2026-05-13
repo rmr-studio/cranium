@@ -1,13 +1,13 @@
-package riven.core.entity.activity
+package cranium.core.entity.activity
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.Type
-import riven.core.enums.activity.Activity
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.util.OperationType
-import riven.core.models.activity.ActivityLog
-import riven.core.models.common.json.JsonObject
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.util.OperationType
+import cranium.core.models.activity.ActivityLog
+import cranium.core.models.common.json.JsonObject
 import java.time.ZonedDateTime
 import java.util.*
 

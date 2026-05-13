@@ -1,7 +1,7 @@
-package riven.core.enums.identity
+package cranium.core.enums.identity
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import riven.core.enums.common.validation.SchemaType
+import cranium.core.enums.common.validation.SchemaType
 
 /**
  * The category of attribute that produced a match signal.

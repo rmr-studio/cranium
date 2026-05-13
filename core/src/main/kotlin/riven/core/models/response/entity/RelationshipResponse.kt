@@ -1,6 +1,6 @@
-package riven.core.models.response.entity
+package cranium.core.models.response.entity
 
-import riven.core.enums.integration.SourceType
+import cranium.core.enums.integration.SourceType
 import java.time.ZonedDateTime
 import java.util.*
 

@@ -1,15 +1,15 @@
-package riven.core.deserializer
+package cranium.core.deserializer
 
 
 import tools.jackson.core.JsonParser
 import tools.jackson.databind.DeserializationContext
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.ValueDeserializer
-import riven.core.enums.block.node.ReferenceType
-import riven.core.models.block.tree.BlockTreeReference
-import riven.core.models.block.tree.EntityReference
-import riven.core.models.block.tree.ReferencePayload
-import riven.core.util.getEnumFromField
+import cranium.core.enums.block.node.ReferenceType
+import cranium.core.models.block.tree.BlockTreeReference
+import cranium.core.models.block.tree.EntityReference
+import cranium.core.models.block.tree.ReferencePayload
+import cranium.core.util.getEnumFromField
 
 /**
  * Jackson deserializer for [ReferencePayload].

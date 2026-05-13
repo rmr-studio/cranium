@@ -1,4 +1,4 @@
-package riven.core.service.connector.mapping
+package cranium.core.service.connector.mapping
 
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.module.kotlin.jacksonObjectMapper
@@ -23,32 +23,32 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.connector.DataConnectorFieldMappingEntity
-import riven.core.entity.connector.DataConnectorConnectionEntity
-import riven.core.enums.connector.SslMode
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.models.connector.CredentialPayload
-import riven.core.models.connector.response.DriftStatus
-import riven.core.models.ingestion.adapter.ColumnSchema
-import riven.core.models.ingestion.adapter.SchemaIntrospectionResult
-import riven.core.models.ingestion.adapter.TableSchema
-import riven.core.repository.connector.DataConnectorConnectionRepository
-import riven.core.repository.connector.DataConnectorFieldMappingRepository
-import riven.core.repository.connector.DataConnectorTableMappingRepository
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.connector.CredentialEncryptionService
-import riven.core.service.connector.postgres.ForeignKeyMetadata
-import riven.core.service.connector.postgres.IntrospectionResult
-import riven.core.service.connector.postgres.PostgresAdapter
-import riven.core.service.connector.postgres.SchemaHasher
-import riven.core.service.ingestion.adapter.PostgresCallContext
-import riven.core.service.util.SecurityTestConfig
-import riven.core.service.util.WithUserPersona
-import riven.core.service.util.WorkspaceRole
-import riven.core.service.util.factory.DataConnectorFieldMappingEntityFactory
-import riven.core.service.util.factory.DataConnectorTableMappingEntityFactory
-import riven.core.service.util.factory.dataconnector.DataConnectorConnectionEntityFactory
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.entity.connector.DataConnectorFieldMappingEntity
+import cranium.core.entity.connector.DataConnectorConnectionEntity
+import cranium.core.enums.connector.SslMode
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.models.connector.CredentialPayload
+import cranium.core.models.connector.response.DriftStatus
+import cranium.core.models.ingestion.adapter.ColumnSchema
+import cranium.core.models.ingestion.adapter.SchemaIntrospectionResult
+import cranium.core.models.ingestion.adapter.TableSchema
+import cranium.core.repository.connector.DataConnectorConnectionRepository
+import cranium.core.repository.connector.DataConnectorFieldMappingRepository
+import cranium.core.repository.connector.DataConnectorTableMappingRepository
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.connector.CredentialEncryptionService
+import cranium.core.service.connector.postgres.ForeignKeyMetadata
+import cranium.core.service.connector.postgres.IntrospectionResult
+import cranium.core.service.connector.postgres.PostgresAdapter
+import cranium.core.service.connector.postgres.SchemaHasher
+import cranium.core.service.ingestion.adapter.PostgresCallContext
+import cranium.core.service.util.SecurityTestConfig
+import cranium.core.service.util.WithUserPersona
+import cranium.core.service.util.WorkspaceRole
+import cranium.core.service.util.factory.DataConnectorFieldMappingEntityFactory
+import cranium.core.service.util.factory.DataConnectorTableMappingEntityFactory
+import cranium.core.service.util.factory.dataconnector.DataConnectorConnectionEntityFactory
 import java.util.Optional
 import java.util.UUID
 
@@ -67,7 +67,7 @@ import java.util.UUID
         DataConnectorSchemaInferenceService::class,
     ],
 )
-@TestPropertySource(properties = ["riven.connector.enabled=true"])
+@TestPropertySource(properties = ["cranium.connector.enabled=true"])
 @WithUserPersona(
     userId = "11111111-1111-1111-1111-111111111111",
     email = "test@test.com",

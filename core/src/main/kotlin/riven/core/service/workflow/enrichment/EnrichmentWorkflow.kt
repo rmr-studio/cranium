@@ -1,4 +1,4 @@
-package riven.core.service.workflow.enrichment
+package cranium.core.service.workflow.enrichment
 
 import io.temporal.workflow.WorkflowInterface
 import io.temporal.workflow.WorkflowMethod

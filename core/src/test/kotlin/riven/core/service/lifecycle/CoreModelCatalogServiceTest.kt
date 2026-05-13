@@ -1,4 +1,4 @@
-package riven.core.service.lifecycle
+package cranium.core.service.lifecycle
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.BeforeEach
@@ -7,10 +7,10 @@ import org.mockito.kotlin.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.models.catalog.ResolvedManifest
-import riven.core.service.catalog.CoreModelCatalogService
-import riven.core.service.catalog.ManifestCatalogHealthIndicator
-import riven.core.service.catalog.ManifestUpsertService
+import cranium.core.models.catalog.ResolvedManifest
+import cranium.core.service.catalog.CoreModelCatalogService
+import cranium.core.service.catalog.ManifestCatalogHealthIndicator
+import cranium.core.service.catalog.ManifestUpsertService
 
 @SpringBootTest(classes = [CoreModelCatalogService::class])
 class CoreModelCatalogServiceTest {

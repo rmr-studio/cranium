@@ -1,4 +1,4 @@
-# Design System — Riven
+# Design System — Cranium
 
 ## Product Context
 
@@ -139,7 +139,7 @@ Use subtle box-shadows for depth instead of heavy borders. Creates the "floating
 
 ## Icon Rail
 
-The dark inverted icon rail is Riven's structural signature. It establishes the app's visual frame.
+The dark inverted icon rail is Cranium's structural signature. It establishes the app's visual frame.
 
 - **Background:** `var(--foreground)` (dark on light, creates the inversion)
 - **Icons:** Lucide icons at `size-5` (20px), `text-background/60` default, `text-background` active

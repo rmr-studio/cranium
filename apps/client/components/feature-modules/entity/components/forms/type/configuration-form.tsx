@@ -6,15 +6,15 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@riven/ui/input';
-import { Textarea } from '@riven/ui/textarea';
+import { Input } from '@cranium/ui/input';
+import { Textarea } from '@cranium/ui/textarea';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@riven/ui/select';
+} from '@cranium/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { TagInput } from '@/components/ui/tag-input';
 import { SchemaType } from '@/lib/types/common';

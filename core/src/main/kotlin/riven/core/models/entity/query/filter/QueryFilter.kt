@@ -1,12 +1,12 @@
-package riven.core.models.entity.query.filter
+package cranium.core.models.entity.query.filter
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
 import tools.jackson.databind.annotation.JsonTypeIdResolver
 import io.swagger.v3.oas.annotations.media.Schema
-import riven.core.configuration.util.CaseInsensitiveTypeIdResolver
-import riven.core.enums.entity.query.FilterOperator
+import cranium.core.configuration.util.CaseInsensitiveTypeIdResolver
+import cranium.core.enums.entity.query.FilterOperator
 import java.util.*
 
 /**

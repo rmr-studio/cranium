@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -14,17 +14,15 @@
 
 import type { Dynamic } from './Dynamic';
 import {
-    instanceOfDynamic,
-    DynamicFromJSON,
     DynamicFromJSONTyped,
     DynamicToJSON,
+    instanceOfDynamic
 } from './Dynamic';
 import type { Static } from './Static';
 import {
     instanceOfStatic,
-    StaticFromJSON,
     StaticFromJSONTyped,
-    StaticToJSON,
+    StaticToJSON
 } from './Static';
 
 /**

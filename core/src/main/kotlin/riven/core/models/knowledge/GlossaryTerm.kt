@@ -1,8 +1,8 @@
-package riven.core.models.knowledge
+package cranium.core.models.knowledge
 
-import riven.core.enums.knowledge.DefinitionCategory
-import riven.core.enums.knowledge.DefinitionSource
-import riven.core.enums.knowledge.DefinitionStatus
+import cranium.core.enums.knowledge.DefinitionCategory
+import cranium.core.enums.knowledge.DefinitionSource
+import cranium.core.enums.knowledge.DefinitionStatus
 import java.time.ZonedDateTime
 import java.util.*
 

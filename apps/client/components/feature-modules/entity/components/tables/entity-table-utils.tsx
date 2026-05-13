@@ -22,8 +22,8 @@ import {
 import { iconFormSchema } from '@/lib/util/form/common/icon.form';
 import { buildFieldSchema } from '@/lib/util/form/entity-instance-validation.util';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Badge } from '@riven/ui/badge';
-import { toTitleCase } from '@riven/utils';
+import { Badge } from '@cranium/ui/badge';
+import { toTitleCase } from '@cranium/utils';
 import { AccessorKeyColumnDef, Cell } from '@tanstack/react-table';
 import { ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';

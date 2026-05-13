@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 
 /**
- * Claude Code MCP terminal — captures the spreadsheet→Riven upload story.
+ * Claude Code MCP terminal — captures the spreadsheet→Cranium upload story.
  *
  * Designed to fill its container and clip at the bottom — the visible
  * portion always shows: terminal chrome, the user's /attach command, and
@@ -22,7 +22,7 @@ export function MockClaudeMcpMutation() {
       </div>
 
       <div className="mt-2 hidden items-center gap-3 px-1 font-mono text-[10px] text-muted-foreground sm:flex">
-        <Pulse /> riven-mcp · live
+        <Pulse /> cranium-mcp · live
         <span className="ml-auto tabular-nums">3 servers · 17 tools</span>
       </div>
     </div>
@@ -56,7 +56,7 @@ export function TerminalChrome() {
               boxShadow: '0 0 0 2.5px oklch(0.7 0.18 145 / 0.18)',
             }}
           />
-          riven-mcp · connected
+          cranium-mcp · connected
         </span>
       </div>
     </div>
@@ -71,7 +71,7 @@ export function TerminalBody() {
     >
       <Line className="text-[oklch(0.55_0.01_92)]">Welcome to Claude Code (v2.4.1)</Line>
       <Line className="text-[oklch(0.55_0.01_92)]">
-        MCP servers loaded: <span className="text-[oklch(0.78_0.15_145)]">riven</span>,{' '}
+        MCP servers loaded: <span className="text-[oklch(0.78_0.15_145)]">cranium</span>,{' '}
         <span className="text-[oklch(0.78_0.15_145)]">shopify</span>,{' '}
         <span className="text-[oklch(0.78_0.15_145)]">filesystem</span>
       </Line>
@@ -96,7 +96,7 @@ export function TerminalBody() {
       <Line>
         <span className="text-[oklch(0.7_0.12_145)]">{'>'}</span>{' '}
         <span className="text-[oklch(0.96_0_0)]">
-          Pull our supplier tracker into Riven — add suppliers as entities and update lead-time +
+          Pull our supplier tracker into Cranium — add suppliers as entities and update lead-time +
           MOQ rules. <span className="text-[oklch(0.85_0.13_95)]">/attach ./suppliers-Q2.xlsx</span>
         </span>
       </Line>
@@ -114,12 +114,12 @@ export function TerminalBody() {
       </McpCard>
 
       <ClaudeBlock>
-        Cross-checking against Riven — 2 of these already exist as entities, 3 are new. The Notes
+        Cross-checking against Cranium — 2 of these already exist as entities, 3 are new. The Notes
         sheet has rules I&apos;ll lift into the glossary.
       </ClaudeBlock>
 
       <McpCard
-        ns="riven"
+        ns="cranium"
         method="entities.upsert_batch"
         meta="5 suppliers · author=Jared@olive-orchard.co"
       >
@@ -131,7 +131,7 @@ export function TerminalBody() {
       </McpCard>
 
       <ClaudeBlock>
-        Tracker is in. Your spreadsheet is the system of record now — Riven keeps it in sync from
+        Tracker is in. Your spreadsheet is the system of record now — Cranium keeps it in sync from
         here.
       </ClaudeBlock>
 

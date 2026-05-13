@@ -1,12 +1,12 @@
-package riven.core.entity.workflow.execution
+package cranium.core.entity.workflow.execution
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.Type
-import riven.core.entity.workflow.WorkflowNodeEntity
-import riven.core.enums.workflow.WorkflowStatus
-import riven.core.models.common.json.JsonValue
-import riven.core.models.workflow.engine.execution.WorkflowExecutionNodeRecord
+import cranium.core.entity.workflow.WorkflowNodeEntity
+import cranium.core.enums.workflow.WorkflowStatus
+import cranium.core.models.common.json.JsonValue
+import cranium.core.models.workflow.engine.execution.WorkflowExecutionNodeRecord
 import java.time.Duration
 import java.time.ZonedDateTime
 import java.util.*

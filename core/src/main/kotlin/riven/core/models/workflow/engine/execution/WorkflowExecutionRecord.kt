@@ -1,7 +1,7 @@
-package riven.core.models.workflow.engine.execution
+package cranium.core.models.workflow.engine.execution
 
-import riven.core.enums.workflow.WorkflowStatus
-import riven.core.enums.workflow.WorkflowTriggerType
+import cranium.core.enums.workflow.WorkflowStatus
+import cranium.core.enums.workflow.WorkflowTriggerType
 import java.time.Duration
 import java.time.ZonedDateTime
 import java.util.*

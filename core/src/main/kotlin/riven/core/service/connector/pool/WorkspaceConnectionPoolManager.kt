@@ -1,4 +1,4 @@
-package riven.core.service.connector.pool
+package cranium.core.service.connector.pool
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
@@ -6,8 +6,8 @@ import io.github.oshai.kotlinlogging.KLogger
 import jakarta.annotation.PreDestroy
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
-import riven.core.configuration.properties.ConnectorPoolProperties
-import riven.core.models.connector.CredentialPayload
+import cranium.core.configuration.properties.ConnectorPoolProperties
+import cranium.core.models.connector.CredentialPayload
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration.Companion.minutes
@@ -33,7 +33,7 @@ import kotlin.time.Duration.Companion.seconds
  * Covers PG-02. Configuration is sourced from [ConnectorPoolProperties].
  */
 @Service
-@ConditionalOnProperty(prefix = "riven.connector", name = ["enabled"], havingValue = "true")
+@ConditionalOnProperty(prefix = "cranium.connector", name = ["enabled"], havingValue = "true")
 class WorkspaceConnectionPoolManager(
     private val props: ConnectorPoolProperties,
     private val logger: KLogger,

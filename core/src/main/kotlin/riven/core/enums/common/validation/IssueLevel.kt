@@ -1,4 +1,4 @@
-package riven.core.enums.common.validation
+package cranium.core.enums.common.validation
 
 enum class IssueLevel {
     INFO,

@@ -1,10 +1,10 @@
-package riven.core.service.integration.sync
+package cranium.core.service.integration.sync
 
 import io.temporal.activity.ActivityOptions
 import io.temporal.common.RetryOptions
 import io.temporal.workflow.Workflow
-import riven.core.configuration.workflow.RetryConfig
-import riven.core.models.integration.sync.IntegrationSyncWorkflowInput
+import cranium.core.configuration.workflow.RetryConfig
+import cranium.core.models.integration.sync.IntegrationSyncWorkflowInput
 import java.time.Duration
 
 /**
@@ -24,7 +24,7 @@ import java.time.Duration
  * non-fatal. Sync state is the source of truth; health status is derived.
  *
  * NOT a Spring bean — Temporal manages lifecycle. Spring configuration is injected
- * via [riven.core.configuration.workflow.TemporalWorkerConfiguration] factory.
+ * via [cranium.core.configuration.workflow.TemporalWorkerConfiguration] factory.
  *
  * @param retryConfig Retry configuration injected via workflow factory from application.yml
  */

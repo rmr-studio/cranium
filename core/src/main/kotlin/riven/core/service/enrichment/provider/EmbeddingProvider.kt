@@ -1,10 +1,10 @@
-package riven.core.service.enrichment.provider
+package cranium.core.service.enrichment.provider
 
 /**
  * Contract for embedding generation providers.
  *
  * Implementations are Spring-conditional beans — only one is active at runtime
- * based on the `riven.enrichment.provider` configuration property.
+ * based on the `cranium.enrichment.provider` configuration property.
  *
  * Methods are blocking (not suspend) because Temporal activities execute on
  * dedicated thread pools, and WebClient.block() is appropriate in that context.

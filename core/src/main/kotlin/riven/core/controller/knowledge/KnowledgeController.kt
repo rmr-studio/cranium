@@ -1,4 +1,4 @@
-package riven.core.controller.knowledge
+package cranium.core.controller.knowledge
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -7,18 +7,18 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import riven.core.enums.entity.semantics.SemanticMetadataTargetType
-import riven.core.enums.knowledge.DefinitionCategory
-import riven.core.enums.knowledge.DefinitionStatus
-import riven.core.models.entity.EntityTypeSemanticMetadata
-import riven.core.models.knowledge.GlossaryTerm
-import riven.core.models.request.entity.type.BulkSaveSemanticMetadataRequest
-import riven.core.models.request.entity.type.SaveSemanticMetadataRequest
-import riven.core.models.request.knowledge.CreateBusinessDefinitionRequest
-import riven.core.models.request.knowledge.UpdateBusinessDefinitionRequest
-import riven.core.models.entity.SemanticMetadataBundle
-import riven.core.service.entity.EntityTypeSemanticMetadataService
-import riven.core.service.knowledge.GlossaryService
+import cranium.core.enums.entity.semantics.SemanticMetadataTargetType
+import cranium.core.enums.knowledge.DefinitionCategory
+import cranium.core.enums.knowledge.DefinitionStatus
+import cranium.core.models.entity.EntityTypeSemanticMetadata
+import cranium.core.models.knowledge.GlossaryTerm
+import cranium.core.models.request.entity.type.BulkSaveSemanticMetadataRequest
+import cranium.core.models.request.entity.type.SaveSemanticMetadataRequest
+import cranium.core.models.request.knowledge.CreateBusinessDefinitionRequest
+import cranium.core.models.request.knowledge.UpdateBusinessDefinitionRequest
+import cranium.core.models.entity.SemanticMetadataBundle
+import cranium.core.service.entity.EntityTypeSemanticMetadataService
+import cranium.core.service.knowledge.GlossaryService
 import java.util.*
 
 @RestController
@@ -26,7 +26,7 @@ import java.util.*
 @Tag(name = "knowledge")
 class KnowledgeController(
     private val semanticMetadataService: EntityTypeSemanticMetadataService,
-    private val entityTypeService: riven.core.service.entity.type.EntityTypeService,
+    private val entityTypeService: cranium.core.service.entity.type.EntityTypeService,
     private val businessDefinitionService: GlossaryService,
 ) {
 

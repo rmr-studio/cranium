@@ -1,5 +1,5 @@
-import { Badge } from '@riven/ui/badge';
-import { Input } from '@riven/ui/input';
+import { Badge } from '@cranium/ui/badge';
+import { Input } from '@cranium/ui/input';
 import { FC } from 'react';
 
 interface PanelDetailsProps {

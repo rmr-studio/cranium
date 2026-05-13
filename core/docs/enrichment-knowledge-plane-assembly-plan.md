@@ -2,17 +2,18 @@
 
 ## Context
 
-The original framing of this plan was narrow: "should glossary entities subsume EntityTypeSemanticMetadata's `definition` field?" After reading the company-brain CEO plan (`~/.gstack/projects/rmr-studio-riven/ceo-plans/2026-04-29-proactive-company-brain.md`) and surveying the parallel `entity-connotation-extraction-2` worktree, the real architectural question is bigger:
+The original framing of this plan was narrow: "should glossary entities subsume EntityTypeSemanticMetadata's `definition` field?" After reading the company-brain CEO plan (`~/.gstack/projects/rmr-studio-cranium/ceo-plans/2026-04-29-proactive-company-brain.md`) and surveying the parallel `entity-connotation-extraction-2` worktree, the real architectural question is bigger:
 
-**EnrichmentService is becoming the assembly point for the L1→L2 bridge of the company brain.** Its job is no longer "compose attributes + metadata into embedding text". Its job is to traverse an entity's full backlink graph across CATALOG / KNOWLEDGE / SIGNAL surface_roles and roll the compounded knowledge into one embedding text — so retrieval surfaces the entity *in the full context the brain has accumulated*.
+**EnrichmentService is becoming the assembly point for the L1→L2 bridge of the company brain.** Its job is no longer "compose attributes + metadata into embedding text". Its job is to traverse an entity's full backlink graph across CATALOG / KNOWLEDGE / SIGNAL surface_roles and roll the compounded knowledge into one embedding text — so retrieval surfaces the entity _in the full context the brain has accumulated_.
 
 Right now it does ~30% of that:
+
 - ✅ Reads structural metadata (`EntityTypeSemanticMetadata` definitions + classifications)
 - ✅ Aggregates CATALOG backlinks (relationship summaries with categorical breakdowns + latest activity)
 - ✅ Resolves identity-cluster siblings + RELATIONAL_REFERENCE display values
 - ✅ Persists an `EntityMetadataSnapshot` (RELATIONAL + STRUCTURAL metadata today; SENTIMENT metadata activated in worktree-2 via `ConnotationAnalysisService` Tier 1)
 - ❌ KNOWLEDGE backlinks (notes mentioning the entity, glossary terms defining its type/attributes, policies referencing it) — **invisible**
-- ❌ SIGNAL backlinks (churn risks, cohort drift events, sentiment-driven alerts attached to the entity) — **invisible**
+- ❌ SIGNAL backlinks (churn risks, cohort drift events, sentiment-dcranium alerts attached to the entity) — **invisible**
 - ❌ Iron Law auto-link parser (Step 5 of company-brain) — **gap**
 - ❌ Read-time aggregation surface (`EntityBrainService.getFull()` per company-brain Step 5) — **gap**
 
@@ -72,16 +73,16 @@ The principle: **every entity sees what the brain has accumulated about it befor
 
 (unchanged from original plan)
 
-| Concept | EntityTypeSemanticMetadata | Glossary entity |
-|---|---|---|
-| Per-attribute narrative | `definition` text | DEFINES edge w/ targetKind=ATTRIBUTE |
-| Per-type narrative | targetType=ENTITY_TYPE row | DEFINES edge w/ targetKind=ENTITY_TYPE |
-| Per-relationship narrative | targetType=RELATIONSHIP row | (no target_kind=RELATIONSHIP yet — gap) |
-| Classification (enum, identity-critical) | `classification` | none |
-| signalType (NAME/COMPANY/PHONE/EMAIL) | `signalType` | none |
-| Many-to-many ("one term defines many") | unique-constrained | DEFINES is many-to-many |
-| Standalone listable entity | ❌ | ✅ |
-| MENTION edges from other content | ❌ | ✅ (write-only today) |
+| Concept                                  | EntityTypeSemanticMetadata  | Glossary entity                         |
+| ---------------------------------------- | --------------------------- | --------------------------------------- |
+| Per-attribute narrative                  | `definition` text           | DEFINES edge w/ targetKind=ATTRIBUTE    |
+| Per-type narrative                       | targetType=ENTITY_TYPE row  | DEFINES edge w/ targetKind=ENTITY_TYPE  |
+| Per-relationship narrative               | targetType=RELATIONSHIP row | (no target_kind=RELATIONSHIP yet — gap) |
+| Classification (enum, identity-critical) | `classification`            | none                                    |
+| signalType (NAME/COMPANY/PHONE/EMAIL)    | `signalType`                | none                                    |
+| Many-to-many ("one term defines many")   | unique-constrained          | DEFINES is many-to-many                 |
+| Standalone listable entity               | ❌                          | ✅                                      |
+| MENTION edges from other content         | ❌                          | ✅ (write-only today)                   |
 
 ### EnrichmentService dependency growth (post-worktree-2 merge)
 
@@ -101,27 +102,27 @@ All three participate in embedding / synthesis / connotation / backlinks. UI sco
 
 ### What's already shipped vs gap
 
-| Capability | Status | Lives in |
-|---|---|---|
-| Universal entity model (EAV) | ✅ shipped | `entities` table |
-| `surface_role` discriminator | ✅ shipped (CATALOG/KNOWLEDGE/SIGNAL on entity_types) | this branch |
-| Note graduation (entity_type=note, KNOWLEDGE) | ✅ shipped Phase B | this branch |
-| Glossary graduation (entity_type=glossary, KNOWLEDGE) | ✅ shipped Phase C | this branch |
-| `target_kind` on entity_relationships (ENTITY/ENTITY_TYPE/ATTRIBUTE) | ✅ shipped Phase C | this branch |
-| EntityMetadataSnapshot (RELATIONAL + STRUCTURAL metadata) | ✅ shipped Phase A | this branch |
-| EntityMetadataSnapshot SENTIMENT metadata (Tier 1 deterministic) | ✅ shipped in worktree-2 | `entity-connotation-extraction-2` |
-| Per-workspace `connotation_enabled` flag + per-type `connotationSignals` manifest | ✅ shipped in worktree-2 | `entity-connotation-extraction-2` |
-| `ConnotationAdminService` (reanalyze on metadata version mismatch) | ✅ shipped in worktree-2 | `entity-connotation-extraction-2` |
-| `entity_synthesis` (compiled-truth) | 🚧 Synthesis Phase 1 in flight | synthesis project |
-| `entity_synthesis_history` (timeline) | 🚧 Synthesis Phase 3 planned | synthesis project |
-| Iron Law auto-link parser (BlockNote → entity_relationships) | ❌ gap (Step 5 of company-brain) | not yet planned |
-| Glossary `DEFINES` edges feeding embeddings | ❌ gap | **THIS PLAN** |
-| MENTION-driven KNOWLEDGE backlinks in embeddings | ❌ gap | **THIS PLAN** |
-| SIGNAL backlinks in embeddings | ❌ gap | **THIS PLAN** |
-| `EntityBrainService.getFull()` canonical aggregation | ❌ gap (Step 5 of company-brain) | not yet planned |
-| `target_kind=RELATIONSHIP` on entity_relationships | ❌ gap | **PR1** (this plan) |
-| `target_id` rename + `target_parent_id` for sub-reference target_kinds (ATTRIBUTE + RELATIONSHIP) | ❌ gap | **PR1** (this plan) |
-| EnrichmentService 4-service split (Queue / ContextAssembler / Analysis / Embedding) | ❌ gap (architecture-suggestion #1) | **PR2** (this plan) |
+| Capability                                                                                        | Status                                                | Lives in                          |
+| ------------------------------------------------------------------------------------------------- | ----------------------------------------------------- | --------------------------------- |
+| Universal entity model (EAV)                                                                      | ✅ shipped                                            | `entities` table                  |
+| `surface_role` discriminator                                                                      | ✅ shipped (CATALOG/KNOWLEDGE/SIGNAL on entity_types) | this branch                       |
+| Note graduation (entity_type=note, KNOWLEDGE)                                                     | ✅ shipped Phase B                                    | this branch                       |
+| Glossary graduation (entity_type=glossary, KNOWLEDGE)                                             | ✅ shipped Phase C                                    | this branch                       |
+| `target_kind` on entity_relationships (ENTITY/ENTITY_TYPE/ATTRIBUTE)                              | ✅ shipped Phase C                                    | this branch                       |
+| EntityMetadataSnapshot (RELATIONAL + STRUCTURAL metadata)                                         | ✅ shipped Phase A                                    | this branch                       |
+| EntityMetadataSnapshot SENTIMENT metadata (Tier 1 deterministic)                                  | ✅ shipped in worktree-2                              | `entity-connotation-extraction-2` |
+| Per-workspace `connotation_enabled` flag + per-type `connotationSignals` manifest                 | ✅ shipped in worktree-2                              | `entity-connotation-extraction-2` |
+| `ConnotationAdminService` (reanalyze on metadata version mismatch)                                | ✅ shipped in worktree-2                              | `entity-connotation-extraction-2` |
+| `entity_synthesis` (compiled-truth)                                                               | 🚧 Synthesis Phase 1 in flight                        | synthesis project                 |
+| `entity_synthesis_history` (timeline)                                                             | 🚧 Synthesis Phase 3 planned                          | synthesis project                 |
+| Iron Law auto-link parser (BlockNote → entity_relationships)                                      | ❌ gap (Step 5 of company-brain)                      | not yet planned                   |
+| Glossary `DEFINES` edges feeding embeddings                                                       | ❌ gap                                                | **THIS PLAN**                     |
+| MENTION-dcranium KNOWLEDGE backlinks in embeddings                                                | ❌ gap                                                | **THIS PLAN**                     |
+| SIGNAL backlinks in embeddings                                                                    | ❌ gap                                                | **THIS PLAN**                     |
+| `EntityBrainService.getFull()` canonical aggregation                                              | ❌ gap (Step 5 of company-brain)                      | not yet planned                   |
+| `target_kind=RELATIONSHIP` on entity_relationships                                                | ❌ gap                                                | **PR1** (this plan)               |
+| `target_id` rename + `target_parent_id` for sub-reference target_kinds (ATTRIBUTE + RELATIONSHIP) | ❌ gap                                                | **PR1** (this plan)               |
+| EnrichmentService 4-service split (Queue / ContextAssembler / Analysis / Embedding)               | ❌ gap (architecture-suggestion #1)                   | **PR2** (this plan)               |
 
 ## Recommended Approach — Approach B-Plus, split into 3 PRs
 
@@ -143,6 +144,7 @@ PR3 ──── Phase 5 (cutover) — gated on entity-type-creation lifecycle T
 ```
 
 **Out of this plan's scope (deferred):**
+
 - Phase 4 reconciliation hooks for knowledge-graph edge changes — owned by Entity Reconsumption project (per Notion doc). Mark-and-sweep dirty-flag pattern is the right shape but lives elsewhere.
 - `EntityKnowledgeView.toSnapshotJsonb()` — speculative scaffolding for entity_synthesis Phase 1 / Temporal Synthesis Layer / LLM-wiki, all unlanded. Reactivate when first real consumer arrives.
 - SIGNAL section (Section 6) infrastructure — adds when dtc-ecom branch lands SIGNAL types.
@@ -156,15 +158,15 @@ PR3 ──── Phase 5 (cutover) — gated on entity-type-creation lifecycle T
 
 Existing code uses "envelope" / "axis" / `ConnotationMetadataSnapshot` / `ConnotationMetadata` framing. Rename to the new vocabulary before any structural work:
 
-- `riven.core.models.connotation.ConnotationMetadataSnapshot` → `EntityMetadataSnapshot`
-- `riven.core.models.connotation.ConnotationMetadata` → `EntityMetadata`
+- `cranium.core.models.connotation.ConnotationMetadataSnapshot` → `EntityMetadataSnapshot`
+- `cranium.core.models.connotation.ConnotationMetadata` → `EntityMetadata`
 - `ConnotationAdminService.reanalyzeAxisWhereVersionMismatch` → `reanalyzeWhereMetadataVersionMismatch`
 - `ExecutionQueueRepository.enqueueByAxisVersionMismatch` → `enqueueByMetadataVersionMismatch`
 - KDoc / comments / log messages: drop "envelope" and "axis" / "axes"; replace with "metadata snapshot" or "metadata" or "metadata category" as appropriate
 - Sentiment/Relational/Structural keep their `*Metadata` suffix (already correct vocabulary)
 - `entity_connotation` table name + `connotation_metadata` JSONB column: leave as-is (rename separately if desired — schema-level decision out of this plan's scope)
 
-**Effort:** S (CC ~30 min — IDE-driven mechanical rename + test update)
+**Effort:** S (CC ~30 min — IDE-dcranium mechanical rename + test update)
 
 ### Phase 0 — Schema polymorphism cleanup
 
@@ -195,14 +197,14 @@ Existing code uses "envelope" / "axis" / `ConnotationMetadataSnapshot` / `Connot
 
 Replaces the original "ContextProvider abstraction" idea (D2). EnrichmentService at 19 deps decomposes along its KDoc-named responsibilities into four services with 4–6 deps each. No single-impl interface ceremony — services are concrete classes.
 
-| New service | Owns | Approx deps |
-|---|---|---|
-| `EnrichmentQueueService` | `enqueueAndProcess`, `enqueueByEntityType`, queue-lifecycle, Temporal dispatch | ExecutionQueueRepository, WorkflowClient, EnrichmentConfigurationProperties, EnrichmentAnalysisService, KLogger (~5) |
-| `EnrichmentContextAssembler` | Read-side aggregation: entity, type, metadata, relationships, clusters, glossary backlinks | EntityRepository, EntityTypeRepository, EntityTypeSemanticMetadataRepository, EntityAttributeService, EntityRelationshipRepository, RelationshipDefinitionRepository, IdentityClusterMemberRepository, RelationshipTargetRuleRepository, ManifestCatalogService, WorkspaceService, KLogger (~11 — this is the heaviest service; further decomposition is a future concern, not this plan's) |
-| `EnrichmentAnalysisService` | `analyzeSemantics`: claim queue item, build `EntityKnowledgeView`, persist snapshot to `entity_connotation`, return `EnrichmentContext` | EnrichmentContextAssembler, SemanticTextBuilderService, ConnotationAnalysisService, EntityConnotationRepository, ObjectMapper, ExecutionQueueRepository, KLogger (~7) |
-| `EnrichmentEmbeddingService` | `storeEmbedding`: invoke EmbeddingProvider, upsert `entity_embedding`, complete queue item | EmbeddingProvider, EntityEmbeddingRepository, ExecutionQueueRepository, KLogger (~4) |
+| New service                  | Owns                                                                                                                                    | Approx deps                                                                                                                                                                                                                                                                                                                                                                                 |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `EnrichmentQueueService`     | `enqueueAndProcess`, `enqueueByEntityType`, queue-lifecycle, Temporal dispatch                                                          | ExecutionQueueRepository, WorkflowClient, EnrichmentConfigurationProperties, EnrichmentAnalysisService, KLogger (~5)                                                                                                                                                                                                                                                                        |
+| `EnrichmentContextAssembler` | Read-side aggregation: entity, type, metadata, relationships, clusters, glossary backlinks                                              | EntityRepository, EntityTypeRepository, EntityTypeSemanticMetadataRepository, EntityAttributeService, EntityRelationshipRepository, RelationshipDefinitionRepository, IdentityClusterMemberRepository, RelationshipTargetRuleRepository, ManifestCatalogService, WorkspaceService, KLogger (~11 — this is the heaviest service; further decomposition is a future concern, not this plan's) |
+| `EnrichmentAnalysisService`  | `analyzeSemantics`: claim queue item, build `EntityKnowledgeView`, persist snapshot to `entity_connotation`, return `EnrichmentContext` | EnrichmentContextAssembler, SemanticTextBuilderService, ConnotationAnalysisService, EntityConnotationRepository, ObjectMapper, ExecutionQueueRepository, KLogger (~7)                                                                                                                                                                                                                       |
+| `EnrichmentEmbeddingService` | `storeEmbedding`: invoke EmbeddingProvider, upsert `entity_embedding`, complete queue item                                              | EmbeddingProvider, EntityEmbeddingRepository, ExecutionQueueRepository, KLogger (~4)                                                                                                                                                                                                                                                                                                        |
 
-- Existing `EnrichmentService.kt` is deleted; the four services live in `riven.core.service.enrichment.*`
+- Existing `EnrichmentService.kt` is deleted; the four services live in `cranium.core.service.enrichment.*`
 - `EnrichmentActivities` callers (Temporal) re-wire to call `EnrichmentQueueService` / `EnrichmentAnalysisService` / `EnrichmentEmbeddingService` per their lifecycle stage — public method names preserved where possible
 - **REGRESSION TEST (mandatory):** snapshot the `EnrichmentContext` JSON output of `analyzeSemantics` for a fixture entity BEFORE the split; persist as test resource; assert byte-equality AFTER the split. Pure-refactor contract.
 
@@ -213,12 +215,13 @@ Replaces the original "ContextProvider abstraction" idea (D2). EnrichmentService
 D3 collapsed the planned `EntityBacklinkReader` service into `EntityRelationshipRepository` query methods + a small in-memory grouping layer. No new service tier.
 
 **New repository methods on `EntityRelationshipRepository`** (returning DTO projections):
+
 - `findIncomingMentionsByEntity(entityId, workspaceId): List<EntityBacklinkRow>` — incoming MENTION edges with source entity's surface_role joined
 - `findOutgoingDefinitionsByEntity(entityId, workspaceId): List<EntityBacklinkRow>` — outgoing DEFINES edges (for glossary entities)
 - `findInboundDefinitionsByEntityType(entityTypeId, workspaceId): List<EntityBacklinkRow>` — uses Phase 0 partial index
 - `findInboundDefinitionsByAttribute(attributeDefinitionId, ownerEntityTypeId, workspaceId): List<EntityBacklinkRow>` — uses Phase 0 partial index + target_parent_id filter
 
-**New domain model `EntityBacklinks`** in `riven.core.models.entity` — bucketed by source entity surface_role (CATALOG / KNOWLEDGE):
+**New domain model `EntityBacklinks`** in `cranium.core.models.entity` — bucketed by source entity surface_role (CATALOG / KNOWLEDGE):
 
 ```kotlin
 data class EntityBacklinks(
@@ -240,7 +243,7 @@ data class EntityBacklinkRow(
 
 Bucketing happens in-memory via Kotlin `groupBy { it.surfaceRole }` — no service-layer ceremony needed.
 
-**`EntityKnowledgeView` data class** (new, in `riven.core.models.entity`):
+**`EntityKnowledgeView` data class** (new, in `cranium.core.models.entity`):
 
 ```kotlin
 data class EntityKnowledgeView(
@@ -354,6 +357,7 @@ This is the company-brain's compounding moat made structural. Generic-RAG-on-cus
 After fetching the Notion "Temporal Synthesis Layer" doc, there are TWO distinct things in the architecture both labeled "synthesis":
 
 ### Concept A — `entity_synthesis` (company-brain CEO plan)
+
 - Sibling table off `entities`, one row per entity
 - Holds compiled-truth (`enriched_text`, aggregations) + metadata (sentiment, relational, structural)
 - Append-on-change history in `entity_synthesis_history` (page-version primitive)
@@ -362,6 +366,7 @@ After fetching the Notion "Temporal Synthesis Layer" doc, there are TWO distinct
 - **Status:** Synthesis Phase 1 in flight (separate GSD project)
 
 ### Concept B — Temporal Synthesis Layer (per Notion doc, NOT YET IMPLEMENTED)
+
 - Time-series cohort/feature engine
 - Tables: `entity_state_snapshots` (CDC of entity_attributes over time), `cohort_definitions` (DSL predicates), `cohort_features` (DSL-derived metrics), `cohort_feature_values` (materialized output)
 - Owns: cohort lifecycle features (time-to-value, retention, cohort drift)
@@ -438,74 +443,84 @@ Choice surfaced and ratified.
 ### PR1 — Schema cleanup
 
 **Phase -1 (rename):**
-- `src/main/kotlin/riven/core/models/connotation/ConnotationMetadataSnapshot.kt` → `EntityMetadataSnapshot.kt`
-- `src/main/kotlin/riven/core/models/connotation/ConnotationMetadata.kt` → `EntityMetadata.kt`
-- `src/main/kotlin/riven/core/service/connotation/ConnotationAdminService.kt` (method rename)
-- `src/main/kotlin/riven/core/repository/workflow/ExecutionQueueRepository.kt` (method rename)
+
+- `src/main/kotlin/cranium/core/models/connotation/ConnotationMetadataSnapshot.kt` → `EntityMetadataSnapshot.kt`
+- `src/main/kotlin/cranium/core/models/connotation/ConnotationMetadata.kt` → `EntityMetadata.kt`
+- `src/main/kotlin/cranium/core/service/connotation/ConnotationAdminService.kt` (method rename)
+- `src/main/kotlin/cranium/core/repository/workflow/ExecutionQueueRepository.kt` (method rename)
 - All test files referencing the renamed types
 
 **Phase 0 (schema):**
+
 - `db/schema/01_tables/entities.sql` — `entity_relationships` column rename + new `target_parent_id` column + CHECK constraint + DDL comment
 - `db/schema/02_indexes/entity_indexes.sql` — partial index for reverse-DEFINES
-- `src/main/kotlin/riven/core/entity/entity/EntityRelationshipEntity.kt` — JPA mapping for rename + new column
-- `src/main/kotlin/riven/core/models/entity/EntityRelationship.kt` — domain model
-- `src/main/kotlin/riven/core/enums/entity/RelationshipTargetKind.kt` — add `RELATIONSHIP` value
-- `src/main/kotlin/riven/core/repository/entity/EntityRelationshipRepository.kt` — JPQL rename across all queries
-- `src/main/kotlin/riven/core/service/knowledge/KnowledgeIngestionInput.kt`
-- `src/main/kotlin/riven/core/service/knowledge/AbstractKnowledgeEntityIngestionService.kt`
-- `src/main/kotlin/riven/core/service/knowledge/GlossaryEntityIngestionService.kt` — populate `target_parent_id` for ATTRIBUTE rows; populate for new RELATIONSHIP rows
-- `src/main/kotlin/riven/core/service/knowledge/GlossaryEntityProjector.kt`
-- `src/main/kotlin/riven/core/service/entity/EntityService.kt` — `replaceRelationshipsInternal` updates
+- `src/main/kotlin/cranium/core/entity/entity/EntityRelationshipEntity.kt` — JPA mapping for rename + new column
+- `src/main/kotlin/cranium/core/models/entity/EntityRelationship.kt` — domain model
+- `src/main/kotlin/cranium/core/enums/entity/RelationshipTargetKind.kt` — add `RELATIONSHIP` value
+- `src/main/kotlin/cranium/core/repository/entity/EntityRelationshipRepository.kt` — JPQL rename across all queries
+- `src/main/kotlin/cranium/core/service/knowledge/KnowledgeIngestionInput.kt`
+- `src/main/kotlin/cranium/core/service/knowledge/AbstractKnowledgeEntityIngestionService.kt`
+- `src/main/kotlin/cranium/core/service/knowledge/GlossaryEntityIngestionService.kt` — populate `target_parent_id` for ATTRIBUTE rows; populate for new RELATIONSHIP rows
+- `src/main/kotlin/cranium/core/service/knowledge/GlossaryEntityProjector.kt`
+- `src/main/kotlin/cranium/core/service/entity/EntityService.kt` — `replaceRelationshipsInternal` updates
 
 ### PR2 — Knowledge backlinks in embeddings
 
 **Phase 1 (4-service split):**
-- DELETE `src/main/kotlin/riven/core/service/enrichment/EnrichmentService.kt`
-- NEW `src/main/kotlin/riven/core/service/enrichment/EnrichmentQueueService.kt`
-- NEW `src/main/kotlin/riven/core/service/enrichment/EnrichmentContextAssembler.kt`
-- NEW `src/main/kotlin/riven/core/service/enrichment/EnrichmentAnalysisService.kt`
-- NEW `src/main/kotlin/riven/core/service/enrichment/EnrichmentEmbeddingService.kt`
-- `src/main/kotlin/riven/core/service/workflow/enrichment/EnrichmentActivitiesImpl.kt` — re-wire callers to the four new services
+
+- DELETE `src/main/kotlin/cranium/core/service/enrichment/EnrichmentService.kt`
+- NEW `src/main/kotlin/cranium/core/service/enrichment/EnrichmentQueueService.kt`
+- NEW `src/main/kotlin/cranium/core/service/enrichment/EnrichmentContextAssembler.kt`
+- NEW `src/main/kotlin/cranium/core/service/enrichment/EnrichmentAnalysisService.kt`
+- NEW `src/main/kotlin/cranium/core/service/enrichment/EnrichmentEmbeddingService.kt`
+- `src/main/kotlin/cranium/core/service/workflow/enrichment/EnrichmentActivitiesImpl.kt` — re-wire callers to the four new services
 
 **Phase 2 (backlink reads + EntityKnowledgeView):**
-- `src/main/kotlin/riven/core/repository/entity/EntityRelationshipRepository.kt` — add four `@Query` methods returning DTO projections
-- NEW `src/main/kotlin/riven/core/models/entity/EntityBacklinks.kt` — data class with CATALOG and KNOWLEDGE buckets (no SIGNAL field; additive when SIGNAL types ship)
-- NEW `src/main/kotlin/riven/core/models/entity/EntityBacklinkRow.kt` — DTO for repository projections
-- NEW `src/main/kotlin/riven/core/models/entity/EntityKnowledgeView.kt` — view, sections, telemetry types
+
+- `src/main/kotlin/cranium/core/repository/entity/EntityRelationshipRepository.kt` — add four `@Query` methods returning DTO projections
+- NEW `src/main/kotlin/cranium/core/models/entity/EntityBacklinks.kt` — data class with CATALOG and KNOWLEDGE buckets (no SIGNAL field; additive when SIGNAL types ship)
+- NEW `src/main/kotlin/cranium/core/models/entity/EntityBacklinkRow.kt` — DTO for repository projections
+- NEW `src/main/kotlin/cranium/core/models/entity/EntityKnowledgeView.kt` — view, sections, telemetry types
 
 **Phase 3 (SemanticTextBuilder rewrite):**
-- `src/main/kotlin/riven/core/service/enrichment/SemanticTextBuilderService.kt` — return `EntityKnowledgeView`; build all sections except deferred SIGNAL
-- `src/main/kotlin/riven/core/configuration/properties/EnrichmentConfigurationProperties.kt` — add `knowledgeBacklinkCap` (default 3)
-- `src/main/kotlin/riven/core/service/enrichment/EnrichmentAnalysisService.kt` — emit `embedding.section_budget` structured log per section
+
+- `src/main/kotlin/cranium/core/service/enrichment/SemanticTextBuilderService.kt` — return `EntityKnowledgeView`; build all sections except deferred SIGNAL
+- `src/main/kotlin/cranium/core/configuration/properties/EnrichmentConfigurationProperties.kt` — add `knowledgeBacklinkCap` (default 3)
+- `src/main/kotlin/cranium/core/service/enrichment/EnrichmentAnalysisService.kt` — emit `embedding.section_budget` structured log per section
 
 ### PR3 — Definition-column cutover
 
 **Phase 5:**
+
 - `db/schema/01_tables/entities.sql` — drop `definition` column on `entity_type_semantic_metadata`
-- `src/main/kotlin/riven/core/entity/entity/EntityTypeSemanticMetadataEntity.kt` — remove `definition` field
-- `src/main/kotlin/riven/core/models/entity/EntityTypeSemanticMetadata.kt` — remove `definition` field
-- `src/main/kotlin/riven/core/service/entity/EntityTypeSemanticMetadataService.kt` — request DTO no longer carries `definition`; reject mode
-- `src/main/kotlin/riven/core/controller/knowledge/KnowledgeController.kt` — narrative upserts route to glossary entity create/update
+- `src/main/kotlin/cranium/core/entity/entity/EntityTypeSemanticMetadataEntity.kt` — remove `definition` field
+- `src/main/kotlin/cranium/core/models/entity/EntityTypeSemanticMetadata.kt` — remove `definition` field
+- `src/main/kotlin/cranium/core/service/entity/EntityTypeSemanticMetadataService.kt` — request DTO no longer carries `definition`; reject mode
+- `src/main/kotlin/cranium/core/controller/knowledge/KnowledgeController.kt` — narrative upserts route to glossary entity create/update
 - All call-sites that read `metadata.definition` — switch to inbound-DEFINES repository read
 
 ### Docs (per PR, into `../docs/` repo)
+
 - `docs/architecture-changelog.md` — entry per PR with new components and structural changes
 - `docs/architecture-suggestions.md` — flag vault update for the unified backlink-aggregator pattern; mark item #1 (cross-domain coupling) resolved after PR2 lands
 
 ## Verification
 
 End-to-end (every PR):
+
 1. `./gradlew test` — full suite passes
 2. `./gradlew build` — compilation gate
 
 ### PR1
 
 **Phase -1 (rename):**
+
 - `grep -r "ConnotationMetadataSnapshot\|ConnotationMetadata\b\|reanalyzeAxisWhereVersionMismatch\|enqueueByAxisVersionMismatch" src/` returns zero hits post-rename (excluding renamed `entity_connotation`/`connotation_metadata` which are scoped out)
 - All existing tests under `src/test/` compile + pass without behavioral change
 - KDoc/log-message audit: no remaining references to "envelope" or "axis"/"axes" in renamed-type touchpoints
 
 **Phase 0 (schema):**
+
 - `grep -r "targetEntityId\|target_entity_id" src/` returns zero hits post-rename
 - New `EntityRelationshipRepositoryTest` cases:
   - ATTRIBUTE row with `target_parent_id NULL` → CHECK violation rejects insert
@@ -519,6 +534,7 @@ End-to-end (every PR):
 ### PR2
 
 **Phase 1 (4-service split):**
+
 - **REGRESSION TEST (mandatory):** snapshot `EnrichmentContext` JSON for a fixture entity BEFORE refactor (commit as test resource); assert byte-equality AFTER refactor. Pure-refactor contract — any drift is a bug.
 - Each new service has its own focused unit test loading only that service + security config + `@MockitoBean` deps:
   - `EnrichmentQueueServiceTest`
@@ -529,6 +545,7 @@ End-to-end (every PR):
 - `EnrichmentActivitiesImpl` integration test: existing pipeline still produces an embedding for a fixture entity end-to-end (Temporal worker harness)
 
 **Phase 2 (backlink reads + EntityKnowledgeView):**
+
 - `EntityRelationshipRepositoryTest` new cases: each of the four new query methods returns expected rows for a fixture covering CATALOG-source MENTION, KNOWLEDGE-source MENTION, ENTITY_TYPE-target DEFINES, ATTRIBUTE-target DEFINES
 - `EXPLAIN ANALYZE` in IT confirms inbound-DEFINES queries hit the partial index from Phase 0
 - Cross-workspace isolation test: glossary in workspace A defining an entity_type in workspace B does not leak into workspace B's reads
@@ -536,6 +553,7 @@ End-to-end (every PR):
 - `EntityKnowledgeViewTest`: contract test asserting current sections present (identity, typeNarrative, attributes, catalogBacklinks, knowledgeBacklinks, entityMetadata, clusterSiblings, relationalReferences); `toEmbeddingText(budget)` truncation order verified (Sections 1-3 protected, FREETEXT/RELATIONAL_REFERENCE drop first, KNOWLEDGE trimmed by recency); telemetry list returned matches kept/dropped/token counts
 
 **Phase 3 (SemanticTextBuilderService rewrite):**
+
 - Glossary parity IT: when a glossary entity has DEFINES edges to entity_type=customer's name attribute, the resulting `EntityKnowledgeView.attributes[name]` narrative is sourced from the glossary text, not `metadata.definition` (asserts the read path is glossary-primary so PR3 column drop is safe)
 - KNOWLEDGE backlink IT: create a note with a MENTION edge to a customer; enrich the customer; assert Section 5 includes the note's identifier + excerpt; assert deterministic recency ordering
 - KnowledgeSections **does not contain a SIGNAL field** until SIGNAL types ship — compile-time guarantee
@@ -545,6 +563,7 @@ End-to-end (every PR):
 ### PR3
 
 **Phase 5 (cutover):**
+
 - **Pre-flight gate:** TODO #1 (entity-type creation lifecycle auto-creates inbound DEFINES glossary entities) is shipped and verified before PR3 opens
 - `KnowledgeController` upsert with narrative text writes to glossary entity (DEFINES edge), not `entity_type_semantic_metadata.definition`
 - `EntityTypeSemanticMetadataService.upsertMetadata` request DTO no longer carries `definition` field (compile-time enforcement); request including `definition` is a deserialization error at controller boundary; service-level test confirms classification/signalType-only payload succeeds
@@ -557,13 +576,15 @@ End-to-end (every PR):
 ## Success Criteria
 
 ### After PR1 ships
+
 - All renames applied; no remaining references to `ConnotationMetadataSnapshot` / `ConnotationMetadata` / `axis*` method names; `entity_connotation` table + `connotation_metadata` JSONB column intentionally untouched
 - `entity_relationships` table is polymorphism-clean: `target_id` + `target_parent_id` + `target_kind ∈ {ENTITY, ENTITY_TYPE, ATTRIBUTE, RELATIONSHIP}` with CHECK constraint on conditional nullability + FK to entity_types ON DELETE RESTRICT
 - Reverse-DEFINES queries hit the partial index (single-digit ms p99 in IT)
 - All existing tests green; no behavioral change
 
 ### After PR2 ships
-- `EnrichmentService.kt` no longer exists; four services in `riven.core.service.enrichment.*` each ≤ ~7 deps with clean responsibility boundaries
+
+- `EnrichmentService.kt` no longer exists; four services in `cranium.core.service.enrichment.*` each ≤ ~7 deps with clean responsibility boundaries
 - Pure-refactor contract honored: `EnrichmentContext` output for fixture entity is byte-identical to pre-refactor
 - `EntityKnowledgeView` is the canonical per-entity knowledge artifact (text-projection only — JSONB projection deferred until first real consumer arrives)
 - Embeddings include compounded knowledge: every customer's embedding sees its CATALOG backlinks (orders, support tickets) + KNOWLEDGE backlinks (notes mentioning, glossary terms defining type)
@@ -573,12 +594,14 @@ End-to-end (every PR):
 - Architecture-suggestions.md item #1 (cross-domain coupling) marked resolved
 
 ### After PR3 ships (gated on TODO #1)
+
 - Glossary owns all narrative description (entity-type, attribute, relationship); `entity_type_semantic_metadata` is structural-traits-only (classification, signalType, tags)
 - `entity_type_semantic_metadata.definition` column dropped from schema
 - `KnowledgeController` narrative upserts route exclusively to glossary entity create/update
 - All entity_types created via the catalog/manifest path automatically have inbound DEFINES glossary entities — no entity_type ships with empty Section 2/3 narrative
 
 ### Out-of-scope for this plan (tracked elsewhere)
+
 - Reconciliation hooks for knowledge-graph edges (glossary/note/signal edit → re-enrich) — owned by Entity Reconsumption project
 - `EntityKnowledgeView.toSnapshotJsonb()` and downstream `entity_synthesis` / Temporal Synthesis Layer / LLM-wiki integrations — owned by their respective projects
 - SIGNAL section infrastructure — additive plan when dtc-ecom merges and SIGNAL types exist
@@ -591,7 +614,7 @@ These surfaced during review and warrant tracking. Items 1, 2, 3 are gated by th
 1. **Entity-type creation lifecycle: auto-create inbound DEFINES glossary entities.** **GATES PR3.** When a new entity_type is created (catalog/manifest path), automatically create:
    - One glossary entity DEFINES-targeting the entity_type (Section 2 narrative source)
    - One glossary entity DEFINES-targeting each `classification=NAME` attribute (Section 3 narrative source for the identifier)
-   Without this, dropping `metadata.definition` in PR3 risks empty Section 2/3 for entity_types whose narrative was never glossary-authored. Lives in catalog/manifest entity-type-creation path; not in this plan but blocks its final PR.
+     Without this, dropping `metadata.definition` in PR3 risks empty Section 2/3 for entity_types whose narrative was never glossary-authored. Lives in catalog/manifest entity-type-creation path; not in this plan but blocks its final PR.
 
 2. **Post-launch retrieval P@k measurement.** Conservative cap `KNOWLEDGE = 3` is a starting point. Once production traffic exists, sample retrieval P@5 with cap at 3 / 5 / 10 to calibrate. Phase 3's `embedding.section_budget` telemetry is the input. Tune `EnrichmentConfigurationProperties.knowledgeBacklinkCap` from data, not folklore.
 
@@ -611,22 +634,24 @@ These surfaced during review and warrant tracking. Items 1, 2, 3 are gated by th
 
 ## GSTACK REVIEW REPORT
 
-| Review | Trigger | Why | Runs | Status | Findings |
-|--------|---------|-----|------|--------|----------|
-| CEO Review | `/plan-ceo-review` | Scope & strategy | 1 | clean | Mode SCOPE EXPANSION; 3 cherry-picks accepted (target_id rename + target_parent_id, RELATIONSHIP target_kind, EnrichmentContextProvider abstraction); D1–D10 resolved |
-| Codex Review | `/codex review` | Independent 2nd opinion | 0 | — | not run |
-| Eng Review | `/plan-eng-review` | Architecture & tests (required) | 1 | issues_open | Plan REDUCED — split into 3 PRs (D1); 4-service split replaces ContextProvider abstraction (D2); EntityBacklinkReader collapsed into repo methods (D3); Phase 4 deferred to Entity Reconsumption project (D4); target_parent_id semantics widened to ATTRIBUTE+RELATIONSHIP (D5); cutover-safety solved via entity-type-creation lifecycle TODO (D6); per-section caps ship with telemetry, conservative defaults (D7) |
-| Design Review | `/plan-design-review` | UI/UX gaps | 0 | n/a | Backend-only |
-| DX Review | `/plan-devex-review` | Developer experience gaps | 0 | n/a | Backend-only |
+| Review        | Trigger               | Why                             | Runs | Status      | Findings                                                                                                                                                                                                                                                                                                                                                                                                               |
+| ------------- | --------------------- | ------------------------------- | ---- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CEO Review    | `/plan-ceo-review`    | Scope & strategy                | 1    | clean       | Mode SCOPE EXPANSION; 3 cherry-picks accepted (target_id rename + target_parent_id, RELATIONSHIP target_kind, EnrichmentContextProvider abstraction); D1–D10 resolved                                                                                                                                                                                                                                                  |
+| Codex Review  | `/codex review`       | Independent 2nd opinion         | 0    | —           | not run                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Eng Review    | `/plan-eng-review`    | Architecture & tests (required) | 1    | issues_open | Plan REDUCED — split into 3 PRs (D1); 4-service split replaces ContextProvider abstraction (D2); EntityBacklinkReader collapsed into repo methods (D3); Phase 4 deferred to Entity Reconsumption project (D4); target_parent_id semantics widened to ATTRIBUTE+RELATIONSHIP (D5); cutover-safety solved via entity-type-creation lifecycle TODO (D6); per-section caps ship with telemetry, conservative defaults (D7) |
+| Design Review | `/plan-design-review` | UI/UX gaps                      | 0    | n/a         | Backend-only                                                                                                                                                                                                                                                                                                                                                                                                           |
+| DX Review     | `/plan-devex-review`  | Developer experience gaps       | 0    | n/a         | Backend-only                                                                                                                                                                                                                                                                                                                                                                                                           |
 
 ### Plan amendments accepted in eng review
 
 **PR split (D1):**
+
 - **PR1** = Phase -1 (rename) + Phase 0 (schema cleanup). Lands first, verified independently.
 - **PR2** = Phase 1 (4-service split) + Phase 2 (backlink reads) + Phase 3 (SemanticTextBuilder rewrite, embedding-text projection only). JSONB projection deferred. SIGNAL section infra deferred until dtc-ecom merges.
 - **PR3** = Phase 5 cutover. Ships only after the entity-type-creation-lifecycle TODO ships (auto-creates inbound DEFINES glossary entities so dropping `metadata.definition` doesn't leave entity_types narrative-empty).
 
 **Phase 1 reshape (D2):**
+
 - Replace single `EnrichmentContextProvider` interface + `EntityEnrichmentSnapshotService` impl with **four services split by lifecycle stage**:
   - `EnrichmentQueueService` — enqueueAndProcess, enqueueByEntityType, queue/dispatch concerns.
   - `EnrichmentContextAssembler` — read-side orchestration: entity, type, metadata, relationships, clusters.
@@ -635,20 +660,25 @@ These surfaced during review and warrant tracking. Items 1, 2, 3 are gated by th
 - Each service ≤ 6 deps. No single-impl interface ceremony.
 
 **Phase 2 reshape (D3):**
+
 - Drop new `EntityBacklinkReader` service. Add three `@Query` methods to `EntityRelationshipRepository` (`findIncomingMentionsByEntity`, `findOutgoingDefinitionsByEntity`, `findInbound[ByEntityType|ByAttribute]`) returning DTO projections. Surface_role bucketing via in-memory Kotlin `groupBy`.
 
 **Phase 4 deferred (D4):**
+
 - Reconciliation hooks for knowledge-graph edits (glossary/note/signal edit → re-enrich) are NOT in scope for this plan. They belong to the larger Entity Reconsumption / Schema Reconciliation / Breaking Change Detection project (per Notion doc). Right shape is mark-and-sweep dirty-flag + periodic worker; design lives in that project.
 - The plan's existing Open Decision #8 (rename `SchemaReconciliationService.invalidateConnotationSnapshots`) is moot — the service stays as-is because knowledge-graph invalidation is no longer bolted onto it.
 
 **Phase 0 schema correction (D5):**
+
 - `target_parent_id` is uniformly the **owning entity_type** for sub-reference target_kinds (both ATTRIBUTE and RELATIONSHIP) — the plan's Phase 0 text said ATTRIBUTE only.
 - CHECK constraint widens: `NOT NULL when target_kind IN ('ATTRIBUTE', 'RELATIONSHIP')`, `NULL when target_kind IN ('ENTITY', 'ENTITY_TYPE')`. FK to entity_types ON DELETE RESTRICT stays correct.
 
 **Phase 5 cutover gate (D6):**
+
 - DB-wipe pre-deploy makes parity-comparison vs existing rows moot. The right gate is **creation-side enforcement**: when a new entity_type is created via the catalog/manifest path, the system auto-creates the inbound DEFINES glossary entities (one for the entity_type narrative, one per classification=NAME attribute). Captured as TODO.
 
 **Phase 3 telemetry (D7):**
+
 - Per-entity per-section truncation telemetry: log `(entity_id, section, kept_count, dropped_count, token_count)` on every embedding call.
 - Conservative defaults: KNOWLEDGE max **3** (was 5). SIGNAL deferred. Tune post-launch from telemetry.
 
@@ -673,14 +703,14 @@ These surfaced during review and warrant tracking. Items 1, 2, 3 are gated by th
 
 Lanes after the 3-PR split:
 
-| Step | Modules touched | Depends on |
-|------|----------------|------------|
-| PR1 — Phase -1 rename | `models/connotation/`, every test referencing renamed types | — |
-| PR1 — Phase 0 schema | `db/schema/01_tables/`, `db/schema/02_indexes/`, `entity/entity/EntityRelationshipEntity.kt`, all repos/services using target_entity_id | — (parallel with rename) |
-| PR2 — Phase 1 4-service split | `service/enrichment/` (split file), `service/workflow/enrichment/` (callers) | PR1 schema |
-| PR2 — Phase 2 repo methods | `repository/entity/EntityRelationshipRepository.kt`, `models/entity/EntityBacklinks.kt` | PR1 schema |
-| PR2 — Phase 3 SemanticTextBuilder rewrite | `service/enrichment/SemanticTextBuilderService.kt`, `models/entity/EntityKnowledgeView.kt` (text-projection only), `configuration/properties/EnrichmentConfigurationProperties.kt` | Phase 1 + Phase 2 |
-| PR3 — Phase 5 cutover | `service/entity/EntityTypeSemanticMetadataService.kt`, `controller/knowledge/KnowledgeController.kt`, `db/schema/01_tables/` | PR2 + entity-type-creation TODO |
+| Step                                      | Modules touched                                                                                                                                                                    | Depends on                      |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| PR1 — Phase -1 rename                     | `models/connotation/`, every test referencing renamed types                                                                                                                        | —                               |
+| PR1 — Phase 0 schema                      | `db/schema/01_tables/`, `db/schema/02_indexes/`, `entity/entity/EntityRelationshipEntity.kt`, all repos/services using target_entity_id                                            | — (parallel with rename)        |
+| PR2 — Phase 1 4-service split             | `service/enrichment/` (split file), `service/workflow/enrichment/` (callers)                                                                                                       | PR1 schema                      |
+| PR2 — Phase 2 repo methods                | `repository/entity/EntityRelationshipRepository.kt`, `models/entity/EntityBacklinks.kt`                                                                                            | PR1 schema                      |
+| PR2 — Phase 3 SemanticTextBuilder rewrite | `service/enrichment/SemanticTextBuilderService.kt`, `models/entity/EntityKnowledgeView.kt` (text-projection only), `configuration/properties/EnrichmentConfigurationProperties.kt` | Phase 1 + Phase 2               |
+| PR3 — Phase 5 cutover                     | `service/entity/EntityTypeSemanticMetadataService.kt`, `controller/knowledge/KnowledgeController.kt`, `db/schema/01_tables/`                                                       | PR2 + entity-type-creation TODO |
 
 **Within PR1**: Phase -1 rename and Phase 0 schema can land in parallel worktrees (Phase -1 touches connotation models + tests; Phase 0 touches entity_relationships + repos). Merge order: rename first (smaller), schema second.
 **Within PR2**: Phase 1 service split and Phase 2 repo methods are independent — parallel. Phase 3 depends on both. Lane A: Phase 1. Lane B: Phase 2. Sync, then Phase 3 sequentially.

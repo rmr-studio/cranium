@@ -1,12 +1,12 @@
-package riven.core.repository.workflow
+package cranium.core.repository.workflow
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
-import riven.core.entity.workflow.execution.WorkflowExecutionEntity
-import riven.core.enums.workflow.WorkflowStatus
-import riven.core.repository.workflow.projection.ExecutionSummaryProjection
+import cranium.core.entity.workflow.execution.WorkflowExecutionEntity
+import cranium.core.enums.workflow.WorkflowStatus
+import cranium.core.repository.workflow.projection.ExecutionSummaryProjection
 import java.util.*
 
 /**
@@ -70,7 +70,7 @@ interface WorkflowExecutionRepository : JpaRepository<WorkflowExecutionEntity, U
      */
     @Query(
         """
-        SELECT new riven.core.repository.workflow.projection.ExecutionSummaryProjection(e, ne, n)
+        SELECT new cranium.core.repository.workflow.projection.ExecutionSummaryProjection(e, ne, n)
         FROM WorkflowExecutionEntity e
         LEFT JOIN WorkflowExecutionNodeEntity ne ON ne.workflowExecutionId = e.id
         LEFT JOIN WorkflowNodeEntity n ON n.id = ne.nodeId AND n.deleted = false

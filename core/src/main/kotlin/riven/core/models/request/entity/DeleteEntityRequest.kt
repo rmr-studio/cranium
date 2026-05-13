@@ -1,8 +1,8 @@
-package riven.core.models.request.entity
+package cranium.core.models.request.entity
 
-import riven.core.enums.entity.EntitySelectType
-import riven.core.models.entity.query.filter.QueryFilter
-import riven.core.validation.entity.ValidDeleteEntityRequest
+import cranium.core.enums.entity.EntitySelectType
+import cranium.core.models.entity.query.filter.QueryFilter
+import cranium.core.validation.entity.ValidDeleteEntityRequest
 import java.util.*
 
 @ValidDeleteEntityRequest

@@ -1,6 +1,6 @@
-package riven.core.service.util.factory
+package cranium.core.service.util.factory
 
-import riven.core.entity.user.UserEntity
+import cranium.core.entity.user.UserEntity
 import java.util.*
 
 object UserFactory {

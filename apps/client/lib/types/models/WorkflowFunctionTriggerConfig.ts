@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,34 +12,25 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { WorkflowNodeConfigField } from './WorkflowNodeConfigField';
-import {
-    WorkflowNodeConfigFieldFromJSON,
-    WorkflowNodeConfigFieldFromJSONTyped,
-    WorkflowNodeConfigFieldToJSON,
-    WorkflowNodeConfigFieldToJSONTyped,
-} from './WorkflowNodeConfigField';
 import type { SchemaString } from './SchemaString';
 import {
     SchemaStringFromJSON,
-    SchemaStringFromJSONTyped,
-    SchemaStringToJSON,
-    SchemaStringToJSONTyped,
+    SchemaStringToJSON
 } from './SchemaString';
+import type { WorkflowNodeConfigField } from './WorkflowNodeConfigField';
+import {
+    WorkflowNodeConfigFieldFromJSON,
+    WorkflowNodeConfigFieldToJSON
+} from './WorkflowNodeConfigField';
 import type { WorkflowNodeType } from './WorkflowNodeType';
 import {
     WorkflowNodeTypeFromJSON,
-    WorkflowNodeTypeFromJSONTyped,
-    WorkflowNodeTypeToJSON,
-    WorkflowNodeTypeToJSONTyped,
+    WorkflowNodeTypeToJSON
 } from './WorkflowNodeType';
 import type { WorkflowTriggerType } from './WorkflowTriggerType';
 import {
     WorkflowTriggerTypeFromJSON,
-    WorkflowTriggerTypeFromJSONTyped,
-    WorkflowTriggerTypeToJSON,
-    WorkflowTriggerTypeToJSONTyped,
+    WorkflowTriggerTypeToJSON
 } from './WorkflowTriggerType';
 
 /**

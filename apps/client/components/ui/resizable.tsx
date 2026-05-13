@@ -4,7 +4,7 @@ import * as React from 'react';
 import { GripVerticalIcon } from 'lucide-react';
 import * as ResizablePrimitive from 'react-resizable-panels';
 
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 
 /**
  * Wrapper around `react-resizable-panels`'s `PanelGroup` that applies default layout classes and a `data-slot`.

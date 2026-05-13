@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,21 +12,16 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { ListDisplayConfig } from './ListDisplayConfig';
-import {
-    ListDisplayConfigFromJSON,
-    ListDisplayConfigFromJSONTyped,
-    ListDisplayConfigToJSON,
-    ListDisplayConfigToJSONTyped,
-} from './ListDisplayConfig';
 import type { ListConfig } from './ListConfig';
 import {
     ListConfigFromJSON,
-    ListConfigFromJSONTyped,
-    ListConfigToJSON,
-    ListConfigToJSONTyped,
+    ListConfigToJSON
 } from './ListConfig';
+import type { ListDisplayConfig } from './ListDisplayConfig';
+import {
+    ListDisplayConfigFromJSON,
+    ListDisplayConfigToJSON
+} from './ListDisplayConfig';
 
 /**
  * 

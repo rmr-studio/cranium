@@ -1,8 +1,8 @@
-package riven.core.service.connector
+package cranium.core.service.connector
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.stereotype.Service
-import riven.core.exceptions.connector.ReadOnlyVerificationException
+import cranium.core.exceptions.connector.ReadOnlyVerificationException
 import java.net.Inet6Address
 import java.net.InetAddress
 import java.sql.Connection
@@ -25,7 +25,7 @@ import java.util.UUID
  *  2. **Write-privilege sweep** — count user-accessible tables where the role
  *     has INSERT/UPDATE/DELETE. Any positive count → reject, reporting the
  *     count only (never table names).
- *  3. **SAVEPOINT probe** — attempt `CREATE TABLE __riven_ro_probe_<uuid>`
+ *  3. **SAVEPOINT probe** — attempt `CREATE TABLE __cranium_ro_probe_<uuid>`
  *     inside a savepoint. If it succeeds, the role can mutate schema → reject
  *     and roll back. If it fails with SQLState `42501` (insufficient
  *     privilege), that's exactly the behaviour we require.
@@ -147,7 +147,7 @@ class ReadOnlyRoleVerifierService(
     }
 
     private fun checkSavepointProbe(conn: Connection) {
-        val probeName = "__riven_ro_probe_" + UUID.randomUUID().toString().replace("-", "")
+        val probeName = "__cranium_ro_probe_" + UUID.randomUUID().toString().replace("-", "")
         val savepoint = conn.setSavepoint("ro_check")
         try {
             conn.prepareStatement("CREATE TABLE $probeName (v int)").use { it.execute() }

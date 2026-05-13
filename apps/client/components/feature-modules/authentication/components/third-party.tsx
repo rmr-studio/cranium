@@ -1,9 +1,9 @@
 'use client';
 
-import { Button } from '@riven/ui/button';
-import type { ClassNameProps } from '@riven/utils';
+import { Button } from '@cranium/ui/button';
+import type { ClassNameProps } from '@cranium/utils';
 import { OAuthProvider } from '@/lib/auth';
-import { cn } from '@riven/utils';
+import { cn } from '@cranium/utils';
 import React from 'react';
 import { FaGoogle } from 'react-icons/fa';
 

@@ -1,4 +1,4 @@
-package riven.core.configuration.connector
+package cranium.core.configuration.connector
 
 import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.LoggerContext

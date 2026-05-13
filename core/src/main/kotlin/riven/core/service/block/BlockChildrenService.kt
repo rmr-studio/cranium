@@ -1,18 +1,18 @@
-package riven.core.service.block
+package cranium.core.service.block
 
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
-import riven.core.entity.block.BlockChildEntity
-import riven.core.entity.block.BlockEntity
-import riven.core.models.block.display.BlockTypeNesting
-import riven.core.models.block.metadata.BlockContentMetadata
-import riven.core.models.block.operation.AddBlockOperation
-import riven.core.models.block.operation.MoveBlockOperation
-import riven.core.models.block.operation.ReorderBlockOperation
-import riven.core.models.response.block.internal.CascadeRemovalResult
-import riven.core.models.response.block.internal.MovePreparationResult
-import riven.core.repository.block.BlockChildrenRepository
-import riven.core.repository.block.BlockRepository
+import cranium.core.entity.block.BlockChildEntity
+import cranium.core.entity.block.BlockEntity
+import cranium.core.models.block.display.BlockTypeNesting
+import cranium.core.models.block.metadata.BlockContentMetadata
+import cranium.core.models.block.operation.AddBlockOperation
+import cranium.core.models.block.operation.MoveBlockOperation
+import cranium.core.models.block.operation.ReorderBlockOperation
+import cranium.core.models.response.block.internal.CascadeRemovalResult
+import cranium.core.models.response.block.internal.MovePreparationResult
+import cranium.core.repository.block.BlockChildrenRepository
+import cranium.core.repository.block.BlockRepository
 import java.util.*
 
 /**

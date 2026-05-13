@@ -1,14 +1,14 @@
-package riven.core.service.util.factory
+package cranium.core.service.util.factory
 
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.models.enrichment.EnrichmentAttributeContext
-import riven.core.models.enrichment.EnrichmentClusterMemberContext
-import riven.core.models.enrichment.EnrichmentContext
-import riven.core.models.enrichment.EnrichmentRelationshipDefinitionContext
-import riven.core.models.enrichment.EnrichmentRelationshipSummary
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.models.enrichment.EnrichmentAttributeContext
+import cranium.core.models.enrichment.EnrichmentClusterMemberContext
+import cranium.core.models.enrichment.EnrichmentContext
+import cranium.core.models.enrichment.EnrichmentRelationshipDefinitionContext
+import cranium.core.models.enrichment.EnrichmentRelationshipSummary
 import java.util.UUID
 
 object EnrichmentFactory {

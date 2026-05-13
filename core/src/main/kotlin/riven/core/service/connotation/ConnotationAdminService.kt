@@ -1,18 +1,18 @@
-package riven.core.service.connotation
+package cranium.core.service.connotation
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
-import riven.core.configuration.properties.ConnotationAnalysisConfigurationProperties
-import riven.core.enums.activity.Activity
-import riven.core.enums.connotation.ConnotationMetadataType
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.util.OperationType
-import riven.core.models.connotation.AnalysisTier
-import riven.core.repository.workflow.ExecutionQueueRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.activity.log
-import riven.core.service.auth.AuthTokenService
+import cranium.core.configuration.properties.ConnotationAnalysisConfigurationProperties
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.connotation.ConnotationMetadataType
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.util.OperationType
+import cranium.core.models.connotation.AnalysisTier
+import cranium.core.repository.workflow.ExecutionQueueRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.activity.log
+import cranium.core.service.auth.AuthTokenService
 import java.util.UUID
 
 /**

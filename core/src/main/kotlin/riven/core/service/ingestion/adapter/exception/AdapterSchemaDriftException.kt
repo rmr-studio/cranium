@@ -1,4 +1,4 @@
-package riven.core.service.ingestion.adapter.exception
+package cranium.core.service.ingestion.adapter.exception
 
 /**
  * Remote schema changed in an incompatible way between syncs (table or column

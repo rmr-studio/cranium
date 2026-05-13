@@ -1,9 +1,9 @@
-package riven.core.repository.entity
+package cranium.core.repository.entity
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
-import riven.core.entity.entity.EntityUniqueValueEntity
+import cranium.core.entity.entity.EntityUniqueValueEntity
 import java.util.*
 
 interface EntityUniqueValuesRepository : JpaRepository<EntityUniqueValueEntity, UUID> {

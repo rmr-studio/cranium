@@ -1,4 +1,4 @@
-package riven.core.models.ingestion
+package cranium.core.models.ingestion
 
 import java.util.UUID
 

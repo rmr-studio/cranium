@@ -1,4 +1,4 @@
-package riven.core.configuration.auth
+package cranium.core.configuration.auth
 
 import org.springframework.data.domain.AuditorAware
 import org.springframework.security.core.context.SecurityContextHolder

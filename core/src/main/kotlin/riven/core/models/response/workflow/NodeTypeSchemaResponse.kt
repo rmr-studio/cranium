@@ -1,10 +1,10 @@
-package riven.core.models.response.workflow
+package cranium.core.models.response.workflow
 
 import io.swagger.v3.oas.annotations.media.Schema
-import riven.core.enums.workflow.WorkflowNodeType
-import riven.core.models.workflow.node.config.WorkflowNodeConfigField
-import riven.core.models.workflow.node.config.WorkflowNodeOutputMetadata
-import riven.core.models.workflow.node.config.WorkflowNodeTypeMetadata
+import cranium.core.enums.workflow.WorkflowNodeType
+import cranium.core.models.workflow.node.config.WorkflowNodeConfigField
+import cranium.core.models.workflow.node.config.WorkflowNodeOutputMetadata
+import cranium.core.models.workflow.node.config.WorkflowNodeTypeMetadata
 
 /**
  * Complete schema and metadata response for a single workflow node type.

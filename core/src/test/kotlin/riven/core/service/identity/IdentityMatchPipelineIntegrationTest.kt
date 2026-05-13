@@ -1,10 +1,10 @@
-package riven.core.service.identity
+package cranium.core.service.identity
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
-import riven.core.enums.identity.MatchSignalType
-import riven.core.enums.identity.MatchSource
+import cranium.core.enums.identity.MatchSignalType
+import cranium.core.enums.identity.MatchSource
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
@@ -31,9 +31,9 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 import org.mockito.kotlin.mock
-import riven.core.configuration.util.LoggerConfig
-import riven.core.repository.identity.MatchSuggestionRepository
-import riven.core.service.activity.ActivityService
+import cranium.core.configuration.util.LoggerConfig
+import cranium.core.repository.identity.MatchSuggestionRepository
+import cranium.core.service.activity.ActivityService
 import java.time.ZonedDateTime
 import java.time.temporal.TemporalAccessor
 import java.util.Optional
@@ -61,8 +61,8 @@ import java.util.UUID
         "io.temporal.spring.boot.autoconfigure.TestServerAutoConfiguration",
     ],
 )
-@EnableJpaRepositories(basePackages = ["riven.core.repository.identity"])
-@EntityScan(basePackages = ["riven.core.entity.identity", "riven.core.entity.entity"])
+@EnableJpaRepositories(basePackages = ["cranium.core.repository.identity"])
+@EntityScan(basePackages = ["cranium.core.entity.identity", "cranium.core.entity.entity"])
 @EnableJpaAuditing(
     auditorAwareRef = "pipelineAuditorProvider",
     dateTimeProviderRef = "pipelineDateTimeProvider",
@@ -138,7 +138,7 @@ class IdentityMatchPipelineIntegrationTest {
         val postgres: PostgreSQLContainer = PostgreSQLContainer(
             DockerImageName.parse("pgvector/pgvector:pg16").asCompatibleSubstituteFor("postgres")
         )
-            .withDatabaseName("riven_test_pipeline")
+            .withDatabaseName("cranium_test_pipeline")
             .withUsername("test")
             .withPassword("test")
 

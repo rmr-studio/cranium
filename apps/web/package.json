@@ -1,5 +1,5 @@
 {
-  "name": "@riven/web",
+  "name": "@cranium/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -17,9 +17,9 @@
     "@paper-design/shaders-react": "^0.0.72",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-navigation-menu": "^1.2.14",
-    "@riven/hooks": "workspace:*",
-    "@riven/ui": "workspace:*",
-    "@riven/utils": "workspace:*",
+    "@cranium/hooks": "workspace:*",
+    "@cranium/ui": "workspace:*",
+    "@cranium/utils": "workspace:*",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.97.0",
     "@tanstack/react-query": "^5.90.19",
@@ -54,7 +54,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@riven/tsconfig": "workspace:*",
+    "@cranium/tsconfig": "workspace:*",
     "@tailwindcss/postcss": "^4",
     "@testing-library/react": "^16.3.2",
     "@types/mdx": "^2.0.13",

@@ -1,8 +1,8 @@
-package riven.core.repository.workspace
+package cranium.core.repository.workspace
 
 import org.springframework.data.jpa.repository.JpaRepository
-import riven.core.entity.workspace.WorkspaceInviteEntity
-import riven.core.enums.workspace.WorkspaceInviteStatus
+import cranium.core.entity.workspace.WorkspaceInviteEntity
+import cranium.core.enums.workspace.WorkspaceInviteStatus
 import java.util.*
 
 

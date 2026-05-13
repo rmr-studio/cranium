@@ -1,8 +1,8 @@
-package riven.core.models.request.knowledge
+package cranium.core.models.request.knowledge
 
-import riven.core.enums.knowledge.DefinitionCategory
-import riven.core.enums.knowledge.DefinitionSource
-import riven.core.models.knowledge.AttributeRef
+import cranium.core.enums.knowledge.DefinitionCategory
+import cranium.core.enums.knowledge.DefinitionSource
+import cranium.core.models.knowledge.AttributeRef
 import java.util.*
 
 data class CreateBusinessDefinitionRequest(

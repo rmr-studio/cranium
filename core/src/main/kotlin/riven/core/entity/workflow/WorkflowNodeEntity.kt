@@ -1,13 +1,13 @@
-package riven.core.entity.workflow
+package cranium.core.entity.workflow
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.Type
-import riven.core.entity.util.AuditableSoftDeletableEntity
-import riven.core.enums.workflow.WorkflowNodeType
-import riven.core.models.workflow.node.WorkflowNode
-import riven.core.models.workflow.node.config.WorkflowNodeConfig
+import cranium.core.entity.util.AuditableSoftDeletableEntity
+import cranium.core.enums.workflow.WorkflowNodeType
+import cranium.core.models.workflow.node.WorkflowNode
+import cranium.core.models.workflow.node.config.WorkflowNodeConfig
 import java.util.*
 
 /**
@@ -28,7 +28,7 @@ import java.util.*
  *
  * @see WorkflowNodeConfig
  * @see WorkflowNode
- * @see riven.core.deserializer.WorkflowNodeConfigDeserializer
+ * @see cranium.core.deserializer.WorkflowNodeConfigDeserializer
  */
 @Entity
 @Table(

@@ -1,4 +1,4 @@
-package riven.core.service.identity
+package cranium.core.service.identity
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -15,21 +15,21 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.entity.identity.MatchSuggestionEntity
-import riven.core.enums.activity.Activity
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.identity.MatchSuggestionStatus
-import riven.core.enums.util.OperationType
-import riven.core.models.common.json.JsonObject
-import riven.core.repository.identity.IdentityClusterMemberRepository
-import riven.core.repository.identity.IdentityClusterRepository
-import riven.core.repository.identity.MatchSuggestionRepository
-import riven.core.service.activity.ActivityService
-import riven.core.service.util.BaseServiceTest
-import riven.core.service.util.WithUserPersona
-import riven.core.service.util.WorkspaceRole
-import riven.core.service.util.factory.identity.IdentityFactory
-import riven.core.enums.workspace.WorkspaceRoles
+import cranium.core.entity.identity.MatchSuggestionEntity
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.identity.MatchSuggestionStatus
+import cranium.core.enums.util.OperationType
+import cranium.core.models.common.json.JsonObject
+import cranium.core.repository.identity.IdentityClusterMemberRepository
+import cranium.core.repository.identity.IdentityClusterRepository
+import cranium.core.repository.identity.MatchSuggestionRepository
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.util.BaseServiceTest
+import cranium.core.service.util.WithUserPersona
+import cranium.core.service.util.WorkspaceRole
+import cranium.core.service.util.factory.identity.IdentityFactory
+import cranium.core.enums.workspace.WorkspaceRoles
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 import java.util.Optional
@@ -497,8 +497,8 @@ class IdentityMatchSuggestionServiceTest : BaseServiceTest() {
         }
     }
 
-    private fun buildActivityLog(): riven.core.models.activity.ActivityLog =
-        riven.core.models.activity.ActivityLog(
+    private fun buildActivityLog(): cranium.core.models.activity.ActivityLog =
+        cranium.core.models.activity.ActivityLog(
             id = UUID.randomUUID(),
             userId = userId,
             workspaceId = workspaceId,

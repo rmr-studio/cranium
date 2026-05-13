@@ -1,4 +1,4 @@
-package riven.core.models.integration.sync
+package cranium.core.models.integration.sync
 
 import java.util.UUID
 

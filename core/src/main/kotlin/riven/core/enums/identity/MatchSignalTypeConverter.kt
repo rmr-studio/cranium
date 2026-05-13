@@ -1,4 +1,4 @@
-package riven.core.enums.identity
+package cranium.core.enums.identity
 
 import jakarta.persistence.AttributeConverter
 import jakarta.persistence.Converter

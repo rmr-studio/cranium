@@ -1,4 +1,4 @@
-package riven.core.models.note
+package cranium.core.models.note
 
 /**
  * Parsed noteEmbedding configuration from an integration manifest.

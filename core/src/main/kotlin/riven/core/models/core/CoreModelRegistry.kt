@@ -1,10 +1,10 @@
-package riven.core.models.core
+package cranium.core.models.core
 
-import riven.core.enums.catalog.ManifestType
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.models.catalog.NormalizedRelationship
-import riven.core.models.catalog.ResolvedManifest
+import cranium.core.enums.catalog.ManifestType
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.models.catalog.NormalizedRelationship
+import cranium.core.models.catalog.ResolvedManifest
 
 /**
  * Central registry of all core lifecycle model definitions.

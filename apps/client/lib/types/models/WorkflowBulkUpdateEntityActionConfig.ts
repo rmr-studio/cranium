@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Riven Core API
- * API documentation for Riven Core services.
+ * Cranium Core API
+ * API documentation for Cranium Core services.
  *
  * The version of the OpenAPI document: v1
  * 
@@ -12,49 +12,36 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
-import type { WorkflowNodeConfigField } from './WorkflowNodeConfigField';
-import {
-    WorkflowNodeConfigFieldFromJSON,
-    WorkflowNodeConfigFieldFromJSONTyped,
-    WorkflowNodeConfigFieldToJSON,
-    WorkflowNodeConfigFieldToJSONTyped,
-} from './WorkflowNodeConfigField';
 import type { BulkUpdateErrorHandling } from './BulkUpdateErrorHandling';
 import {
     BulkUpdateErrorHandlingFromJSON,
-    BulkUpdateErrorHandlingFromJSONTyped,
-    BulkUpdateErrorHandlingToJSON,
-    BulkUpdateErrorHandlingToJSONTyped,
+    BulkUpdateErrorHandlingToJSON
 } from './BulkUpdateErrorHandling';
-import type { QueryPagination } from './QueryPagination';
-import {
-    QueryPaginationFromJSON,
-    QueryPaginationFromJSONTyped,
-    QueryPaginationToJSON,
-    QueryPaginationToJSONTyped,
-} from './QueryPagination';
-import type { WorkflowNodeType } from './WorkflowNodeType';
-import {
-    WorkflowNodeTypeFromJSON,
-    WorkflowNodeTypeFromJSONTyped,
-    WorkflowNodeTypeToJSON,
-    WorkflowNodeTypeToJSONTyped,
-} from './WorkflowNodeType';
 import type { EntityQuery } from './EntityQuery';
 import {
     EntityQueryFromJSON,
-    EntityQueryFromJSONTyped,
-    EntityQueryToJSON,
-    EntityQueryToJSONTyped,
+    EntityQueryToJSON
 } from './EntityQuery';
+import type { QueryPagination } from './QueryPagination';
+import {
+    QueryPaginationFromJSON,
+    QueryPaginationToJSON
+} from './QueryPagination';
 import type { WorkflowActionType } from './WorkflowActionType';
 import {
     WorkflowActionTypeFromJSON,
-    WorkflowActionTypeFromJSONTyped,
-    WorkflowActionTypeToJSON,
-    WorkflowActionTypeToJSONTyped,
+    WorkflowActionTypeToJSON
 } from './WorkflowActionType';
+import type { WorkflowNodeConfigField } from './WorkflowNodeConfigField';
+import {
+    WorkflowNodeConfigFieldFromJSON,
+    WorkflowNodeConfigFieldToJSON
+} from './WorkflowNodeConfigField';
+import type { WorkflowNodeType } from './WorkflowNodeType';
+import {
+    WorkflowNodeTypeFromJSON,
+    WorkflowNodeTypeToJSON
+} from './WorkflowNodeType';
 
 /**
  * Configuration for BULK_UPDATE_ENTITY action nodes that apply identical field updates to all entities matching a query.

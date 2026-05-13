@@ -1,4 +1,4 @@
-package riven.core.entity.connector
+package cranium.core.entity.connector
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -10,9 +10,9 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
 import org.hibernate.annotations.SQLRestriction
-import riven.core.entity.util.AuditableSoftDeletableEntity
-import riven.core.enums.common.validation.SchemaType
-import riven.core.models.connector.DataConnectorFieldMapping
+import cranium.core.entity.util.AuditableSoftDeletableEntity
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.models.connector.DataConnectorFieldMapping
 import java.util.UUID
 
 /**

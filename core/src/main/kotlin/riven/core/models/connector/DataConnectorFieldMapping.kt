@@ -1,6 +1,6 @@
-package riven.core.models.connector
+package cranium.core.models.connector
 
-import riven.core.enums.common.validation.SchemaType
+import cranium.core.enums.common.validation.SchemaType
 import java.time.ZonedDateTime
 import java.util.UUID
 

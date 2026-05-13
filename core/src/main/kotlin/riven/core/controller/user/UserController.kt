@@ -1,4 +1,4 @@
-package riven.core.controller.user
+package cranium.core.controller.user
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -9,9 +9,9 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import riven.core.models.request.user.SaveUserRequest
-import riven.core.models.user.User
-import riven.core.service.user.UserService
+import cranium.core.models.request.user.SaveUserRequest
+import cranium.core.models.user.User
+import cranium.core.service.user.UserService
 import java.util.*
 
 @RestController

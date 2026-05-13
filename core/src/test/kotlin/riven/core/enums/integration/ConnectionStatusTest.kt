@@ -1,4 +1,4 @@
-package riven.core.enums.integration
+package cranium.core.enums.integration
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -176,7 +176,7 @@ class ConnectionStatusTest {
 
     @Test
     fun `DISCONNECTED can transition to CONNECTED`() {
-        // In the webhook-driven model, re-connecting a DISCONNECTED integration
+        // In the webhook-dcranium model, re-connecting a DISCONNECTED integration
         // comes directly from DISCONNECTED -> CONNECTED (Nango webhook confirms OAuth success).
         assertTrue(ConnectionStatus.DISCONNECTED.canTransitionTo(ConnectionStatus.CONNECTED))
     }
@@ -200,7 +200,7 @@ class ConnectionStatusTest {
 
     @Test
     fun `FAILED can transition to CONNECTED`() {
-        // Recovery from FAILED goes directly to CONNECTED via webhook-driven reconnect.
+        // Recovery from FAILED goes directly to CONNECTED via webhook-dcranium reconnect.
         assertTrue(ConnectionStatus.FAILED.canTransitionTo(ConnectionStatus.CONNECTED))
     }
 

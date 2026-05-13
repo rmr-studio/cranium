@@ -1,6 +1,6 @@
-package riven.core.models.response.workflow
+package cranium.core.models.response.workflow
 
-import riven.core.models.workflow.node.WorkflowNode
+import cranium.core.models.workflow.node.WorkflowNode
 
 /**
  * Response model for workflow node save operations.

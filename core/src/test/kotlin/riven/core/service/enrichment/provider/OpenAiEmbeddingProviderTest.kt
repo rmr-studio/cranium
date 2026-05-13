@@ -1,4 +1,4 @@
-package riven.core.service.enrichment.provider
+package cranium.core.service.enrichment.provider
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.junit.jupiter.api.BeforeEach
@@ -10,7 +10,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
-import riven.core.configuration.properties.EnrichmentConfigurationProperties
+import cranium.core.configuration.properties.EnrichmentConfigurationProperties
 import kotlin.test.assertEquals
 import kotlin.test.assertContentEquals
 
@@ -31,7 +31,7 @@ class OpenAiEmbeddingProviderTest {
     private val responseSpec: WebClient.ResponseSpec = mock(WebClient.ResponseSpec::class.java)
 
     private val properties = EnrichmentConfigurationProperties(
-        provider = riven.core.enums.enrichment.EmbeddingProvider.OPENAI,
+        provider = cranium.core.enums.enrichment.EmbeddingProvider.OPENAI,
         vectorDimensions = 4,
         openai = EnrichmentConfigurationProperties.OpenAiProperties(
             apiKey = "test-key",

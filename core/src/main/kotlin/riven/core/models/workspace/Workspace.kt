@@ -1,11 +1,11 @@
-package riven.core.models.workspace
+package cranium.core.models.workspace
 
 import tools.jackson.databind.ValueDeserializer
 import tools.jackson.databind.annotation.JsonDeserialize
 import io.swagger.v3.oas.annotations.media.Schema
-import riven.core.entity.util.AuditableModel
-import riven.core.enums.workspace.WorkspaceDisplay
-import riven.core.enums.workspace.WorkspacePlan
+import cranium.core.entity.util.AuditableModel
+import cranium.core.enums.workspace.WorkspaceDisplay
+import cranium.core.enums.workspace.WorkspacePlan
 import java.time.ZonedDateTime
 import java.util.*
 

@@ -1,8 +1,8 @@
 'use client';
 
-import { Input } from '@riven/ui/input';
-import { Popover, PopoverContent, PopoverAnchor } from '@riven/ui/popover';
-import { cn } from '@riven/utils';
+import { Input } from '@cranium/ui/input';
+import { Popover, PopoverContent, PopoverAnchor } from '@cranium/ui/popover';
+import { cn } from '@cranium/utils';
 import { Separator } from '@/components/ui/separator';
 import { useDataTableActions } from '@/components/ui/data-table';
 import {

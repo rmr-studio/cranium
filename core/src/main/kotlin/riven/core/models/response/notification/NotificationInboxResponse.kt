@@ -1,6 +1,6 @@
-package riven.core.models.response.notification
+package cranium.core.models.response.notification
 
-import riven.core.models.notification.NotificationInboxItem
+import cranium.core.models.notification.NotificationInboxItem
 
 data class NotificationInboxResponse(
     val notifications: List<NotificationInboxItem>,

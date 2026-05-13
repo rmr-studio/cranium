@@ -1,10 +1,10 @@
-package riven.core.service.workflow
+package cranium.core.service.workflow
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import riven.core.models.common.Expression
-import riven.core.models.common.Operator
-import riven.core.service.workflow.state.WorkflowNodeExpressionParserService
+import cranium.core.models.common.Expression
+import cranium.core.models.common.Operator
+import cranium.core.service.workflow.state.WorkflowNodeExpressionParserService
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 

@@ -1,6 +1,6 @@
-package riven.core.models.response.entity
+package cranium.core.models.response.entity
 
-import riven.core.models.entity.Entity
+import cranium.core.models.entity.Entity
 import java.util.*
 
 data class DeleteEntityResponse(

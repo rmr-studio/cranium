@@ -1,26 +1,26 @@
-package riven.core.service.knowledge
+package cranium.core.service.knowledge
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import riven.core.enums.activity.Activity
-import riven.core.enums.core.ApplicationEntityType
-import riven.core.enums.integration.SourceType
-import riven.core.enums.knowledge.DefinitionCategory
-import riven.core.enums.knowledge.DefinitionStatus
-import riven.core.enums.knowledge.KnowledgeEntityTypeKey
-import riven.core.enums.util.OperationType
-import riven.core.exceptions.ConflictException
-import riven.core.exceptions.NotFoundException
-import riven.core.models.knowledge.GlossaryTerm
-import riven.core.models.request.knowledge.CreateBusinessDefinitionRequest
-import riven.core.models.request.knowledge.UpdateBusinessDefinitionRequest
-import riven.core.service.activity.ActivityService
-import riven.core.service.activity.log
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.entity.EntityIngestionService
-import riven.core.util.TermNormalizationUtil
+import cranium.core.enums.activity.Activity
+import cranium.core.enums.core.ApplicationEntityType
+import cranium.core.enums.integration.SourceType
+import cranium.core.enums.knowledge.DefinitionCategory
+import cranium.core.enums.knowledge.DefinitionStatus
+import cranium.core.enums.knowledge.KnowledgeEntityTypeKey
+import cranium.core.enums.util.OperationType
+import cranium.core.exceptions.ConflictException
+import cranium.core.exceptions.NotFoundException
+import cranium.core.models.knowledge.GlossaryTerm
+import cranium.core.models.request.knowledge.CreateBusinessDefinitionRequest
+import cranium.core.models.request.knowledge.UpdateBusinessDefinitionRequest
+import cranium.core.service.activity.ActivityService
+import cranium.core.service.activity.log
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.entity.EntityIngestionService
+import cranium.core.util.TermNormalizationUtil
 import java.util.UUID
 
 /**
@@ -233,7 +233,7 @@ class GlossaryService(
         return projected
     }
 
-    private fun requireGlossaryEntity(workspaceId: UUID, id: UUID): riven.core.entity.entity.EntityEntity {
+    private fun requireGlossaryEntity(workspaceId: UUID, id: UUID): cranium.core.entity.entity.EntityEntity {
         val entity = entityIngestionService.findByIdInternal(workspaceId, id)
             ?: throw NotFoundException("Business definition not found: $id")
         if (entity.typeKey != KnowledgeEntityTypeKey.GLOSSARY.key) {

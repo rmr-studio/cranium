@@ -1,4 +1,4 @@
-package riven.core.service.entity
+package cranium.core.service.entity
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -8,29 +8,29 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import riven.core.configuration.auth.WorkspaceSecurity
-import riven.core.entity.entity.EntityEntity
-import riven.core.entity.entity.EntityRelationshipEntity
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.SystemRelationshipType
-import riven.core.enums.workspace.WorkspaceRoles
-import riven.core.exceptions.InvalidRelationshipException
-import riven.core.models.common.Icon
-import riven.core.models.entity.RelationshipDefinition
-import riven.core.models.entity.RelationshipTargetRule
-import riven.core.enums.common.validation.SchemaType
-import riven.core.models.entity.payload.EntityAttributePrimitivePayload
-import riven.core.repository.entity.EntityRelationshipRepository
-import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.RelationshipDefinitionRepository
-import riven.core.repository.entity.RelationshipTargetRuleRepository
-import riven.core.service.auth.AuthTokenService
-import riven.core.service.util.BaseServiceTest
-import riven.core.service.util.WithUserPersona
-import riven.core.service.util.WorkspaceRole
-import riven.core.service.util.factory.entity.EntityFactory
+import cranium.core.configuration.auth.WorkspaceSecurity
+import cranium.core.entity.entity.EntityEntity
+import cranium.core.entity.entity.EntityRelationshipEntity
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.enums.entity.SystemRelationshipType
+import cranium.core.enums.workspace.WorkspaceRoles
+import cranium.core.exceptions.InvalidRelationshipException
+import cranium.core.models.common.Icon
+import cranium.core.models.entity.RelationshipDefinition
+import cranium.core.models.entity.RelationshipTargetRule
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.models.entity.payload.EntityAttributePrimitivePayload
+import cranium.core.repository.entity.EntityRelationshipRepository
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.repository.entity.RelationshipDefinitionRepository
+import cranium.core.repository.entity.RelationshipTargetRuleRepository
+import cranium.core.service.auth.AuthTokenService
+import cranium.core.service.util.BaseServiceTest
+import cranium.core.service.util.WithUserPersona
+import cranium.core.service.util.WorkspaceRole
+import cranium.core.service.util.factory.entity.EntityFactory
 import java.util.*
 
 @SpringBootTest(
@@ -70,10 +70,10 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
     private lateinit var targetRuleRepository: RelationshipTargetRuleRepository
 
     @MockitoBean
-    private lateinit var entityTypeRelationshipService: riven.core.service.entity.type.EntityTypeRelationshipService
+    private lateinit var entityTypeRelationshipService: cranium.core.service.entity.type.EntityTypeRelationshipService
 
     @MockitoBean
-    private lateinit var activityService: riven.core.service.activity.ActivityService
+    private lateinit var activityService: cranium.core.service.activity.ActivityService
 
     @Autowired
     private lateinit var service: EntityRelationshipService
@@ -160,7 +160,7 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
 
         whenever(entityRelationshipRepository.findBySourceId(sourceEntityId)).thenReturn(emptyList())
         whenever(definitionRepository.findById(defId)).thenReturn(Optional.of(
-            riven.core.service.util.factory.entity.EntityFactory.createRelationshipDefinitionEntity(
+            cranium.core.service.util.factory.entity.EntityFactory.createRelationshipDefinitionEntity(
                 id = defId, workspaceId = workspaceId, sourceEntityTypeId = sourceEntityTypeId,
             )
         ))
@@ -909,7 +909,7 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
         val defId = UUID.randomUUID()
         val inverseDefId = UUID.randomUUID()
 
-        val forwardProjection = mock<riven.core.projection.entity.EntityLinkProjection> {
+        val forwardProjection = mock<cranium.core.projection.entity.EntityLinkProjection> {
             on { getDefinitionId() } doReturn defId
             on { getId() } doReturn UUID.randomUUID()
             on { getworkspaceId() } doReturn workspaceId
@@ -922,7 +922,7 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
             on { getSystemType() } doReturn null
         }
 
-        val inverseProjection = mock<riven.core.projection.entity.EntityLinkProjection> {
+        val inverseProjection = mock<cranium.core.projection.entity.EntityLinkProjection> {
             on { getDefinitionId() } doReturn inverseDefId
             on { getId() } doReturn UUID.randomUUID()
             on { getworkspaceId() } doReturn workspaceId
@@ -965,7 +965,7 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
     fun `findRelatedEntities - merges forward and inverse under same definition`() {
         val defId = UUID.randomUUID()
 
-        val forwardProjection = mock<riven.core.projection.entity.EntityLinkProjection> {
+        val forwardProjection = mock<cranium.core.projection.entity.EntityLinkProjection> {
             on { getDefinitionId() } doReturn defId
             on { getId() } doReturn UUID.randomUUID()
             on { getworkspaceId() } doReturn workspaceId
@@ -978,7 +978,7 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
             on { getSystemType() } doReturn null
         }
 
-        val inverseProjection = mock<riven.core.projection.entity.EntityLinkProjection> {
+        val inverseProjection = mock<cranium.core.projection.entity.EntityLinkProjection> {
             on { getDefinitionId() } doReturn defId
             on { getId() } doReturn UUID.randomUUID()
             on { getworkspaceId() } doReturn workspaceId
@@ -1022,7 +1022,7 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
                 sourceId = sourceId,
                 definitionId = UUID.randomUUID(),
                 targetIds = setOf(UUID.randomUUID()),
-                linkSource = riven.core.enums.integration.SourceType.USER_CREATED,
+                linkSource = cranium.core.enums.integration.SourceType.USER_CREATED,
             )
         }
         assertTrue(ex.message!!.contains("not found in workspace"))
@@ -1049,7 +1049,7 @@ class EntityRelationshipServiceTest : BaseServiceTest() {
                 workspaceId = workspaceId,
                 sourceId = sourceId,
                 definitionId = UUID.randomUUID(),
-                targetKind = riven.core.enums.entity.RelationshipTargetKind.ATTRIBUTE,
+                targetKind = cranium.core.enums.entity.RelationshipTargetKind.ATTRIBUTE,
             )
         }
         assertTrue(ex.message!!.contains("not found in workspace"))

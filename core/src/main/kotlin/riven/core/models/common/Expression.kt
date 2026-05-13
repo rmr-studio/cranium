@@ -1,4 +1,4 @@
-package riven.core.models.common
+package cranium.core.models.common
 
 /**
  * SQL-like expression operators for workflow conditions and data access

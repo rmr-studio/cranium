@@ -1,6 +1,6 @@
 import { DialogControl } from '@/lib/interfaces/interface';
 import { EntityTypeRequestDefinition } from '@/lib/types/entity';
-import { Button } from '@riven/ui/button';
+import { Button } from '@cranium/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -8,7 +8,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@riven/ui/dialog';
+} from '@cranium/ui/dialog';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertCircle, AlertTriangle, Loader2, Unlink } from 'lucide-react';
 import { FC, useCallback, useMemo, useState } from 'react';

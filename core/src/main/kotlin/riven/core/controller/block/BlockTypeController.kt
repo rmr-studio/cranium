@@ -1,4 +1,4 @@
-package riven.core.controller.block
+package cranium.core.controller.block
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -8,9 +8,9 @@ import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import riven.core.models.block.BlockType
-import riven.core.models.request.block.CreateBlockTypeRequest
-import riven.core.service.block.BlockTypeService
+import cranium.core.models.block.BlockType
+import cranium.core.models.request.block.CreateBlockTypeRequest
+import cranium.core.service.block.BlockTypeService
 import java.util.*
 
 @RestController

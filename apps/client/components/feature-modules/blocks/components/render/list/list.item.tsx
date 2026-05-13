@@ -7,8 +7,8 @@
 
 'use client';
 
-import type { ClassNameProps } from '@riven/utils';
-import { cn } from '@riven/utils';
+import type { ClassNameProps } from '@cranium/utils';
+import { cn } from '@cranium/utils';
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { ReactNode, useCallback, useMemo } from "react";

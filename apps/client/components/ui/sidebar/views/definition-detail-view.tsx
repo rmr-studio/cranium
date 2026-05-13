@@ -5,7 +5,7 @@ import { IntegrationDisconnectDialog } from '@/components/feature-modules/integr
 import { useDisableIntegration } from '@/components/feature-modules/integrations/hooks/mutation/use-disable-integration';
 import { useIntegrationStatus } from '@/components/feature-modules/integrations/hooks/query/use-integration-status';
 import { ConnectionStatus } from '@/lib/types';
-import { Badge, Button } from '@riven/ui';
+import { Badge, Button } from '@cranium/ui';
 import { Check, Clock, Puzzle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';

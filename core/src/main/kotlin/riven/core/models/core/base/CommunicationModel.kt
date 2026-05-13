@@ -1,26 +1,26 @@
-package riven.core.models.core.base
+package cranium.core.models.core.base
 
-import riven.core.enums.entity.semantics.SemanticAttributeClassification
-import riven.core.enums.common.validation.SchemaType
-import riven.core.enums.core.CommunicationType
-import riven.core.enums.core.DataType
-import riven.core.enums.core.DynamicDefaultFunction
-import riven.core.enums.entity.EntityTypeRole
-import riven.core.models.common.validation.DefaultValue
-import riven.core.models.common.validation.SchemaOptions
-import riven.core.models.core.AttributeSemantics
-import riven.core.models.core.CoreModelAttribute
+import cranium.core.enums.entity.semantics.SemanticAttributeClassification
+import cranium.core.enums.common.validation.SchemaType
+import cranium.core.enums.core.CommunicationType
+import cranium.core.enums.core.DataType
+import cranium.core.enums.core.DynamicDefaultFunction
+import cranium.core.enums.entity.EntityTypeRole
+import cranium.core.models.common.validation.DefaultValue
+import cranium.core.models.common.validation.SchemaOptions
+import cranium.core.models.core.AttributeSemantics
+import cranium.core.models.core.CoreModelAttribute
 
 /**
  * Shared attributes for the Communication model across all business types.
  * The `type` enum and `follow-up-date` presence differ per business type.
  */
 
-import riven.core.enums.common.icon.IconColour
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.entity.LifecycleDomain
-import riven.core.enums.entity.semantics.SemanticGroup
-import riven.core.models.core.ProjectionAcceptRule
+import cranium.core.enums.common.icon.IconColour
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.entity.LifecycleDomain
+import cranium.core.enums.entity.semantics.SemanticGroup
+import cranium.core.models.core.ProjectionAcceptRule
 
 /**
    Logged communication interactions (Internal + External).
@@ -31,7 +31,7 @@ import riven.core.models.core.ProjectionAcceptRule
     - Video Call
     - Internal Meeting
  */
-object CommunicationModel : riven.core.models.core.CoreModelDefinition(
+object CommunicationModel : cranium.core.models.core.CoreModelDefinition(
     key = "communication",
     role = EntityTypeRole.KNOWLEDGE,
     displayNameSingular = "Communication",

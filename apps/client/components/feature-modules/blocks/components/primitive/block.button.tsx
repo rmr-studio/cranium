@@ -1,5 +1,5 @@
-import { Button } from '@riven/ui/button';
-import { cn } from '@riven/utils';
+import { Button } from '@cranium/ui/button';
+import { cn } from '@cranium/utils';
 import Link from 'next/link';
 import { FC } from 'react';
 import { z } from 'zod';

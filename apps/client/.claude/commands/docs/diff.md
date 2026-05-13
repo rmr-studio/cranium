@@ -24,9 +24,9 @@ Output documents use the templates in `../../docs/templates/` and follow the con
 
 ## Vault Location
 
-`../../docs/frontend-design/` — relative to the client repo root. Absolute: `/home/jared/dev/riven/docs/frontend-design/`
+`../../docs/frontend-design/` — relative to the client repo root. Absolute: `/home/jared/dev/cranium/docs/frontend-design/`
 
-Symlinked into the Obsidian vault at `2. Areas/2.1 Startup & Business/Riven/3. Frontend Design/`.
+Symlinked into the Obsidian vault at `2. Areas/2.1 Startup & Business/Cranium/3. Frontend Design/`.
 
 ## Frontend Design Structure
 

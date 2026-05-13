@@ -1,4 +1,4 @@
-package riven.core.entity.entity
+package cranium.core.entity.entity
 
 import jakarta.persistence.*
 import java.io.Serializable

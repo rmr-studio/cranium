@@ -1,4 +1,4 @@
-package riven.core.service.workflow
+package cranium.core.service.workflow
 
 import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -9,24 +9,24 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
-import riven.core.entity.workflow.WorkflowEdgeEntity
-import riven.core.enums.workflow.WorkflowStatus
-import riven.core.models.workflow.engine.state.WorkflowExecutionPhase
-import riven.core.models.workflow.engine.state.WorkflowState
-import riven.core.models.workflow.engine.state.GenericMapOutput
-import riven.core.models.workflow.engine.state.StepOutput
-import riven.core.models.workflow.engine.state.WorkflowDataStore
-import riven.core.models.workflow.engine.state.WorkflowMetadata
-import riven.core.models.workflow.node.WorkflowNode
-import riven.core.models.workflow.node.config.actions.WorkflowCreateEntityActionConfig
-import riven.core.service.workflow.engine.coordinator.WorkflowGraphCoordinationService
-import riven.core.service.workflow.engine.coordinator.WorkflowGraphQueueManagementService
-import riven.core.service.workflow.engine.coordinator.WorkflowGraphTopologicalSorterService
-import riven.core.service.workflow.engine.coordinator.WorkflowGraphValidationService
-import riven.core.service.workflow.state.WorkflowNodeExpressionEvaluatorService
-import riven.core.service.workflow.state.WorkflowNodeExpressionParserService
-import riven.core.service.workflow.state.WorkflowNodeInputResolverService
-import riven.core.service.workflow.state.WorkflowNodeTemplateParserService
+import cranium.core.entity.workflow.WorkflowEdgeEntity
+import cranium.core.enums.workflow.WorkflowStatus
+import cranium.core.models.workflow.engine.state.WorkflowExecutionPhase
+import cranium.core.models.workflow.engine.state.WorkflowState
+import cranium.core.models.workflow.engine.state.GenericMapOutput
+import cranium.core.models.workflow.engine.state.StepOutput
+import cranium.core.models.workflow.engine.state.WorkflowDataStore
+import cranium.core.models.workflow.engine.state.WorkflowMetadata
+import cranium.core.models.workflow.node.WorkflowNode
+import cranium.core.models.workflow.node.config.actions.WorkflowCreateEntityActionConfig
+import cranium.core.service.workflow.engine.coordinator.WorkflowGraphCoordinationService
+import cranium.core.service.workflow.engine.coordinator.WorkflowGraphQueueManagementService
+import cranium.core.service.workflow.engine.coordinator.WorkflowGraphTopologicalSorterService
+import cranium.core.service.workflow.engine.coordinator.WorkflowGraphValidationService
+import cranium.core.service.workflow.state.WorkflowNodeExpressionEvaluatorService
+import cranium.core.service.workflow.state.WorkflowNodeExpressionParserService
+import cranium.core.service.workflow.state.WorkflowNodeInputResolverService
+import cranium.core.service.workflow.state.WorkflowNodeTemplateParserService
 import java.time.Instant
 import java.util.*
 
@@ -490,10 +490,10 @@ class WorkflowExecutionEndToEndIntegrationTest {
 
         // Simple comparison
         val expr1 = workflowNodeExpressionEvaluatorService.evaluate(
-            riven.core.models.common.Expression.BinaryOp(
-                riven.core.models.common.Expression.PropertyAccess(listOf("status")),
-                riven.core.models.common.Operator.EQUALS,
-                riven.core.models.common.Expression.Literal("active")
+            cranium.core.models.common.Expression.BinaryOp(
+                cranium.core.models.common.Expression.PropertyAccess(listOf("status")),
+                cranium.core.models.common.Operator.EQUALS,
+                cranium.core.models.common.Expression.Literal("active")
             ),
             context
         )
@@ -501,10 +501,10 @@ class WorkflowExecutionEndToEndIntegrationTest {
 
         // Numeric comparison
         val expr2 = workflowNodeExpressionEvaluatorService.evaluate(
-            riven.core.models.common.Expression.BinaryOp(
-                riven.core.models.common.Expression.PropertyAccess(listOf("count")),
-                riven.core.models.common.Operator.GREATER_THAN,
-                riven.core.models.common.Expression.Literal(10)
+            cranium.core.models.common.Expression.BinaryOp(
+                cranium.core.models.common.Expression.PropertyAccess(listOf("count")),
+                cranium.core.models.common.Operator.GREATER_THAN,
+                cranium.core.models.common.Expression.Literal(10)
             ),
             context
         )

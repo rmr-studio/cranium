@@ -1,6 +1,6 @@
 # Phase 2: Entity Testing Core Implementation Plan
 
-> **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED: Use superpowers:subagent-dcranium-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build comprehensive test coverage for the entity module's core logic — pure utility functions, dynamic Zod schema builder, and mutation cache behavior — establishing ~100 tests that protect the most critical code paths.
 

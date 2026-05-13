@@ -15,9 +15,9 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@riven/ui/button';
-import { Input } from '@riven/ui/input';
-import { Separator } from '@riven/ui/separator';
+import { Button } from '@cranium/ui/button';
+import { Input } from '@cranium/ui/input';
+import { Separator } from '@cranium/ui/separator';
 import { Info } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';

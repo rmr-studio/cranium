@@ -8,25 +8,25 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop  # Auto-create schema from entities
+      ddl-auto: create-drop # Auto-create schema from entities
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
         format_sql: true
-    show-sql: false  # Set to true for debugging
+    show-sql: false # Set to true for debugging
 
   flyway:
-    enabled: false  # Disable Flyway for tests - use Hibernate schema generation
+    enabled: false # Disable Flyway for tests - use Hibernate schema generation
 
   # Disable security for tests
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:9999  # Dummy issuer for tests
+          issuer-uri: http://localhost:9999 # Dummy issuer for tests
 
 # Temporal configuration for tests (not used with TestWorkflowEnvironment)
-riven:
+cranium:
   rate-limit:
     enabled: false
   connector:
@@ -40,14 +40,14 @@ riven:
     client-heartbeat-ms: 0
   workflow:
     engine:
-      target: localhost:7233  # Ignored by TestWorkflowEnvironment
+      target: localhost:7233 # Ignored by TestWorkflowEnvironment
       namespace: default
       enabled: true
 
 storage:
   provider: local
   local:
-    base-path: ${java.io.tmpdir}/riven-test-storage
+    base-path: ${java.io.tmpdir}/cranium-test-storage
   signed-url:
     secret: test-hmac-secret-for-unit-tests
     default-expiry-seconds: 3600
@@ -65,7 +65,7 @@ storage:
 # Logging
 logging:
   level:
-    riven.core: INFO
+    cranium.core: INFO
     io.temporal: WARN
     org.springframework: WARN
     org.hibernate: WARN

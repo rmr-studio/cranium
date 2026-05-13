@@ -1,4 +1,4 @@
-package riven.core.models.workflow.engine.coordinator
+package cranium.core.models.workflow.engine.coordinator
 
 /**
  * Result of DAG validation.

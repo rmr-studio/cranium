@@ -1,8 +1,8 @@
-package riven.core.models.workflow.node.config
+package cranium.core.models.workflow.node.config
 
 import io.swagger.v3.oas.annotations.media.Schema
-import riven.core.enums.common.icon.IconType
-import riven.core.enums.workflow.WorkflowNodeType
+import cranium.core.enums.common.icon.IconType
+import cranium.core.enums.workflow.WorkflowNodeType
 
 /**
  * Metadata for workflow node types, providing display information for UI rendering.

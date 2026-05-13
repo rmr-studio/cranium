@@ -1,4 +1,4 @@
-package riven.core.service.note
+package cranium.core.service.note
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.assertj.core.api.Assertions.assertThat
@@ -10,16 +10,16 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import riven.core.enums.entity.EntityRelationshipCardinality
-import riven.core.enums.entity.RelationshipTargetKind
-import riven.core.enums.entity.SystemRelationshipType
-import riven.core.enums.integration.SourceType
-import riven.core.repository.entity.EntityRelationshipRepository
-import riven.core.repository.entity.EntityRepository
-import riven.core.repository.entity.EntityTypeRepository
-import riven.core.service.entity.EntityIngestionService
-import riven.core.service.entity.type.EntityTypeRelationshipService
-import riven.core.service.util.factory.entity.EntityFactory
+import cranium.core.enums.entity.EntityRelationshipCardinality
+import cranium.core.enums.entity.RelationshipTargetKind
+import cranium.core.enums.entity.SystemRelationshipType
+import cranium.core.enums.integration.SourceType
+import cranium.core.repository.entity.EntityRelationshipRepository
+import cranium.core.repository.entity.EntityRepository
+import cranium.core.repository.entity.EntityTypeRepository
+import cranium.core.service.entity.EntityIngestionService
+import cranium.core.service.entity.type.EntityTypeRelationshipService
+import cranium.core.service.util.factory.entity.EntityFactory
 import java.util.Optional
 import java.util.UUID
 

@@ -1,4 +1,4 @@
-package riven.core.models.response.integration
+package cranium.core.models.response.integration
 
 import java.util.*
 

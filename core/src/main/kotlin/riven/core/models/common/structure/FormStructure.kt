@@ -1,6 +1,6 @@
-package riven.core.models.common.structure
+package cranium.core.models.common.structure
 
-import riven.core.enums.block.structure.BlockFormWidgetType
+import cranium.core.enums.block.structure.BlockFormWidgetType
 
 /**
  * Defines per-field widget configuration for a form.

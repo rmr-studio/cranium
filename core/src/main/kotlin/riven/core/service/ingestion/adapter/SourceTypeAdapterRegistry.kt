@@ -1,8 +1,8 @@
-package riven.core.service.ingestion.adapter
+package cranium.core.service.ingestion.adapter
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import riven.core.enums.integration.SourceType
+import cranium.core.enums.integration.SourceType
 
 /**
  * Assembles the `Map<SourceType, IngestionAdapter>` consumed by Phase 4's

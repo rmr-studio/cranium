@@ -1,13 +1,13 @@
-package riven.core.repository.workflow
+package cranium.core.repository.workflow
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
-import riven.core.entity.workflow.ExecutionQueueEntity
-import riven.core.enums.workflow.ExecutionJobType
-import riven.core.enums.workflow.ExecutionQueueStatus
+import cranium.core.entity.workflow.ExecutionQueueEntity
+import cranium.core.enums.workflow.ExecutionJobType
+import cranium.core.enums.workflow.ExecutionQueueStatus
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -145,7 +145,7 @@ interface ExecutionQueueRepository : JpaRepository<ExecutionQueueEntity, UUID> {
      * The [metadataKey] parameter is the JSON key used inside `connotation_metadata.metadata` —
      * the persisted snapshot shape uses uppercase metadata-type names (e.g. `"SENTIMENT"`,
      * `"RELATIONAL"`, `"STRUCTURAL"`) per the `@JsonProperty` declarations on
-     * [riven.core.models.connotation.EntityMetadata]. Callers must pass the matching
+     * [cranium.core.models.connotation.EntityMetadata]. Callers must pass the matching
      * uppercase key — passing `"sentiment"` will match zero rows.
      *
      * Skips soft-deleted entities. Idempotent via `ON CONFLICT DO NOTHING` against the

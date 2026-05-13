@@ -1,4 +1,4 @@
-package riven.core.service.connector
+package cranium.core.service.connector
 
 import io.github.oshai.kotlinlogging.KLogger
 import org.assertj.core.api.Assertions.assertThat
@@ -10,7 +10,7 @@ import org.mockito.kotlin.mock
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
-import riven.core.exceptions.connector.ReadOnlyVerificationException
+import cranium.core.exceptions.connector.ReadOnlyVerificationException
 import java.net.InetAddress
 import java.sql.DriverManager
 import java.util.Properties
@@ -37,7 +37,7 @@ class ReadOnlyRoleVerifierServiceTest {
         val postgres: PostgreSQLContainer = PostgreSQLContainer(
             DockerImageName.parse("pgvector/pgvector:pg16").asCompatibleSubstituteFor("postgres")
         )
-            .withDatabaseName("riven_test")
+            .withDatabaseName("cranium_test")
             .withUsername("test")
             .withPassword("test")
 
@@ -62,25 +62,25 @@ class ReadOnlyRoleVerifierServiceTest {
             "DO \$do\$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'ro_user') THEN " +
                 "EXECUTE 'REVOKE ALL ON ALL TABLES IN SCHEMA public FROM ro_user'; " +
                 "EXECUTE 'REVOKE ALL ON SCHEMA public FROM ro_user'; " +
-                "EXECUTE 'REVOKE ALL ON DATABASE riven_test FROM ro_user'; " +
+                "EXECUTE 'REVOKE ALL ON DATABASE cranium_test FROM ro_user'; " +
                 "EXECUTE 'DROP OWNED BY ro_user'; " +
                 "EXECUTE 'DROP ROLE ro_user'; END IF; END \$do\$",
 
             "DO \$do\$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'rw_user') THEN " +
                 "EXECUTE 'REVOKE ALL ON ALL TABLES IN SCHEMA public FROM rw_user'; " +
                 "EXECUTE 'REVOKE ALL ON SCHEMA public FROM rw_user'; " +
-                "EXECUTE 'REVOKE ALL ON DATABASE riven_test FROM rw_user'; " +
+                "EXECUTE 'REVOKE ALL ON DATABASE cranium_test FROM rw_user'; " +
                 "EXECUTE 'DROP OWNED BY rw_user'; " +
                 "EXECUTE 'DROP ROLE rw_user'; END IF; END \$do\$",
 
             "CREATE ROLE ro_user LOGIN PASSWORD 'ro_pw'",
-            "GRANT CONNECT ON DATABASE riven_test TO ro_user",
+            "GRANT CONNECT ON DATABASE cranium_test TO ro_user",
             "GRANT USAGE ON SCHEMA public TO ro_user",
             "REVOKE CREATE ON SCHEMA public FROM ro_user",
             "GRANT SELECT ON ALL TABLES IN SCHEMA public TO ro_user",
 
             "CREATE ROLE rw_user LOGIN PASSWORD 'rw_pw'",
-            "GRANT CONNECT ON DATABASE riven_test TO rw_user",
+            "GRANT CONNECT ON DATABASE cranium_test TO rw_user",
             "GRANT USAGE, CREATE ON SCHEMA public TO rw_user",
             "CREATE TABLE public.sample (id int)",
             "GRANT INSERT, SELECT ON public.sample TO rw_user",
@@ -128,11 +128,11 @@ class ReadOnlyRoleVerifierServiceTest {
             password = "ro_pw",
             sslMode = "disable",
         )
-        // After verify, confirm no __riven_ro_probe_* table exists.
+        // After verify, confirm no __cranium_ro_probe_* table exists.
         postgres.createConnection("").use { conn ->
             conn.createStatement().use { stmt ->
                 stmt.executeQuery(
-                    "SELECT COUNT(*) FROM pg_tables WHERE tablename LIKE '__riven_ro_probe_%'"
+                    "SELECT COUNT(*) FROM pg_tables WHERE tablename LIKE '__cranium_ro_probe_%'"
                 ).use { rs ->
                     rs.next()
                     assertThat(rs.getInt(1)).isEqualTo(0)

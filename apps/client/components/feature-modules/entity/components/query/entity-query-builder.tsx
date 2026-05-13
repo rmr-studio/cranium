@@ -2,9 +2,9 @@
 
 import { Badge } from '@/components/ui/badge';
 import type { EntityType, QueryFilter } from '@/lib/types/entity';
-import { Button } from '@riven/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@riven/ui/popover';
-import { cn } from '@riven/utils';
+import { Button } from '@cranium/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@cranium/ui/popover';
+import { cn } from '@cranium/utils';
 import { Filter } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { QueryBuilderPanel } from './query-builder-panel';

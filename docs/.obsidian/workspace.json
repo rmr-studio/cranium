@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Cranium/docs/domains/Page Resolution & Decision Queue/Page Resolution & Decision Queue.md",
+                "file": "Cranium/docs/domains/Workspace & Auth/Workspace & Auth.md",
                 "mode": "source",
                 "source": false,
                 "backlinks": true,
@@ -28,7 +28,7 @@
                 }
               },
               "icon": "lucide-file",
-              "title": "Page Resolution & Decision Queue"
+              "title": "Workspace & Auth"
             }
           }
         ]
@@ -88,7 +88,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 575.5
   },
   "right": {
     "id": "384ef1ef975a041b",
@@ -209,6 +209,15 @@
   },
   "active": "235c0054d8b2bb83",
   "lastOpenFiles": [
+    "Cranium/docs/designs/_TEMPLATE-INDEX.md",
+    "Cranium/docs/designs/README.md",
+    "Cranium/docs/domains/Surfaces/Surfaces.md",
+    "Cranium/docs/decisions/ADR-011 Reuse Storage Spine, Rebuild Type and Projection Machinery.md",
+    "Cranium/docs/decisions/ADR-009 Unique Index Deduplication over Mapping Table.md",
+    "Cranium/docs/decisions/ADR-018 One pages Table Family for Synthesis Storage.md",
+    "Cranium/docs/decisions/ADR-001 Nango as Integration Infrastructure.md",
+    "Cranium/docs/decisions/ADR-020 MCP Server as a Module Inside core.md",
+    "Cranium/docs/domains/Page Resolution & Decision Queue/Page Resolution & Decision Queue.md",
     "Cranium/docs/domains/OSS Packaging & Self-Host/OSS Packaging & Self-Host.md",
     "Cranium/docs/domains/MCP Server/MCP Server.md",
     "Cranium/docs/flows/Flow - PR Bot.md",
@@ -231,20 +240,11 @@
     "Cranium/docs/domains/_archived.md.tmp.87013.ed209f23bc79",
     "Cranium/docs/domains/Workspace & Auth/Workspace & Auth.md",
     "Cranium/docs/decisions/ADR-021 GitHub-Only v1, Slack and Notion as v1.1.md",
-    "Cranium/docs/decisions/ADR-020 MCP Server as a Module Inside core.md",
-    "Cranium/docs/designs/_TEMPLATE-INDEX.md",
     "Cranium/docs/decisions/ADR-019 Full Pivot Before a Design Partner.md",
-    "Cranium/docs/designs/README.md",
-    "Cranium/docs/domains/Surfaces/Surfaces.md",
-    "Cranium/docs/decisions/ADR-018 One pages Table Family for Synthesis Storage.md",
-    "Cranium/docs/domains/Page Resolution & Decision Queue/Page Resolution & Decision Queue.md",
     "Cranium/docs/flows/Flow - Self-Host Quickstart.md",
     "Cranium/docs/decisions/ADR-017 Async Synthesis Materialization with On-Navigation Fill.md",
     "Cranium/docs/decisions/ADR-016 Structural Collapse Before Behavioral Change.md",
     "Cranium/docs/domains/Synthesis/Synthesis.md",
-    "Cranium/docs/decisions/ADR-015 Page Resolution Policy.md",
-    "Cranium/docs/domains/Source Ingestion/Source Ingestion.md",
-    "Cranium/docs/decisions/ADR-014 Deterministic Source-Entity Creation plus Batched LLM Synthesis.md",
     "17.png",
     "notion-logo-2.png",
     "16.png"

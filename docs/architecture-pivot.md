@@ -184,7 +184,7 @@ Not in Phase 4: the hosted/paid tier's deploy pipeline (separate, deferred until
 | D10 | One `pages` table family for synthesis storage | [[ADR-018 One pages Table Family for Synthesis Storage]] |
 | D9 | Full architecture pivot before securing a design partner — deliberate override of the wedge-first recommendation | [[ADR-019 Full Pivot Before a Design Partner]] |
 | ER3 | MCP server as a module inside `core/` (Kotlin/Spring), not a separate service | [[ADR-020 MCP Server as a Module Inside core]] |
-| — | GitHub-only v1; Slack/Notion are v1.1 enrichment | [[ADR-021 GitHub-Only v1, Slack and Notion as v1.1]] |
+| — | GitHub-only v1; Slack/Notion are v1.1 enrichment | [[ADR-021 V1 Properties Github, Confluence and Slack]] |
 
 (D8 = the outside-voice pass that produced the Phase-1 split + the PR2-Phase-3 strict gate + the `source_entity_id` rename — folded into D6/D1/D2 rather than its own ADR.)
 

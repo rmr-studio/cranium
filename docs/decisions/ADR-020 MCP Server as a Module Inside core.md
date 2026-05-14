@@ -75,4 +75,4 @@ The MCP server is a **module inside `core/`** (Kotlin/Spring) — a read-only qu
 
 - [[architecture-pivot]]
 - [[ADR-018 One pages Table Family for Synthesis Storage]]
-- [[ADR-021 GitHub-Only v1, Slack and Notion as v1.1]]
+- [[ADR-021 V1 Properties Github, Confluence and Slack]]

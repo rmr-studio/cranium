@@ -5,7 +5,7 @@ tags:
 Created: 2026-05-13
 Updated: 2026-05-13
 ---
-# ADR-021: GitHub-Only v1; Slack and Notion/Confluence Are v1.1 Enrichment
+# ADR-021: V1 Properties
 
 ---
 
@@ -17,7 +17,7 @@ The pre-pivot system had a multi-source manifest/catalog engine + a Nango integr
 
 ## Decision
 
-**v1 ships GitHub only.** Slack + Notion/Confluence are **v1.1 enrichment** — not v1 requirements. Phase 2 builds a `SourceConnector` interface *shape* so they plug in later, but **no manifest engine and no second connector ships in v1** — the GitHub scanner is a single hardcoded Kotlin implementation, not a manifest-driven one. The manifest/catalog engine is deleted (D1). The Nango HMAC-webhook-validation pattern is preserved (git history or one [[Wiki/Cranium]] page) — the v1.1 connectors will want it. **GitHub auth split:** a read-only PAT for the scan path; the GitHub App only for the PR bot (commenting).
+**v1 ships GitHub Slack and Confluence.** V1 builds a `SourceConnector` interface *shape* . The manifest/catalog engine is deleted (D1). The Nango HMAC-webhook-validation pattern is preserved (git history or one [[Wiki/Cranium]] page) — the v1.1 connectors will want it. **GitHub auth split:** a read-only PAT for the scan path; the GitHub App only for the PR bot (commenting).
 
 ---
 

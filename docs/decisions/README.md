@@ -14,7 +14,7 @@ ADRs for Cranium. ADR-011 … ADR-021 are the **2026-05 architecture pivot** dec
 
 | ADR | Title | Status | Summary |
 |---|---|---|---|
-| 001 | Nango as Integration Infrastructure | superseded → [[ADR-021 GitHub-Only v1, Slack and Notion as v1.1]] | v1 is GitHub-only; the Nango integration sync is deleted; HMAC-webhook pattern preserved for v1.1 connectors. |
+| 001 | Nango as Integration Infrastructure | superseded → [[ADR-021 V1 Properties Github, Confluence and Slack]] | v1 is GitHub-only; the Nango integration sync is deleted; HMAC-webhook pattern preserved for v1.1 connectors. |
 | 002 | Separate Table for Semantic Metadata | superseded/reworked → [[ADR-013 Thin Per-Kind Frontmatter in Code, Loose Extras]] | No user-defined types; per-kind frontmatter is Kotlin on the sealed `Page` subclass; `SemanticGroup` machinery → `pages.classification`. |
 | 003 | Single Discriminator Table for Metadata Targets | superseded/reworked → [[ADR-013 Thin Per-Kind Frontmatter in Code, Loose Extras]] | The `entity_type_semantic_metadata` discriminator table goes with the semantic-metadata layer it served. |
 | 004 | Declarative-First Storage for Integration Mappings and Entity Templates | superseded → [[architecture-pivot]] | The manifest/catalog engine is deleted; page-kind + synthesis-contract definitions live in Kotlin, added via PR. |
@@ -24,7 +24,7 @@ ADRs for Cranium. ADR-011 … ADR-021 are the **2026-05 architecture pivot** dec
 | 008 | Integration-Based Entity Types as Readonly Materialized Views | superseded → [[ADR-018 One pages Table Family for Synthesis Storage]] | Everything is a `Page`; raw artifacts → `source_entities`; the two-layer split survives, the readonly-materialized-view framing does not. |
 | 008 | Temporal for Integration Sync Orchestration | partially superseded → [[ADR-014 Deterministic Source-Entity Creation plus Batched LLM Synthesis]] | Temporal stays (synthesis + page-resolution workflows reuse its patterns); the integration-sync workflow itself is deleted. |
 | 009 | Unique Index Deduplication over Mapping Table | accepted (still in force) | Unique partial index instead of a mapping table; pattern reused for `source_entities` content-hash dedup + the page-resolution suggestion queue. |
-| 010 | Webhook-Driven Connection Creation | superseded → [[ADR-021 GitHub-Only v1, Slack and Notion as v1.1]] | The integration-connection lifecycle goes with the Nango sync; v1 GitHub auth = PAT for scan, App for PR bot. |
+| 010 | Webhook-Driven Connection Creation | superseded → [[ADR-021 V1 Properties Github, Confluence and Slack]] | The integration-connection lifecycle goes with the Nango sync; v1 GitHub auth = PAT for scan, App for PR bot. |
 | 011 | Reuse the Storage Spine + Infra; Gut & Rebuild the Type / Projection / Routing / Catalog Machinery (D1) | accepted | In-place rescope: keep storage spine + auth/RLS + Temporal + embeddings; delete the type/projection/manifest/sync machinery. |
 | 012 | Single `page_links` Edge Table with an Optional In-Code Label Enum (D2) | accepted | One edge table, nullable `label` enum + `weight` + `source_entity_id`; backlinks = reverse query; no relationship definitions. |
 | 013 | Thin Per-Kind Frontmatter Declared in Code; Loose Extras Stored, Not Validated (D3) | accepted | Per-kind frontmatter shape in Kotlin; extra LLM-extracted keys stored in `pages.frontmatter` jsonb (GIN), not validated; jsonb-only from Phase 1a. |

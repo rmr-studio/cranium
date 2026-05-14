@@ -1,4 +1,9 @@
 {
   "readableLineLength": false,
-  "promptDelete": false
+  "promptDelete": false,
+  "openBehavior": "daily",
+  "newFileLocation": "folder",
+  "newFileFolderPath": "Inbox",
+  "attachmentFolderPath": "/",
+  "alwaysUpdateLinks": true
 }

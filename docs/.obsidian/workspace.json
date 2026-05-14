@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Cranium/docs/domains/Workspace & Auth/Workspace & Auth.md",
+                "file": "Cranium/docs/architecture/wiki engine/4. Community Summary.md",
                 "mode": "source",
                 "source": false,
                 "backlinks": true,
@@ -28,7 +28,7 @@
                 }
               },
               "icon": "lucide-file",
-              "title": "Workspace & Auth"
+              "title": "4. Community Summary"
             }
           }
         ]
@@ -99,12 +99,37 @@
         "type": "tabs",
         "children": [
           {
+            "id": "3f49cc953a9ca9d1",
+            "type": "leaf",
+            "state": {
+              "type": "calendar",
+              "state": {},
+              "icon": "calendar-with-checkmark",
+              "title": "Calendar"
+            }
+          },
+          {
+            "id": "eb5c9ef704d91f29",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Cranium/docs/architecture/wiki engine/4. Community Summary.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of 4. Community Summary"
+            }
+          },
+          {
             "id": "85469a23913459fb",
             "type": "leaf",
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Cranium/docs/flows/Flow - Page Reader Render (apps-client).md",
+                "file": "Cranium/docs/architecture/wiki engine/4. Community Summary.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -114,7 +139,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Flow - Page Reader Render (apps-client)"
+              "title": "Backlinks for 4. Community Summary"
             }
           },
           {
@@ -145,51 +170,12 @@
               "icon": "lucide-tags",
               "title": "Tags"
             }
-          },
-          {
-            "id": "8436025c4d91dba8",
-            "type": "leaf",
-            "state": {
-              "type": "all-properties",
-              "state": {
-                "sortOrder": "frequency",
-                "showSearch": false,
-                "searchQuery": ""
-              },
-              "icon": "lucide-archive",
-              "title": "All properties"
-            }
-          },
-          {
-            "id": "eb5c9ef704d91f29",
-            "type": "leaf",
-            "state": {
-              "type": "outline",
-              "state": {
-                "file": "Cranium/docs/flows/Flow - Page Reader Render (apps-client).md",
-                "followCursor": false,
-                "showSearch": false,
-                "searchQuery": ""
-              },
-              "icon": "lucide-list",
-              "title": "Outline of Flow - Page Reader Render (apps-client)"
-            }
-          },
-          {
-            "id": "3f49cc953a9ca9d1",
-            "type": "leaf",
-            "state": {
-              "type": "calendar",
-              "state": {},
-              "icon": "calendar-with-checkmark",
-              "title": "Calendar"
-            }
           }
         ]
       }
     ],
     "direction": "horizontal",
-    "width": 300,
+    "width": 410.5,
     "collapsed": true
   },
   "left-ribbon": {
@@ -209,42 +195,41 @@
   },
   "active": "235c0054d8b2bb83",
   "lastOpenFiles": [
-    "Cranium/docs/designs/_TEMPLATE-INDEX.md",
-    "Cranium/docs/designs/README.md",
-    "Cranium/docs/domains/Surfaces/Surfaces.md",
-    "Cranium/docs/decisions/ADR-011 Reuse Storage Spine, Rebuild Type and Projection Machinery.md",
+    "Cranium/docs/architecture/wiki engine/1. Data Connection & Acquisition.md",
+    "Cranium/docs/architecture/wiki engine/4. Community Summary.md",
+    "Cranium/docs/architecture/wiki engine/2. Source Page Generation, Region Content Hashing & Duplication Skip.md",
+    "Meta/log.md.tmp.167178.af811703d0ae",
+    "Meta/index.md.tmp.167178.7f60f5dbc729",
+    "Cranium/log.md.tmp.167178.4e9a24728e3b",
+    "Cranium/retrieval.yaml.tmp.167178.a979e700f409",
+    "Cranium/index.md.tmp.167178.e8f35aa46200",
+    "Meta/pages/people-as-wiki-entities.md",
+    "Meta/pages/people-as-wiki-entities.md.tmp.167178.4c08f40814b6",
+    "Cranium/pages/team-ecosystem-mapper.md",
+    "Cranium/pages/team-ecosystem-mapper.md.tmp.167178.0308205758a6",
+    "Cranium/pages/standards-extractor.md",
+    "Cranium/pages/standards-extractor.md.tmp.167178.b93f26b16c52",
+    "Cranium/pages/sme-profile-builder.md",
+    "Cranium/pages/sme-profile-builder.md.tmp.167178.5b88f9bd1498",
+    "Cranium/pages/sedrKoPDr",
+    "Cranium/docs/architecture/wiki engine/temp.md",
+    "Cranium/docs/architecture/wiki engine/3. Routing Manifests.md",
+    "Cranium/docs/architecture/wiki engine/5. Atomic Page Synthesis.md",
+    "Cranium/docs/architecture/wiki engine/7. Linting and Drift Detection.md",
+    "Cranium/docs/architecture/wiki engine/6. Graph Linking.md",
+    "Cranium/docs/architecture/wiki engine/0. Implementation Considerations.md",
+    "Cranium/docs/decisions/ADR-001 Sync Infrastructure Through Nango.md",
+    "Cranium/docs/decisions/ADR-021 V1 Properties Github, Confluence and Slack.md",
     "Cranium/docs/decisions/ADR-009 Unique Index Deduplication over Mapping Table.md",
-    "Cranium/docs/decisions/ADR-018 One pages Table Family for Synthesis Storage.md",
-    "Cranium/docs/decisions/ADR-001 Nango as Integration Infrastructure.md",
-    "Cranium/docs/decisions/ADR-020 MCP Server as a Module Inside core.md",
-    "Cranium/docs/domains/Page Resolution & Decision Queue/Page Resolution & Decision Queue.md",
-    "Cranium/docs/domains/OSS Packaging & Self-Host/OSS Packaging & Self-Host.md",
-    "Cranium/docs/domains/MCP Server/MCP Server.md",
-    "Cranium/docs/flows/Flow - PR Bot.md",
-    "Cranium/docs/flows/Flow - Page Reader Render (apps-client).md",
-    "Cranium/docs/flows/Flow - GitHub Repo Scan.md",
-    "Cranium/docs/flows/Flow - MCP Query.md",
-    "Cranium/docs/flows/Flow - Batched LLM Synthesis.md",
-    "Cranium/docs/templates/Design/Feature Design - Full.md",
-    "Cranium/docs/readme.md.tmp.87013.63a7fe595893",
-    "Cranium/docs/decisions/README.md",
-    "Cranium/docs/decisions/README.md.tmp.87013.b1c1191ff9f1",
-    "Cranium/docs/decisions/ADR-010 Webhook-Driven Connection Creation.md.tmp.87013.556ba4a65c28",
-    "Cranium/docs/decisions/ADR-008 Temporal for Integration Sync Orchestration.md.tmp.87013.b2b97dfd610e",
-    "Cranium/docs/decisions/ADR-008 Integration-Based Entity Types as Readonly Materialized Views.md.tmp.87013.9d0ea4d3dc5f",
-    "Cranium/docs/decisions/ADR-004 Declarative-First Storage for Integration Mappings and Entity Templates.md.tmp.87013.bbc0498544ff",
-    "Cranium/docs/decisions/ADR-003 Single Discriminator Table for Metadata Targets.md.tmp.87013.4104dc435e14",
-    "Cranium/docs/decisions/ADR-002 Separate Table for Semantic Metadata.md.tmp.87013.750ec770276d",
-    "Cranium/docs/decisions/ADR-001 Nango as Integration Infrastructure.md.tmp.87013.e347dea94fa2",
-    "Cranium/docs/domains/_archived.md",
-    "Cranium/docs/domains/_archived.md.tmp.87013.ed209f23bc79",
-    "Cranium/docs/domains/Workspace & Auth/Workspace & Auth.md",
-    "Cranium/docs/decisions/ADR-021 GitHub-Only v1, Slack and Notion as v1.1.md",
-    "Cranium/docs/decisions/ADR-019 Full Pivot Before a Design Partner.md",
-    "Cranium/docs/flows/Flow - Self-Host Quickstart.md",
-    "Cranium/docs/decisions/ADR-017 Async Synthesis Materialization with On-Navigation Fill.md",
-    "Cranium/docs/decisions/ADR-016 Structural Collapse Before Behavioral Change.md",
-    "Cranium/docs/domains/Synthesis/Synthesis.md",
+    "Cranium/docs/designs/wiki-engine/1. Data Connection & Acquisition/Knowledge Base Extraction.md",
+    "Cranium/docs/designs/wiki-engine/1. Data Connection & Acquisition/Git Repository Extraction.md",
+    "Cranium/docs/designs/wiki-engine/1. Data Connection & Acquisition/0. Shared Extraction Interface.md",
+    "Marketing/pages/cranium-defensible-wedge.md",
+    "Cranium/docs/architecture/wiki-structure.md",
+    "Cranium/docs/designs/README.md",
+    "Cranium/docs/designs/_TEMPLATE-INDEX.md",
+    "Cranium/docs/architecture/page-kinds.md",
+    "Cranium/docs/architecture/temp.md",
     "17.png",
     "notion-logo-2.png",
     "16.png"

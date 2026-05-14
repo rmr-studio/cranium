@@ -4,12 +4,12 @@ tags:
   - architecture/decision
 Created: 2026-03-16
 Updated: 2026-05-13
-Superseded By: "[[ADR-021 GitHub-Only v1, Slack and Notion as v1.1]]"
+Superseded By: "[[ADR-021 V1 Properties Github, Confluence and Slack]]"
 ---
 
 # ADR-010: Webhook-Driven Connection Creation
 
-> **Superseded by the 2026-05 architecture pivot.** The whole integration-connection lifecycle (the 10-state `ConnectionStatus` enum, `IntegrationInstallation`, the Nango auth-webhook-driven connection creation, template materialization on connect) goes with the Nango integration sync, deleted in Phase 1c — v1 ships GitHub only (read-only PAT for the scan, GitHub App for the PR bot). The HMAC-webhook-*validation* pattern referenced here is preserved (git history / a [[Wiki/Cranium]] page) for the v1.1 source connectors. See [[architecture-pivot]] §Reuse / Rework / Replace / Delete, [[ADR-021 GitHub-Only v1, Slack and Notion as v1.1]], and [[ADR-001 Nango as Integration Infrastructure]].
+> **Superseded by the 2026-05 architecture pivot.** The whole integration-connection lifecycle (the 10-state `ConnectionStatus` enum, `IntegrationInstallation`, the Nango auth-webhook-driven connection creation, template materialization on connect) goes with the Nango integration sync, deleted in Phase 1c — v1 ships GitHub only (read-only PAT for the scan, GitHub App for the PR bot). The HMAC-webhook-*validation* pattern referenced here is preserved (git history / a [[Wiki/Cranium]] page) for the v1.1 source connectors. See [[architecture-pivot]] §Reuse / Rework / Replace / Delete, [[ADR-021 V1 Properties Github, Confluence and Slack]], and [[ADR-001 Nango as Integration Infrastructure]].
 
 ---
 

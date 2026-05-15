@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Cranium/docs/architecture/0. Engine/Primitives/0. Source File/0. Source File.md",
+                "file": "Cranium/docs/architecture/0. Engine/1. Interactions/1. Construction/0 - Data Connection & Acquisition.md",
                 "mode": "source",
                 "source": false,
                 "backlinks": true,
@@ -28,37 +28,7 @@
                 }
               },
               "icon": "lucide-file",
-              "title": "0. Source File"
-            }
-          }
-        ]
-      },
-      {
-        "id": "f98dce6e407719c4",
-        "type": "tabs",
-        "children": [
-          {
-            "id": "7f596339927db883",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Cranium/docs/architecture/0. Engine/Primitives/0. Source File/0. Source File.md",
-                "mode": "source",
-                "source": false,
-                "backlinks": true,
-                "backlinkOpts": {
-                  "collapseAll": false,
-                  "extraContext": false,
-                  "sortOrder": "alphabetical",
-                  "showSearch": false,
-                  "searchQuery": "",
-                  "backlinkCollapsed": false,
-                  "unlinkedCollapsed": true
-                }
-              },
-              "icon": "lucide-file",
-              "title": "0. Source File"
+              "title": "0 - Data Connection & Acquisition"
             }
           }
         ]
@@ -93,7 +63,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "tag:wiki-layer-3",
+                "query": "wiki-prim",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -144,13 +114,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Cranium/docs/architecture/0. Engine/Primitives/0. Source File/0. Source File.md",
+                "file": "Cranium/docs/architecture/0. Engine/1. Interactions/1. Construction/0 - Data Connection & Acquisition.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of 0. Source File"
+              "title": "Outline of 0 - Data Connection & Acquisition"
             }
           },
           {
@@ -159,7 +129,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Cranium/docs/architecture/0. Engine/Primitives/0. Source File/0. Source File.md",
+                "file": "Cranium/docs/architecture/0. Engine/1. Interactions/1. Construction/0 - Data Connection & Acquisition.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -169,7 +139,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for 0. Source File"
+              "title": "Backlinks for 0 - Data Connection & Acquisition"
             }
           },
           {
@@ -223,44 +193,45 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "active": "7f596339927db883",
+  "active": "a43672bc9f085afc",
   "lastOpenFiles": [
-    "Cranium/docs/architecture/0. Engine/Primitives/0. Source File/0. Frontmatter/Confidence.md",
-    "Cranium/docs/architecture/0. Engine/Wiki Diagram.md",
-    "Meta/index.md.tmp.1106487.997753ed5ba3",
-    "Meta/pages/citation-evolution-rules.md",
-    "Meta/pages/citation-evolution-rules.md.tmp.1106487.c60b9ef6f413",
-    "Cranium/docs/architecture/0. Engine/Primitives/0. Source File/0. Frontmatter/0. Frontmatter.md",
-    "Cranium/docs/architecture/0. Engine/Primitives/0. Source File/1. Types/Digests.md",
-    "Cranium/docs/architecture/0. Engine/Primitives/0. Source File/0. Source File.md",
-    "Cranium/docs/architecture/0. Engine/Primitives/0. Source File/1. Types",
-    "Cranium/docs/architecture/0. Engine/Primitives/0. Source File/0. Frontmatter/Content.md",
-    "Cranium/docs/architecture/0. Engine/Primitives/0. Source File/0. Frontmatter/Identification.md",
-    "Cranium/docs/architecture/0. Engine/Primitives/0. Source File/0. Frontmatter/Origin.md",
-    "Cranium/docs/architecture/0. Engine/Primitives/0. Source File/0. Frontmatter/Usage.md",
-    "Cranium/docs/architecture/0. Engine/Primitives/0. Source File/1. Types/Live Source Pointers.md",
-    "Cranium/docs/architecture/0. Engine/Primitives/0. Source File/0. Frontmatter",
-    "Cranium/docs/architecture/0. Engine/Primitives/3. Atomic Pages/3. Atomic Pages.md",
+    "Cranium/docs/architecture/0. Engine/1. Interactions/1. Construction/0.1 - Pass Routing & Eligibility.md",
+    "Cranium/docs/architecture/0. Engine/1. Interactions/1. Construction/2 - Source Classifier & Clustering.md",
+    "Cranium/docs/architecture/0. Engine/1. Interactions/1. Construction/1 - Source Page Generation, Region Content Hashing & Duplication Skip.md",
+    "Cranium/docs/architecture/0. Engine/1. Interactions/1. Construction/1.1 - Provenance Graph.md",
+    "Cranium/docs/architecture/0. Engine/1. Interactions/1. Construction/0 - Data Connection & Acquisition.md",
+    "Cranium/docs/architecture/0. Engine/1. Interactions/1. Construction/6 - Graph Linking Materialisation.md",
+    "Cranium/docs/architecture/0. Engine/1. Interactions/1. Construction/7 - Linting and Drift Detection.md",
+    "Cranium/docs/architecture/0. Engine/1. Interactions/1. Construction/5 - Atomic Page Synthesis.md",
+    "Cranium/docs/architecture/0. Engine/1. Interactions/1. Construction/4 - Aggregation and Indexing Community Summary.md",
+    "Cranium/docs/architecture/0. Engine/1. Interactions/1. Construction/3 - Building Routing Manifests.md",
+    "Cranium/docs/architecture/0. Engine/1. Interactions/1. Construction/1. Construction.md",
+    "Cranium/docs/architecture/0. Engine/0. Primitives/0. Source File/0. Frontmatter/Confidence.md",
+    "Inbox/2026-05-14.md",
+    "Inbox/Untitled.md",
+    "Inbox/[[0.1.md",
     "Meta/pages/source-confidence-weighting.md",
-    "Cranium/docs/architecture/0. Engine/7. Linting and Drift Detection.md",
-    "Cranium/docs/architecture/0. Engine/Primitives/0. Source File/0. Source File.md.tmp.956084.1dc4a746a062",
-    "Cranium/docs/architecture/0. Engine/6. Graph Linking Materialisation.md",
-    "Cranium/docs/architecture/0. Engine/5. Atomic Page Synthesis.md",
-    "Cranium/docs/architecture/0. Engine/4. Aggregation and Indexing Community Summary.md",
-    "Cranium/docs/architecture/0. Engine/3. Building Routing Manifests.md",
-    "Cranium/docs/architecture/0. Engine/2.1 Source Classifier & Clustering.md",
-    "Cranium/docs/architecture/0. Engine/2. Source Page Generation, Region Content Hashing & Duplication Skip.md",
-    "Cranium/docs/architecture/0. Engine/1. Data Connection & Acquisition.md",
-    "Cranium/docs/architecture/0. Engine/Primitives/2. Community Summaries.md",
-    "Cranium/docs/architecture/0. Engine/Primitives/5. Drift Log",
-    "Cranium/docs/architecture/0. Engine/Primitives/4. Graph Link Index",
-    "Cranium/docs/architecture/0. Engine/Primitives/3. Atomic Pages",
-    "Cranium/docs/architecture/0. Engine/Primitives/2. Community Summaries",
-    "Cranium/docs/architecture/0. Engine/Primitives/1. Routing Manifests",
-    "Cranium/docs/architecture/0. Engine/Primitives/1. Routing Manifest.md",
-    "Cranium/pages/hybrid-source-dual-hash.md",
-    "Cranium/pages/native-source-drift.md",
-    "Meta/pages/source-class-taxonomy.md",
+    "Cranium/docs/architecture/0. Engine/0. Primitives/5. Drift Log/1. Interactions/Weighted Drift Priority Queue.md",
+    "Cranium/docs/architecture/0. Engine/1. Interactions/1. Construction/4. Cross Link Resolution & Hub Disambiguation.md",
+    "Cranium/docs/architecture/0. Engine/1. Interactions/1. Construction/3. Community & Cluster Summaries.md",
+    "Cranium/docs/architecture/0. Engine/1. Interactions/1. Construction/2. Classifier.md",
+    "Cranium/docs/architecture/0. Engine/0. Implementation Considerations.md",
+    "Cranium/docs/architecture/0. Engine/1. Interactions/1. Ingestion/0. Ingestion Lifecycle.md",
+    "Cranium/docs/architecture/0. Engine/1. Interactions/1. Construction",
+    "Cranium/docs/architecture/0. Engine/1. Interactions/0. Retrieval/Retrieval Ranking.md",
+    "Cranium/docs/architecture/0. Engine/0. Primitives/5. Drift Log/1. Interactions",
+    "Cranium/docs/architecture/0. Engine/0. Primitives/5. Drift Log/1. Interactions.md",
+    "Cranium/docs/architecture/0. Engine/0. Primitives/3. Atomic Pages/1. Interactions/Synthesis Generation.md",
+    "Cranium/docs/architecture/0. Engine/1. Interactions/0. Retrieval",
+    "Cranium/docs/architecture/0. Engine/1. Interactions",
+    "Cranium/docs/architecture/0. Engine/0. Primitives/4. Graph Link Index/1. Interactions/Contradiction Resolution and Superceding.md",
+    "Cranium/docs/architecture/0. Engine/0. Primitives/4. Graph Link Index/1. Interactions",
+    "Cranium/docs/architecture/0. Engine/0. Primitives/3. Atomic Pages/2. Types",
+    "Cranium/docs/architecture/0. Engine/0. Primitives/3. Atomic Pages/1. Interactions",
+    "Cranium/docs/architecture/0. Engine/Primitives/3. Atomic Pages/1. Promotion",
+    "Cranium/docs/architecture/0. Engine/0. Primitives/3. Atomic Pages/0. Frontmatter",
+    "Cranium/log.md.tmp.1992099.c12c2ae3aaf1",
+    "Untitled.canvas",
     "Cranium/docs/architecture/wiki engine/Untitled.canvas",
     "17.png",
     "notion-logo-2.png",

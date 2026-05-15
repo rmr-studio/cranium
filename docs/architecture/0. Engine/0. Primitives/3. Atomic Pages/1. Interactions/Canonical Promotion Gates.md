@@ -1,0 +1,3 @@
+### Overview
+A page is only able to be referenced by other pages if it is a [[1. Canonical Page]]. A type of atomic page that is the end result of a promotion gate. Where synthesis pages are `promoted` to a state where they can be cited, and surfaced as a primary source of information during queries. This only happens in the following conditions
+- The page itself is considered to be of high confidence. This is where the average [[Confidence]] weighting of every source cited to generate a synthesis is greater than a defined threshold 

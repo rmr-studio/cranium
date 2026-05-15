@@ -1,6 +1,7 @@
 ---
 tags:
   - wiki-layer-2
+  - wiki-ingestion-pass-2
 ---
 
 **Overview**
@@ -14,7 +15,7 @@ Community summaries are pre-computed summaries of a cluster of related entities,
 		- Directory Structure
 		- CODEOWNERS (ie. Relevant parties who own/associated with a page)
 
-typically within a domain and is the result of an aggregation and computation of atomic pages and source materials, produced by an LLM at index time. It sits at the root index of a particular domain and is the step in-between it and atomic chunks [[5. Atomic Page Synthesis]]
+typically within a domain and is the result of an aggregation and computation of atomic pages and source materials, produced by an LLM at index time. It sits at the root index of a particular domain and is the step in-between it and atomic chunks [[5 - Atomic Page Synthesis]]
 It acts as a first context layer when performing information retrieval through queries or cross linking (ie. Query time) to ensure that the model never needs to go through and manually scan raw chunks of information when answering global questions
 
 This is an abstract concept explored in graph based RAG systems such as

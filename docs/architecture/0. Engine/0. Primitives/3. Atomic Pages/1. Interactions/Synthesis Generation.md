@@ -1,0 +1,2 @@
+### Confidence Resolution
+Clustered sources are passed to the synthesiser when making a new page. All of these sources carry their associated weighting, So when clustered sources have conflicting claims. Higher weighted sources are prioritised when extracting information, where as lower weight sources will just be a side note `also noted`

@@ -1,2 +1,0 @@
-**Attributes**
-- `confidence_score` 

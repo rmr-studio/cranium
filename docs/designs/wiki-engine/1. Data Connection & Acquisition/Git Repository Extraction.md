@@ -151,7 +151,7 @@ JGit walks the repository tree. A filter layer drops noise (generated code, vend
 | --- | --- | --- |
 | [[SourceConnector]] interface | Register Git as a connector type | Low — additive |
 | [[Page Generation]] | Consume `ExtractionRecord` events; map record kinds → page kinds | Medium — new mapping rules |
-| [[2. Source Page Generation, Region Content Hashing & Duplication Skip]] | Wire `content_hash` flow into `/wiki-lint` decay check | Low — already designed for this |
+| [[1 - Source Page Generation, Region Content Hashing & Duplication Skip]] | Wire `content_hash` flow into `/wiki-lint` decay check | Low — already designed for this |
 
 ### Component Interaction Diagram
 
@@ -514,7 +514,7 @@ No existing data; net-new feature. Backfill happens organically as workspaces re
 
 - [[0. Shared Extraction Interface]]
 - [[Knowledge Base Extraction]]
-- [[2. Source Page Generation, Region Content Hashing & Duplication Skip]]
+- [[1 - Source Page Generation, Region Content Hashing & Duplication Skip]]
 - [[Wiki Engine — Pipeline Overview]]
 
 ---

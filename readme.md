@@ -1,7 +1,3 @@
-<p align="center">
-<img src="https://cdn.riven">
-</p>
-
 # Cranium
 
 [Cranium](https://cranium.sh) is the allignment substrate for AI-Augmented engineering teams. Infrastructure that embeds system design, team standards and interactions as context for agentic development and orchestration.
@@ -62,10 +58,3 @@ GitHub org  ── read-only PAT (scan)  ──┐         GitHub App (PR bot on
 └──────────────────────────────────────────────────────────────┘
 ```
 
-## Docs
-
-- [`docs/architecture/overview.md`](docs/architecture/overview.md) — layer model, data model, invariants
-- [`docs/architecture/page-kinds.md`](docs/architecture/page-kinds.md) — per-kind detail
-- [`docs/architecture-pivot.md`](docs/architecture-pivot.md) — the 2026-05 pivot record and locked decisions
-- [`docs/decisions/`](docs/decisions/) — ADRs (Cranium dogfoods its own ADR parser on this directory)
-- [`docs/flows/`](docs/flows/) — end-to-end flow docs

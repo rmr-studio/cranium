@@ -1,0 +1,5 @@
+- Documentation Extractor vs regular MD File
+- Codegen Filtering
+- Domain Scope
+- Feature Identification
+- Patterns + Standards Detection

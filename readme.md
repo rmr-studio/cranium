@@ -4,26 +4,28 @@ Cranium is the allignment substrate for AI-Augmented engineering teams. Infrastr
 
 Derived from Karpathy's "LLM-maintained wiki" pattern, scaled to a team and grounded in a real codebases, system designs, conversations and team knowledge.
 
+[In the process of restructuring architecture to support functionality]
+
 ## Features
 
-- [x] Self Adapting Knowledge Base
-  - [x] Active Signal Suggestions
-- [x] Team Ecosystem Managament
-  - [x] System Ownership
-  - [x] Subject Matter Expert Mapping
-- [x] System Architecture Management
-  - [x] Automatic PR Reviews to maintain system consistency
-  - [x] Live System Design Map
-  - [x] Architectural Decision Records
-  - [x] Codebase Quality Standards
-- [x] MCP Context Injection
+- [] Self Adapting Knowledge Base
+  - [] Active Signal Suggestions
+- [] Team Ecosystem Managament
+  - [] System Ownership
+  - [] Subject Matter Expert Mapping
+- [] System Architecture Management
+  - [] Automatic PR Reviews to maintain system consistency
+  - [] Live System Design Map
+  - [] Architectural Decision Records
+  - [] Codebase Quality Standards
+- [] MCP Context Injection
 
 ## How it works
 
 Three layers, one direction of flow:
 
 ```
-GitHub org  ── read-only PAT (scan)  ──┐         GitHub App (PR bot only)
+GitHub org  ──                       ──┐         GitHub App (PR bot only)
                                        ▼
 ┌─ SOURCE LAYER ───────────────────────────────────────────────┐
 │ Deterministic parsers — no LLM. content_hash + skip-if-      │

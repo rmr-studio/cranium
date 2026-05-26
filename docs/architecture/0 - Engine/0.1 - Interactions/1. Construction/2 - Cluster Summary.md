@@ -106,7 +106,7 @@ The Pass-4-triggered re-cluster is the bridge between our mechanical-clustering 
 
 - Pass-level gating model → [[0.1 - Pass Routing & Eligibility]]
 - Labels consumed as inputs → [[1.2 - Source Classifier & Clustering]]
-- Source primitive → [[0. Source File]]
+- Source primitive → [[0.0.0 - Source File]]
 - What Pass 3 does with the manifest → [[3 - Atomic Page Synthesis]]
 - Cross-domain edge materialisation that may trigger re-cluster → [[4 - Graph Linking Materialisation]]
 - Hub detection that builds on manifest edges → [[4.1  - Hub Detection]]

@@ -11,24 +11,10 @@
             "id": "7c2327886e8b5634",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "architecture/0 - Engine/temp.md",
-                "mode": "source",
-                "source": false,
-                "backlinks": true,
-                "backlinkOpts": {
-                  "collapseAll": false,
-                  "extraContext": false,
-                  "sortOrder": "alphabetical",
-                  "showSearch": false,
-                  "searchQuery": "",
-                  "backlinkCollapsed": false,
-                  "unlinkedCollapsed": true
-                }
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "temp"
+              "title": "New tab"
             }
           }
         ]
@@ -207,13 +193,8 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "active": "805264bbde47ee8c",
+  "active": "7c2327886e8b5634",
   "lastOpenFiles": [
-    "decisions/README.md",
-    "architecture/0 - Engine/temp2.md",
-    "architecture/0 - Engine/0.1 - Interactions/1. Construction/0 - Data Connection & Acquisition.md",
-    "architecture/0 - Engine/0.1 - Interactions/1. Construction/5 - Aggregation and Indexing Community Summary.md",
-    "architecture/0 - Engine/0.1 - Interactions/1. Construction/6 - Linting and Drift Detection.md",
     "wiki",
     "architecture/0 - Engine/0.2 - Designs/0.2.2 - Classification/Git Clasiffier.md",
     "architecture/0 - Engine/0.2 - Designs/0.2.2 - Classification/0.2.2.0 - Shared Interface.md",
@@ -240,6 +221,10 @@
     "Cranium/docs/readme.md",
     "Cranium/docs/diagrams/Untitled",
     "Cranium/docs/diagrams",
+    "Cranium/docs/architecture/0 - Engine/0.2 - Designs/0.2.0 - Acquisition & Conversion/0.2.0.3 - Slack Channel Conversion.md",
+    "Cranium/docs/architecture/0 - Engine/0.2 - Designs/0.2.0 - Acquisition & Conversion/0.2.0.2 - Knowledge Base Conversion.md",
+    "Cranium/docs/architecture/0 - Engine/0.2 - Designs/0.2.0 - Acquisition & Conversion/0.2.0.1 - Git Repository Conversion.md",
+    "Cranium/docs/architecture/0 - Engine/0.2 - Designs/0.2.0 - Acquisition & Conversion/0.2.0.0 - Shared Interface.md",
     "Cranium/docs/architecture/0 - Engine/0.2 - Designs/0.2.4 - Multi Domain Linking",
     "Cranium/docs/architecture/1 - Integrations/1.1 - Documents/1.2.2 - Designs",
     "Cranium/docs/architecture/1 - Integrations/1.1 - Documents/1.1.1 - Interactions",
@@ -247,6 +232,7 @@
     "Cranium/docs/architecture/1 - Integrations/1.0 - Git/1.0.2 - Designs",
     "Cranium/docs/architecture/1 - Integrations/1.0 - Git/1.0.1 - Interactions",
     "Cranium/docs/architecture/1 - Integrations/1.0 - Git/1.0.0 - Primitives",
+    "Cranium/docs/architecture/1 - Integrations/1.1 - Documents",
     "_Attachments/Pasted Image 20260524102851_150.png",
     "_Attachments/Pasted Image 20260524102843_418.png",
     "_Attachments/Pasted Image 20260524102834_892.png",

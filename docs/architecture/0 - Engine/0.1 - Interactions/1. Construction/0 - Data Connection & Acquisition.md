@@ -6,9 +6,9 @@ tags:
 Ingestion of source material from external systems to build the initial source of truth before atomic pages are generated from the derived information and semantic extraction
 
 ## Associated Designs
-[[Cranium/docs/architecture/0 - Engine/0.2 - Designs/0.2.0 - Acquisition & Conversion/0. Shared Interface]]
-[[Knowledge Base Conversion]]
-[[Git Repository Conversion]]
+[[0.2.0.0 - Shared Interface]]
+[[0.2.0.2 - Knowledge Base Conversion]]
+[[0.2.0.1 - Git Repository Conversion]]
 - Github
 - Slack/Mattermost
 - Confluence/Notion

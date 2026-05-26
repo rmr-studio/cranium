@@ -4,7 +4,7 @@ Cranium is the allignment substrate for AI-Augmented engineering teams. Infrastr
 
 Derived from Karpathy's "LLM-maintained wiki" pattern, scaled to a team and grounded in a real codebases, system designs, conversations and team knowledge.
 
-[In the process of restructuring architecture to support functionality]
+> **Note**: This implementation is under active reconstruction to suppoort pivot of capabilities and is no longer deployable
 
 ## Features
 
@@ -59,4 +59,3 @@ GitHub org  ──                       ──┐         GitHub App (PR bot on
 │ PR bot                                                       │
 └──────────────────────────────────────────────────────────────┘
 ```
-

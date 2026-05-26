@@ -1,6 +1,6 @@
 # Cranium
 
-[Cranium](https://cranium.sh) is the allignment substrate for AI-Augmented engineering teams. Infrastructure that embeds system design, team standards and interactions as context for agentic development and orchestration.
+Cranium is the allignment substrate for AI-Augmented engineering teams. Infrastructure that embeds system design, team standards and interactions as context for agentic development and orchestration.
 
 Derived from Karpathy's "LLM-maintained wiki" pattern, scaled to a team and grounded in a real codebases, system designs, conversations and team knowledge.
 

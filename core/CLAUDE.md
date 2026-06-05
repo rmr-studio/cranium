@@ -98,6 +98,7 @@ Multi-tenant workspace-scoped backend API for a configurable data platform with 
 - **Unit test profile:** `application-test.yml` uses H2 in PostgreSQL-compat mode with `ddl-auto: create-drop`.
 - **Run tests:** `./gradlew test`
 - **Always test:** Service methods with `@PreAuthorize` (verify access control), validation logic, entity-to-model mappings for new entities, and any custom JPQL/native queries.
+- **Test Coverage** - When generating test, focus on identifying all edge cases and issues that may arise with a function.
 
 ## Database and Persistence
 
@@ -282,7 +283,6 @@ Key routing rules:
 - QA, test the site, find bugs → invoke qa
 - Code review, check my diff → invoke review
 - Update docs after shipping → invoke document-release
-- Weekly retro → invoke retro
 - Design system, brand → invoke design-consultation
 - Visual audit, design polish → invoke design-review
 - Architecture review → invoke plan-eng-review

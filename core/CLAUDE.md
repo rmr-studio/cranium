@@ -2,15 +2,6 @@
 
 Multi-tenant workspace-scoped backend API for a configurable data platform with block-based content, user-defined entity schemas, and DAG-based workflow automation. Built with Spring Boot 3.5.3, Kotlin 2.1.21, Java 21, PostgreSQL (JSONB), Supabase (auth + storage), and Temporal (workflow execution).
 
-**Domains:**
-
-- **Block** — Content system: versioned block types with JSON schemas, block trees, layouts, and environment state.
-- **Entity** — User-defined data model: entity types with dynamic schemas, typed attributes, relationships, and query engine.
-- **Workflow** — DAG-based automation: definitions, versioned graphs, node execution via Temporal, queue-based dispatch.
-- **Workspace** — Multi-tenancy: workspace CRUD, membership, role-based access, invitations.
-- **User** — Auth integration: Supabase JWT, profile management.
-- **Activity** — Audit trail: operation logging across all domains.
-
 **External integrations:** Supabase (JWT auth, file storage), Temporal Server (workflow orchestration), PostgreSQL (RLS-enabled).
 
 ## Architecture Rules
